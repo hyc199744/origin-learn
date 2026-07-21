@@ -269,10 +269,7 @@
       try{ localStorage.setItem(OKEY,JSON.stringify(arr.slice(0,40))); }catch(e){}
     }
     const PAYCSS='<style>.rcopy{font:inherit;font-size:11px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:5px;padding:3px 10px;white-space:nowrap}.rcopy:hover{border-color:var(--gold)}.rqr img,.rqr canvas{margin:0 auto;border:6px solid #fff;border-radius:8px}</style>';
-    async function bindTime(user){
-      try{ const j=await fetch(API+"/bindtime?addr="+user.toLowerCase()).then(r=>r.json());
-        return (j&&j.ok&&j.time)?new Date(j.time*1000):null; }catch(e){ return null; }
-    }
+    function fmtTime(ts){ return ts?new Date(ts*1000).toLocaleString("zh-CN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"未查到"; }
     const b=M("查推荐人（绑定关系）",`
       <div class="calc">
         <div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button id="rMine" style="font:inherit;font-size:12px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--gold-lt);border-radius:7px;padding:5px 13px">📋 我的订单 / 查付款</button></div>
@@ -313,14 +310,16 @@
         if(c&&c.status==="paid"&&c.referrer){
           clearInterval(timer);
           const rf=b.querySelector("#rRef"); if(rf) rf.textContent=short(c.referrer);
-          showPaid(el,c.referrer);
+          const tEl=b.querySelector("#rTime b"); if(tEl){ tEl.style.color=""; tEl.textContent=fmtTime(c.bindTime); }
+          showPaid(el,c.referrer,c.bindTime);
         }
       }, 5000);
     }
-    function showPaid(el,ref){
+    function showPaid(el,ref,bt){
       el.innerHTML=PAYCSS+
         `<div class="cstat"><span style="color:#8fbf78">✓ 已付款 · 完整推荐人地址</span></div>`+
-        `<div style="display:flex;align-items:center;gap:8px;margin:6px 0 2px"><code style="font-family:var(--mono);color:var(--bone);word-break:break-all;flex:1;font-size:13px">${ref}</code><button class="rcopy" data-c="${ref}" data-l="复制完整地址">复制完整地址</button></div>`;
+        `<div style="display:flex;align-items:center;gap:8px;margin:6px 0 6px"><code style="font-family:var(--mono);color:var(--bone);word-break:break-all;flex:1;font-size:13px">${ref}</code><button class="rcopy" data-c="${ref}" data-l="复制完整地址">复制完整地址</button></div>`+
+        `<div class="cstat"><span>绑定时间</span><b style="font-size:13px">${fmtTime(bt)}</b></div>`;
       el.querySelector(".rcopy").onclick=(ev)=>{copyText(ref);ev.target.textContent="已复制 ✓";setTimeout(()=>ev.target.textContent="复制完整地址",1200);};
     }
     async function go(){
@@ -335,9 +334,8 @@
       if(!d.hasRef){ out.innerHTML='<div class="cstat"><span>这个地址<b style="color:var(--gold-lt)">还没有绑定推荐人</b>（或还没加入社区）</span></div>'; return; }
       out.innerHTML=
         `<div class="cstat"><span>推荐人（上级）</span><b class="up" id="rRef" style="font-family:var(--mono);font-size:14px">${d.masked}</b></div>`+
-        `<div class="cstat" id="rTime"><span>绑定时间</span><b style="font-size:14px">查询中…</b></div>`+
+        `<div class="cstat" id="rTime"><span>绑定时间</span><b style="font-size:14px;color:var(--muted)">🔒 支付后显示</b></div>`+
         `<div id="rUnlock" style="margin-top:14px"></div>`;
-      bindTime(a).then(dt=>{const el=out.querySelector("#rTime b"); if(el) el.textContent=dt?dt.toLocaleString("zh-CN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"未查到（可能是很早或迁移绑定）";});
       renderUnlock();
     }
     function renderUnlock(){
@@ -385,7 +383,7 @@
         catch(e){ fo.innerHTML='<div class="cstat"><span style="color:#e0705f">查询失败，稍后再试</span></div>'; return; }
         if(!c||c.ok===false){ fo.innerHTML='<div class="cstat"><span style="color:#e0705f">没找到这个订单号（检查是否粘贴完整）</span></div>'; return; }
         if(c.status==="paid"&&c.referrer){
-          fo.innerHTML=PAYCSS+'<div style="border:1px solid var(--line);border-radius:10px;padding:12px"><div class="cstat"><span style="color:#8fbf78">✓ 已付款 · 完整推荐人</span></div><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><code style="font-family:var(--mono);color:var(--bone);word-break:break-all;flex:1;font-size:12.5px">'+c.referrer+'</code><button class="rcopy" data-c="'+c.referrer+'" data-l="复制">复制</button></div></div>';
+          fo.innerHTML=PAYCSS+'<div style="border:1px solid var(--line);border-radius:10px;padding:12px"><div class="cstat"><span style="color:#8fbf78">✓ 已付款 · 完整推荐人</span></div><div style="display:flex;align-items:center;gap:8px;margin:4px 0 6px"><code style="font-family:var(--mono);color:var(--bone);word-break:break-all;flex:1;font-size:12.5px">'+c.referrer+'</code><button class="rcopy" data-c="'+c.referrer+'" data-l="复制">复制</button></div><div class="cstat"><span>绑定时间</span><b style="font-size:12.5px">'+fmtTime(c.bindTime)+'</b></div></div>';
           fo.querySelector(".rcopy").onclick=(ev)=>{copyText(c.referrer);ev.target.textContent="已复制✓";setTimeout(()=>ev.target.textContent="复制",1200);};
         } else { fo.innerHTML='<div class="cstat"><span style="color:var(--gold-lt)">● 该订单还没到账（待付款）</span></div>'; }
       }
@@ -398,7 +396,7 @@
       try{ c=await fetch(API+"/checkpay?order="+o.orderId).then(r=>r.json()); }
       catch(e){ card.innerHTML='<span style="font-size:12px;color:#e0705f">网络错误，稍后重试</span>'; return; }
       if(c&&c.status==="paid"&&c.referrer){
-        card.innerHTML=PAYCSS+`<div class="cstat"><span style="color:#8fbf78">✓ 已付款 · 完整推荐人</span></div><div style="display:flex;align-items:center;gap:8px;margin-top:4px"><code style="font-family:var(--mono);color:var(--bone);word-break:break-all;flex:1;font-size:12.5px">${c.referrer}</code><button class="rcopy" data-c="${c.referrer}" data-l="复制">复制</button></div>`;
+        card.innerHTML=PAYCSS+`<div class="cstat"><span style="color:#8fbf78">✓ 已付款 · 完整推荐人</span></div><div style="display:flex;align-items:center;gap:8px;margin:4px 0 6px"><code style="font-family:var(--mono);color:var(--bone);word-break:break-all;flex:1;font-size:12.5px">${c.referrer}</code><button class="rcopy" data-c="${c.referrer}" data-l="复制">复制</button></div><div class="cstat"><span>绑定时间</span><b style="font-size:12.5px">${fmtTime(c.bindTime)}</b></div>`;
         card.querySelector(".rcopy").onclick=(ev)=>{copyText(c.referrer);ev.target.textContent="已复制✓";setTimeout(()=>ev.target.textContent="复制",1200);};
       } else {
         card.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><span style="font-size:12.5px;color:var(--gold-lt)">● 待付款</span><button class="rcont" style="font:inherit;font-size:12px;cursor:pointer;background:linear-gradient(180deg,#c9313a,#8f0c11);color:#fff;border:1px solid #7a0b12;border-radius:7px;padding:5px 14px">查看付款方式</button></div>`;
