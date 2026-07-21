@@ -507,4 +507,158 @@
     b.querySelector("#ccSearch").addEventListener("input",e=>{ kw=e.target.value.trim().toLowerCase(); render(); });
     render();
   };
+
+  /* ========== 11) 钱包监控 · 链上体检 ========== */
+  window.openWalletMonitor=function(){
+    const API="https://count.web3origin.com";
+    // 已知地址标签（复用合约库 + 手工要点，仅公开信息）
+    const KNOWN={};
+    (window.CONTRACTS||[]).forEach(c=>{ KNOWN[c.addr.toLowerCase()]=c.name+"（"+c.chain+"合约）"; });
+    Object.assign(KNOWN,{
+      "0x5e4e7cadb7c3d10e3bc96fb830a724448d9b4351":"起源合约部署钱包",
+      "0xe979f492f934556c56fb9c1f6a82fecc7abb867e":"项目管理钱包",
+      "0x7b9b7d4f870a38e92c9a181b00f9b33cc8ef5321":"起源主国库",
+      "0x1964ca90474b11ffd08af387b110ba6c96251bfc":"起源质押池",
+      "0x882df4b0fb50a229c3b4124eb18c759911485bfb":"LGNS/DAI 底池",
+      "0x6757165973042541ebdec47b73283397b5afd90e":"社区合约",
+    });
+    const label=a=>a?(KNOWN[a.toLowerCase()]||null):null;
+    const exAddr=(a,ch)=>(ch==="Anubis"?"https://browser.anubispace.org/address/":"https://polygonscan.com/address/")+a;
+    const exTx=(h,ch)=>(ch==="Anubis"?"https://browser.anubispace.org/tx/":"https://polygonscan.com/tx/")+h;
+    const fmtT=ts=>{ if(!ts) return "—"; const d=new Date(ts*1000); const p=n=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes()); };
+    const n2=x=>{ x=Number(x)||0; return x>=1?x.toLocaleString("en-US",{maximumFractionDigits:2}):x.toLocaleString("en-US",{maximumFractionDigits:6}); };
+    function actType(m){ m=(m||"").toLowerCase(); if(!m) return null;
+      if(m.includes("approve")||m==="0x095ea7b3") return "授权 Approve";
+      if(m.includes("unstake")||m==="0x2e17de78") return "解押 Unstake";
+      if(m.includes("stake")||m==="0xa694fc3a") return "质押 Stake";
+      if(m.includes("swap")) return "兑换 Swap";
+      if(m.includes("addliquidity")) return "添加流动性";
+      if(m.includes("removeliquidity")) return "移除流动性";
+      if(m.includes("bridge")) return "跨链 Bridge";
+      if(m.includes("claim")||m==="0x4e71d92d") return "领取 Claim";
+      if(m.includes("deposit")) return "存入 Deposit";
+      if(m.includes("redeem")) return "赎回 Redeem";
+      if(m.includes("mint")) return "铸造 Mint";
+      if(m.includes("burn")) return "销毁 Burn";
+      if(m.includes("transfer")||m==="0xa9059cbb") return "转账 Transfer";
+      return "合约交互"; }
+    const CSS=`<style>
+      .wmtabs{display:flex;gap:8px;margin:0 0 10px}
+      .wmtab{font:inherit;font-size:13px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:6px 18px}
+      .wmtab.on{background:linear-gradient(180deg,#2a1410,#1a0d0a);color:var(--gold-lt);border-color:var(--gold)}
+      #wmAddr{width:100%;font:inherit;font-size:13px;background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:10px 12px;margin-bottom:9px}
+      .wmcard{background:rgba(214,168,75,.04);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+      .wmhd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+      .wmscore{text-align:center;flex:0 0 auto}
+      .wmscore b{font-size:30px;font-family:var(--mono);display:block;line-height:1}
+      .wmscore span{font-size:11px;color:var(--muted)}
+      .wmgrp{font-family:var(--serif,serif);color:var(--gold-lt);font-size:13.5px;margin:2px 0 8px}
+      .wmasset{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+      .wmasset .a{display:flex;justify-content:space-between;border-bottom:1px solid rgba(214,168,75,.06);padding:3px 0}
+      .wmasset .a span{color:var(--muted)} .wmasset .a b{font-family:var(--mono);color:var(--bone)}
+      .wmtl{border-left:2px solid var(--line);margin-left:6px;padding-left:14px}
+      .wmev{position:relative;padding:8px 0;border-bottom:1px solid rgba(214,168,75,.05)}
+      .wmev::before{content:"";position:absolute;left:-19px;top:13px;width:7px;height:7px;border-radius:50%;background:var(--gold)}
+      .wmev.in::before{background:#8fbf78} .wmev.out::before{background:#e0a24f}
+      .wmev .t{font-size:11px;color:var(--muted)} .wmev .d{font-size:13px;color:var(--soft);margin-top:2px}
+      .wmev .d a{color:var(--gold-lt)}
+      .wmrisk{font-size:12.5px;color:var(--soft);line-height:1.7;padding:9px 11px;border-radius:8px;margin-bottom:6px}
+      .wmrisk.warn{background:rgba(224,112,95,.08);border:1px solid rgba(224,112,95,.3)}
+      .wmrisk.ok{background:rgba(143,191,120,.07);border:1px solid rgba(143,191,120,.25);color:var(--green)}
+      .wmpill{font-size:11px;padding:1px 8px;border-radius:5px;border:1px solid var(--line);color:var(--soft);margin-left:6px}
+    </style>`;
+    const b=M("钱包监控 · 链上体检",CSS+`
+      <div>
+        <p class="calc-note" style="margin:0 0 10px">输入任意钱包地址，站内读取<b style="color:var(--gold-lt)">公开链上数据</b>：这个钱包是谁、持有什么、做过什么、有没有风险。<b>只读公开数据，永远不需要助记词/私钥。</b></p>
+        <div class="wmtabs">
+          <button class="wmtab on" data-c="polygon">Polygon</button>
+          <button class="wmtab" data-c="anubis">Anubis</button>
+        </div>
+        <input id="wmAddr" placeholder="0x… 粘贴一个钱包地址" spellcheck="false">
+        <button class="claim2" id="wmGo">开始体检</button>
+        <div id="wmOut" style="margin-top:14px"></div>
+      </div>`);
+    let chain="polygon";
+    const out=b.querySelector("#wmOut");
+    b.querySelectorAll(".wmtab").forEach(t=>t.onclick=()=>{ b.querySelectorAll(".wmtab").forEach(x=>x.classList.remove("on")); t.classList.add("on"); chain=t.dataset.c; });
+    function riskScore(d){
+      let score=100, flags=[];
+      const unl=(d.approvals||[]).filter(a=>a.unlimited);
+      if(unl.length){ score-=Math.min(unl.length*15,55); flags.push({warn:true,txt:`发现 ${unl.length} 笔<b>无限授权</b>：${unl.map(a=>a.token).join("、")}。建议到钱包/浏览器检查并撤销不再使用的授权。`}); }
+      const lim=(d.approvals||[]).filter(a=>!a.unlimited).length;
+      if(lim) flags.push({warn:false,txt:`另有 ${lim} 笔限额授权（正常）。`});
+      // 大额转出（LGNS ≥ 1000 视为大额）
+      const bigOut=(d.transfers||[]).filter(t=>t.dir==="out"&&/LGNS/i.test(t.token||"")&&t.amount>=1000);
+      if(bigOut.length){ score-=10; flags.push({warn:true,txt:`近期有 ${bigOut.length} 笔 <b>≥1000 LGNS 的转出</b>，留意是否本人操作。`}); }
+      if(!unl.length&&!bigOut.length) flags.push({warn:false,txt:"未发现无限授权或异常大额转出。"});
+      score=Math.max(score,10);
+      return {score,flags};
+    }
+    async function go(){
+      const a=b.querySelector("#wmAddr").value.trim().toLowerCase();
+      if(!isAddr(a)){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">地址格式不对，应是 0x 开头 42 位</span></div>'; return; }
+      out.innerHTML='<div class="cstat"><span>正在读取链上数据…（首次约 5–8 秒）</span></div>';
+      let d;
+      try{ d=await fetch(API+"/wallet?chain="+chain+"&addr="+a).then(r=>r.json()); }
+      catch(e){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">读取失败，稍后再试</span></div>'; return; }
+      if(!d||!d.ok){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">读取失败，稍后再试</span></div>'; return; }
+      const ch=d.chain, lb=label(a);
+      const {score,flags}=riskScore(d);
+      const scoreColor=score>=80?"#8fbf78":score>=50?"var(--gold-lt)":"#e0705f";
+      const scoreTxt=score>=80?"低风险":score>=50?"中风险":"偏高风险";
+      // 资产
+      const toks=(d.tokens||[]).filter(t=>t.amount>0);
+      let assetHtml=`<div class="a"><span>${d.native.sym}（原生）</span><b>${n2(d.native.amount)}</b></div>`;
+      toks.forEach(t=>{ assetHtml+=`<div class="a"><span>${t.sym}</span><b>${n2(t.amount)}</b></div>`; });
+      if(!toks.length) assetHtml+=`<div class="a"><span style="color:var(--muted)">未持有已知代币</span><b></b></div>`;
+      const staked=(toks.find(t=>/sLGNS/i.test(t.sym))||{}).amount||0;
+      // 时间线（合并转账+交易，按hash归并）
+      const byHash={};
+      (d.transfers||[]).forEach(t=>{ (byHash[t.hash]=byHash[t.hash]||{ts:t.ts,moves:[],method:null}).moves.push(t); });
+      (d.txs||[]).forEach(t=>{ const e=byHash[t.hash]=byHash[t.hash]||{ts:t.ts,moves:[],method:null}; e.method=t.method; e.isError=t.isError; });
+      const events=Object.entries(byHash).map(([h,e])=>({hash:h,...e})).sort((x,y)=>y.ts-x.ts).slice(0,18);
+      let tlHtml="";
+      events.forEach(e=>{
+        let dir="", desc="";
+        if(e.moves.length){
+          const inMoves=e.moves.filter(m=>m.dir==="in"), outMoves=e.moves.filter(m=>m.dir==="out");
+          dir = outMoves.length&&!inMoves.length?"out":inMoves.length&&!outMoves.length?"in":"";
+          desc = e.moves.map(m=>{ const other=m.dir==="in"?m.from:m.to; const ol=label(other); return `<b style="color:${m.dir==='in'?'#8fbf78':'#e0a24f'}">${m.dir==="in"?"转入":"转出"} ${n2(m.amount)} ${m.token||""}</b> ${m.dir==="in"?"来自":"至"} ${ol?`<span class="wmpill">${ol}</span>`:`<a href="${exAddr(other,ch)}" target="_blank" class="mono">${short(other)}</a>`}`; }).join("　");
+        }
+        const at=actType(e.method);
+        if(at&&(!e.moves.length||at!=="转账 Transfer")) desc=(desc?desc+"　":"")+`<span class="wmpill">${at}</span>`;
+        if(!desc) desc=`合约交互 <a href="${exTx(e.hash,ch)}" target="_blank">查看 ↗</a>`;
+        if(e.isError) desc+=` <span style="color:#e0705f">(失败)</span>`;
+        tlHtml+=`<div class="wmev ${dir}"><div class="t">${fmtT(e.ts)} · <a href="${exTx(e.hash,ch)}" target="_blank" style="color:var(--muted)">${e.hash.slice(0,10)}…</a></div><div class="d">${desc}</div></div>`;
+      });
+      if(!tlHtml) tlHtml='<div class="wmev"><div class="d" style="color:var(--muted)">最近没有可显示的活动</div></div>';
+      out.innerHTML=`
+        <div class="wmcard">
+          <div class="wmhd">
+            <div>
+              <div style="font-family:var(--serif,serif);font-size:15px;color:var(--bone)">${lb?lb:"钱包地址"} <span class="wmpill">${ch}</span></div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--soft);margin:4px 0;word-break:break-all">${a} <button class="cccopy" style="font:inherit;font-size:10px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:4px;padding:1px 7px" data-c="${a}">复制</button></div>
+              <div style="font-size:12px;color:var(--muted)">${d.isContract?"合约地址":"普通钱包"}${d.firstTs?" · 首次活动 "+fmtT(d.firstTs):""} · <a href="${exAddr(a,ch)}" target="_blank" style="color:var(--gold-lt)">浏览器 ↗</a></div>
+            </div>
+            <div class="wmscore"><b style="color:${scoreColor}">${score}</b><span>风险评分<br>${scoreTxt}</span></div>
+          </div>
+        </div>
+        <div class="wmcard">
+          <div class="wmgrp">资产总览</div>
+          <div class="wmasset">${assetHtml}</div>
+          ${staked>0?`<div style="font-size:12px;color:var(--muted);margin-top:8px">其中质押凭证 sLGNS ${n2(staked)}（≈质押中的 LGNS）</div>`:""}
+        </div>
+        <div class="wmcard">
+          <div class="wmgrp">风险监控</div>
+          ${flags.map(f=>`<div class="wmrisk ${f.warn?'warn':'ok'}">${f.warn?'⚠️ ':'✓ '}${f.txt}</div>`).join("")}
+        </div>
+        <div class="wmcard">
+          <div class="wmgrp">最近活动时间线</div>
+          <div class="wmtl">${tlHtml}</div>
+        </div>`;
+      out.querySelectorAll(".cccopy").forEach(btn=>btn.onclick=()=>{copyText(btn.dataset.c);btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1000);});
+    }
+    b.querySelector("#wmGo").onclick=go;
+    b.querySelector("#wmAddr").addEventListener("keydown",e=>{if(e.key==="Enter")go();});
+  };
 })();
