@@ -290,7 +290,8 @@
     function showPay(el,o){
       el.innerHTML=PAYCSS+`
         <div style="background:rgba(214,168,75,.06);border:1px solid rgba(214,168,75,.3);border-radius:12px;padding:16px">
-          <div style="font-family:var(--serif,serif);color:var(--gold-lt);margin-bottom:12px;font-size:15px">支付解锁 · 完整推荐人地址</div>
+          <div style="font-family:var(--serif,serif);color:var(--gold-lt);margin-bottom:6px;font-size:15px">支付解锁 · 完整推荐人地址 + 绑定时间</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px">到账后自动显示：上级完整钱包地址、绑定时间</div>
           <div class="cstat"><span>精确金额 <i style="color:#e0a24f;font-style:normal">务必一分不差</i></span><b style="font-family:var(--mono);font-size:15px">${o.amount} LGNS</b></div>
           <div style="display:flex;gap:8px;margin:6px 0 12px;align-items:center;flex-wrap:wrap"><button class="rcopy" data-c="${o.amount}" data-l="复制金额">复制金额</button><span style="font-size:11px;color:var(--muted)">⚠️ 照抄这个金额（含小数），别转成整数 2</span></div>
           <div class="cstat" style="margin-bottom:4px"><span>收款地址（Polygon 链）</span></div>
@@ -338,7 +339,8 @@
     }
     function renderUnlock(){
       const el=out.querySelector("#rUnlock"); if(!el) return;
-      el.innerHTML=`<button class="claim2" id="rBuy" style="background:linear-gradient(180deg,#c9313a,#8f0c11);border-color:#7a0b12">🔓 支付 2 LGNS 看完整推荐人地址</button>`;
+      el.innerHTML=`<div style="font-size:12.5px;color:var(--soft);background:rgba(214,168,75,.06);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:11px;line-height:1.85">支付 <b style="color:var(--gold-lt)">2 LGNS</b> 后可查看：<br>· <b style="color:var(--bone)">完整推荐人地址</b> —— 这个地址的上级钱包全地址<br>· <b style="color:var(--bone)">绑定时间</b> —— 什么时候绑定的这个上级</div>`+
+        `<button class="claim2" id="rBuy" style="background:linear-gradient(180deg,#c9313a,#8f0c11);border-color:#7a0b12">🔓 支付 2 LGNS 解锁</button>`;
       el.querySelector("#rBuy").onclick=startPay;
     }
     async function startPay(){
