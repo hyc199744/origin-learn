@@ -82,7 +82,7 @@
         </div>
         <button class="claim2" id="sGo">检 测</button>
         <div class="calc-out" id="sOut" style="margin-top:14px;display:none"></div>
-        <p class="calc-note">用 GoPlus 安全接口检测：能不能卖、买卖税、是否貔貅、能否增发、是否有 owner、持币集中度。默认填的是 LGNS，可换任意代币。</p>
+        <p class="calc-note">用 GoPlus 安全接口检测：能不能卖、买卖税、是否貔貅、能否增发、是否可暂停、有无黑名单、是否有 owner。默认填的是 LGNS，可换任意代币。</p>
       </div>`);
     const out=b.querySelector("#sOut");
     const yn=(v,goodIs0=true)=>{const bad=goodIs0?v==="1":v!=="1";return `<b style="color:${bad?'#e0705f':'#8fbf78'}">${v==="1"?"是":"否"}</b>`;};
@@ -94,7 +94,6 @@
         const d=await fetch(`https://api.gopluslabs.io/api/v1/token_security/137?contract_addresses=${a}`).then(r=>r.json());
         const r=d.result&&d.result[a.toLowerCase()];
         if(!r){out.innerHTML='<div class="cstat"><span>没查到这个代币的数据（可能不在 Polygon 或未收录）</span></div>';return;}
-        const holders=(r.holders||[]).slice(0,3).map(h=>`${h.tag||short(h.address)} ${(parseFloat(h.percent)*100).toFixed(1)}%`).join("、");
         out.innerHTML=
           `<div class="cstat"><span>代币</span><b>${r.token_name||"?"} (${r.token_symbol||"?"})</b></div>`+
           `<div class="cstat"><span>是否貔貅(不能卖)</span>${yn(r.is_honeypot)}</div>`+
@@ -103,10 +102,8 @@
           `<div class="cstat"><span>可暂停转账</span>${yn(r.transfer_pausable)}</div>`+
           `<div class="cstat"><span>有黑名单</span>${yn(r.is_blacklisted)}</div>`+
           `<div class="cstat"><span>源码开源</span><b style="color:${r.is_open_source==='1'?'#8fbf78':'#e0705f'}">${r.is_open_source==='1'?'是':'否'}</b></div>`+
-          `<div class="cstat"><span>是代理(可升级)</span>${yn(r.is_proxy)}</div>`+
           `<div class="cstat"><span>owner</span><b>${r.owner_address&&r.owner_address!=="0x0000000000000000000000000000000000000000"?short(r.owner_address):"无/已弃权"}</b></div>`+
-          `<div class="cstat"><span>持币地址数</span><b>${r.holder_count?fmt(+r.holder_count,0):"—"}</b></div>`+
-          (holders?`<div class="cstat"><span>前3大户</span><b style="font-size:13px">${holders}</b></div>`:"");
+          `<div class="cstat"><span>持币地址数</span><b>${r.holder_count?fmt(+r.holder_count,0):"—"}</b></div>`;
       }catch(e){out.innerHTML='<div class="cstat"><span style="color:#e0705f">检测失败，稍后再试</span></div>';}
     }
     b.querySelector("#sGo").onclick=go;
