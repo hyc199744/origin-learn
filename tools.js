@@ -406,4 +406,105 @@
     b.querySelector("#rGo").onclick=go;
     b.querySelector("#rAddr").addEventListener("keydown",e=>{if(e.key==="Enter")go();});
   };
+
+  /* ========== 10) 起源官方合约验证中心 ========== */
+  window.openContractCenter=function(){
+    const DATA=(window.CONTRACTS||[]).slice();
+    const exUrl=c=>c.chain==="Anubis"?"https://browser.anubispace.org/address/"+c.addr:"https://polygonscan.com/address/"+c.addr;
+    const exName=c=>c.chain==="Anubis"?"Anubis 浏览器":"PolygonScan";
+    const fmtD=ts=>{ if(!ts) return "—"; const d=new Date(ts*1000); const p=n=>String(n).padStart(2,"0"); return d.getUTCFullYear()+"-"+p(d.getUTCMonth()+1)+"-"+p(d.getUTCDate())+" UTC"; };
+    const CSS=`<style>
+      .cctabs{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+      .cctab{font:inherit;font-size:13px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:6px 16px}
+      .cctab.on{background:linear-gradient(180deg,#2a1410,#1a0d0a);color:var(--gold-lt);border-color:var(--gold)}
+      #ccSearch{width:100%;font:inherit;font-size:13px;background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:9px 12px;margin-bottom:8px}
+      #ccCount{font-size:12px;color:var(--muted);margin-bottom:10px}
+      .ccitem{border:1px solid var(--line);border-radius:11px;margin-bottom:9px;overflow:hidden;background:rgba(214,168,75,.025)}
+      .cchead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;cursor:pointer;flex-wrap:wrap}
+      .cchead:hover{background:rgba(214,168,75,.05)}
+      .ccname{font-family:var(--serif,serif);font-size:14.5px;color:var(--bone)}
+      .ccchain{font-size:10.5px;padding:1px 7px;border-radius:5px;margin-right:7px;vertical-align:middle;border:1px solid}
+      .ccchain.Polygon{color:#a98bff;border-color:rgba(169,139,255,.4)}
+      .ccchain.Anubis{color:#e0a24f;border-color:rgba(224,162,79,.4)}
+      .ccsub{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:2px}
+      .ccbadges{display:flex;gap:5px;flex-wrap:wrap}
+      .ccb{font-size:10.5px;padding:1.5px 8px;border-radius:999px;border:1px solid}
+      .ccb.ok{color:var(--green);border-color:rgba(143,191,120,.35);background:rgba(143,191,120,.07)}
+      .ccb.no{color:var(--muted);border-color:var(--line)}
+      .ccb.hl{color:var(--gold-lt);border-color:rgba(214,168,75,.35);background:rgba(214,168,75,.06)}
+      .ccdetail{border-top:1px solid var(--line);padding:12px 13px;font-size:13px}
+      .ccgrp{font-family:var(--serif,serif);color:var(--gold-lt);font-size:13px;margin:10px 0 6px}
+      .ccgrp:first-child{margin-top:0}
+      .ccrow{display:flex;justify-content:space-between;gap:12px;padding:4px 0;border-bottom:1px solid rgba(214,168,75,.06)}
+      .ccrow span:first-child{color:var(--muted);flex:0 0 auto}
+      .ccrow span:last-child{color:var(--soft);text-align:right;word-break:break-all}
+      .ccrow a{color:var(--gold-lt)}
+      .ccrel{color:var(--soft);line-height:1.7;font-size:12.5px;background:rgba(0,0,0,.15);border-radius:8px;padding:9px 11px}
+      .cccopy{font:inherit;font-size:10px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:4px;padding:1px 7px;margin-left:5px}
+    </style>`;
+    const b=M("起源官方合约验证中心",CSS+`
+      <div>
+        <p class="calc-note" style="margin:0 0 12px">起源在 <b style="color:#a98bff">Polygon</b> 与 <b style="color:#e0a24f">Anubis</b> 两条链上的合约清单，<b style="color:var(--gold-lt)">每一项都可点开区块浏览器独立核实</b>。开源/代理/部署信息为链上实时读取，权限与关系为人工整理，仅供参考、请以链上为准。</p>
+        <div class="cctabs">
+          <button class="cctab on" data-c="全部">全部</button>
+          <button class="cctab" data-c="Polygon">Polygon</button>
+          <button class="cctab" data-c="Anubis">Anubis</button>
+        </div>
+        <input id="ccSearch" placeholder="搜索合约名称或地址…" spellcheck="false">
+        <div id="ccCount"></div>
+        <div id="ccList"></div>
+      </div>`);
+    let chain="全部", kw="";
+    const listEl=b.querySelector("#ccList"), countEl=b.querySelector("#ccCount");
+    function badges(c){
+      let h="";
+      h+=c.verified?`<span class="ccb ok">开源</span>`:`<span class="ccb no">未开源</span>`;
+      if(c.proxy) h+=`<span class="ccb hl">代理</span>`;
+      if(c.upgradeable) h+=`<span class="ccb hl">可升级</span>`;
+      if(c.multisig&&c.multisig!=="否") h+=`<span class="ccb ok">多签</span>`;
+      return h;
+    }
+    function row(label,val){ return `<div class="ccrow"><span>${label}</span><span>${val}</span></div>`; }
+    function addrCell(a){ if(!a) return "—"; const chainC=DATA.find(x=>x.addr.toLowerCase()===a.toLowerCase()); return `<span class="mono">${short(a)}</span><button class="cccopy" data-c="${a}">复制</button>`; }
+    function detail(c){
+      let h=`<div class="ccgrp">基础信息</div>`;
+      h+=row("所属链",c.chain);
+      h+=row("合约地址",`<span class="mono">${short(c.addr)}</span><button class="cccopy" data-c="${c.addr}">复制</button>`);
+      h+=row("区块浏览器",`<a href="${exUrl(c)}" target="_blank">在 ${exName(c)} 打开 ↗</a>`);
+      h+=row("合约类型",(c.cname||c.cat||"—"));
+      h+=row("部署时间",fmtD(c.deployTs));
+      h+=row("部署钱包",c.deployer?`<a href="${c.chain==='Anubis'?'https://browser.anubispace.org/address/':'https://polygonscan.com/address/'}${c.deployer}" target="_blank" class="mono">${short(c.deployer)}</a>`:"—");
+      h+=`<div class="ccgrp">权限与安全</div>`;
+      h+=row("是否开源验证",c.verified?'<span style="color:var(--green)">已开源验证</span>':'未开源（可在浏览器核实）');
+      h+=row("是否代理合约",c.proxy?"是":"否");
+      h+=row("是否可以升级",c.upgradeable?"可升级（逻辑可更换）":"不可升级");
+      h+=row("Owner / 管理钱包",c.owner?`<a href="${c.chain==='Anubis'?'https://browser.anubispace.org/address/':'https://polygonscan.com/address/'}${c.owner}" target="_blank" class="mono">${short(c.owner)}</a>`:(c.ownerNote||"无 / 见浏览器"));
+      h+=row("管理员权限",c.admin||"见浏览器");
+      h+=row("是否多签",c.multisig||"—");
+      h+=row("暂停功能",c.pausable?(c.pausedNow?'<span style="color:#e0a24f">有（当前暂停中）</span>':"有（当前正常运行）"):"无");
+      if(c.impl){ h+=`<div class="ccgrp">技术结构</div>`; h+=row("实现合约",`<a href="${c.chain==='Anubis'?'https://browser.anubispace.org/address/':'https://polygonscan.com/address/'}${c.impl}" target="_blank" class="mono">${short(c.impl)}</a>`); }
+      if(c.related){ h+=`<div class="ccgrp">相关合约关系</div>`; h+=`<div class="ccrel">${c.related}</div>`; }
+      return h;
+    }
+    function render(){
+      const list=DATA.filter(c=>(chain==="全部"||c.chain===chain)&&(!kw||c.name.toLowerCase().includes(kw)||c.addr.toLowerCase().includes(kw)||(c.cat||"").includes(kw)));
+      countEl.textContent=`共 ${list.length} 个合约`+(chain!=="全部"?`（${chain}）`:"")+` · 开源 ${list.filter(c=>c.verified).length} · 可升级 ${list.filter(c=>c.upgradeable).length}`;
+      listEl.innerHTML=list.map((c,i)=>`
+        <div class="ccitem">
+          <div class="cchead">
+            <div><div class="ccname"><span class="ccchain ${c.chain}">${c.chain}</span>${c.name}</div><div class="ccsub">${short(c.addr)}</div></div>
+            <div class="ccbadges">${badges(c)}</div>
+          </div>
+          <div class="ccdetail" style="display:none">${detail(c)}</div>
+        </div>`).join("")||`<div class="cstat"><span style="color:var(--muted)">没有匹配的合约</span></div>`;
+      listEl.querySelectorAll(".ccitem").forEach(it=>{
+        const head=it.querySelector(".cchead"), det=it.querySelector(".ccdetail");
+        head.onclick=(e)=>{ if(e.target.closest("a,button")) return; det.style.display=det.style.display==="none"?"block":"none"; };
+        it.querySelectorAll(".cccopy").forEach(btn=>btn.onclick=(ev)=>{ev.stopPropagation();copyText(btn.dataset.c);btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1000);});
+      });
+    }
+    b.querySelectorAll(".cctab").forEach(t=>t.onclick=()=>{ b.querySelectorAll(".cctab").forEach(x=>x.classList.remove("on")); t.classList.add("on"); chain=t.dataset.c; render(); });
+    b.querySelector("#ccSearch").addEventListener("input",e=>{ kw=e.target.value.trim().toLowerCase(); render(); });
+    render();
+  };
 })();
