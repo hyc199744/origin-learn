@@ -661,4 +661,87 @@
     b.querySelector("#wmGo").onclick=go;
     b.querySelector("#wmAddr").addEventListener("keydown",e=>{if(e.key==="Enter")go();});
   };
+
+  /* ========== 12) 起源链上证据库 ========== */
+  window.openEvidenceDB=function(){
+    const EV=(window.EVENTS||[]).slice();
+    const exTx=(h,ch)=>(ch==="Anubis"?"https://browser.anubispace.org/tx/":"https://polygonscan.com/tx/")+h;
+    const exAddr=(a,ch)=>(ch==="Anubis"?"https://browser.anubispace.org/address/":"https://polygonscan.com/address/")+a;
+    const stars=l=>'<span style="color:var(--gold)">'+"★".repeat(l)+'</span><span style="color:var(--muted)">'+"☆".repeat(5-l)+'</span>';
+    const CSS=`<style>
+      .edtabs{display:flex;gap:8px;margin:0 0 9px;flex-wrap:wrap}
+      .edtab{font:inherit;font-size:12.5px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 14px}
+      .edtab.on{background:linear-gradient(180deg,#2a1410,#1a0d0a);color:var(--gold-lt);border-color:var(--gold)}
+      #edSearch{width:100%;font:inherit;font-size:13px;background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:9px 12px;margin-bottom:9px}
+      #edCount{font-size:12px;color:var(--muted);margin-bottom:8px}
+      .edtl{border-left:2px solid var(--line);margin-left:8px;padding-left:0}
+      .edev{position:relative;margin-bottom:10px;padding-left:16px}
+      .edev::before{content:"";position:absolute;left:-7px;top:15px;width:11px;height:11px;border-radius:50%;background:var(--temple);border:2px solid var(--gold)}
+      .edhead{cursor:pointer;background:rgba(214,168,75,.03);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+      .edhead:hover{background:rgba(214,168,75,.06)}
+      .edtime{font-size:11.5px;color:var(--muted);font-family:var(--mono)}
+      .edtitle{font-family:var(--serif,serif);font-size:14.5px;color:var(--bone);margin:3px 0}
+      .edmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:11px}
+      .edcat{padding:1px 8px;border-radius:5px;border:1px solid var(--line);color:var(--gold-lt)}
+      .edchain{padding:1px 7px;border-radius:5px;border:1px solid}
+      .edchain.Polygon{color:#a98bff;border-color:rgba(169,139,255,.4)} .edchain.Anubis{color:#e0a24f;border-color:rgba(224,162,79,.4)}
+      .eddetail{border:1px solid var(--line);border-top:none;border-radius:0 0 11px 11px;padding:12px 13px;font-size:13px;margin-top:-6px;background:rgba(0,0,0,.12)}
+      .edrow{padding:4px 0;border-bottom:1px solid rgba(214,168,75,.06);word-break:break-all}
+      .edrow b{color:var(--muted);font-weight:400;display:block;font-size:11.5px;margin-bottom:1px}
+      .edrow a{color:var(--gold-lt);font-family:var(--mono);font-size:12px}
+      .edsum{color:var(--soft);line-height:1.75;margin-bottom:8px}
+      .edcccopy{font:inherit;font-size:10px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:4px;padding:1px 6px;margin-left:5px}
+    </style>`;
+    const b=M("起源链上证据库",CSS+`
+      <div>
+        <p class="calc-note" style="margin:0 0 11px">起源生态的关键事件档案，<b style="color:var(--gold-lt)">每个事件都有链上交易/区块/地址作证据</b>，可点开区块浏览器逐一核实。核心原则：<b>没有链上证据，不进核心档案。</b></p>
+        <input id="edSearch" placeholder="搜索：关键词 / 地址 / 交易哈希 / 事件编号…" spellcheck="false">
+        <div class="edtabs">
+          <button class="edtab on" data-c="全部">全部链</button>
+          <button class="edtab" data-c="Polygon">Polygon</button>
+          <button class="edtab" data-c="Anubis">Anubis</button>
+          <button class="edtab" data-s="1" data-c="__sort">⇅ 时间正序</button>
+        </div>
+        <div id="edCount"></div>
+        <div id="edList" class="edtl"></div>
+      </div>`);
+    let chain="全部", kw="", asc=true;
+    const listEl=b.querySelector("#edList"), countEl=b.querySelector("#edCount");
+    function detail(e){
+      let h=`<div class="edsum">${e.summary}</div>`;
+      h+=`<div class="edrow"><b>事件编号</b>${e.id}</div>`;
+      h+=`<div class="edrow"><b>证据等级</b>${stars(e.level)} <span style="color:var(--muted);font-size:11px">（${e.level>=5?"链上直证":e.level>=4?"官方公开":"社区整理"}）· 来源：${e.source}</span></div>`;
+      h+=`<div class="edrow"><b>时间 / 区块链</b>${e.date} · ${e.chain}${e.block?" · 区块 "+e.block:""}</div>`;
+      if(e.tx) h+=`<div class="edrow"><b>交易哈希</b><a href="${exTx(e.tx,e.chain)}" target="_blank">${e.tx.slice(0,20)}…${e.tx.slice(-6)} ↗</a><button class="edcccopy" data-c="${e.tx}">复制</button></div>`;
+      (e.contracts||[]).forEach(c=>{ h+=`<div class="edrow"><b>相关合约 · ${c.n}</b><a href="${exAddr(c.a,e.chain)}" target="_blank">${short(c.a)} ↗</a><button class="edcccopy" data-c="${c.a}">复制</button></div>`; });
+      (e.addresses||[]).forEach(w=>{ h+=`<div class="edrow"><b>相关地址 · ${w.n}</b><a href="${exAddr(w.a,e.chain)}" target="_blank">${short(w.a)} ↗</a><button class="edcccopy" data-c="${w.a}">复制</button></div>`; });
+      return h;
+    }
+    function render(){
+      let list=EV.filter(e=>(chain==="全部"||e.chain===chain)&&(!kw||
+        (e.title+e.id+e.summary+e.cat+(e.tx||"")+JSON.stringify(e.contracts)+JSON.stringify(e.addresses)).toLowerCase().includes(kw)));
+      list.sort((x,y)=>asc?x.ts-y.ts:y.ts-x.ts);
+      countEl.textContent=`共 ${list.length} 个事件`+(chain!=="全部"?`（${chain}）`:"")+` · 链上直证 ${list.filter(e=>e.level>=5).length} 个`;
+      listEl.innerHTML=list.map(e=>`
+        <div class="edev">
+          <div class="edhead">
+            <div class="edtime">${e.date}</div>
+            <div class="edtitle">${e.title}</div>
+            <div class="edmeta"><span class="edcat">${e.cat}</span><span class="edchain ${e.chain}">${e.chain}</span><span>${stars(e.level)}</span></div>
+          </div>
+          <div class="eddetail" style="display:none">${detail(e)}</div>
+        </div>`).join("")||`<div class="cstat"><span style="color:var(--muted)">没有匹配的事件</span></div>`;
+      listEl.querySelectorAll(".edev").forEach(it=>{
+        const head=it.querySelector(".edhead"), det=it.querySelector(".eddetail");
+        head.onclick=(e)=>{ if(e.target.closest("a,button")) return; det.style.display=det.style.display==="none"?"block":"none"; };
+        it.querySelectorAll(".edcccopy").forEach(btn=>btn.onclick=(ev)=>{ev.stopPropagation();copyText(btn.dataset.c);btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1000);});
+      });
+    }
+    b.querySelectorAll(".edtab").forEach(t=>t.onclick=()=>{
+      if(t.dataset.c==="__sort"){ asc=!asc; t.textContent=asc?"⇅ 时间正序":"⇅ 时间倒序"; render(); return; }
+      b.querySelectorAll(".edtab:not([data-c=__sort])").forEach(x=>x.classList.remove("on")); t.classList.add("on"); chain=t.dataset.c; render();
+    });
+    b.querySelector("#edSearch").addEventListener("input",e=>{ kw=e.target.value.trim().toLowerCase(); render(); });
+    render();
+  };
 })();

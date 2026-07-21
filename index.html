@@ -447,6 +447,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="library.js"></script>
 <script src="contracts.js"></script>
+<script src="events.js"></script>
 <script src="tools.js"></script>
 <script>
 /* ————— 入场序列（用固定计时，不等大视频加载完）————— */
@@ -546,6 +547,7 @@ const TOOLS=[
  {i:"&#128101;",t:"查推荐人",d:"输入任意地址，站内查出它绑定的推荐人（上级）钱包和绑定时间。",go:"查推荐人",fn:"openReferrer"},
  {i:"&#127963;",t:"合约验证中心",d:"起源在 Polygon 与 Anubis 两条链上的全部合约，开源/代理/部署/Owner/多签一览，每个都能点开区块浏览器独立核实。",go:"查看合约",fn:"openContractCenter"},
  {i:"&#128225;",t:"钱包监控·链上体检",d:"输入任意钱包地址，站内读公开链上数据：是谁、持有什么、做过什么、有没有风险——身份/资产/授权风险/活动时间线，只读不连钱包。",go:"体检钱包",fn:"openWalletMonitor"},
+ {i:"&#128220;",t:"链上证据库",d:"起源关键事件档案：从 LGNS 创世到 Anubis 上线，每个事件都带真实交易哈希/区块/地址/证据等级，可点浏览器逐一核实。没有链上证据不进档案。",go:"查证据",fn:"openEvidenceDB"},
 ];
 document.getElementById('altars').innerHTML=TOOLS.map(t=>`
  <div class="altar" data-fn="${t.fn}"><div class="ic">${t.i}</div><h3>${t.t}</h3><p>${t.d}</p><div class="go">${t.go} &#10142;</div></div>`).join('');
