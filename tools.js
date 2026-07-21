@@ -310,7 +310,6 @@
         if(c&&c.status==="paid"&&c.referrer){
           clearInterval(timer);
           const rf=b.querySelector("#rRef"); if(rf) rf.textContent=short(c.referrer);
-          const tEl=b.querySelector("#rTime b"); if(tEl){ tEl.style.color=""; tEl.textContent=fmtTime(c.bindTime); }
           showPaid(el,c.referrer,c.bindTime);
         }
       }, 5000);
@@ -334,7 +333,6 @@
       if(!d.hasRef){ out.innerHTML='<div class="cstat"><span>这个地址<b style="color:var(--gold-lt)">还没有绑定推荐人</b>（或还没加入社区）</span></div>'; return; }
       out.innerHTML=
         `<div class="cstat"><span>推荐人（上级）</span><b class="up" id="rRef" style="font-family:var(--mono);font-size:14px">${d.masked}</b></div>`+
-        `<div class="cstat" id="rTime"><span>绑定时间</span><b style="font-size:14px;color:var(--muted)">🔒 支付后显示</b></div>`+
         `<div id="rUnlock" style="margin-top:14px"></div>`;
       renderUnlock();
     }
