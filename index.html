@@ -445,6 +445,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 </footer>
 
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="library.js"></script>
 <script src="contracts.js"></script>
 <script src="events.js"></script>
@@ -656,10 +657,36 @@ document.querySelectorAll('.codex').forEach(card=>{
     openModal(r);});
   // 弹窗查看器
   const mask=document.getElementById('modal'),mbody=document.getElementById('modalBody'),mttl=document.getElementById('modalTitle');
+  async function renderPDF(url,box){
+    box.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px 20px">正在加载课件…</div>';
+    if(!window.pdfjsLib){ box.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px 20px">PDF 组件还在加载，请稍等两秒重新点开；<br>或 <a href="'+url+'" target="_blank" style="color:var(--gold-lt)">在新窗口打开 ↗</a></div>'; return; }
+    try{
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const pdf=await pdfjsLib.getDocument({url}).promise;
+      const scroller=document.createElement('div');
+      scroller.style.cssText='max-height:80vh;overflow-y:auto;background:#2b2b2b;border-radius:8px;padding:12px 8px;-webkit-overflow-scrolling:touch';
+      box.innerHTML=''; box.appendChild(scroller);
+      const dpr=Math.min(window.devicePixelRatio||1,2);
+      for(let n=1;n<=pdf.numPages;n++){
+        const page=await pdf.getPage(n);
+        const base=page.getViewport({scale:1});
+        const cw=Math.min(scroller.clientWidth-16,900);
+        const scale=cw/base.width;
+        const vp=page.getViewport({scale:scale*dpr});
+        const cv=document.createElement('canvas');
+        cv.width=vp.width; cv.height=vp.height;
+        cv.style.cssText='width:100%;max-width:'+(base.width*scale)+'px;height:auto;display:block;margin:0 auto 10px;border-radius:3px;box-shadow:0 2px 12px rgba(0,0,0,.5)';
+        scroller.appendChild(cv);
+        await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
+      }
+    }catch(e){
+      box.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px 20px">这个文件暂时无法内嵌显示。<br><a href="'+url+'" target="_blank" style="color:var(--gold-lt)">点此在新窗口打开 ↗</a></div>';
+    }
+  }
   function openModal(r){
     mttl.textContent=r.title;
     if(r.type==='video') mbody.innerHTML=`<video controls autoplay playsinline style="width:100%;max-height:72vh;border-radius:8px;background:#000"><source src="${r.src}" type="video/mp4"></video>`;
-    else if(r.type==='pdf') mbody.innerHTML=`<iframe src="${r.src}#toolbar=1" style="width:100%;height:80vh;border:none;border-radius:8px;background:#fff"></iframe>`;
+    else if(r.type==='pdf'){ mbody.innerHTML=''; mask.classList.add('show'); renderPDF(r.src,mbody); return; }
     else if(r.type==='article') mbody.innerHTML=`<div class="article-body">${r.html||''}</div>`;
     mask.classList.add('show');
   }
