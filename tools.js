@@ -292,7 +292,6 @@
       if(!d.hasRef){ out.innerHTML='<div class="cstat"><span>这个地址<b style="color:var(--gold-lt)">还没有绑定推荐人</b>（或还没加入社区）</span></div>'; return; }
       out.innerHTML=
         `<div class="cstat"><span>推荐人（上级）</span><b class="up" id="rRef" style="font-family:var(--mono);font-size:14px">${d.masked}</b></div>`+
-        `<div class="cstat"><span>社区层级 level</span><b>${d.level}</b></div>`+
         `<div class="cstat" id="rTime"><span>绑定时间</span><b style="font-size:14px">查询中…</b></div>`+
         `<div id="rUnlock" style="margin-top:14px"></div>`;
       bindTime(a).then(dt=>{const el=out.querySelector("#rTime b"); if(el) el.textContent=dt?dt.toLocaleString("zh-CN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"未查到（可能是很早或迁移绑定）";});
