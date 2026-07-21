@@ -276,7 +276,7 @@
         </div>
         <button class="claim2" id="rGo">查 询</button>
         <div class="calc-out" id="rOut" style="margin-top:14px;display:none"></div>
-        <p class="calc-note">读社区合约的绑定关系（members），返回推荐人钱包、社区层级和绑定时间——链上真实数据，不跳转。<b style="color:var(--gold-lt)">完整推荐人地址</b>需支付 2 LGNS 解锁，付到指定收款地址后本页自动放行。</p>
+        <p class="calc-note">读社区合约的绑定关系（members），返回这个地址的推荐人钱包和绑定时间——链上真实数据，不跳转。<b style="color:var(--gold-lt)">完整推荐人地址</b>需支付 2 LGNS 解锁，付到指定收款地址后本页自动放行。</p>
       </div>`);
     const out=b.querySelector("#rOut");
     let curAddr="";
