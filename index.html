@@ -539,6 +539,7 @@ const TOOLS=[
  {i:"&#128737;",t:"代币安全自查",d:"输入合约地址，站内检测买卖税 / 是否貔貅 / 能否增发 / 持币集中度。",go:"站内检测",fn:"openSecurity"},
  {i:"&#128202;",t:"链上数据面板",d:"价格 / 供应 / 质押率 / 国库 / runway 等核心指标，站内实时读官方数据。",go:"看面板",fn:"openDashboard"},
  {i:"&#128011;",t:"大额成交监测",d:"站内扫主池最近成交，筛出 ≥ 1 万 DAI 的大买大卖。",go:"看大单",fn:"openWhale"},
+ {i:"&#128101;",t:"查推荐人",d:"输入任意地址，站内查出它绑定的推荐人（上级）钱包和社区层级。",go:"查推荐人",fn:"openReferrer"},
 ];
 document.getElementById('altars').innerHTML=TOOLS.map(t=>`
  <div class="altar" data-fn="${t.fn}"><div class="ic">${t.i}</div><h3>${t.t}</h3><p>${t.d}</p><div class="go">${t.go} &#10142;</div></div>`).join('');

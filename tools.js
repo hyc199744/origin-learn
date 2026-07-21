@@ -251,4 +251,36 @@
         `<div class="cstat"><span>静默期(warmup)</span><b>2 个周期 <i>(约十几小时)</i></b></div>`;
     }catch(e){out.innerHTML='<div class="cstat"><span style="color:#e0705f">数据暂时读不到，稍后再试</span></div>';}
   };
+  /* ========== 8) 查推荐人 · 读社区合约绑定关系 ========== */
+  window.openReferrer=function(){
+    const COMM="0x6757165973042541EBdEC47b73283397b5Afd90E"; // 社区合约
+    const b=M("查推荐人（绑定关系）",`
+      <div class="calc">
+        <div class="calc-row" style="grid-template-columns:1fr">
+          <label>输入地址，查它绑定的推荐人（上级）
+            <input id="rAddr" type="text" placeholder="0x… 粘贴一个钱包地址" spellcheck="false"></label>
+        </div>
+        <button class="claim2" id="rGo">查 询</button>
+        <div class="calc-out" id="rOut" style="margin-top:14px;display:none"></div>
+        <p class="calc-note">直接读社区合约的绑定关系（members），返回这个地址的推荐人钱包和社区层级——链上真实数据，不跳转。没绑定推荐人会显示"未绑定"。</p>
+      </div>`);
+    const out=b.querySelector("#rOut");
+    async function go(){
+      const a=b.querySelector("#rAddr").value.trim();
+      if(!isAddr(a)){out.style.display="block";out.innerHTML='<div class="cstat"><span style="color:#e0705f">地址格式不对，应是 0x 开头 42 位</span></div>';return;}
+      out.style.display="block";out.innerHTML='<div class="cstat"><span>正在查链上绑定关系…</span></div>';
+      const res=await rpc("eth_call",[{to:COMM,data:"0x08ae4b0c"+pad(a)},"latest"]);
+      if(!res||res==="0x"||res.length<130){out.innerHTML='<div class="cstat"><span>没查到（这个地址可能还没加入社区）</span></div>';return;}
+      const level=parseInt(res.slice(2,66),16);
+      const ref="0x"+res.slice(90,130);
+      if(/^0x0+$/.test(ref)){out.innerHTML='<div class="cstat"><span>这个地址<b style="color:var(--gold-lt)">还没有绑定推荐人</b></span></div>';return;}
+      out.innerHTML=
+        `<div class="cstat"><span>推荐人（上级）</span><b class="up" style="font-family:var(--mono);font-size:14px">${short(ref)}</b></div>`+
+        `<div style="display:flex;align-items:center;gap:8px;margin:2px 0 4px;font-size:12px;color:var(--muted)">完整地址 <code style="font-family:var(--mono);color:var(--soft);word-break:break-all;flex:1">${ref}</code><button class="wcopy" data-a="${ref}" style="font:inherit;font-size:11px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:5px;padding:2px 8px;flex:0 0 auto">复制</button></div>`+
+        `<div class="cstat"><span>社区层级 level</span><b>${level}</b></div>`;
+      out.querySelectorAll(".wcopy").forEach(btn=>btn.onclick=()=>{copyText(btn.dataset.a);btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1000);});
+    }
+    b.querySelector("#rGo").onclick=go;
+    b.querySelector("#rAddr").addEventListener("keydown",e=>{if(e.key==="Enter")go();});
+  };
 })();
