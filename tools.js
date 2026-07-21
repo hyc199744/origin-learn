@@ -744,4 +744,99 @@
     b.querySelector("#edSearch").addEventListener("input",e=>{ kw=e.target.value.trim().toLowerCase(); render(); });
     render();
   };
+
+  /* ========== 13) Origin 链上日报 ========== */
+  window.openDailyNews=function(){
+    const API="https://count.web3origin.com";
+    const KNOWN={};
+    (window.CONTRACTS||[]).forEach(c=>{ if(c.chain==="Polygon") KNOWN[c.addr.toLowerCase()]=c.name; });
+    const label=a=>a?(KNOWN[a.toLowerCase()]||null):null;
+    const exTx=h=>"https://polygonscan.com/tx/"+h;
+    const exAddr=a=>"https://polygonscan.com/address/"+a;
+    const fmtN=(x,d)=>{ x=Number(x)||0; return x.toLocaleString("en-US",{maximumFractionDigits:d==null?0:d}); };
+    const yi=x=>{ x=Number(x)||0; return x>=1e8?(x/1e8).toFixed(2)+" 亿":x>=1e4?(x/1e4).toFixed(1)+" 万":fmtN(x); };
+    const stars=n=>'<span style="color:var(--gold)">'+"★".repeat(n)+'</span>';
+    const evStars=dai=>dai>=100000?3:dai>=50000?2:1;
+    const fmtTime=ts=>{ if(!ts) return ""; const d=new Date(ts*1000); const p=n=>String(n).padStart(2,"0"); return p(d.getHours())+":"+p(d.getMinutes()); };
+    const CSS=`<style>
+      .dnhead{text-align:center;margin-bottom:14px}
+      .dntitle{font-family:var(--serif,serif);font-size:19px;color:var(--gold-lt)}
+      .dndate{font-size:12px;color:var(--muted);margin-top:3px}
+      .dncard{background:rgba(214,168,75,.04);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+      .dngrp{font-family:var(--serif,serif);color:var(--gold-lt);font-size:14px;margin:0 0 9px;display:flex;align-items:center;gap:6px}
+      .dngrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
+      .dngrid .g{display:flex;justify-content:space-between;border-bottom:1px solid rgba(214,168,75,.06);padding:4px 0}
+      .dngrid .g span{color:var(--muted);font-size:12.5px} .dngrid .g b{font-family:var(--mono);color:var(--bone)}
+      .dnev{padding:9px 0;border-bottom:1px solid rgba(214,168,75,.06)}
+      .dnev:last-child{border:none}
+      .dnev .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+      .dnev .amt{font-family:var(--mono);font-size:13.5px}
+      .dnev .buy{color:#8fbf78} .dnev .sell{color:#e0a24f}
+      .dnev .sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+      .dnev .sub a{color:var(--gold-lt)}
+      .dnsum{background:rgba(214,168,75,.06);border:1px solid rgba(214,168,75,.25);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--bone);line-height:1.8}
+      .dndis{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;text-align:center}
+    </style>`;
+    const b=M("Origin 链上日报",CSS+`<div id="dnOut"><div class="cstat"><span>正在生成今日链上日报…</span></div></div>`);
+    const out=b.querySelector("#dnOut");
+    (async()=>{
+      let d;
+      try{ d=await fetch(API+"/daily").then(r=>r.json()); }
+      catch(e){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">日报生成失败，稍后再试</span></div>'; return; }
+      if(!d||!d.market){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">日报暂时读不到，稍后再试</span></div>'; return; }
+      const m=d.market, net=(d.buyVol||0)-(d.sellVol||0);
+      // 一句话总结（数据驱动模板）
+      let sum=`今日 LGNS 现价 <b>${m.price?m.price.toFixed(4):"暂无数据"} DAI</b>`;
+      sum+=`，全网供应约 ${yi(m.supply)}、质押率 ${m.stakeRate!=null?m.stakeRate.toFixed(2)+"%":"暂无数据"}`;
+      sum+=`，国库市场价值约 ${m.treasury?yi(m.treasury):"暂无数据"}。`;
+      sum+=`采样近期约 ${(d.buys||0)+(d.sells||0)} 笔底池成交，买入 ${d.buys||0} 笔、卖出 ${d.sells||0} 笔，`;
+      sum+= net>=0?`资金净流入约 ${yi(net)} DAI。`:`资金净流出约 ${yi(-net)} DAI。`;
+      // 风险提醒
+      let risk="";
+      const bigSells=(d.events||[]).filter(e=>e.dir==="sell");
+      if(net<0) risk+=`<div style="margin-bottom:5px">· 采样区间内卖出金额高于买入，净流出约 ${yi(-net)} DAI，留意市场流动性变化。</div>`;
+      if(bigSells.length) risk+=`<div style="margin-bottom:5px">· 出现 ${bigSells.length} 笔较大卖出（最大 ${yi(bigSells[0].dai)} DAI），均为公开链上成交，地址归属未确认。</div>`;
+      if(!risk) risk='<div style="color:var(--green)">· 采样区间内未见异常大额卖出，成交以中小额为主。</div>';
+      out.innerHTML=`
+        <div class="dnhead"><div class="dntitle">《Origin 链上日报》</div><div class="dndate">${d.date}　·　数据驱动 · 证据优先 · 自动生成</div></div>
+        <div class="dncard">
+          <div class="dngrp">1️⃣ 今日数据概览</div>
+          <div class="dngrid">
+            <div class="g"><span>LGNS 价格</span><b>${m.price?m.price.toFixed(4):"—"} DAI</b></div>
+            <div class="g"><span>24h 涨跌</span><b style="color:var(--muted)">暂无数据</b></div>
+            <div class="g"><span>全网供应</span><b>${yi(m.supply)}</b></div>
+            <div class="g"><span>质押率</span><b>${m.stakeRate!=null?m.stakeRate.toFixed(2)+"%":"—"}</b></div>
+            <div class="g"><span>国库市值</span><b>${m.treasury?yi(m.treasury)+" DAI":"—"}</b></div>
+            <div class="g"><span>LP 池价值</span><b>${m.lp?yi(m.lp)+" DAI":"—"}</b></div>
+            <div class="g"><span>累计销毁</span><b>${m.burn?yi(m.burn)+" LGNS":"—"}</b></div>
+            <div class="g"><span>净流向</span><b style="color:${net>=0?'#8fbf78':'#e0a24f'}">${net>=0?"+":"-"}${yi(Math.abs(net))} DAI</b></div>
+          </div>
+        </div>
+        <div class="dncard">
+          <div class="dngrp">2️⃣ 今日大额成交 <span style="font-size:11px;color:var(--muted);font-weight:400">（≥1万 DAI，采样底池近千笔）</span></div>
+          ${(d.events&&d.events.length)?d.events.map(e=>{
+            const wl=label(e.who);
+            return `<div class="dnev">
+              <div class="top"><span class="amt ${e.dir}">${e.dir==="buy"?"买入":"卖出"} ${fmtN(e.dai)} DAI</span><span>${stars(evStars(e.dai))}</span></div>
+              <div class="sub">换 ${fmtN(e.lgns)} LGNS　${fmtTime(e.ts)}　${wl?wl:""}　<a href="${exTx(e.tx)}" target="_blank">交易 ↗</a></div>
+            </div>`; }).join(""):'<div style="font-size:12.5px;color:var(--muted)">采样区间内暂无 ≥1万 DAI 的单笔成交。</div>'}
+        </div>
+        <div class="dncard">
+          <div class="dngrp">3️⃣ 今日买卖概况</div>
+          <div class="dngrid">
+            <div class="g"><span>买入</span><b style="color:#8fbf78">${d.buys||0} 笔 / ${yi(d.buyVol)} DAI</b></div>
+            <div class="g"><span>卖出</span><b style="color:#e0a24f">${d.sells||0} 笔 / ${yi(d.sellVol)} DAI</b></div>
+          </div>
+        </div>
+        <div class="dncard">
+          <div class="dngrp">4️⃣ 今日风险提醒</div>
+          <div style="font-size:12.5px;color:var(--soft);line-height:1.7">${risk}</div>
+        </div>
+        <div class="dncard">
+          <div class="dngrp">5️⃣ 今日一句话总结</div>
+          <div class="dnsum">${sum}</div>
+        </div>
+        <div class="dndis">本日报由系统按公开链上数据与官方接口自动生成，只陈述可核实的链上事实，不推断地址归属、不预测涨跌、不构成投资建议。成交数据为底池采样，完整数据以区块浏览器为准。</div>`;
+    })();
+  };
 })();
