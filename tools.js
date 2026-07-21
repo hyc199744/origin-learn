@@ -28,6 +28,14 @@
   const fmt=(x,d=2)=>(isFinite(x)?x:0).toLocaleString("zh-CN",{maximumFractionDigits:d});
   const short=a=>a.slice(0,6)+"…"+a.slice(-4);
   const isAddr=a=>/^0x[0-9a-fA-F]{40}$/.test((a||"").trim());
+  // 复制：安全上下文用 clipboard，否则(http/file)用 execCommand 兜底
+  function copyText(t){
+    try{ if(navigator.clipboard&&window.isSecureContext){ navigator.clipboard.writeText(t); return true; } }catch(e){}
+    try{ const ta=document.createElement("textarea"); ta.value=t; ta.setAttribute("readonly","");
+      ta.style.position="fixed"; ta.style.top="-9999px"; ta.style.opacity="0"; document.body.appendChild(ta);
+      ta.focus(); ta.select(); ta.setSelectionRange(0,t.length); document.execCommand("copy"); document.body.removeChild(ta); return true;
+    }catch(e){ return false; }
+  }
 
   // 打开弹窗
   function M(title,html){
@@ -141,26 +149,10 @@
   window.openWhale=async function(){
     const b=M("大额成交监测",`<div class="calc">
       <div class="calc-out" id="wOut"><div class="cstat"><span>正在扫描主池最近成交…</span></div></div>
-      <p class="calc-note">直接读 LGNS/DAI 主池最近的链上成交，筛出折合 ≥ 1 万 DAI 的大单。买=有人拿 DAI 买 LGNS，卖=有人把 LGNS 换回 DAI。</p></div>`);
+      <p class="calc-note">直接读 LGNS/DAI 主池最近的链上成交，筛出折合 ≥ 1 万 DAI 的大单、最多列 10 条。买=有人拿 DAI 买 LGNS，卖=有人把 LGNS 换回 DAI。钱包=该笔的收币地址，可复制。</p></div>`);
     const out=b.querySelector("#wOut");
-    async function getLogs(){
-      // 免费公共RPC多限制getLogs;tenderly归档网关支持明确区间且有CORS
-      const bnHex=await rpc("eth_blockNumber",[]); const bn=parseInt(bnHex,16);
-      for(const span of [600,200,60]){
-        const from="0x"+Math.max(0,bn-span).toString(16), to="0x"+bn.toString(16);
-        try{
-          const r=await fetch("https://polygon.gateway.tenderly.co",{method:"POST",headers:{"content-type":"application/json"},
-            body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getLogs",params:[{address:POOL,topics:[SWAP_TOPIC],fromBlock:from,toBlock:to}]})});
-          const j=await r.json(); if(Array.isArray(j.result)) return {logs:j.result,span};
-        }catch(e){}
-      }
-      return null;
-    }
-    try{
-      const got=await getLogs();
-      if(!got){out.innerHTML='<div class="cstat"><span>节点暂时忙，稍后再试</span></div>';return;}
-      const logs=got.logs;
-      const TH=10000; const rows=[];
+    const TH=10000;
+    function decode(logs,rows){
       for(const lg of logs){
         const d=lg.data.replace(/^0x/,"");
         const u=i=>BigInt("0x"+d.slice(i*64,i*64+64));
@@ -169,17 +161,37 @@
         if(a0In>0n){side="买入";dai=Number(a0In)/1e18;lgns=Number(a1Out)/1e9;}
         else{side="卖出";dai=Number(a0Out)/1e18;lgns=Number(a1In)/1e9;}
         const to=(lg.topics&&lg.topics[2])?"0x"+lg.topics[2].slice(-40):"";
-        if(dai>=TH) rows.push({side,dai,lgns,px:lgns>0?dai/lgns:0,blk:parseInt(lg.blockNumber,16),addr:to});
+        if(dai>=TH) rows.push({side,dai,lgns,px:lgns>0?dai/lgns:0,blk:parseInt(lg.blockNumber,16),li:lg.logIndex?parseInt(lg.logIndex,16):0,addr:to});
       }
-      rows.sort((x,y)=>y.blk-x.blk);
-      if(!rows.length){out.innerHTML=`<div class="cstat"><span>最近这段时间没有 ≥ 1 万 DAI 的大单（正常，行情平淡时大单本就少）</span></div>`;return;}
-      out.innerHTML=rows.slice(0,12).map(r=>
+    }
+    async function segLogs(from,to){
+      try{
+        const r=await fetch("https://polygon.gateway.tenderly.co",{method:"POST",headers:{"content-type":"application/json"},
+          body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getLogs",params:[{address:POOL,topics:[SWAP_TOPIC],fromBlock:from,toBlock:to}]})});
+        const j=await r.json(); return Array.isArray(j.result)?j.result:null;
+      }catch(e){ return null; }
+    }
+    try{
+      const bnHex=await rpc("eth_blockNumber",[]);
+      if(!bnHex){out.innerHTML='<div class="cstat"><span>节点暂时忙，稍后再试</span></div>';return;}
+      let hi=parseInt(bnHex,16); const rows=[]; let anyOk=false;
+      // 分段(每段2500块,段不重叠)从最新往回累积,直到攒够10条大单或最多扫5段
+      for(let seg=0; seg<5 && rows.length<10; seg++){
+        const lo=Math.max(0,hi-2500);
+        const logs=await segLogs("0x"+lo.toString(16),"0x"+hi.toString(16));
+        if(logs){ anyOk=true; decode(logs,rows); }
+        hi=lo-1; if(lo===0) break;
+      }
+      if(!anyOk){out.innerHTML='<div class="cstat"><span>节点暂时忙，稍后再试</span></div>';return;}
+      if(!rows.length){out.innerHTML='<div class="cstat"><span>最近这段时间没有 ≥ 1 万 DAI 的大单（行情平淡时大单本就少）</span></div>';return;}
+      rows.sort((x,y)=> (y.blk-x.blk) || (y.li-x.li));
+      out.innerHTML=rows.slice(0,10).map(r=>
         `<div style="border-bottom:1px solid var(--line);padding-bottom:8px">
           <div class="cstat"><span><b style="color:${r.side==='买入'?'#8fbf78':'#e0705f'}">${r.side}</b> ${fmt(r.lgns,0)} LGNS</span><b>${fmt(r.dai,0)} <i>DAI @ ${fmt(r.px,3)}</i></b></div>
           <div style="display:flex;align-items:center;gap:8px;margin-top:3px;font-size:12px;color:var(--muted)">钱包 <code style="font-family:var(--mono);color:var(--soft)">${r.addr?short(r.addr):'—'}</code>${r.addr?`<button class="wcopy" data-a="${r.addr}" style="font:inherit;font-size:11px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:5px;padding:2px 8px">复制</button>`:''}</div>
         </div>`
       ).join("");
-      out.querySelectorAll(".wcopy").forEach(btn=>btn.onclick=()=>{navigator.clipboard?.writeText(btn.dataset.a).then(()=>{btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1000);});});
+      out.querySelectorAll(".wcopy").forEach(btn=>btn.onclick=()=>{copyText(btn.dataset.a);btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1000);});
     }catch(e){out.innerHTML='<div class="cstat"><span style="color:#e0705f">扫描失败，稍后再试</span></div>';}
   };
 
@@ -212,7 +224,7 @@
       <p class="calc-note">这 4 个是官方 X 账号（老板核实过）。⚠️ 真官方<b>绝不会私信</b>找你要助记词或让你转币；名字差一两个字母的都是假冒号。复制账号名去 X 上自己搜、认准蓝V。</p>
     </div>`);
     b.querySelectorAll(".copy2").forEach(btn=>btn.onclick=()=>{
-      navigator.clipboard?.writeText(btn.dataset.h).then(()=>{btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1200);});
+      copyText(btn.dataset.h);btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1200);
     });
   };
 
