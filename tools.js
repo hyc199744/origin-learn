@@ -260,16 +260,12 @@
   };
   /* ========== 8) 查推荐人 · 读社区合约绑定关系 ========== */
   window.openReferrer=function(){
-    const COMM="0x6757165973042541EBdEC47b73283397b5Afd90E"; // 社区合约
-    const T_JOIN="0xd12045cbb824dccd3bf8edffc06c251eca57b57aa8af4b78ab2f2653007c808c";  // Joined(member,referrer,level)
-    const T_IMP="0x124de1528336baeebc201d0e0179dae3a1b40fcf7be0cdec55ac37ae622b6b18";   // Imported(member,referrer,operator)
+    const API="https://count.web3origin.com";
     async function bindTime(user){
-      // 走自建 Worker(带Etherscan索引查询+KV缓存),从24秒降到~2秒/秒回
+      // 走自建 Worker(Etherscan索引查询+KV缓存),秒级返回
       try{
-        const r=await fetch("https://count.web3origin.com/bindtime?addr="+user.toLowerCase());
-        const j=await r.json();
-        if(j&&j.ok&&j.time) return new Date(j.time*1000);
-        return null;
+        const j=await fetch(API+"/bindtime?addr="+user.toLowerCase()).then(r=>r.json());
+        return (j&&j.ok&&j.time)?new Date(j.time*1000):null;
       }catch(e){ return null; }
     }
     const b=M("查推荐人（绑定关系）",`
@@ -280,25 +276,67 @@
         </div>
         <button class="claim2" id="rGo">查 询</button>
         <div class="calc-out" id="rOut" style="margin-top:14px;display:none"></div>
-        <p class="calc-note">直接读社区合约的绑定关系（members），返回这个地址的推荐人钱包和社区层级——链上真实数据，不跳转。没绑定推荐人会显示"未绑定"。</p>
+        <p class="calc-note">读社区合约的绑定关系（members），返回推荐人钱包、社区层级和绑定时间——链上真实数据，不跳转。<b style="color:var(--gold-lt)">完整推荐人地址</b>需支付 2 LGNS 解锁，付到指定收款地址后本页自动放行。</p>
       </div>`);
     const out=b.querySelector("#rOut");
+    let curAddr="";
     async function go(){
-      const a=b.querySelector("#rAddr").value.trim();
+      const a=b.querySelector("#rAddr").value.trim().toLowerCase();
       if(!isAddr(a)){out.style.display="block";out.innerHTML='<div class="cstat"><span style="color:#e0705f">地址格式不对，应是 0x 开头 42 位</span></div>';return;}
+      curAddr=a;
       out.style.display="block";out.innerHTML='<div class="cstat"><span>正在查链上绑定关系…</span></div>';
-      const res=await rpc("eth_call",[{to:COMM,data:"0x08ae4b0c"+pad(a)},"latest"]);
-      if(!res||res==="0x"||res.length<130){out.innerHTML='<div class="cstat"><span>没查到（这个地址可能还没加入社区）</span></div>';return;}
-      const level=parseInt(res.slice(2,66),16);
-      const ref="0x"+res.slice(90,130);
-      if(/^0x0+$/.test(ref)){out.innerHTML='<div class="cstat"><span>这个地址<b style="color:var(--gold-lt)">还没有绑定推荐人</b></span></div>';return;}
+      let d;
+      try{ d=await fetch(API+"/referrer?addr="+a).then(r=>r.json()); }
+      catch(e){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">查询失败，稍后再试</span></div>'; return; }
+      if(!d||!d.ok){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">查询失败，稍后再试</span></div>'; return; }
+      if(!d.hasRef){ out.innerHTML='<div class="cstat"><span>这个地址<b style="color:var(--gold-lt)">还没有绑定推荐人</b>（或还没加入社区）</span></div>'; return; }
       out.innerHTML=
-        `<div class="cstat"><span>推荐人（上级）</span><b class="up" style="font-family:var(--mono);font-size:14px">${short(ref)}</b></div>`+
-        `<div style="display:flex;align-items:center;gap:8px;margin:2px 0 4px;font-size:12px;color:var(--muted)">完整地址 <code style="font-family:var(--mono);color:var(--soft);word-break:break-all;flex:1">${ref}</code><button class="wcopy" data-a="${ref}" style="font:inherit;font-size:11px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:5px;padding:2px 8px;flex:0 0 auto">复制</button></div>`+
-        `<div class="cstat"><span>社区层级 level</span><b>${level}</b></div>`+
-        `<div class="cstat" id="rTime"><span>绑定时间</span><b style="font-size:14px">查询中…<i style="font-size:11px;color:var(--muted)">(较慢，请稍候)</i></b></div>`;
-      out.querySelectorAll(".wcopy").forEach(btn=>btn.onclick=()=>{copyText(btn.dataset.a);btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1000);});
+        `<div class="cstat"><span>推荐人（上级）</span><b class="up" id="rRef" style="font-family:var(--mono);font-size:14px">${d.masked}</b></div>`+
+        `<div class="cstat"><span>社区层级 level</span><b>${d.level}</b></div>`+
+        `<div class="cstat" id="rTime"><span>绑定时间</span><b style="font-size:14px">查询中…</b></div>`+
+        `<div id="rUnlock" style="margin-top:14px"></div>`;
       bindTime(a).then(dt=>{const el=out.querySelector("#rTime b"); if(el) el.textContent=dt?dt.toLocaleString("zh-CN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"未查到（可能是很早或迁移绑定）";});
+      renderUnlock();
+    }
+    function renderUnlock(){
+      const el=out.querySelector("#rUnlock"); if(!el) return;
+      el.innerHTML=`<button class="claim2" id="rBuy" style="background:linear-gradient(180deg,#c9313a,#8f0c11);border-color:#7a0b12">🔓 支付 2 LGNS 看完整推荐人地址</button>`;
+      el.querySelector("#rBuy").onclick=startPay;
+    }
+    async function startPay(){
+      const el=out.querySelector("#rUnlock"); if(!el) return;
+      el.innerHTML='<div class="cstat"><span>正在生成订单…</span></div>';
+      let o;
+      try{ o=await fetch(API+"/order?addr="+curAddr).then(r=>r.json()); }
+      catch(e){ el.innerHTML='<div class="cstat"><span style="color:#e0705f">生成订单失败，稍后再试</span></div>'; return; }
+      if(!o||!o.ok){ el.innerHTML='<div class="cstat"><span style="color:#e0705f">生成订单失败，稍后再试</span></div>'; setTimeout(renderUnlock,1600); return; }
+      el.innerHTML=`
+        <style>.rcopy{font:inherit;font-size:11px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:5px;padding:3px 10px;white-space:nowrap}.rcopy:hover{border-color:var(--gold)}#rQR img,#rQR canvas{margin:0 auto;border:6px solid #fff;border-radius:8px}</style>
+        <div style="background:rgba(214,168,75,.06);border:1px solid rgba(214,168,75,.3);border-radius:12px;padding:16px">
+          <div style="font-family:var(--serif,serif);color:var(--gold-lt);margin-bottom:12px;font-size:15px">支付解锁 · 完整推荐人地址</div>
+          <div class="cstat"><span>精确金额 <i style="color:#e0a24f;font-style:normal">务必一分不差</i></span><b style="font-family:var(--mono);font-size:15px" id="rAmt">${o.amount} LGNS</b></div>
+          <div style="display:flex;gap:8px;margin:6px 0 12px;align-items:center;flex-wrap:wrap"><button class="rcopy" data-c="${o.amount}" data-l="复制金额">复制金额</button><span style="font-size:11px;color:var(--muted)">⚠️ 转整数或改动小数将无法识别订单</span></div>
+          <div class="cstat" style="margin-bottom:4px"><span>收款地址（Polygon 链）</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin:2px 0 10px"><code style="font-family:var(--mono);color:var(--soft);word-break:break-all;flex:1;font-size:12px">${o.receive}</code><button class="rcopy" data-c="${o.receive}" data-l="复制">复制</button></div>
+          <div id="rQR" style="text-align:center;margin:10px 0"></div>
+          <div style="font-size:12.5px;color:var(--soft);line-height:1.75">用支持 <b>Polygon</b> 网络的钱包，把<b style="color:var(--bone)">上面那个精确金额</b>的 LGNS 转到收款地址。到账后本页<b style="color:var(--gold-lt)">自动解锁</b>完整地址（约 20–60 秒）。<br><span id="rPayStatus" style="color:var(--gold-lt)">● 等待付款中…</span></div>
+        </div>`;
+      el.querySelectorAll(".rcopy").forEach(btn=>btn.onclick=()=>{copyText(btn.dataset.c);btn.textContent="已复制 ✓";setTimeout(()=>btn.textContent=btn.dataset.l,1200);});
+      try{ if(window.QRCode){ new QRCode(el.querySelector("#rQR"),{text:o.receive,width:148,height:148,colorDark:"#1a1305",colorLight:"#ffffff"}); } }catch(e){}
+      const started=Date.now();
+      const timer=setInterval(async()=>{
+        if(Date.now()-started>15*60*1000){ clearInterval(timer); const s=el.querySelector("#rPayStatus"); if(s)s.innerHTML='<span style="color:#e0705f">● 订单已超时。若已付款请关闭重查，系统仍会认款并解锁。</span>'; return; }
+        let c;
+        try{ c=await fetch(API+"/checkpay?order="+o.orderId).then(r=>r.json()); }catch(e){ return; }
+        if(c&&c.status==="paid"&&c.referrer){
+          clearInterval(timer);
+          const rf=out.querySelector("#rRef"); if(rf) rf.textContent=short(c.referrer);
+          el.innerHTML=
+            `<div class="cstat"><span style="color:#8fbf78">✓ 已解锁 · 完整推荐人地址</span></div>`+
+            `<div style="display:flex;align-items:center;gap:8px;margin:6px 0 2px"><code style="font-family:var(--mono);color:var(--bone);word-break:break-all;flex:1;font-size:13px">${c.referrer}</code><button class="rcopy" data-c="${c.referrer}" data-l="复制完整地址" style="font:inherit;font-size:11px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:5px;padding:3px 10px;white-space:nowrap">复制完整地址</button></div>`;
+          el.querySelector(".rcopy").onclick=(ev)=>{copyText(c.referrer);ev.target.textContent="已复制 ✓";setTimeout(()=>ev.target.textContent="复制完整地址",1200);};
+        }
+      }, 5000);
     }
     b.querySelector("#rGo").onclick=go;
     b.querySelector("#rAddr").addEventListener("keydown",e=>{if(e.key==="Enter")go();});
