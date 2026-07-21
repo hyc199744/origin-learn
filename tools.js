@@ -314,7 +314,7 @@
         <div style="background:rgba(214,168,75,.06);border:1px solid rgba(214,168,75,.3);border-radius:12px;padding:16px">
           <div style="font-family:var(--serif,serif);color:var(--gold-lt);margin-bottom:12px;font-size:15px">支付解锁 · 完整推荐人地址</div>
           <div class="cstat"><span>精确金额 <i style="color:#e0a24f;font-style:normal">务必一分不差</i></span><b style="font-family:var(--mono);font-size:15px" id="rAmt">${o.amount} LGNS</b></div>
-          <div style="display:flex;gap:8px;margin:6px 0 12px;align-items:center;flex-wrap:wrap"><button class="rcopy" data-c="${o.amount}" data-l="复制金额">复制金额</button><span style="font-size:11px;color:var(--muted)">⚠️ 转整数或改动小数将无法识别订单</span></div>
+          <div style="display:flex;gap:8px;margin:6px 0 12px;align-items:center;flex-wrap:wrap"><button class="rcopy" data-c="${o.amount}" data-l="复制金额">复制金额</button><span style="font-size:11px;color:var(--muted)">⚠️ 照抄这个金额（含小数），别转成整数 2</span></div>
           <div class="cstat" style="margin-bottom:4px"><span>收款地址（Polygon 链）</span></div>
           <div style="display:flex;align-items:center;gap:8px;margin:2px 0 10px"><code style="font-family:var(--mono);color:var(--soft);word-break:break-all;flex:1;font-size:12px">${o.receive}</code><button class="rcopy" data-c="${o.receive}" data-l="复制">复制</button></div>
           <div id="rQR" style="text-align:center;margin:10px 0"></div>
