@@ -30,11 +30,18 @@
   const isAddr=a=>/^0x[0-9a-fA-F]{40}$/.test((a||"").trim());
   // 复制：安全上下文用 clipboard，否则(http/file)用 execCommand 兜底
   function copyText(t){
-    try{ if(navigator.clipboard&&window.isSecureContext){ navigator.clipboard.writeText(t); return true; } }catch(e){}
-    try{ const ta=document.createElement("textarea"); ta.value=t; ta.setAttribute("readonly","");
-      ta.style.position="fixed"; ta.style.top="-9999px"; ta.style.opacity="0"; document.body.appendChild(ta);
-      ta.focus(); ta.select(); ta.setSelectionRange(0,t.length); document.execCommand("copy"); document.body.removeChild(ta); return true;
-    }catch(e){ return false; }
+    // execCommand 在点击手势同步栈内最稳(桌面/手机/http/https/file 都支持),优先用;失败再试 clipboard
+    let ok=false;
+    try{
+      const ta=document.createElement("textarea"); ta.value=t; ta.setAttribute("readonly","");
+      ta.style.position="fixed"; ta.style.left="0"; ta.style.top="0"; ta.style.width="1px"; ta.style.height="1px"; ta.style.opacity="0";
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try{ta.setSelectionRange(0,t.length);}catch(e){}
+      ok=document.execCommand("copy");
+      document.body.removeChild(ta);
+    }catch(e){ ok=false; }
+    if(!ok&&navigator.clipboard){ try{ navigator.clipboard.writeText(t); ok=true; }catch(e){} }
+    return ok;
   }
 
   // 打开弹窗
@@ -122,7 +129,7 @@
   /* ========== 3) 链上数据面板 · 官方 ocros 实时指标 ========== */
   window.openDashboard=async function(){
     const b=M("链上数据面板",`<div class="calc"><div class="calc-out" id="dOut"><div class="cstat"><span>正在读取官方链上数据…</span></div></div>
-      <p class="calc-note">数据来自起源官方后台 (apiv2.ocros.io)，实时读取。⚠️ 记账类指标(如无风险价值)含协议自印储备，看真实家底认"库存市场价值"。</p></div>`);
+      <p class="calc-note">数据来自起源官方后台 (apiv2.ocros.io)，实时读取，指标含义以官方为准。</p></div>`);
     const out=b.querySelector("#dOut");
     try{
       const [dash,met]=await Promise.all([
@@ -136,8 +143,8 @@
         `<div class="cstat"><span>LGNS 价格</span><b class="up">${fmt(+d.price,4)} <i>DAI</i></b></div>`+
         `<div class="cstat"><span>总供应量</span><b>${fmt(+d.totalSupply,0)} <i>LGNS</i></b></div>`+
         `<div class="cstat"><span>质押率</span><b>${fmt(+d.stakeRate,2)}% <i>(约 ${fmt(staked,0)} 枚)</i></b></div>`+
-        `<div class="cstat"><span>库存市场价值(真家底)</span><b>${$(d.treasuryMarketValue)}</b></div>`+
-        `<div class="cstat"><span>无风险价值(含自印)</span><b style="color:#d9a441">${$(d.treasuryRiskFreeValue)}</b></div>`+
+        `<div class="cstat"><span>库存市场价值</span><b>${$(d.treasuryMarketValue)}</b></div>`+
+        `<div class="cstat"><span>无风险价值</span><b>${$(d.treasuryRiskFreeValue)}</b></div>`+
         `<div class="cstat"><span>LP 池价值</span><b>${$(d.lpValue)}</b></div>`+
         `<div class="cstat"><span>累计销毁</span><b>${fmt(+d.totalBurn,0)} <i>LGNS</i></b></div>`+
         `<div class="cstat"><span>A 稳定币供应</span><b>${fmt(+d.asupply,0)} <i>A</i></b></div>`+
