@@ -245,6 +245,10 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 .cstat b.up{color:#8fbf78}
 .cstat b i{font-size:12px;color:var(--soft);font-style:normal;font-family:var(--sans);font-weight:400}
 .calc-live{margin-top:12px;font-size:12.5px;color:var(--soft);letter-spacing:.02em}
+.claim2{display:block;width:100%;font:inherit;font-size:15px;font-weight:600;cursor:pointer;color:#1a1305;background:linear-gradient(180deg,var(--gold-lt),var(--gold));border:none;border-radius:8px;padding:11px;margin-top:6px;transition:filter .15s}
+.claim2:hover{filter:brightness(1.08)}
+.copy2{font:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--gold);color:#1a1305;border:none;border-radius:6px;padding:6px 13px;flex:0 0 auto}
+.copy2:hover{filter:brightness(1.08)}
 .calc-note{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.75}
 @media (max-width:560px){.calc-row{grid-template-columns:1fr}}
 @media (max-width:1000px){
@@ -405,7 +409,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
       <p class="sec-sub">Web3 的好处是一切都能自己上链核对。这些法器帮你把"别人说的"变成"自己查到的"。</p>
     </div>
     <div class="altars reveal" id="altars"></div>
-    <div class="note">⚠️ 法器为示意入口，真实使用时请<b style="color:var(--bone)">始终以官方公告核对地址</b>，谨防假冒站与钓鱼合约。</div>
+    <div class="note">⚠️ 数据实时读自链上与官方接口，仅供参考；真正的交易 / 质押请在官方入口完成，务必<b style="color:var(--bone)">自己核对合约地址</b>，谨防钓鱼。</div>
   </div>
 </section>
 
@@ -439,6 +443,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 </footer>
 
 <script src="library.js"></script>
+<script src="tools.js"></script>
 <script>
 /* ————— 入场序列（用固定计时，不等大视频加载完）————— */
 setTimeout(()=>document.getElementById('loader').classList.add('done'),2900);
@@ -526,20 +531,19 @@ document.querySelectorAll('.slab .q').forEach(q=>q.onclick=()=>{
 
 /* ————— 工具（祭坛器物）————— */
 const TOOLS=[
- {i:"&#128270;",t:"区块浏览器",d:"查合约、查交易、查地址余额与历史——别人说的，自己核对。Polygon 用 PolygonScan，Anubis 链用 browser.anubispace.org。",go:"打开 PolygonScan",url:"https://polygonscan.com/token/0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01"},
- {i:"&#128274;",t:"质押助手",d:"官方 DApp，连钱包发起质押、查看质押量与待领奖励。",go:"前往官方 DApp",url:"https://origindefi.io"},
- {i:"&#129518;",t:"收益计算器",d:"输入本金、天数、当前年化，按每 6 小时 rebase 复利直接算收益——站内计算，不跳转。",go:"打开计算器",calc:true},
- {i:"&#128178;",t:"交易教程",d:"用 Ave.ai 买卖生态代币的图文教程（安卓 / iOS 都有）。",go:"打开 Ave.ai",url:"https://ave.ai"},
- {i:"&#128038;",t:"官方账号",d:"认准官方 X：@SaluteOrigin(主)、@ANUBISCHAIN_(公链)、@Anubi_sab、@Anubis_Labs——别认假冒号。",go:"查看主号",url:"https://x.com/SaluteOrigin"},
- {i:"&#128737;",t:"代币安全自查",d:"用 GoPlus 检测一个代币能不能卖、有没有貔貅、权限是否异常。",go:"去 GoPlus 检测",url:"https://gopluslabs.io/token-security/137"},
- {i:"&#128202;",t:"链上数据面板",d:"国库、供应、销毁、runway 等核心指标，官方仪表盘一目了然。",go:"看面板",url:"https://rocket.origindefi.io/#/dashboard"},
- {i:"&#128011;",t:"大额成交监测",d:"在 DexScreener 盯 LGNS/DAI 主池的实时成交与大单，感知资金动向。",go:"看实时成交",url:"https://dexscreener.com/polygon/0x882df4b0fb50a229c3b4124eb18c759911485bfb"},
+ {i:"&#128270;",t:"区块浏览器",d:"输入任意地址，站内直接读它的 POL / LGNS / 质押量 / DAI 余额，判断是不是合约——不跳转。",go:"站内查询",fn:"openBrowser"},
+ {i:"&#128274;",t:"质押助手",d:"实时看全网质押量、质押率、当前 APY、静默期——站内数据面板。",go:"看质押数据",fn:"openStaking"},
+ {i:"&#129518;",t:"收益计算器",d:"输入本金、天数，按每 6 小时 rebase 复利站内算收益（现价/年化自动读链上）。",go:"打开计算器",fn:"openCalc"},
+ {i:"&#128178;",t:"交易教程",d:"第一次买卖生态代币怎么操作，图文步骤站内看。",go:"看教程",fn:"openTutorial"},
+ {i:"&#128038;",t:"官方账号",d:"4 个官方 X 账号站内展示、可复制，认准别认假冒号。",go:"查看账号",fn:"openOfficial"},
+ {i:"&#128737;",t:"代币安全自查",d:"输入合约地址，站内检测买卖税 / 是否貔貅 / 能否增发 / 持币集中度。",go:"站内检测",fn:"openSecurity"},
+ {i:"&#128202;",t:"链上数据面板",d:"价格 / 供应 / 质押率 / 国库 / runway 等核心指标，站内实时读官方数据。",go:"看面板",fn:"openDashboard"},
+ {i:"&#128011;",t:"大额成交监测",d:"站内扫主池最近成交，筛出 ≥ 1 万 DAI 的大买大卖。",go:"看大单",fn:"openWhale"},
 ];
 document.getElementById('altars').innerHTML=TOOLS.map(t=>`
- <div class="altar" data-url="${t.url||''}" data-calc="${t.calc?'1':''}"><div class="ic">${t.i}</div><h3>${t.t}</h3><p>${t.d}</p><div class="go">${t.go} &#10142;</div></div>`).join('');
+ <div class="altar" data-fn="${t.fn}"><div class="ic">${t.i}</div><h3>${t.t}</h3><p>${t.d}</p><div class="go">${t.go} &#10142;</div></div>`).join('');
 document.getElementById('altars').addEventListener('click',e=>{const a=e.target.closest('.altar');if(!a)return;
-  if(a.dataset.calc==='1'){openCalc();return;}
-  if(a.dataset.url)window.open(a.dataset.url,'_blank','noopener');});
+  const fn=a.dataset.fn; if(fn&&typeof window[fn]==='function')window[fn]();});
 
 /* ————— 站内质押收益计算器（弹窗，不跳转）————— */
 function openCalc(){
