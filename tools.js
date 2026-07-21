@@ -264,14 +264,12 @@
     const T_JOIN="0xd12045cbb824dccd3bf8edffc06c251eca57b57aa8af4b78ab2f2653007c808c";  // Joined(member,referrer,level)
     const T_IMP="0x124de1528336baeebc201d0e0179dae3a1b40fcf7be0cdec55ac37ae622b6b18";   // Imported(member,referrer,operator)
     async function bindTime(user){
+      // 走自建 Worker(带Etherscan索引查询+KV缓存),从24秒降到~2秒/秒回
       try{
-        const r=await fetch("https://polygon.gateway.tenderly.co",{method:"POST",headers:{"content-type":"application/json"},
-          body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getLogs",params:[{address:COMM,topics:[[T_JOIN,T_IMP],"0x"+user.slice(2).toLowerCase().padStart(64,"0")],fromBlock:"0x3370e67",toBlock:"latest"}]})});
-        const j=await r.json(); if(!Array.isArray(j.result)||!j.result.length) return null;
-        j.result.sort((x,y)=>parseInt(x.blockNumber,16)-parseInt(y.blockNumber,16)||parseInt(x.logIndex,16)-parseInt(y.logIndex,16));
-        const b=await rpc("eth_getBlockByNumber",[j.result[0].blockNumber,false]);
-        if(!b||!b.timestamp) return null;
-        return new Date(parseInt(b.timestamp,16)*1000);
+        const r=await fetch("https://count.web3origin.com/bindtime?addr="+user.toLowerCase());
+        const j=await r.json();
+        if(j&&j.ok&&j.time) return new Date(j.time*1000);
+        return null;
       }catch(e){ return null; }
     }
     const b=M("查推荐人（绑定关系）",`
