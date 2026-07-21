@@ -261,6 +261,19 @@
   /* ========== 8) 查推荐人 · 读社区合约绑定关系 ========== */
   window.openReferrer=function(){
     const COMM="0x6757165973042541EBdEC47b73283397b5Afd90E"; // 社区合约
+    const T_JOIN="0xd12045cbb824dccd3bf8edffc06c251eca57b57aa8af4b78ab2f2653007c808c";  // Joined(member,referrer,level)
+    const T_IMP="0x124de1528336baeebc201d0e0179dae3a1b40fcf7be0cdec55ac37ae622b6b18";   // Imported(member,referrer,operator)
+    async function bindTime(user){
+      try{
+        const r=await fetch("https://polygon.gateway.tenderly.co",{method:"POST",headers:{"content-type":"application/json"},
+          body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getLogs",params:[{address:COMM,topics:[[T_JOIN,T_IMP],"0x"+user.slice(2).toLowerCase().padStart(64,"0")],fromBlock:"0x3370e67",toBlock:"latest"}]})});
+        const j=await r.json(); if(!Array.isArray(j.result)||!j.result.length) return null;
+        j.result.sort((x,y)=>parseInt(x.blockNumber,16)-parseInt(y.blockNumber,16)||parseInt(x.logIndex,16)-parseInt(y.logIndex,16));
+        const b=await rpc("eth_getBlockByNumber",[j.result[0].blockNumber,false]);
+        if(!b||!b.timestamp) return null;
+        return new Date(parseInt(b.timestamp,16)*1000);
+      }catch(e){ return null; }
+    }
     const b=M("查推荐人（绑定关系）",`
       <div class="calc">
         <div class="calc-row" style="grid-template-columns:1fr">
@@ -284,8 +297,10 @@
       out.innerHTML=
         `<div class="cstat"><span>推荐人（上级）</span><b class="up" style="font-family:var(--mono);font-size:14px">${short(ref)}</b></div>`+
         `<div style="display:flex;align-items:center;gap:8px;margin:2px 0 4px;font-size:12px;color:var(--muted)">完整地址 <code style="font-family:var(--mono);color:var(--soft);word-break:break-all;flex:1">${ref}</code><button class="wcopy" data-a="${ref}" style="font:inherit;font-size:11px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:5px;padding:2px 8px;flex:0 0 auto">复制</button></div>`+
-        `<div class="cstat"><span>社区层级 level</span><b>${level}</b></div>`;
+        `<div class="cstat"><span>社区层级 level</span><b>${level}</b></div>`+
+        `<div class="cstat" id="rTime"><span>绑定时间</span><b style="font-size:14px">查询中…<i style="font-size:11px;color:var(--muted)">(较慢，请稍候)</i></b></div>`;
       out.querySelectorAll(".wcopy").forEach(btn=>btn.onclick=()=>{copyText(btn.dataset.a);btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1000);});
+      bindTime(a).then(dt=>{const el=out.querySelector("#rTime b"); if(el) el.textContent=dt?dt.toLocaleString("zh-CN",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"未查到（可能是很早或迁移绑定）";});
     }
     b.querySelector("#rGo").onclick=go;
     b.querySelector("#rAddr").addEventListener("keydown",e=>{if(e.key==="Enter")go();});
