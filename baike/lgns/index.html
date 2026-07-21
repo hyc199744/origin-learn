@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LGNS 是什么？起源（ORIGIN）核心代币完整介绍 - web3origin.com</title>
+<meta name="description" content="LGNS 是起源（ORIGIN）生态的核心代币——算法代币，精度 9 位不是 18，采用 (3,3) 质押模型、每 6 小时 rebase。本文讲清 LGNS 是什么、合约地址、质押与 sLGNS、铸造机制、与 GLGNS/ANB 的关系，以及如何自己上链核实。">
+<meta name="keywords" content="LGNS,LGNS是什么,LGNS介绍,LGNS币,朗基努斯,LGNS合约地址,LGNS质押,LGNS收益,LGNS精度,起源核心代币,(3,3),sLGNS,web3origin">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://web3origin.com/baike/lgns/">
+<link rel="icon" href="../../assets/logo.png">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LGNS 是什么？起源核心代币完整介绍">
+<meta property="og:description" content="LGNS 是起源生态核心代币（算法代币，精度 9 位），(3,3) 质押、每 6 小时 rebase。合约地址、质押、铸造机制、风险提示，一文看懂，链上可核实。">
+<meta property="og:url" content="https://web3origin.com/baike/lgns/">
+<meta property="og:image" content="https://web3origin.com/assets/logo.png">
+<meta property="og:locale" content="zh_CN">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"LGNS 是什么？起源（ORIGIN）核心代币完整介绍","inLanguage":"zh-CN","author":{"@type":"Organization","name":"起源学习站 web3origin"},"publisher":{"@type":"Organization","name":"起源学习站 web3origin","logo":{"@type":"ImageObject","url":"https://web3origin.com/assets/logo.png"}},"mainEntityOfPage":"https://web3origin.com/baike/lgns/","datePublished":"2026-07-21","description":"LGNS 是起源生态的核心代币，算法代币，精度 9 位，(3,3) 质押模型。"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"起源学习站","item":"https://web3origin.com/"},{"@type":"ListItem","position":2,"name":"起源百科","item":"https://web3origin.com/baike/"},{"@type":"ListItem","position":3,"name":"LGNS 是什么","item":"https://web3origin.com/baike/lgns/"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"LGNS 是什么？","acceptedAnswer":{"@type":"Answer","text":"LGNS（朗基努斯 Longinus）是起源（ORIGIN）生态的核心代币，属于算法代币（不是稳定币），采用源自 OlympusDAO 的 (3,3) 质押模型，鼓励长期持有。它部署在 Polygon 与自建的 Anubis 两条链上，精度为 9 位。"}},
+{"@type":"Question","name":"LGNS 合约地址是多少？","acceptedAnswer":{"@type":"Answer","text":"LGNS 在 Polygon 链的合约地址是 0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01；在 Anubis 链的合约地址是 0x4D1D808a081FdAc440703b3765FC61f8028C06B8。可在 PolygonScan 或 Anubis 区块浏览器独立核实。"}},
+{"@type":"Question","name":"LGNS 的精度是多少？","acceptedAnswer":{"@type":"Answer","text":"LGNS 的精度是 9 位（decimals=9），不是常见的 18 位。这是 OlympusDAO 分叉代币的传统。计算金额时要按 9 位换算。"}},
+{"@type":"Question","name":"LGNS 质押的高年化是真的赚钱吗？","acceptedAnswer":{"@type":"Answer","text":"LGNS 质押奖励本质是协议每 6 小时增发（rebase）新币，你持有的数量会增加。但高年化不等于净赚——你的实际收益要同时看 LGNS 的币价与协议真实储备。数量上涨不等于购买力上涨，请理性看待并自己上链核实。"}},
+{"@type":"Question","name":"LGNS 和 GLGNS 有什么区别？","acceptedAnswer":{"@type":"Answer","text":"LGNS 是生态核心代币，用于质押、生息、交易；GLGNS 是治理代币（固定供应 21 万枚，配双层 NFT 治理结构），用于社区治理投票。两者是不同的代币，别混淆。"}}
+]}
+</script>
+<style>
+:root{--obsidian:#050303;--temple:#210507;--blood:#7A0B12;--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--green:#8fbf78;--mono:'SFMono-Regular',ui-monospace,Consolas,monospace;--serif:"STZhongsong","Songti SC",Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1000px 500px at 50% -10%,#2a0a0c,#050303 60%) fixed,#050303;color:var(--bone);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.85}
+a{color:var(--gold-lt);text-decoration:none} a:hover{text-decoration:underline}
+.nav{display:flex;align-items:center;gap:16px;padding:14px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.nav .brand{font-family:var(--serif);color:var(--bone);font-size:17px} .nav .brand b{color:var(--gold-lt)}
+.nav a{font-size:13.5px;color:var(--soft)} .nav .sp{margin-left:auto}
+.crumb{max-width:820px;margin:0 auto;padding:14px 20px 0;font-size:12.5px;color:var(--muted)}
+.crumb a{color:var(--soft)}
+.wrap{max-width:820px;margin:0 auto;padding:8px 20px 70px}
+h1{font-family:var(--serif);font-size:clamp(25px,5vw,36px);color:var(--gold-lt);margin:12px 0 8px;font-weight:400;text-wrap:balance}
+h2{font-family:var(--serif);color:var(--gold-lt);font-size:22px;font-weight:400;margin:34px 0 12px;border-left:3px solid var(--blood);padding-left:12px}
+h3{font-size:16px;color:var(--bone);margin:20px 0 6px}
+p{color:var(--soft);font-size:15px;margin:12px 0}
+p b,li b{color:var(--bone);font-weight:400}
+.lede{color:var(--bone);font-size:16px;background:rgba(214,168,75,.05);border:1px solid var(--line);border-radius:10px;padding:15px 18px}
+ul{color:var(--soft);font-size:15px;padding-left:22px} li{margin:7px 0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:400;width:36%} td{color:var(--soft);word-break:break-all}
+td .mono{font-family:var(--mono);font-size:12.5px}
+.note{background:rgba(224,162,79,.07);border:1px solid rgba(224,162,79,.3);border-radius:9px;padding:12px 15px;font-size:14px;color:var(--soft);margin:16px 0}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.tools a{background:linear-gradient(180deg,#2a1410,#1a0d0a);border:1px solid var(--line);border-radius:9px;padding:10px 16px;font-size:14px;color:var(--gold-lt)}
+.faq{border:1px solid var(--line);border-radius:9px;margin-bottom:9px;padding:2px 15px;background:rgba(214,168,75,.03)}
+.faq summary{cursor:pointer;padding:12px 0;color:var(--bone);font-size:15px}
+.faq p{margin:0 0 12px;font-size:14px}
+footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--muted);font-size:13px;text-align:center;line-height:2}
+footer a{margin:0 7px}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <span class="brand">起源 · <b>百科</b></span>
+  <a href="../../">← 返回首页</a>
+  <span class="sp"></span>
+  <a href="../../contracts/">合约地址大全</a>
+</nav>
+<div class="crumb"><a href="../../">起源学习站</a> › 起源百科 › LGNS 是什么</div>
+<article class="wrap">
+  <h1>LGNS 是什么？起源（ORIGIN）核心代币完整介绍</h1>
+  <p class="lede">一句话：<b>LGNS 是起源（ORIGIN）生态的核心代币</b>——一枚算法代币（不是稳定币），采用源自 OlympusDAO 的 <b>(3,3)</b> 质押模型，鼓励大家长期持有；它同时部署在 <b>Polygon</b> 和起源自建的 <b>Anubis</b> 两条链上，<b>精度是 9 位（不是 18）</b>。</p>
+
+  <h2>一、LGNS 核心参数一览</h2>
+  <table>
+    <tr><th>全称</th><td>LGNS（朗基努斯 Longinus，"命运之矛"）</td></tr>
+    <tr><th>类型</th><td>生态核心代币 · 算法代币（非稳定币）</td></tr>
+    <tr><th>所属生态</th><td>起源 ORIGIN（DeFi + 自建公链的 Web3 生态）</td></tr>
+    <tr><th>Polygon 合约地址</th><td><span class="mono">0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01</span></td></tr>
+    <tr><th>Anubis 合约地址</th><td><span class="mono">0x4D1D808a081FdAc440703b3765FC61f8028C06B8</span></td></tr>
+    <tr><th>精度 decimals</th><td><b>9 位</b>（不是 18 —— OlympusDAO 分叉传统）</td></tr>
+    <tr><th>供应量</th><td>约 37 亿枚，非固定——通过质押/债券持续铸造</td></tr>
+    <tr><th>机制</th><td>(3,3) 博弈 + 质押 rebase（每 6 小时增发一次）</td></tr>
+    <tr><th>首发</th><td>2024-03-06 部署于 Polygon，开盘价 4 DAI；2026-05-13 在 Anubis 链开盘</td></tr>
+  </table>
+  <div class="note">⚠️ 记住 <b>精度是 9 位</b>：链上读到的原始数字要除以 10⁹ 才是真实枚数。很多人误按 18 位算，会差一千倍。</div>
+
+  <h2>二、(3,3) 是什么？为什么大家都在讲"质押"</h2>
+  <p>(3,3) 来自 OlympusDAO 的一套<b>博弈模型</b>，核心思想是：如果所有人都选择<b>质押并长期持有</b>，对每个参与者都最有利（这就是 "3,3" 的含义）。所以生态用高质押奖励来鼓励你把 LGNS 质押起来、而不是频繁买卖。</p>
+  <p>它的质押奖励本质是——<b>协议每 6 小时增发（rebase）一批新的 LGNS</b>，按比例分给质押者，所以你质押后持有的数量会自动慢慢变多。</p>
+
+  <h2>三、质押 LGNS 与 sLGNS 凭证</h2>
+  <p>当你质押 LGNS，会得到 <b>sLGNS</b>（staked LGNS）作为质押凭证。sLGNS 会随着每 6 小时的 rebase <b>自动增长</b>，代表你质押中的 LGNS 份额。想退出时用 sLGNS 换回 LGNS。</p>
+  <div class="note">📌 理性提示：<b>高年化 ≠ 净赚</b>。奖励是"增发的数量变多"，但你的真实收益要<b>同时看 LGNS 的币价和协议真实储备</b>——数量涨不等于购买力涨。任何收益都请自己上链核实、量力而行（DYOR）。</div>
+  <div class="tools"><a href="../../">🧮 用收益计算器估算</a><a href="../../">📡 钱包链上体检（看质押/资产）</a></div>
+
+  <h2>四、LGNS 是怎么产生的（铸造机制）</h2>
+  <p>LGNS 走的是 OlympusDAO 式的<b>债券 + 国库</b>铸造：用户把 DAI 等资产存入债券合约 → 债券把资产交给<b>主国库</b> → 国库按储备价值<b>铸造相应的 LGNS</b>，一部分给买债券的人、一部分作为奖励分给质押者。所以 LGNS 是<b>持续铸造、非固定供应</b>的。</p>
+  <p>这些合约、国库、铸造权限都是链上公开的，你可以在我们的 <a href="../../contracts/">起源合约地址大全</a> 里查到每个合约地址，并点区块浏览器核实。</p>
+
+  <h2>五、LGNS 与起源其它代币的关系</h2>
+  <ul>
+    <li><b>LGNS</b> —— 核心代币，用来质押、生息、交易（本文主角）。</li>
+    <li><b>sLGNS</b> —— 质押凭证，质押 LGNS 后得到，随 rebase 增长。</li>
+    <li><b>GLGNS</b> —— <b>治理代币</b>（固定 21 万枚 + 双层 NFT 治理），用于社区投票。<b>注意：治理用 GLGNS，不是 LGNS。</b></li>
+    <li><b>A</b> —— 生态稳定币，通过销毁 LGNS 铸造。</li>
+    <li><b>ANB</b> —— Anubis 链的原生 gas + 治理代币（总量 2100 万）。不过在 Anubis 链上，gas 也可直接用 DAI。</li>
+  </ul>
+
+  <h2>六、在哪买、怎么用 LGNS</h2>
+  <ul>
+    <li><b>准备自托管钱包</b>（如 MetaMask/OKX），务必保管好助记词，任何人问助记词都是骗子。</li>
+    <li>LGNS 主要在 <b>LGNS/DAI 交易池（Polygon 的 QuickSwap）</b>交易；Gate 交易所也于 2025-09 上架了 LGNS。</li>
+    <li><b>小额试水</b>：先小笔买入、质押走一遍流程，确认无误再考虑加量。</li>
+    <li>拿到 LGNS 后可在官方 DApp 质押生息，或长期持有参与生态。</li>
+  </ul>
+
+  <h2>七、LGNS 安全吗？怎么自己核实</h2>
+  <p>是不是安全，别只听任何人一面之词——<b>自己上链核实一遍</b>才踏实。你可以：</p>
+  <ul>
+    <li>用 <a href="../../contracts/">合约地址大全</a> + <a href="../../">合约验证中心</a> 查 LGNS 合约是否开源、是否可升级、谁是管理员、有没有增发权限。</li>
+    <li>用 <a href="../../">钱包链上体检</a> 查任意地址的余额、交易记录、授权风险。</li>
+    <li>用 <a href="../../">链上证据库</a> 查 LGNS 从创世到现在的关键事件（都带真实交易哈希）。</li>
+    <li>警惕新型 <b>EIP-7702 授权钓鱼</b>，认准官方渠道，不明授权及时撤销。</li>
+  </ul>
+
+  <h2>常见问题（FAQ）</h2>
+  <details class="faq"><summary>LGNS 是什么？</summary><p>LGNS（朗基努斯）是起源生态的核心代币，算法代币（非稳定币），采用 (3,3) 质押模型，部署在 Polygon 与 Anubis 两条链，精度 9 位。</p></details>
+  <details class="faq"><summary>LGNS 合约地址是多少？</summary><p>Polygon：0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01；Anubis：0x4D1D808a081FdAc440703b3765FC61f8028C06B8。可在区块浏览器核实。</p></details>
+  <details class="faq"><summary>LGNS 精度是多少？</summary><p>9 位（decimals=9），不是 18。链上原始数字除以 10⁹ 才是真实枚数。</p></details>
+  <details class="faq"><summary>LGNS 质押的高年化是真赚钱吗？</summary><p>奖励本质是每 6 小时增发新币、数量变多，但高年化不等于净赚——真实收益要同时看币价和协议真实储备，请理性看待、自己核实。</p></details>
+  <details class="faq"><summary>LGNS 和 GLGNS 有什么区别？</summary><p>LGNS 是核心代币（质押/生息/交易）；GLGNS 是治理代币（21 万固定 + NFT 治理，用于投票）。两者不同，治理用 GLGNS。</p></details>
+
+  <footer>
+    <div>相关：
+      <a href="../../">起源学习站首页</a>·
+      <a href="../../contracts/">合约地址大全</a>·
+      <a href="../../">钱包体检</a>·
+      <a href="../../">收益计算器</a>·
+      <a href="../../">链上证据库</a>
+    </div>
+    <div style="margin-top:8px;color:var(--muted);font-size:12px">web3origin.com · 起源生态链上数据入口 · 内容仅供学习理解，不构成投资建议，数据以区块浏览器为准（DYOR）</div>
+  </footer>
+</article>
+</body>
+</html>
