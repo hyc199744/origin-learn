@@ -171,13 +171,18 @@
         let side,dai,lgns;
         if(a0In>0n){side="买入";dai=Number(a0In)/1e18;lgns=Number(a1Out)/1e9;}
         else{side="卖出";dai=Number(a0Out)/1e18;lgns=Number(a1In)/1e9;}
-        if(dai>=TH) rows.push({side,dai,lgns,px:lgns>0?dai/lgns:0,blk:parseInt(lg.blockNumber,16)});
+        const to=(lg.topics&&lg.topics[2])?"0x"+lg.topics[2].slice(-40):"";
+        if(dai>=TH) rows.push({side,dai,lgns,px:lgns>0?dai/lgns:0,blk:parseInt(lg.blockNumber,16),addr:to});
       }
       rows.sort((x,y)=>y.blk-x.blk);
       if(!rows.length){out.innerHTML=`<div class="cstat"><span>最近这段时间没有 ≥ 1 万 DAI 的大单（正常，行情平淡时大单本就少）</span></div>`;return;}
       out.innerHTML=rows.slice(0,12).map(r=>
-        `<div class="cstat"><span><b style="color:${r.side==='买入'?'#8fbf78':'#e0705f'}">${r.side}</b> ${fmt(r.lgns,0)} LGNS</span><b>${fmt(r.dai,0)} <i>DAI @ ${fmt(r.px,3)}</i></b></div>`
+        `<div style="border-bottom:1px solid var(--line);padding-bottom:8px">
+          <div class="cstat"><span><b style="color:${r.side==='买入'?'#8fbf78':'#e0705f'}">${r.side}</b> ${fmt(r.lgns,0)} LGNS</span><b>${fmt(r.dai,0)} <i>DAI @ ${fmt(r.px,3)}</i></b></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:3px;font-size:12px;color:var(--muted)">钱包 <code style="font-family:var(--mono);color:var(--soft)">${r.addr?short(r.addr):'—'}</code>${r.addr?`<button class="wcopy" data-a="${r.addr}" style="font:inherit;font-size:11px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:5px;padding:2px 8px">复制</button>`:''}</div>
+        </div>`
       ).join("");
+      out.querySelectorAll(".wcopy").forEach(btn=>btn.onclick=()=>{navigator.clipboard?.writeText(btn.dataset.a).then(()=>{btn.textContent="已复制";setTimeout(()=>btn.textContent="复制",1000);});});
     }catch(e){out.innerHTML='<div class="cstat"><span style="color:#e0705f">扫描失败，稍后再试</span></div>';}
   };
 
