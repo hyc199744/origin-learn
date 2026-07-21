@@ -441,6 +441,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   内容仅供学习理解，不构成投资建议 · DYOR，自己查、自己懂、再决定<br>
   <span style="color:var(--muted);font-size:11px">动态素材取自起源官方页面 · 新手友好学习站</span>
   <div style="margin-top:16px;font-size:12.5px;color:var(--muted)">本页累计访问 <span id="vercount_value_page_pv" style="color:var(--gold-lt)">···</span> 次 · 独立访客 <span id="vercount_value_site_uv" style="color:var(--gold-lt)">···</span> 人</div>
+  <div id="geoDist" style="margin:12px auto 0;font-size:12.5px;color:var(--muted);max-width:680px;line-height:2">访客国家分布加载中…</div>
 </footer>
 
 <script src="library.js"></script>
@@ -662,5 +663,21 @@ document.querySelectorAll('.codex').forEach(card=>{
 })();
 </script>
 <script defer src="https://events.vercount.one/js"></script>
+<script>
+/* 访客国家分布（数据来自自建 Cloudflare Worker count.web3origin.com）*/
+(function(){
+  const NAMES={CN:"中国",HK:"香港",TW:"台湾",MO:"澳门",US:"美国",SG:"新加坡",JP:"日本",KR:"韩国",GB:"英国",DE:"德国",FR:"法国",CA:"加拿大",AU:"澳大利亚",MY:"马来西亚",TH:"泰国",VN:"越南",ID:"印尼",IN:"印度",RU:"俄罗斯",PH:"菲律宾",NL:"荷兰",BR:"巴西",TR:"土耳其",AE:"阿联酋",IT:"意大利",ES:"西班牙",PT:"葡萄牙",UA:"乌克兰",PL:"波兰",SA:"沙特",EG:"埃及",NG:"尼日利亚",ZA:"南非",MX:"墨西哥",AR:"阿根廷",SE:"瑞典",CH:"瑞士",BE:"比利时",AT:"奥地利",NZ:"新西兰",KH:"柬埔寨",LA:"老挝",MM:"缅甸",BD:"孟加拉",PK:"巴基斯坦",KZ:"哈萨克",IR:"伊朗"};
+  function flag(cc){ if(!cc||cc.length!==2) return "🏳️"; try{return String.fromCodePoint(...[...cc.toUpperCase()].map(c=>127397+c.charCodeAt(0)));}catch(e){return "🏳️";} }
+  const el=document.getElementById("geoDist"); if(!el) return;
+  fetch("https://count.web3origin.com/?hit=1",{cache:"no-store"}).then(r=>r.json()).then(d=>{
+    if(!d||!d.dist||!d.dist.length){el.style.display="none";return;}
+    const total=d.total||1, top=d.dist.slice(0,12);
+    el.innerHTML='<span style="color:var(--soft)">访客来自</span>　'+top.map(([cc,n])=>{
+      const pct=n/total*100;
+      return `${flag(cc)} ${NAMES[cc]||cc} <b style="color:var(--gold-lt)">${n}</b>${pct>=1?`<i style="color:var(--muted);font-size:11px">(${pct.toFixed(0)}%)</i>`:''}`;
+    }).join('　·　');
+  }).catch(()=>{el.style.display="none";});
+})();
+</script>
 </body>
 </html>
