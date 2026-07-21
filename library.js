@@ -67,6 +67,12 @@ const LIBRARY = [
     desc: "起源官方白皮书，机制、代币、路线图的一手资料。",
     src: "https://media.web3origin.com/origin-whitepaper.pdf"
   },
+  {
+    type: "pdf", cat: "课件",
+    title: "金山老师课件",
+    desc: "金山老师的起源课程课件，共 24 页，系统讲解生态机制。",
+    src: "assets/docs/jinshan-kejian.pdf"
+  },
 
   // —— 本地图文（正文直接写在 html 字段里）——
   {
