@@ -366,14 +366,30 @@
       let html='<div style="font-family:var(--serif,serif);color:var(--gold-lt);margin-bottom:10px;font-size:15px">我的订单</div>';
       html+='<div style="display:flex;gap:8px;margin-bottom:10px"><input id="rFind" placeholder="换了设备？粘贴订单号找回…" spellcheck="false" style="flex:1;min-width:0;font:inherit;font-size:12px;background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--bone);border-radius:7px;padding:8px 10px"><button id="rFindGo" style="font:inherit;font-size:12px;cursor:pointer;background:linear-gradient(180deg,#2a1410,#1a0d0a);color:var(--gold-lt);border:1px solid var(--line);border-radius:7px;padding:0 18px">查</button></div><div id="rFindOut" style="margin-bottom:12px"></div>';
       if(!arr.length){ html+='<div class="cstat"><span style="color:var(--muted)">本设备还没有订单。查地址、点"支付解锁"生成订单后会自动记在这里。</span></div>'; }
-      else html+='<div style="font-size:12px;color:var(--muted);margin-bottom:8px">本设备生成的订单：</div>'+arr.map((o,i)=>
+      else html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:var(--muted)">本设备生成的订单：</span><button id="rClearPend" style="font:inherit;font-size:11px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:3px 11px">清空待付款</button></div>'+arr.map((o,i)=>
         `<div class="rord" data-i="${i}" style="border:1px solid var(--line);border-radius:10px;padding:12px 13px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:11px;color:var(--muted)">订单 #${i+1}</span><button class="rcancel" data-oid="${o.orderId}" style="font:inherit;font-size:11px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:2px 10px">✕ 取消</button></div>
           <div class="cstat"><span>查询地址</span><b style="font-family:var(--mono);font-size:12px">${short(o.addr)}</b></div>
           <div class="cstat"><span>金额</span><b style="font-family:var(--mono)">${o.amount} LGNS</b></div>
           <div class="cstat"><span>下单时间</span><b style="font-size:12px;color:var(--muted)">${new Date(o.created).toLocaleString("zh-CN",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"})}</b></div>
           <div class="rordbody" style="margin-top:8px"><span style="font-size:12px;color:var(--muted)">查询付款状态中…</span></div>
         </div>`).join("");
       mineOut.innerHTML=html;
+      // 取消单个订单（两步确认，仅从本设备列表移除）
+      let armed=null;
+      mineOut.querySelectorAll(".rcancel").forEach(btn=>btn.onclick=()=>{
+        const oid=btn.dataset.oid;
+        if(armed!==oid){ if(armed){const p=mineOut.querySelector('.rcancel[data-oid="'+armed+'"]'); if(p){p.textContent="✕ 取消";p.style.color="var(--muted)";p.style.borderColor="var(--line)";}} armed=oid; btn.textContent="确认取消？"; btn.style.color="#e0705f"; btn.style.borderColor="#e0705f"; setTimeout(()=>{ if(armed===oid&&btn.isConnected){btn.textContent="✕ 取消";btn.style.color="var(--muted)";btn.style.borderColor="var(--line)";armed=null;} },3000); return; }
+        try{ localStorage.setItem(OKEY,JSON.stringify(loadOrders().filter(x=>x.orderId!==oid))); }catch(e){}
+        renderMine();
+      });
+      const cp=mineOut.querySelector("#rClearPend"); let cpArm=false;
+      if(cp) cp.onclick=()=>{
+        if(!cpArm){ cpArm=true; cp.textContent="确认清空待付款？"; cp.style.color="#e0705f"; cp.style.borderColor="#e0705f"; setTimeout(()=>{ if(cp.isConnected){cp.textContent="清空待付款";cp.style.color="var(--muted)";cp.style.borderColor="var(--line)";cpArm=false;} },3000); return; }
+        // 清空本设备"待付款"（已付款的保留）；用checkOne已知状态无法同步，这里按订单号逐个删——简化为清全部待付款需先查，改为清空全部本地订单里未标记paid的
+        Promise.all(loadOrders().map(async o=>{ try{ const c=await fetch(API+"/checkpay?order="+o.orderId).then(r=>r.json()); return (c&&c.status==="paid")?o:null; }catch(e){ return o; } }))
+          .then(keep=>{ const kept=keep.filter(Boolean); try{ localStorage.setItem(OKEY,JSON.stringify(kept)); }catch(e){} renderMine(); });
+      };
       const fg=mineOut.querySelector("#rFindGo"), fi=mineOut.querySelector("#rFind"), fo=mineOut.querySelector("#rFindOut");
       async function findGo(){
         const id=fi.value.trim(); if(!id) return;
