@@ -50,8 +50,31 @@
     document.getElementById("modalTitle").textContent=title;
     document.getElementById("modalBody").innerHTML=html;
     mask.classList.add("show");
+    translateModal();
     return document.getElementById("modalBody");
   }
+
+
+  const MODAL_DICT={"链上地址查询": "On-chain Address Lookup", "质押数据面板": "Staking Data Panel", "质押收益计算器": "Staking Yield Calculator", "交易教程 · 买卖生态代币": "Trading Tutorial · Buy/Sell Tokens", "官方账号": "Official Accounts", "代币安全自查": "Token Safety Check", "链上数据面板": "On-chain Dashboard", "大额成交监测": "Whale Trade Monitor", "查推荐人（绑定关系）": "Referrer Lookup (binding)", "起源官方合约验证中心": "Origin Contract Verification Center", "钱包监控 · 链上体检": "Wallet Monitor · On-chain Checkup", "起源链上证据库": "Origin On-chain Evidence DB", "Origin 链上日报": "Origin Chain Daily", "查 询": "Query", "查询": "Query", "查": "Go", "复制": "Copy", "复制金额": "Copy amount", "复制地址": "Copy address", "复制完整地址": "Copy full address", "复制订单号": "Copy order ID", "已复制": "Copied", "已复制 ✓": "Copied ✓", "已复制✓": "Copied ✓", "开始体检": "Start checkup", "继续付款": "Continue payment", "查看付款方式": "Payment details", "取消": "Cancel", "✕ 取消": "✕ Cancel", "确认取消？": "Confirm cancel?", "清空待付款": "Clear pending", "确认清空待付款？": "Confirm clear pending?", "站内查询": "Look up", "看质押数据": "View data", "打开计算器": "Open calculator", "全部": "All", "全部链": "All chains", "时间正序": "Oldest first", "时间倒序": "Newest first", "⇅ 时间正序": "⇅ Oldest first", "⇅ 时间倒序": "⇅ Newest first", "查询中…": "Querying…", "正在查链上绑定关系…": "Reading on-chain binding…", "正在读取链上数据…（首次约 5–8 秒）": "Reading on-chain data… (first time ~5-8s)", "正在生成订单…": "Creating order…", "正在生成今日链上日报…": "Generating today's report…", "正在读取质押数据…": "Reading staking data…", "正在读取链上数据…": "Reading on-chain data…", "生成订单失败，稍后再试": "Failed to create order, try again later", "查询失败，稍后再试": "Query failed, try again later", "读取失败，稍后再试": "Read failed, try again later", "数据暂时读不到，稍后再试": "Data unavailable, try again later", "日报生成失败，稍后再试": "Failed to generate report, try again later", "日报暂时读不到，稍后再试": "Report unavailable, try again later", "● 等待付款中…": "● Waiting for payment…", "地址格式不对，应是 0x 开头 42 位": "Invalid address — must be 0x + 40 hex", "没有匹配的合约": "No matching contract", "没有匹配的事件": "No matching event", "推荐人（上级）": "Referrer (upline)", "社区层级 level": "Community level", "绑定时间": "Binding time", "🔒 支付后显示": "🔒 Shown after payment", "支付解锁 · 完整推荐人地址": "Unlock · Full referrer address", "支付解锁 · 完整推荐人地址 + 绑定时间": "Unlock · Full referrer + binding time", "精确金额": "Exact amount", "务必一分不差": "must be exact", "收款地址（Polygon 链）": "Receiving address (Polygon)", "订单号": "Order ID", "✓ 已付款 · 完整推荐人地址": "✓ Paid · Full referrer address", "✓ 已付款 · 完整推荐人": "✓ Paid · Full referrer", "● 待付款": "● Pending", "未查到": "Not found", "我的订单": "My orders", "查询地址": "Queried address", "金额": "Amount", "下单时间": "Order time", "本设备生成的订单：": "Orders on this device:", "换了设备？粘贴订单号找回…": "Switched device? Paste order ID to recover…", "该订单还没到账（待付款）": "This order isn't paid yet (pending)", "支付 2 LGNS 后可查看：": "After paying 2 LGNS you can see:", "完整推荐人地址": "Full referrer address", "什么时候绑定的这个上级": "when this upline was bound", "钱包地址": "Wallet address", "普通钱包": "Regular wallet", "合约地址": "Contract address", "首次活动": "First activity", "风险评分": "Risk score", "低风险": "Low risk", "中风险": "Medium risk", "偏高风险": "Higher risk", "资产总览": "Assets overview", "风险监控": "Risk monitor", "最近活动时间线": "Recent activity timeline", "转入": "IN", "转出": "OUT", "未持有已知代币": "No known tokens held", "浏览器 ↗": "Explorer ↗", "最近没有可显示的活动": "No recent activity to show", "合约交互": "Contract call", "失败": "failed", "原生": "native", "所属链": "Chain", "区块浏览器": "Block explorer", "合约类型": "Contract type", "部署时间": "Deploy time", "部署钱包": "Deployer wallet", "是否开源验证": "Open-source verified", "是否代理合约": "Is proxy", "是否可以升级": "Upgradeable", "管理员权限": "Admin powers", "是否多签": "Multisig", "暂停功能": "Pause function", "实现合约": "Implementation", "相关合约关系": "Related contracts", "基础信息": "Basic info", "权限与安全": "Permissions & security", "技术结构": "Technical structure", "开源": "Verified", "未开源": "Unverified", "代理": "Proxy", "可升级": "Upgradeable", "多签": "Multisig", "搜索合约名称或地址…": "Search contract name or address…", "今日数据概览": "Today's overview", "今日大额成交": "Large trades today", "今日买卖概况": "Buy/Sell summary", "今日风险提醒": "Risk alerts", "今日一句话总结": "One-line summary", "买入": "Buy", "卖出": "Sell", "LGNS 价格": "LGNS price", "24h 涨跌": "24h change", "暂无数据": "No data", "全网供应": "Total supply", "质押率": "Staking rate", "国库市值": "Treasury value", "LP 池价值": "LP pool value", "累计销毁": "Total burned", "净流向": "Net flow", "换": "for", "事件编号": "Event ID", "证据等级": "Evidence level", "时间 / 区块链": "Time / Chain", "交易哈希": "Tx hash", "相关合约": "Related contract", "相关地址": "Related address", "链上直证": "On-chain proof", "官方公开": "Official", "社区整理": "Community", "常见问题": "FAQ", "来源": "Source", "搜索：关键词 / 地址 / 交易哈希 / 事件编号…": "Search: keyword / address / tx hash / event ID…", "全网质押量": "Total staked", "当前年化 APY": "Current APY", "LGNS 现价": "LGNS price", "静默期(warmup)": "Warmup period", "质押本金（LGNS 枚数）": "Principal (LGNS)", "质押天数": "Days staked", "预计收益": "Estimated reward", "买入 ": "Buy ", "卖出 ": "Sell "};
+
+  function _trNode(node){
+    if(node.nodeType===3){
+      var k=node.nodeValue.trim();
+      if(k && MODAL_DICT[k]!==undefined && node.nodeValue.indexOf(MODAL_DICT[k])<0){ node.nodeValue=node.nodeValue.replace(k,MODAL_DICT[k]); }
+    } else if(node.nodeType===1){
+      if(node.placeholder && MODAL_DICT[node.placeholder]!==undefined) node.placeholder=MODAL_DICT[node.placeholder];
+      var c=node.childNodes; for(var i=0;i<c.length;i++) _trNode(c[i]);
+    }
+  }
+  function translateModal(){
+    if((window.SITE_LANG||'zh')!=='en') return;
+    var b=document.getElementById('modalBody'); if(b) _trNode(b);
+    var t=document.getElementById('modalTitle'); if(t){var k=t.textContent.trim(); if(MODAL_DICT[k]!==undefined) t.textContent=MODAL_DICT[k];}
+  }
+  (function(){ var mb=document.getElementById('modalBody'); if(!mb) return;
+    var obs=new MutationObserver(function(){ if((window.SITE_LANG||'zh')!=='en') return; obs.disconnect(); try{_trNode(mb);}catch(e){} obs.observe(mb,{childList:true,subtree:true,characterData:true}); });
+    obs.observe(mb,{childList:true,subtree:true,characterData:true});
+  })();
 
   /* ========== 1) 区块浏览器 · 站内地址查询 ========== */
   window.openBrowser=function(){
