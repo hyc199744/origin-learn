@@ -321,13 +321,14 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <nav class="nav">
   <a class="brand" href="#home"><img src="assets/logo.png" alt="">起源 · <b>入殿指南</b></a>
   <div class="links" id="navlinks">
-    <a href="#home" class="on">圣殿入口</a>
-    <a href="#intro">初识起源</a>
-    <a href="#path">五重试炼</a>
-    <a href="#faq">封印解答</a>
-    <a href="#tools">链上法器</a>
-    <a href="#codex">典籍导航</a>
-    <a href="#contact">加好友</a>
+    <a href="#home" class="on" data-i18n="n1">圣殿入口</a>
+    <a href="#intro" data-i18n="n2">初识起源</a>
+    <a href="#path" data-i18n="n3">五重试炼</a>
+    <a href="#faq" data-i18n="n4">封印解答</a>
+    <a href="#tools" data-i18n="n5">链上法器</a>
+    <a href="#codex" data-i18n="n6">典籍导航</a>
+    <a href="#contact" data-i18n="n7">加好友</a>
+    <button id="langBtn" title="切换语言 / Language" style="font:inherit;font-size:13px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--gold-lt);border-radius:6px;padding:5px 13px;margin-left:8px">EN</button>
   </div>
 </nav>
 
@@ -341,27 +342,27 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   </div>
   <div class="hero-title">
     <img src="assets/text-left.png" alt="">
-    <h1>起源 · 入殿指南</h1>
+    <h1 data-i18n="h_title">起源 · 入殿指南</h1>
     <img src="assets/text-right.png" alt="">
   </div>
-  <p class="hero-lede">从一枚代币到一条公链，把复杂的 Web3 拆成<b>你听得懂的话</b>。不需要任何基础，跟着五重试炼走一遍，你就懂了。</p>
-  <a class="cta" onclick="jump('path')">开启试炼 &#10132;</a>
-  <div class="scroll-hint">向 下 滚 动</div>
+  <p class="hero-lede" data-i18n="h_lede">从一枚代币到一条公链，把复杂的 Web3 拆成<b>你听得懂的话</b>。不需要任何基础，跟着五重试炼走一遍，你就懂了。</p>
+  <a class="cta" onclick="jump('path')" data-i18n="h_cta">开启试炼 &#10132;</a>
+  <div class="scroll-hint" data-i18n="h_scroll">向 下 滚 动</div>
 </section>
 
 <!-- ══════ 初识起源 ══════ -->
 <section id="intro">
   <div class="wrap">
     <div class="reveal" style="text-align:center">
-      <div class="eyebrow">Chapter I · 铭文</div>
-      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2>先认门，再动手</h2><img src="assets/text-right.png" alt=""></div>
-      <p class="sec-sub">很多人一上来就被收益率吸引，钱进去了却不知道自己买的是什么。这里反过来——先把三块最基础的铭文认清楚。</p>
+      <div class="eyebrow" data-i18n="i_eye">Chapter I · 铭文</div>
+      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2 data-i18n="i_h2">先认门，再动手</h2><img src="assets/text-right.png" alt=""></div>
+      <p class="sec-sub" data-i18n="i_sub">很多人一上来就被收益率吸引，钱进去了却不知道自己买的是什么。这里反过来——先把三块最基础的铭文认清楚。</p>
     </div>
     <div class="intro-grid reveal">
       <div class="tablets">
-        <div class="tablet"><h3><span class="rune">卷一</span>起源是什么</h3><p>一整个 Web3 生态：核心是治理代币 <b>LGNS</b>，配上质押、DAO 治理，还有自建的 Anubis 隐私公链。先把它理解成"一个有自己代币和规则的链上社区"。</p></div>
-        <div class="tablet"><h3><span class="rune">卷二</span>LGNS 是什么</h3><p>生态里的核心代币。你可以持有、质押它来参与生态；它用一套叫 <b>(3,3)</b> 的博弈模型，鼓励大家长期持有、而不是短炒。</p></div>
-        <div class="tablet"><h3><span class="rune">卷三</span>质押是什么</h3><p>把 LGNS 锁进合约、每 6 小时按周期领取代币奖励的过程。收益从哪来、是不是"稳赚"，第二、三重试炼会掰开揉碎讲——<b>先懂原理再动手</b>。</p></div>
+        <div class="tablet" data-i18n="i_t1"><h3><span class="rune">卷一</span>起源是什么</h3><p>一整个 Web3 生态：核心是治理代币 <b>LGNS</b>，配上质押、DAO 治理，还有自建的 Anubis 隐私公链。先把它理解成"一个有自己代币和规则的链上社区"。</p></div>
+        <div class="tablet" data-i18n="i_t2"><h3><span class="rune">卷二</span>LGNS 是什么</h3><p>生态里的核心代币。你可以持有、质押它来参与生态；它用一套叫 <b>(3,3)</b> 的博弈模型，鼓励大家长期持有、而不是短炒。</p></div>
+        <div class="tablet" data-i18n="i_t3"><h3><span class="rune">卷三</span>质押是什么</h3><p>把 LGNS 锁进合约、每 6 小时按周期领取代币奖励的过程。收益从哪来、是不是"稳赚"，第二、三重试炼会掰开揉碎讲——<b>先懂原理再动手</b>。</p></div>
       </div>
       <div class="figure"><img src="assets/freedom-pc.webp" alt="信徒"></div>
     </div>
@@ -372,15 +373,15 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <section id="path">
   <div class="wrap">
     <div class="reveal" style="text-align:center">
-      <div class="eyebrow">Chapter II · 试炼</div>
-      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2>五重试炼</h2><img src="assets/text-right.png" alt=""></div>
-      <p class="sec-sub">从"听说过"到"能自己判断"。按顺序走，滚动时圣火会沿阶梯注入、逐级点亮符印。总共约 90 分钟，可以分几次看完。</p>
+      <div class="eyebrow" data-i18n="p_eye">Chapter II · 试炼</div>
+      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2 data-i18n="p_h2">五重试炼</h2><img src="assets/text-right.png" alt=""></div>
+      <p class="sec-sub" data-i18n="p_sub">从"听说过"到"能自己判断"。按顺序走，滚动时圣火会沿阶梯注入、逐级点亮符印。总共约 90 分钟，可以分几次看完。</p>
     </div>
     <div class="stairs reveal" id="stairs">
       <div class="track"><i id="stairFill"></i></div>
       <div class="step" data-i="1">
         <div class="sigil">壹</div>
-        <div class="card">
+        <div class="card" data-i18n="s1">
           <h3>认识起源 <span class="time">约 10 分钟</span></h3>
           <p class="goal">先把名词对上号：起源、Anubis、LGNS 各是什么、什么关系。</p>
           <ul><li>起源 = 一整个 Web3 生态的统称</li><li>LGNS = 生态核心代币（算法代币，精度 9 位不是 18；治理另有 GLGNS）</li><li>Anubis = 自建的隐私公链（Chain ID 6714，gas 就是 DAI）</li></ul>
@@ -388,7 +389,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
       </div>
       <div class="step" data-i="2">
         <div class="sigil">贰</div>
-        <div class="card">
+        <div class="card" data-i18n="s2">
           <h3>读懂 LGNS 与 (3,3) <span class="time">约 20 分钟</span></h3>
           <p class="goal">搞懂这枚代币靠什么运转，为什么大家都在讲"质押"。</p>
           <ul><li>(3,3)：鼓励大家都长期持有的博弈模型</li><li>质押奖励本质是协议每 6 小时增发（rebase）</li><li>高年化 ≠ 净赚，要同时看币价和真实储备</li></ul>
@@ -396,7 +397,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
       </div>
       <div class="step" data-i="3">
         <div class="sigil">叁</div>
-        <div class="card">
+        <div class="card" data-i18n="s3">
           <h3>动手质押 <span class="time">约 20 分钟</span></h3>
           <p class="goal">从准备钱包到完成第一次质押、领取收益，走完整个流程。</p>
           <ul><li>准备自托管钱包，保管好助记词</li><li>了解在哪买 LGNS、怎么发起交易</li><li>小额试水，确认无误再加量</li></ul>
@@ -404,7 +405,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
       </div>
       <div class="step" data-i="4">
         <div class="sigil">肆</div>
-        <div class="card">
+        <div class="card" data-i18n="s4">
           <h3>参与治理 <span class="time">约 20 分钟</span></h3>
           <p class="goal">知道 Awake DAO 是什么，一个提案怎么从发起走到执行。</p>
           <ul><li>Awake DAO：社区治理的地方</li><li>提案 → 讨论 → 投票 → 执行 的流程</li><li>投票权来自治理代币 GLGNS 与治理 NFT（不是直接拿 LGNS 或质押投票）</li></ul>
@@ -412,7 +413,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
       </div>
       <div class="step" data-i="5">
         <div class="sigil">伍</div>
-        <div class="card">
+        <div class="card" data-i18n="s5">
           <h3>进阶与安全 <span class="time">约 20 分钟</span></h3>
           <p class="goal">学会自己上链核对数据、识别钓鱼，具备最基础的自我保护能力。</p>
           <ul><li>用区块浏览器查合约、查交易</li><li>警惕 EIP-7702 授权钓鱼等新型套路</li><li>认准官方渠道，自己上链核实一遍（DYOR）</li></ul>
@@ -426,9 +427,9 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <section id="faq">
   <div class="wrap">
     <div class="reveal" style="text-align:center">
-      <div class="eyebrow">Chapter III · 封印</div>
-      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2>封印解答</h2><img src="assets/text-right.png" alt=""></div>
-      <p class="sec-sub">新手最容易卡住的几个问题。点开石板看答案——这里只讲清楚"是什么、怎么判断"，不替你做决定。</p>
+      <div class="eyebrow" data-i18n="f_eye">Chapter III · 封印</div>
+      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2 data-i18n="f_h2">封印解答</h2><img src="assets/text-right.png" alt=""></div>
+      <p class="sec-sub" data-i18n="f_sub">新手最容易卡住的几个问题。点开石板看答案——这里只讲清楚"是什么、怎么判断"，不替你做决定。</p>
     </div>
     <div class="slabs reveal" id="slabs"></div>
   </div>
@@ -438,12 +439,12 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <section id="tools">
   <div class="wrap">
     <div class="reveal" style="text-align:center">
-      <div class="eyebrow">Chapter IV · 法器</div>
-      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2>链上法器</h2><img src="assets/text-right.png" alt=""></div>
-      <p class="sec-sub">Web3 的好处是一切都能自己上链核对。这些法器帮你把"别人说的"变成"自己查到的"。</p>
+      <div class="eyebrow" data-i18n="t_eye">Chapter IV · 法器</div>
+      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2 data-i18n="t_h2">链上法器</h2><img src="assets/text-right.png" alt=""></div>
+      <p class="sec-sub" data-i18n="t_sub">Web3 的好处是一切都能自己上链核对。这些法器帮你把"别人说的"变成"自己查到的"。</p>
     </div>
     <div class="altars reveal" id="altars"></div>
-    <div class="note">⚠️ 数据实时读自链上与官方接口，仅供参考；真正的交易 / 质押请在官方入口完成，务必<b style="color:var(--bone)">自己核对合约地址</b>，谨防钓鱼。</div>
+    <div class="note" data-i18n="t_note">⚠️ 数据实时读自链上与官方接口，仅供参考；真正的交易 / 质押请在官方入口完成，务必<b style="color:var(--bone)">自己核对合约地址</b>，谨防钓鱼。</div>
   </div>
 </section>
 
@@ -451,9 +452,9 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <section id="codex">
   <div class="wrap">
     <div class="reveal" style="text-align:center">
-      <div class="eyebrow">Chapter V · 典籍</div>
-      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2>资料中心</h2><img src="assets/text-right.png" alt=""></div>
-      <p class="sec-sub">视频课、PDF 课件、图文文章、公众号原文，都收在这里。点分类筛选，点卡片打开——视频直接播、课件翻页看、文章弹出读。</p>
+      <div class="eyebrow" data-i18n="l_eye">Chapter V · 典籍</div>
+      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2 data-i18n="l_h2">资料中心</h2><img src="assets/text-right.png" alt=""></div>
+      <p class="sec-sub" data-i18n="l_sub">视频课、PDF 课件、图文文章、公众号原文，都收在这里。点分类筛选，点卡片打开——视频直接播、课件翻页看、文章弹出读。</p>
     </div>
     <div class="codex-bar reveal"><img src="assets/learn-more-pc.webp" alt=""></div>
     <div class="codices reveal" id="codices"></div>
@@ -473,16 +474,16 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   </style>
   <div class="wrap reveal">
     <div class="eyebrow">JOIN US</div>
-    <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2>加好友 · 有问题找我</h2><img src="assets/text-right.png" alt=""></div>
-    <p class="sec-sub">扫码加我，进社区、问问题、获取一手信息。新手上路别一个人瞎摸。</p>
+    <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2 data-i18n="c_h2">加好友 · 有问题找我</h2><img src="assets/text-right.png" alt=""></div>
+    <p class="sec-sub" data-i18n="c_sub">扫码加我，进社区、问问题、获取一手信息。新手上路别一个人瞎摸。</p>
     <div class="qr-row">
       <div class="qr-card">
         <img src="assets/wechat-qr.png" alt="微信加好友二维码" loading="lazy">
-        <div class="qr-label">微信</div><div class="qr-sub">扫码加好友</div>
+        <div class="qr-label">微信</div><div class="qr-sub" data-i18n="c_wx">扫码加好友</div>
       </div>
       <div class="qr-card">
         <img src="assets/qq-qr.jpg" alt="QQ加好友二维码" loading="lazy">
-        <div class="qr-label">QQ</div><div class="qr-sub">扫一扫加我为好友</div>
+        <div class="qr-label">QQ</div><div class="qr-sub" data-i18n="c_qq">扫一扫加我为好友</div>
       </div>
     </div>
   </div>
@@ -497,10 +498,10 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 </div>
 
 <footer>
-  <div class="cn">起源 · 入殿指南</div>
+  <div class="cn" data-i18n="ft_cn">起源 · 入殿指南</div>
   <div style="margin-bottom:12px;font-size:13px;line-height:2.2">📖 <a href="baike/lgns/" style="color:var(--gold-lt)">LGNS 是什么？核心代币完整介绍</a> · 📑 <a href="contracts/" style="color:var(--gold-lt)">起源合约地址大全（Polygon + Anubis）</a></div>
-  内容仅供学习理解，不构成投资建议 · DYOR，自己查、自己懂、再决定<br>
-  <span style="color:var(--muted);font-size:11px">动态素材取自起源官方页面 · 新手友好学习站</span>
+  <span data-i18n="ft_disc">内容仅供学习理解，不构成投资建议 · DYOR，自己查、自己懂、再决定</span><br>
+  <span style="color:var(--muted);font-size:11px" data-i18n="ft_sub">动态素材取自起源官方页面 · 新手友好学习站</span>
   <div style="margin-top:16px;font-size:12.5px;color:var(--muted)">本页累计访问 <span id="vercount_value_page_pv" style="color:var(--gold-lt)">···</span> 次 · 独立访客 <span id="vercount_value_site_uv" style="color:var(--gold-lt)">···</span> 人</div>
   <div id="geoDist" style="margin:12px auto 0;font-size:12.5px;color:var(--muted);max-width:680px;line-height:2">访客国家分布加载中…</div>
 </footer>
@@ -772,6 +773,16 @@ document.querySelectorAll('.codex').forEach(card=>{
       return `${flag(cc)} ${NAMES[cc]||cc} <b style="color:var(--gold-lt)">${n}</b>${pct>=1?`<i style="color:var(--muted);font-size:11px">(${pct.toFixed(0)}%)</i>`:''}`;
     }).join('　·　');
   }).catch(()=>{el.style.display="none";});
+})();
+</script>
+
+<script>
+(function(){
+var EN={"n1": "Home", "n2": "About", "n3": "Learn", "n4": "FAQ", "n5": "Tools", "n6": "Library", "n7": "Contact", "h_title": "ORIGIN · Beginner's Guide", "h_lede": "From a single token to a whole blockchain — Web3 explained in <b>plain language</b>. No background needed; walk the Five Trials and you'll get it.", "h_cta": "Start the Trials &#10132;", "h_scroll": "SCROLL DOWN", "i_eye": "Chapter I · Basics", "i_h2": "Know it first, then act", "i_sub": "Many people are lured by the APY and put money in without knowing what they bought. Here we flip it — first get clear on the three basics.", "i_t1": "<h3><span class=\"rune\">I</span>What is Origin</h3><p>A whole Web3 ecosystem: at its core is the token <b>LGNS</b>, plus staking, DAO governance and a self-built Anubis privacy chain. Think of it as \"an on-chain community with its own token and rules\".</p>", "i_t2": "<h3><span class=\"rune\">II</span>What is LGNS</h3><p>The ecosystem's core token. Hold and stake it to participate; it uses a game model called <b>(3,3)</b> that rewards long-term holding over short-term trading.</p>", "i_t3": "<h3><span class=\"rune\">III</span>What is staking</h3><p>Locking LGNS into a contract and earning token rewards every 6 hours. Where the yield comes from and whether it's \"guaranteed\" is broken down in Trials 2–3 — <b>understand it before you act</b>.</p>", "p_eye": "Chapter II · Trials", "p_h2": "The Five Trials", "p_sub": "From “heard of it” to “judge for yourself”. Go in order; the sacred fire lights each rune as you scroll. About 90 minutes total — take it in a few sittings.", "s1": "<h3>Meet Origin <span class=\"time\">~10 min</span></h3><p class=\"goal\">Get the terms straight: what Origin, Anubis and LGNS each are and how they relate.</p><ul><li>Origin = the whole Web3 ecosystem</li><li>LGNS = the core token (algorithmic, 9 decimals not 18; governance is a separate token, GLGNS)</li><li>Anubis = a self-built privacy chain (Chain ID 6714, gas paid in DAI)</li></ul>", "s2": "<h3>Understand LGNS &amp; (3,3) <span class=\"time\">~20 min</span></h3><p class=\"goal\">Grasp what powers this token and why everyone talks about “staking”.</p><ul><li>(3,3): a game model that rewards everyone holding long-term</li><li>Staking rewards are essentially protocol emissions every 6 hours (rebase)</li><li>High APY ≠ net profit — watch both the price and the real reserves</li></ul>", "s3": "<h3>Try Staking <span class=\"time\">~20 min</span></h3><p class=\"goal\">From setting up a wallet to your first stake and claiming rewards — the whole flow.</p><ul><li>Set up a self-custody wallet and safeguard your seed phrase</li><li>Learn where to buy LGNS and how to make a transaction</li><li>Start small, confirm it works, then scale up</li></ul>", "s4": "<h3>Join Governance <span class=\"time\">~20 min</span></h3><p class=\"goal\">Know what Awake DAO is and how a proposal goes from idea to execution.</p><ul><li>Awake DAO: where the community governs</li><li>The flow: Proposal → Discussion → Vote → Execution</li><li>Voting power comes from the GLGNS governance token &amp; governance NFTs (not from holding or staking LGNS directly)</li></ul>", "s5": "<h3>Advanced &amp; Security <span class=\"time\">~20 min</span></h3><p class=\"goal\">Learn to verify data on-chain yourself, spot phishing, and protect yourself.</p><ul><li>Use a block explorer to check contracts and transactions</li><li>Beware of new tricks like EIP-7702 approval phishing</li><li>Stick to official channels and verify on-chain yourself (DYOR)</li></ul>", "f_eye": "Chapter III · Answers", "f_h2": "FAQ", "f_sub": "The questions beginners get stuck on. Tap a slab for the answer — we explain “what it is and how to judge”, we don't decide for you.", "t_eye": "Chapter IV · Tools", "t_h2": "On-chain Tools", "t_sub": "The beauty of Web3 is you can verify everything on-chain yourself. These tools turn “what others say” into “what you checked yourself”.", "t_note": "⚠️ Data is read live from the chain and official APIs, for reference only; do real trading / staking through official entrances, always <b style=\"color:var(--bone)\">verify contract addresses yourself</b> and beware of phishing.", "l_eye": "Chapter V · Library", "l_h2": "Resources", "l_sub": "Video courses, PDF slides, articles and posts, all collected here. Filter by category, tap a card to open — videos play, slides flip, articles pop up.", "c_h2": "Add me · Questions welcome", "c_sub": "Scan to add me — join the community, ask questions, get first-hand info. Don't go it alone as a beginner.", "c_wx": "Scan to add on WeChat", "c_qq": "Scan to add on QQ", "ft_cn": "ORIGIN · Beginner's Guide", "ft_disc": "For learning only, not investment advice · DYOR — check it, understand it, then decide.", "ft_sub": "Dynamic assets sourced from Origin official pages · beginner-friendly learning site"};
+function applyLang(lang){document.querySelectorAll('[data-i18n]').forEach(function(el){if(el._zh===undefined)el._zh=el.innerHTML;var k=el.getAttribute('data-i18n');el.innerHTML=(lang==='en'&&EN[k]!==undefined)?EN[k]:el._zh;});document.documentElement.lang=(lang==='en')?'en':'zh-CN';var b=document.getElementById('langBtn');if(b)b.textContent=(lang==='en')?'中':'EN';try{localStorage.setItem('site_lang',lang);}catch(e){}}
+var saved='zh';try{saved=localStorage.getItem('site_lang')||'zh';}catch(e){}
+var btn=document.getElementById('langBtn');if(btn)btn.onclick=function(){var cur=(document.documentElement.lang==='en')?'en':'zh';applyLang(cur==='en'?'zh':'en');};
+if(saved==='en')applyLang('en');
 })();
 </script>
 </body>
