@@ -1,6 +1,12 @@
 {
  "cats": [
   {
+   "key": "howto",
+   "name": "上手实操",
+   "en": "Hands-on Tutorials",
+   "icon": "🎯"
+  },
+  {
    "key": "web3",
    "name": "Web3 基础",
    "en": "Web3 Basics",
@@ -38,6 +44,222 @@
   }
  ],
  "videos": [
+  {
+   "id": "v-okx-register-wallet",
+   "slug": "okx-register-wallet",
+   "cat": "howto",
+   "title": "欧易 OKX：如何注册钱包",
+   "title_en": "OKX: Register a Wallet",
+   "src": "https://media.web3origin.com/okx-register-wallet.mp4",
+   "desc": "在欧易 App 里从零注册并创建你的第一个钱包。",
+   "durSec": 200,
+   "durText": "约 3 分 20 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：注册钱包。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-okx-add-lgns-slgns",
+   "slug": "okx-add-lgns-slgns",
+   "cat": "howto",
+   "title": "欧易 OKX：如何添加 LGNS 和 sLGNS",
+   "title_en": "OKX: Add LGNS & sLGNS",
+   "src": "https://media.web3origin.com/okx-add-lgns-slgns.mp4",
+   "desc": "把 LGNS、sLGNS 代币添加进欧易钱包，正确显示余额。",
+   "durSec": 184,
+   "durText": "约 3 分 4 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：添加 LGNS 和 sLGNS。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-bind-invite-link",
+   "slug": "bind-invite-link",
+   "cat": "howto",
+   "title": "如何绑定邀请链接",
+   "title_en": "Bind an Invite Link",
+   "src": "https://media.web3origin.com/bind-invite-link.mp4",
+   "desc": "通过邀请链接完成社区绑定，绑定关系可上链核实。",
+   "durSec": 157,
+   "durText": "约 2 分 37 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：绑定邀请链接。",
+   "tools": [
+    "openReferrer"
+   ]
+  },
+  {
+   "id": "v-buy-sell-lgns",
+   "slug": "buy-sell-lgns",
+   "cat": "howto",
+   "title": "如何买卖 LGNS",
+   "title_en": "How to Buy/Sell LGNS",
+   "src": "https://media.web3origin.com/buy-sell-lgns.mp4",
+   "desc": "完整演示买入与卖出 LGNS 的操作流程。",
+   "durSec": 258,
+   "durText": "约 4 分 18 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：买卖 LGNS。",
+   "tools": [
+    "openBrowser",
+    "openDashboard"
+   ]
+  },
+  {
+   "id": "v-quickswap-swap",
+   "slug": "quickswap-swap",
+   "cat": "howto",
+   "title": "如何通过 QuickSwap 兑换",
+   "title_en": "Swap on QuickSwap",
+   "src": "https://media.web3origin.com/quickswap-swap.mp4",
+   "desc": "在 QuickSwap 去中心化交易所里兑换代币。",
+   "durSec": 235,
+   "durText": "约 3 分 55 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：通过 QuickSwap 兑换。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-stake-unstake",
+   "slug": "stake-unstake",
+   "cat": "howto",
+   "title": "如何质押 / 如何取消质押",
+   "title_en": "Stake / Unstake LGNS",
+   "src": "https://media.web3origin.com/stake-unstake.mp4",
+   "desc": "把 LGNS 质押进合约生息，以及如何取消质押退出。",
+   "durSec": 135,
+   "durText": "约 2 分 15 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：质押 / 取消质押。",
+   "tools": [
+    "openStaking",
+    "openCalc"
+   ]
+  },
+  {
+   "id": "v-buy-bond-intro",
+   "slug": "buy-bond-intro",
+   "cat": "howto",
+   "title": "如何购买债券 · 债券介绍",
+   "title_en": "Buy Bonds · Intro",
+   "src": "https://media.web3origin.com/buy-bond-intro.mp4",
+   "desc": "债券是什么、怎么买——完整操作与要点介绍。",
+   "durSec": 274,
+   "durText": "约 4 分 34 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：购买债券 · 债券介绍。",
+   "tools": [
+    "openDashboard"
+   ]
+  },
+  {
+   "id": "v-turbo-energy",
+   "slug": "turbo-energy",
+   "cat": "howto",
+   "title": "如何涡轮 · 如何获取能量值",
+   "title_en": "Turbo · Energy Points",
+   "src": "https://media.web3origin.com/turbo-energy.mp4",
+   "desc": "涡轮玩法与能量值怎么获取的操作演示。",
+   "durSec": 339,
+   "durText": "约 5 分 39 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：涡轮 · 获取能量值。",
+   "tools": []
+  },
+  {
+   "id": "v-onchain-withdraw",
+   "slug": "onchain-withdraw",
+   "cat": "howto",
+   "title": "如何链上提币",
+   "title_en": "On-chain Withdrawal",
+   "src": "https://media.web3origin.com/onchain-withdraw.mp4",
+   "desc": "把资产从交易所/钱包提到链上地址的操作。",
+   "durSec": 321,
+   "durText": "约 5 分 21 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：链上提币。",
+   "tools": [
+    "openBrowser",
+    "openWalletMonitor"
+   ]
+  },
+  {
+   "id": "v-okx-cash-out",
+   "slug": "okx-cash-out",
+   "cat": "howto",
+   "title": "如何使用欧易交易所变现",
+   "title_en": "Cash Out via OKX",
+   "src": "https://media.web3origin.com/okx-cash-out.mp4",
+   "desc": "把链上资产通过欧易交易所卖出变现的完整流程。",
+   "durSec": 433,
+   "durText": "约 7 分 13 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：使用欧易交易所变现。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-change-name",
+   "slug": "change-name",
+   "cat": "howto",
+   "title": "如何修改名称",
+   "title_en": "Change Your Name",
+   "src": "https://media.web3origin.com/change-name.mp4",
+   "desc": "修改钱包/账户显示名称的小操作。",
+   "durSec": 61,
+   "durText": "约 1 分 1 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：修改名称。",
+   "tools": []
+  },
+  {
+   "id": "v-okx-create-subwallet",
+   "slug": "okx-create-subwallet",
+   "cat": "howto",
+   "title": "欧易 OKX：如何创建子钱包",
+   "title_en": "OKX: Create a Sub-wallet",
+   "src": "https://media.web3origin.com/okx-create-subwallet.mp4",
+   "desc": "在欧易钱包里再开一个子钱包，分开管理资产。",
+   "durSec": 54,
+   "durText": "约 54 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：创建子钱包。",
+   "tools": []
+  },
+  {
+   "id": "v-register-overseas-appleid",
+   "slug": "register-overseas-appleid",
+   "cat": "howto",
+   "title": "手机如何注册海外 Apple ID",
+   "title_en": "Register an Overseas Apple ID",
+   "src": "https://media.web3origin.com/register-overseas-appleid.mp4",
+   "desc": "注册一个海外 Apple ID，方便下载海外版 App。",
+   "durSec": 200,
+   "durText": "约 3 分 20 秒",
+   "level": "新手实操",
+   "published": "2026-01-02",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：手机注册海外 Apple ID。",
+   "tools": []
+  },
   {
    "id": "v-changyou-dicengluoji",
    "slug": "changyou-dicengluoji",
