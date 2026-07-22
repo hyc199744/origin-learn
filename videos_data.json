@@ -261,6 +261,123 @@
    "tools": []
   },
   {
+   "id": "v-okx-add-anubis-network",
+   "slug": "okx-add-anubis-network",
+   "cat": "howto",
+   "title": "欧易 OKX：添加 Anubis 网络和代币",
+   "title_en": "OKX: Add Anubis Network & Tokens",
+   "src": "https://media.web3origin.com/okx-add-anubis-network.mp4",
+   "desc": "在欧易钱包里添加 Anubis 网络（Chain ID 6714）和代币，让资产正确显示。",
+   "durSec": 261,
+   "durText": "约 4 分 21 秒",
+   "level": "新手实操",
+   "published": "2026-05-25",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：添加 Anubis 网络和代币。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-bridge-dai-to-anubis",
+   "slug": "bridge-dai-to-anubis",
+   "cat": "howto",
+   "title": "如何把 DAI 跨链到 Anubis",
+   "title_en": "Bridge DAI to Anubis",
+   "src": "https://media.web3origin.com/bridge-dai-to-anubis.mp4",
+   "desc": "把 DAI 从其它链跨到 Anubis，用作 gas 与资产。",
+   "durSec": 294,
+   "durText": "约 4 分 54 秒",
+   "level": "新手实操",
+   "published": "2026-05-25",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：把 DAI 跨链到 Anubis。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-bridge-lgns-to-anubis",
+   "slug": "bridge-lgns-to-anubis",
+   "cat": "howto",
+   "title": "如何把 LGNS 跨链到 Anubis",
+   "title_en": "Bridge LGNS to Anubis",
+   "src": "https://media.web3origin.com/bridge-lgns-to-anubis.mp4",
+   "desc": "把 LGNS 从 Polygon 跨到 Anubis 链的操作。",
+   "durSec": 110,
+   "durText": "约 1 分 50 秒",
+   "level": "新手实操",
+   "published": "2026-05-25",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：把 LGNS 跨链到 Anubis。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-bridge-dai-to-polygon",
+   "slug": "bridge-dai-to-polygon",
+   "cat": "howto",
+   "title": "如何把 DAI 跨链到马蹄链（Polygon）",
+   "title_en": "Bridge DAI to Polygon",
+   "src": "https://media.web3origin.com/bridge-dai-to-polygon.mp4",
+   "desc": "把 DAI 跨链到 Polygon（马蹄链）的完整操作。",
+   "durSec": 143,
+   "durText": "约 2 分 23 秒",
+   "level": "新手实操",
+   "published": "2026-05-25",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：把 DAI 跨链到马蹄链（Polygon）。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-buy-360-genesis-anubis",
+   "slug": "buy-360-genesis-anubis",
+   "cat": "howto",
+   "title": "如何在 Anubis 购买 360 创世",
+   "title_en": "Buy 360 Genesis on Anubis",
+   "src": "https://media.web3origin.com/buy-360-genesis-anubis.mp4",
+   "desc": "在 Anubis 链上参与购买 360 创世的操作演示。",
+   "durSec": 100,
+   "durText": "约 1 分 40 秒",
+   "level": "新手实操",
+   "published": "2026-05-25",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：在 Anubis 购买 360 创世。",
+   "tools": [
+    "openDashboard"
+   ]
+  },
+  {
+   "id": "v-anubis-energy",
+   "slug": "anubis-energy",
+   "cat": "howto",
+   "title": "Anubis 如何获得能量值",
+   "title_en": "Anubis: Earn Energy Points",
+   "src": "https://media.web3origin.com/anubis-energy.mp4",
+   "desc": "在 Anubis 生态里获取能量值的操作方法。",
+   "durSec": 302,
+   "durText": "约 5 分 2 秒",
+   "level": "新手实操",
+   "published": "2026-05-25",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：Anubis 获得能量值。",
+   "tools": []
+  },
+  {
+   "id": "v-nft-claim-transfer",
+   "slug": "nft-claim-transfer",
+   "cat": "howto",
+   "title": "NFT 的领取和转移",
+   "title_en": "Claim & Transfer NFT",
+   "src": "https://media.web3origin.com/nft-claim-transfer.mp4",
+   "desc": "如何领取 NFT，以及把 NFT 转移给别人。",
+   "durSec": 170,
+   "durText": "约 2 分 50 秒",
+   "level": "新手实操",
+   "published": "2026-05-25",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：NFT 的领取和转移。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
    "id": "v-changyou-dicengluoji",
    "slug": "changyou-dicengluoji",
    "cat": "origin",
