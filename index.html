@@ -322,6 +322,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 
 <!-- 顶栏 -->
 <nav class="nav">
+  <button id="mBurger" aria-label="打开导航菜单" aria-expanded="false" aria-controls="mDrawer"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
   <a class="brand" href="#home"><img src="assets/logo.png" alt=""><span data-i18n="brand">起源 · <b>入殿指南</b></span></a>
   <div class="links" id="navlinks">
     <a href="#home" class="on" data-i18n="n1">圣殿入口</a>
@@ -333,6 +334,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
     <a href="#contact" data-i18n="n7">加好友</a>
     <button id="langBtn" title="切换语言 / Language" style="font:inherit;font-size:13px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--gold-lt);border-radius:6px;padding:5px 13px;margin-left:8px">EN</button>
   </div>
+  <button id="mLang" aria-label="切换语言">EN</button>
 </nav>
 
 <!-- ══════ HERO ══════ -->
@@ -760,12 +762,219 @@ window.renderCodices();
 
 <script>
 (function(){
-var EN={"vc1":"Page views ","vc2":" · Unique visitors ","vc3":"","geoload":"Loading visitor countries…","loader":"ENTER","brand":"ORIGIN · <b>Beginner's Guide</b>","sig1":"I","sig2":"II","sig3":"III","sig4":"IV","sig5":"V","c_wxlabel":"WeChat","ft_links":"📖 <a href=\"baike/lgns/\" style=\"color:var(--gold-lt)\">What is LGNS? Full intro</a> · 📑 <a href=\"contracts/\" style=\"color:var(--gold-lt)\">Contracts</a> · ❓ <a href=\"faq/\" style=\"color:var(--gold-lt)\">FAQ</a> · 🏛️ <a href=\"about/\" style=\"color:var(--gold-lt)\">About</a> · 🔍 <a href=\"sources/\" style=\"color:var(--gold-lt)\">Sources</a>","n1": "Home", "n2": "About", "n3": "Learn", "n4": "FAQ", "n5": "Tools", "n6": "Library", "n7": "Contact", "h_title": "ORIGIN · Beginner's Guide", "h_lede": "From a single token to a whole blockchain — Web3 explained in <b>plain language</b>. No background needed; walk the Five Trials and you'll get it.", "h_cta": "Start the Trials &#10132;", "h_scroll": "SCROLL DOWN", "i_eye": "Chapter I · Basics", "i_h2": "Know it first, then act", "i_sub": "Many people are lured by the APY and put money in without knowing what they bought. Here we flip it — first get clear on the three basics.", "i_t1": "<h3><span class=\"rune\">I</span>What is Origin</h3><p>A whole Web3 ecosystem: at its core is the token <b>LGNS</b>, plus staking, DAO governance and a self-built Anubis privacy chain. Think of it as \"an on-chain community with its own token and rules\".</p>", "i_t2": "<h3><span class=\"rune\">II</span>What is LGNS</h3><p>The ecosystem's core token. Hold and stake it to participate; it uses a game model called <b>(3,3)</b> that rewards long-term holding over short-term trading.</p>", "i_t3": "<h3><span class=\"rune\">III</span>What is staking</h3><p>Locking LGNS into a contract and earning token rewards every 6 hours. Where the yield comes from and whether it's \"guaranteed\" is broken down in Trials 2–3 — <b>understand it before you act</b>.</p>", "p_eye": "Chapter II · Trials", "p_h2": "The Five Trials", "p_sub": "From “heard of it” to “judge for yourself”. Go in order; the sacred fire lights each rune as you scroll. About 90 minutes total — take it in a few sittings.", "s1": "<h3>Meet Origin <span class=\"time\">~10 min</span></h3><p class=\"goal\">Get the terms straight: what Origin, Anubis and LGNS each are and how they relate.</p><ul><li>Origin = the whole Web3 ecosystem</li><li>LGNS = the core token (algorithmic, 9 decimals not 18; governance is a separate token, GLGNS)</li><li>Anubis = a self-built privacy chain (Chain ID 6714, gas paid in DAI)</li></ul>", "s2": "<h3>Understand LGNS &amp; (3,3) <span class=\"time\">~20 min</span></h3><p class=\"goal\">Grasp what powers this token and why everyone talks about “staking”.</p><ul><li>(3,3): a game model that rewards everyone holding long-term</li><li>Staking rewards are essentially protocol emissions every 6 hours (rebase)</li><li>High APY ≠ net profit — watch both the price and the real reserves</li></ul>", "s3": "<h3>Try Staking <span class=\"time\">~20 min</span></h3><p class=\"goal\">From setting up a wallet to your first stake and claiming rewards — the whole flow.</p><ul><li>Set up a self-custody wallet and safeguard your seed phrase</li><li>Learn where to buy LGNS and how to make a transaction</li><li>Start small, confirm it works, then scale up</li></ul>", "s4": "<h3>Join Governance <span class=\"time\">~20 min</span></h3><p class=\"goal\">Know what Awake DAO is and how a proposal goes from idea to execution.</p><ul><li>Awake DAO: where the community governs</li><li>The flow: Proposal → Discussion → Vote → Execution</li><li>Voting power comes from the GLGNS governance token &amp; governance NFTs (not from holding or staking LGNS directly)</li></ul>", "s5": "<h3>Advanced &amp; Security <span class=\"time\">~20 min</span></h3><p class=\"goal\">Learn to verify data on-chain yourself, spot phishing, and protect yourself.</p><ul><li>Use a block explorer to check contracts and transactions</li><li>Beware of new tricks like EIP-7702 approval phishing</li><li>Stick to official channels and verify on-chain yourself (DYOR)</li></ul>", "f_eye": "Chapter III · Answers", "f_h2": "FAQ", "f_sub": "The questions beginners get stuck on. Tap a slab for the answer — we explain “what it is and how to judge”, we don't decide for you.", "t_eye": "Chapter IV · Tools", "t_h2": "On-chain Tools", "t_sub": "The beauty of Web3 is you can verify everything on-chain yourself. These tools turn “what others say” into “what you checked yourself”.", "t_note": "⚠️ Data is read live from the chain and official APIs, for reference only; do real trading / staking through official entrances, always <b style=\"color:var(--bone)\">verify contract addresses yourself</b> and beware of phishing.", "l_eye": "Chapter V · Library", "l_h2": "Resources", "l_sub": "Video courses, PDF slides, articles and posts, all collected here. Filter by category, tap a card to open — videos play, slides flip, articles pop up.", "c_h2": "Add me · Questions welcome", "c_sub": "Scan to add me — join the community, ask questions, get first-hand info. Don't go it alone as a beginner.", "c_wx": "Scan to add on WeChat", "c_qq": "Scan to add on QQ", "ft_cn": "ORIGIN · Beginner's Guide", "ft_disc": "For learning only, not investment advice · DYOR — check it, understand it, then decide.", "ft_sub": "Dynamic assets sourced from Origin official pages · beginner-friendly learning site"};
+var EN={"md_name":"Web3Origin","md_tag":"Origin on-chain data & research hub","md_home":"Home","md_eco":"Ecosystem","md_eco1":"What is Origin","md_eco2":"What is LGNS","md_eco3":"All contracts","md_eco4":"FAQ","md_eco5":"Sources","md_tools":"On-chain Tools","md_t1":"Block Explorer / Wallet","md_t2":"Wallet Monitor","md_t3":"Yield Calculator","md_t4":"Contract Verification","md_t5":"Referrer Lookup","md_t6":"Token Safety Check","md_t7":"Staking Panel","md_t8":"On-chain Dashboard","md_t9":"Whale Monitor","md_evi":"On-chain Evidence DB","md_daily":"Chain Daily","md_learn":"Learn","md_l1":"Beginner path","md_l2":"Resources","md_l3":"FAQ","md_about":"About Web3Origin","md_contact":"Add me / Contact","md_qb1":"Wallet lookup","md_qb2":"Calculator","md_warn":"⚠️ Never enter your seed phrase, private key or wallet password on any site.","vc1":"Page views ","vc2":" · Unique visitors ","vc3":"","geoload":"Loading visitor countries…","loader":"ENTER","brand":"ORIGIN · <b>Beginner's Guide</b>","sig1":"I","sig2":"II","sig3":"III","sig4":"IV","sig5":"V","c_wxlabel":"WeChat","ft_links":"📖 <a href=\"baike/lgns/\" style=\"color:var(--gold-lt)\">What is LGNS? Full intro</a> · 📑 <a href=\"contracts/\" style=\"color:var(--gold-lt)\">Contracts</a> · ❓ <a href=\"faq/\" style=\"color:var(--gold-lt)\">FAQ</a> · 🏛️ <a href=\"about/\" style=\"color:var(--gold-lt)\">About</a> · 🔍 <a href=\"sources/\" style=\"color:var(--gold-lt)\">Sources</a>","n1": "Home", "n2": "About", "n3": "Learn", "n4": "FAQ", "n5": "Tools", "n6": "Library", "n7": "Contact", "h_title": "ORIGIN · Beginner's Guide", "h_lede": "From a single token to a whole blockchain — Web3 explained in <b>plain language</b>. No background needed; walk the Five Trials and you'll get it.", "h_cta": "Start the Trials &#10132;", "h_scroll": "SCROLL DOWN", "i_eye": "Chapter I · Basics", "i_h2": "Know it first, then act", "i_sub": "Many people are lured by the APY and put money in without knowing what they bought. Here we flip it — first get clear on the three basics.", "i_t1": "<h3><span class=\"rune\">I</span>What is Origin</h3><p>A whole Web3 ecosystem: at its core is the token <b>LGNS</b>, plus staking, DAO governance and a self-built Anubis privacy chain. Think of it as \"an on-chain community with its own token and rules\".</p>", "i_t2": "<h3><span class=\"rune\">II</span>What is LGNS</h3><p>The ecosystem's core token. Hold and stake it to participate; it uses a game model called <b>(3,3)</b> that rewards long-term holding over short-term trading.</p>", "i_t3": "<h3><span class=\"rune\">III</span>What is staking</h3><p>Locking LGNS into a contract and earning token rewards every 6 hours. Where the yield comes from and whether it's \"guaranteed\" is broken down in Trials 2–3 — <b>understand it before you act</b>.</p>", "p_eye": "Chapter II · Trials", "p_h2": "The Five Trials", "p_sub": "From “heard of it” to “judge for yourself”. Go in order; the sacred fire lights each rune as you scroll. About 90 minutes total — take it in a few sittings.", "s1": "<h3>Meet Origin <span class=\"time\">~10 min</span></h3><p class=\"goal\">Get the terms straight: what Origin, Anubis and LGNS each are and how they relate.</p><ul><li>Origin = the whole Web3 ecosystem</li><li>LGNS = the core token (algorithmic, 9 decimals not 18; governance is a separate token, GLGNS)</li><li>Anubis = a self-built privacy chain (Chain ID 6714, gas paid in DAI)</li></ul>", "s2": "<h3>Understand LGNS &amp; (3,3) <span class=\"time\">~20 min</span></h3><p class=\"goal\">Grasp what powers this token and why everyone talks about “staking”.</p><ul><li>(3,3): a game model that rewards everyone holding long-term</li><li>Staking rewards are essentially protocol emissions every 6 hours (rebase)</li><li>High APY ≠ net profit — watch both the price and the real reserves</li></ul>", "s3": "<h3>Try Staking <span class=\"time\">~20 min</span></h3><p class=\"goal\">From setting up a wallet to your first stake and claiming rewards — the whole flow.</p><ul><li>Set up a self-custody wallet and safeguard your seed phrase</li><li>Learn where to buy LGNS and how to make a transaction</li><li>Start small, confirm it works, then scale up</li></ul>", "s4": "<h3>Join Governance <span class=\"time\">~20 min</span></h3><p class=\"goal\">Know what Awake DAO is and how a proposal goes from idea to execution.</p><ul><li>Awake DAO: where the community governs</li><li>The flow: Proposal → Discussion → Vote → Execution</li><li>Voting power comes from the GLGNS governance token &amp; governance NFTs (not from holding or staking LGNS directly)</li></ul>", "s5": "<h3>Advanced &amp; Security <span class=\"time\">~20 min</span></h3><p class=\"goal\">Learn to verify data on-chain yourself, spot phishing, and protect yourself.</p><ul><li>Use a block explorer to check contracts and transactions</li><li>Beware of new tricks like EIP-7702 approval phishing</li><li>Stick to official channels and verify on-chain yourself (DYOR)</li></ul>", "f_eye": "Chapter III · Answers", "f_h2": "FAQ", "f_sub": "The questions beginners get stuck on. Tap a slab for the answer — we explain “what it is and how to judge”, we don't decide for you.", "t_eye": "Chapter IV · Tools", "t_h2": "On-chain Tools", "t_sub": "The beauty of Web3 is you can verify everything on-chain yourself. These tools turn “what others say” into “what you checked yourself”.", "t_note": "⚠️ Data is read live from the chain and official APIs, for reference only; do real trading / staking through official entrances, always <b style=\"color:var(--bone)\">verify contract addresses yourself</b> and beware of phishing.", "l_eye": "Chapter V · Library", "l_h2": "Resources", "l_sub": "Video courses, PDF slides, articles and posts, all collected here. Filter by category, tap a card to open — videos play, slides flip, articles pop up.", "c_h2": "Add me · Questions welcome", "c_sub": "Scan to add me — join the community, ask questions, get first-hand info. Don't go it alone as a beginner.", "c_wx": "Scan to add on WeChat", "c_qq": "Scan to add on QQ", "ft_cn": "ORIGIN · Beginner's Guide", "ft_disc": "For learning only, not investment advice · DYOR — check it, understand it, then decide.", "ft_sub": "Dynamic assets sourced from Origin official pages · beginner-friendly learning site"};
 function applyLang(lang){document.querySelectorAll('[data-i18n]').forEach(function(el){if(el._zh===undefined)el._zh=el.innerHTML;var k=el.getAttribute('data-i18n');el.innerHTML=(lang==='en'&&EN[k]!==undefined)?EN[k]:el._zh;});document.documentElement.lang=(lang==='en')?'en':'zh-CN';window.SITE_LANG=(lang==='en')?'en':'zh';if(window.renderTools)window.renderTools();if(window.renderFAQ)window.renderFAQ();if(window.renderLib)window.renderLib();if(window.renderCodices)window.renderCodices();if(window.renderGeo)window.renderGeo();var b=document.getElementById('langBtn');if(b)b.textContent=(lang==='en')?'中':'EN';try{localStorage.setItem('site_lang',lang);}catch(e){}}
 var saved='zh';try{saved=localStorage.getItem('site_lang')||'zh';}catch(e){}try{var _up=new URLSearchParams(location.search).get('lang');if(_up==='en'||_up==='zh')saved=_up;}catch(e){}
 var btn=document.getElementById('langBtn');if(btn)btn.onclick=function(){var cur=(document.documentElement.lang==='en')?'en':'zh';applyLang(cur==='en'?'zh':'en');};
 if(saved==='en')applyLang('en');
 })();
 </script>
+<!-- ═══════ 手机端汉堡菜单 + 侧边抽屉（<768px）═══════ -->
+<style>
+  /* 汉堡按钮：默认隐藏，<768px 显示 */
+  #mBurger{display:none;position:relative;width:44px;height:44px;flex:0 0 auto;align-items:center;justify-content:center;background:transparent;border:0;cursor:pointer;padding:0;margin-right:2px}
+  #mBurger .bar{position:absolute;left:11px;width:22px;height:2px;background:var(--gold-lt);border-radius:2px;transition:transform .25s ease,opacity .2s ease,top .25s ease}
+  #mBurger .bar:nth-child(1){top:15px} #mBurger .bar:nth-child(2){top:21px} #mBurger .bar:nth-child(3){top:27px}
+  #mBurger[aria-expanded="true"] .bar:nth-child(1){top:21px;transform:rotate(45deg)}
+  #mBurger[aria-expanded="true"] .bar:nth-child(2){opacity:0}
+  #mBurger[aria-expanded="true"] .bar:nth-child(3){top:21px;transform:rotate(-45deg)}
+  #mBurger:active{transform:scale(.92)}
+  #mLang{display:none;font:inherit;font-size:12px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--gold-lt);border-radius:6px;padding:5px 11px;flex:0 0 auto}
+  /* 遮罩 */
+  #mOverlay{position:fixed;inset:0;z-index:190;background:rgba(0,0,0,.65);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}
+  #mOverlay.open{opacity:1;visibility:visible}
+  /* 抽屉 */
+  #mDrawer{position:fixed;top:0;left:0;height:100vh;height:100dvh;width:82vw;max-width:360px;z-index:195;
+    background:linear-gradient(160deg,#0b0f0d,#080b0a 55%,#0d0b06);border-right:1px solid rgba(118,255,54,.28);
+    box-shadow:6px 0 40px rgba(0,0,0,.6),1px 0 12px rgba(118,255,54,.25);
+    transform:translateX(-104%);transition:transform .25s cubic-bezier(.4,0,.2,1);
+    display:flex;flex-direction:column;overscroll-behavior:contain;
+    padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left)}
+  #mDrawer.open{transform:translateX(0)}
+  #mDrawer.closing{transition-duration:.2s}
+  .md-head{display:flex;align-items:flex-start;gap:11px;padding:16px 16px 13px;border-bottom:1px solid rgba(214,168,75,.18)}
+  .md-head img{width:34px;height:34px;flex:0 0 auto}
+  .md-head .t{flex:1;min-width:0}
+  .md-head .t b{font-family:var(--serif);font-size:17px;color:var(--gold-lt);display:block;line-height:1.2}
+  .md-head .t span{font-size:11.5px;color:var(--soft);display:block;margin-top:3px;line-height:1.4}
+  #mClose{width:34px;height:34px;flex:0 0 auto;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--soft);font-size:17px;cursor:pointer;line-height:1}
+  #mClose:hover{border-color:#76FF36;color:#76FF36}
+  .md-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 10px 6px}
+  .md-item{display:flex;align-items:center;gap:11px;width:100%;min-height:48px;padding:0 12px;border-radius:10px;
+    background:transparent;border:0;cursor:pointer;color:var(--ink);font:inherit;font-size:15px;text-align:left;text-decoration:none;position:relative}
+  .md-item:hover{background:rgba(118,255,54,.06)}
+  .md-item .ic{width:22px;text-align:center;font-size:16px;flex:0 0 auto}
+  .md-item .lbl{flex:1}
+  .md-item .arw{width:16px;height:16px;flex:0 0 auto;transition:transform .25s ease;opacity:.7}
+  .md-group.open>.md-item .arw{transform:rotate(180deg)}
+  .md-item.cur{background:rgba(37,201,111,.14)} .md-item.cur::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:3px;background:#76FF36} .md-item.cur .lbl{color:#76FF36}
+  .md-sub{overflow:hidden;height:0;transition:height .25s ease;margin-left:6px;border-left:1px solid rgba(214,168,75,.14)}
+  .md-sub a{display:flex;align-items:center;min-height:42px;padding:0 12px 0 18px;color:var(--soft);font-size:14px;text-decoration:none;border-radius:8px}
+  .md-sub a:hover{background:rgba(118,255,54,.05);color:var(--ink)}
+  .md-foot{border-top:1px solid rgba(214,168,75,.18);padding:12px 14px calc(14px + env(safe-area-inset-bottom))}
+  .md-foot .qb{display:flex;gap:9px}
+  .md-foot .qb button{flex:1;min-height:44px;border-radius:10px;font:inherit;font-size:13.5px;cursor:pointer}
+  .md-foot .qb .p{background:linear-gradient(180deg,#76FF36,#25C96F);color:#08110a;border:0;font-weight:600}
+  .md-foot .qb .s{background:transparent;border:1px solid rgba(118,255,54,.4);color:#76FF36}
+  .md-warn{margin-top:11px;font-size:11px;color:var(--muted);line-height:1.6;text-align:center}
+  /* 断点：<768 显示汉堡+移动头，隐藏桌面链接 */
+  @media (max-width:767px){
+    #mBurger{display:flex} #mLang{display:inline-block}
+    .nav{gap:8px;padding:0 12px;height:58px;align-items:center}
+    .nav .brand{position:absolute;left:50%;transform:translateX(-50%);font-size:17px}
+    .nav .brand img{width:24px;height:24px}
+    .nav .links{display:none !important}
+    body.mnav-lock{position:fixed;width:100%;overflow:hidden}
+  }
+  @media (min-width:768px){
+    #mBurger,#mLang{display:none !important}
+    .nav .links{display:flex !important}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #mDrawer,#mOverlay,#mBurger .bar,.md-item .arw,.md-sub{transition:none !important}
+  }
+</style>
+
+<div id="mOverlay" tabindex="-1"></div>
+<nav id="mDrawer" aria-label="移动端导航" aria-hidden="true">
+  <div class="md-head">
+    <img src="assets/logo.png" alt="Web3Origin">
+    <div class="t"><b data-i18n="md_name">Web3Origin</b><span data-i18n="md_tag">起源生态链上数据与研究平台</span></div>
+    <button id="mClose" aria-label="关闭导航菜单">✕</button>
+  </div>
+  <div class="md-body">
+    <a class="md-item" data-jump="home"><span class="ic">🏠</span><span class="lbl" data-i18n="md_home">首页</span></a>
+
+    <div class="md-group">
+      <button class="md-item" aria-expanded="false" aria-controls="msub-eco"><span class="ic">🌐</span><span class="lbl" data-i18n="md_eco">起源生态</span><svg class="arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="md-sub" id="msub-eco">
+        <a href="about/" data-i18n="md_eco1">起源是什么</a>
+        <a href="baike/lgns/" data-i18n="md_eco2">LGNS 是什么</a>
+        <a href="contracts/" data-i18n="md_eco3">合约地址大全</a>
+        <a href="faq/" data-i18n="md_eco4">常见问题</a>
+        <a href="sources/" data-i18n="md_eco5">数据来源</a>
+      </div>
+    </div>
+
+    <div class="md-group">
+      <button class="md-item" aria-expanded="false" aria-controls="msub-tools"><span class="ic">🔧</span><span class="lbl" data-i18n="md_tools">链上工具</span><svg class="arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="md-sub" id="msub-tools">
+        <a data-fn="openBrowser" data-i18n="md_t1">区块浏览器 / 钱包查询</a>
+        <a data-fn="openWalletMonitor" data-i18n="md_t2">钱包监控·链上体检</a>
+        <a data-fn="openCalc" data-i18n="md_t3">LGNS 收益计算器</a>
+        <a data-fn="openContractCenter" data-i18n="md_t4">合约验证中心</a>
+        <a data-fn="openReferrer" data-i18n="md_t5">查推荐人</a>
+        <a data-fn="openSecurity" data-i18n="md_t6">代币安全自查</a>
+        <a data-fn="openStaking" data-i18n="md_t7">质押数据面板</a>
+        <a data-fn="openDashboard" data-i18n="md_t8">链上数据面板</a>
+        <a data-fn="openWhale" data-i18n="md_t9">大额成交监测</a>
+      </div>
+    </div>
+
+    <a class="md-item" data-fn="openEvidenceDB"><span class="ic">🗄️</span><span class="lbl" data-i18n="md_evi">链上证据库</span></a>
+    <a class="md-item" data-fn="openDailyNews"><span class="ic">📰</span><span class="lbl" data-i18n="md_daily">链上日报</span></a>
+
+    <div class="md-group">
+      <button class="md-item" aria-expanded="false" aria-controls="msub-learn"><span class="ic">📖</span><span class="lbl" data-i18n="md_learn">学习中心</span><svg class="arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="md-sub" id="msub-learn">
+        <a data-jump="path" data-i18n="md_l1">新人学习路线</a>
+        <a data-jump="codex" data-i18n="md_l2">资料中心</a>
+        <a href="faq/" data-i18n="md_l3">常见问题</a>
+      </div>
+    </div>
+
+    <a class="md-item" href="about/"><span class="ic">ℹ️</span><span class="lbl" data-i18n="md_about">关于 Web3Origin</span></a>
+    <a class="md-item" data-jump="contact"><span class="ic">💬</span><span class="lbl" data-i18n="md_contact">加好友 / 联系</span></a>
+  </div>
+  <div class="md-foot">
+    <div class="qb">
+      <button class="p" data-fn="openWalletMonitor" data-i18n="md_qb1">钱包查询</button>
+      <button class="s" data-fn="openCalc" data-i18n="md_qb2">收益计算器</button>
+    </div>
+    <div class="md-warn" data-i18n="md_warn">⚠️ 请勿在任何网页输入助记词、私钥或钱包密码。</div>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var burger=document.getElementById('mBurger'), drawer=document.getElementById('mDrawer'),
+      overlay=document.getElementById('mOverlay'), closeBtn=document.getElementById('mClose'),
+      body=document.body, scrollY=0, isOpen=false;
+  if(!burger||!drawer) return;
+  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function focusables(){ return drawer.querySelectorAll('a[href],a[data-fn],a[data-jump],button:not([disabled])'); }
+  function openDrawer(){
+    if(isOpen) return; isOpen=true;
+    scrollY=window.scrollY||window.pageYOffset;
+    body.style.top='-'+scrollY+'px'; body.classList.add('mnav-lock');
+    overlay.classList.add('open'); drawer.classList.add('open');
+    burger.setAttribute('aria-expanded','true'); burger.setAttribute('aria-label','关闭导航菜单');
+    drawer.setAttribute('aria-hidden','false');
+    var f=focusables(); if(f.length) setTimeout(function(){f[0].focus();},reduce?0:60);
+    // 展开当前所在区块对应的一级菜单 + 高亮
+    highlight();
+  }
+  function closeDrawer(){
+    if(!isOpen) return; isOpen=false;
+    drawer.classList.add('closing'); drawer.classList.remove('open'); overlay.classList.remove('open');
+    burger.setAttribute('aria-expanded','false'); burger.setAttribute('aria-label','打开导航菜单');
+    drawer.setAttribute('aria-hidden','true');
+    body.classList.remove('mnav-lock'); body.style.top='';
+    window.scrollTo(0,scrollY);
+    setTimeout(function(){drawer.classList.remove('closing');},220);
+    burger.focus();
+  }
+  function toggle(){ isOpen?closeDrawer():openDrawer(); }
+  burger.addEventListener('click',toggle);
+  closeBtn.addEventListener('click',closeDrawer);
+  overlay.addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&isOpen) closeDrawer();
+    if(e.key==='Tab'&&isOpen){ // 焦点陷阱
+      var f=focusables(); if(!f.length) return;
+      var first=f[0], last=f[f.length-1];
+      if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+    }
+  });
+  // 子菜单手风琴（同时只开一个）
+  drawer.querySelectorAll('.md-group>.md-item').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var grp=btn.parentElement, sub=grp.querySelector('.md-sub'), willOpen=!grp.classList.contains('open');
+      drawer.querySelectorAll('.md-group.open').forEach(function(g){
+        if(g!==grp){ g.classList.remove('open'); g.querySelector('.md-item').setAttribute('aria-expanded','false'); var s=g.querySelector('.md-sub'); s.style.height=s.scrollHeight+'px'; s.offsetHeight; s.style.height='0px'; }
+      });
+      if(willOpen){ grp.classList.add('open'); btn.setAttribute('aria-expanded','true'); sub.style.height=sub.scrollHeight+'px'; setTimeout(function(){ if(grp.classList.contains('open')) sub.style.height='auto'; },260); }
+      else { grp.classList.remove('open'); btn.setAttribute('aria-expanded','false'); sub.style.height=sub.scrollHeight+'px'; sub.offsetHeight; sub.style.height='0px'; }
+    });
+  });
+  // 叶子项点击：关抽屉 + 执行动作
+  drawer.querySelectorAll('.md-item[data-jump],.md-item[data-fn],.md-sub a,.md-foot button,.md-item[href]').forEach(function(el){
+    if(el.classList.contains('md-item')&&el.parentElement.classList.contains('md-group')) return; // 跳过手风琴开关
+    el.addEventListener('click',function(e){
+      var fn=el.getAttribute('data-fn'), jp=el.getAttribute('data-jump'), href=el.getAttribute('href');
+      if(fn){ e.preventDefault(); closeDrawer(); setTimeout(function(){ if(typeof window[fn]==='function') window[fn](); },reduce?0:230); }
+      else if(jp){ e.preventDefault(); closeDrawer(); setTimeout(function(){ var t=document.getElementById(jp); if(t) t.scrollIntoView({behavior:reduce?'auto':'smooth'}); },reduce?0:230); }
+      else if(href){ closeDrawer(); /* 普通链接：让默认跳转发生 */ }
+    });
+  });
+  // 语言按钮（移动端头部）→ 触发桌面 langBtn
+  var mLang=document.getElementById('mLang');
+  if(mLang) mLang.addEventListener('click',function(){ var lb=document.getElementById('langBtn'); if(lb) lb.click(); mLang.textContent=(document.documentElement.lang==='en')?'中':'EN'; });
+  // resize 回桌面端自动关闭
+  window.addEventListener('resize',function(){ if(window.innerWidth>=768&&isOpen) closeDrawer(); });
+  // 高亮当前所在区块对应菜单
+  function highlight(){
+    var secs=[['home','home'],['path','path'],['codex','codex'],['contact','contact']];
+    var cur='home', mid=window.innerHeight/2;
+    secs.forEach(function(s){ var el=document.getElementById(s[0]); if(el){ var r=el.getBoundingClientRect(); if(r.top<=mid) cur=s[0]; } });
+    drawer.querySelectorAll('.md-item.cur').forEach(function(x){x.classList.remove('cur');});
+    var map={home:'[data-jump=home]',path:'[data-jump=path]',codex:'[data-jump=codex]',contact:'[data-jump=contact]'};
+    var el=drawer.querySelector(map[cur]); if(el) el.classList.add('cur');
+  }
+  window.addEventListener('scroll',function(){ if(isOpen) highlight(); },{passive:true});
+})();
+</script>
+
 </body>
 </html>
