@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="w3g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8a6a2a"/><stop offset=".32" stop-color="#e8c268"/>
+      <stop offset=".52" stop-color="#f9efcb"/><stop offset=".72" stop-color="#D8A83E"/><stop offset="1" stop-color="#7a5a20"/>
+    </linearGradient>
+    <radialGradient id="w3c" cx=".42" cy=".36" r=".75">
+      <stop offset="0" stop-color="#eafff0"/><stop offset=".32" stop-color="#9dff5e"/>
+      <stop offset=".6" stop-color="#76FF36"/><stop offset="1" stop-color="#1c8f2d"/>
+    </radialGradient>
+    <filter id="w3f" x="-90%" y="-90%" width="280%" height="280%">
+      <feGaussianBlur stdDeviation="2.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="60" cy="60" r="47" fill="none" stroke="url(#w3g)" stroke-width=".8" opacity=".22"/>
+  <g transform="rotate(-58 60 60)"><circle cx="60" cy="60" r="40" fill="none" stroke="url(#w3g)" stroke-width="5" stroke-linecap="round" stroke-dasharray="214 37"/></g>
+  <circle cx="60" cy="60" r="30" fill="none" stroke="#D8A83E" stroke-width="1" opacity=".32" stroke-dasharray="1.4 6"/>
+  <g stroke="#25C96F" stroke-width="1.3" opacity=".6"><line x1="60" y1="60" x2="60" y2="31"/><line x1="60" y1="60" x2="85.1" y2="74.5"/><line x1="60" y1="60" x2="34.9" y2="74.5"/></g>
+  <g fill="#25C96F"><circle cx="60" cy="31" r="1.9"/><circle cx="85.1" cy="74.5" r="1.9"/><circle cx="34.9" cy="74.5" r="1.9"/></g>
+  <circle cx="88.3" cy="31.7" r="7.6" fill="none" stroke="#76FF36" stroke-width="1" opacity=".55"/>
+  <circle cx="88.3" cy="31.7" r="5" fill="url(#w3g)"/>
+  <circle cx="60" cy="60" r="15" fill="#76FF36" opacity=".28" filter="url(#w3f)"/>
+  <path d="M60 46 L72.1 53 L72.1 67 L60 74 L47.9 67 L47.9 53 Z" fill="url(#w3c)" filter="url(#w3f)" stroke="#0b3d15" stroke-width=".8"/>
+  <path d="M60 52.2 L65.9 55.6 L65.9 64.4 L60 67.8 L54.1 64.4 L54.1 55.6 Z" fill="none" stroke="#04240c" stroke-width="1" opacity=".45"/>
+  <circle cx="60" cy="60" r="2.5" fill="#f0fff5"/>
+</svg>
