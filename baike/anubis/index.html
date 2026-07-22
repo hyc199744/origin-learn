@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anubis Chain 是什么？起源自建隐私公链完整介绍 - web3origin.com</title>
+<meta name="description" content="Anubis 是起源(ORIGIN)自建的隐私公链，Chain ID 6714，gas 用 DAI，出块约 2 秒。本文讲清 Anubis 链参数、RPC、区块浏览器、ANB 代币、如何添加网络与核实合约。">
+<meta name="keywords" content="Anubis Chain,Anubis链,Anubis是什么,Anubis Chain ID,Anubis RPC,Anubis浏览器,ANB代币,起源公链,web3origin">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://web3origin.com/baike/anubis/">
+<link rel="icon" href="../../assets/logo.png">
+<meta property="og:type" content="article"><meta property="og:title" content="Anubis Chain 是什么？起源自建隐私公链完整介绍 - web3origin.com"><meta property="og:description" content="Anubis 是起源(ORIGIN)自建的隐私公链，Chain ID 6714，gas 用 DAI，出块约 2 秒。本文讲清 Anubis 链参数、RPC、区块浏览器、ANB 代币、如何添加网络与核实合约。">
+<meta property="og:url" content="https://web3origin.com/baike/anubis/"><meta property="og:image" content="https://web3origin.com/assets/logo.png"><meta property="og:locale" content="zh_CN">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Anubis Chain 是什么", "inLanguage": "zh-CN", "author": {"@type": "Organization", "name": "Web3Origin"}, "publisher": {"@type": "Organization", "name": "Web3Origin", "logo": {"@type": "ImageObject", "url": "https://web3origin.com/assets/logo.png"}}, "mainEntityOfPage": "https://web3origin.com/baike/anubis/", "datePublished": "2026-07-22", "description": "起源自建隐私公链，Chain ID 6714，gas 用 DAI。"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "起源学习站", "item": "https://web3origin.com/"}, {"@type": "ListItem", "position": 2, "name": "Anubis Chain", "item": "https://web3origin.com/baike/anubis/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Anubis Chain 是什么？", "acceptedAnswer": {"@type": "Answer", "text": "Anubis 是起源（ORIGIN）生态自建的隐私公链，Chain ID 6714，出块约 2 秒，gas 直接用 DAI（无需单独持有原生代币）。主网 2026-04-08 上线，与 Polygon 组成起源的双链结构。"}}, {"@type": "Question", "name": "Anubis 链的 Chain ID 和 RPC 是多少？", "acceptedAnswer": {"@type": "Answer", "text": "Chain ID 是 6714，RPC 地址 https://rpc.anubispace.org，区块浏览器 https://browser.anubispace.org。在钱包里按这些参数添加网络即可连接。"}}, {"@type": "Question", "name": "Anubis 链的 gas 费用什么支付？", "acceptedAnswer": {"@type": "Answer", "text": "用 DAI。Anubis 在协议层把 DAI 当作原生币，所以支付 gas 直接扣 DAI，不需要单独买一个原生 gas 代币。"}}, {"@type": "Question", "name": "ANB 是什么？", "acceptedAnswer": {"@type": "Answer", "text": "ANB 是 Anubis 链的原生代币，总量 2100 万枚，用于治理等场景。注意日常 gas 是用 DAI 付的。"}}, {"@type": "Question", "name": "怎么核实 Anubis 上的合约？", "acceptedAnswer": {"@type": "Answer", "text": "把合约地址粘到 Anubis 区块浏览器 browser.anubispace.org 即可看到代码、创建交易和交互记录；本站「合约验证中心」也收录了 Anubis 链的全部合约。"}}]}</script>
+<style>
+:root{--obsidian:#050303;--temple:#210507;--blood:#7A0B12;--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--green:#8fbf78;--mono:'SFMono-Regular',ui-monospace,Consolas,monospace;--serif:"STZhongsong","Songti SC",Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1000px 500px at 50% -10%,#2a0a0c,#050303 60%) fixed,#050303;color:var(--bone);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.85}
+a{color:var(--gold-lt);text-decoration:none} a:hover{text-decoration:underline}
+.nav{display:flex;align-items:center;gap:16px;padding:14px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.nav .brand{font-family:var(--serif);color:var(--bone);font-size:17px} .nav .brand b{color:var(--gold-lt)}
+.nav a{font-size:13.5px;color:var(--soft)} .nav .sp{margin-left:auto}
+.crumb{max-width:820px;margin:0 auto;padding:14px 20px 0;font-size:12.5px;color:var(--muted)} .crumb a{color:var(--soft)}
+.wrap{max-width:820px;margin:0 auto;padding:8px 20px 70px}
+h1{font-family:var(--serif);font-size:clamp(24px,4.6vw,34px);color:var(--gold-lt);margin:12px 0 8px;font-weight:400;text-wrap:balance}
+h2{font-family:var(--serif);color:var(--gold-lt);font-size:22px;font-weight:400;margin:32px 0 12px;border-left:3px solid var(--blood);padding-left:12px}
+h3{font-size:16px;color:var(--bone);margin:18px 0 5px}
+p{color:var(--soft);font-size:15px;margin:11px 0} p b,li b,td b{color:var(--bone);font-weight:400}
+.lede{color:var(--bone);font-size:16px;background:rgba(214,168,75,.05);border:1px solid var(--line);border-radius:10px;padding:15px 18px}
+ul{color:var(--soft);font-size:15px;padding-left:22px} li{margin:6px 0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px} th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)} th{color:var(--muted);font-weight:400;width:38%} td{color:var(--soft);word-break:break-all}
+.note{background:rgba(224,162,79,.07);border:1px solid rgba(224,162,79,.3);border-radius:9px;padding:12px 15px;font-size:14px;color:var(--soft);margin:16px 0}
+.card{border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin-bottom:11px;background:rgba(214,168,75,.03);display:block}
+.card b{color:var(--gold-lt);font-size:15.5px;font-family:var(--serif)} .card p{margin:5px 0 0;font-size:13.5px;color:var(--soft)}
+.faq{border:1px solid var(--line);border-radius:9px;margin-bottom:9px;padding:2px 15px;background:rgba(214,168,75,.03)}
+.faq summary{cursor:pointer;padding:12px 0;color:var(--bone);font-size:15.5px;font-family:var(--serif)} .faq p{margin:0 0 12px;font-size:14px;line-height:1.8}
+footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--muted);font-size:13px;text-align:center;line-height:2} footer a{margin:0 7px}
+</style>
+</head><body>
+<nav class="nav"><span class="brand">起源 · <b>百科</b></span><a href="../../">← 返回首页</a><span class="sp"></span><a href="../../baike/lgns/">LGNS</a><a href="../../contracts/">合约大全</a><a href="../../faq/">FAQ</a></nav>
+<div class="crumb"><a href="../../">起源学习站</a> › 百科 › Anubis Chain</div>
+<article class="wrap">
+<h1>Anubis Chain 是什么？起源自建隐私公链完整介绍</h1>
+<p class="lede"><b>一句话：Anubis 是起源（ORIGIN）生态自建的隐私公链</b>——Chain ID 6714，出块约 2 秒，<b>gas 直接用 DAI</b>，与 Polygon 一起构成起源的双链结构。</p>
+<h2>一、Anubis 公链核心事实</h2>
+<table>
+<tr><th>链名</th><td>Anubis Chain（阿努比斯链）</td></tr>
+<tr><th>类型</th><td>起源生态自建的隐私公链</td></tr>
+<tr><th>Chain ID</th><td>6714</td></tr>
+<tr><th>RPC 地址</th><td><span class="mono">https://rpc.anubispace.org</span></td></tr>
+<tr><th>区块浏览器</th><td><a href="https://browser.anubispace.org" target="_blank" rel="nofollow">browser.anubispace.org ↗</a></td></tr>
+<tr><th>出块时间</th><td>约 2 秒</td></tr>
+<tr><th>Gas 代币</th><td><b>DAI</b>（协议层把 DAI 当原生币，无需单独持有原生 gas 代币）</td></tr>
+<tr><th>原生代币</th><td>ANB，总量 2100 万枚（治理等）</td></tr>
+<tr><th>主网上线</th><td>2026-04-08</td></tr>
+<tr><th>LGNS 开盘</th><td>2026-05-13（Anubis 链）</td></tr>
+</table>
+<h2>二、核心机制：为什么 gas 用 DAI</h2>
+<p>大多数公链要求你先持有一个原生代币来付 gas（比如以太坊的 ETH、Polygon 的 POL）。Anubis 的做法不同——<b>在协议层直接把 DAI 当作原生币</b>，你的 DAI 余额既是资产也是 gas。好处是新手不用先去买一个陌生的 gas 代币，用稳定币就能直接在链上操作，体验更顺。</p>
+<h2>三、与 Polygon 的关系（双链结构）</h2>
+<p>起源生态同时运行在 <b>Polygon</b> 和 <b>Anubis</b> 两条链上：Polygon 是最早部署 LGNS 的链（2024-03-06），Anubis 是起源后来自建的公链（2026-04-08 主网）。LGNS、DAI 等核心资产两条链都有部署，可跨链使用。LGNS 在 Anubis 的合约地址是 <span class="mono">0x4D1D808a081FdAc440703b3765FC61f8028C06B8</span>。</p>
+<h2>四、怎么用 / 添加网络</h2>
+<ul>
+<li>在钱包（如 MetaMask/OKX）「添加网络」里填：网络名 Anubis、RPC <span class="mono">https://rpc.anubispace.org</span>、Chain ID 6714、区块浏览器 browser.anubispace.org。</li>
+<li>gas 用 DAI，所以钱包里要有少量 DAI 才能发交易。</li>
+<li>所有合约、交易都可在 browser.anubispace.org 核实，或用本站「<a href="../../contracts/">合约验证中心</a>」查看 Anubis 链全部合约。</li>
+</ul>
+<div class="note">⚠️ 安全提示：添加网络只填官方公布的 RPC 和参数，别用陌生链接给的；跨链和交易前小额试水，自己上链核实（DYOR）。</div>
+<h2>常见问题（FAQ）</h2>
+<details class="faq" open><summary>Anubis Chain 是什么？</summary><p>Anubis 是起源（ORIGIN）生态自建的隐私公链，Chain ID 6714，出块约 2 秒，gas 直接用 DAI（无需单独持有原生代币）。主网 2026-04-08 上线，与 Polygon 组成起源的双链结构。</p></details><details class="faq"><summary>Anubis 链的 Chain ID 和 RPC 是多少？</summary><p>Chain ID 是 6714，RPC 地址 https://rpc.anubispace.org，区块浏览器 https://browser.anubispace.org。在钱包里按这些参数添加网络即可连接。</p></details><details class="faq"><summary>Anubis 链的 gas 费用什么支付？</summary><p>用 DAI。Anubis 在协议层把 DAI 当作原生币，所以支付 gas 直接扣 DAI，不需要单独买一个原生 gas 代币。</p></details><details class="faq"><summary>ANB 是什么？</summary><p>ANB 是 Anubis 链的原生代币，总量 2100 万枚，用于治理等场景。注意日常 gas 是用 DAI 付的。</p></details><details class="faq"><summary>怎么核实 Anubis 上的合约？</summary><p>把合约地址粘到 Anubis 区块浏览器 browser.anubispace.org 即可看到代码、创建交易和交互记录；本站「合约验证中心」也收录了 Anubis 链的全部合约。</p></details><p style="margin-top:20px"><a href="../../baike/lgns/">→ LGNS 是什么</a>　<a href="../../baike/awake-dao/">→ Awake DAO 治理</a>　<a href="../../contracts/">→ 合约地址大全</a></p></article><footer><div><a href="../../">首页</a> · <a href="../../about/">关于</a> · <a href="../../faq/">FAQ</a> · <a href="../../baike/lgns/">LGNS百科</a> · <a href="../../baike/anubis/">Anubis</a> · <a href="../../articles/">研究</a> · <a href="../../contracts/">合约</a></div><div style="margin-top:8px;color:var(--muted);font-size:12px">web3origin.com · Origin 生态链上数据查询与研究平台 · 内容仅供学习理解，不构成投资建议（DYOR）</div></footer>
+</body></html>
