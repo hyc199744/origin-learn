@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORIGIN Ecosystem — LGNS, Anubis Chain & On-chain Tools | web3origin.com</title>
+<meta name="description" content="A beginner's guide to the Origin (ORIGIN) ecosystem: understand LGNS, the Anubis privacy chain and (3,3) staking, plus free on-chain tools — contract verification, wallet checkup, referrer lookup, daily on-chain report — all verifiable in a block explorer.">
+<meta name="keywords" content="ORIGIN,LGNS,Anubis Chain,LGNS token,what is LGNS,LGNS contract address,LGNS staking,Origin ecosystem,(3,3),web3origin,on-chain tools">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://web3origin.com/en/">
+<link rel="alternate" hreflang="zh-CN" href="https://web3origin.com/">
+<link rel="alternate" hreflang="en" href="https://web3origin.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://web3origin.com/">
+<link rel="icon" href="../assets/logo.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ORIGIN Ecosystem — LGNS, Anubis Chain & On-chain Tools">
+<meta property="og:description" content="Understand LGNS, Anubis Chain and (3,3) staking, plus free on-chain tools — all verifiable on-chain.">
+<meta property="og:url" content="https://web3origin.com/en/">
+<meta property="og:image" content="https://web3origin.com/assets/logo.png">
+<meta property="og:locale" content="en_US">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","url":"https://web3origin.com/en/","name":"web3origin — Origin ecosystem hub","inLanguage":"en","publisher":{"@type":"Organization","name":"web3origin","logo":{"@type":"ImageObject","url":"https://web3origin.com/assets/logo.png"}}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What's the difference between Origin, Anubis and LGNS?","acceptedAnswer":{"@type":"Answer","text":"Origin is the whole Web3 ecosystem, LGNS is its core token, and Anubis is the blockchain the ecosystem built itself. Think of Origin as a city, LGNS as the currency in it, and Anubis as the ground beneath it."}},
+{"@type":"Question","name":"What is LGNS?","acceptedAnswer":{"@type":"Answer","text":"LGNS is the core token of the Origin ecosystem — an algorithmic token (not a stablecoin) with 9 decimals (not 18), using the (3,3) staking model. Governance uses a separate token, GLGNS."}},
+{"@type":"Question","name":"What is Anubis Chain?","acceptedAnswer":{"@type":"Answer","text":"Anubis is a self-built privacy chain, Chain ID 6714, ~2s block time, with gas paid directly in DAI (no separate native token needed)."}},
+{"@type":"Question","name":"Where do staking rewards come from?","acceptedAnswer":{"@type":"Answer","text":"Staking rewards are essentially protocol emissions every 6 hours (rebase). High APY does not mean net profit — watch both the price and the real reserves, and verify on-chain yourself (DYOR)."}}
+]}
+</script>
+<style>
+:root{--obsidian:#050303;--temple:#210507;--blood:#7A0B12;--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--green:#8fbf78;--serif:Georgia,"Times New Roman",serif}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1000px 500px at 50% -10%,#2a0a0c,#050303 60%) fixed,#050303;color:var(--bone);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.8}
+a{color:var(--gold-lt);text-decoration:none} a:hover{text-decoration:underline}
+.nav{display:flex;align-items:center;gap:16px;padding:14px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.nav .brand{font-family:var(--serif);color:var(--bone);font-size:17px} .nav .brand b{color:var(--gold-lt)}
+.nav a{font-size:13.5px;color:var(--soft)} .nav .sp{margin-left:auto}
+.wrap{max-width:860px;margin:0 auto;padding:16px 20px 70px}
+h1{font-family:var(--serif);font-size:clamp(26px,5vw,38px);color:var(--gold-lt);margin:18px 0 8px;font-weight:400;text-wrap:balance}
+h2{font-family:var(--serif);color:var(--gold-lt);font-size:23px;font-weight:400;margin:36px 0 12px;border-left:3px solid var(--blood);padding-left:12px}
+h3{font-size:16px;color:var(--bone);margin:16px 0 4px}
+p{color:var(--soft);font-size:15px} p b,li b{color:var(--bone);font-weight:600}
+.lede{color:var(--bone);font-size:16px;background:rgba(214,168,75,.05);border:1px solid var(--line);border-radius:10px;padding:15px 18px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:14px 0}
+.card{background:linear-gradient(180deg,rgba(33,5,7,.85),rgba(10,3,3,.85));border:1px solid var(--line);border-left:3px solid var(--blood);border-radius:6px;padding:14px 16px}
+.card h3{margin-top:0} .card p{font-size:13.5px;margin:6px 0 0}
+.step{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:11px;background:rgba(214,168,75,.03)}
+.step h3{margin:0 0 3px;color:var(--gold-lt);font-size:16px} .step .g{color:var(--soft);font-size:14px;margin:0 0 6px}
+.step ul{margin:0;padding-left:20px;color:var(--soft);font-size:13.5px} .step li{margin:4px 0}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:14px 0}
+.tool{border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:rgba(214,168,75,.03)}
+.tool b{color:var(--bone);font-size:14.5px} .tool p{font-size:12.5px;color:var(--muted);margin:5px 0 0}
+.faq{border:1px solid var(--line);border-radius:9px;margin-bottom:9px;padding:2px 15px;background:rgba(214,168,75,.03)}
+.faq summary{cursor:pointer;padding:12px 0;color:var(--bone);font-size:15px} .faq p{margin:0 0 12px;font-size:14px}
+.big{display:inline-block;margin:8px 8px 0 0;background:linear-gradient(180deg,var(--gold-lt),var(--gold));color:#1a0d0a;padding:11px 22px;border-radius:6px;font-weight:600;font-size:15px}
+footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--muted);font-size:13px;text-align:center;line-height:2}
+footer a{margin:0 7px}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <span class="brand">ORIGIN · <b>Beginner's Guide</b></span>
+  <a href="../">中文</a>
+  <span class="sp"></span>
+  <a href="../contracts/">Contracts</a>
+  <a href="../">Tools</a>
+</nav>
+<div class="wrap">
+  <h1>ORIGIN Ecosystem — LGNS, Anubis Chain & On-chain Tools</h1>
+  <p class="lede">A plain-language beginner's guide to <b>Origin (ORIGIN)</b>: understand the core token <b>LGNS</b>, the self-built <b>Anubis</b> privacy chain, and <b>(3,3)</b> staking — then verify everything yourself with free on-chain tools. No background needed.</p>
+
+  <h2>The three basics</h2>
+  <div class="grid3">
+    <div class="card"><h3>What is Origin</h3><p>A whole Web3 ecosystem: at its core is the token <b>LGNS</b>, plus staking, DAO governance and a self-built Anubis privacy chain. Think of it as an on-chain community with its own token and rules.</p></div>
+    <div class="card"><h3>What is LGNS</h3><p>The ecosystem's core token — an algorithmic token with <b>9 decimals</b> (not 18). It uses the <b>(3,3)</b> game model that rewards long-term holding. Governance is a separate token, GLGNS.</p></div>
+    <div class="card"><h3>What is Anubis</h3><p>A self-built privacy chain, <b>Chain ID 6714</b>, ~2s blocks, with <b>gas paid in DAI</b>. Part of Origin's two-chain (Polygon + Anubis) setup.</p></div>
+  </div>
+
+  <h2>The Five Trials — learn step by step</h2>
+  <div class="step"><h3>1 · Meet Origin</h3><p class="g">Get the terms straight: what Origin, Anubis and LGNS each are.</p><ul><li>Origin = the whole Web3 ecosystem</li><li>LGNS = the core token (algorithmic, 9 decimals; governance is a separate token, GLGNS)</li><li>Anubis = a self-built privacy chain (Chain ID 6714, gas in DAI)</li></ul></div>
+  <div class="step"><h3>2 · Understand LGNS &amp; (3,3)</h3><p class="g">Grasp what powers this token and why everyone talks about staking.</p><ul><li>(3,3): a game model that rewards long-term holding</li><li>Staking rewards are protocol emissions every 6 hours (rebase)</li><li>High APY ≠ net profit — watch both price and real reserves</li></ul></div>
+  <div class="step"><h3>3 · Try Staking</h3><p class="g">From setting up a wallet to your first stake and claiming rewards.</p><ul><li>Set up a self-custody wallet and safeguard your seed phrase</li><li>Learn where to buy LGNS and how to make a transaction</li><li>Start small, confirm it works, then scale up</li></ul></div>
+  <div class="step"><h3>4 · Join Governance</h3><p class="g">Know what Awake DAO is and how a proposal goes from idea to execution.</p><ul><li>Awake DAO: where the community governs</li><li>Proposal → Discussion → Vote → Execution</li><li>Voting power comes from the GLGNS governance token &amp; governance NFTs (not from holding/staking LGNS directly)</li></ul></div>
+  <div class="step"><h3>5 · Advanced &amp; Security</h3><p class="g">Verify data on-chain yourself, spot phishing, protect yourself.</p><ul><li>Use a block explorer to check contracts and transactions</li><li>Beware of new tricks like EIP-7702 approval phishing</li><li>Stick to official channels and verify on-chain yourself (DYOR)</li></ul></div>
+
+  <h2>Free on-chain tools</h2>
+  <p>The beauty of Web3 is you can verify everything on-chain yourself. Open these on the main site (switch the language to EN with the button top-right):</p>
+  <div class="tools">
+    <div class="tool"><b>Block Explorer</b><p>Read any address's POL / LGNS / staked / DAI balance in-site.</p></div>
+    <div class="tool"><b>Contract Verification</b><p>All Origin contracts on Polygon &amp; Anubis — verified/proxy/upgradeable/Owner at a glance.</p></div>
+    <div class="tool"><b>Wallet Monitor · Checkup</b><p>Who an address is, what it holds, what it did, and any risks — read-only.</p></div>
+    <div class="tool"><b>Referrer Lookup</b><p>Find the referrer (upline) wallet an address is bound to, and the binding time.</p></div>
+    <div class="tool"><b>Yield Calculator</b><p>Estimate staking rewards from the every-6-hour rebase.</p></div>
+    <div class="tool"><b>Token Safety Check</b><p>Buy/sell tax, honeypot, mintability, holder concentration.</p></div>
+    <div class="tool"><b>Whale Trade Monitor</b><p>Big buys/sells (≥ 10,000 DAI) in the main pool.</p></div>
+    <div class="tool"><b>On-chain Evidence DB</b><p>Key Origin events with real tx hash/block/address evidence.</p></div>
+    <div class="tool"><b>Origin Chain Daily</b><p>An auto-generated daily on-chain report — data-driven, on-chain facts only.</p></div>
+    <div class="tool"><b>On-chain Dashboard</b><p>Price / supply / staking rate / treasury / runway, read live.</p></div>
+  </div>
+  <a class="big" href="../?lang=en">Open the tools →</a>
+  <a class="big" href="../contracts/" style="background:linear-gradient(180deg,#2a1410,#1a0d0a);color:var(--gold-lt);border:1px solid var(--line)">All contract addresses →</a>
+
+  <h2>FAQ</h2>
+  <details class="faq"><summary>What's the difference between Origin, Anubis and LGNS?</summary><p>Origin is the whole ecosystem, LGNS is its core token, and Anubis is the blockchain the ecosystem built itself. Origin is like a city, LGNS the currency in it, Anubis the ground beneath.</p></details>
+  <details class="faq"><summary>What is LGNS?</summary><p>The core token of Origin — an algorithmic token (not a stablecoin), 9 decimals not 18, using the (3,3) staking model. Deployed on Polygon and Anubis. Governance uses a separate token, GLGNS.</p></details>
+  <details class="faq"><summary>What is Anubis Chain?</summary><p>A self-built privacy chain, Chain ID 6714, ~2s blocks, gas paid in DAI.</p></details>
+  <details class="faq"><summary>Where do staking rewards come from?</summary><p>They're protocol emissions every 6 hours (rebase). High APY ≠ net profit — check the price and real reserves, and verify on-chain yourself.</p></details>
+  <details class="faq"><summary>How do I stay safe from phishing?</summary><p>Don't click unknown links, don't sign approvals you don't understand, review your wallet approvals regularly, and beware of EIP-7702 approval phishing. A real official will never DM you for your seed phrase.</p></details>
+
+  <footer>
+    <div><a href="../">中文首页</a> · <a href="../contracts/">Contract addresses</a> · <a href="../">On-chain tools</a></div>
+    <div style="margin-top:8px;color:var(--muted);font-size:12px">web3origin.com · On-chain data hub for the Origin ecosystem · For learning only, not investment advice (DYOR).</div>
+  </footer>
+</div>
+</body>
+</html>
