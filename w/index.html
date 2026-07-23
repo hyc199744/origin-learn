@@ -156,7 +156,7 @@ function mainView(){
         +'<div class="amtrow"><input id="uAmt" placeholder="0.0" inputmode="decimal"><button class="pct" onclick="__wd.pct(.5)">50%</button><button class="pct" onclick="__wd.max()">MAX</button></div>'
         +'<button class="act blue" onclick="__wd.approve()">① 授权 sLGNS</button>'
         +'<button class="act gold" onclick="__wd.unstake()">② 赎回 → LGNS</button>'
-        +'<div class="warnmini">需先授权 sLGNS(第①步，等它上链确认)，再赎回(第②步)。</div>'
+        +'<div class="warnmini">需先授权 sLGNS(第①步，等它上链确认)，再赎回(第②步)。授权采用<b>按量授权</b>——每次只授权你本次要赎回的数量，更安全；下次提更大数量时会让你重新授权一次。</div>'
       +'</div>'
       // 领取中心
       +'<div class="box"><h2><span class="dot"></span>领取中心 <span id="chainTag" class="badge" style="margin-left:auto"></span></h2>'
@@ -310,7 +310,7 @@ function pAmt(){return document.getElementById("uAmt").value;}
 function toRaw(s){s=String(s).trim();if(!/^\d*\.?\d*$/.test(s)||s===""||s===".")return null;var p=s.split(".");return BigInt(p[0]||"0")*1000000000n+BigInt(((p[1]||"").slice(0,9).padEnd(9,"0"))||"0");}
 function approve(){
   if(!signer)return;var raw=toRaw(pAmt());if(!raw||raw<=0n){alert("请输入数量");return;}
-  var data=APPROVE+pad(STAKING)+MAXU;
+  var data=APPROVE+pad(STAKING)+raw.toString(16).padStart(64,"0"); // 只授权本次要提的数量(非无限)
   rawCall(SLGNS,ALLOW+pad(me)+pad(STAKING)).then(function(cur){
     if(cur&&BigInt(cur)>=raw){log("sLGNS 授权已充足 ✓，可直接赎回","win");return;}
     return send(SLGNS,data,"授权 sLGNS");
