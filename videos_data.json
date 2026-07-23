@@ -1,6 +1,12 @@
 {
  "cats": [
   {
+   "key": "lgns-basic",
+   "name": "LGNS 基础",
+   "en": "LGNS Basics",
+   "icon": "🪙"
+  },
+  {
    "key": "howto",
    "name": "上手实操",
    "en": "Hands-on Tutorials",
@@ -44,6 +50,223 @@
   }
  ],
  "videos": [
+  {
+   "id": "v-lgns-wallet-intro",
+   "slug": "lgns-wallet-intro",
+   "cat": "lgns-basic",
+   "title": "欧意钱包介绍",
+   "title_en": "OKX Wallet Intro",
+   "src": "https://media.web3origin.com/lgns-wallet-intro.mp4",
+   "desc": "欧意（OKX）钱包界面与基本功能介绍，先认识钱包。",
+   "durSec": 48,
+   "durText": "约 48 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：欧意钱包介绍。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-lgns-dashboard-intro",
+   "slug": "lgns-dashboard-intro",
+   "cat": "lgns-basic",
+   "title": "仪表板介绍",
+   "title_en": "Dashboard Intro",
+   "src": "https://media.web3origin.com/lgns-dashboard-intro.mp4",
+   "desc": "起源仪表板（Dashboard）各项数据怎么看。",
+   "durSec": 40,
+   "durText": "约 40 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：仪表板介绍。",
+   "tools": [
+    "openDashboard"
+   ]
+  },
+  {
+   "id": "v-lgns-staking-page-intro",
+   "slug": "lgns-staking-page-intro",
+   "cat": "lgns-basic",
+   "title": "质押页面介绍",
+   "title_en": "Staking Page Intro",
+   "src": "https://media.web3origin.com/lgns-staking-page-intro.mp4",
+   "desc": "质押页面各按钮、各字段是什么意思。",
+   "durSec": 80,
+   "durText": "约 1 分 20 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：质押页面介绍。",
+   "tools": [
+    "openStaking"
+   ]
+  },
+  {
+   "id": "v-lgns-stake",
+   "slug": "lgns-stake",
+   "cat": "lgns-basic",
+   "title": "质押 LGNS 变成 sLGNS",
+   "title_en": "Stake LGNS to sLGNS",
+   "src": "https://media.web3origin.com/lgns-stake.mp4",
+   "desc": "把 LGNS 质押进合约、换成质押凭证 sLGNS 的操作。",
+   "durSec": 35,
+   "durText": "约 35 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：质押 LGNS 变成 sLGNS。",
+   "tools": [
+    "openStaking",
+    "openCalc"
+   ]
+  },
+  {
+   "id": "v-lgns-long-stake",
+   "slug": "lgns-long-stake",
+   "cat": "lgns-basic",
+   "title": "如何进行长期质押",
+   "title_en": "Long-term Staking",
+   "src": "https://media.web3origin.com/lgns-long-stake.mp4",
+   "desc": "如何进行长期质押（锁仓）的完整操作。",
+   "durSec": 159,
+   "durText": "约 2 分 39 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：如何进行长期质押。",
+   "tools": [
+    "openStaking",
+    "openCalc"
+   ]
+  },
+  {
+   "id": "v-lgns-unstake",
+   "slug": "lgns-unstake",
+   "cat": "lgns-basic",
+   "title": "取消质押 LGNS",
+   "title_en": "Unstake LGNS",
+   "src": "https://media.web3origin.com/lgns-unstake.mp4",
+   "desc": "如何取消质押、把 sLGNS 换回 LGNS。",
+   "durSec": 69,
+   "durText": "约 1 分 9 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：取消质押 LGNS。",
+   "tools": [
+    "openStaking"
+   ]
+  },
+  {
+   "id": "v-lgns-claim-unlocked",
+   "slug": "lgns-claim-unlocked",
+   "cat": "lgns-basic",
+   "title": "领取锁定期过的 LGNS",
+   "title_en": "Claim Unlocked LGNS",
+   "src": "https://media.web3origin.com/lgns-claim-unlocked.mp4",
+   "desc": "锁定期结束后，如何领取解锁的 LGNS。",
+   "durSec": 36,
+   "durText": "约 36 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：领取锁定期过的 LGNS。",
+   "tools": [
+    "openStaking"
+   ]
+  },
+  {
+   "id": "v-lgns-sell-to-pool",
+   "slug": "lgns-sell-to-pool",
+   "cat": "lgns-basic",
+   "title": "卖 LGNS 到底池换成稳定币",
+   "title_en": "Sell LGNS to Pool",
+   "src": "https://media.web3origin.com/lgns-sell-to-pool.mp4",
+   "desc": "把 LGNS 卖到底池、换成稳定币的操作。",
+   "durSec": 47,
+   "durText": "约 47 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：卖 LGNS 到底池换成稳定币。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-lgns-swap-get-pol",
+   "slug": "lgns-swap-get-pol",
+   "cat": "lgns-basic",
+   "title": "钱包内通过闪兑获得 POL",
+   "title_en": "Swap to Get POL",
+   "src": "https://media.web3origin.com/lgns-swap-get-pol.mp4",
+   "desc": "在钱包内通过闪兑换一点 POL 当 gas。",
+   "durSec": 208,
+   "durText": "约 3 分 28 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：钱包内通过闪兑获得 POL。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
+  {
+   "id": "v-lgns-turbo",
+   "slug": "lgns-turbo",
+   "cat": "lgns-basic",
+   "title": "如何涡轮",
+   "title_en": "Turbo",
+   "src": "https://media.web3origin.com/lgns-turbo.mp4",
+   "desc": "涡轮（Turbo）玩法怎么操作。",
+   "durSec": 52,
+   "durText": "约 52 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：如何涡轮。",
+   "tools": []
+  },
+  {
+   "id": "v-lgns-turbo-claim",
+   "slug": "lgns-turbo-claim",
+   "cat": "lgns-basic",
+   "title": "领取涡轮金额",
+   "title_en": "Claim Turbo Amount",
+   "src": "https://media.web3origin.com/lgns-turbo-claim.mp4",
+   "desc": "如何领取涡轮产生的金额。",
+   "durSec": 44,
+   "durText": "约 44 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：领取涡轮金额。",
+   "tools": []
+  },
+  {
+   "id": "v-lgns-turbo-full",
+   "slug": "lgns-turbo-full",
+   "cat": "lgns-basic",
+   "title": "完整版涡轮",
+   "title_en": "Turbo (Full Guide)",
+   "src": "https://media.web3origin.com/lgns-turbo-full.mp4",
+   "desc": "涡轮的完整版讲解与操作。",
+   "durSec": 114,
+   "durText": "约 1 分 54 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：完整版涡轮。",
+   "tools": []
+  },
+  {
+   "id": "v-lgns-cash-out-cny",
+   "slug": "lgns-cash-out-cny",
+   "cat": "lgns-basic",
+   "title": "如何把 LGNS 卖掉换成人民币提现",
+   "title_en": "Cash Out LGNS to CNY",
+   "src": "https://media.web3origin.com/lgns-cash-out-cny.mp4",
+   "desc": "如何把 LGNS 卖掉、换成人民币提现到手。",
+   "durSec": 190,
+   "durText": "约 3 分 10 秒",
+   "level": "新手实操",
+   "published": "2026-05-20",
+   "objective": "跟着视频一步步操作，你也能自己独立完成：如何把 LGNS 卖掉换成人民币提现。",
+   "tools": [
+    "openBrowser"
+   ]
+  },
   {
    "id": "v-okx-register-wallet",
    "slug": "okx-register-wallet",
