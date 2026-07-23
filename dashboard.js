@@ -147,7 +147,7 @@ function wireGate(){ var b=document.getElementById("dGateConnect"); if(b)b.oncli
 
 function topbar(){
   return '<nav class="d-top"><a class="d-brand" href="/"><img src="/assets/logo.svg" alt=""><span>起源 · <b>个人中心</b></span></a>'
-    +'<span class="d-sp"></span><a href="/academy/">学习学院</a><a href="/#radar">链上雷达</a><a href="/">返回主站</a></nav>';
+    +'<span class="d-sp"></span><a href="/feedback/">留言区</a><a href="/academy/">学习学院</a><a href="/#radar">链上雷达</a><a href="/">返回主站</a></nav>';
 }
 function shellHTML(){
   var a=addr(),d=def(),ri=rankInfo();
