@@ -216,109 +216,75 @@ footer a{color:var(--green)}
 (function(){
   "use strict";
   var API="https://count.web3origin.com";
-  var LGNS="0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01";
-  var POLY="0x89"; // 137
-  var LS="wd_access_v1";
-  var acct=null, order=null, poll=null;
+  var LS="wd_access_v1", LP="wd_pending_v1";
+  var order=null, poll=null;
   var mask=document.getElementById("mask"), mbody=document.getElementById("mbody");
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
   function short(a){return a?a.slice(0,6)+"…"+a.slice(-4):"";}
   function openM(){mask.classList.add("on");}
   window.closeM=function(){mask.classList.remove("on"); if(poll){clearInterval(poll);poll=null;}};
   function saved(){try{return JSON.parse(localStorage.getItem(LS)||"null");}catch(e){return null;}}
+  function pending(){try{return JSON.parse(localStorage.getItem(LP)||"null");}catch(e){return null;}}
   function accessURL(t){return "/premium/onchain-withdraw/?token="+encodeURIComponent(t);}
+  function copyText(t){try{if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t);return;}}catch(e){}var ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);}
+  var CPBTN='style="font:inherit;font-size:11px;cursor:pointer;background:rgba(123,255,69,.12);border:1px solid rgba(123,255,69,.35);color:var(--green);border-radius:6px;padding:3px 10px;margin-left:8px;vertical-align:2px"';
+  function bindCopy(){mbody.querySelectorAll(".cp").forEach(function(b){b.onclick=function(){copyText(b.getAttribute("data-c"));var t=b.textContent;b.textContent="已复制✓";setTimeout(function(){b.textContent=t;},1200);};});}
 
-  // ---------- 视图 ----------
-  function vConnect(){
-    mbody.innerHTML='<h3>连接钱包</h3><p class="msub">第一步：连接你的钱包（只读，不会发起任何交易）。</p>'
-      +'<button class="mbtn" id="cw">连接钱包</button>'
-      +'<div class="merr" id="err"></div>'
-      +'<div class="warnmini" style="margin-top:16px">⚠️ 我们绝不会索要助记词、私钥或钱包密码。</div>';
-    document.getElementById("cw").onclick=connect;
+  // ---------- 生成订单 → 手动转账收款(与查推荐人一致) ----------
+  function createOrder(){
+    mbody.innerHTML='<h3>生成订单…</h3><div class="center" style="padding:24px;color:var(--sub)"><span class="spin"></span> 正在生成收款订单</div>';
     openM();
+    fetch(API+"/wd/order").then(function(r){return r.json();}).then(function(o){
+      if(!o.ok){mbody.innerHTML='<h3>下单失败</h3><p class="msub">'+esc(o.error||"请稍后再试")+'</p><button class="mbtn" onclick="closeM()">关闭</button>';return;}
+      order=o; try{localStorage.setItem(LP,JSON.stringify(o));}catch(e){}
+      vPay(o);
+    }).catch(function(){mbody.innerHTML='<h3>网络错误</h3><p class="msub">请检查网络后重试。</p><button class="mbtn" onclick="closeM()">关闭</button>';});
   }
-  function vPay(){
-    mbody.innerHTML='<h3>支付 5 LGNS</h3><p class="msub">为避免混单，系统给你分配了一个<b>精确金额</b>，请务必按这个金额支付。</p>'
-      +'<div class="kv"><div class="l">支付金额（精确到小数）</div><div class="v big">'+esc(order.amount)+' LGNS</div></div>'
-      +'<div class="kv"><div class="l">收款地址</div><div class="v">'+esc(order.receive)+'</div></div>'
-      +'<button class="mbtn" id="payBtn">用钱包一键支付</button>'
-      +'<button class="mbtn sec" id="paidBtn" style="margin-top:8px">我已用其它方式转账，去验证</button>'
-      +'<div class="merr" id="err"></div>'
-      +'<div class="warnmini" style="margin-top:14px">这是一笔标准的 LGNS 转账（把上面的精确金额转到收款地址），钱包会弹窗让你确认。转账 gas 由你的钱包支付。</div>';
-    document.getElementById("payBtn").onclick=payNow;
-    document.getElementById("paidBtn").onclick=startPoll;
+  function vPay(o){
+    mbody.innerHTML='<h3>支付 5 LGNS 解锁</h3><p class="msub">用支持 <b>Polygon</b> 网络的钱包，把下面这个<b style="color:var(--gold)">精确金额</b>的 LGNS 转到收款地址。到账后本页自动解锁。</p>'
+      +'<div class="kv"><div class="l">精确金额（务必一分不差）</div><div class="v big">'+esc(o.amount)+' LGNS<button class="cp" data-c="'+esc(o.amount)+'" '+CPBTN+'>复制金额</button></div></div>'
+      +'<div class="kv"><div class="l">收款地址（Polygon 链）</div><div class="v">'+esc(o.receive)+'<button class="cp" data-c="'+esc(o.receive)+'" '+CPBTN+'>复制</button></div></div>'
+      +'<div class="kv"><div class="l">订单号</div><div class="v" style="font-size:12px">'+esc(o.orderId)+'<button class="cp" data-c="'+esc(o.orderId)+'" '+CPBTN+'>复制</button></div></div>'
+      +'<div style="text-align:center;font-size:14px;color:var(--green);margin:16px 0 10px" id="payStatus"><span class="spin"></span>等待付款到账…（约 20–60 秒自动解锁，勿关窗口）</div>'
+      +'<button class="mbtn sec" id="reBtn">我已转账，立即验证</button>'
+      +'<div class="warnmini" style="margin-top:14px">⚠️ 照抄这个精确金额（含小数），<b>别转成整数 5</b>——金额是用来对上你这笔订单的。转账 gas 由你的钱包支付；5 LGNS 是工具服务费，底层链上提币操作本身免费。</div>'
+      +'<div style="text-align:center;margin-top:10px"><a href="javascript:void(0)" id="newOrd" style="font-size:12px;color:var(--sub)">金额过期了？换个新订单</a></div>';
+    bindCopy();
+    document.getElementById("reBtn").onclick=function(){checkOnce(true);};
+    document.getElementById("newOrd").onclick=function(){try{localStorage.removeItem(LP);}catch(e){}createOrder();};
     openM();
+    startPoll();
   }
-  function vWaiting(msg){
-    var e=document.getElementById("err"); if(e){e.style.display="none";}
-    mbody.innerHTML='<h3>链上验证付款</h3><p class="msub">正在链上核对你的转账，确认到账（≥2 个区块确认）后自动解锁。</p>'
-      +'<div class="kv"><div class="l">应付金额</div><div class="v big">'+esc(order.amount)+' LGNS</div></div>'
-      +'<div style="text-align:center;color:var(--sub);font-size:14px;margin:18px 0"><span class="spin"></span>'+esc(msg||"等待链上确认…")+'</div>'
-      +'<div style="text-align:center;font-size:12.5px;color:var(--sub)">转账后通常 10~40 秒到账，请不要关闭本窗口。</div>';
-    openM();
+  function checkOnce(manual){
+    return fetch(API+"/wd/check?order="+order.orderId).then(function(r){return r.json();}).then(function(r){
+      if(r.ok&&r.status==="paid"){if(poll){clearInterval(poll);poll=null;}try{localStorage.removeItem(LP);}catch(e){}vDone(r);return true;}
+      if(manual){var s=document.getElementById("payStatus");if(s)s.innerHTML='<span class="spin"></span>还没查到到账，稍等片刻再试（金额需一分不差、≥2 个确认）';}
+      return false;
+    }).catch(function(){return false;});
+  }
+  function startPoll(){
+    var tries=0; if(poll)clearInterval(poll);
+    poll=setInterval(function(){
+      tries++;
+      checkOnce(false);
+      if(tries>60){clearInterval(poll);poll=null;var s=document.getElementById("payStatus");if(s)s.innerHTML='● 已等待较久。若已付款，稍后点“立即验证”即可，系统仍会认款。';}
+    },5000);
   }
   function vDone(res){
     var url=accessURL(res.access);
     mbody.innerHTML='<h3 class="mok">✅ 支付成功！</h3><p class="msub">你的链上提币工具已经解锁。</p>'
-      +'<div class="kv"><div class="l">专属访问链接</div><div class="v">'+esc(location.origin+url)+'</div></div>'
-      +'<div class="kv"><div class="l">支付钱包</div><div class="v">'+esc(res.payer||acct)+'</div></div>'
+      +'<div class="kv"><div class="l">专属访问链接</div><div class="v">'+esc(location.origin+url)+'<button class="cp" data-c="'+esc(location.origin+url)+'" '+CPBTN+'>复制</button></div></div>'
+      +'<div class="kv"><div class="l">支付钱包</div><div class="v">'+esc(res.payer||"—")+'</div></div>'
       +'<div class="kv"><div class="l">交易哈希</div><div class="v"><a style="color:var(--green)" target="_blank" href="https://polygonscan.com/tx/'+esc(res.txHash)+'">'+short(res.txHash)+' ↗</a></div></div>'
       +'<div class="kv"><div class="l">支付时间</div><div class="v">'+new Date(res.paidAt||Date.now()).toLocaleString()+'</div></div>'
       +'<a class="mbtn" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box" href="'+url+'">进入链上提币 →</a>';
-    try{localStorage.setItem(LS,JSON.stringify({access:res.access,addr:acct,txHash:res.txHash,paidAt:res.paidAt||Date.now()}));}catch(e){}
+    try{localStorage.setItem(LS,JSON.stringify({access:res.access,payer:res.payer,txHash:res.txHash,paidAt:res.paidAt||Date.now()}));}catch(e){}
+    bindCopy();
     openM();
-  }
-
-  // ---------- 逻辑 ----------
-  function connect(){
-    var err=document.getElementById("err");
-    if(!window.ethereum){err.textContent="没检测到钱包。请在 MetaMask / OKX / TokenPocket 等钱包的内置浏览器中打开本页。";err.style.display="block";return;}
-    var b=document.getElementById("cw");b.disabled=true;b.textContent="连接中…";
-    window.ethereum.request({method:"eth_requestAccounts"}).then(function(a){
-      acct=(a&&a[0]||"").toLowerCase();
-      return window.ethereum.request({method:"eth_chainId"});
-    }).then(function(cid){
-      if(cid!==POLY){
-        return window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:POLY}]}).then(makeOrder,function(){throw new Error("请把钱包切换到 Polygon 网络后重试。");});
-      }
-      return makeOrder();
-    }).catch(function(e){b.disabled=false;b.textContent="连接钱包";err.textContent=e.message||"连接失败";err.style.display="block";});
-  }
-  function makeOrder(){
-    return fetch(API+"/wd/order?addr="+acct).then(function(r){return r.json();}).then(function(r){
-      if(!r.ok){throw new Error(r.error||"下单失败");}
-      order=r; vPay();
-    });
-  }
-  function payNow(){
-    var err=document.getElementById("err");err.style.display="none";
-    var raw=BigInt(order.amountRaw).toString(16).padStart(64,"0");
-    var to=order.receive.toLowerCase().replace(/^0x/,"").padStart(64,"0");
-    var data="0xa9059cbb"+to+raw; // ERC20 transfer(recv, amount)
-    var b=document.getElementById("payBtn");b.disabled=true;b.textContent="请在钱包中确认…";
-    window.ethereum.request({method:"eth_sendTransaction",params:[{from:acct,to:LGNS,data:data}]}).then(function(){
-      startPoll();
-    }).catch(function(e){b.disabled=false;b.textContent="用钱包一键支付";err.textContent=(e&&e.message)||"交易被取消";err.style.display="block";});
-  }
-  function startPoll(){
-    vWaiting("等待链上确认…");
-    var tries=0;
-    if(poll)clearInterval(poll);
-    poll=setInterval(function(){
-      tries++;
-      fetch(API+"/wd/check?order="+order.orderId).then(function(r){return r.json();}).then(function(r){
-        if(r.ok&&r.status==="paid"){clearInterval(poll);poll=null;vDone(r);}
-        else if(tries>40){clearInterval(poll);poll=null;
-          mbody.innerHTML='<h3>还没查到到账</h3><p class="msub">可能是网络确认较慢，或金额不精确。你可以稍等后重试验证。</p>'
-            +'<button class="mbtn" id="rt">继续验证</button><button class="mbtn sec" onclick="closeM()" style="margin-top:8px">先关闭</button>';
-          document.getElementById("rt").onclick=startPoll;
-        }
-      }).catch(function(){});
-    },4000);
   }
   function restore(){
     var s=saved();
-    if(!s||!s.access){alert("本设备没有解锁记录。如果你已支付，请在同一浏览器打开，或重新支付解锁。");return;}
+    if(!s||!s.access){alert("本设备没有解锁记录。如果你已支付，请在同一浏览器打开，或点解锁按钮凭订单继续。");return;}
     fetch(API+"/wd/access?token="+encodeURIComponent(s.access)).then(function(r){return r.json();}).then(function(r){
       if(r.ok){location.href=accessURL(s.access);}
       else{alert("解锁记录已失效，请重新支付。");localStorage.removeItem(LS);}
@@ -328,10 +294,10 @@ footer a{color:var(--green)}
   // ---------- 入口 ----------
   document.getElementById("unlockBtn").onclick=function(){
     var s=saved();
-    if(s&&s.access){ // 已解锁过，直接进
-      location.href=accessURL(s.access); return;
-    }
-    vConnect();
+    if(s&&s.access){location.href=accessURL(s.access);return;} // 已解锁直接进
+    var p=pending();
+    if(p&&p.orderId){order=p;vPay(p);return;} // 有未完成订单→继续付款
+    createOrder();
   };
   document.getElementById("restoreLink").onclick=restore;
   mask.addEventListener("click",function(e){if(e.target===mask)closeM();});
