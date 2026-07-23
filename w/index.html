@@ -113,7 +113,11 @@ var MODS={
 var LGNS={137:"0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01",6714:"0x4D1D808a081FdAc440703b3765FC61f8028C06B8"};
 var SLGNS="0x99a57E6C8558BC6689f894e068733ADf83C19725",STAKING="0x1964Ca90474b11FFD08af387b110ba6C96251Bfc"; // Polygon 普通赎回
 var CHAINS={137:{hex:"0x89",name:"Polygon",add:{chainId:"0x89",chainName:"Polygon",nativeCurrency:{name:"POL",symbol:"POL",decimals:18},rpcUrls:["https://polygon-rpc.com"],blockExplorerUrls:["https://polygonscan.com"]}},6714:{hex:"0x1A3A",name:"Anubis",add:{chainId:"0x1A3A",chainName:"Anubis",nativeCurrency:{name:"DAI",symbol:"DAI",decimals:18},rpcUrls:["https://rpc.anubispace.org"],blockExplorerUrls:["https://browser.anubispace.org"]}}};
-var provider,signer,me,chainId,mods,lgns,sBalRaw=0n;
+var provider,signer,me,chainId,mods,lgns,sBalRaw=0n,lBalRaw=0n;
+// 质押(存入)—— 与官方 DApp 一致, Polygon
+var HELPER="0x78654ed080C1d1c87907646FDb2Ae48Db3635341"; // 活期质押 helper
+var STK=[{v:"main",n:"活期质押·随时赎回",a:HELPER,main:true},{v:"long360",n:"LONG 360天锁仓",a:"0x14fcA7bfa779A4172c9b2DE61fd352C005442520"},{v:"long240",n:"LONG 240天锁仓",a:"0xED24055c04609500AdB329c4eB82AAE49a478B8f"},{v:"long120",n:"LONG 120天锁仓",a:"0xa22ca986cA163ab51f33fb534D559E4E03445c44"},{v:"long60",n:"LONG 60天锁仓",a:"0xdAd4d3fE850C8C57a2880F1C7D9141F2bCf3B65A"},{v:"a360",n:"A 360天",a:"0xDa13C7553A654601667adf9a1A16248bAB584F13"},{v:"a240",n:"A 240天",a:"0x65Ed60E414CEcE532d8afF90c89dA369E44CF883"},{v:"a120",n:"A 120天",a:"0x33b69112FFF18eeA99834ACa7Db4021BebC1E084"},{v:"quota360",n:"配额 360天",a:"0x25a4b842cB200E9148FF5a11BAbF80488c8d8b07"},{v:"a360token",n:"A 360天代币",a:"0x23E2B07d85a8dbc307742C72aadbbdde4E5e2EFB"}];
+var STAKE2="0x7acb7757",STAKE1="0xa694fc3a",DEPO="0xb6b55f25"; // stake(u256,addr)/stake(u256)/deposit(u256)
 var app=document.getElementById("app");
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 function short(a){return a?a.slice(0,6)+"…"+a.slice(-4):"";}
@@ -140,7 +144,7 @@ function lockView(msg){
 // ---------- 主界面 ----------
 function mainView(){
   app.innerHTML=''
-    +'<h1 class="pt">链上提币中心</h1><p class="psub">连接钱包，把你在起源生态各类质押 / 奖励里的资产直接从链上取回。全程你自己签名，我们不碰你的私钥。支持 Polygon 与 Anubis(ANB) 两条链。</p>'
+    +'<h1 class="pt">链上提币中心</h1><p class="psub">连接钱包，直接和智能合约交互：<b>质押存入</b>、<b>赎回取出</b>、<b>领取</b>各类质押与奖励。全程你自己签名，我们不碰你的私钥。支持 Polygon 与 Anubis(ANB) 两条链。</p>'
     +'<div class="box"><h2><span class="dot"></span>我的资产</h2>'
       +'<div class="netnote" id="netNote">请先连接钱包。</div>'
       +'<div class="bals" id="bals" style="display:none">'
@@ -152,6 +156,17 @@ function mainView(){
       +'<div id="connBox" style="margin-top:10px"><button class="act green" onclick="__wd.connect()">连接钱包</button></div>'
     +'</div>'
     +'<div id="dapp" class="hidden">'
+      // 质押(存入,仅 Polygon)
+      +'<div class="box hidden" id="stakeBox"><h2><span class="dot"></span>质押(存入 LGNS → sLGNS)</h2>'
+        +'<select class="sel" id="stkType"></select>'
+        +'<div class="tk-top"><span>钱包 LGNS</span><div class="tk-bal">可用 <span id="stkBal" onclick="__wd.stkMax()">0</span></div></div>'
+        +'<div class="amtrow"><input id="stkAmt" placeholder="0.0" inputmode="decimal"><button class="pct" onclick="__wd.stkPct(.5)">50%</button><button class="pct" onclick="__wd.stkMax()">MAX</button></div>'
+        +'<div id="stkConfirm"></div>'
+        +'<button class="act blue" onclick="__wd.stkApprove()">① 授权 LGNS</button>'
+        +'<button class="act green" onclick="__wd.doStake()">② 质押</button>'
+        +'<div class="toast" id="stkToast"></div>'
+        +'<div class="warnmini">质押=把 LGNS 存进合约换 sLGNS。<b>锁仓类(LONG / A / 配额)到期前取不出</b>，存前想清楚；活期质押可随时赎回。按量授权、签名前明示合约，你自己确认。</div>'
+      +'</div>'
       // 普通赎回(仅 Polygon)
       +'<div class="box hidden" id="unstakeBox"><h2><span class="dot"></span>普通赎回(sLGNS → LGNS)</h2>'
         +'<div class="tk-top"><span>随时可赎回 · 按 1:1 取回</span><div class="tk-bal">可赎回 <span id="uBal" onclick="__wd.max()">0</span></div></div>'
@@ -197,6 +212,8 @@ function connect(){
     document.getElementById("bals").style.display="grid";
     document.getElementById("bNet").textContent=(chainId===137?"Polygon":chainId===6714?"Anubis":("链"+chainId));
     document.getElementById("unstakeBox").classList.toggle("hidden",chainId!==137);
+    document.getElementById("stakeBox").classList.toggle("hidden",chainId!==137);
+    var stEl=document.getElementById("stkType"); if(stEl&&!stEl.options.length)stEl.innerHTML=STK.map(function(s){return '<option value="'+s.v+'">'+esc(s.n)+'</option>';}).join("");
     var cs=document.getElementById("chainSwitch");if(cs){cs.style.display="flex";cs.innerHTML=switchBtns();}
     if(eth.on){eth.on("accountsChanged",function(){location.reload();});eth.on("chainChanged",function(){location.reload();});}
     if(!mods){document.getElementById("netNote").innerHTML='当前网络(链 '+chainId+')不是 Polygon / Anubis。点下面按钮一键切换 👇';document.getElementById("modules").innerHTML="";document.getElementById("chainTag").textContent="请切换网络";return;}
@@ -234,6 +251,7 @@ function refreshBal(){
   if(chainId===137)ps.push(balOf(SLGNS,me));
   return Promise.all(ps).then(function(r){
     document.getElementById("bLGNS").textContent=fmt9(r[0]);
+    lBalRaw=r[0];var _sb=document.getElementById("stkBal");if(_sb)_sb.textContent=fmt9(r[0]);
     if(chainId===137){sBalRaw=r[1];document.getElementById("bSLGNS").textContent=fmt9(r[1]);var ub=document.getElementById("uBal");if(ub)ub.textContent=fmt9(r[1]);}
     else{document.getElementById("bSLGNS").textContent="—";}
   }).catch(function(){});
@@ -341,7 +359,41 @@ function switchChain(cid){
     else{ alert("切换失败："+((e&&(e.message||e.shortMessage))||"")); }
   });
 }
-window.__wd={connect:connect,disc:disc,scan:scan,claim:claimMod,claimAll:claimAll,approve:approve,unstake:unstake,pct:pct,max:maxA,chain:switchChain};
+/* ---------- 质押(存入) ---------- */
+function stkCur(){var v=document.getElementById("stkType").value;for(var i=0;i<STK.length;i++)if(STK[i].v===v)return STK[i];return STK[0];}
+function stkApprove(){
+  if(!signer)return;var raw=toRaw(document.getElementById("stkAmt").value);if(!raw||raw<=0n){toast("stkToast","请输入数量","error");return;}
+  var s=stkCur();
+  showConfirm("stkConfirm",lgns,"approve(spender, amount)","LGNS 代币",fmt9(raw)+" LGNS → 授权给 "+s.n);
+  var data=APPROVE+pad(s.a)+raw.toString(16).padStart(64,"0"); // 按量授权
+  rawCall(lgns,ALLOW+pad(me)+pad(s.a)).then(function(cur){
+    if(cur&&BigInt(cur)>=raw){toast("stkToast","授权已充足 ✓，可直接质押","success");return;}
+    return send(lgns,data,"授权 LGNS ("+s.n+")");
+  }).catch(function(e){toast("stkToast","授权失败: "+((e&&(e.reason||e.message))||"已取消"),"error");});
+}
+function doStake(){
+  if(!signer)return;var raw=toRaw(document.getElementById("stkAmt").value);if(!raw||raw<=0n){toast("stkToast","请输入数量","error");return;}
+  if(raw>lBalRaw){toast("stkToast","超出钱包 LGNS 余额","error");return;}
+  var s=stkCur(),amt=raw.toString(16).padStart(64,"0"),meP=pad(me);
+  showConfirm("stkConfirm",s.a,s.main?"stake(amount, 你的地址)":"stake / deposit(amount)",s.n,fmt9(raw)+" LGNS 存入");
+  var cands=s.main
+    ?[{to:s.a,d:STAKE2+amt+meP,fn:"stake(amount,addr)"},{to:s.a,d:STAKE1+amt,fn:"stake(amount)"},{to:STAKING,d:STAKE2+amt+meP,fn:"staking.stake"}]
+    :[{to:s.a,d:STAKE1+amt,fn:"stake(amount)"},{to:s.a,d:DEPO+amt,fn:"deposit(amount)"}];
+  toast("stkToast",'<span class="spin"></span> 检测存入方式…',"info");
+  var i=0;
+  function tryNext(){
+    if(i>=cands.length){toast("stkToast","没找到可用的质押方式——请先点①授权 LGNS；若已授权仍不行，可能该产品已停售","error");return;}
+    var c=cands[i++];
+    okCall(c.to,c.d).then(function(ok){
+      if(!ok)return tryNext();
+      return send(c.to,c.d,"质押 "+s.n+"（"+c.fn+"）").then(function(){refreshBal();});
+    });
+  }
+  tryNext();
+}
+function stkPct(p){if(!lBalRaw)return;document.getElementById("stkAmt").value=(Number(lBalRaw)/1e9*p).toFixed(4);}
+function stkMax(){if(!lBalRaw)return;document.getElementById("stkAmt").value=(Number(lBalRaw)/1e9).toFixed(4);}
+window.__wd={connect:connect,disc:disc,scan:scan,claim:claimMod,claimAll:claimAll,approve:approve,unstake:unstake,pct:pct,max:maxA,chain:switchChain,stkApprove:stkApprove,doStake:doStake,stkPct:stkPct,stkMax:stkMax};
 })();
 </script>
 </body>
