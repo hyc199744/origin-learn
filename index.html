@@ -980,6 +980,9 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
   .md-item{display:flex;align-items:center;gap:11px;width:100%;min-height:48px;padding:0 12px;border-radius:10px;
     background:transparent;border:0;cursor:pointer;color:var(--ink);font:inherit;font-size:15px;text-align:left;text-decoration:none;position:relative}
   .md-item:hover{background:rgba(118,255,54,.06)}
+  .md-item-hl{background:linear-gradient(90deg,rgba(217,168,62,.16),rgba(118,255,54,.05));border:1px solid rgba(217,168,62,.4);margin-bottom:4px}
+  .md-item-hl .lbl{font-weight:700}
+  .md-item-hl:hover{background:linear-gradient(90deg,rgba(217,168,62,.24),rgba(118,255,54,.08))}
   .md-item .ic{width:22px;text-align:center;font-size:16px;flex:0 0 auto}
   .md-item .lbl{flex:1}
   .md-item .arw{width:16px;height:16px;flex:0 0 auto;transition:transform .25s ease;opacity:.7}
@@ -1020,6 +1023,7 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
     <button id="mClose" aria-label="关闭导航菜单">✕</button>
   </div>
   <div class="md-body">
+    <a class="md-item md-item-hl" data-fn="openReferrer"><span class="ic">👥</span><span class="lbl" data-i18n="md_t5">查推荐人</span></a>
     <a class="md-item" data-jump="home"><span class="ic">🏠</span><span class="lbl" data-i18n="md_home">首页</span></a>
     <a class="md-item" data-jump="radar"><span class="ic">📡</span><span class="lbl" data-i18n="md_radar">链上雷达</span></a>
     <a class="md-item" href="academy/"><span class="ic">🎓</span><span class="lbl" data-i18n="md_academy">链上学习学院</span></a>
@@ -1047,7 +1051,6 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
         <a data-fn="openWalletMonitor" data-i18n="md_t2">钱包监控·链上体检</a>
         <a data-fn="openCalc" data-i18n="md_t3">LGNS 收益计算器</a>
         <a data-fn="openContractCenter" data-i18n="md_t4">合约验证中心</a>
-        <a data-fn="openReferrer" data-i18n="md_t5">查推荐人</a>
         <a data-fn="openSecurity" data-i18n="md_t6">代币安全自查</a>
         <a data-fn="openStaking" data-i18n="md_t7">质押数据面板</a>
         <a data-fn="openDashboard" data-i18n="md_t8">链上数据面板</a>
