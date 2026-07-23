@@ -112,6 +112,7 @@ var MODS={
 };
 var LGNS={137:"0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01",6714:"0x4D1D808a081FdAc440703b3765FC61f8028C06B8"};
 var SLGNS="0x99a57E6C8558BC6689f894e068733ADf83C19725",STAKING="0x1964Ca90474b11FFD08af387b110ba6C96251Bfc"; // Polygon 普通赎回
+var CHAINS={137:{hex:"0x89",name:"Polygon",add:{chainId:"0x89",chainName:"Polygon",nativeCurrency:{name:"POL",symbol:"POL",decimals:18},rpcUrls:["https://polygon-rpc.com"],blockExplorerUrls:["https://polygonscan.com"]}},6714:{hex:"0x1A3A",name:"Anubis",add:{chainId:"0x1A3A",chainName:"Anubis",nativeCurrency:{name:"DAI",symbol:"DAI",decimals:18},rpcUrls:["https://rpc.anubispace.org"],blockExplorerUrls:["https://browser.anubispace.org"]}}};
 var provider,signer,me,chainId,mods,lgns,sBalRaw=0n;
 var app=document.getElementById("app");
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
@@ -147,6 +148,7 @@ function mainView(){
         +'<div class="bal"><div class="l">sLGNS(可赎回)</div><div class="v g" id="bSLGNS">--</div></div>'
         +'<div class="bal"><div class="l">网络</div><div class="v" id="bNet" style="font-size:14px">--</div></div>'
       +'</div>'
+      +'<div class="chips" id="chainSwitch" style="display:none;margin-top:10px"></div>'
       +'<div id="connBox" style="margin-top:10px"><button class="act green" onclick="__wd.connect()">连接钱包</button></div>'
     +'</div>'
     +'<div id="dapp" class="hidden">'
@@ -195,9 +197,10 @@ function connect(){
     document.getElementById("bals").style.display="grid";
     document.getElementById("bNet").textContent=(chainId===137?"Polygon":chainId===6714?"Anubis":("链"+chainId));
     document.getElementById("unstakeBox").classList.toggle("hidden",chainId!==137);
+    var cs=document.getElementById("chainSwitch");if(cs){cs.style.display="flex";cs.innerHTML=switchBtns();}
     if(eth.on){eth.on("accountsChanged",function(){location.reload();});eth.on("chainChanged",function(){location.reload();});}
-    if(!mods){document.getElementById("netNote").innerHTML='当前网络(链 '+chainId+')暂不支持。请在钱包里切换到 <b>Polygon</b> 或 <b>Anubis</b> 链。';document.getElementById("modules").innerHTML="";document.getElementById("chainTag").textContent="不支持";return;}
-    document.getElementById("netNote").innerHTML='已连接 <b>'+(chainId===137?"Polygon":"Anubis")+'</b>。切换钱包网络可查看另一条链的模块。';
+    if(!mods){document.getElementById("netNote").innerHTML='当前网络(链 '+chainId+')不是 Polygon / Anubis。点下面按钮一键切换 👇';document.getElementById("modules").innerHTML="";document.getElementById("chainTag").textContent="请切换网络";return;}
+    document.getElementById("netNote").innerHTML='已连接 <b>'+(chainId===137?"Polygon":"Anubis")+'</b>。用下面按钮可切到另一条链。';
     document.getElementById("chainTag").textContent=(chainId===137?"Polygon":"Anubis")+" · "+mods.length+" 项";
     renderModules();scan();
   }).catch(function(e){alert((e&&(e.shortMessage||e.message))||"连接失败");});
@@ -325,7 +328,20 @@ function unstake(){
 function pct(p){if(!sBalRaw)return;document.getElementById("uAmt").value=(Number(sBalRaw)/1e9*p).toFixed(4);}
 function maxA(){if(!sBalRaw)return;document.getElementById("uAmt").value=(Number(sBalRaw)/1e9).toFixed(4);}
 
-window.__wd={connect:connect,disc:disc,scan:scan,claim:claimMod,claimAll:claimAll,approve:approve,unstake:unstake,pct:pct,max:maxA};
+function switchBtns(){
+  return '<button class="chip'+(chainId===137?" on":"")+'" onclick="__wd.chain(137)">🔵 切到 Polygon</button>'
+    +'<button class="chip'+(chainId===6714?" on":"")+'" onclick="__wd.chain(6714)">🟣 切到 Anubis</button>';
+}
+function switchChain(cid){
+  var eth=window.okxwallet||window.ethereum; if(!eth){connect();return;}
+  var c=CHAINS[cid]; if(!c)return;
+  eth.request({method:"wallet_switchEthereumChain",params:[{chainId:c.hex}]}).then(function(){location.reload();}).catch(function(e){
+    if(e&&e.code===4902){ eth.request({method:"wallet_addEthereumChain",params:[c.add]}).then(function(){location.reload();}).catch(function(err){alert("添加 "+c.name+" 网络失败："+((err&&(err.message||err.shortMessage))||""));}); }
+    else if(e&&(e.code===4001||e.code==="ACTION_REJECTED")){ /* 用户取消 */ }
+    else{ alert("切换失败："+((e&&(e.message||e.shortMessage))||"")); }
+  });
+}
+window.__wd={connect:connect,disc:disc,scan:scan,claim:claimMod,claimAll:claimAll,approve:approve,unstake:unstake,pct:pct,max:maxA,chain:switchChain};
 })();
 </script>
 </body>
