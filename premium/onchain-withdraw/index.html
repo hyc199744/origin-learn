@@ -13,9 +13,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Microsoft YaHei
 body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(1000px 500px at 50% -10%,rgba(123,255,69,.08),transparent 60%),radial-gradient(800px 400px at 90% 15%,rgba(217,168,62,.06),transparent 55%)}
 a{color:var(--green);text-decoration:none}
 code{font-family:ui-monospace,Menlo,monospace;background:rgba(255,255,255,.05);padding:1px 6px;border-radius:5px;font-size:.9em;word-break:break-all}
-.wrap{max-width:520px;margin:0 auto;padding:0 16px 40px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 40px}
 .top{position:sticky;top:0;z-index:20;background:rgba(7,10,8,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.top .bar{max-width:520px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:10px;height:56px}
+.top .bar{max-width:560px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:10px;height:56px}
 .top img{height:26px}.top .nm{font-weight:800}.top .nm b{color:var(--green)}
 #walletArea{margin-left:auto}
 .cbtn{background:linear-gradient(135deg,var(--green),var(--green-d));color:#04210a;font-weight:800;font-size:13.5px;padding:8px 15px;border:0;border-radius:10px;cursor:pointer}
@@ -23,48 +23,47 @@ code{font-family:ui-monospace,Menlo,monospace;background:rgba(255,255,255,.05);p
 .wc .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
 .wc .disc{background:0;border:0;color:var(--sub);cursor:pointer;font-size:15px}
 h1.pt{font-size:22px;font-weight:900;margin:22px 0 3px}
-.psub{color:var(--sub);font-size:13.5px;margin:0 0 16px}
-.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:12px 0}
-.box h2{font-size:15px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+.psub{color:var(--sub);font-size:13.5px;margin:0 0 14px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+.box h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
 .box h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
-.bals{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.bal{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
-.bal .l{color:var(--sub);font-size:11.5px}
-.bal .v{font-size:18px;font-weight:800;font-family:ui-monospace,monospace;margin-top:2px}
-.bal .v.g{color:var(--green)}.bal .v.gold{color:var(--gold)}.bal .v small{font-size:11px;color:var(--sub);font-weight:600;margin-left:3px}
-.tabs{display:flex;gap:8px;margin-bottom:4px}
-.tab{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-size:13.5px;color:var(--sub)}
-.tab.on{border-color:rgba(123,255,69,.4);color:var(--green);background:rgba(123,255,69,.06);font-weight:700}
-.tk-top{display:flex;justify-content:space-between;align-items:center;margin:4px 0 6px;font-size:13px}
-.tk-token{display:flex;align-items:center;gap:7px;font-weight:700}
-.tk-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#04210a;font-weight:900}
+.bals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.bal{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+.bal .l{color:var(--sub);font-size:11px}
+.bal .v{font-size:16px;font-weight:800;font-family:ui-monospace,monospace;margin-top:2px}
+.bal .v.g{color:var(--green)}.bal .v.gold{color:var(--gold)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.chip{background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:7px 13px;cursor:pointer;font-size:12.5px;color:var(--sub)}
+.chip.on{border-color:rgba(123,255,69,.4);color:var(--green);background:rgba(123,255,69,.06);font-weight:700}
+.tk-top{display:flex;justify-content:space-between;align-items:center;margin:2px 0 6px;font-size:13px}
 .tk-bal{color:var(--sub)}.tk-bal span{color:var(--green);cursor:pointer;text-decoration:underline}
 .amtrow{display:flex;gap:7px;align-items:stretch;margin:6px 0}
-.amtrow input{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:19px;font-family:ui-monospace,monospace;padding:11px 13px;min-width:0}
+.amtrow input{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:18px;font-family:ui-monospace,monospace;padding:11px 13px;min-width:0}
 .amtrow input:focus{outline:0;border-color:var(--green)}
-.pct{flex:0 0 auto;background:rgba(123,255,69,.1);border:1px solid rgba(123,255,69,.3);color:var(--green);border-radius:10px;padding:0 13px;font-weight:700;cursor:pointer;font-size:13px}
-.sel{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:15px;padding:12px 13px;margin:6px 0}
-.act{width:100%;font-weight:800;font-size:15px;padding:13px;border:0;border-radius:12px;cursor:pointer;margin-top:8px}
+.pct{flex:0 0 auto;background:rgba(123,255,69,.1);border:1px solid rgba(123,255,69,.3);color:var(--green);border-radius:10px;padding:0 12px;font-weight:700;cursor:pointer;font-size:13px}
+.act{width:100%;font-weight:800;font-size:14.5px;padding:12px;border:0;border-radius:11px;cursor:pointer;margin-top:8px}
 .act.blue{background:rgba(77,163,255,.15);border:1px solid rgba(77,163,255,.4);color:var(--blue)}
 .act.gold{background:linear-gradient(135deg,var(--gold),#b98a2c);color:#241701}
 .act.green{background:linear-gradient(135deg,var(--green),var(--green-d));color:#04210a}
 .act:disabled{opacity:.5;cursor:default}
-.confirm{background:var(--card2);border:1px dashed rgba(217,168,62,.5);border-radius:11px;padding:12px 13px;margin:10px 0;font-size:12.5px}
-.confirm .r{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
-.confirm .r .k{color:var(--sub);flex:0 0 auto}.confirm .r .v{text-align:right;font-family:ui-monospace,monospace;word-break:break-all}
-.toast{display:none;margin-top:10px;padding:10px 12px;border-radius:9px;font-size:13px}
-.toast.show{display:block}
-.toast.info{background:rgba(255,255,255,.04);color:var(--sub);border:1px solid var(--line)}
-.toast.success{background:rgba(123,255,69,.1);color:var(--green);border:1px solid rgba(123,255,69,.3)}
-.toast.error{background:rgba(255,90,95,.1);color:#ff9a9d;border:1px solid rgba(255,90,95,.3)}
-.spinner,.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(123,255,69,.3);border-top-color:var(--green);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:6px}
-@keyframes sp{to{transform:rotate(360deg)}}
-.warnmini{background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.3);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--warn);margin:12px 0}
+.mrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.mrow:last-child{border:0}.mname{font-size:14px;font-weight:700}.mdesc{font-size:11px;color:var(--sub);margin-top:2px}
+.badge{font-size:11.5px;padding:3px 9px;border-radius:11px;background:var(--card2);color:var(--sub);white-space:nowrap}
+.badge.y{background:rgba(123,255,69,.14);color:var(--green)}.badge.n{background:rgba(255,255,255,.04);color:var(--sub)}
+.mbtn{background:linear-gradient(135deg,var(--green),var(--green-d));color:#04210a;border:0;border-radius:9px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.mbtn:disabled{opacity:.4;cursor:default}
+#log{background:#0a0f0b;border:1px solid var(--line);border-radius:10px;padding:10px;height:170px;overflow-y:auto;font-family:ui-monospace,Consolas,monospace;font-size:11.5px;line-height:1.6;margin-top:10px;display:none}
+#log.show{display:block}
+#log div{padding:1px 0;white-space:pre-wrap;word-break:break-all}
+.warnmini{background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.3);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--warn);margin:10px 0}
 .secbar{background:rgba(255,90,95,.06);border:1px solid rgba(255,90,95,.3);border-radius:12px;padding:13px 15px;margin:14px 0;font-size:12.5px}
 .secbar b{color:var(--crit)}
-.manual{font-size:12.5px;color:var(--sub);line-height:1.9}
+.manual{font-size:12px;color:var(--sub);line-height:1.9}
 .center{text-align:center}.hidden{display:none}
+.netnote{font-size:12.5px;color:var(--sub);background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin:8px 0}
 footer{border-top:1px solid var(--line);padding:24px 0;text-align:center;color:var(--sub);font-size:12px;margin-top:16px}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(123,255,69,.3);border-top-color:var(--green);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -79,37 +78,48 @@ footer{border-top:1px solid var(--line);padding:24px 0;text-align:center;color:v
 
 <footer><div class="wrap" style="padding-bottom:0">
   所有交易由你的钱包确认，我们绝不索要助记词/私钥/钱包密码。<br>
-  <span style="opacity:.6">质押主池 0x1964Ca90…（Olympus V1 分叉 · 不可升级）· 可在 Polygonscan 逐一核实</span>
+  <span style="opacity:.6">合约均与官方 DApp 一致 · 可在区块浏览器逐一核实</span>
 </div></footer>
 
-<script src="/assets/ethers.min.js"></script>
+<script src="/assets/ethers6.min.js"></script>
 <script>
 (function(){
 "use strict";
 var API="https://count.web3origin.com";
-// —— 合约（与官方 DApp 一致，均可在 Polygonscan 核实）——
-var C={
-  LGNS:"0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01",
-  sLGNS:"0x99a57E6C8558BC6689f894e068733ADf83C19725",
-  staking:"0x1964Ca90474b11FFD08af387b110ba6C96251Bfc",
-  long60:"0xdAd4d3fE850C8C57a2880F1C7D9141F2bCf3B65A",
-  long120:"0xa22ca986cA163ab51f33fb534D559E4E03445c44",
-  long240:"0xED24055c04609500AdB329c4eB82AAE49a478B8f",
-  long360:"0x14fcA7bfa779A4172c9b2DE61fd352C005442520"
-};
-var E=["function balanceOf(address) view returns (uint256)","function approve(address,uint256) returns (bool)","function allowance(address,address) view returns (uint256)","function decimals() view returns (uint8)"];
-var SA=["function unstake(uint256,bool) returns (bool)"];
-var LA=["function unstake()","function claim()","function withdraw()","function exit()"];
-var LONGS={long60:"60 天锁仓",long120:"120 天锁仓",long240:"240 天锁仓",long360:"360 天锁仓"};
-var LS="wd_access_v1", DEC=9;
+var LS="wd_access_v1";
 var token=new URLSearchParams(location.search).get("token")||"";
-var provider=null,signer=null,addr=null,ethw=null;
-var app=document.getElementById("app"), curTab="main";
-
+// —— 函数选择器（与官方领取中心一致）——
+var PRIN="0xd9f0f7f5",EXTRA="0x3829cab1",INT="0xd286f3cf",CNT="0x98dc8dea",GETCLAIM="0x0835fe47",REDEEM="0x5638f1f3",CLAIM0="0x4e71d92d";
+var BAL="0x70a08231",ALLOW="0xdd62ed3e",APPROVE="0x095ea7b3",UNSTAKE="0x9ebea88c",MAXU="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+// —— 每条链的领取模块（type: stake 质押 / turbine 涡轮 / reward 无参claim）——
+var MODS={
+ 137:[
+  {n:"600天质押",d:"本金+爆块+额外·全仓位",type:"stake",a:"0x8cA97F41d2C81AF050656e8AD0Cf543820a24504"},
+  {n:"360天质押·蛛网能量",d:"QUOTA360 全仓位",type:"stake",a:"0x25a4b842cB200E9148FF5a11BAbF80488c8d8b07"},
+  {n:"360天质押·长期V2",d:"LONG360V2 全仓位",type:"stake",a:"0x6652d0f0D7aEc5070804E55b7023d32B9Bbc4190"},
+  {n:"涡轮",d:"已到期 redeem",type:"turbine",a:"0x07Ff4e06865de4934409Aa6eCea503b08Cc1C78d"},
+  {n:"活期奖励",d:"A奖励 claim",type:"reward",a:"0x7DC3d391dD1303894eB359b483C8894A0C1Cf681"},
+  {n:"蛛网奖励",d:"社区奖励 claim",type:"reward",a:"0xa49aba84930299c6c2d537456A3e681bB4500f15"},
+  {n:"DAO奖励",d:"DAO池 claim",type:"reward",a:"0x0309Ca717d6989676194b88fD06029a88CEEfee6"},
+  {n:"Mint奖励",d:"铸造奖励 claim",type:"reward",a:"0x806FDAb92B0Fc7fBE4bbBE5117A54cAa9283d5a4"}
+ ],
+ 6714:[
+  {n:"积分质押",d:"本金+奖励·全仓位",type:"stake",a:"0x1E5FeeC473F7F445FC7F5FeEC0beABB2270b0b4E"},
+  {n:"600天质押",d:"本金+奖励·全仓位",type:"stake",a:"0x04eD22c6d1D020A9B5e032E93D79ab28293EF72f"},
+  {n:"涡轮",d:"已到期 redeem",type:"turbine",a:"0x92B53785090F6FE0717Ca3cF5dB8f8040d3B070b"},
+  {n:"蛛网奖励",d:"蛛网分发 claim",type:"reward",a:"0xF7a0cacDF0810609EE5618247C4121b799E41664"}
+ ]
+};
+var LGNS={137:"0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01",6714:"0x4D1D808a081FdAc440703b3765FC61f8028C06B8"};
+var SLGNS="0x99a57E6C8558BC6689f894e068733ADf83C19725",STAKING="0x1964Ca90474b11FFD08af387b110ba6C96251Bfc"; // Polygon 普通赎回
+var provider,signer,me,chainId,mods,lgns,sBalRaw=0n;
+var app=document.getElementById("app");
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 function short(a){return a?a.slice(0,6)+"…"+a.slice(-4):"";}
-function toast(id,m,t){var e=document.getElementById(id);if(!e)return;e.className="toast show "+(t||"info");e.innerHTML=m;}
-function fmt4(x){return parseFloat(x).toFixed(4);}
+var pad=function(a){return a.toLowerCase().replace(/^0x/,"").padStart(64,"0");};
+var e1=function(s,i){return s+BigInt(i).toString(16).padStart(64,"0");};
+var e2=function(s,i,a){return s+BigInt(i).toString(16).padStart(64,"0")+BigInt(a).toString(16).padStart(64,"0");};
+function fmt9(raw){return (Number(raw)/1e9).toFixed(4);}
 
 // ---------- 权限门 ----------
 if(!token){ return lockView("链接缺少访问凭证。请从解锁页进入。"); }
@@ -129,163 +139,193 @@ function lockView(msg){
 // ---------- 主界面 ----------
 function mainView(){
   app.innerHTML=''
-    +'<h1 class="pt">链上提币 · 赎回</h1><p class="psub">连接钱包，直接与不可升级的质押合约交互，把质押的 LGNS 取回钱包。全程你自己签名，我们不碰你的私钥。</p>'
-    +'<div class="box"><h2><span class="dot"></span>我的资产</h2><div class="bals">'
-      +'<div class="bal"><div class="l">LGNS（钱包）</div><div class="v gold" id="bLGNS">--</div></div>'
-      +'<div class="bal"><div class="l">sLGNS（质押中·可赎回）</div><div class="v g" id="bSLGNS">--</div></div>'
-      +'<div class="bal"><div class="l">POL（付 gas 用）</div><div class="v" id="bPOL">--</div></div>'
-      +'<div class="bal"><div class="l">预计可取回</div><div class="v" id="bRecv">--<small>LGNS</small></div></div>'
-    +'</div></div>'
-    +'<div class="box"><h2><span class="dot"></span>赎回</h2>'
-      +'<div class="tabs"><div class="tab on" id="tabMain" onclick="__wd.tab(\'main\')">普通赎回</div><div class="tab" id="tabLong" onclick="__wd.tab(\'long\')">解除锁仓质押</div></div>'
-      // 普通赎回
-      +'<div id="pMain">'
-        +'<div class="tk-top"><div class="tk-token"><div class="tk-dot" style="background:var(--green)">s</div>sLGNS</div><div class="tk-bal">可赎回 <span id="uBal" onclick="__wd.max()">0</span></div></div>'
-        +'<div class="amtrow"><input id="uAmt" placeholder="0.0" inputmode="decimal"><button class="pct" onclick="__wd.pct(.5)">50%</button><button class="pct" onclick="__wd.max()">MAX</button></div>'
-        +'<div id="uConfirm"></div>'
-        +'<button class="act blue" id="uApprove" onclick="__wd.approve()">① 授权 sLGNS</button>'
-        +'<button class="act gold" id="uDo" onclick="__wd.unstake()">② 赎回 → LGNS</button>'
-        +'<div class="toast" id="uToast"></div>'
-        +'<div class="warnmini">普通质押的 sLGNS 随时可赎回、按 1:1 取回 LGNS。需先授权 sLGNS 给质押池（第①步），再赎回（第②步）。授权要等它上链确认后再赎回。</div>'
+    +'<h1 class="pt">链上提币中心</h1><p class="psub">连接钱包，把你在起源生态各类质押 / 奖励里的资产直接从链上取回。全程你自己签名，我们不碰你的私钥。支持 Polygon 与 Anubis(ANB) 两条链。</p>'
+    +'<div class="box"><h2><span class="dot"></span>我的资产</h2>'
+      +'<div class="netnote" id="netNote">请先连接钱包。</div>'
+      +'<div class="bals" id="bals" style="display:none">'
+        +'<div class="bal"><div class="l">LGNS</div><div class="v gold" id="bLGNS">--</div></div>'
+        +'<div class="bal"><div class="l">sLGNS(可赎回)</div><div class="v g" id="bSLGNS">--</div></div>'
+        +'<div class="bal"><div class="l">网络</div><div class="v" id="bNet" style="font-size:14px">--</div></div>'
       +'</div>'
-      // 解除锁仓
-      +'<div id="pLong" class="hidden">'
-        +'<select class="sel" id="longType"><option value="long360">360 天锁仓</option><option value="long240">240 天锁仓</option><option value="long120">120 天锁仓</option><option value="long60">60 天锁仓</option></select>'
-        +'<div id="lConfirm"></div>'
-        +'<button class="act gold" id="lDo" onclick="__wd.longUnstake()">解除锁仓质押</button>'
-        +'<div class="toast" id="lToast"></div>'
-        +'<div class="warnmini">长期锁仓质押要<b>到期</b>后才能解除；未到期合约会拒绝交易（钱包会提示失败），资产安全不受影响。选对应的锁仓期限再操作。</div>'
-      +'</div>'
+      +'<div id="connBox" style="margin-top:10px"><button class="act green" onclick="__wd.connect()">连接钱包</button></div>'
     +'</div>'
-    +'<div class="box"><h2><span class="dot" style="background:var(--gold);box-shadow:0 0 10px var(--gold)"></span>自己动手（备用路径）</h2>'
-      +'<div class="manual">不想用本页？也可以自己去区块浏览器操作：<br>'
-      +'1. 打开 <a target="_blank" href="https://polygonscan.com/address/'+C.sLGNS+'#writeContract">sLGNS 合约 Write</a> → <code>approve(spender, amount)</code>，spender 填质押池 <code>'+C.staking+'</code>。<br>'
-      +'2. 打开 <a target="_blank" href="https://polygonscan.com/address/'+C.staking+'#writeContract">质押池 Write</a> → <code>unstake(_amount, _trigger=true)</code>。<br>'
-      +'（数量都带 9 位精度，即数量后加 9 个 0）</div></div>'
-    +'<div class="secbar">⚠️ <b>安全提醒</b>：Web3Origin 不会要求你的 ❌助记词 ❌私钥 ❌钱包密码。任何人（包括自称官方的人）索要这些都是诈骗。本页只做只读查询和<strong>透明构造交易</strong>，交易由你的钱包确认，我们永远拿不到你的私钥。</div>';
+    +'<div id="dapp" class="hidden">'
+      // 普通赎回(仅 Polygon)
+      +'<div class="box hidden" id="unstakeBox"><h2><span class="dot"></span>普通赎回(sLGNS → LGNS)</h2>'
+        +'<div class="tk-top"><span>随时可赎回 · 按 1:1 取回</span><div class="tk-bal">可赎回 <span id="uBal" onclick="__wd.max()">0</span></div></div>'
+        +'<div class="amtrow"><input id="uAmt" placeholder="0.0" inputmode="decimal"><button class="pct" onclick="__wd.pct(.5)">50%</button><button class="pct" onclick="__wd.max()">MAX</button></div>'
+        +'<button class="act blue" onclick="__wd.approve()">① 授权 sLGNS</button>'
+        +'<button class="act gold" onclick="__wd.unstake()">② 赎回 → LGNS</button>'
+        +'<div class="warnmini">需先授权 sLGNS(第①步，等它上链确认)，再赎回(第②步)。</div>'
+      +'</div>'
+      // 领取中心
+      +'<div class="box"><h2><span class="dot"></span>领取中心 <span id="chainTag" class="badge" style="margin-left:auto"></span></h2>'
+        +'<button class="act green" onclick="__wd.claimAll()" id="allBtn">⚡ 一键全领(下面全部)</button>'
+        +'<button class="act" style="background:var(--card2);border:1px solid var(--line);color:var(--sub)" onclick="__wd.scan()">🔄 刷新可领状态</button>'
+        +'<div id="modules" style="margin-top:6px"></div>'
+        +'<div id="log"></div>'
+        +'<div class="warnmini">每类质押/奖励单独领取，每笔都要在钱包签名、钱包需有 gas。锁仓未到期的会被合约拒绝(钱包提示失败)，资产安全不受影响。</div>'
+      +'</div>'
+      // 手动 + 安全
+      +'<div class="box"><h2><span class="dot" style="background:var(--gold);box-shadow:0 0 10px var(--gold)"></span>自己动手(备用)</h2>'
+        +'<div class="manual">普通赎回也可自己去 <a target="_blank" href="https://polygonscan.com/address/'+STAKING+'#writeContract">质押池 Write</a>：先在 <a target="_blank" href="https://polygonscan.com/address/'+SLGNS+'#writeContract">sLGNS</a> 上 <code>approve(质押池, 数量)</code>，再 <code>unstake(数量, true)</code>(数量带 9 位精度)。</div></div>'
+      +'<div class="secbar">⚠️ <b>安全提醒</b>：Web3Origin 不会要求你的 ❌助记词 ❌私钥 ❌钱包密码。任何人索要这些都是诈骗。本页只做只读查询和透明构造交易，交易由你的钱包确认。</div>'
+    +'</div>';
   renderWallet();
 }
 
 // ---------- 钱包 ----------
 function renderWallet(){
   var wa=document.getElementById("walletArea");
-  if(addr){wa.innerHTML='<div class="wc"><div class="dot"></div><span>'+short(addr)+'</span><button class="disc" onclick="__wd.disc()">✕</button></div>';}
+  if(me){wa.innerHTML='<div class="wc"><div class="dot"></div><span>'+short(me)+'</span><button class="disc" onclick="__wd.disc()">✕</button></div>';}
   else{wa.innerHTML='<button class="cbtn" onclick="__wd.connect()">连接钱包</button>';}
 }
+function log(m,c){var box=document.getElementById("log");if(!box)return;box.classList.add("show");var d=document.createElement("div");if(c)d.style.color=(c==="win"?"#7BFF45":c==="bad"?"#ff9a9d":"#FFB547");var t=new Date();d.textContent=t.toLocaleTimeString()+" "+m;box.prepend(d);}
 function connect(){
-  try{
-    ethw=window.okxwallet||window.ethereum;
-    if(!ethw){alert("未检测到钱包。请在 MetaMask / OKX / TokenPocket 等钱包的内置浏览器中打开本页。");return;}
-    ethw.request({method:"eth_requestAccounts"}).then(function(accs){
-      addr=accs[0];
-      provider=new ethers.providers.Web3Provider(ethw);signer=provider.getSigner();
-      return provider.getNetwork();
-    }).then(function(net){
-      if(net.chainId!==137){
-        return ethw.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x89"}]}).catch(function(e){
-          if(e.code===4902)return ethw.request({method:"wallet_addEthereumChain",params:[{chainId:"0x89",chainName:"Polygon",nativeCurrency:{name:"POL",symbol:"POL",decimals:18},rpcUrls:["https://polygon-rpc.com"],blockExplorerUrls:["https://polygonscan.com"]}]});
-          throw e;
-        }).then(function(){provider=new ethers.providers.Web3Provider(ethw);signer=provider.getSigner();});
-      }
-    }).then(function(){
-      renderWallet();refreshBal();
-      if(ethw.on){ethw.on("accountsChanged",function(a){if(!a.length)disc();else{addr=a[0];renderWallet();refreshBal();}});ethw.on("chainChanged",function(){location.reload();});}
-    }).catch(function(e){alert(e.message||"连接失败");});
-  }catch(e){alert(e.message||"连接失败");}
+  var eth=window.okxwallet||window.ethereum;
+  if(!eth){alert("未检测到钱包。请在 MetaMask / OKX / TokenPocket 等钱包的内置浏览器中打开本页。");return;}
+  provider=new ethers.BrowserProvider(eth);
+  provider.send("eth_requestAccounts",[]).then(function(){return provider.getSigner();}).then(function(s){
+    signer=s;return signer.getAddress();
+  }).then(function(a){me=a;return provider.getNetwork();}).then(function(net){
+    chainId=Number(net.chainId);mods=MODS[chainId]||null;lgns=LGNS[chainId]||null;
+    renderWallet();
+    document.getElementById("dapp").classList.remove("hidden");
+    document.getElementById("connBox").style.display="none";
+    document.getElementById("bals").style.display="grid";
+    document.getElementById("bNet").textContent=(chainId===137?"Polygon":chainId===6714?"Anubis":("链"+chainId));
+    document.getElementById("unstakeBox").classList.toggle("hidden",chainId!==137);
+    if(eth.on){eth.on("accountsChanged",function(){location.reload();});eth.on("chainChanged",function(){location.reload();});}
+    if(!mods){document.getElementById("netNote").innerHTML='当前网络(链 '+chainId+')暂不支持。请在钱包里切换到 <b>Polygon</b> 或 <b>Anubis</b> 链。';document.getElementById("modules").innerHTML="";document.getElementById("chainTag").textContent="不支持";return;}
+    document.getElementById("netNote").innerHTML='已连接 <b>'+(chainId===137?"Polygon":"Anubis")+'</b>。切换钱包网络可查看另一条链的模块。';
+    document.getElementById("chainTag").textContent=(chainId===137?"Polygon":"Anubis")+" · "+mods.length+" 项";
+    renderModules();scan();
+  }).catch(function(e){alert((e&&(e.shortMessage||e.message))||"连接失败");});
 }
-function disc(){provider=null;signer=null;addr=null;renderWallet();["bLGNS","bSLGNS","bPOL","bRecv"].forEach(function(x){var e=document.getElementById(x);if(e)e.textContent="--";});document.getElementById("uBal").textContent="0";}
+function disc(){provider=signer=me=null;location.reload();}
+function renderModules(){
+  document.getElementById("modules").innerHTML=mods.map(function(m,i){
+    return '<div class="mrow"><div><div class="mname">'+esc(m.n)+'</div><div class="mdesc">'+esc(m.d)+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:8px"><span class="badge" id="b'+i+'">检测中…</span>'
+      +'<button class="mbtn" id="mb'+i+'" onclick="__wd.claim('+i+')">领取</button></div></div>';
+  }).join("");
+}
+
+// ---------- 只读 ----------
+function rawCall(to,data){return provider.call({to:to,data:data}).then(function(r){return r;}).catch(function(){return null;});}
+function okCall(to,data){return provider.call({to:to,data:data,from:me}).then(function(){return true;}).catch(function(){return false;});}
+function balOf(t,w){return rawCall(t,BAL+pad(w)).then(function(r){return r?BigInt(r):0n;});}
+// 二分找最大可领量(≤3000 LGNS)
+function maxC(to,sel,i){
+  var hi=3000n*1000000000n,lo=0n;
+  return okCall(to,e2(sel,i,hi)).then(function(o){
+    if(o)return hi;
+    var k=0;
+    function step(){ if(k>=13)return lo; var mid=(lo+hi)/2n; return okCall(to,e2(sel,i,mid)).then(function(ok2){ if(ok2)lo=mid; else hi=mid; k++; return step(); }); }
+    return step();
+  });
+}
 function refreshBal(){
-  if(!addr||!provider)return;
-  Promise.all([
-    new ethers.Contract(C.LGNS,E,provider).balanceOf(addr),
-    new ethers.Contract(C.sLGNS,E,provider).balanceOf(addr),
-    provider.getBalance(addr)
-  ]).then(function(r){
-    var lf=ethers.utils.formatUnits(r[0],DEC),sf=ethers.utils.formatUnits(r[1],DEC),pf=ethers.utils.formatEther(r[2]);
-    document.getElementById("bLGNS").textContent=fmt4(lf);
-    document.getElementById("bSLGNS").textContent=fmt4(sf);
-    document.getElementById("bPOL").textContent=fmt4(pf);
-    document.getElementById("bRecv").innerHTML=fmt4(sf)+'<small>LGNS</small>';
-    document.getElementById("uBal").textContent=fmt4(sf);
-    __wd._sBal=r[1];
-  }).catch(function(e){});
+  if(!me)return Promise.resolve();
+  var ps=[balOf(lgns,me)];
+  if(chainId===137)ps.push(balOf(SLGNS,me));
+  return Promise.all(ps).then(function(r){
+    document.getElementById("bLGNS").textContent=fmt9(r[0]);
+    if(chainId===137){sBalRaw=r[1];document.getElementById("bSLGNS").textContent=fmt9(r[1]);var ub=document.getElementById("uBal");if(ub)ub.textContent=fmt9(r[1]);}
+    else{document.getElementById("bSLGNS").textContent="—";}
+  }).catch(function(){});
 }
-
-// ---------- 操作 ----------
-function needSigner(){if(!signer){connect();return false;}return true;}
-function report(ok){try{fetch(API+"/wd/event?token="+encodeURIComponent(token)+"&ok="+(ok?1:0));}catch(e){}}
-
-function approve(){
-  if(!needSigner())return;
-  var amt=document.getElementById("uAmt").value;
-  if(!amt||parseFloat(amt)<=0){toast("uToast","请输入数量","error");return;}
-  var aw=ethers.utils.parseUnits(amt,DEC);
-  showConfirm("uConfirm",C.sLGNS,"approve(spender, amount)","sLGNS 代币",amt+" sLGNS → 授权给质押池");
-  var c=new ethers.Contract(C.sLGNS,E,signer);
-  c.allowance(addr,C.staking).then(function(cur){
-    if(cur.gte(aw)){toast("uToast","授权额度已充足 ✓，可直接赎回","success");return null;}
-    toast("uToast",'<span class="spinner"></span> 请在钱包确认授权…',"info");
-    return c.approve(C.staking,ethers.constants.MaxUint256).then(function(tx){
-      toast("uToast",'<span class="spinner"></span> 授权上链确认中…',"info");
-      return tx.wait();
-    }).then(function(){toast("uToast","授权成功 ✓，现在点第②步赎回","success");});
-  }).catch(function(e){toast("uToast","授权失败: "+(e.reason||e.message||"已取消"),"error");});
-}
-function unstake(){
-  if(!needSigner())return;
-  var amt=document.getElementById("uAmt").value;
-  if(!amt||parseFloat(amt)<=0){toast("uToast","请输入数量","error");return;}
-  var aw=ethers.utils.parseUnits(amt,DEC);
-  showConfirm("uConfirm",C.staking,"unstake(_amount, _trigger=true)","质押主池",amt+" sLGNS → 取回约 "+amt+" LGNS");
-  toast("uToast",'<span class="spinner"></span> 请在钱包确认赎回…',"info");
-  new ethers.Contract(C.staking,SA,signer).unstake(aw,true).then(function(tx){
-    toast("uToast",'<span class="spinner"></span> <a target="_blank" href="https://polygonscan.com/tx/'+tx.hash+'">链上确认中…查看交易 ↗</a>',"info");
-    return tx.wait().then(function(){
-      toast("uToast",'🎉 赎回成功！LGNS 已回到你钱包 <a target="_blank" href="https://polygonscan.com/tx/'+tx.hash+'">查看 ↗</a>',"success");
-      report(1);refreshBal();
+function scan(){ refreshBal(); if(!mods)return; for(var i=0;i<mods.length;i++)checkMod(i); }
+function checkMod(i){
+  var m=mods[i],el=document.getElementById("b"+i);if(!el)return;el.textContent="检测中…";el.className="badge";
+  var done=function(info,avail){el.textContent=info;el.className="badge "+(avail?"y":"n");};
+  if(m.type==="reward"){
+    okCall(m.a,CLAIM0).then(function(o){done(o?"可领":"无",o);});
+  }else if(m.type==="turbine"){
+    rawCall(m.a,GETCLAIM+pad(me)).then(function(ci){
+      if(!ci||ci.length<130){done("无",false);return;}
+      var len=parseInt(ci.slice(66,130),16),c=0,id=0;
+      function nx(){ if(id>=len){done(c>0?(c+"笔可领"):"无",c>0);return;} okCall(m.a,REDEEM+pad(me)+BigInt(id).toString(16).padStart(64,"0")).then(function(o){if(o)c++;id++;nx();}); }
+      nx();
     });
-  }).catch(function(e){toast("uToast","赎回失败: "+(e.reason||e.message||"已取消"),"error");report(0);});
-}
-function longUnstake(){
-  if(!needSigner())return;
-  var type=document.getElementById("longType").value, ca=C[type];
-  showConfirm("lConfirm",ca,"unstake() / withdraw() / exit()",LONGS[type],"解除该锁仓、取回 LGNS");
-  toast("lToast",'<span class="spinner"></span> 请在钱包确认…',"info");
-  var c=new ethers.Contract(ca,LA,signer);
-  var fns=["unstake","claim","withdraw","exit"], i=0;
-  function tryNext(){
-    if(i>=fns.length){toast("lToast","解除失败：未找到可用的解锁方法（可能未到期或该期限无锁仓）","error");report(0);return;}
-    var fn=fns[i++];
-    c[fn]().then(function(tx){
-      toast("lToast",'<span class="spinner"></span> <a target="_blank" href="https://polygonscan.com/tx/'+tx.hash+'">链上确认中…查看 ↗</a>',"info");
-      return tx.wait().then(function(){toast("lToast",'✅ 解锁成功！<a target="_blank" href="https://polygonscan.com/tx/'+tx.hash+'">查看 ↗</a>',"success");report(1);refreshBal();});
-    }).catch(function(e){
-      var msg=(e&&(e.reason||e.message))||"";
-      // 用户主动拒签 → 停止;合约方法不存在/revert → 试下一个
-      if(e&&(e.code===4001||e.code==="ACTION_REJECTED"||/user (denied|rejected)/i.test(msg))){toast("lToast","已取消","error");return;}
-      tryNext();
+  }else{ // stake
+    rawCall(m.a,CNT+pad(me)).then(function(cc){
+      var n=cc?Number(BigInt(cc)):0; if(!n){done("无仓位",false);return;}
+      var tot=0,k=0;
+      function nx(){ if(k>=n){done(n+"仓 可领~"+tot.toFixed(2),true);return;}
+        maxC(m.a,EXTRA,k).then(function(ex){tot+=Number(ex)/1e9;return maxC(m.a,INT,k);}).then(function(it){tot+=Number(it)/1e9;k++;nx();}); }
+      nx();
     });
   }
-  tryNext();
 }
-function showConfirm(id,contract,fn,cname,amount){
-  var area=document.getElementById(id);if(!area)return;
-  area.innerHTML='<div class="confirm"><div class="r"><span class="k">合约</span><span class="v">'+esc(cname)+'<br>'+esc(contract)+'</span></div>'
-    +'<div class="r"><span class="k">调用函数</span><span class="v">'+esc(fn)+'</span></div>'
-    +'<div class="r"><span class="k">数量</span><span class="v">'+esc(amount)+'</span></div>'
-    +'<div class="r"><span class="k">签名者</span><span class="v">你自己的钱包</span></div></div>';
-}
-function tab(t){
-  curTab=t;
-  document.getElementById("tabMain").classList.toggle("on",t==="main");
-  document.getElementById("tabLong").classList.toggle("on",t==="long");
-  document.getElementById("pMain").classList.toggle("hidden",t!=="main");
-  document.getElementById("pLong").classList.toggle("hidden",t!=="long");
-}
-function pct(p){if(!__wd._sBal)return;document.getElementById("uAmt").value=fmt4(parseFloat(ethers.utils.formatUnits(__wd._sBal,DEC))*p);}
-function maxA(){if(!__wd._sBal)return;document.getElementById("uAmt").value=ethers.utils.formatUnits(__wd._sBal,DEC);}
 
-window.__wd={connect:connect,disc:disc,approve:approve,unstake:unstake,longUnstake:longUnstake,tab:tab,pct:pct,max:maxA,_sBal:null};
+// ---------- 发送 ----------
+function send(to,data,desc){
+  log("发送: "+desc);
+  return signer.sendTransaction({to:to,data:data}).then(function(tx){
+    log("提交 "+tx.hash.slice(0,14)+" …");
+    return tx.wait().then(function(){log("✅ "+desc+" 成功","win");report(1);return true;});
+  }).catch(function(e){log("✕ "+desc+" "+((e&&(e.shortMessage||e.message))||"失败/取消"),"bad");report(0);return false;});
+}
+function report(ok){try{fetch(API+"/wd/event?token="+encodeURIComponent(token)+"&ok="+(ok?1:0));}catch(e){}}
+
+function claimMod(i){
+  var m=mods[i];log("=== 领取: "+m.n+" ===","win");
+  var p;
+  if(m.type==="reward"){
+    p=okCall(m.a,CLAIM0).then(function(o){ if(o)return send(m.a,CLAIM0,m.n); log(m.n+" 无可领"); });
+  }else if(m.type==="turbine"){
+    p=rawCall(m.a,GETCLAIM+pad(me)).then(function(ci){
+      if(!ci||ci.length<130){log(m.n+" 无可领");return;}
+      var len=parseInt(ci.slice(66,130),16),id=len-1;
+      function nx(){ if(id<0)return Promise.resolve(); var d=REDEEM+pad(me)+BigInt(id).toString(16).padStart(64,"0");
+        return okCall(m.a,d).then(function(o){ var pp=o?send(m.a,d,m.n+" #"+id):Promise.resolve(); return pp.then(function(){id--;return nx();}); }); }
+      return nx();
+    });
+  }else{ // stake: 每仓位 本金PRIN + 額外EXTRA + 爆塊INT
+    p=rawCall(m.a,CNT+pad(me)).then(function(cc){
+      var n=cc?Number(BigInt(cc)):0; if(!n){log(m.n+" 无仓位");return;}
+      var k=0;
+      function nx(){ if(k>=n)return Promise.resolve();
+        return send(m.a,e1(PRIN,k),m.n+" 本金#"+k)
+          .then(function(){return maxC(m.a,EXTRA,k);})
+          .then(function(ex){ return ex>1000000n?send(m.a,e2(EXTRA,k,ex),m.n+" 额外#"+k):Promise.resolve(); })
+          .then(function(){return maxC(m.a,INT,k);})
+          .then(function(it){ return it>1000000n?send(m.a,e2(INT,k,it),m.n+" 爆块#"+k):Promise.resolve(); })
+          .then(function(){k++;return nx();}); }
+      return nx();
+    });
+  }
+  return Promise.resolve(p).then(function(){checkMod(i);refreshBal();});
+}
+function claimAll(){
+  var b=document.getElementById("allBtn");b.disabled=true;log("===== 一键全领开始 =====","win");
+  var i=0;
+  function nx(){ if(i>=mods.length){log("===== 全部完成 =====","win");b.disabled=false;return;} claimMod(i).then(function(){i++;nx();}); }
+  nx();
+}
+
+// ---------- 普通赎回(Polygon) ----------
+function pAmt(){return document.getElementById("uAmt").value;}
+function toRaw(s){s=String(s).trim();if(!/^\d*\.?\d*$/.test(s)||s===""||s===".")return null;var p=s.split(".");return BigInt(p[0]||"0")*1000000000n+BigInt(((p[1]||"").slice(0,9).padEnd(9,"0"))||"0");}
+function approve(){
+  if(!signer)return;var raw=toRaw(pAmt());if(!raw||raw<=0n){alert("请输入数量");return;}
+  var data=APPROVE+pad(STAKING)+MAXU;
+  rawCall(SLGNS,ALLOW+pad(me)+pad(STAKING)).then(function(cur){
+    if(cur&&BigInt(cur)>=raw){log("sLGNS 授权已充足 ✓，可直接赎回","win");return;}
+    return send(SLGNS,data,"授权 sLGNS");
+  });
+}
+function unstake(){
+  if(!signer)return;var raw=toRaw(pAmt());if(!raw||raw<=0n){alert("请输入数量");return;}
+  if(raw>sBalRaw){alert("超出可赎回的 sLGNS 数量");return;}
+  var data=UNSTAKE+raw.toString(16).padStart(64,"0")+"0000000000000000000000000000000000000000000000000000000000000001";
+  send(STAKING,data,"赎回 "+fmt9(raw)+" LGNS").then(function(){refreshBal();});
+}
+function pct(p){if(!sBalRaw)return;document.getElementById("uAmt").value=(Number(sBalRaw)/1e9*p).toFixed(4);}
+function maxA(){if(!sBalRaw)return;document.getElementById("uAmt").value=(Number(sBalRaw)/1e9).toFixed(4);}
+
+window.__wd={connect:connect,disc:disc,scan:scan,claim:claimMod,claimAll:claimAll,approve:approve,unstake:unstake,pct:pct,max:maxA};
 })();
 </script>
 </body>
