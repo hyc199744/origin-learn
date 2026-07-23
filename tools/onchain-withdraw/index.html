@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>链上提币｜LGNS 链上操作工具 · Web3Origin</title>
+<meta name="description" content="Web3Origin 链上提币工具：让用户无需依赖 DApp 入口，通过钱包和智能合约直接管理自己的 LGNS 资产。质押合约不可升级、无需许可，官网即使打不开也能链上自取。绝不索要助记词、私钥或钱包密码。">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://web3origin.com/tools/onchain-withdraw/">
+<link rel="icon" type="image/png" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><link rel="icon" href="/assets/logo.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="链上提币｜你的资产，不应该依赖一个网页">
+<meta property="og:description" content="起源质押合约不可升级、无需许可——官方 DApp 即使无法访问，你依然可以通过钱包和智能合约链上取回自己的 LGNS。真正的去中心化，看得见。">
+<meta property="og:url" content="https://web3origin.com/tools/onchain-withdraw/">
+<meta property="og:image" content="https://web3origin.com/assets/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://web3origin.com/assets/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"链上提币｜On-chain Withdrawal","alternateName":"LGNS 链上操作工具","url":"https://web3origin.com/tools/onchain-withdraw/","applicationCategory":"FinanceApplication","operatingSystem":"Web","description":"无需依赖 DApp 入口，通过钱包和智能合约直接管理自己的 LGNS 资产。质押合约不可升级、无需许可，官网打不开也能链上自取。绝不索要助记词或私钥。","offers":{"@type":"Offer","price":"5","priceCurrency":"LGNS"},"publisher":{"@id":"https://web3origin.com/#org"}}
+</script>
+<style>
+:root{--bg:#070A08;--panel:#0d130f;--card:#111713;--green:#7BFF45;--green-d:#5fd82f;--gold:#D9A83E;--ink:#E9EFEA;--sub:#8b968d;--line:#1e2a22;--warn:#FFB547;--crit:#FF5A5F}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Microsoft YaHei','PingFang SC',system-ui,-apple-system,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(1200px 600px at 50% -10%,rgba(123,255,69,.10),transparent 60%),radial-gradient(900px 500px at 90% 20%,rgba(217,168,62,.07),transparent 55%)}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+/* top */
+.top{position:sticky;top:0;z-index:40;background:rgba(7,10,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:60px}
+.top img{height:30px;width:auto}
+.top .nm{font-weight:800;letter-spacing:.5px}
+.top .nm b{color:var(--green)}
+.top .back{margin-left:auto;font-size:14px;color:var(--sub);border:1px solid var(--line);padding:7px 14px;border-radius:9px;transition:.2s}
+.top .back:hover{color:var(--ink);border-color:var(--green)}
+/* hero */
+.hero{text-align:center;padding:76px 0 34px}
+.eyebrow{display:inline-block;font-size:13px;letter-spacing:2px;color:var(--gold);border:1px solid rgba(217,168,62,.4);border-radius:999px;padding:6px 16px;margin-bottom:22px;text-transform:uppercase}
+.hero h1{font-size:clamp(30px,6vw,54px);line-height:1.15;margin:0 0 18px;font-weight:900;text-wrap:balance;background:linear-gradient(180deg,#fff,#bfe6b0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{font-size:clamp(15px,2.4vw,19px);color:var(--sub);max-width:640px;margin:0 auto 14px}
+.hero .tag{font-size:14px;color:var(--sub);max-width:560px;margin:0 auto}
+.cta{display:inline-flex;align-items:center;gap:10px;margin-top:30px;background:linear-gradient(135deg,var(--green),var(--green-d));color:#04210a;font-weight:900;font-size:17px;padding:16px 34px;border:0;border-radius:14px;cursor:pointer;box-shadow:0 10px 34px rgba(123,255,69,.28);transition:.2s}
+.cta:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(123,255,69,.4)}
+.cta .p{font-size:13px;font-weight:700;opacity:.75}
+.cta-note{margin-top:12px;font-size:12.5px;color:var(--sub)}
+/* concept two-column */
+.concept{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:26px 0 10px}
+.concept .col{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+.concept .col.b{border-color:rgba(123,255,69,.35);box-shadow:inset 0 0 0 1px rgba(123,255,69,.05)}
+.concept h4{margin:0 0 10px;font-size:15px;color:var(--sub);font-weight:700;letter-spacing:.5px}
+.concept .col.b h4{color:var(--green)}
+.concept p{margin:0;font-size:15px;color:var(--ink)}
+.concept .col.a p{color:var(--sub)}
+/* sections */
+.sec{padding:52px 0;border-top:1px solid var(--line)}
+.sec h2{font-size:clamp(22px,4vw,32px);font-weight:900;margin:0 0 8px;text-align:center;text-wrap:balance}
+.sec .lead{text-align:center;color:var(--sub);max-width:620px;margin:0 auto 34px;font-size:15px}
+.vals{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.val{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 26px 24px;position:relative;overflow:hidden;transition:.2s}
+.val:hover{border-color:rgba(123,255,69,.3);transform:translateY(-2px)}
+.val .n{font-size:13px;font-weight:800;color:var(--gold);letter-spacing:1px}
+.val h3{margin:8px 0 12px;font-size:19px;font-weight:800}
+.val p{margin:0;color:var(--sub);font-size:14.5px;white-space:pre-line}
+/* price */
+.price{max-width:520px;margin:0 auto;background:linear-gradient(180deg,#101812,#0c120e);border:1px solid rgba(217,168,62,.3);border-radius:20px;padding:34px 30px;text-align:center}
+.price .amt{font-size:52px;font-weight:900;color:var(--gold);line-height:1}
+.price .amt small{font-size:20px;color:var(--sub);font-weight:700;margin-left:6px}
+.price .u{color:var(--sub);font-size:14px;margin:10px 0 22px}
+.price ul{list-style:none;padding:0;margin:0 0 22px;text-align:left;display:inline-block}
+.price li{padding:7px 0;font-size:15px}
+.price li b{color:var(--green);margin-right:8px}
+.price .note{font-size:12.5px;color:var(--sub);border-top:1px solid var(--line);padding-top:16px;margin-top:4px}
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;counter-reset:s}
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 16px;text-align:center;position:relative}
+.step::before{counter-increment:s;content:counter(s);display:block;width:34px;height:34px;line-height:34px;margin:0 auto 12px;border-radius:50%;background:rgba(123,255,69,.12);color:var(--green);font-weight:900;border:1px solid rgba(123,255,69,.35)}
+.step p{margin:0;font-size:14px}
+/* security banner */
+.secbar{background:rgba(255,90,95,.06);border:1px solid rgba(255,90,95,.35);border-radius:16px;padding:22px 26px;margin:8px 0}
+.secbar h3{margin:0 0 10px;color:var(--crit);font-size:16px}
+.secbar .row{display:flex;flex-wrap:wrap;gap:10px 26px;font-size:14.5px}
+.secbar .row span{color:var(--ink)}
+.secbar .foot{margin-top:12px;font-size:13.5px;color:var(--sub)}
+/* footer */
+footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;color:var(--sub);font-size:13px}
+footer a{color:var(--green)}
+/* modal */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:18px}
+.mask.on{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;max-width:460px;width:100%;padding:28px 26px;position:relative;max-height:92vh;overflow:auto}
+.modal .x{position:absolute;top:14px;right:16px;background:0;border:0;color:var(--sub);font-size:22px;cursor:pointer}
+.modal h3{margin:0 0 6px;font-size:20px}
+.modal .msub{color:var(--sub);font-size:13.5px;margin:0 0 18px}
+.mbtn{width:100%;background:linear-gradient(135deg,var(--green),var(--green-d));color:#04210a;font-weight:800;font-size:15px;padding:14px;border:0;border-radius:12px;cursor:pointer;margin-top:6px}
+.mbtn:disabled{opacity:.5;cursor:default}
+.mbtn.sec{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.kv{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0;font-size:13.5px;word-break:break-all}
+.kv .l{color:var(--sub);font-size:12px;margin-bottom:3px}
+.kv .v{font-family:ui-monospace,Menlo,monospace;color:var(--ink)}
+.kv .v.big{font-size:20px;color:var(--gold);font-weight:800}
+.merr{color:var(--crit);font-size:13.5px;margin:10px 0;display:none}
+.mok{color:var(--green);font-size:13.5px}
+.spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(123,255,69,.3);border-top-color:var(--green);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.warnmini{background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.3);border-radius:10px;padding:11px 13px;font-size:12.5px;color:var(--warn);margin:12px 0}
+@media(max-width:760px){
+  .concept,.vals{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr 1fr}
+  .hero{padding:52px 0 26px}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <img src="/assets/logo.png" alt="Web3Origin"><span class="nm">链上<b>提币</b></span>
+  <a class="back" href="/">← 返回首页</a>
+</div></header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <span class="eyebrow">On-chain Withdrawal · 去中心化能力展示</span>
+    <h1>你的资产，<br>不应该依赖一个网页。</h1>
+    <p class="sub">在传统应用里，网站关闭，你可能就无法访问服务。<br>但在区块链世界，资产记录在链上，智能合约公开运行。</p>
+    <p class="tag">即使官方 DApp 页面无法访问，你依然可以通过链上工具，连接自己的钱包，直接完成 LGNS 相关操作。</p>
+    <button class="cta" id="unlockBtn"><span>5 LGNS 解锁链上提币</span><span class="p">→ 立即使用</span></button>
+    <div class="cta-note">已解锁过？<a href="javascript:void(0)" id="restoreLink" style="color:var(--green)">恢复我的访问</a></div>
+    <div class="concept">
+      <div class="col a"><h4>传统应用</h4><p>如果网站关闭、入口丢失，<br>用户可能无法访问自己的服务。</p></div>
+      <div class="col b"><h4>区块链应用</h4><p>资产记录在链上，合约公开运行。<br>DApp 只是入口，钱包 + 合约才是核心。</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="why">
+    <h2>为什么需要链上提币？</h2>
+    <p class="lead">DApp 只是连接智能合约的前端入口。真正控制资产的，是你的钱包和链上的智能合约。</p>
+    <div class="vals">
+      <div class="val"><div class="n">价值 01</div><h3>摆脱 DApp 限制</h3><p>DApp 只是连接智能合约的一种方式。当网页打不开、加载异常或入口变化时，链上工具仍然可以帮助你访问自己的资产。</p></div>
+      <div class="val"><div class="n">价值 02</div><h3>验证去中心化能力</h3><p>真正的区块链应用，不是依赖某个网站，而是依赖：
+公开的智能合约、钱包签名、链上交易。</p></div>
+      <div class="val"><div class="n">价值 03</div><h3>资产自主控制</h3><p>你始终使用自己的钱包操作。网站不会保管资产、不会获取私钥、不会获取助记词。所有交易都由你的钱包确认。</p></div>
+      <div class="val"><div class="n">价值 04</div><h3>降低新人门槛</h3><p>提供一步一步的教程、操作说明、错误处理、交易查询，让普通用户也能看懂并完成链上操作。</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="how">
+    <h2>它真的能取到吗？（说实话）</h2>
+    <p class="lead">起源质押主池是 Olympus V1 分叉，<b style="color:var(--green)">合约不可升级、无需许可、管理员拿不走用户质押的 LGNS</b>。这意味着——只要你持有 sLGNS，随时都能直接调合约把 LGNS 取回来，不需要任何人批准。</p>
+    <div class="concept">
+      <div class="col b"><h4>能取</h4><p>普通质押的 sLGNS：随时可通过合约 <code>unstake</code> 按 1:1 取回 LGNS，只花 gas。</p></div>
+      <div class="col a"><h4>暂时取不了（如实告知）</h4><p>① 360 天长期质押锁仓，到期前谁都取不了；② 还在静默期（warmup）的，需先过期领取。工具会自动识别并提示。</p></div>
+    </div>
+    <div class="warnmini" style="max-width:760px;margin:18px auto 0">提币页会在你钱包签名前，明明白白显示「要调用哪个合约、哪个函数、取多少」，并永远提供一条「自己去区块浏览器手动操作」的备用路径。真去中心化，就要让你看得见自己在调什么。</div>
+  </section>
+
+  <section class="sec" id="price">
+    <h2>价格</h2>
+    <p class="lead">一次性服务费，解锁工具、专属入口、完整教程与后续更新。</p>
+    <div class="price">
+      <div class="amt">5<small>LGNS</small></div>
+      <div class="u">一次性 · 永久访问</div>
+      <ul>
+        <li><b>✓</b>链上提币工具使用权限</li>
+        <li><b>✓</b>专属访问链接</li>
+        <li><b>✓</b>完整图文操作教程</li>
+        <li><b>✓</b>常见问题与错误处理</li>
+        <li><b>✓</b>交易查询工具</li>
+        <li><b>✓</b>后续功能更新</li>
+      </ul>
+      <div class="note">5 LGNS 为工具访问服务费用。底层的链上 unstake 操作本身是免费、无需许可的，实际链上 Gas 费用由你的钱包支付。工具不保管你的任何资产。</div>
+    </div>
+    <div style="text-align:center;margin-top:26px"><button class="cta" onclick="document.getElementById('unlockBtn').click()"><span>5 LGNS 解锁</span><span class="p">→</span></button></div>
+  </section>
+
+  <section class="sec" id="flow">
+    <h2>购买流程</h2>
+    <p class="lead">和「查推荐人」工具一样简单，全程链上验证。</p>
+    <div class="flow">
+      <div class="step"><p>连接钱包</p></div>
+      <div class="step"><p>支付 5 LGNS</p></div>
+      <div class="step"><p>链上验证付款</p></div>
+      <div class="step"><p>生成专属链接</p></div>
+      <div class="step"><p>进入提币页</p></div>
+    </div>
+  </section>
+
+  <section class="sec" id="safe">
+    <div class="secbar">
+      <h3>⚠️ 安全提醒</h3>
+      <div class="row">
+        <span>Web3Origin 不会要求：</span>
+        <span>❌ 助记词</span><span>❌ 私钥</span><span>❌ 钱包密码</span>
+      </div>
+      <div class="foot">任何人（包括任何自称官方的人）要求你提供以上信息，都是诈骗。本工具只做只读查询和构造交易，所有交易由你的钱包确认，我们永远拿不到你的私钥或助记词。</div>
+    </div>
+  </section>
+
+</main>
+
+<footer><div class="wrap">
+  Web3Origin · 起源生态链上数据与研究平台 ·
+  <a href="/">返回首页</a> ·
+  <a href="/tools/onchain-withdraw/">链上提币</a><br>
+  <span style="opacity:.6">本工具用于展示 Web3 去中心化特点。数据均可在区块浏览器逐一核实。</span>
+</div></footer>
+
+<!-- 解锁弹窗 -->
+<div class="mask" id="mask"><div class="modal" id="modal">
+  <button class="x" onclick="closeM()">✕</button>
+  <div id="mbody"></div>
+</div></div>
+
+<script>
+(function(){
+  "use strict";
+  var API="https://count.web3origin.com";
+  var LGNS="0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01";
+  var POLY="0x89"; // 137
+  var LS="wd_access_v1";
+  var acct=null, order=null, poll=null;
+  var mask=document.getElementById("mask"), mbody=document.getElementById("mbody");
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function short(a){return a?a.slice(0,6)+"…"+a.slice(-4):"";}
+  function openM(){mask.classList.add("on");}
+  window.closeM=function(){mask.classList.remove("on"); if(poll){clearInterval(poll);poll=null;}};
+  function saved(){try{return JSON.parse(localStorage.getItem(LS)||"null");}catch(e){return null;}}
+  function accessURL(t){return "/premium/onchain-withdraw/?token="+encodeURIComponent(t);}
+
+  // ---------- 视图 ----------
+  function vConnect(){
+    mbody.innerHTML='<h3>连接钱包</h3><p class="msub">第一步：连接你的钱包（只读，不会发起任何交易）。</p>'
+      +'<button class="mbtn" id="cw">连接钱包</button>'
+      +'<div class="merr" id="err"></div>'
+      +'<div class="warnmini" style="margin-top:16px">⚠️ 我们绝不会索要助记词、私钥或钱包密码。</div>';
+    document.getElementById("cw").onclick=connect;
+    openM();
+  }
+  function vPay(){
+    mbody.innerHTML='<h3>支付 5 LGNS</h3><p class="msub">为避免混单，系统给你分配了一个<b>精确金额</b>，请务必按这个金额支付。</p>'
+      +'<div class="kv"><div class="l">支付金额（精确到小数）</div><div class="v big">'+esc(order.amount)+' LGNS</div></div>'
+      +'<div class="kv"><div class="l">收款地址</div><div class="v">'+esc(order.receive)+'</div></div>'
+      +'<button class="mbtn" id="payBtn">用钱包一键支付</button>'
+      +'<button class="mbtn sec" id="paidBtn" style="margin-top:8px">我已用其它方式转账，去验证</button>'
+      +'<div class="merr" id="err"></div>'
+      +'<div class="warnmini" style="margin-top:14px">这是一笔标准的 LGNS 转账（把上面的精确金额转到收款地址），钱包会弹窗让你确认。转账 gas 由你的钱包支付。</div>';
+    document.getElementById("payBtn").onclick=payNow;
+    document.getElementById("paidBtn").onclick=startPoll;
+    openM();
+  }
+  function vWaiting(msg){
+    var e=document.getElementById("err"); if(e){e.style.display="none";}
+    mbody.innerHTML='<h3>链上验证付款</h3><p class="msub">正在链上核对你的转账，确认到账（≥2 个区块确认）后自动解锁。</p>'
+      +'<div class="kv"><div class="l">应付金额</div><div class="v big">'+esc(order.amount)+' LGNS</div></div>'
+      +'<div style="text-align:center;color:var(--sub);font-size:14px;margin:18px 0"><span class="spin"></span>'+esc(msg||"等待链上确认…")+'</div>'
+      +'<div style="text-align:center;font-size:12.5px;color:var(--sub)">转账后通常 10~40 秒到账，请不要关闭本窗口。</div>';
+    openM();
+  }
+  function vDone(res){
+    var url=accessURL(res.access);
+    mbody.innerHTML='<h3 class="mok">✅ 支付成功！</h3><p class="msub">你的链上提币工具已经解锁。</p>'
+      +'<div class="kv"><div class="l">专属访问链接</div><div class="v">'+esc(location.origin+url)+'</div></div>'
+      +'<div class="kv"><div class="l">支付钱包</div><div class="v">'+esc(res.payer||acct)+'</div></div>'
+      +'<div class="kv"><div class="l">交易哈希</div><div class="v"><a style="color:var(--green)" target="_blank" href="https://polygonscan.com/tx/'+esc(res.txHash)+'">'+short(res.txHash)+' ↗</a></div></div>'
+      +'<div class="kv"><div class="l">支付时间</div><div class="v">'+new Date(res.paidAt||Date.now()).toLocaleString()+'</div></div>'
+      +'<a class="mbtn" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box" href="'+url+'">进入链上提币 →</a>';
+    try{localStorage.setItem(LS,JSON.stringify({access:res.access,addr:acct,txHash:res.txHash,paidAt:res.paidAt||Date.now()}));}catch(e){}
+    openM();
+  }
+
+  // ---------- 逻辑 ----------
+  function connect(){
+    var err=document.getElementById("err");
+    if(!window.ethereum){err.textContent="没检测到钱包。请在 MetaMask / OKX / TokenPocket 等钱包的内置浏览器中打开本页。";err.style.display="block";return;}
+    var b=document.getElementById("cw");b.disabled=true;b.textContent="连接中…";
+    window.ethereum.request({method:"eth_requestAccounts"}).then(function(a){
+      acct=(a&&a[0]||"").toLowerCase();
+      return window.ethereum.request({method:"eth_chainId"});
+    }).then(function(cid){
+      if(cid!==POLY){
+        return window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:POLY}]}).then(makeOrder,function(){throw new Error("请把钱包切换到 Polygon 网络后重试。");});
+      }
+      return makeOrder();
+    }).catch(function(e){b.disabled=false;b.textContent="连接钱包";err.textContent=e.message||"连接失败";err.style.display="block";});
+  }
+  function makeOrder(){
+    return fetch(API+"/wd/order?addr="+acct).then(function(r){return r.json();}).then(function(r){
+      if(!r.ok){throw new Error(r.error||"下单失败");}
+      order=r; vPay();
+    });
+  }
+  function payNow(){
+    var err=document.getElementById("err");err.style.display="none";
+    var raw=BigInt(order.amountRaw).toString(16).padStart(64,"0");
+    var to=order.receive.toLowerCase().replace(/^0x/,"").padStart(64,"0");
+    var data="0xa9059cbb"+to+raw; // ERC20 transfer(recv, amount)
+    var b=document.getElementById("payBtn");b.disabled=true;b.textContent="请在钱包中确认…";
+    window.ethereum.request({method:"eth_sendTransaction",params:[{from:acct,to:LGNS,data:data}]}).then(function(){
+      startPoll();
+    }).catch(function(e){b.disabled=false;b.textContent="用钱包一键支付";err.textContent=(e&&e.message)||"交易被取消";err.style.display="block";});
+  }
+  function startPoll(){
+    vWaiting("等待链上确认…");
+    var tries=0;
+    if(poll)clearInterval(poll);
+    poll=setInterval(function(){
+      tries++;
+      fetch(API+"/wd/check?order="+order.orderId).then(function(r){return r.json();}).then(function(r){
+        if(r.ok&&r.status==="paid"){clearInterval(poll);poll=null;vDone(r);}
+        else if(tries>40){clearInterval(poll);poll=null;
+          mbody.innerHTML='<h3>还没查到到账</h3><p class="msub">可能是网络确认较慢，或金额不精确。你可以稍等后重试验证。</p>'
+            +'<button class="mbtn" id="rt">继续验证</button><button class="mbtn sec" onclick="closeM()" style="margin-top:8px">先关闭</button>';
+          document.getElementById("rt").onclick=startPoll;
+        }
+      }).catch(function(){});
+    },4000);
+  }
+  function restore(){
+    var s=saved();
+    if(!s||!s.access){alert("本设备没有解锁记录。如果你已支付，请在同一浏览器打开，或重新支付解锁。");return;}
+    fetch(API+"/wd/access?token="+encodeURIComponent(s.access)).then(function(r){return r.json();}).then(function(r){
+      if(r.ok){location.href=accessURL(s.access);}
+      else{alert("解锁记录已失效，请重新支付。");localStorage.removeItem(LS);}
+    }).catch(function(){location.href=accessURL(s.access);});
+  }
+
+  // ---------- 入口 ----------
+  document.getElementById("unlockBtn").onclick=function(){
+    var s=saved();
+    if(s&&s.access){ // 已解锁过，直接进
+      location.href=accessURL(s.access); return;
+    }
+    vConnect();
+  };
+  document.getElementById("restoreLink").onclick=restore;
+  mask.addEventListener("click",function(e){if(e.target===mask)closeM();});
+})();
+</script>
+</body>
+</html>
