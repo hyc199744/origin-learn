@@ -3,293 +3,289 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>链上提币 · 工具页｜Web3Origin</title>
+<title>链上提币 DApp · Web3Origin</title>
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
 <link rel="icon" type="image/png" href="/assets/favicon.png"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <style>
-:root{--bg:#070A08;--panel:#0d130f;--card:#111713;--card2:#0c120e;--green:#7BFF45;--green-d:#5fd82f;--gold:#D9A83E;--ink:#E9EFEA;--sub:#8b968d;--line:#1e2a22;--warn:#FFB547;--crit:#FF5A5F}
+:root{--bg:#070A08;--panel:#0d130f;--card:#111713;--card2:#0c120e;--green:#7BFF45;--green-d:#5fd82f;--blue:#4da3ff;--gold:#D9A83E;--ink:#E9EFEA;--sub:#8b968d;--line:#1e2a22;--warn:#FFB547;--crit:#FF5A5F}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:'Microsoft YaHei','PingFang SC',system-ui,-apple-system,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Microsoft YaHei','PingFang SC',system-ui,-apple-system,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(1000px 500px at 50% -10%,rgba(123,255,69,.08),transparent 60%),radial-gradient(800px 400px at 90% 15%,rgba(217,168,62,.06),transparent 55%)}
 a{color:var(--green);text-decoration:none}
-code{font-family:ui-monospace,Menlo,monospace;background:rgba(255,255,255,.05);padding:1px 6px;border-radius:5px;font-size:.92em;word-break:break-all}
-.wrap{max-width:720px;margin:0 auto;padding:0 18px}
+code{font-family:ui-monospace,Menlo,monospace;background:rgba(255,255,255,.05);padding:1px 6px;border-radius:5px;font-size:.9em;word-break:break-all}
+.wrap{max-width:520px;margin:0 auto;padding:0 16px 40px}
 .top{position:sticky;top:0;z-index:20;background:rgba(7,10,8,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;gap:12px;height:58px}
-.top img{height:28px}.top .nm{font-weight:800}.top .nm b{color:var(--green)}
-.top .back{margin-left:auto;font-size:13.5px;color:var(--sub);border:1px solid var(--line);padding:6px 13px;border-radius:9px}
-h1.pt{font-size:26px;font-weight:900;margin:26px 0 4px}
-.psub{color:var(--sub);font-size:14px;margin:0 0 20px}
-.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 22px;margin:14px 0}
-.box.hl{border-color:rgba(123,255,69,.3)}
-.box h2{font-size:16px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+.top .bar{max-width:520px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:10px;height:56px}
+.top img{height:26px}.top .nm{font-weight:800}.top .nm b{color:var(--green)}
+#walletArea{margin-left:auto}
+.cbtn{background:linear-gradient(135deg,var(--green),var(--green-d));color:#04210a;font-weight:800;font-size:13.5px;padding:8px 15px;border:0;border-radius:10px;cursor:pointer}
+.wc{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px}
+.wc .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.wc .disc{background:0;border:0;color:var(--sub);cursor:pointer;font-size:15px}
+h1.pt{font-size:22px;font-weight:900;margin:22px 0 3px}
+.psub{color:var(--sub);font-size:13.5px;margin:0 0 16px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:12px 0}
+.box h2{font-size:15px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
 .box h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
-.stat .l{color:var(--sub);font-size:12px}
-.stat .v{font-size:20px;font-weight:800;font-family:ui-monospace,monospace;margin-top:3px}
-.stat .v.g{color:var(--green)}.stat .v.gold{color:var(--gold)}
-.stat .v small{font-size:12px;color:var(--sub);font-weight:600;margin-left:4px}
-.btn{width:100%;background:linear-gradient(135deg,var(--green),var(--green-d));color:#04210a;font-weight:800;font-size:15px;padding:14px;border:0;border-radius:12px;cursor:pointer;margin-top:6px}
-.btn:disabled{opacity:.5;cursor:default}
-.btn.sec{background:transparent;border:1px solid var(--line);color:var(--ink)}
-.btn.gold{background:linear-gradient(135deg,var(--gold),#b98a2c);color:#241701}
-.amtrow{display:flex;gap:8px;align-items:stretch;margin:6px 0}
-.amtrow input{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:19px;font-family:ui-monospace,monospace;padding:12px 14px;min-width:0}
+.bals{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.bal{background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+.bal .l{color:var(--sub);font-size:11.5px}
+.bal .v{font-size:18px;font-weight:800;font-family:ui-monospace,monospace;margin-top:2px}
+.bal .v.g{color:var(--green)}.bal .v.gold{color:var(--gold)}.bal .v small{font-size:11px;color:var(--sub);font-weight:600;margin-left:3px}
+.tabs{display:flex;gap:8px;margin-bottom:4px}
+.tab{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-size:13.5px;color:var(--sub)}
+.tab.on{border-color:rgba(123,255,69,.4);color:var(--green);background:rgba(123,255,69,.06);font-weight:700}
+.tk-top{display:flex;justify-content:space-between;align-items:center;margin:4px 0 6px;font-size:13px}
+.tk-token{display:flex;align-items:center;gap:7px;font-weight:700}
+.tk-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#04210a;font-weight:900}
+.tk-bal{color:var(--sub)}.tk-bal span{color:var(--green);cursor:pointer;text-decoration:underline}
+.amtrow{display:flex;gap:7px;align-items:stretch;margin:6px 0}
+.amtrow input{flex:1;background:var(--card2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:19px;font-family:ui-monospace,monospace;padding:11px 13px;min-width:0}
 .amtrow input:focus{outline:0;border-color:var(--green)}
-.amtrow .max{flex:0 0 auto;background:rgba(123,255,69,.1);border:1px solid rgba(123,255,69,.35);color:var(--green);border-radius:11px;padding:0 16px;font-weight:800;cursor:pointer;font-size:14px}
-.confirm{background:var(--card2);border:1px dashed rgba(217,168,62,.5);border-radius:12px;padding:14px 15px;margin:12px 0;font-size:13px}
-.confirm .r{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.confirm .r:last-child{border:0}.confirm .r .k{color:var(--sub);flex:0 0 auto}.confirm .r .v{text-align:right;font-family:ui-monospace,monospace;word-break:break-all}
-.steps{counter-reset:t;list-style:none;padding:0;margin:0}
-.steps li{counter-increment:t;position:relative;padding:0 0 16px 40px;border-left:1px solid var(--line);margin-left:12px}
-.steps li:last-child{border-left-color:transparent}
-.steps li::before{content:counter(t);position:absolute;left:-13px;top:-2px;width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%;background:var(--card);border:1px solid rgba(123,255,69,.4);color:var(--green);font-weight:800;font-size:13px}
-.steps li h4{margin:0 0 4px;font-size:15px}
-.steps li p{margin:0;color:var(--sub);font-size:13.5px}
-.warnmini{background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.3);border-radius:10px;padding:11px 13px;font-size:12.5px;color:var(--warn);margin:12px 0}
-.secbar{background:rgba(255,90,95,.06);border:1px solid rgba(255,90,95,.3);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:13px}
-.secbar b{color:var(--crit)}
-.msg{font-size:13.5px;margin:10px 0;display:none;padding:10px 12px;border-radius:9px}
-.msg.err{display:block;background:rgba(255,90,95,.1);color:#ff9a9d;border:1px solid rgba(255,90,95,.3)}
-.msg.ok{display:block;background:rgba(123,255,69,.1);color:var(--green);border:1px solid rgba(123,255,69,.3)}
-.msg.info{display:block;background:rgba(255,255,255,.04);color:var(--sub);border:1px solid var(--line)}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(123,255,69,.3);border-top-color:var(--green);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:6px}
+.pct{flex:0 0 auto;background:rgba(123,255,69,.1);border:1px solid rgba(123,255,69,.3);color:var(--green);border-radius:10px;padding:0 13px;font-weight:700;cursor:pointer;font-size:13px}
+.sel{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:11px;color:var(--ink);font-size:15px;padding:12px 13px;margin:6px 0}
+.act{width:100%;font-weight:800;font-size:15px;padding:13px;border:0;border-radius:12px;cursor:pointer;margin-top:8px}
+.act.blue{background:rgba(77,163,255,.15);border:1px solid rgba(77,163,255,.4);color:var(--blue)}
+.act.gold{background:linear-gradient(135deg,var(--gold),#b98a2c);color:#241701}
+.act.green{background:linear-gradient(135deg,var(--green),var(--green-d));color:#04210a}
+.act:disabled{opacity:.5;cursor:default}
+.confirm{background:var(--card2);border:1px dashed rgba(217,168,62,.5);border-radius:11px;padding:12px 13px;margin:10px 0;font-size:12.5px}
+.confirm .r{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+.confirm .r .k{color:var(--sub);flex:0 0 auto}.confirm .r .v{text-align:right;font-family:ui-monospace,monospace;word-break:break-all}
+.toast{display:none;margin-top:10px;padding:10px 12px;border-radius:9px;font-size:13px}
+.toast.show{display:block}
+.toast.info{background:rgba(255,255,255,.04);color:var(--sub);border:1px solid var(--line)}
+.toast.success{background:rgba(123,255,69,.1);color:var(--green);border:1px solid rgba(123,255,69,.3)}
+.toast.error{background:rgba(255,90,95,.1);color:#ff9a9d;border:1px solid rgba(255,90,95,.3)}
+.spinner,.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(123,255,69,.3);border-top-color:var(--green);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:6px}
 @keyframes sp{to{transform:rotate(360deg)}}
-.center{text-align:center}
-.mono{font-family:ui-monospace,monospace}
-.hide{display:none}
-.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--sub)}
-.badge.g{color:var(--green);border-color:rgba(123,255,69,.4)}
-footer{border-top:1px solid var(--line);padding:26px 0;text-align:center;color:var(--sub);font-size:12.5px;margin-top:20px}
-@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+.warnmini{background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.3);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--warn);margin:12px 0}
+.secbar{background:rgba(255,90,95,.06);border:1px solid rgba(255,90,95,.3);border-radius:12px;padding:13px 15px;margin:14px 0;font-size:12.5px}
+.secbar b{color:var(--crit)}
+.manual{font-size:12.5px;color:var(--sub);line-height:1.9}
+.center{text-align:center}.hidden{display:none}
+footer{border-top:1px solid var(--line);padding:24px 0;text-align:center;color:var(--sub);font-size:12px;margin-top:16px}
 </style>
 </head>
 <body>
-<header class="top"><div class="wrap">
+<header class="top"><div class="bar">
   <img src="/assets/logo.png" alt="Web3Origin"><span class="nm">链上<b>提币</b></span>
-  <a class="back" href="/tools/onchain-withdraw/">← 介绍页</a>
+  <div id="walletArea"></div>
 </div></header>
 
 <main class="wrap" id="app">
-  <div class="box center" style="margin-top:40px"><span class="spin"></span> 正在验证访问权限…</div>
+  <div class="box center" style="margin-top:36px"><span class="spin"></span> 正在验证访问权限…</div>
 </main>
 
-<footer><div class="wrap">
-  Web3Origin · 所有交易由你的钱包确认，我们绝不索要助记词/私钥/钱包密码。<br>
-  <span style="opacity:.6">质押主池合约 0x1964Ca90…（不可升级）· 数据可在 Polygonscan 逐一核实</span>
+<footer><div class="wrap" style="padding-bottom:0">
+  所有交易由你的钱包确认，我们绝不索要助记词/私钥/钱包密码。<br>
+  <span style="opacity:.6">质押主池 0x1964Ca90…（Olympus V1 分叉 · 不可升级）· 可在 Polygonscan 逐一核实</span>
 </div></footer>
 
+<script src="/assets/ethers.min.js"></script>
 <script>
 (function(){
 "use strict";
 var API="https://count.web3origin.com";
-// —— 已上链核实的合约与选择器（写操作前均在页面明示，用户钱包签名）——
-var LGNS ="0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01"; // LGNS 代币 9dp
-var SLGNS="0x99a57E6C8558BC6689f894e068733ADf83C19725"; // sLGNS 9dp
-var STAKE="0x1964Ca90474b11FFD08af387b110ba6C96251Bfc"; // 质押主池(Olympus V1,不可升级)
-var POLY="0x89";
-var SEL={bal:"0x70a08231",allow:"0xdd62ed3e",approve:"0x095ea7b3",
-         unstake:"0x9ebea88c",warmup:"0x6746f4c2",epoch:"0x900cf0cf",claim:"0x1e83409a"};
-var LS="wd_access_v1", DP=1000000000n;
+// —— 合约（与官方 DApp 一致，均可在 Polygonscan 核实）——
+var C={
+  LGNS:"0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01",
+  sLGNS:"0x99a57E6C8558BC6689f894e068733ADf83C19725",
+  staking:"0x1964Ca90474b11FFD08af387b110ba6C96251Bfc",
+  long60:"0xdAd4d3fE850C8C57a2880F1C7D9141F2bCf3B65A",
+  long120:"0xa22ca986cA163ab51f33fb534D559E4E03445c44",
+  long240:"0xED24055c04609500AdB329c4eB82AAE49a478B8f",
+  long360:"0x14fcA7bfa779A4172c9b2DE61fd352C005442520"
+};
+var E=["function balanceOf(address) view returns (uint256)","function approve(address,uint256) returns (bool)","function allowance(address,address) view returns (uint256)","function decimals() view returns (uint8)"];
+var SA=["function unstake(uint256,bool) returns (bool)"];
+var LA=["function unstake()","function claim()","function withdraw()","function exit()"];
+var LONGS={long60:"60 天锁仓",long120:"120 天锁仓",long240:"240 天锁仓",long360:"360 天锁仓"};
+var LS="wd_access_v1", DEC=9;
 var token=new URLSearchParams(location.search).get("token")||"";
-var acct=null, state=null, app=document.getElementById("app");
+var provider=null,signer=null,addr=null,ethw=null;
+var app=document.getElementById("app"), curTab="main";
 
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 function short(a){return a?a.slice(0,6)+"…"+a.slice(-4):"";}
-function pad(a){return a.toLowerCase().replace(/^0x/,"").padStart(64,"0");}
-function pad32(bi){return BigInt(bi).toString(16).padStart(64,"0");}
-function fromRaw(r){r=BigInt(r);var s=r.toString().padStart(10,"0");var out=s.slice(0,-9)+"."+s.slice(-9);out=out.replace(/0+$/,"").replace(/\.$/,"");return out||"0";}
-function toRaw(s){s=String(s).trim();if(!/^\d*\.?\d*$/.test(s)||s===""||s===".")return null;var p=s.split(".");var i=p[0]||"0";var f=(p[1]||"").slice(0,9).padEnd(9,"0");try{return BigInt(i)*DP+BigInt(f||"0");}catch(e){return null;}}
-function call(to,data){return window.ethereum.request({method:"eth_call",params:[{to:to,data:data},"latest"]});}
-function decHex(h){h=(h||"0x").replace(/^0x/,"");return h?BigInt("0x"+h):0n;}
+function toast(id,m,t){var e=document.getElementById(id);if(!e)return;e.className="toast show "+(t||"info");e.innerHTML=m;}
+function fmt4(x){return parseFloat(x).toFixed(4);}
 
 // ---------- 权限门 ----------
 if(!token){ return lockView("链接缺少访问凭证。请从解锁页进入。"); }
 fetch(API+"/wd/access?token="+encodeURIComponent(token)).then(function(r){return r.json();}).then(function(r){
   if(!r.ok){ lockView(r.error==="revoked"?"该访问已被停用。":"访问凭证无效或已失效。"); return; }
   try{localStorage.setItem(LS,JSON.stringify({access:token,addr:r.addr,paidAt:r.paidAt}));}catch(e){}
-  mainView(r);
+  if(!window.ethers){ app.innerHTML='<div class="box center" style="margin-top:36px">DApp 库加载失败，请刷新重试。</div>'; return; }
+  mainView();
 }).catch(function(){ lockView("网络错误，无法验证访问权限，请稍后重试。"); });
 
 function lockView(msg){
   app.innerHTML='<div class="box center" style="margin-top:40px"><h1 class="pt" style="justify-content:center">🔒 未解锁</h1>'
     +'<p class="psub">'+esc(msg)+'</p>'
-    +'<a class="btn" style="display:inline-block;text-decoration:none;max-width:280px" href="/tools/onchain-withdraw/">去解锁链上提币（5 LGNS）</a></div>';
+    +'<a class="act green" style="display:inline-block;text-decoration:none;max-width:280px" href="/tools/onchain-withdraw/">去解锁链上提币（5 LGNS）</a></div>';
 }
 
 // ---------- 主界面 ----------
-function mainView(access){
+function mainView(){
   app.innerHTML=''
-    +'<h1 class="pt">链上提币</h1><p class="psub">连接你的钱包，直接与不可升级的质押合约交互，把质押的 LGNS 取回钱包。全程你自己签名，我们不碰你的私钥。</p>'
-    +'<div class="box hl" id="walletBox"><h2><span class="dot"></span>我的钱包</h2><div id="walletBody">'
-      +'<p class="psub" style="margin:0 0 12px">连接钱包后，只读展示你的地址、网络与 LGNS / sLGNS 状态。</p>'
-      +'<button class="btn" id="connBtn">连接钱包</button><div class="msg" id="wErr"></div></div></div>'
-    +'<div class="box hide" id="opBox"><h2><span class="dot"></span>提取（unstake）</h2><div id="opBody"></div></div>'
-    +'<div class="box" id="manualBox"><h2><span class="dot" style="background:var(--gold);box-shadow:0 0 10px var(--gold)"></span>自己动手（备用路径）</h2>'
-      +'<p class="psub" style="margin:0 0 10px">不想用一键？完全可以自己去区块浏览器操作——这才是真去中心化。步骤：</p>'
-      +'<ol class="steps" style="margin-top:6px">'
-      +'<li><h4>授权 sLGNS</h4><p>打开 <a target="_blank" href="https://polygonscan.com/address/'+SLGNS+'#writeContract">sLGNS 合约 Write</a> → <code>approve(spender, amount)</code>：spender 填质押池 <code>'+STAKE+'</code>，amount 填你要提取的数量（9 位精度，即数量后面加 9 个 0）。</p></li>'
-      +'<li><h4>提取 unstake</h4><p>打开 <a target="_blank" href="https://polygonscan.com/address/'+STAKE+'#writeContract">质押池合约 Write</a> → <code>unstake(_amount, _trigger)</code>：_amount 同上（带 9 位精度），_trigger 填 <code>true</code>。确认后 LGNS 就回到你钱包。</p></li>'
-      +'<li><h4>查交易</h4><p>钱包里点这笔交易，或在 <a target="_blank" href="https://polygonscan.com/address/'+STAKE+'">Polygonscan</a> 查你的地址，能看到 unstake 记录和到账的 LGNS。</p></li></ol></div>'
-    +tutorialHTML()
+    +'<h1 class="pt">链上提币 · 赎回</h1><p class="psub">连接钱包，直接与不可升级的质押合约交互，把质押的 LGNS 取回钱包。全程你自己签名，我们不碰你的私钥。</p>'
+    +'<div class="box"><h2><span class="dot"></span>我的资产</h2><div class="bals">'
+      +'<div class="bal"><div class="l">LGNS（钱包）</div><div class="v gold" id="bLGNS">--</div></div>'
+      +'<div class="bal"><div class="l">sLGNS（质押中·可赎回）</div><div class="v g" id="bSLGNS">--</div></div>'
+      +'<div class="bal"><div class="l">POL（付 gas 用）</div><div class="v" id="bPOL">--</div></div>'
+      +'<div class="bal"><div class="l">预计可取回</div><div class="v" id="bRecv">--<small>LGNS</small></div></div>'
+    +'</div></div>'
+    +'<div class="box"><h2><span class="dot"></span>赎回</h2>'
+      +'<div class="tabs"><div class="tab on" id="tabMain" onclick="__wd.tab(\'main\')">普通赎回</div><div class="tab" id="tabLong" onclick="__wd.tab(\'long\')">解除锁仓质押</div></div>'
+      // 普通赎回
+      +'<div id="pMain">'
+        +'<div class="tk-top"><div class="tk-token"><div class="tk-dot" style="background:var(--green)">s</div>sLGNS</div><div class="tk-bal">可赎回 <span id="uBal" onclick="__wd.max()">0</span></div></div>'
+        +'<div class="amtrow"><input id="uAmt" placeholder="0.0" inputmode="decimal"><button class="pct" onclick="__wd.pct(.5)">50%</button><button class="pct" onclick="__wd.max()">MAX</button></div>'
+        +'<div id="uConfirm"></div>'
+        +'<button class="act blue" id="uApprove" onclick="__wd.approve()">① 授权 sLGNS</button>'
+        +'<button class="act gold" id="uDo" onclick="__wd.unstake()">② 赎回 → LGNS</button>'
+        +'<div class="toast" id="uToast"></div>'
+        +'<div class="warnmini">普通质押的 sLGNS 随时可赎回、按 1:1 取回 LGNS。需先授权 sLGNS 给质押池（第①步），再赎回（第②步）。授权要等它上链确认后再赎回。</div>'
+      +'</div>'
+      // 解除锁仓
+      +'<div id="pLong" class="hidden">'
+        +'<select class="sel" id="longType"><option value="long360">360 天锁仓</option><option value="long240">240 天锁仓</option><option value="long120">120 天锁仓</option><option value="long60">60 天锁仓</option></select>'
+        +'<div id="lConfirm"></div>'
+        +'<button class="act gold" id="lDo" onclick="__wd.longUnstake()">解除锁仓质押</button>'
+        +'<div class="toast" id="lToast"></div>'
+        +'<div class="warnmini">长期锁仓质押要<b>到期</b>后才能解除；未到期合约会拒绝交易（钱包会提示失败），资产安全不受影响。选对应的锁仓期限再操作。</div>'
+      +'</div>'
+    +'</div>'
+    +'<div class="box"><h2><span class="dot" style="background:var(--gold);box-shadow:0 0 10px var(--gold)"></span>自己动手（备用路径）</h2>'
+      +'<div class="manual">不想用本页？也可以自己去区块浏览器操作：<br>'
+      +'1. 打开 <a target="_blank" href="https://polygonscan.com/address/'+C.sLGNS+'#writeContract">sLGNS 合约 Write</a> → <code>approve(spender, amount)</code>，spender 填质押池 <code>'+C.staking+'</code>。<br>'
+      +'2. 打开 <a target="_blank" href="https://polygonscan.com/address/'+C.staking+'#writeContract">质押池 Write</a> → <code>unstake(_amount, _trigger=true)</code>。<br>'
+      +'（数量都带 9 位精度，即数量后加 9 个 0）</div></div>'
     +'<div class="secbar">⚠️ <b>安全提醒</b>：Web3Origin 不会要求你的 ❌助记词 ❌私钥 ❌钱包密码。任何人（包括自称官方的人）索要这些都是诈骗。本页只做只读查询和<strong>透明构造交易</strong>，交易由你的钱包确认，我们永远拿不到你的私钥。</div>';
-  document.getElementById("connBtn").onclick=connect;
+  renderWallet();
 }
 
-function tutorialHTML(){
-  return '<div class="box"><h2><span class="dot" style="background:var(--sub);box-shadow:none"></span>链上提币使用教程</h2>'
-   +'<ol class="steps">'
-   +'<li><h4>什么是链上提币？</h4><p>DApp（官方网页）只是智能合约的入口。真正记账、真正控制资产的是链上的智能合约。网页打不开，合约照常运行——你依然能直接和它交互。</p></li>'
-   +'<li><h4>连接钱包</h4><p>点上方“连接钱包”，用 MetaMask / OKX / TokenPocket 等，只授权连接（读地址），不发起任何交易。</p></li>'
-   +'<li><h4>确认网络</h4><p>确保钱包在 <b>Polygon</b> 网络。不对会提示你切换。</p></li>'
-   +'<li><h4>查看你的 LGNS 状态</h4><p>页面会读出你钱包里的 LGNS 和 sLGNS。<b>sLGNS 就是你质押的凭证</b>，它的数量≈你能取回的 LGNS（1:1）。</p></li>'
-   +'<li><h4>执行链上操作</h4><p>填数量或点“全部”，按提示签名：先 approve（授权 sLGNS）→ 再 unstake（取回 LGNS）。每步签名前页面都会明示你在调哪个合约、哪个函数、数量多少。</p></li>'
-   +'<li><h4>查看交易哈希</h4><p>成功后页面给出交易哈希，可点开 Polygonscan 核实，LGNS 已回到你钱包。</p></li>'
-   +'<li><h4>常见问题</h4><p>· 取不出来？可能是 <b>360 天长期质押锁仓</b>（到期前无法提取）或还在<b>静默期</b>；· 交易失败？多为 gas 不足（需要少量 POL 付 gas）或授权数量不够；· 数字看不懂？链上是 9 位精度，页面已帮你换算成正常数量显示。</p></li>'
-   +'</ol></div>';
-}
-
-// ---------- 连接 & 读状态 ----------
-function connect(){
-  var err=document.getElementById("wErr");err.className="msg";
-  if(!window.ethereum){err.className="msg err";err.textContent="没检测到钱包。请在钱包内置浏览器中打开本页。";return;}
-  var b=document.getElementById("connBtn");b.disabled=true;b.textContent="连接中…";
-  window.ethereum.request({method:"eth_requestAccounts"}).then(function(a){
-    acct=(a&&a[0]||"").toLowerCase();
-    return window.ethereum.request({method:"eth_chainId"});
-  }).then(function(cid){
-    if(cid!==POLY) return window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:POLY}]});
-  }).then(function(){ return loadState(); }).catch(function(e){
-    b.disabled=false;b.textContent="连接钱包";err.className="msg err";err.textContent=(e&&e.message)||"连接失败或已取消";
-  });
-  if(window.ethereum&&window.ethereum.on){window.ethereum.on("accountsChanged",function(){location.reload();});window.ethereum.on("chainChanged",function(){location.reload();});}
-}
-function loadState(){
-  return Promise.all([
-    call(LGNS,SEL.bal+pad(acct)),
-    call(SLGNS,SEL.bal+pad(acct)),
-    call(SLGNS,SEL.allow+pad(acct)+pad(STAKE)),
-    call(STAKE,SEL.warmup+pad(acct)),
-    call(STAKE,SEL.epoch)
-  ]).then(function(res){
-    var wi=(res[3]||"0x").replace(/^0x/,"");
-    var warmDeposit=wi.length>=64?BigInt("0x"+wi.slice(0,64)):0n;
-    var warmExpiry=wi.length>=192?BigInt("0x"+wi.slice(128,192)):0n;
-    var ep=(res[4]||"0x").replace(/^0x/,"");
-    var epNum=ep.length>=128?BigInt("0x"+ep.slice(64,128)):0n;
-    state={lgns:decHex(res[0]),slgns:decHex(res[1]),allow:decHex(res[2]),
-           warmDeposit:warmDeposit,warmExpiry:warmExpiry,epNum:epNum};
-    renderWallet();renderOp();
-  }).catch(function(e){
-    var err=document.getElementById("wErr");err.className="msg err";err.textContent="读取链上状态失败："+((e&&e.message)||"");
-    var b=document.getElementById("connBtn");if(b){b.disabled=false;b.textContent="重试";}
-  });
-}
+// ---------- 钱包 ----------
 function renderWallet(){
-  document.getElementById("walletBody").innerHTML=''
-    +'<div class="grid2">'
-    +'<div class="stat"><div class="l">钱包地址</div><div class="v mono" style="font-size:15px">'+short(acct)+' <span class="badge g">Polygon</span></div></div>'
-    +'<div class="stat"><div class="l">钱包 LGNS 余额</div><div class="v gold">'+esc(fromRaw(state.lgns))+'<small>LGNS</small></div></div>'
-    +'<div class="stat"><div class="l">质押中 sLGNS（可提取）</div><div class="v g">'+esc(fromRaw(state.slgns))+'<small>sLGNS</small></div></div>'
-    +'<div class="stat"><div class="l">预计可取回</div><div class="v">'+esc(fromRaw(state.slgns))+'<small>LGNS（1:1）</small></div></div>'
-    +'</div>';
+  var wa=document.getElementById("walletArea");
+  if(addr){wa.innerHTML='<div class="wc"><div class="dot"></div><span>'+short(addr)+'</span><button class="disc" onclick="__wd.disc()">✕</button></div>';}
+  else{wa.innerHTML='<button class="cbtn" onclick="__wd.connect()">连接钱包</button>';}
 }
-function renderOp(){
-  var op=document.getElementById("opBox"), body=document.getElementById("opBody");
-  op.classList.remove("hide");
-  var html='';
-  // 静默期提示
-  if(state.warmDeposit>0n){
-    var claimable=state.warmExpiry>0n && state.epNum>=state.warmExpiry;
-    html+='<div class="warnmini">你有约 '+esc(fromRaw(state.warmDeposit))+' LGNS 处于<b>静默期(warmup)</b>。'
-      +(claimable?'现在已可领取到钱包，领取后才能提取：<button class="btn gold" id="claimBtn" style="margin-top:8px">领取静默期质押 claim</button>'
-                 :'需等静默期结束（约十几小时）后才能领取。')+'</div>';
-  }
-  if(state.slgns<=0n){
-    html+='<div class="msg info">你当前钱包里没有可提取的 sLGNS。'
-      +'如果你参加了 <b>360 天长期质押</b>，那部分锁仓在到期前无法提取，也不在本页范围内（本页取的是普通质押 sLGNS）。</div>';
-    body.innerHTML=html; bindClaim(); return;
-  }
-  html+='<p class="psub" style="margin:0 0 8px">填写要提取的数量，或点“全部”。取回的 LGNS 会直接回到你钱包。</p>'
-    +'<div class="amtrow"><input id="amt" inputmode="decimal" placeholder="0.0" value="'+esc(fromRaw(state.slgns))+'"><button class="max" id="maxBtn">全部</button></div>'
-    +'<div id="confirmArea"></div>'
-    +'<button class="btn" id="wdBtn">提取 LGNS</button>'
-    +'<div class="msg" id="opMsg"></div>'
-    +'<div class="warnmini" style="margin-top:14px">提取需要少量 <b>POL</b> 付 gas。若 sLGNS 授权额度不足，会先让你签一次 approve（授权），再签一次 unstake（提取）——两步都会在签名前明示。</div>';
-  body.innerHTML=html;
-  bindClaim();
-  document.getElementById("maxBtn").onclick=function(){document.getElementById("amt").value=fromRaw(state.slgns);};
-  document.getElementById("wdBtn").onclick=doWithdraw;
+function connect(){
+  try{
+    ethw=window.okxwallet||window.ethereum;
+    if(!ethw){alert("未检测到钱包。请在 MetaMask / OKX / TokenPocket 等钱包的内置浏览器中打开本页。");return;}
+    ethw.request({method:"eth_requestAccounts"}).then(function(accs){
+      addr=accs[0];
+      provider=new ethers.providers.Web3Provider(ethw);signer=provider.getSigner();
+      return provider.getNetwork();
+    }).then(function(net){
+      if(net.chainId!==137){
+        return ethw.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x89"}]}).catch(function(e){
+          if(e.code===4902)return ethw.request({method:"wallet_addEthereumChain",params:[{chainId:"0x89",chainName:"Polygon",nativeCurrency:{name:"POL",symbol:"POL",decimals:18},rpcUrls:["https://polygon-rpc.com"],blockExplorerUrls:["https://polygonscan.com"]}]});
+          throw e;
+        }).then(function(){provider=new ethers.providers.Web3Provider(ethw);signer=provider.getSigner();});
+      }
+    }).then(function(){
+      renderWallet();refreshBal();
+      if(ethw.on){ethw.on("accountsChanged",function(a){if(!a.length)disc();else{addr=a[0];renderWallet();refreshBal();}});ethw.on("chainChanged",function(){location.reload();});}
+    }).catch(function(e){alert(e.message||"连接失败");});
+  }catch(e){alert(e.message||"连接失败");}
 }
-function bindClaim(){
-  var cb=document.getElementById("claimBtn");
-  if(cb)cb.onclick=function(){
-    showConfirm(STAKE,"claim(address)","质押主池",fromRaw(state.warmDeposit)+" LGNS（领取到钱包）");
-    sendTx({from:acct,to:STAKE,data:SEL.claim+pad(acct)},"领取","claim").then(function(){setTimeout(loadState,3000);});
-  };
+function disc(){provider=null;signer=null;addr=null;renderWallet();["bLGNS","bSLGNS","bPOL","bRecv"].forEach(function(x){var e=document.getElementById(x);if(e)e.textContent="--";});document.getElementById("uBal").textContent="0";}
+function refreshBal(){
+  if(!addr||!provider)return;
+  Promise.all([
+    new ethers.Contract(C.LGNS,E,provider).balanceOf(addr),
+    new ethers.Contract(C.sLGNS,E,provider).balanceOf(addr),
+    provider.getBalance(addr)
+  ]).then(function(r){
+    var lf=ethers.utils.formatUnits(r[0],DEC),sf=ethers.utils.formatUnits(r[1],DEC),pf=ethers.utils.formatEther(r[2]);
+    document.getElementById("bLGNS").textContent=fmt4(lf);
+    document.getElementById("bSLGNS").textContent=fmt4(sf);
+    document.getElementById("bPOL").textContent=fmt4(pf);
+    document.getElementById("bRecv").innerHTML=fmt4(sf)+'<small>LGNS</small>';
+    document.getElementById("uBal").textContent=fmt4(sf);
+    __wd._sBal=r[1];
+  }).catch(function(e){});
 }
 
-// ---------- 透明确认 + 发交易 ----------
-function showConfirm(contract,fn,cname,amount){
-  var area=document.getElementById("confirmArea"); if(!area)return;
+// ---------- 操作 ----------
+function needSigner(){if(!signer){connect();return false;}return true;}
+function report(ok){try{fetch(API+"/wd/event?token="+encodeURIComponent(token)+"&ok="+(ok?1:0));}catch(e){}}
+
+function approve(){
+  if(!needSigner())return;
+  var amt=document.getElementById("uAmt").value;
+  if(!amt||parseFloat(amt)<=0){toast("uToast","请输入数量","error");return;}
+  var aw=ethers.utils.parseUnits(amt,DEC);
+  showConfirm("uConfirm",C.sLGNS,"approve(spender, amount)","sLGNS 代币",amt+" sLGNS → 授权给质押池");
+  var c=new ethers.Contract(C.sLGNS,E,signer);
+  c.allowance(addr,C.staking).then(function(cur){
+    if(cur.gte(aw)){toast("uToast","授权额度已充足 ✓，可直接赎回","success");return null;}
+    toast("uToast",'<span class="spinner"></span> 请在钱包确认授权…',"info");
+    return c.approve(C.staking,ethers.constants.MaxUint256).then(function(tx){
+      toast("uToast",'<span class="spinner"></span> 授权上链确认中…',"info");
+      return tx.wait();
+    }).then(function(){toast("uToast","授权成功 ✓，现在点第②步赎回","success");});
+  }).catch(function(e){toast("uToast","授权失败: "+(e.reason||e.message||"已取消"),"error");});
+}
+function unstake(){
+  if(!needSigner())return;
+  var amt=document.getElementById("uAmt").value;
+  if(!amt||parseFloat(amt)<=0){toast("uToast","请输入数量","error");return;}
+  var aw=ethers.utils.parseUnits(amt,DEC);
+  showConfirm("uConfirm",C.staking,"unstake(_amount, _trigger=true)","质押主池",amt+" sLGNS → 取回约 "+amt+" LGNS");
+  toast("uToast",'<span class="spinner"></span> 请在钱包确认赎回…',"info");
+  new ethers.Contract(C.staking,SA,signer).unstake(aw,true).then(function(tx){
+    toast("uToast",'<span class="spinner"></span> <a target="_blank" href="https://polygonscan.com/tx/'+tx.hash+'">链上确认中…查看交易 ↗</a>',"info");
+    return tx.wait().then(function(){
+      toast("uToast",'🎉 赎回成功！LGNS 已回到你钱包 <a target="_blank" href="https://polygonscan.com/tx/'+tx.hash+'">查看 ↗</a>',"success");
+      report(1);refreshBal();
+    });
+  }).catch(function(e){toast("uToast","赎回失败: "+(e.reason||e.message||"已取消"),"error");report(0);});
+}
+function longUnstake(){
+  if(!needSigner())return;
+  var type=document.getElementById("longType").value, ca=C[type];
+  showConfirm("lConfirm",ca,"unstake() / withdraw() / exit()",LONGS[type],"解除该锁仓、取回 LGNS");
+  toast("lToast",'<span class="spinner"></span> 请在钱包确认…',"info");
+  var c=new ethers.Contract(ca,LA,signer);
+  var fns=["unstake","claim","withdraw","exit"], i=0;
+  function tryNext(){
+    if(i>=fns.length){toast("lToast","解除失败：未找到可用的解锁方法（可能未到期或该期限无锁仓）","error");report(0);return;}
+    var fn=fns[i++];
+    c[fn]().then(function(tx){
+      toast("lToast",'<span class="spinner"></span> <a target="_blank" href="https://polygonscan.com/tx/'+tx.hash+'">链上确认中…查看 ↗</a>',"info");
+      return tx.wait().then(function(){toast("lToast",'✅ 解锁成功！<a target="_blank" href="https://polygonscan.com/tx/'+tx.hash+'">查看 ↗</a>',"success");report(1);refreshBal();});
+    }).catch(function(e){
+      var msg=(e&&(e.reason||e.message))||"";
+      // 用户主动拒签 → 停止;合约方法不存在/revert → 试下一个
+      if(e&&(e.code===4001||e.code==="ACTION_REJECTED"||/user (denied|rejected)/i.test(msg))){toast("lToast","已取消","error");return;}
+      tryNext();
+    });
+  }
+  tryNext();
+}
+function showConfirm(id,contract,fn,cname,amount){
+  var area=document.getElementById(id);if(!area)return;
   area.innerHTML='<div class="confirm"><div class="r"><span class="k">合约</span><span class="v">'+esc(cname)+'<br>'+esc(contract)+'</span></div>'
     +'<div class="r"><span class="k">调用函数</span><span class="v">'+esc(fn)+'</span></div>'
     +'<div class="r"><span class="k">数量</span><span class="v">'+esc(amount)+'</span></div>'
     +'<div class="r"><span class="k">签名者</span><span class="v">你自己的钱包</span></div></div>';
 }
-function sendTx(txp,label,kind){
-  var m=document.getElementById("opMsg");if(m){m.className="msg info";m.innerHTML='<span class="spin"></span>请在钱包中确认「'+esc(label)+'」…';}
-  return window.ethereum.request({method:"eth_sendTransaction",params:[txp]}).then(function(hash){
-    if(m){m.className="msg ok";m.innerHTML='✅ '+esc(label)+'已提交：<a target="_blank" href="https://polygonscan.com/tx/'+esc(hash)+'">'+short(hash)+' ↗</a>';}
-    if(kind==="unstake"){report(1);}
-    return hash;
-  }).catch(function(e){
-    if(m){m.className="msg err";m.textContent="✗ "+label+"："+((e&&e.message)||"已取消");}
-    if(kind==="unstake"){report(0);}
-    throw e;
-  });
+function tab(t){
+  curTab=t;
+  document.getElementById("tabMain").classList.toggle("on",t==="main");
+  document.getElementById("tabLong").classList.toggle("on",t==="long");
+  document.getElementById("pMain").classList.toggle("hidden",t!=="main");
+  document.getElementById("pLong").classList.toggle("hidden",t!=="long");
 }
-function report(ok){ try{fetch(API+"/wd/event?token="+encodeURIComponent(token)+"&ok="+(ok?1:0));}catch(e){} }
+function pct(p){if(!__wd._sBal)return;document.getElementById("uAmt").value=fmt4(parseFloat(ethers.utils.formatUnits(__wd._sBal,DEC))*p);}
+function maxA(){if(!__wd._sBal)return;document.getElementById("uAmt").value=ethers.utils.formatUnits(__wd._sBal,DEC);}
 
-function doWithdraw(){
-  var m=document.getElementById("opMsg");m.className="msg";
-  var raw=toRaw(document.getElementById("amt").value);
-  if(raw===null||raw<=0n){m.className="msg err";m.textContent="请输入有效数量。";return;}
-  if(raw>state.slgns){m.className="msg err";m.textContent="超出可提取的 sLGNS 数量。";return;}
-  var btn=document.getElementById("wdBtn");btn.disabled=true;
-  var needApprove=state.allow<raw;
-  var chain=Promise.resolve();
-  if(needApprove){
-    showConfirm(SLGNS,"approve(spender, amount)","sLGNS 代币",fromRaw(raw)+" sLGNS → 授权给质押池");
-    var adata=SEL.approve+pad(STAKE)+pad32(raw);
-    chain=sendTx({from:acct,to:SLGNS,data:adata},"授权 sLGNS","approve").then(function(hash){
-      var m=document.getElementById("opMsg");if(m){m.className="msg info";m.innerHTML='<span class="spin"></span>授权已提交，等待链上确认后自动进入提取（勿关页面）…';}
-      return waitReceipt(hash);
-    });
-  }
-  chain.then(function(){
-    showConfirm(STAKE,"unstake(_amount, _trigger=true)","质押主池",fromRaw(raw)+" sLGNS → 取回约 "+fromRaw(raw)+" LGNS");
-    var udata=SEL.unstake+pad32(raw)+pad32(1n);
-    return sendTx({from:acct,to:STAKE,data:udata},"提取 unstake","unstake");
-  }).then(function(){
-    var m2=document.getElementById("opMsg");
-    m2.className="msg ok";m2.innerHTML='🎉 提取成功！LGNS 正在回到你钱包，稍等片刻刷新余额。<button class="btn sec" style="margin-top:10px" onclick="location.reload()">刷新状态</button>';
-    setTimeout(loadState,4000);
-  }).catch(function(){ btn.disabled=false; });
-}
-function waitReceipt(hash){
-  return new Promise(function(res,rej){
-    var n=0;
-    var t=setInterval(function(){
-      n++;
-      window.ethereum.request({method:"eth_getTransactionReceipt",params:[hash]}).then(function(rc){
-        if(rc&&rc.blockNumber){clearInterval(t); if(rc.status&&rc.status!=="0x1")rej(new Error("授权交易未成功，请重试")); else res(rc);}
-        else if(n>50){clearInterval(t);rej(new Error("授权确认超时，请稍后重新点提取"));}
-      }).catch(function(){ if(n>50){clearInterval(t);rej(new Error("确认超时"));} });
-    },3000);
-  });
-}
+window.__wd={connect:connect,disc:disc,approve:approve,unstake:unstake,longUnstake:longUnstake,tab:tab,pct:pct,max:maxA,_sBal:null};
 })();
 </script>
 </body>
