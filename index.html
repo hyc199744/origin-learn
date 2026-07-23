@@ -531,6 +531,59 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   </div>
 </section>
 
+<!-- ══════ 品牌氛围板块样式（全球社区 + 品牌精神） ══════ -->
+<style>
+.imp-eye{display:inline-block;font-size:12px;letter-spacing:.26em;color:var(--gold-lt);border:1px solid var(--line);border-radius:30px;padding:5px 14px;margin-bottom:16px;text-transform:uppercase}
+.imp-h2{font-family:var(--serif);font-size:clamp(24px,4.4vw,40px);color:var(--bone);margin:0 0 14px;line-height:1.28;font-weight:400;text-wrap:balance}
+.imp-p{color:var(--soft);font-size:clamp(14px,1.6vw,16.5px);line-height:1.8;margin:0 0 22px;max-width:52ch}
+.imp-btns{display:flex;gap:12px;flex-wrap:wrap}
+.imp-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(180deg,#2fe07d,#12812f);border:1px solid #35e884;color:#04240c;font-weight:700;font-size:14.5px;padding:12px 24px;border-radius:11px;cursor:pointer;text-decoration:none;transition:.16s}
+.imp-btn:hover{filter:brightness(1.07);transform:translateY(-1px);text-decoration:none;box-shadow:0 8px 26px rgba(37,201,111,.28)}
+.imp-ghost{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:transparent;border:1px solid var(--gold);color:var(--gold-lt);font-weight:600;font-size:14.5px;padding:12px 22px;border-radius:11px;cursor:pointer;text-decoration:none;transition:.16s}
+.imp-ghost:hover{background:rgba(214,168,75,.1);border-color:var(--gold-lt);text-decoration:none}
+.gsec{position:relative;overflow:hidden;background:#050303}
+.gsec>.gbg{position:absolute;inset:0;z-index:0;background-color:#050303;background-repeat:no-repeat;background-position:center right;background-size:cover;background-image:url(assets/community-bg.jpg);background-image:image-set(url(assets/community-bg.webp) type("image/webp"),url(assets/community-bg.jpg) type("image/jpeg"))}
+.gsec::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,#050303 30%,rgba(5,3,3,.6) 54%,rgba(5,3,3,0) 80%)}
+.gsec-inner{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:clamp(52px,7vw,92px) 22px;min-height:clamp(420px,50vw,600px);display:flex;align-items:center}
+.gsec-txt{max-width:min(560px,56%);opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+.gsec-txt.in{opacity:1;transform:none}
+.ssec{position:relative;overflow:hidden;background:radial-gradient(720px 520px at 50% 6%,rgba(214,168,75,.055),#050303 62%),#050303}
+.ssec-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.15fr .95fr;align-items:center;gap:24px;padding:clamp(34px,5vw,64px) 22px;min-height:clamp(560px,56vw,760px)}
+.ssec-img{position:relative;display:flex;justify-content:center;align-items:flex-end;align-self:stretch;min-width:0}
+.ssec-img .halo{position:absolute;top:5%;left:50%;width:66%;padding-bottom:66%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(217,168,62,.30),rgba(217,168,62,.06) 46%,transparent 66%);filter:blur(7px);z-index:0;pointer-events:none;animation:haloBreath 5.5s ease-in-out infinite}
+.ssec-img img{position:relative;z-index:1;width:100%;max-width:430px;height:auto;display:block;-webkit-mask-image:linear-gradient(180deg,#000 74%,transparent 99%);mask-image:linear-gradient(180deg,#000 74%,transparent 99%);opacity:0;transform:translateY(18px);transition:opacity .9s ease,transform .9s ease;filter:drop-shadow(0 0 34px rgba(217,168,62,.14))}
+.ssec-img img.in{opacity:1;transform:none}
+@keyframes haloBreath{0%,100%{opacity:.55}50%{opacity:.95}}
+@media (prefers-reduced-motion:reduce){.ssec-img .halo{animation:none}.gsec-txt,.ssec-img img{transition:none;opacity:1;transform:none}}
+@media (max-width:768px){
+  .gsec>.gbg{background-position:74% top}
+  .gsec::after{background:linear-gradient(0deg,#050303 36%,rgba(5,3,3,.32) 64%,rgba(5,3,3,.12))}
+  .gsec-inner{align-items:flex-end;min-height:clamp(470px,110vw,560px);padding-bottom:38px}
+  .gsec-txt{max-width:100%}
+  .imp-p{max-width:100%}
+  .ssec-inner{grid-template-columns:1fr;gap:4px;min-height:0;padding-bottom:0}
+  .ssec-img{order:2;margin-top:6px}
+  .ssec-img img{max-width:330px}
+  .imp-btns{flex-direction:column;align-items:stretch}
+}
+</style>
+
+<!-- ══════ 全球社区（星球背景） ══════ -->
+<section id="global" class="gsec" aria-label="全球社区">
+  <div class="gbg" role="img" aria-label="Web3Origin 全球生态与宇宙星球背景"></div>
+  <div class="gsec-inner">
+    <div class="gsec-txt">
+      <span class="imp-eye" data-i18n="g_eye">🌐 Global Ecosystem</span>
+      <h2 class="imp-h2" data-i18n="g_h2">连接全球 Origin 生态</h2>
+      <p class="imp-p" data-i18n="g_p">Web3Origin 面向全球用户提供链上研究、数据工具、学习内容与多语言服务，让世界各地的人都能读懂并独立验证起源生态。</p>
+      <div class="imp-btns">
+        <a class="imp-btn" onclick="jump('contact')" data-i18n="g_b1">进入全球社区</a>
+        <button class="imp-ghost" type="button" onclick="(document.getElementById('mLang')||document.getElementById('langBtn')).click()" data-i18n="g_b2">切换语言</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ══════ 加好友 · 联系 ══════ -->
 <section id="contact">
   <style>
@@ -564,6 +617,38 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
     <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
+
+<!-- ══════ 品牌精神（守护者） ══════ -->
+<section id="spirit" class="ssec" aria-label="品牌精神">
+  <div class="ssec-inner">
+    <div class="ssec-txt">
+      <span class="imp-eye" data-i18n="s_eye">✦ Brand Spirit</span>
+      <h2 class="imp-h2" data-i18n="s_h2">守护链上真实，追溯数字起源</h2>
+      <p class="imp-p" data-i18n="s_p">Web3Origin 通过公开链上数据、交易记录、合约信息与历史证据，帮助用户独立验证 Origin、LGNS 与 Anubis 生态的重要信息。</p>
+      <div class="imp-btns">
+        <a class="imp-btn" onclick="openEvidenceDB()" data-i18n="s_b1">探索链上证据库</a>
+        <a class="imp-ghost" href="baike/lgns/" data-i18n="s_b2">查看 Origin 时间线</a>
+      </div>
+    </div>
+    <div class="ssec-img">
+      <div class="halo"></div>
+      <picture>
+        <source srcset="assets/guardian.webp" type="image/webp">
+        <img src="assets/guardian.png" alt="Web3Origin 黑金守护者与金色链上光环" loading="lazy" width="720" height="1129" decoding="async">
+      </picture>
+    </div>
+  </div>
+</section>
+<script>
+/* 品牌氛围板块：进入视口时轻微淡入（尊重 prefers-reduced-motion） */
+(function(){try{
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  var els=[].slice.call(document.querySelectorAll('.gsec-txt,.ssec-img img'));
+  if(!('IntersectionObserver'in window)){els.forEach(function(e){e.classList.add('in');});return;}
+  var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}});},{threshold:.18});
+  els.forEach(function(e){io.observe(e);});
+}catch(e){var a=document.querySelectorAll('.gsec-txt,.ssec-img img');[].forEach.call(a,function(e){e.classList.add('in');});}})();
+</script>
 
 <footer>
   <div class="cn" data-i18n="ft_cn">起源 · 入殿指南</div>
@@ -833,7 +918,7 @@ window.renderCodices();
 
 <script>
 (function(){
-var EN={"n_radar":"Radar","n_academy":"Academy","n_video":"Videos","n_dash":"Dashboard","md_video":"Video Academy","md_dash":"My Dashboard","md_academy":"On-chain Academy","md_radar":"On-chain Radar","md_eco6":"Anubis Chain","md_eco7":"Awake DAO","md_articles":"Research","md_name":"Web3Origin","md_tag":"Origin on-chain data & research hub","md_home":"Home","md_eco":"Ecosystem","md_eco1":"What is Origin","md_eco2":"What is LGNS","md_eco3":"All contracts","md_eco4":"FAQ","md_eco5":"Sources","md_tools":"On-chain Tools","md_t1":"Block Explorer / Wallet","md_t2":"Wallet Monitor","md_t3":"Yield Calculator","md_t4":"Contract Verification","md_t5":"Referrer Lookup","md_t6":"Token Safety Check","md_t7":"Staking Panel","md_t8":"On-chain Dashboard","md_t9":"Whale Monitor","md_evi":"On-chain Evidence DB","md_daily":"Chain Daily","md_learn":"Learn","md_l1":"Beginner path","md_l2":"Resources","md_l3":"FAQ","md_about":"About Web3Origin","md_contact":"Add me / Contact","md_qb1":"Wallet lookup","md_qb2":"Calculator","md_warn":"⚠️ Never enter your seed phrase, private key or wallet password on any site.","vc1":"Page views ","vc2":" · Unique visitors ","vc3":"","geoload":"Loading visitor countries…","loader":"ENTER","brand":"ORIGIN · <b>Beginner's Guide</b>","sig1":"I","sig2":"II","sig3":"III","sig4":"IV","sig5":"V","c_wxlabel":"WeChat","ft_links":"📖 <a href=\"baike/lgns/\" style=\"color:var(--gold-lt)\">What is LGNS? Full intro</a> · 📑 <a href=\"contracts/\" style=\"color:var(--gold-lt)\">Contracts</a> · ❓ <a href=\"faq/\" style=\"color:var(--gold-lt)\">FAQ</a> · 🏛️ <a href=\"about/\" style=\"color:var(--gold-lt)\">About</a> · 🔍 <a href=\"sources/\" style=\"color:var(--gold-lt)\">Sources</a>","n1": "Home", "n2": "About", "n3": "Learn", "n4": "FAQ", "n5": "Tools", "n6": "Library", "n7": "Contact", "h_title": "ORIGIN · Beginner's Guide", "h_lede": "From a single token to a whole blockchain — Web3 explained in <b>plain language</b>. No background needed; walk the Five Trials and you'll get it.", "h_cta": "Start the Trials &#10132;", "h_scroll": "SCROLL DOWN", "i_eye": "Chapter I · Basics", "i_h2": "Know it first, then act", "i_sub": "Many people are lured by the APY and put money in without knowing what they bought. Here we flip it — first get clear on the three basics.", "i_t1": "<h3><span class=\"rune\">I</span>What is Origin</h3><p>A whole Web3 ecosystem: at its core is the token <b>LGNS</b>, plus staking, DAO governance and a self-built Anubis privacy chain. Think of it as \"an on-chain community with its own token and rules\".</p>", "i_t2": "<h3><span class=\"rune\">II</span>What is LGNS</h3><p>The ecosystem's core token. Hold and stake it to participate; it uses a game model called <b>(3,3)</b> that rewards long-term holding over short-term trading.</p>", "i_t3": "<h3><span class=\"rune\">III</span>What is staking</h3><p>Locking LGNS into a contract and earning token rewards every 6 hours. Where the yield comes from and whether it's \"guaranteed\" is broken down in Trials 2–3 — <b>understand it before you act</b>.</p>", "p_eye": "Chapter II · Trials", "p_h2": "The Five Trials", "p_sub": "From “heard of it” to “judge for yourself”. Go in order; the sacred fire lights each rune as you scroll. About 90 minutes total — take it in a few sittings.", "s1": "<h3>Meet Origin <span class=\"time\">~10 min</span></h3><p class=\"goal\">Get the terms straight: what Origin, Anubis and LGNS each are and how they relate.</p><ul><li>Origin = the whole Web3 ecosystem</li><li>LGNS = the core token (algorithmic, 9 decimals not 18; governance is a separate token, GLGNS)</li><li>Anubis = a self-built privacy chain (Chain ID 6714, gas paid in DAI)</li></ul>", "s2": "<h3>Understand LGNS &amp; (3,3) <span class=\"time\">~20 min</span></h3><p class=\"goal\">Grasp what powers this token and why everyone talks about “staking”.</p><ul><li>(3,3): a game model that rewards everyone holding long-term</li><li>Staking rewards are essentially protocol emissions every 6 hours (rebase)</li><li>High APY ≠ net profit — watch both the price and the real reserves</li></ul>", "s3": "<h3>Try Staking <span class=\"time\">~20 min</span></h3><p class=\"goal\">From setting up a wallet to your first stake and claiming rewards — the whole flow.</p><ul><li>Set up a self-custody wallet and safeguard your seed phrase</li><li>Learn where to buy LGNS and how to make a transaction</li><li>Start small, confirm it works, then scale up</li></ul>", "s4": "<h3>Join Governance <span class=\"time\">~20 min</span></h3><p class=\"goal\">Know what Awake DAO is and how a proposal goes from idea to execution.</p><ul><li>Awake DAO: where the community governs</li><li>The flow: Proposal → Discussion → Vote → Execution</li><li>Voting power comes from the GLGNS governance token &amp; governance NFTs (not from holding or staking LGNS directly)</li></ul>", "s5": "<h3>Advanced &amp; Security <span class=\"time\">~20 min</span></h3><p class=\"goal\">Learn to verify data on-chain yourself, spot phishing, and protect yourself.</p><ul><li>Use a block explorer to check contracts and transactions</li><li>Beware of new tricks like EIP-7702 approval phishing</li><li>Stick to official channels and verify on-chain yourself (DYOR)</li></ul>", "f_eye": "Chapter III · Answers", "f_h2": "FAQ", "f_sub": "The questions beginners get stuck on. Tap a slab for the answer — we explain “what it is and how to judge”, we don't decide for you.", "t_eye": "Chapter IV · Tools", "t_h2": "On-chain Tools", "t_sub": "The beauty of Web3 is you can verify everything on-chain yourself. These tools turn “what others say” into “what you checked yourself”.", "t_note": "⚠️ Data is read live from the chain and official APIs, for reference only; do real trading / staking through official entrances, always <b style=\"color:var(--bone)\">verify contract addresses yourself</b> and beware of phishing.", "l_eye": "Chapter V · Library", "l_h2": "Resources", "l_sub": "Video courses, PDF slides, articles and posts, all collected here. Filter by category, tap a card to open — videos play, slides flip, articles pop up.", "c_h2": "Add me · Questions welcome", "c_sub": "Scan to add me — join the community, ask questions, get first-hand info. Don't go it alone as a beginner.", "c_wx": "Scan to add on WeChat", "c_qq": "Scan to add on QQ", "ft_cn": "ORIGIN · Beginner's Guide", "ft_disc": "For learning only, not investment advice · DYOR — check it, understand it, then decide.", "ft_sub": "Dynamic assets sourced from Origin official pages · beginner-friendly learning site"};
+var EN={"g_eye":"🌐 Global Ecosystem","g_h2":"Connecting the Global Origin Ecosystem","g_p":"Web3Origin brings on-chain research, data tools, learning content and multilingual services to users worldwide — so anyone, anywhere, can understand and independently verify the Origin ecosystem.","g_b1":"Join the Community","g_b2":"Switch Language","s_eye":"✦ Brand Spirit","s_h2":"Guard the On-chain Truth, Trace the Digital Origin","s_p":"Web3Origin uses public on-chain data, transaction records, contract info and historical evidence to help you independently verify the key facts of Origin, LGNS and Anubis.","s_b1":"Explore the Evidence DB","s_b2":"View the Origin Timeline","n_radar":"Radar","n_academy":"Academy","n_video":"Videos","n_dash":"Dashboard","md_video":"Video Academy","md_dash":"My Dashboard","md_academy":"On-chain Academy","md_radar":"On-chain Radar","md_eco6":"Anubis Chain","md_eco7":"Awake DAO","md_articles":"Research","md_name":"Web3Origin","md_tag":"Origin on-chain data & research hub","md_home":"Home","md_eco":"Ecosystem","md_eco1":"What is Origin","md_eco2":"What is LGNS","md_eco3":"All contracts","md_eco4":"FAQ","md_eco5":"Sources","md_tools":"On-chain Tools","md_t1":"Block Explorer / Wallet","md_t2":"Wallet Monitor","md_t3":"Yield Calculator","md_t4":"Contract Verification","md_t5":"Referrer Lookup","md_t6":"Token Safety Check","md_t7":"Staking Panel","md_t8":"On-chain Dashboard","md_t9":"Whale Monitor","md_evi":"On-chain Evidence DB","md_daily":"Chain Daily","md_learn":"Learn","md_l1":"Beginner path","md_l2":"Resources","md_l3":"FAQ","md_about":"About Web3Origin","md_contact":"Add me / Contact","md_qb1":"Wallet lookup","md_qb2":"Calculator","md_warn":"⚠️ Never enter your seed phrase, private key or wallet password on any site.","vc1":"Page views ","vc2":" · Unique visitors ","vc3":"","geoload":"Loading visitor countries…","loader":"ENTER","brand":"ORIGIN · <b>Beginner's Guide</b>","sig1":"I","sig2":"II","sig3":"III","sig4":"IV","sig5":"V","c_wxlabel":"WeChat","ft_links":"📖 <a href=\"baike/lgns/\" style=\"color:var(--gold-lt)\">What is LGNS? Full intro</a> · 📑 <a href=\"contracts/\" style=\"color:var(--gold-lt)\">Contracts</a> · ❓ <a href=\"faq/\" style=\"color:var(--gold-lt)\">FAQ</a> · 🏛️ <a href=\"about/\" style=\"color:var(--gold-lt)\">About</a> · 🔍 <a href=\"sources/\" style=\"color:var(--gold-lt)\">Sources</a>","n1": "Home", "n2": "About", "n3": "Learn", "n4": "FAQ", "n5": "Tools", "n6": "Library", "n7": "Contact", "h_title": "ORIGIN · Beginner's Guide", "h_lede": "From a single token to a whole blockchain — Web3 explained in <b>plain language</b>. No background needed; walk the Five Trials and you'll get it.", "h_cta": "Start the Trials &#10132;", "h_scroll": "SCROLL DOWN", "i_eye": "Chapter I · Basics", "i_h2": "Know it first, then act", "i_sub": "Many people are lured by the APY and put money in without knowing what they bought. Here we flip it — first get clear on the three basics.", "i_t1": "<h3><span class=\"rune\">I</span>What is Origin</h3><p>A whole Web3 ecosystem: at its core is the token <b>LGNS</b>, plus staking, DAO governance and a self-built Anubis privacy chain. Think of it as \"an on-chain community with its own token and rules\".</p>", "i_t2": "<h3><span class=\"rune\">II</span>What is LGNS</h3><p>The ecosystem's core token. Hold and stake it to participate; it uses a game model called <b>(3,3)</b> that rewards long-term holding over short-term trading.</p>", "i_t3": "<h3><span class=\"rune\">III</span>What is staking</h3><p>Locking LGNS into a contract and earning token rewards every 6 hours. Where the yield comes from and whether it's \"guaranteed\" is broken down in Trials 2–3 — <b>understand it before you act</b>.</p>", "p_eye": "Chapter II · Trials", "p_h2": "The Five Trials", "p_sub": "From “heard of it” to “judge for yourself”. Go in order; the sacred fire lights each rune as you scroll. About 90 minutes total — take it in a few sittings.", "s1": "<h3>Meet Origin <span class=\"time\">~10 min</span></h3><p class=\"goal\">Get the terms straight: what Origin, Anubis and LGNS each are and how they relate.</p><ul><li>Origin = the whole Web3 ecosystem</li><li>LGNS = the core token (algorithmic, 9 decimals not 18; governance is a separate token, GLGNS)</li><li>Anubis = a self-built privacy chain (Chain ID 6714, gas paid in DAI)</li></ul>", "s2": "<h3>Understand LGNS &amp; (3,3) <span class=\"time\">~20 min</span></h3><p class=\"goal\">Grasp what powers this token and why everyone talks about “staking”.</p><ul><li>(3,3): a game model that rewards everyone holding long-term</li><li>Staking rewards are essentially protocol emissions every 6 hours (rebase)</li><li>High APY ≠ net profit — watch both the price and the real reserves</li></ul>", "s3": "<h3>Try Staking <span class=\"time\">~20 min</span></h3><p class=\"goal\">From setting up a wallet to your first stake and claiming rewards — the whole flow.</p><ul><li>Set up a self-custody wallet and safeguard your seed phrase</li><li>Learn where to buy LGNS and how to make a transaction</li><li>Start small, confirm it works, then scale up</li></ul>", "s4": "<h3>Join Governance <span class=\"time\">~20 min</span></h3><p class=\"goal\">Know what Awake DAO is and how a proposal goes from idea to execution.</p><ul><li>Awake DAO: where the community governs</li><li>The flow: Proposal → Discussion → Vote → Execution</li><li>Voting power comes from the GLGNS governance token &amp; governance NFTs (not from holding or staking LGNS directly)</li></ul>", "s5": "<h3>Advanced &amp; Security <span class=\"time\">~20 min</span></h3><p class=\"goal\">Learn to verify data on-chain yourself, spot phishing, and protect yourself.</p><ul><li>Use a block explorer to check contracts and transactions</li><li>Beware of new tricks like EIP-7702 approval phishing</li><li>Stick to official channels and verify on-chain yourself (DYOR)</li></ul>", "f_eye": "Chapter III · Answers", "f_h2": "FAQ", "f_sub": "The questions beginners get stuck on. Tap a slab for the answer — we explain “what it is and how to judge”, we don't decide for you.", "t_eye": "Chapter IV · Tools", "t_h2": "On-chain Tools", "t_sub": "The beauty of Web3 is you can verify everything on-chain yourself. These tools turn “what others say” into “what you checked yourself”.", "t_note": "⚠️ Data is read live from the chain and official APIs, for reference only; do real trading / staking through official entrances, always <b style=\"color:var(--bone)\">verify contract addresses yourself</b> and beware of phishing.", "l_eye": "Chapter V · Library", "l_h2": "Resources", "l_sub": "Video courses, PDF slides, articles and posts, all collected here. Filter by category, tap a card to open — videos play, slides flip, articles pop up.", "c_h2": "Add me · Questions welcome", "c_sub": "Scan to add me — join the community, ask questions, get first-hand info. Don't go it alone as a beginner.", "c_wx": "Scan to add on WeChat", "c_qq": "Scan to add on QQ", "ft_cn": "ORIGIN · Beginner's Guide", "ft_disc": "For learning only, not investment advice · DYOR — check it, understand it, then decide.", "ft_sub": "Dynamic assets sourced from Origin official pages · beginner-friendly learning site"};
 /* 语言包(英文含 ui+tools+faqs);其余语言由 i18n.js 懒加载 /locales/<code>.json。多语言切换全部交给 i18n.js */
 window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map(function(f){return f.en;})}};
 })();
