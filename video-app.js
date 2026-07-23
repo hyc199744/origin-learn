@@ -3,9 +3,10 @@
    播放量 = Worker /vc 真实累计。同一脚本服务视频首页(#vidHub)与播放页(#vidDetail)。 */
 (function(){
 "use strict";
+try{var _lc=localStorage.getItem("web3origin_locale")||"";if(_lc){window.SITE_LANG=(_lc==="zh-CN")?"zh":_lc;document.documentElement.lang=_lc;if(_lc==="ar")document.documentElement.dir="rtl";}}catch(e){}
 var W="https://count.web3origin.com";
 var VK="origin_video_v1";
-function EN(){return (window.SITE_LANG||"zh")==="en";}
+function EN(){return (window.SITE_LANG||"zh")!=="zh";}
 function st(){try{return JSON.parse(localStorage.getItem(VK))||{};}catch(e){return {};}}
 function sv(d){try{localStorage.setItem(VK,JSON.stringify(d));}catch(e){}}
 function get(k){var d=st();return d[k]||{};}

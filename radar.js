@@ -8,7 +8,7 @@ var API="https://count.web3origin.com/radar";
 var PS="https://polygonscan.com/tx/";
 
 /* ---------- 双语标签 ---------- */
-function EN(){return (window.SITE_LANG||"zh")==="en";}
+function EN(){return (window.SITE_LANG||"zh")!=="zh";}
 var L={
   zh:{title:"起源链上雷达",sub:"实时追踪 LGNS、Anubis Chain 生态链上状态 · 数据可逐一核实",
     upd:"数据更新",loading:"加载中…",anbOk:"Anubis 正常",polOk:"Polygon 正常",offline:"离线",

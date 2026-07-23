@@ -1,0 +1,239 @@
+{
+ "ui": {
+  "n_radar": "Radar",
+  "n_academy": "Academy",
+  "n_video": "Videos",
+  "n_dash": "Dashboard",
+  "md_video": "Video Academy",
+  "md_dash": "My Dashboard",
+  "md_academy": "On-chain Academy",
+  "md_radar": "On-chain Radar",
+  "md_eco6": "Anubis Chain",
+  "md_eco7": "Awake DAO",
+  "md_articles": "Research",
+  "md_name": "Web3Origin",
+  "md_tag": "Origin on-chain data & research hub",
+  "md_home": "Home",
+  "md_eco": "Ecosystem",
+  "md_eco1": "What is Origin",
+  "md_eco2": "What is LGNS",
+  "md_eco3": "All contracts",
+  "md_eco4": "FAQ",
+  "md_eco5": "Sources",
+  "md_tools": "On-chain Tools",
+  "md_t1": "Block Explorer / Wallet",
+  "md_t2": "Wallet Monitor",
+  "md_t3": "Yield Calculator",
+  "md_t4": "Contract Verification",
+  "md_t5": "Referrer Lookup",
+  "md_t6": "Token Safety Check",
+  "md_t7": "Staking Panel",
+  "md_t8": "On-chain Dashboard",
+  "md_t9": "Whale Monitor",
+  "md_evi": "On-chain Evidence DB",
+  "md_daily": "Chain Daily",
+  "md_learn": "Learn",
+  "md_l1": "Beginner path",
+  "md_l2": "Resources",
+  "md_l3": "FAQ",
+  "md_about": "About Web3Origin",
+  "md_contact": "Add me / Contact",
+  "md_qb1": "Wallet lookup",
+  "md_qb2": "Calculator",
+  "md_warn": "⚠️ Never enter your seed phrase, private key or wallet password on any site.",
+  "vc1": "Page views ",
+  "vc2": " · Unique visitors ",
+  "vc3": "",
+  "geoload": "Loading visitor countries…",
+  "loader": "ENTER",
+  "brand": "ORIGIN · <b>Beginner's Guide</b>",
+  "sig1": "I",
+  "sig2": "II",
+  "sig3": "III",
+  "sig4": "IV",
+  "sig5": "V",
+  "c_wxlabel": "WeChat",
+  "ft_links": "📖 <a href=\"baike/lgns/\" style=\"color:var(--gold-lt)\">What is LGNS? Full intro</a> · 📑 <a href=\"contracts/\" style=\"color:var(--gold-lt)\">Contracts</a> · ❓ <a href=\"faq/\" style=\"color:var(--gold-lt)\">FAQ</a> · 🏛️ <a href=\"about/\" style=\"color:var(--gold-lt)\">About</a> · 🔍 <a href=\"sources/\" style=\"color:var(--gold-lt)\">Sources</a>",
+  "n1": "Home",
+  "n2": "About",
+  "n3": "Learn",
+  "n4": "FAQ",
+  "n5": "Tools",
+  "n6": "Library",
+  "n7": "Contact",
+  "h_title": "ORIGIN · Beginner's Guide",
+  "h_lede": "From a single token to a whole blockchain — Web3 explained in <b>plain language</b>. No background needed; walk the Five Trials and you'll get it.",
+  "h_cta": "Start the Trials &#10132;",
+  "h_scroll": "SCROLL DOWN",
+  "i_eye": "Chapter I · Basics",
+  "i_h2": "Know it first, then act",
+  "i_sub": "Many people are lured by the APY and put money in without knowing what they bought. Here we flip it — first get clear on the three basics.",
+  "i_t1": "<h3><span class=\"rune\">I</span>What is Origin</h3><p>A whole Web3 ecosystem: at its core is the token <b>LGNS</b>, plus staking, DAO governance and a self-built Anubis privacy chain. Think of it as \"an on-chain community with its own token and rules\".</p>",
+  "i_t2": "<h3><span class=\"rune\">II</span>What is LGNS</h3><p>The ecosystem's core token. Hold and stake it to participate; it uses a game model called <b>(3,3)</b> that rewards long-term holding over short-term trading.</p>",
+  "i_t3": "<h3><span class=\"rune\">III</span>What is staking</h3><p>Locking LGNS into a contract and earning token rewards every 6 hours. Where the yield comes from and whether it's \"guaranteed\" is broken down in Trials 2–3 — <b>understand it before you act</b>.</p>",
+  "p_eye": "Chapter II · Trials",
+  "p_h2": "The Five Trials",
+  "p_sub": "From “heard of it” to “judge for yourself”. Go in order; the sacred fire lights each rune as you scroll. About 90 minutes total — take it in a few sittings.",
+  "s1": "<h3>Meet Origin <span class=\"time\">~10 min</span></h3><p class=\"goal\">Get the terms straight: what Origin, Anubis and LGNS each are and how they relate.</p><ul><li>Origin = the whole Web3 ecosystem</li><li>LGNS = the core token (algorithmic, 9 decimals not 18; governance is a separate token, GLGNS)</li><li>Anubis = a self-built privacy chain (Chain ID 6714, gas paid in DAI)</li></ul>",
+  "s2": "<h3>Understand LGNS &amp; (3,3) <span class=\"time\">~20 min</span></h3><p class=\"goal\">Grasp what powers this token and why everyone talks about “staking”.</p><ul><li>(3,3): a game model that rewards everyone holding long-term</li><li>Staking rewards are essentially protocol emissions every 6 hours (rebase)</li><li>High APY ≠ net profit — watch both the price and the real reserves</li></ul>",
+  "s3": "<h3>Try Staking <span class=\"time\">~20 min</span></h3><p class=\"goal\">From setting up a wallet to your first stake and claiming rewards — the whole flow.</p><ul><li>Set up a self-custody wallet and safeguard your seed phrase</li><li>Learn where to buy LGNS and how to make a transaction</li><li>Start small, confirm it works, then scale up</li></ul>",
+  "s4": "<h3>Join Governance <span class=\"time\">~20 min</span></h3><p class=\"goal\">Know what Awake DAO is and how a proposal goes from idea to execution.</p><ul><li>Awake DAO: where the community governs</li><li>The flow: Proposal → Discussion → Vote → Execution</li><li>Voting power comes from the GLGNS governance token &amp; governance NFTs (not from holding or staking LGNS directly)</li></ul>",
+  "s5": "<h3>Advanced &amp; Security <span class=\"time\">~20 min</span></h3><p class=\"goal\">Learn to verify data on-chain yourself, spot phishing, and protect yourself.</p><ul><li>Use a block explorer to check contracts and transactions</li><li>Beware of new tricks like EIP-7702 approval phishing</li><li>Stick to official channels and verify on-chain yourself (DYOR)</li></ul>",
+  "f_eye": "Chapter III · Answers",
+  "f_h2": "FAQ",
+  "f_sub": "The questions beginners get stuck on. Tap a slab for the answer — we explain “what it is and how to judge”, we don't decide for you.",
+  "t_eye": "Chapter IV · Tools",
+  "t_h2": "On-chain Tools",
+  "t_sub": "The beauty of Web3 is you can verify everything on-chain yourself. These tools turn “what others say” into “what you checked yourself”.",
+  "t_note": "⚠️ Data is read live from the chain and official APIs, for reference only; do real trading / staking through official entrances, always <b style=\"color:var(--bone)\">verify contract addresses yourself</b> and beware of phishing.",
+  "l_eye": "Chapter V · Library",
+  "l_h2": "Resources",
+  "l_sub": "Video courses, PDF slides, articles and posts, all collected here. Filter by category, tap a card to open — videos play, slides flip, articles pop up.",
+  "c_h2": "Add me · Questions welcome",
+  "c_sub": "Scan to add me — join the community, ask questions, get first-hand info. Don't go it alone as a beginner.",
+  "c_wx": "Scan to add on WeChat",
+  "c_qq": "Scan to add on QQ",
+  "ft_cn": "ORIGIN · Beginner's Guide",
+  "ft_disc": "For learning only, not investment advice · DYOR — check it, understand it, then decide.",
+  "ft_sub": "Dynamic assets sourced from Origin official pages · beginner-friendly learning site"
+ },
+ "tools": [
+  {
+   "fn": "openBrowser",
+   "t": "Block Explorer",
+   "d": "Enter any address to read its POL / LGNS / staked amount / DAI balance in-site, and tell if it's a contract — no redirect.",
+   "go": "Look up"
+  },
+  {
+   "fn": "openStaking",
+   "t": "Staking Info",
+   "d": "See total staked, staking rate, current APY and warmup period live — an in-site data panel.",
+   "go": "View data"
+  },
+  {
+   "fn": "openCalc",
+   "t": "Yield Calculator",
+   "d": "Enter principal and days; it compounds the every-6-hour rebase to estimate rewards (price/APY read live from chain).",
+   "go": "Open calculator"
+  },
+  {
+   "fn": "openTutorial",
+   "t": "Trading Tutorial",
+   "d": "How to buy/sell ecosystem tokens for the first time — step-by-step with pictures, in-site.",
+   "go": "View tutorial"
+  },
+  {
+   "fn": "openOfficial",
+   "t": "Official Accounts",
+   "d": "The 4 official X accounts, shown and copyable in-site — verify, don't fall for fakes.",
+   "go": "View accounts"
+  },
+  {
+   "fn": "openSecurity",
+   "t": "Token Safety Check",
+   "d": "Enter a contract address to check buy/sell tax / honeypot / mintability / holder concentration.",
+   "go": "Run check"
+  },
+  {
+   "fn": "openDashboard",
+   "t": "On-chain Dashboard",
+   "d": "Price / supply / staking rate / treasury / runway and more — read live from official data.",
+   "go": "View dashboard"
+  },
+  {
+   "fn": "openWhale",
+   "t": "Whale Trade Monitor",
+   "d": "Scans recent swaps in the main pool for big buys/sells of at least 10,000 DAI.",
+   "go": "View trades"
+  },
+  {
+   "fn": "openReferrer",
+   "t": "Referrer Lookup",
+   "d": "Enter any address to find the referrer (upline) wallet it's bound to, and the binding time.",
+   "go": "Look up"
+  },
+  {
+   "fn": "openContractCenter",
+   "t": "Contract Verification",
+   "d": "All Origin contracts on Polygon and Anubis — verified/proxy/deploy/Owner/multisig at a glance, each verifiable in a block explorer.",
+   "go": "View contracts"
+  },
+  {
+   "fn": "openWalletMonitor",
+   "t": "Wallet Monitor Checkup",
+   "d": "Enter any wallet address to read public on-chain data: who it is, what it holds, what it did, any risks — identity/assets/approval risk/activity timeline, read-only, no wallet connection.",
+   "go": "Check wallet"
+  },
+  {
+   "fn": "openEvidenceDB",
+   "t": "On-chain Evidence DB",
+   "d": "Archive of key Origin events: from LGNS genesis to Anubis launch, each with a real tx hash/block/address/evidence level, verifiable one by one. No on-chain evidence, no entry.",
+   "go": "View evidence"
+  },
+  {
+   "fn": "openDailyNews",
+   "t": "Origin Chain Daily",
+   "d": "An auto-generated daily on-chain report: today's price/supply/staking/treasury, large trades, buy/sell overview, risk alerts, one-line summary — purely data-driven, only on-chain facts.",
+   "go": "View daily"
+  }
+ ],
+ "faqs": [
+  {
+   "i": 0,
+   "q": "What's the difference between Origin, Anubis and LGNS?",
+   "a": [
+    "In short: <b>Origin</b> is the whole ecosystem, <b>LGNS</b> is its core token, and <b>Anubis</b> is the blockchain the ecosystem built itself.",
+    "Analogy: Origin is a city, LGNS is the currency circulating in it, and Anubis is the ground beneath it (the underlying network)."
+   ]
+  },
+  {
+   "i": 1,
+   "q": "Where do staking rewards come from? Are they reliable?",
+   "a": [
+    "Staking rewards mainly come from the protocol <b>minting new tokens</b> every 6 hours (rebase / inflationary rewards) — not from thin air.",
+    "So the key question isn't the APY, but: do the newly minted tokens have real value behind them? Can the price hold?",
+    "Don't judge a project by slogans — <b>check on-chain</b>: where the yield comes from, where funds flow, whether anyone can freely mint or move funds. The On-chain Tools below help you check exactly this."
+   ]
+  },
+  {
+   "i": 2,
+   "q": "What is (3,3)?",
+   "a": [
+    "(3,3) is game-theory shorthand: if everyone chooses to stake and hold long-term, the overall outcome is best for all (hence 3,3).",
+    "It uses mechanics to <b>encourage a long-term mindset</b>, but the mechanism itself doesn't guarantee profit — sentiment and real value matter just as much."
+   ]
+  },
+  {
+   "i": 3,
+   "q": "Where do I buy LGNS? How do I trade?",
+   "a": [
+    "Usually via decentralized trading tools on the relevant chain; for the exact entrance <b>follow official announcements</b> and don't act through unknown links.",
+    "Before your first trade, walk through your wallet and the process, start small, confirm it works, then scale up."
+   ]
+  },
+  {
+   "i": 4,
+   "q": "Can I withdraw my staked tokens anytime?",
+   "a": [
+    "Rules differ by staking type — some allow anytime redemption, some have a lock-up. <b>Always read the exact contract rules before you act</b>.",
+    "For can-I-get-my-principal-back questions, the most reliable answer is the contract itself, not hearsay."
+   ]
+  },
+  {
+   "i": 5,
+   "q": "I heard about EIP-7702 approval phishing — how do I stay safe?",
+   "a": [
+    "EIP-7702 is a newer wallet mechanism that scammers also use to trick you into approving — once you sign a malicious approval, funds can be drained.",
+    "Protection: <b>don't click unknown links, don't sign approvals you don't understand, and review your wallet approvals regularly</b>. Treat DMs like free airdrop / recover your stolen coins as scams."
+   ]
+  },
+  {
+   "i": 6,
+   "q": "What are the official channels? How do I avoid fakes?",
+   "a": [
+    "Stick to the officially announced accounts (main @SaluteOrigin, chain @ANUBISCHAIN_, etc.), bookmark official links, and <b>never enter through search results or DM links</b>.",
+    "Remember one thing: <b>a real official will never DM you for your seed phrase or ask you to transfer coins</b>."
+   ]
+  }
+ ]
+}

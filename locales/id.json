@@ -1,0 +1,239 @@
+{
+ "ui": {
+  "n_radar": "Radar",
+  "n_academy": "Akademi",
+  "n_video": "Video",
+  "n_dash": "Dasbor",
+  "md_video": "Akademi Video",
+  "md_dash": "Dasbor Saya",
+  "md_academy": "Akademi On-chain",
+  "md_radar": "Radar On-chain",
+  "md_eco6": "Anubis Chain",
+  "md_eco7": "Awake DAO",
+  "md_articles": "Riset",
+  "md_name": "Web3Origin",
+  "md_tag": "Pusat data on-chain & riset Origin",
+  "md_home": "Beranda",
+  "md_eco": "Ekosistem",
+  "md_eco1": "Apa itu Origin",
+  "md_eco2": "Apa itu LGNS",
+  "md_eco3": "Semua kontrak",
+  "md_eco4": "FAQ",
+  "md_eco5": "Sumber",
+  "md_tools": "Alat On-chain",
+  "md_t1": "Block Explorer / Dompet",
+  "md_t2": "Pemantau Dompet",
+  "md_t3": "Kalkulator Imbal Hasil",
+  "md_t4": "Verifikasi Kontrak",
+  "md_t5": "Cari Referrer",
+  "md_t6": "Cek Keamanan Token",
+  "md_t7": "Panel Staking",
+  "md_t8": "Dasbor On-chain",
+  "md_t9": "Pemantau Whale",
+  "md_evi": "Basis Data Bukti On-chain",
+  "md_daily": "Harian Chain",
+  "md_learn": "Belajar",
+  "md_l1": "Jalur pemula",
+  "md_l2": "Sumber daya",
+  "md_l3": "FAQ",
+  "md_about": "Tentang Web3Origin",
+  "md_contact": "Tambah saya / Kontak",
+  "md_qb1": "Cari dompet",
+  "md_qb2": "Kalkulator",
+  "md_warn": "⚠️ Jangan pernah memasukkan seed phrase, private key, atau kata sandi dompet Anda di situs mana pun.",
+  "vc1": "Kunjungan halaman ",
+  "vc2": " · Pengunjung unik ",
+  "vc3": "",
+  "geoload": "Memuat negara pengunjung…",
+  "loader": "MASUK",
+  "brand": "ORIGIN · <b>Panduan Pemula</b>",
+  "sig1": "I",
+  "sig2": "II",
+  "sig3": "III",
+  "sig4": "IV",
+  "sig5": "V",
+  "c_wxlabel": "WeChat",
+  "ft_links": "📖 <a href=\"baike/lgns/\" style=\"color:var(--gold-lt)\">Apa itu LGNS? Pengenalan lengkap</a> · 📑 <a href=\"contracts/\" style=\"color:var(--gold-lt)\">Kontrak</a> · ❓ <a href=\"faq/\" style=\"color:var(--gold-lt)\">FAQ</a> · 🏛️ <a href=\"about/\" style=\"color:var(--gold-lt)\">Tentang</a> · 🔍 <a href=\"sources/\" style=\"color:var(--gold-lt)\">Sumber</a>",
+  "n1": "Beranda",
+  "n2": "Tentang",
+  "n3": "Belajar",
+  "n4": "FAQ",
+  "n5": "Alat",
+  "n6": "Perpustakaan",
+  "n7": "Kontak",
+  "h_title": "ORIGIN · Panduan Pemula",
+  "h_lede": "Dari satu token hingga seluruh blockchain — Web3 dijelaskan dengan <b>bahasa sederhana</b>. Tanpa perlu latar belakang; lewati Lima Ujian dan Anda akan paham.",
+  "h_cta": "Mulai Ujian &#10132;",
+  "h_scroll": "GULIR KE BAWAH",
+  "i_eye": "Bab I · Dasar",
+  "i_h2": "Pahami dulu, baru bertindak",
+  "i_sub": "Banyak orang tergiur APY lalu memasukkan uang tanpa tahu apa yang mereka beli. Di sini kita balik urutannya — pahami dulu tiga hal dasar.",
+  "i_t1": "<h3><span class=\"rune\">I</span>Apa itu Origin</h3><p>Sebuah ekosistem Web3 utuh: intinya adalah token <b>LGNS</b>, ditambah staking, tata kelola DAO, dan rantai privasi Anubis buatan sendiri. Bayangkan sebagai \"komunitas on-chain dengan token dan aturannya sendiri\".</p>",
+  "i_t2": "<h3><span class=\"rune\">II</span>Apa itu LGNS</h3><p>Token inti ekosistem. Miliki dan staking untuk ikut serta; ia memakai model permainan bernama <b>(3,3)</b> yang memberi imbalan bagi kepemilikan jangka panjang ketimbang trading jangka pendek.</p>",
+  "i_t3": "<h3><span class=\"rune\">III</span>Apa itu staking</h3><p>Mengunci LGNS ke dalam kontrak dan mendapatkan imbalan token setiap 6 jam. Dari mana imbal hasilnya berasal dan apakah \"terjamin\" dijelaskan di Ujian 2–3 — <b>pahami sebelum bertindak</b>.</p>",
+  "p_eye": "Bab II · Ujian",
+  "p_h2": "Lima Ujian",
+  "p_sub": "Dari \"pernah dengar\" menjadi \"bisa menilai sendiri\". Ikuti berurutan; api suci menyalakan tiap rune saat Anda menggulir. Total sekitar 90 menit — kerjakan dalam beberapa sesi.",
+  "s1": "<h3>Kenali Origin <span class=\"time\">~10 mnt</span></h3><p class=\"goal\">Luruskan istilahnya: apa itu Origin, Anubis, dan LGNS masing-masing serta bagaimana kaitannya.</p><ul><li>Origin = seluruh ekosistem Web3</li><li>LGNS = token inti (algoritmik, 9 desimal bukan 18; tata kelola adalah token terpisah, GLGNS)</li><li>Anubis = rantai privasi buatan sendiri (Chain ID 6714, gas dibayar dengan DAI)</li></ul>",
+  "s2": "<h3>Pahami LGNS &amp; (3,3) <span class=\"time\">~20 mnt</span></h3><p class=\"goal\">Pahami apa yang menggerakkan token ini dan mengapa semua orang membahas \"staking\".</p><ul><li>(3,3): model permainan yang memberi imbalan bagi semua yang memegang jangka panjang</li><li>Imbalan staking pada dasarnya adalah emisi protokol setiap 6 jam (rebase)</li><li>APY tinggi ≠ laba bersih — perhatikan harga sekaligus cadangan riilnya</li></ul>",
+  "s3": "<h3>Coba Staking <span class=\"time\">~20 mnt</span></h3><p class=\"goal\">Dari menyiapkan dompet hingga staking pertama dan mengklaim imbalan — seluruh alurnya.</p><ul><li>Siapkan dompet self-custody dan jaga seed phrase Anda</li><li>Pelajari di mana membeli LGNS dan cara melakukan transaksi</li><li>Mulai kecil, pastikan berhasil, lalu tingkatkan</li></ul>",
+  "s4": "<h3>Ikut Tata Kelola <span class=\"time\">~20 mnt</span></h3><p class=\"goal\">Ketahui apa itu Awake DAO dan bagaimana sebuah proposal berjalan dari ide hingga eksekusi.</p><ul><li>Awake DAO: tempat komunitas melakukan tata kelola</li><li>Alurnya: Proposal → Diskusi → Voting → Eksekusi</li><li>Kekuatan voting berasal dari token tata kelola GLGNS &amp; NFT tata kelola (bukan dari memegang atau staking LGNS secara langsung)</li></ul>",
+  "s5": "<h3>Lanjutan &amp; Keamanan <span class=\"time\">~20 mnt</span></h3><p class=\"goal\">Belajar memverifikasi data on-chain sendiri, mengenali phishing, dan melindungi diri.</p><ul><li>Gunakan block explorer untuk memeriksa kontrak dan transaksi</li><li>Waspadai trik baru seperti phishing approval EIP-7702</li><li>Tetap pada saluran resmi dan verifikasi on-chain sendiri (DYOR)</li></ul>",
+  "f_eye": "Bab III · Jawaban",
+  "f_h2": "FAQ",
+  "f_sub": "Pertanyaan yang sering membuat pemula tersendat. Ketuk lempengan untuk jawabannya — kami jelaskan \"apa itu dan bagaimana menilainya\", kami tidak memutuskan untuk Anda.",
+  "t_eye": "Bab IV · Alat",
+  "t_h2": "Alat On-chain",
+  "t_sub": "Keindahan Web3 adalah Anda bisa memverifikasi semuanya di on-chain sendiri. Alat-alat ini mengubah \"kata orang\" menjadi \"yang Anda cek sendiri\".",
+  "t_note": "⚠️ Data dibaca langsung dari chain dan API resmi, hanya sebagai referensi; lakukan trading / staking sungguhan melalui pintu resmi, selalu <b style=\"color:var(--bone)\">verifikasi alamat kontrak sendiri</b> dan waspadai phishing.",
+  "l_eye": "Bab V · Perpustakaan",
+  "l_h2": "Sumber daya",
+  "l_sub": "Kursus video, slide PDF, artikel, dan postingan, semua terkumpul di sini. Saring berdasarkan kategori, ketuk kartu untuk membuka — video diputar, slide dibolak-balik, artikel muncul.",
+  "c_h2": "Tambah saya · Pertanyaan dipersilakan",
+  "c_sub": "Pindai untuk menambah saya — gabung komunitas, ajukan pertanyaan, dapatkan info langsung. Jangan berjalan sendirian sebagai pemula.",
+  "c_wx": "Pindai untuk menambah di WeChat",
+  "c_qq": "Pindai untuk menambah di QQ",
+  "ft_cn": "ORIGIN · Panduan Pemula",
+  "ft_disc": "Hanya untuk pembelajaran, bukan nasihat investasi · DYOR — cek, pahami, lalu putuskan.",
+  "ft_sub": "Aset dinamis bersumber dari halaman resmi Origin · situs belajar ramah pemula"
+ },
+ "tools": [
+  {
+   "fn": "openBrowser",
+   "t": "Block Explorer",
+   "d": "Masukkan alamat apa pun untuk membaca jumlah POL / LGNS / staking / saldo DAI-nya di dalam situs, dan mengetahui apakah itu kontrak — tanpa pengalihan.",
+   "go": "Cari"
+  },
+  {
+   "fn": "openStaking",
+   "t": "Info Staking",
+   "d": "Lihat total staking, tingkat staking, APY saat ini, dan periode warmup secara langsung — panel data di dalam situs.",
+   "go": "Lihat data"
+  },
+  {
+   "fn": "openCalc",
+   "t": "Kalkulator Imbal Hasil",
+   "d": "Masukkan modal dan jumlah hari; ia menggabungkan rebase setiap 6 jam untuk memperkirakan imbalan (harga/APY dibaca langsung dari chain).",
+   "go": "Buka kalkulator"
+  },
+  {
+   "fn": "openTutorial",
+   "t": "Tutorial Trading",
+   "d": "Cara membeli/menjual token ekosistem untuk pertama kali — langkah demi langkah dengan gambar, di dalam situs.",
+   "go": "Lihat tutorial"
+  },
+  {
+   "fn": "openOfficial",
+   "t": "Akun Resmi",
+   "d": "4 akun X resmi, ditampilkan dan bisa disalin di dalam situs — verifikasi, jangan tertipu yang palsu.",
+   "go": "Lihat akun"
+  },
+  {
+   "fn": "openSecurity",
+   "t": "Cek Keamanan Token",
+   "d": "Masukkan alamat kontrak untuk memeriksa pajak beli/jual / honeypot / kemampuan mint / konsentrasi kepemilikan.",
+   "go": "Jalankan cek"
+  },
+  {
+   "fn": "openDashboard",
+   "t": "Dasbor On-chain",
+   "d": "Harga / suplai / tingkat staking / treasury / runway dan lainnya — dibaca langsung dari data resmi.",
+   "go": "Lihat dasbor"
+  },
+  {
+   "fn": "openWhale",
+   "t": "Pemantau Transaksi Whale",
+   "d": "Memindai swap terbaru di kolam utama untuk pembelian/penjualan besar minimal 10.000 DAI.",
+   "go": "Lihat transaksi"
+  },
+  {
+   "fn": "openReferrer",
+   "t": "Cari Referrer",
+   "d": "Masukkan alamat apa pun untuk menemukan dompet referrer (upline) yang terikat dengannya, beserta waktu pengikatannya.",
+   "go": "Cari"
+  },
+  {
+   "fn": "openContractCenter",
+   "t": "Verifikasi Kontrak",
+   "d": "Semua kontrak Origin di Polygon dan Anubis — status verified/proxy/deploy/Owner/multisig sekilas, masing-masing bisa diverifikasi di block explorer.",
+   "go": "Lihat kontrak"
+  },
+  {
+   "fn": "openWalletMonitor",
+   "t": "Pemeriksaan Pemantau Dompet",
+   "d": "Masukkan alamat dompet apa pun untuk membaca data on-chain publik: siapa pemiliknya, apa yang dimiliki, apa yang dilakukan, risiko apa pun — identitas/aset/risiko approval/linimasa aktivitas, hanya-baca, tanpa koneksi dompet.",
+   "go": "Cek dompet"
+  },
+  {
+   "fn": "openEvidenceDB",
+   "t": "Basis Data Bukti On-chain",
+   "d": "Arsip peristiwa penting Origin: dari genesis LGNS hingga peluncuran Anubis, masing-masing dengan hash transaksi/blok/alamat/tingkat bukti asli, bisa diverifikasi satu per satu. Tanpa bukti on-chain, tidak masuk.",
+   "go": "Lihat bukti"
+  },
+  {
+   "fn": "openDailyNews",
+   "t": "Harian Chain Origin",
+   "d": "Laporan on-chain harian yang dibuat otomatis: harga/suplai/staking/treasury hari ini, transaksi besar, ikhtisar beli/jual, peringatan risiko, ringkasan satu baris — murni berbasis data, hanya fakta on-chain.",
+   "go": "Lihat harian"
+  }
+ ],
+ "faqs": [
+  {
+   "i": 0,
+   "q": "Apa perbedaan antara Origin, Anubis, dan LGNS?",
+   "a": [
+    "Singkatnya: <b>Origin</b> adalah seluruh ekosistemnya, <b>LGNS</b> adalah token intinya, dan <b>Anubis</b> adalah blockchain yang dibangun sendiri oleh ekosistem ini.",
+    "Analoginya: Origin adalah sebuah kota, LGNS adalah mata uang yang beredar di dalamnya, dan Anubis adalah tanah di bawahnya (jaringan yang mendasarinya)."
+   ]
+  },
+  {
+   "i": 1,
+   "q": "Dari mana imbalan staking berasal? Apakah bisa diandalkan?",
+   "a": [
+    "Imbalan staking terutama berasal dari protokol yang <b>mencetak token baru</b> setiap 6 jam (rebase / imbalan inflasioner) — bukan dari udara kosong.",
+    "Jadi pertanyaan kuncinya bukan APY, melainkan: apakah token yang baru dicetak punya nilai riil di baliknya? Apakah harganya bisa bertahan?",
+    "Jangan menilai proyek dari slogan — <b>cek di on-chain</b>: dari mana imbal hasil berasal, ke mana dana mengalir, apakah ada yang bisa mencetak atau memindahkan dana secara bebas. Alat On-chain di bawah membantu Anda memeriksa tepat hal ini."
+   ]
+  },
+  {
+   "i": 2,
+   "q": "Apa itu (3,3)?",
+   "a": [
+    "(3,3) adalah singkatan dari teori permainan: jika semua orang memilih staking dan memegang jangka panjang, hasil keseluruhannya terbaik untuk semua (karena itu 3,3).",
+    "Ia memakai mekanisme untuk <b>mendorong pola pikir jangka panjang</b>, tetapi mekanismenya sendiri tidak menjamin laba — sentimen dan nilai riil sama pentingnya."
+   ]
+  },
+  {
+   "i": 3,
+   "q": "Di mana saya membeli LGNS? Bagaimana cara trading?",
+   "a": [
+    "Biasanya melalui alat trading terdesentralisasi di chain terkait; untuk pintu masuk yang tepat <b>ikuti pengumuman resmi</b> dan jangan bertindak lewat tautan yang tidak dikenal.",
+    "Sebelum trading pertama Anda, telusuri dompet dan prosesnya, mulai kecil, pastikan berhasil, lalu tingkatkan."
+   ]
+  },
+  {
+   "i": 4,
+   "q": "Bisakah saya menarik token yang di-staking kapan saja?",
+   "a": [
+    "Aturannya berbeda menurut jenis staking — sebagian membolehkan penebusan kapan saja, sebagian punya masa penguncian. <b>Selalu baca aturan kontrak yang tepat sebelum bertindak</b>.",
+    "Untuk pertanyaan bisakah-modal-saya-kembali, jawaban paling andal adalah kontrak itu sendiri, bukan kabar burung."
+   ]
+  },
+  {
+   "i": 5,
+   "q": "Saya dengar tentang phishing approval EIP-7702 — bagaimana cara tetap aman?",
+   "a": [
+    "EIP-7702 adalah mekanisme dompet yang lebih baru yang juga dipakai penipu untuk menjebak Anda memberikan approval — begitu Anda menandatangani approval berbahaya, dana bisa terkuras.",
+    "Perlindungan: <b>jangan klik tautan yang tidak dikenal, jangan tandatangani approval yang tidak Anda pahami, dan tinjau approval dompet Anda secara berkala</b>. Anggap DM seperti airdrop gratis / pemulihan koin yang dicuri sebagai penipuan."
+   ]
+  },
+  {
+   "i": 6,
+   "q": "Apa saja saluran resminya? Bagaimana menghindari yang palsu?",
+   "a": [
+    "Tetap pada akun yang diumumkan secara resmi (utama @SaluteOrigin, chain @ANUBISCHAIN_, dll.), tandai tautan resmi, dan <b>jangan pernah masuk lewat hasil pencarian atau tautan DM</b>.",
+    "Ingat satu hal: <b>pihak resmi yang asli tidak akan pernah mengirim DM meminta seed phrase Anda atau menyuruh Anda mentransfer koin</b>."
+   ]
+  }
+ ]
+}

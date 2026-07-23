@@ -1,0 +1,239 @@
+{
+ "ui": {
+  "n_radar": "Radar",
+  "n_academy": "Academy",
+  "n_video": "Video",
+  "n_dash": "Dashboard",
+  "md_video": "Video Academy",
+  "md_dash": "La mia dashboard",
+  "md_academy": "Academy on-chain",
+  "md_radar": "Radar on-chain",
+  "md_eco6": "Anubis Chain",
+  "md_eco7": "Awake DAO",
+  "md_articles": "Ricerca",
+  "md_name": "Web3Origin",
+  "md_tag": "Hub di dati on-chain e ricerca su Origin",
+  "md_home": "Home",
+  "md_eco": "Ecosistema",
+  "md_eco1": "Cos'è Origin",
+  "md_eco2": "Cos'è LGNS",
+  "md_eco3": "Tutti gli smart contract",
+  "md_eco4": "FAQ",
+  "md_eco5": "Fonti",
+  "md_tools": "Strumenti on-chain",
+  "md_t1": "Block Explorer / Wallet",
+  "md_t2": "Monitoraggio wallet",
+  "md_t3": "Calcolatore di rendimento",
+  "md_t4": "Verifica smart contract",
+  "md_t5": "Ricerca referrer",
+  "md_t6": "Controllo sicurezza token",
+  "md_t7": "Pannello di staking",
+  "md_t8": "Dashboard on-chain",
+  "md_t9": "Monitoraggio whale",
+  "md_evi": "Database di prove on-chain",
+  "md_daily": "Cronaca on-chain",
+  "md_learn": "Impara",
+  "md_l1": "Percorso per principianti",
+  "md_l2": "Risorse",
+  "md_l3": "FAQ",
+  "md_about": "Chi è Web3Origin",
+  "md_contact": "Aggiungimi / Contatti",
+  "md_qb1": "Ricerca wallet",
+  "md_qb2": "Calcolatore",
+  "md_warn": "⚠️ Non inserire mai la tua seed phrase, la chiave privata o la password del wallet su alcun sito.",
+  "vc1": "Visualizzazioni ",
+  "vc2": " · Visitatori unici ",
+  "vc3": "",
+  "geoload": "Caricamento dei Paesi dei visitatori…",
+  "loader": "ENTRA",
+  "brand": "ORIGIN · <b>Guida per principianti</b>",
+  "sig1": "I",
+  "sig2": "II",
+  "sig3": "III",
+  "sig4": "IV",
+  "sig5": "V",
+  "c_wxlabel": "WeChat",
+  "ft_links": "📖 <a href=\"baike/lgns/\" style=\"color:var(--gold-lt)\">Cos'è LGNS? Guida completa</a> · 📑 <a href=\"contracts/\" style=\"color:var(--gold-lt)\">Smart contract</a> · ❓ <a href=\"faq/\" style=\"color:var(--gold-lt)\">FAQ</a> · 🏛️ <a href=\"about/\" style=\"color:var(--gold-lt)\">Chi siamo</a> · 🔍 <a href=\"sources/\" style=\"color:var(--gold-lt)\">Fonti</a>",
+  "n1": "Home",
+  "n2": "Chi siamo",
+  "n3": "Impara",
+  "n4": "FAQ",
+  "n5": "Strumenti",
+  "n6": "Libreria",
+  "n7": "Contatti",
+  "h_title": "ORIGIN · Guida per principianti",
+  "h_lede": "Da un singolo token a un'intera blockchain — il Web3 spiegato in <b>parole semplici</b>. Non serve alcuna esperienza; supera le Cinque Prove e capirai tutto.",
+  "h_cta": "Inizia le Prove &#10132;",
+  "h_scroll": "SCORRI VERSO IL BASSO",
+  "i_eye": "Capitolo I · Le basi",
+  "i_h2": "Prima capisci, poi agisci",
+  "i_sub": "Molti vengono attirati dall'APY e investono senza sapere cosa hanno comprato. Qui ribaltiamo l'approccio: prima facciamo chiarezza sulle tre basi.",
+  "i_t1": "<h3><span class=\"rune\">I</span>Cos'è Origin</h3><p>Un intero ecosistema Web3: al suo centro c'è il token <b>LGNS</b>, insieme a staking, governance DAO e una privacy chain proprietaria chiamata Anubis. Pensala come \"una community on-chain con un proprio token e proprie regole\".</p>",
+  "i_t2": "<h3><span class=\"rune\">II</span>Cos'è LGNS</h3><p>Il token centrale dell'ecosistema. Detienilo e mettilo in staking per partecipare; usa un modello di gioco chiamato <b>(3,3)</b> che premia chi detiene a lungo termine rispetto a chi fa trading nel breve.</p>",
+  "i_t3": "<h3><span class=\"rune\">III</span>Cos'è lo staking</h3><p>Consiste nel bloccare LGNS in uno smart contract e guadagnare ricompense in token ogni 6 ore. Da dove viene il rendimento e se sia \"garantito\" lo analizziamo nelle Prove 2–3 — <b>capiscilo prima di agire</b>.</p>",
+  "p_eye": "Capitolo II · Le Prove",
+  "p_h2": "Le Cinque Prove",
+  "p_sub": "Dal \"ne ho sentito parlare\" al \"so giudicare da solo\". Procedi in ordine; il fuoco sacro accende ogni runa man mano che scorri. Circa 90 minuti in totale — affrontalo in più sessioni.",
+  "s1": "<h3>Conosci Origin <span class=\"time\">~10 min</span></h3><p class=\"goal\">Metti a fuoco i termini: cosa sono Origin, Anubis e LGNS e come si relazionano tra loro.</p><ul><li>Origin = l'intero ecosistema Web3</li><li>LGNS = il token centrale (algoritmico, 9 decimali e non 18; la governance è un token separato, GLGNS)</li><li>Anubis = una privacy chain proprietaria (Chain ID 6714, gas pagato in DAI)</li></ul>",
+  "s2": "<h3>Comprendi LGNS e (3,3) <span class=\"time\">~20 min</span></h3><p class=\"goal\">Capisci cosa alimenta questo token e perché tutti parlano di \"staking\".</p><ul><li>(3,3): un modello di gioco che premia tutti quando si detiene a lungo termine</li><li>Le ricompense da staking sono essenzialmente emissioni del protocollo ogni 6 ore (rebase)</li><li>Un APY elevato ≠ profitto netto — tieni d'occhio sia il prezzo sia le riserve reali</li></ul>",
+  "s3": "<h3>Prova lo staking <span class=\"time\">~20 min</span></h3><p class=\"goal\">Dalla creazione di un wallet al tuo primo staking e al reclamo delle ricompense — l'intero processo.</p><ul><li>Crea un wallet self-custody e proteggi la tua seed phrase</li><li>Scopri dove comprare LGNS e come effettuare una transazione</li><li>Inizia con poco, verifica che funzioni, poi aumenta gradualmente</li></ul>",
+  "s4": "<h3>Partecipa alla governance <span class=\"time\">~20 min</span></h3><p class=\"goal\">Scopri cos'è Awake DAO e come una proposta passa dall'idea all'esecuzione.</p><ul><li>Awake DAO: dove la community governa</li><li>Il processo: Proposta → Discussione → Voto → Esecuzione</li><li>Il potere di voto deriva dal token di governance GLGNS e dagli NFT di governance (non dal semplice detenere o mettere in staking LGNS)</li></ul>",
+  "s5": "<h3>Livello avanzato e sicurezza <span class=\"time\">~20 min</span></h3><p class=\"goal\">Impara a verificare i dati on-chain da solo, riconoscere il phishing e proteggerti.</p><ul><li>Usa un block explorer per controllare smart contract e transazioni</li><li>Attenzione a nuovi trucchi come il phishing di approvazione tramite EIP-7702</li><li>Affidati solo ai canali ufficiali e verifica tu stesso on-chain (DYOR)</li></ul>",
+  "f_eye": "Capitolo III · Le risposte",
+  "f_h2": "FAQ",
+  "f_sub": "Le domande su cui i principianti si bloccano. Tocca una lastra per la risposta — spieghiamo \"cos'è e come valutarlo\", non decidiamo al posto tuo.",
+  "t_eye": "Capitolo IV · Strumenti",
+  "t_h2": "Strumenti on-chain",
+  "t_sub": "La bellezza del Web3 è che puoi verificare tutto on-chain da solo. Questi strumenti trasformano \"quello che dicono gli altri\" in \"quello che hai verificato tu\".",
+  "t_note": "⚠️ I dati vengono letti in tempo reale dalla chain e dalle API ufficiali, solo a titolo indicativo; per operazioni reali di trading / staking usa gli accessi ufficiali, <b style=\"color:var(--bone)\">verifica sempre gli indirizzi degli smart contract da solo</b> e attenzione al phishing.",
+  "l_eye": "Capitolo V · Libreria",
+  "l_h2": "Risorse",
+  "l_sub": "Video corsi, slide PDF, articoli e post, tutto raccolto qui. Filtra per categoria, tocca una card per aprirla — i video si riproducono, le slide si sfogliano, gli articoli compaiono.",
+  "c_h2": "Aggiungimi · Domande benvenute",
+  "c_sub": "Scansiona per aggiungermi — entra nella community, fai domande, ottieni informazioni di prima mano. Da principiante, non fare tutto da solo.",
+  "c_wx": "Scansiona per aggiungere su WeChat",
+  "c_qq": "Scansiona per aggiungere su QQ",
+  "ft_cn": "ORIGIN · Guida per principianti",
+  "ft_disc": "Solo a scopo didattico, non è un consiglio di investimento · DYOR — verifica, capisci e poi decidi.",
+  "ft_sub": "Contenuti dinamici tratti dalle pagine ufficiali di Origin · sito di apprendimento adatto ai principianti"
+ },
+ "tools": [
+  {
+   "fn": "openBrowser",
+   "t": "Block Explorer",
+   "d": "Inserisci un indirizzo qualsiasi per leggere direttamente sul sito i suoi saldi di POL / LGNS / importo in staking / DAI e capire se si tratta di uno smart contract — senza redirect.",
+   "go": "Cerca"
+  },
+  {
+   "fn": "openStaking",
+   "t": "Info sullo staking",
+   "d": "Consulta in tempo reale il totale in staking, il tasso di staking, l'APY attuale e il periodo di warmup — un pannello dati direttamente sul sito.",
+   "go": "Vedi i dati"
+  },
+  {
+   "fn": "openCalc",
+   "t": "Calcolatore di rendimento",
+   "d": "Inserisci capitale e giorni; l'app compone il rebase di ogni 6 ore per stimare le ricompense (prezzo/APY letti in tempo reale dalla chain).",
+   "go": "Apri il calcolatore"
+  },
+  {
+   "fn": "openTutorial",
+   "t": "Tutorial di trading",
+   "d": "Come comprare/vendere i token dell'ecosistema per la prima volta — passo dopo passo con immagini, direttamente sul sito.",
+   "go": "Vedi il tutorial"
+  },
+  {
+   "fn": "openOfficial",
+   "t": "Account ufficiali",
+   "d": "I 4 account X ufficiali, mostrati e copiabili direttamente sul sito — verifica e non cascare nei falsi.",
+   "go": "Vedi gli account"
+  },
+  {
+   "fn": "openSecurity",
+   "t": "Controllo sicurezza token",
+   "d": "Inserisci l'indirizzo di uno smart contract per controllare tassa di acquisto/vendita / honeypot / possibilità di mint / concentrazione dei detentori.",
+   "go": "Avvia il controllo"
+  },
+  {
+   "fn": "openDashboard",
+   "t": "Dashboard on-chain",
+   "d": "Prezzo / offerta / tasso di staking / treasury / runway e altro — letti in tempo reale dai dati ufficiali.",
+   "go": "Vedi la dashboard"
+  },
+  {
+   "fn": "openWhale",
+   "t": "Monitoraggio operazioni whale",
+   "d": "Analizza gli swap recenti nel pool principale alla ricerca di grandi acquisti/vendite di almeno 10.000 DAI.",
+   "go": "Vedi le operazioni"
+  },
+  {
+   "fn": "openReferrer",
+   "t": "Ricerca referrer",
+   "d": "Inserisci un indirizzo qualsiasi per trovare il wallet referrer (upline) a cui è collegato e l'orario del collegamento.",
+   "go": "Cerca"
+  },
+  {
+   "fn": "openContractCenter",
+   "t": "Verifica smart contract",
+   "d": "Tutti gli smart contract di Origin su Polygon e Anubis — verificato/proxy/deploy/Owner/multisig a colpo d'occhio, ciascuno verificabile in un block explorer.",
+   "go": "Vedi gli smart contract"
+  },
+  {
+   "fn": "openWalletMonitor",
+   "t": "Checkup monitoraggio wallet",
+   "d": "Inserisci un indirizzo wallet qualsiasi per leggere i dati pubblici on-chain: chi è, cosa detiene, cosa ha fatto ed eventuali rischi — identità/asset/rischio di approvazione/cronologia attività, in sola lettura, senza connettere il wallet.",
+   "go": "Controlla il wallet"
+  },
+  {
+   "fn": "openEvidenceDB",
+   "t": "Database di prove on-chain",
+   "d": "Archivio degli eventi chiave di Origin: dalla genesi di LGNS al lancio di Anubis, ciascuno con hash della transazione/blocco/indirizzo/livello di prova reale, verificabili uno per uno. Nessuna prova on-chain, nessun ingresso.",
+   "go": "Vedi le prove"
+  },
+  {
+   "fn": "openDailyNews",
+   "t": "Cronaca on-chain di Origin",
+   "d": "Un report on-chain giornaliero generato automaticamente: prezzo/offerta/staking/treasury di oggi, grandi operazioni, panoramica acquisti/vendite, avvisi di rischio, riepilogo in una riga — puramente basato sui dati, solo fatti on-chain.",
+   "go": "Vedi la cronaca"
+  }
+ ],
+ "faqs": [
+  {
+   "i": 0,
+   "q": "Qual è la differenza tra Origin, Anubis e LGNS?",
+   "a": [
+    "In breve: <b>Origin</b> è l'intero ecosistema, <b>LGNS</b> è il suo token centrale e <b>Anubis</b> è la blockchain che l'ecosistema ha costruito da sé.",
+    "Un'analogia: Origin è una città, LGNS è la valuta che vi circola e Anubis è il terreno su cui si fonda (la rete sottostante)."
+   ]
+  },
+  {
+   "i": 1,
+   "q": "Da dove vengono le ricompense da staking? Sono affidabili?",
+   "a": [
+    "Le ricompense da staking derivano principalmente dal protocollo che <b>conia nuovi token</b> ogni 6 ore (rebase / ricompense inflazionistiche) — non dal nulla.",
+    "Quindi la domanda chiave non è quale sia l'APY, ma: i token appena coniati hanno un valore reale alle spalle? Il prezzo riesce a reggere?",
+    "Non giudicare un progetto dagli slogan — <b>verifica on-chain</b>: da dove viene il rendimento, dove fluiscono i fondi, se qualcuno può coniare o spostare fondi liberamente. Gli Strumenti on-chain qui sotto ti aiutano a controllare esattamente questo."
+   ]
+  },
+  {
+   "i": 2,
+   "q": "Cos'è (3,3)?",
+   "a": [
+    "(3,3) è un'espressione della teoria dei giochi: se tutti scelgono di fare staking e detenere a lungo termine, il risultato complessivo è il migliore per tutti (da qui 3,3).",
+    "Usa dei meccanismi per <b>incoraggiare una mentalità di lungo termine</b>, ma il meccanismo di per sé non garantisce profitti — il sentiment e il valore reale contano altrettanto."
+   ]
+  },
+  {
+   "i": 3,
+   "q": "Dove compro LGNS? Come faccio trading?",
+   "a": [
+    "Di solito tramite strumenti di trading decentralizzati sulla chain interessata; per l'accesso esatto <b>segui gli annunci ufficiali</b> e non agire tramite link sconosciuti.",
+    "Prima della tua prima operazione, prendi confidenza con il wallet e il processo, inizia con poco, verifica che funzioni e poi aumenta gradualmente."
+   ]
+  },
+  {
+   "i": 4,
+   "q": "Posso ritirare i miei token in staking in qualsiasi momento?",
+   "a": [
+    "Le regole variano a seconda del tipo di staking — alcuni permettono il riscatto in qualsiasi momento, altri prevedono un blocco. <b>Leggi sempre le regole esatte dello smart contract prima di agire</b>.",
+    "Per le domande del tipo \"riavrò indietro il mio capitale?\", la risposta più affidabile è lo smart contract stesso, non il sentito dire."
+   ]
+  },
+  {
+   "i": 5,
+   "q": "Ho sentito parlare del phishing di approvazione tramite EIP-7702 — come resto al sicuro?",
+   "a": [
+    "EIP-7702 è un meccanismo dei wallet più recente che anche i truffatori usano per indurti ad approvare — una volta firmata un'approvazione malevola, i fondi possono essere prosciugati.",
+    "Come proteggerti: <b>non cliccare link sconosciuti, non firmare approvazioni che non comprendi e rivedi regolarmente le approvazioni del tuo wallet</b>. Tratta come truffe i messaggi privati del tipo airdrop gratuito / recupera le tue monete rubate."
+   ]
+  },
+  {
+   "i": 6,
+   "q": "Quali sono i canali ufficiali? Come evito i falsi?",
+   "a": [
+    "Affidati agli account annunciati ufficialmente (principale @SaluteOrigin, chain @ANUBISCHAIN_, ecc.), salva nei preferiti i link ufficiali e <b>non entrare mai tramite i risultati di ricerca o link nei messaggi privati</b>.",
+    "Ricorda una cosa: <b>un vero account ufficiale non ti scriverà mai in privato per chiederti la seed phrase né ti chiederà di trasferire monete</b>."
+   ]
+  }
+ ]
+}

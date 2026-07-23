@@ -3,8 +3,9 @@
    同一份脚本服务学院首页(#acHub)和每节课静态页(#acLesson)。 */
 (function(){
 "use strict";
+try{var _lc=localStorage.getItem("web3origin_locale")||"";if(_lc){window.SITE_LANG=(_lc==="zh-CN")?"zh":_lc;document.documentElement.lang=_lc;if(_lc==="ar")document.documentElement.dir="rtl";}}catch(e){}
 var KEY="origin_academy_v1";
-function EN(){return (window.SITE_LANG||"zh")==="en";}
+function EN(){return (window.SITE_LANG||"zh")!=="zh";}
 var LV_ZH=["Web3新人","链上用户","DeFi探索者","链上分析师","Web3研究者"];
 var LV_EN=["Web3 Novice","On-chain User","DeFi Explorer","On-chain Analyst","Web3 Researcher"];
 var TH=[0,7,15,23,31]; // 完成课数 → 等级门槛(Lv1..Lv5)
