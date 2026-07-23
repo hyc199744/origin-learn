@@ -24,57 +24,38 @@ function boot(){css();
 
 /* ---------- 首次初始化 ---------- */
 function setupView(){
-  root().innerHTML='<div class="a-auth"><div class="a-auth-box"><h1>🔐 首次初始化</h1><p class="a-sub">创建唯一的站长超级管理员。密码需 ≥16 位、含大小写+数字+特殊字符。</p>'
+  root().innerHTML='<div class="a-auth"><div class="a-auth-box"><h1>🔐 首次初始化</h1><p class="a-sub">创建唯一的站长超级管理员。密码 ≥8 位、需含字母和数字，设个自己记得住的。</p>'
     +'<input id="sKey" class="a-in" type="password" placeholder="初始化密钥(setup key)">'
     +'<input id="sUser" class="a-in" placeholder="管理员用户名">'
-    +'<input id="sPw" class="a-in" type="password" placeholder="强密码 ≥16位">'
+    +'<input id="sPw" class="a-in" type="password" placeholder="密码 ≥8位(含字母+数字)">'
     +'<div id="sErr" class="a-err" style="display:none"></div>'
-    +'<button class="a-btn" id="sGo">创建管理员并生成 2FA</button></div></div>';
+    +'<button class="a-btn" id="sGo">创建管理员</button></div></div>';
   document.getElementById("sGo").onclick=function(){
     var e=document.getElementById("sErr");e.style.display="none";
     post("/setup",{key:document.getElementById("sKey").value.trim(),user:document.getElementById("sUser").value.trim(),password:document.getElementById("sPw").value}).then(function(r){
       if(!r.ok){e.textContent=r.error;e.style.display="block";return;}
-      root().innerHTML='<div class="a-auth"><div class="a-auth-box" style="max-width:520px"><h1>✅ 管理员已创建</h1>'
-        +'<p class="a-sub">下面这些只显示这一次，请立刻保存！</p>'
-        +'<div class="a-fh">① 2FA 密钥（在验证器里选“手动输入密钥”）</div><div class="a-code2">'+esc(r.secret)+'</div>'
-        +'<div class="a-fh">② 或复制这个链接导入验证器</div><div class="a-code2 sm">'+esc(r.otpauth)+'</div>'
-        +'<div class="a-fh">③ 恢复码（丢了验证器时用，每个用一次）</div><div class="a-recov">'+r.recoveryCodes.map(function(c){return '<span>'+esc(c)+'</span>';}).join("")+'</div>'
-        +'<div class="a-warn2">⚠️ 保存好 2FA 密钥和恢复码后再继续。丢了会锁死后台。</div>'
-        +'<button class="a-btn" onclick="location.reload()">我已保存，去登录</button></div></div>';
+      root().innerHTML='<div class="a-auth"><div class="a-auth-box"><h1>✅ 管理员已创建</h1>'
+        +'<p class="a-sub">用刚才设的用户名和密码登录即可。</p>'
+        +'<button class="a-btn" onclick="location.reload()">去登录</button></div></div>';
     }).catch(function(){e.textContent="网络错误";e.style.display="block";});
   };
 }
 
-/* ---------- 登录 + 2FA ---------- */
+/* ---------- 登录(用户名+密码) ---------- */
 function loginView(){
   root().innerHTML='<div class="a-auth"><div class="a-auth-box"><div class="a-logo">◎ Web3Origin Admin</div><h1>登录</h1>'
     +'<input id="lUser" class="a-in" placeholder="用户名" autocomplete="username">'
     +'<input id="lPw" class="a-in" type="password" placeholder="密码" autocomplete="current-password">'
-    +'<div id="lErr" class="a-err" style="display:none"></div><button class="a-btn" id="lGo">下一步</button></div></div>';
+    +'<div id="lErr" class="a-err" style="display:none"></div><button class="a-btn" id="lGo">登录</button></div></div>';
   var lGo=document.getElementById("lGo");
   function fail(m){var e=document.getElementById("lErr");e.textContent=m;e.style.display="block";}
   lGo.onclick=function(){lGo.disabled=true;lGo.textContent="…";
     post("/login",{user:document.getElementById("lUser").value.trim(),password:document.getElementById("lPw").value}).then(function(r){
-      lGo.disabled=false;lGo.textContent="下一步";
-      if(!r.ok){fail(r.error);return;}
-      twoFaView(r.pending);
-    }).catch(function(){lGo.disabled=false;lGo.textContent="下一步";fail("网络错误");});};
-  document.getElementById("lPw").addEventListener("keydown",function(e){if(e.key==="Enter")lGo.click();});
-}
-function twoFaView(pending){
-  root().innerHTML='<div class="a-auth"><div class="a-auth-box"><h1>🔑 二次验证</h1><p class="a-sub">输入验证器里的 6 位动态码（或恢复码）。</p>'
-    +'<input id="tCode" class="a-in a-code-in" inputmode="numeric" placeholder="6 位验证码" maxlength="24" autocomplete="one-time-code">'
-    +'<div id="tErr" class="a-err" style="display:none"></div><button class="a-btn" id="tGo">进入后台</button>'
-    +'<button class="a-link" onclick="location.reload()">返回</button></div></div>';
-  var tGo=document.getElementById("tGo"),ti=document.getElementById("tCode");ti.focus();
-  function fail(m){var e=document.getElementById("tErr");e.textContent=m;e.style.display="block";}
-  tGo.onclick=function(){tGo.disabled=true;tGo.textContent="…";
-    post("/verify",{pending:pending,code:ti.value.trim()}).then(function(r){
-      tGo.disabled=false;tGo.textContent="进入后台";
+      lGo.disabled=false;lGo.textContent="登录";
       if(!r.ok){fail(r.error);return;}
       csrf=r.csrf;meUser=r.user;app("dashboard");
-    }).catch(function(){tGo.disabled=false;tGo.textContent="进入后台";fail("网络错误");});};
-  ti.addEventListener("keydown",function(e){if(e.key==="Enter")tGo.click();});
+    }).catch(function(){lGo.disabled=false;lGo.textContent="登录";fail("网络错误");});};
+  document.getElementById("lPw").addEventListener("keydown",function(e){if(e.key==="Enter")lGo.click();});
 }
 
 /* ---------- 后台主框架 ---------- */
@@ -211,18 +192,18 @@ function pSystem(el){
     +card("🔁","任务队列",na("无队列"),"")
     +'</div><div class="a-panel-box"><h3>安全设置</h3>'
     +'<button class="a-btn sm" id="aChgPw">修改管理员密码</button>'
-    +'<div class="a-note-real">修改密码为高风险操作：需当前密码 + 2FA 验证码，且会使其它会话全部失效。<br>API 响应时间/错误率/自动备份/数据恢复需常驻基建，'+na("未接入")+'（Worker 无内置定时备份，可对接外部；Postgres/Redis/队列本架构不适用）。</div></div>';
+    +'<div class="a-note-real">修改密码需验证当前密码，改后其它会话全部失效。<br>API 响应时间/错误率/自动备份/数据恢复需常驻基建，'+na("未接入")+'（Worker 无内置定时备份，可对接外部；Postgres/Redis/队列本架构不适用）。</div></div>';
   document.getElementById("aChgPw").onclick=chgPw;
 }
 function chgPw(){
   var ov=document.createElement("div");ov.className="a-modal";
   ov.innerHTML='<div class="a-modal-in" style="max-width:420px"><button class="a-x">✕</button><h2>修改管理员密码</h2>'
-    +'<input id="cCur" class="a-in" type="password" placeholder="当前密码"><input id="cNew" class="a-in" type="password" placeholder="新密码 ≥16位"><input id="cCode" class="a-in" placeholder="2FA 验证码" inputmode="numeric">'
+    +'<input id="cCur" class="a-in" type="password" placeholder="当前密码"><input id="cNew" class="a-in" type="password" placeholder="新密码 ≥8位(含字母+数字)">'
     +'<div id="cErr" class="a-err" style="display:none"></div><button class="a-btn" id="cGo">确认修改</button></div>';
   document.body.appendChild(ov);document.body.style.overflow="hidden";
   function close(){ov.remove();document.body.style.overflow="";}ov.querySelector(".a-x").onclick=close;ov.onclick=function(e){if(e.target===ov)close();};
   ov.querySelector("#cGo").onclick=function(){var e=ov.querySelector("#cErr");e.style.display="none";
-    post("/change-password",{current:ov.querySelector("#cCur").value,next:ov.querySelector("#cNew").value,code:ov.querySelector("#cCode").value.trim()},true).then(function(r){
+    post("/change-password",{current:ov.querySelector("#cCur").value,next:ov.querySelector("#cNew").value},true).then(function(r){
       if(r.ok){toast("密码已修改，其它会话已失效");close();}else{e.textContent=r.error;e.style.display="block";}});};
 }
 
