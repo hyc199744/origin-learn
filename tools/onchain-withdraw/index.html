@@ -226,7 +226,7 @@ footer a{color:var(--green)}
   window.closeM=function(){mask.classList.remove("on"); if(poll){clearInterval(poll);poll=null;}};
   function saved(){try{return JSON.parse(localStorage.getItem(LS)||"null");}catch(e){return null;}}
   function pending(){try{return JSON.parse(localStorage.getItem(LP)||"null");}catch(e){return null;}}
-  function accessURL(t){return "/premium/onchain-withdraw/?token="+encodeURIComponent(t);}
+  function accessURL(t){return "/w/?t="+encodeURIComponent(t);}
   function copyText(t){try{if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t);return;}}catch(e){}var ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);}
   var CPBTN='style="font:inherit;font-size:11px;cursor:pointer;background:rgba(123,255,69,.12);border:1px solid rgba(123,255,69,.35);color:var(--green);border-radius:6px;padding:3px 10px;margin-left:8px;vertical-align:2px"';
   function bindCopy(){mbody.querySelectorAll(".cp").forEach(function(b){b.onclick=function(){copyText(b.getAttribute("data-c"));var t=b.textContent;b.textContent="已复制✓";setTimeout(function(){b.textContent=t;},1200);};});}

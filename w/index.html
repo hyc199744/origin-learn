@@ -87,7 +87,7 @@ footer{border-top:1px solid var(--line);padding:24px 0;text-align:center;color:v
 "use strict";
 var API="https://count.web3origin.com";
 var LS="wd_access_v1";
-var token=new URLSearchParams(location.search).get("token")||"";
+var _q=new URLSearchParams(location.search);var token=_q.get("t")||_q.get("token")||"";
 // —— 函数选择器（与官方领取中心一致）——
 var PRIN="0xd9f0f7f5",EXTRA="0x3829cab1",INT="0xd286f3cf",CNT="0x98dc8dea",GETCLAIM="0x0835fe47",REDEEM="0x5638f1f3",CLAIM0="0x4e71d92d";
 var BAL="0x70a08231",ALLOW="0xdd62ed3e",APPROVE="0x095ea7b3",UNSTAKE="0x9ebea88c",MAXU="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
