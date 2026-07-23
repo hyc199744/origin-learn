@@ -113,13 +113,13 @@ function pDash(el){get("/dashboard").then(function(r){
     +card("💬","今日留言",fmtN(d.feedbackToday.v),"来源：留言区 KV")
     +card("🕒","待审留言",fmtN(d.feedbackPending.v),d.feedbackReports.v?("举报 "+d.feedbackReports.v+" 条"):"")
     +card("⛓","链上同步",d.chain.ok?"正常":"异常",d.chain.ok?("Anubis #"+fmtN(d.chain.anbHeight)):"雷达无数据",d.chain.ok?"ok":"bad")
-    +card("📄","页面 PV/UV",na(d.pv.note),"")
+    +card("📄","页面浏览量 PV",d.pv.src==="real"?fmtN(d.pv.v):na(d.pv.note),d.pv.src==="real"?("今日 PV "+fmtN(d.pv.today)+" · 今日独立访客 "+fmtN(d.pv.uvToday)):"")
     +card("🛠","工具使用",na(d.toolUsage.note),"")
-    +card("🎬","视频播放",na(d.videoViews.note),"")
+    +card("🎬","视频播放",d.videoViews.src==="real"?fmtN(d.videoViews.v):na(d.videoViews.note),d.videoViews.src==="real"?("覆盖 "+fmtN(d.videoViews.videos)+" 个视频"):"")
     +card("⚠️","告警",na(d.alerts.note),"")
     +'</div>'
-    +'<div class="a-panel-box"><h3>说明</h3><ul class="a-ul"><li>访客/留言/链上为真实数据，实时读取。</li>'
-    +'<li>详细流量(PV/UV、来源渠道、跳出率、会话时长)、工具使用埋点、视频完播、漏斗、告警系统尚未接入——需要在前台注入事件采集或对接第三方分析，接入后这里自动显示真实值。</li>'
+    +'<div class="a-panel-box"><h3>说明</h3><ul class="a-ul"><li>访客/留言/链上/PV·UV/视频播放为真实数据，实时读取。</li>'
+    +'<li>工具使用埋点、来源渠道、跳出率、视频完播、漏斗、告警系统尚未接入——需要在前台注入事件采集或让 VPS 推送，接入后这里自动显示真实值。</li>'
     +'<li>严格的即时会话注销、TOTP 单次不可重放、精确限流锁定，在纯 KV 上是“尽力而为”；强一致保证需升级 Durable Objects（已在方案中标注）。</li></ul></div>';
 });}
 
