@@ -148,9 +148,8 @@ footer a{color:var(--green)}
   <section class="sec" id="how">
     <h2>它真的能取到吗？（说实话）</h2>
     <p class="lead">起源质押主池是 Olympus V1 分叉，<b style="color:var(--green)">合约不可升级、无需许可、管理员拿不走用户质押的 LGNS</b>。这意味着——只要你持有 sLGNS，随时都能直接调合约把 LGNS 取回来，不需要任何人批准。</p>
-    <div class="concept">
-      <div class="col b"><h4>能取</h4><p>普通质押的 sLGNS：随时可通过合约 <code>unstake</code> 按 1:1 取回 LGNS，只花 gas。</p></div>
-      <div class="col a"><h4>暂时取不了（如实告知）</h4><p>① 360 天长期质押锁仓，到期前谁都取不了；② 还在静默期（warmup）的，需先过期领取。工具会自动识别并提示。</p></div>
+    <div class="concept" style="grid-template-columns:1fr">
+      <div class="col b"><h4>能取</h4><p>普通质押的 sLGNS 随时可通过合约 <code>unstake</code> 按 1:1 取回 LGNS；360/600 天质押、蛛网 / DAO / 涡轮等各类奖励，也能在提币页连钱包直接从链上领取，只花 gas。</p></div>
     </div>
     <div class="warnmini" style="max-width:760px;margin:18px auto 0">提币页会在你钱包签名前，明明白白显示「要调用哪个合约、哪个函数、取多少」，并永远提供一条「自己去区块浏览器手动操作」的备用路径。真去中心化，就要让你看得见自己在调什么。</div>
   </section>
