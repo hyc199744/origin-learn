@@ -65,7 +65,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：欧意钱包介绍。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/lgns-wallet-intro.jpg"
   },
   {
    "id": "v-lgns-dashboard-intro",
@@ -82,7 +83,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：仪表板介绍。",
    "tools": [
     "openDashboard"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/lgns-dashboard-intro.jpg"
   },
   {
    "id": "v-lgns-staking-page-intro",
@@ -99,7 +101,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：质押页面介绍。",
    "tools": [
     "openStaking"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/lgns-staking-page-intro.jpg"
   },
   {
    "id": "v-lgns-stake",
@@ -117,7 +120,8 @@
    "tools": [
     "openStaking",
     "openCalc"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/lgns-stake.jpg"
   },
   {
    "id": "v-lgns-long-stake",
@@ -135,7 +139,8 @@
    "tools": [
     "openStaking",
     "openCalc"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/lgns-long-stake.jpg"
   },
   {
    "id": "v-lgns-unstake",
@@ -152,7 +157,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：取消质押 LGNS。",
    "tools": [
     "openStaking"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/lgns-unstake.jpg"
   },
   {
    "id": "v-lgns-claim-unlocked",
@@ -169,7 +175,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：领取锁定期过的 LGNS。",
    "tools": [
     "openStaking"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/lgns-claim-unlocked.jpg"
   },
   {
    "id": "v-lgns-sell-to-pool",
@@ -186,7 +193,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：卖 LGNS 到底池换成稳定币。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/lgns-sell-to-pool.jpg"
   },
   {
    "id": "v-lgns-swap-get-pol",
@@ -203,7 +211,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：钱包内通过闪兑获得 POL。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/lgns-swap-get-pol.jpg"
   },
   {
    "id": "v-lgns-turbo",
@@ -218,7 +227,8 @@
    "level": "新手实操",
    "published": "2026-05-20",
    "objective": "跟着视频一步步操作，你也能自己独立完成：如何涡轮。",
-   "tools": []
+   "tools": [],
+   "poster": "https://media.web3origin.com/thumbs/lgns-turbo.jpg"
   },
   {
    "id": "v-lgns-turbo-claim",
@@ -233,7 +243,8 @@
    "level": "新手实操",
    "published": "2026-05-20",
    "objective": "跟着视频一步步操作，你也能自己独立完成：领取涡轮金额。",
-   "tools": []
+   "tools": [],
+   "poster": "https://media.web3origin.com/thumbs/lgns-turbo-claim.jpg"
   },
   {
    "id": "v-lgns-turbo-full",
@@ -248,7 +259,8 @@
    "level": "新手实操",
    "published": "2026-05-20",
    "objective": "跟着视频一步步操作，你也能自己独立完成：完整版涡轮。",
-   "tools": []
+   "tools": [],
+   "poster": "https://media.web3origin.com/thumbs/lgns-turbo-full.jpg"
   },
   {
    "id": "v-lgns-cash-out-cny",
@@ -265,7 +277,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：如何把 LGNS 卖掉换成人民币提现。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/lgns-cash-out-cny.jpg"
   },
   {
    "id": "v-okx-register-wallet",
@@ -282,7 +295,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：注册钱包。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/okx-register-wallet.jpg"
   },
   {
    "id": "v-okx-add-lgns-slgns",
@@ -299,7 +313,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：添加 LGNS 和 sLGNS。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/okx-add-lgns-slgns.jpg"
   },
   {
    "id": "v-bind-invite-link",
@@ -316,7 +331,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：绑定邀请链接。",
    "tools": [
     "openReferrer"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/bind-invite-link.jpg"
   },
   {
    "id": "v-buy-sell-lgns",
@@ -334,7 +350,8 @@
    "tools": [
     "openBrowser",
     "openDashboard"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/buy-sell-lgns.jpg"
   },
   {
    "id": "v-quickswap-swap",
@@ -351,7 +368,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：通过 QuickSwap 兑换。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/quickswap-swap.jpg"
   },
   {
    "id": "v-stake-unstake",
@@ -369,7 +387,8 @@
    "tools": [
     "openStaking",
     "openCalc"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/stake-unstake.jpg"
   },
   {
    "id": "v-buy-bond-intro",
@@ -386,7 +405,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：购买债券 · 债券介绍。",
    "tools": [
     "openDashboard"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/buy-bond-intro.jpg"
   },
   {
    "id": "v-turbo-energy",
@@ -401,7 +421,8 @@
    "level": "新手实操",
    "published": "2026-01-02",
    "objective": "跟着视频一步步操作，你也能自己独立完成：涡轮 · 获取能量值。",
-   "tools": []
+   "tools": [],
+   "poster": "https://media.web3origin.com/thumbs/turbo-energy.jpg"
   },
   {
    "id": "v-onchain-withdraw",
@@ -419,7 +440,8 @@
    "tools": [
     "openBrowser",
     "openWalletMonitor"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/onchain-withdraw.jpg"
   },
   {
    "id": "v-okx-cash-out",
@@ -436,7 +458,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：使用欧易交易所变现。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/okx-cash-out.jpg"
   },
   {
    "id": "v-change-name",
@@ -451,7 +474,8 @@
    "level": "新手实操",
    "published": "2026-01-02",
    "objective": "跟着视频一步步操作，你也能自己独立完成：修改名称。",
-   "tools": []
+   "tools": [],
+   "poster": "https://media.web3origin.com/thumbs/change-name.jpg"
   },
   {
    "id": "v-okx-create-subwallet",
@@ -466,7 +490,8 @@
    "level": "新手实操",
    "published": "2026-01-02",
    "objective": "跟着视频一步步操作，你也能自己独立完成：创建子钱包。",
-   "tools": []
+   "tools": [],
+   "poster": "https://media.web3origin.com/thumbs/okx-create-subwallet.jpg"
   },
   {
    "id": "v-register-overseas-appleid",
@@ -481,7 +506,8 @@
    "level": "新手实操",
    "published": "2026-01-02",
    "objective": "跟着视频一步步操作，你也能自己独立完成：手机注册海外 Apple ID。",
-   "tools": []
+   "tools": [],
+   "poster": "https://media.web3origin.com/thumbs/register-overseas-appleid.jpg"
   },
   {
    "id": "v-okx-add-anubis-network",
@@ -498,7 +524,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：添加 Anubis 网络和代币。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/okx-add-anubis-network.jpg"
   },
   {
    "id": "v-bridge-dai-to-anubis",
@@ -515,7 +542,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：把 DAI 跨链到 Anubis。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/bridge-dai-to-anubis.jpg"
   },
   {
    "id": "v-bridge-lgns-to-anubis",
@@ -532,7 +560,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：把 LGNS 跨链到 Anubis。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/bridge-lgns-to-anubis.jpg"
   },
   {
    "id": "v-bridge-dai-to-polygon",
@@ -549,7 +578,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：把 DAI 跨链到马蹄链（Polygon）。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/bridge-dai-to-polygon.jpg"
   },
   {
    "id": "v-buy-360-genesis-anubis",
@@ -566,7 +596,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：在 Anubis 购买 360 创世。",
    "tools": [
     "openDashboard"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/buy-360-genesis-anubis.jpg"
   },
   {
    "id": "v-anubis-energy",
@@ -581,7 +612,8 @@
    "level": "新手实操",
    "published": "2026-05-25",
    "objective": "跟着视频一步步操作，你也能自己独立完成：Anubis 获得能量值。",
-   "tools": []
+   "tools": [],
+   "poster": "https://media.web3origin.com/thumbs/anubis-energy.jpg"
   },
   {
    "id": "v-nft-claim-transfer",
@@ -598,7 +630,8 @@
    "objective": "跟着视频一步步操作，你也能自己独立完成：NFT 的领取和转移。",
    "tools": [
     "openBrowser"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/nft-claim-transfer.jpg"
   },
   {
    "id": "v-changyou-dicengluoji",
@@ -651,7 +684,8 @@
    "recommend": [
     "qiyuan-dicengluoji",
     "weishenme-diebupo-1usd"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/changyou-dicengluoji.jpg"
   },
   {
    "id": "v-qiyuan-dicengluoji",
@@ -698,7 +732,8 @@
    "recommend": [
     "changyou-dicengluoji",
     "weishenme-diebupo-1usd"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/qiyuan-dicengluoji.jpg"
   },
   {
    "id": "v-weishenme-diebupo-1usd",
@@ -751,7 +786,8 @@
    "recommend": [
     "changyou-dicengluoji",
     "qiyuan-dicengluoji"
-   ]
+   ],
+   "poster": "https://media.web3origin.com/thumbs/weishenme-diebupo-1usd.jpg"
   },
   {
    "slug": "what-is-blockchain",
