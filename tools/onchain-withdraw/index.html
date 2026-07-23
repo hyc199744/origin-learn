@@ -276,30 +276,42 @@ footer a{color:var(--green)}
     },5000);
   }
   function vDone(res){
-    var url=accessURL(res.access);
-    mbody.innerHTML='<h3 class="mok">✅ 支付成功！</h3><p class="msub">你的链上提币工具已经解锁。</p>'
-      +'<div class="kv"><div class="l">专属访问链接</div><div class="v">'+esc(location.origin+url)+'<button class="cp" data-c="'+esc(location.origin+url)+'" '+CPBTN+'>复制</button></div></div>'
-      +'<div class="kv"><div class="l">支付钱包</div><div class="v">'+esc(res.payer||"—")+'</div></div>'
-      +'<div class="kv"><div class="l">交易哈希</div><div class="v"><a style="color:var(--green)" target="_blank" href="https://polygonscan.com/tx/'+esc(res.txHash)+'">'+short(res.txHash)+' ↗</a></div></div>'
-      +'<div class="kv"><div class="l">支付时间</div><div class="v">'+new Date(res.paidAt||Date.now()).toLocaleString()+'</div></div>'
-      +'<a class="mbtn" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box" href="'+url+'">进入链上提币 →</a>';
     try{localStorage.setItem(LS,JSON.stringify({access:res.access,payer:res.payer,txHash:res.txHash,paidAt:res.paidAt||Date.now()}));}catch(e){}
-    bindCopy();
+    showLink(res);
+  }
+  function showLink(res){
+    var url=accessURL(res.access), full=location.origin+url;
+    mbody.innerHTML='<h3 class="mok">✅ 支付成功！提币链接已生成</h3>'
+      +'<p class="msub">把下面这条<b style="color:var(--green)">专属提币链接</b>复制，粘贴到你的 Web3 钱包（欧易 / MetaMask / TP 等）的 DApp 浏览器里打开，就能连钱包链上提币。</p>'
+      +'<div class="kv"><div class="l">🔗 你的专属提币链接（永久有效）</div><div class="v" style="font-size:12.5px">'+esc(full)+'</div></div>'
+      +'<button class="mbtn" id="copyLink">📋 复制提币链接</button>'
+      +'<div class="warnmini" style="margin-top:14px;color:var(--ink);background:rgba(255,255,255,.03);border-color:var(--line);line-height:2">'
+        +'<b style="color:var(--green)">怎么用这条链接提币：</b><br>'
+        +'① 点上面「复制提币链接」<br>'
+        +'② 打开你的 Web3 钱包 App（欧易 OKX / MetaMask / TokenPocket…）<br>'
+        +'③ 进钱包里的「发现 / 浏览器 / DApp」页<br>'
+        +'④ 把链接<b>粘贴到地址栏</b>打开<br>'
+        +'⑤ 连接钱包 →「赎回 / 提币」</div>'
+      +'<a class="mbtn sec" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box;margin-top:8px" href="'+url+'">或：在当前浏览器直接打开</a>'
+      +(res.txHash?'<div class="kv" style="margin-top:12px"><div class="l">交易哈希</div><div class="v"><a style="color:var(--green)" target="_blank" href="https://polygonscan.com/tx/'+esc(res.txHash)+'">'+short(res.txHash)+' ↗</a></div></div>':'')
+      +'<div style="text-align:center;font-size:12px;color:var(--sub);margin-top:10px">忘了链接？随时回介绍页点「恢复我的访问」再拿到。</div>';
+    var cb=document.getElementById("copyLink");
+    cb.onclick=function(){copyText(full);cb.textContent="已复制 ✓ 去钱包粘贴打开";setTimeout(function(){cb.textContent="📋 复制提币链接";},2200);};
     openM();
   }
   function restore(){
     var s=saved();
     if(!s||!s.access){alert("本设备没有解锁记录。如果你已支付，请在同一浏览器打开，或点解锁按钮凭订单继续。");return;}
     fetch(API+"/wd/access?token="+encodeURIComponent(s.access)).then(function(r){return r.json();}).then(function(r){
-      if(r.ok){location.href=accessURL(s.access);}
+      if(r.ok){showLink({access:s.access,txHash:s.txHash,paidAt:s.paidAt,payer:s.payer});}
       else{alert("解锁记录已失效，请重新支付。");localStorage.removeItem(LS);}
-    }).catch(function(){location.href=accessURL(s.access);});
+    }).catch(function(){showLink({access:s.access,txHash:s.txHash,paidAt:s.paidAt});});
   }
 
   // ---------- 入口 ----------
   document.getElementById("unlockBtn").onclick=function(){
     var s=saved();
-    if(s&&s.access){location.href=accessURL(s.access);return;} // 已解锁直接进
+    if(s&&s.access){showLink(s);return;} // 已解锁→显示可复制的提币链接
     var p=pending();
     if(p&&p.orderId){order=p;vPay(p);return;} // 有未完成订单→继续付款
     createOrder();
