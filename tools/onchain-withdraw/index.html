@@ -212,6 +212,7 @@ footer a{color:var(--green)}
   <div id="mbody"></div>
 </div></div>
 
+<script src="/assets/qrcode.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -244,12 +245,16 @@ footer a{color:var(--green)}
     mbody.innerHTML='<h3>支付 5 LGNS 解锁</h3><p class="msub">用支持 <b>Polygon</b> 网络的钱包，把下面这个<b style="color:var(--gold)">精确金额</b>的 LGNS 转到收款地址。到账后本页自动解锁。</p>'
       +'<div class="kv"><div class="l">精确金额（务必一分不差）</div><div class="v big">'+esc(o.amount)+' LGNS<button class="cp" data-c="'+esc(o.amount)+'" '+CPBTN+'>复制金额</button></div></div>'
       +'<div class="kv"><div class="l">收款地址（Polygon 链）</div><div class="v">'+esc(o.receive)+'<button class="cp" data-c="'+esc(o.receive)+'" '+CPBTN+'>复制</button></div></div>'
+      +'<div style="text-align:center;margin:14px 0"><div id="wdqr" style="display:inline-block;background:#fff;padding:10px;border-radius:12px;line-height:0"></div><div style="font-size:12px;color:var(--sub);margin-top:8px">📷 扫码把收款地址导入钱包（金额仍需按上面精确填）</div></div>'
       +'<div class="kv"><div class="l">订单号</div><div class="v" style="font-size:12px">'+esc(o.orderId)+'<button class="cp" data-c="'+esc(o.orderId)+'" '+CPBTN+'>复制</button></div></div>'
       +'<div style="text-align:center;font-size:14px;color:var(--green);margin:16px 0 10px" id="payStatus"><span class="spin"></span>等待付款到账…（约 20–60 秒自动解锁，勿关窗口）</div>'
       +'<button class="mbtn sec" id="reBtn">我已转账，立即验证</button>'
       +'<div class="warnmini" style="margin-top:14px">⚠️ 照抄这个精确金额（含小数），<b>别转成整数 5</b>——金额是用来对上你这笔订单的。转账 gas 由你的钱包支付；5 LGNS 是工具服务费，底层链上提币操作本身免费。</div>'
       +'<div style="text-align:center;margin-top:10px"><a href="javascript:void(0)" id="newOrd" style="font-size:12px;color:var(--sub)">金额过期了？换个新订单</a></div>';
     bindCopy();
+    var qrEl=document.getElementById("wdqr");
+    if(qrEl&&window.QRCode){try{qrEl.innerHTML="";new QRCode(qrEl,{text:o.receive,width:150,height:150,colorDark:"#0a0f0b",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});}catch(e){qrEl.parentNode.style.display="none";}}
+    else if(qrEl){qrEl.parentNode.style.display="none";}
     document.getElementById("reBtn").onclick=function(){checkOnce(true);};
     document.getElementById("newOrd").onclick=function(){try{localStorage.removeItem(LP);}catch(e){}createOrder();};
     openM();
