@@ -1,0 +1,17 @@
+{
+  "name": "Web3Origin 起源学习站",
+  "short_name": "Web3Origin",
+  "description": "Origin(起源)生态的链上数据、学习与工具平台：链上雷达、学习学院、视频学院、个人中心。",
+  "lang": "zh-CN",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050303",
+  "theme_color": "#050303",
+  "icons": [
+    { "src": "/assets/favicon-16.png", "sizes": "16x16", "type": "image/png" },
+    { "src": "/assets/favicon-32.png", "sizes": "32x32", "type": "image/png" },
+    { "src": "/assets/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/assets/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
