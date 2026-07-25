@@ -598,8 +598,8 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
     #contact .qr-head{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:15px}
     #contact .qr-head svg{width:23px;height:23px;color:var(--acc)}
     #contact .qr-head .nm{font-family:var(--serif);font-size:16.5px;color:var(--bone);font-weight:700;letter-spacing:.5px}
-    #contact .qr-imgwrap{position:relative;background:#fff;border-radius:12px;padding:11px;box-shadow:0 4px 16px rgba(0,0,0,.3)}
-    #contact .qr-imgwrap img{width:100%;border-radius:5px;display:block}
+    #contact .qr-imgwrap{position:relative;box-sizing:border-box;background:#fff;border-radius:12px;padding:11px;box-shadow:0 4px 16px rgba(0,0,0,.3);aspect-ratio:1/1;display:flex;align-items:center;justify-content:center}
+    #contact .qr-imgwrap img{width:100%;height:100%;object-fit:contain;border-radius:5px;display:block}
     #contact .qr-imgwrap i{position:absolute;width:19px;height:19px;border:3px solid var(--acc);border-radius:3px}
     #contact .qr-imgwrap i.tl{top:-2px;left:-2px;border-right:0;border-bottom:0}
     #contact .qr-imgwrap i.tr{top:-2px;right:-2px;border-left:0;border-bottom:0}
