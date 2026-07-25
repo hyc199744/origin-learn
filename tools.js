@@ -364,7 +364,8 @@
       const el=out.querySelector("#rUnlock"); if(!el) return;
       el.innerHTML=`<div style="font-size:12.5px;color:var(--soft);background:rgba(214,168,75,.06);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:11px;line-height:1.85">支付 <b style="color:var(--gold-lt)">2 LGNS</b> 后可查看：<br>· <b style="color:var(--bone)">完整推荐人地址</b> —— 这个地址的上级钱包全地址<br>· <b style="color:var(--bone)">绑定时间</b> —— 什么时候绑定的这个上级</div>`+
         `<button class="claim2" id="rBuy" style="background:linear-gradient(180deg,#c9313a,#8f0c11);border-color:#7a0b12">🔓 支付 2 LGNS 解锁</button>`+
-        `<div style="text-align:center;font-size:12.5px;color:var(--gold-lt);margin-top:10px">🔥 已有 <b>310</b> 人支付购买</div>`;
+        `<style>@keyframes bpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}@keyframes bpBlink{0%,100%{opacity:1}50%{opacity:.5}}</style>`+
+        `<div style="text-align:center;margin-top:14px"><span style="display:inline-flex;align-items:center;gap:8px;font-size:15.5px;font-weight:800;color:#fff;background:linear-gradient(135deg,#e0424b,#8f0c11);border:1px solid #ff6b73;border-radius:999px;padding:9px 20px;box-shadow:0 6px 22px rgba(201,49,58,.42);animation:bpPulse 1.9s ease-in-out infinite">🔥 已有 <b style="font-size:19px;margin:0 2px">310</b> 人支付购买<span style="width:9px;height:9px;border-radius:50%;background:#ffd24a;animation:bpBlink 1.2s ease-in-out infinite"></span></span></div>`;
       el.querySelector("#rBuy").onclick=startPay;
     }
     async function startPay(){
