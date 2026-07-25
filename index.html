@@ -589,11 +589,24 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <!-- ══════ 加好友 · 联系 ══════ -->
 <section id="contact">
   <style>
-    #contact .qr-row{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;margin-top:12px}
-    #contact .qr-card{background:linear-gradient(180deg,rgba(33,5,7,.85),rgba(10,3,3,.85));border:1px solid var(--line);border-top:3px solid var(--blood);border-radius:8px;padding:16px 16px 14px;text-align:center;width:236px;max-width:82vw}
-    #contact .qr-card img{width:100%;border-radius:6px;background:#fff;padding:8px;display:block}
-    #contact .qr-label{margin-top:12px;font-size:14.5px;color:var(--gold-lt);font-family:var(--serif)}
-    #contact .qr-sub{font-size:12px;color:var(--muted);margin-top:3px}
+    #contact .qr-row{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;margin-top:22px}
+    #contact .qr-card{position:relative;background:linear-gradient(180deg,rgba(18,24,18,.72),rgba(8,10,8,.9));border:1px solid var(--line);border-radius:18px;padding:20px 20px 18px;text-align:center;width:248px;max-width:82vw;transition:transform .2s,box-shadow .2s,border-color .2s;overflow:hidden}
+    #contact .qr-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--acc)}
+    #contact .qr-card:hover{transform:translateY(-5px);border-color:var(--acc);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+    #contact .qr-card.wx{--acc:#07C160}
+    #contact .qr-card.qq{--acc:#12B7F5}
+    #contact .qr-head{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:15px}
+    #contact .qr-head svg{width:23px;height:23px;color:var(--acc)}
+    #contact .qr-head .nm{font-family:var(--serif);font-size:16.5px;color:var(--bone);font-weight:700;letter-spacing:.5px}
+    #contact .qr-imgwrap{position:relative;background:#fff;border-radius:12px;padding:11px;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+    #contact .qr-imgwrap img{width:100%;border-radius:5px;display:block}
+    #contact .qr-imgwrap i{position:absolute;width:19px;height:19px;border:3px solid var(--acc);border-radius:3px}
+    #contact .qr-imgwrap i.tl{top:-2px;left:-2px;border-right:0;border-bottom:0}
+    #contact .qr-imgwrap i.tr{top:-2px;right:-2px;border-left:0;border-bottom:0}
+    #contact .qr-imgwrap i.bl{bottom:-2px;left:-2px;border-right:0;border-top:0}
+    #contact .qr-imgwrap i.br{bottom:-2px;right:-2px;border-left:0;border-top:0}
+    #contact .qr-sub{font-size:12.5px;color:var(--muted);margin-top:13px}
+    #contact .qr-cta{display:inline-block;margin-top:11px;font-size:12px;font-weight:700;color:var(--acc);background:rgba(255,255,255,.04);border:1px solid var(--acc);border-radius:999px;padding:5px 16px}
     #contact .social-row{display:flex;justify-content:center;gap:13px;flex-wrap:wrap;margin-top:24px}
     #contact .social-btn{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(180deg,#161009,#0d0a07);border:1px solid var(--line);border-radius:12px;padding:11px 20px;color:var(--bone);font-size:14px;font-weight:600;text-decoration:none;transition:.16s}
     #contact .social-btn:hover{transform:translateY(-1px);text-decoration:none}
@@ -608,13 +621,23 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
     <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2 data-i18n="c_h2">加好友 · 有问题找我</h2><img src="assets/text-right.png" alt=""></div>
     <p class="sec-sub" data-i18n="c_sub">扫码加我，进社区、问问题、获取一手信息。新手上路别一个人瞎摸。</p>
     <div class="qr-row">
-      <div class="qr-card">
-        <img src="assets/wechat-qr.png" alt="微信加好友二维码" loading="lazy">
-        <div class="qr-label" data-i18n="c_wxlabel">微信</div><div class="qr-sub" data-i18n="c_wx">扫码加好友</div>
+      <div class="qr-card wx">
+        <div class="qr-head">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.7 3C4.9 3 1.8 5.55 1.8 8.7c0 1.8 1 3.4 2.6 4.5l-.65 1.98 2.3-1.18c.5.13 1.02.22 1.55.26a4.7 4.7 0 0 1-.15-1.18c0-2.85 2.77-5.16 6.18-5.16.2 0 .4.01.6.03C13.9 4.7 11.5 3 8.7 3ZM6.3 7.05a.92.92 0 1 1 0-1.84.92.92 0 0 1 0 1.84Zm4.9 0a.92.92 0 1 1 0-1.84.92.92 0 0 1 0 1.84Z"/><path d="M22.2 13.35c0-2.5-2.5-4.55-5.6-4.55-3.15 0-5.65 2.05-5.65 4.6 0 2.55 2.5 4.6 5.6 4.6.66 0 1.3-.1 1.9-.28l1.8.98-.5-1.63c1.5-.85 2.45-2.2 2.45-3.72Zm-7.5-.72a.72.72 0 1 1 0-1.45.72.72 0 0 1 0 1.45Zm3.85 0a.72.72 0 1 1 0-1.45.72.72 0 0 1 0 1.45Z"/></svg>
+          <span class="nm" data-i18n="c_wxlabel">微信</span>
+        </div>
+        <div class="qr-imgwrap"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i><img src="assets/wechat-qr.png" alt="微信加好友二维码" loading="lazy"></div>
+        <div class="qr-sub" data-i18n="c_wx">扫码加好友</div>
+        <div class="qr-cta">📲 微信扫一扫</div>
       </div>
-      <div class="qr-card">
-        <img src="assets/qq-qr.jpg" alt="QQ加好友二维码" loading="lazy">
-        <div class="qr-label">QQ</div><div class="qr-sub" data-i18n="c_qq">扫一扫加我为好友</div>
+      <div class="qr-card qq">
+        <div class="qr-head">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c2.9 0 5 2.3 5 5.4 0 .82.42 1.3.9 2 .8 1 1.6 2.2 1.6 4.2 0 1.1-.4 1.8-1 1.8-.5 0-.9-.42-1.2-1.1-.32.9-1 1.6-1.9 2.1.5.2.9.5.9.9 0 .8-2 1.5-4.3 1.5s-4.3-.7-4.3-1.5c0-.4.4-.7.9-.9-.9-.5-1.58-1.2-1.9-2.1-.3.68-.7 1.1-1.2 1.1-.6 0-1-.7-1-1.8 0-2 .8-3.2 1.6-4.2.48-.7.9-1.18.9-2C7 4.3 9.1 2 12 2Z"/></svg>
+          <span class="nm">QQ</span>
+        </div>
+        <div class="qr-imgwrap"><i class="tl"></i><i class="tr"></i><i class="bl"></i><i class="br"></i><img src="assets/qq-qr.jpg" alt="QQ加好友二维码" loading="lazy"></div>
+        <div class="qr-sub" data-i18n="c_qq">扫一扫加我为好友</div>
+        <div class="qr-cta">📲 QQ 扫一扫</div>
       </div>
     </div>
     <div class="social-row">
