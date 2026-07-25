@@ -45,13 +45,19 @@ a{color:inherit;text-decoration:none}
 .cta:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(123,255,69,.4)}
 .cta .p{font-size:13px;font-weight:700;opacity:.75}
 .cta-note{margin-top:12px;font-size:12.5px;color:var(--sub)}
-.buyproof-wrap{margin-top:16px;text-align:center}
-.buyproof{display:inline-flex;align-items:center;gap:8px;font-size:16px;font-weight:800;color:#04210a;background:linear-gradient(135deg,var(--green),var(--green-d));border-radius:999px;padding:10px 22px;box-shadow:0 6px 22px rgba(123,255,69,.35);animation:bpPulse 1.9s ease-in-out infinite}
-.buyproof b{font-size:20px;margin:0 2px}
-.buyproof .bp-dot{width:9px;height:9px;border-radius:50%;background:#FF5A5F;box-shadow:0 0 0 0 rgba(255,90,95,.7);animation:bpBlink 1.2s ease-in-out infinite}
-@keyframes bpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-@keyframes bpBlink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,90,95,.7)}50%{opacity:.55;box-shadow:0 0 0 7px rgba(255,90,95,0)}}
-@media (prefers-reduced-motion:reduce){.buyproof,.buyproof .bp-dot{animation:none}}
+.buyproof-wrap{margin-top:18px;display:flex;justify-content:center}
+.buyproof{position:relative;display:inline-flex;align-items:center;gap:13px;background:linear-gradient(135deg,rgba(123,255,69,.15),rgba(123,255,69,.04));border:1px solid rgba(123,255,69,.55);border-radius:15px;padding:12px 20px;box-shadow:0 8px 30px rgba(123,255,69,.22);overflow:hidden}
+.buyproof::after{content:"";position:absolute;top:0;left:-60%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);transform:skewX(-20deg);animation:bpShine 3.2s ease-in-out infinite}
+.bp-ava{display:flex;flex:0 0 auto}
+.bp-ava span{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;background:#0d130f;border:2px solid var(--green-d);margin-left:-10px}
+.bp-ava span:first-child{margin-left:0}
+.bp-txt{font-size:15.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.bp-txt b{font-size:23px;color:var(--green);margin:0 2px;font-weight:900}
+.bp-tag{font-size:11.5px;font-weight:800;color:#04210a;background:var(--green);border-radius:999px;padding:3px 10px;animation:bpPulse 1.6s ease-in-out infinite}
+@keyframes bpShine{0%{left:-60%}55%,100%{left:130%}}
+@keyframes bpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+@media(max-width:480px){.buyproof{gap:10px;padding:11px 15px}.bp-txt{font-size:14px}.bp-txt b{font-size:20px}}
+@media (prefers-reduced-motion:reduce){.buyproof::after,.bp-tag{animation:none}}
 /* concept two-column */
 .concept{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:26px 0 10px}
 .concept .col{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px}
@@ -133,7 +139,7 @@ footer a{color:var(--green)}
     <p class="sub">在传统应用里，网站关闭，你可能就无法访问服务。<br>但在区块链世界，资产记录在链上，智能合约公开运行。</p>
     <p class="tag">即使官方 DApp 页面无法访问，你依然可以通过链上工具，连接自己的钱包，直接完成 LGNS 相关操作。</p>
     <button class="cta" id="unlockBtn"><span>5 LGNS 解锁链上提币</span><span class="p">→ 立即使用</span></button>
-    <div class="buyproof-wrap"><span class="buyproof"><span class="bp-dot"></span>🔥 已有 <b>93</b> 人支付购买</span></div>
+    <div class="buyproof-wrap"><div class="buyproof"><div class="bp-ava"><span>🧑</span><span>👨</span><span>👩</span><span>🧑‍💼</span></div><div class="bp-txt">已有 <b>93</b> 人支付购买<span class="bp-tag">🔥 热销中</span></div></div></div>
     <div class="cta-note">已解锁过？<a href="javascript:void(0)" id="restoreLink" style="color:var(--green)">恢复我的访问</a></div>
     <div class="concept">
       <div class="col a"><h4>传统应用</h4><p>如果网站关闭、入口丢失，<br>用户可能无法访问自己的服务。</p></div>

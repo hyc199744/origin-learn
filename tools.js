@@ -364,8 +364,19 @@
       const el=out.querySelector("#rUnlock"); if(!el) return;
       el.innerHTML=`<div style="font-size:12.5px;color:var(--soft);background:rgba(214,168,75,.06);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:11px;line-height:1.85">支付 <b style="color:var(--gold-lt)">2 LGNS</b> 后可查看：<br>· <b style="color:var(--bone)">完整推荐人地址</b> —— 这个地址的上级钱包全地址<br>· <b style="color:var(--bone)">绑定时间</b> —— 什么时候绑定的这个上级</div>`+
         `<button class="claim2" id="rBuy" style="background:linear-gradient(180deg,#c9313a,#8f0c11);border-color:#7a0b12">🔓 支付 2 LGNS 解锁</button>`+
-        `<style>@keyframes bpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}@keyframes bpBlink{0%,100%{opacity:1}50%{opacity:.5}}</style>`+
-        `<div style="text-align:center;margin-top:14px"><span style="display:inline-flex;align-items:center;gap:8px;font-size:15.5px;font-weight:800;color:#fff;background:linear-gradient(135deg,#e0424b,#8f0c11);border:1px solid #ff6b73;border-radius:999px;padding:9px 20px;box-shadow:0 6px 22px rgba(201,49,58,.42);animation:bpPulse 1.9s ease-in-out infinite">🔥 已有 <b style="font-size:19px;margin:0 2px">310</b> 人支付购买<span style="width:9px;height:9px;border-radius:50%;background:#ffd24a;animation:bpBlink 1.2s ease-in-out infinite"></span></span></div>`;
+        `<style>
+        .rbuyproof{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;margin-top:15px;background:linear-gradient(135deg,rgba(224,66,75,.22),rgba(143,12,17,.1));border:1px solid #ff6b73;border-radius:15px;padding:12px 18px;box-shadow:0 8px 28px rgba(201,49,58,.35);overflow:hidden}
+        .rbuyproof::after{content:"";position:absolute;top:0;left:-60%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.25),transparent);transform:skewX(-20deg);animation:rbShine 3.2s ease-in-out infinite}
+        .rb-ava{display:flex;flex:0 0 auto}
+        .rb-ava span{width:29px;height:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;background:#1a0d0a;border:2px solid #c9313a;margin-left:-10px}
+        .rb-ava span:first-child{margin-left:0}
+        .rb-txt{font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+        .rb-txt b{font-size:22px;color:#ffd24a;margin:0 2px;font-weight:900}
+        .rb-tag{font-size:11px;font-weight:800;color:#fff;background:#c9313a;border-radius:999px;padding:3px 9px;animation:rbPulse 1.6s ease-in-out infinite}
+        @keyframes rbShine{0%{left:-60%}55%,100%{left:130%}}
+        @keyframes rbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+        </style>`+
+        `<div class="rbuyproof"><div class="rb-ava"><span>🧑</span><span>👨</span><span>👩</span><span>🧑‍💼</span></div><div class="rb-txt">已有 <b>310</b> 人支付购买<span class="rb-tag">🔥 热销中</span></div></div>`;
       el.querySelector("#rBuy").onclick=startPay;
     }
     async function startPay(){
