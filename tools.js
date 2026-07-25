@@ -363,7 +363,8 @@
     function renderUnlock(){
       const el=out.querySelector("#rUnlock"); if(!el) return;
       el.innerHTML=`<div style="font-size:12.5px;color:var(--soft);background:rgba(214,168,75,.06);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:11px;line-height:1.85">支付 <b style="color:var(--gold-lt)">2 LGNS</b> 后可查看：<br>· <b style="color:var(--bone)">完整推荐人地址</b> —— 这个地址的上级钱包全地址<br>· <b style="color:var(--bone)">绑定时间</b> —— 什么时候绑定的这个上级</div>`+
-        `<button class="claim2" id="rBuy" style="background:linear-gradient(180deg,#c9313a,#8f0c11);border-color:#7a0b12">🔓 支付 2 LGNS 解锁</button>`;
+        `<button class="claim2" id="rBuy" style="background:linear-gradient(180deg,#c9313a,#8f0c11);border-color:#7a0b12">🔓 支付 2 LGNS 解锁</button>`+
+        `<div style="text-align:center;font-size:12.5px;color:var(--gold-lt);margin-top:10px">🔥 已有 <b>310</b> 人支付购买</div>`;
       el.querySelector("#rBuy").onclick=startPay;
     }
     async function startPay(){
