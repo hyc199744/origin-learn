@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Awake DAO 是什么？起源社区治理介绍 - web3origin.com</title>
 <meta name="description" content="Awake DAO 是起源(ORIGIN)社区治理的地方，流程为提案→讨论→投票→执行，投票权来自治理代币 GLGNS 与治理 NFT（不是直接用 LGNS 投票）。">
 <meta name="keywords" content="Awake DAO,起源治理,起源DAO,GLGNS,治理代币,起源投票,web3origin">
@@ -36,11 +38,18 @@ table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px} th,td{te
 .faq{border:1px solid var(--line);border-radius:9px;margin-bottom:9px;padding:2px 15px;background:rgba(214,168,75,.03)}
 .faq summary{cursor:pointer;padding:12px 0;color:var(--bone);font-size:15.5px;font-family:var(--serif)} .faq p{margin:0 0 12px;font-size:14px;line-height:1.8}
 footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--muted);font-size:13px;text-align:center;line-height:2} footer a{margin:0 7px}
+/* ── 中英切换：默认隐藏所有带 data-lang 的块；按 <html lang> 显示对应语言（中文=zh-CN/zh-TW，其余语言一律回退英文）── */
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],
+html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4}
+#langBtn:hover{color:var(--bone);border-color:var(--gold)}
 </style>
 </head><body>
-<nav class="nav"><span class="brand">起源 · <b>百科</b></span><a href="../../">← 返回首页</a><span class="sp"></span><a href="../../baike/lgns/">LGNS</a><a href="../../contracts/">合约大全</a><a href="../../faq/">FAQ</a></nav>
-<div class="crumb"><a href="../../">起源学习站</a> › 百科 › Awake DAO</div>
-<article class="wrap">
+<nav class="nav"><span class="brand"><span data-lang="zh">起源 · <b>百科</b></span><span data-lang="en">ORIGIN · <b>Wiki</b></span></span><a href="../../"><span data-lang="zh">← 返回首页</span><span data-lang="en">← Home</span></a><span class="sp"></span><a href="../../baike/lgns/">LGNS</a><a href="../../contracts/"><span data-lang="zh">合约大全</span><span data-lang="en">All Contracts</span></a><a href="../../faq/">FAQ</a><button id="langBtn" aria-label="Language">🌐</button></nav>
+<div class="crumb"><span data-lang="zh"><a href="../../">起源学习站</a> › 百科 › Awake DAO</span><span data-lang="en"><a href="../../">ORIGIN Learn</a> › Wiki › Awake DAO</span></div>
+<!-- ══════════ 中文 ══════════ -->
+<article class="wrap" data-lang="zh">
 <h1>Awake DAO 是什么？起源社区治理介绍</h1>
 <p class="lede"><b>一句话：Awake DAO 是起源社区进行治理的地方</b>——通过「提案 → 讨论 → 投票 → 执行」的流程做决策，投票权来自治理代币 <b>GLGNS</b> 与治理 NFT。</p>
 <h2>一、Awake DAO 治理核心事实</h2>
@@ -56,5 +65,25 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:v
 <p>这是新手最容易搞混的一点：<b>治理投票权来自 GLGNS 治理代币和治理 NFT，不是直接拿 LGNS 或质押来投票</b>。LGNS 是生态的核心代币（质押、生息、交易），GLGNS 才是专门用于治理投票的代币（固定 21 万枚、配双层 NFT 治理）。想参与治理，关注的是 GLGNS / 治理 NFT。</p>
 <div class="note">📌 具体的提案门槛、投票权重、执行规则以官方公布为准；相关链上交易可在区块浏览器核实。内容仅供理解，不构成投资建议。</div>
 <h2>常见问题（FAQ）</h2>
-<details class="faq" open><summary>Awake DAO 是什么？</summary><p>Awake DAO 是起源（ORIGIN）社区进行治理的地方。社区通过提案、讨论、投票、执行的流程，对生态参数和方向做出决策。</p></details><details class="faq"><summary>Awake DAO 的投票权来自哪里？</summary><p>投票权来自治理代币 GLGNS（固定 21 万枚 + 双层 NFT 治理结构），不是直接拿 LGNS 或质押来投票。也就是说，治理用 GLGNS，核心代币 LGNS 用于质押生息与交易。</p></details><details class="faq"><summary>一个提案怎么从发起走到执行？</summary><p>流程是：提案 → 社区讨论 → 投票 → 执行。达到通过条件的提案，按规则进入执行。具体规则与门槛以官方公布为准，建议自己上链核实相关交易。</p></details><details class="faq"><summary>Awake 和 LGNS 的 rebase 参数有关系吗？</summary><p>起源的一些生态参数（如质押 rebase 周期）属于治理/升级范畴，在 Awake 体系下调整。当前对外口径是每 6 小时 rebase 一次。</p></details><p style="margin-top:20px"><a href="../../baike/lgns/">→ LGNS 是什么</a>　<a href="../../baike/anubis/">→ Anubis Chain</a>　<a href="../../faq/">→ 常见问题</a></p></article><footer><div><a href="../../">首页</a> · <a href="../../about/">关于</a> · <a href="../../faq/">FAQ</a> · <a href="../../baike/lgns/">LGNS百科</a> · <a href="../../baike/anubis/">Anubis</a> · <a href="../../articles/">研究</a> · <a href="../../contracts/">合约</a></div><div style="margin-top:8px;color:var(--muted);font-size:12px">web3origin.com · Origin 生态链上数据查询与研究平台 · 内容仅供学习理解，不构成投资建议（DYOR）</div></footer>
+<details class="faq" open><summary>Awake DAO 是什么？</summary><p>Awake DAO 是起源（ORIGIN）社区进行治理的地方。社区通过提案、讨论、投票、执行的流程，对生态参数和方向做出决策。</p></details><details class="faq"><summary>Awake DAO 的投票权来自哪里？</summary><p>投票权来自治理代币 GLGNS（固定 21 万枚 + 双层 NFT 治理结构），不是直接拿 LGNS 或质押来投票。也就是说，治理用 GLGNS，核心代币 LGNS 用于质押生息与交易。</p></details><details class="faq"><summary>一个提案怎么从发起走到执行？</summary><p>流程是：提案 → 社区讨论 → 投票 → 执行。达到通过条件的提案，按规则进入执行。具体规则与门槛以官方公布为准，建议自己上链核实相关交易。</p></details><details class="faq"><summary>Awake 和 LGNS 的 rebase 参数有关系吗？</summary><p>起源的一些生态参数（如质押 rebase 周期）属于治理/升级范畴，在 Awake 体系下调整。当前对外口径是每 6 小时 rebase 一次。</p></details><p style="margin-top:20px"><a href="../../baike/lgns/">→ LGNS 是什么</a>　<a href="../../baike/anubis/">→ Anubis Chain</a>　<a href="../../faq/">→ 常见问题</a></p></article>
+
+<!-- ══════════ English ══════════ -->
+<article class="wrap" data-lang="en">
+<h1>What Is Awake DAO? An Introduction to ORIGIN's Community Governance</h1>
+<p class="lede"><b>In one line: Awake DAO is where the ORIGIN community carries out governance</b> — decisions are made through a "propose → discuss → vote → execute" process, and voting power comes from the governance token <b>GLGNS</b> and governance NFTs.</p>
+<h2>1. Awake DAO Governance Core Facts</h2>
+<table>
+<tr><th>What it is</th><td>The community governance system of the ORIGIN ecosystem</td></tr>
+<tr><th>Decision process</th><td>Propose → discuss → vote → execute</td></tr>
+<tr><th>Source of voting power</th><td><b>GLGNS governance token</b> (fixed at 210,000) + governance NFTs (two-tier)</td></tr>
+<tr><th>Relationship with LGNS</th><td>Governance uses GLGNS; LGNS is the core token, used for staking to earn and for trading</td></tr>
+</table>
+<h2>2. Governance Roles and the Decision Process</h2>
+<p>The heart of Awake DAO is letting community members who hold governance rights jointly decide on the ecosystem's important matters. A typical flow: someone <b>raises a proposal</b> → the community <b>discusses</b> and exchanges views → it goes to a <b>vote</b> → once the passing conditions are met, it is <b>executed</b>. This process makes important changes to the ecosystem traceable and verifiable.</p>
+<h2>3. Voting Power: Why It's GLGNS and Not LGNS</h2>
+<p>This is the point newcomers most easily confuse: <b>governance voting power comes from the GLGNS governance token and governance NFTs, not from directly using LGNS or staking to vote</b>. LGNS is the ecosystem's core token (staking, earning, trading), while GLGNS is the token specifically for governance voting (fixed at 210,000, with a two-tier NFT governance structure). If you want to take part in governance, what matters is GLGNS / governance NFTs.</p>
+<div class="note">📌 The specific proposal thresholds, voting weights, and execution rules are as officially announced; the related on-chain transactions can be verified on a block explorer. This content is for understanding only and does not constitute investment advice.</div>
+<h2>FAQ</h2>
+<details class="faq" open><summary>What is Awake DAO?</summary><p>Awake DAO is where the ORIGIN community carries out governance. Through a process of proposing, discussing, voting, and executing, the community makes decisions on the ecosystem's parameters and direction.</p></details><details class="faq"><summary>Where does Awake DAO's voting power come from?</summary><p>Voting power comes from the governance token GLGNS (fixed at 210,000 + a two-tier NFT governance structure), not from directly using LGNS or staking to vote. In other words, governance uses GLGNS, while the core token LGNS is used for staking to earn and for trading.</p></details><details class="faq"><summary>How does a proposal go from being raised to being executed?</summary><p>The flow is: propose → community discussion → vote → execute. A proposal that meets the passing conditions proceeds to execution per the rules. The specific rules and thresholds are as officially announced; we recommend verifying the related transactions on-chain yourself.</p></details><details class="faq"><summary>Is Awake related to LGNS's rebase parameters?</summary><p>Some of ORIGIN's ecosystem parameters (such as the staking rebase cycle) fall under governance/upgrades and are adjusted within the Awake system. The current stated figure is a rebase once every 6 hours.</p></details><p style="margin-top:20px"><a href="../../baike/lgns/">→ What is LGNS</a>　<a href="../../baike/anubis/">→ Anubis Chain</a>　<a href="../../faq/">→ FAQ</a></p></article><footer><div data-lang="zh"><a href="../../">首页</a> · <a href="../../about/">关于</a> · <a href="../../faq/">FAQ</a> · <a href="../../baike/lgns/">LGNS百科</a> · <a href="../../baike/anubis/">Anubis</a> · <a href="../../articles/">研究</a> · <a href="../../contracts/">合约</a></div><div data-lang="en"><a href="../../">Home</a> · <a href="../../about/">About</a> · <a href="../../faq/">FAQ</a> · <a href="../../baike/lgns/">LGNS Wiki</a> · <a href="../../baike/anubis/">Anubis</a> · <a href="../../articles/">Research</a> · <a href="../../contracts/">Contracts</a></div><div style="margin-top:8px;color:var(--muted);font-size:12px" data-lang="zh">web3origin.com · Origin 生态链上数据查询与研究平台 · 内容仅供学习理解，不构成投资建议（DYOR）</div><div style="margin-top:8px;color:var(--muted);font-size:12px" data-lang="en">web3origin.com · On-chain data & research platform for the ORIGIN ecosystem · For learning only, not investment advice (DYOR)</div></footer>
+<script src="/i18n.js"></script>
 </body></html>
