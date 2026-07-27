@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>关于 Web3Origin — Origin 生态链上数据查询与研究平台</title>
 <meta name="description" content="Web3Origin 是 Origin(起源) 生态的链上数据查询与研究平台：合约验证、钱包体检、链上日报、证据库。了解我们是谁、解决什么问题、提供哪些数据、服务哪些用户。">
@@ -42,11 +43,17 @@ ul{color:var(--soft);font-size:15px;padding-left:22px} li{margin:6px 0}
 .tag.chain{color:var(--green);border-color:rgba(143,191,120,.4)} .tag.off{color:var(--gold-lt);border-color:rgba(214,168,75,.4)} .tag.todo{color:var(--muted);border-color:var(--line)}
 .ent{background:rgba(0,0,0,.18);border-radius:9px;padding:12px 15px;font-size:14px;color:var(--soft);line-height:1.9}
 footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--muted);font-size:13px;text-align:center;line-height:2} footer a{margin:0 7px}
+/* ── 中英切换：默认隐藏所有带 data-lang 的块；按 <html lang> 显示对应语言（中文=zh-CN/zh-TW，其余语言一律回退英文）── */
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],
+html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4}
+#langBtn:hover{color:var(--bone);border-color:var(--gold)}
 </style>
 </head>
-<body><nav class="nav"><span class="brand">起源 · <b>关于</b></span><a href="../">← 返回首页</a><span class="sp"></span><a href="../baike/lgns/">LGNS是什么</a><a href="../contracts/">合约大全</a><a href="../faq/">FAQ</a></nav>
-<div class="crumb"><a href="../">起源学习站</a> › 关于</div>
-<article class="wrap">
+<body><nav class="nav"><span class="brand"><span data-lang="zh">起源 · <b>关于</b></span><span data-lang="en">ORIGIN · <b>About</b></span></span><a href="../"><span data-lang="zh">← 返回首页</span><span data-lang="en">← Home</span></a><span class="sp"></span><a href="../baike/lgns/"><span data-lang="zh">LGNS是什么</span><span data-lang="en">What is LGNS</span></a><a href="../contracts/"><span data-lang="zh">合约大全</span><span data-lang="en">All Contracts</span></a><a href="../faq/">FAQ</a><button id="langBtn" aria-label="Language">🌐</button></nav>
+<div class="crumb"><span data-lang="zh"><a href="../">起源学习站</a> › 关于</span><span data-lang="en"><a href="../">ORIGIN Learn</a> › About</span></div>
+<article class="wrap" data-lang="zh">
   <h1>关于 Web3Origin</h1>
   <p class="lede"><b>一句话：Web3Origin 是 Origin（起源）生态的链上数据查询与研究平台。</b>我们把"别人说的"变成"你自己上链查到的"——查合约、查钱包、看日报、查证据，全部可在区块浏览器独立核实。</p>
 
@@ -81,6 +88,43 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:v
   <p><b>数据驱动、证据优先</b>：每个结论都有链上来源（交易哈希 / 合约地址），可自己核实。内容仅供学习理解，<b>不构成投资建议</b>。数据实时读自链上与官方接口，以区块浏览器为准。</p>
 
   <p style="margin-top:22px"><a href="../faq/">→ 常见问题（FAQ）</a>　<a href="../sources/">→ 数据来源与可信度</a>　<a href="../contracts/">→ 合约地址大全</a></p>
-</article><footer><div><a href="../">首页</a> · <a href="../about/">关于</a> · <a href="../faq/">FAQ</a> · <a href="../sources/">数据来源</a> · <a href="../baike/lgns/">LGNS百科</a> · <a href="../contracts/">合约大全</a> · <a href="../en/">English</a></div><div style="margin-top:8px;color:var(--muted);font-size:12px">web3origin.com · Origin 生态链上数据查询与研究平台 · 内容仅供学习理解，不构成投资建议（DYOR）</div></footer>
+</article>
+<article class="wrap" data-lang="en">
+  <h1>About Web3Origin</h1>
+  <p class="lede"><b>In one line: Web3Origin is the on-chain data lookup and research platform for the ORIGIN ecosystem.</b> We turn "what others tell you" into "what you verify on-chain yourself" — check contracts, check wallets, read the daily report, look up evidence, all independently verifiable on a block explorer.</p>
+
+  <h2>Who We Are</h2>
+  <p>Web3Origin (web3origin.com, also known as "ORIGIN Learn") is an independent on-chain data platform centered on <b>ORIGIN / LGNS / Anubis Chain</b>. It is primarily in Chinese, with an English version (/en/). We do not custody assets and do not connect wallets — we only do <b>lookup, verification and research of public on-chain data</b>.</p>
+
+  <h2>What Problem We Solve</h2>
+  <p>The biggest problem in Web3 is information asymmetry — ordinary users can usually only go by "what others say." Web3Origin lets you <b>verify on-chain yourself</b>: whether a token can be minted, what a wallet holds and has done, whether an event really happened, and how much is actually in the treasury — all can be looked up and cross-checked with one click, so you don't have to just trust anyone's word (DYOR).</p>
+
+  <h2>What Data / Tools We Provide</h2>
+  <ul>
+    <li><b>Contract Verification Center</b> — all 61 of ORIGIN's contracts on Polygon and Anubis, including whether each is open-source / a proxy / upgradeable / its Owner / multisig.</li>
+    <li><b>Wallet Monitor · On-chain Check-up</b> — any address's identity, assets, activity timeline, and approval risks.</li>
+    <li><b>On-chain Evidence Library</b> — key events from LGNS genesis to the Anubis launch, each with a real transaction hash.</li>
+    <li><b>ORIGIN On-chain Daily</b> — an auto-generated daily on-chain report (price/supply/staking/treasury/large trades).</li>
+    <li>Referrer lookup, yield calculator, token security self-check, large-trade monitoring, and an on-chain data dashboard.</li>
+  </ul>
+
+  <h2>Who We Serve</h2>
+  <p>The <b>newcomers, holders, and researchers</b> of the ORIGIN / LGNS / Anubis ecosystem, plus anyone who wants to verify on-chain data clearly before making a decision.</p>
+
+  <h2>Related Entities (Ecosystem Map)</h2>
+  <div class="ent">
+    <b>ORIGIN</b> = the entire Web3 ecosystem<br>
+    ├─ <b>LGNS</b> = core token (algorithmic token, 9 decimals, (3,3) staking)<br>
+    ├─ <b>sLGNS</b> = staking receipt　├─ <b>GLGNS</b> = governance token (voting)　├─ <b>A</b> = ecosystem stablecoin<br>
+    ├─ <b>Anubis Chain</b> = self-built privacy chain (Chain ID 6714, gas paid in DAI)<br>
+    └─ <b>Awake DAO</b> = community governance
+  </div>
+
+  <h2>Principles</h2>
+  <p><b>Data-driven, evidence-first</b>: every conclusion has an on-chain source (transaction hash / contract address) you can verify yourself. Content is for learning only and <b>does not constitute investment advice</b>. Data is read live from the chain and official interfaces; the block explorer is authoritative.</p>
+
+  <p style="margin-top:22px"><a href="../faq/">→ Frequently Asked Questions (FAQ)</a>　<a href="../sources/">→ Data Sources & Credibility</a>　<a href="../contracts/">→ All Contract Addresses</a></p>
+</article><footer><div data-lang="zh"><a href="../">首页</a> · <a href="../about/">关于</a> · <a href="../faq/">FAQ</a> · <a href="../sources/">数据来源</a> · <a href="../baike/lgns/">LGNS百科</a> · <a href="../contracts/">合约大全</a> · <a href="../en/">English</a></div><div data-lang="en"><a href="../">Home</a> · <a href="../about/">About</a> · <a href="../faq/">FAQ</a> · <a href="../sources/">Sources</a> · <a href="../baike/lgns/">LGNS Wiki</a> · <a href="../contracts/">All Contracts</a> · <a href="../en/">English</a></div><div style="margin-top:8px;color:var(--muted);font-size:12px"><span data-lang="zh">web3origin.com · Origin 生态链上数据查询与研究平台 · 内容仅供学习理解，不构成投资建议（DYOR）</span><span data-lang="en">web3origin.com · On-chain data & research platform for the ORIGIN ecosystem · For learning only, not investment advice (DYOR)</span></div></footer>
+<script src="/i18n.js"></script>
 </body>
 </html>
