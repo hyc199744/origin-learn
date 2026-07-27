@@ -12,7 +12,7 @@ function sv(d){try{localStorage.setItem(VK,JSON.stringify(d));}catch(e){}}
 function get(k){var d=st();return d[k]||{};}
 function fav(s){return !!get("fav")[s];}
 function prog(s){return get("prog")[s]||0;}
-function fmtViews(n){if(n==null)return "";if(n>=1e4)return (n/1e4).toFixed(1)+"万";if(n>=1e3)return (n/1e3).toFixed(1)+"k";return String(n);}
+function fmtViews(n){if(n==null)return "";if(n>=1e4&&!EN())return (n/1e4).toFixed(1)+"万";if(n>=1e3)return (n/1e3).toFixed(1)+"k";return String(n);}
 
 /* 播放量:批量读 + 单个自增(每会话每视频只+1) */
 function loadViews(slugs,cb){
@@ -74,7 +74,7 @@ function initHub(){
     var hits=vids.filter(function(v){return ((v.title||"")+(v.title_en||"")+(v.desc||"")).toLowerCase().indexOf(q)>=0;}).slice(0,8);
     sr.style.display="block";
     sr.innerHTML=hits.length?hits.map(function(v){var href=v.src?("./"+v.slug+"/"):("/academy/"+v.academy+"/");
-      return '<a class="vid-sr" href="'+href+'">'+(v.src?"▶ ":"📖 ")+(EN()&&v.title_en?v.title_en:v.title)+'</a>';}).join(""):'<div class="vid-sr-no">没找到相关视频</div>';
+      return '<a class="vid-sr" href="'+href+'">'+(v.src?"▶ ":"📖 ")+(EN()&&v.title_en?v.title_en:v.title)+'</a>';}).join(""):'<div class="vid-sr-no">'+(EN()?"No matching video":"没找到相关视频")+'</div>';
   });
   // 短视频模式
   var sb=document.getElementById("vidShortBtn"),ov=document.getElementById("vidShort");
@@ -90,7 +90,7 @@ function buildShort(ov,reals){
     return '<div class="vid-short-item"><video src="'+v.src+'#t=0.1" playsinline preload="metadata" controls loop></video>'
       +'<div class="vid-short-meta"><div class="vs-cat">'+catName(v.cat)+' · '+(v.durText||"")+'</div>'
       +'<div class="vs-title">'+v.title+'</div><div class="vs-desc">'+(v.desc||"")+'</div>'
-      +'<a class="vs-open" href="./'+v.slug+'/">看完整讲解 ›</a></div></div>';
+      +'<a class="vs-open" href="./'+v.slug+'/">'+(EN()?"Watch full lesson":"看完整讲解")+' ›</a></div></div>';
   }).join("");
   // 滚动到中间的自动播放
   var io=new IntersectionObserver(function(es){es.forEach(function(e){var vd=e.target.querySelector("video");if(!vd)return;
@@ -127,10 +127,10 @@ function initDetail(){
   }
   // 收藏 / 稍后看
   var fb=document.getElementById("vidFav");
-  if(fb){function pf(){fb.textContent=(fav(slug)?"★ 已收藏":"☆ 收藏");fb.classList.toggle("on",fav(slug));}pf();
+  if(fb){function pf(){fb.textContent=EN()?(fav(slug)?"★ Saved":"☆ Save"):(fav(slug)?"★ 已收藏":"☆ 收藏");fb.classList.toggle("on",fav(slug));}pf();
     fb.onclick=function(){var d=st();d.fav=d.fav||{};if(d.fav[slug])delete d.fav[slug];else d.fav[slug]=1;sv(d);pf();};}
   var lb=document.getElementById("vidLater");
-  if(lb){function pl2(){var later=get("later")[slug];lb.textContent=later?"✓ 已加入稍后看":"+ 稍后看";}pl2();
+  if(lb){function pl2(){var later=get("later")[slug];lb.textContent=EN()?(later?"✓ In Watch Later":"+ Watch Later"):(later?"✓ 已加入稍后看":"+ 稍后看");}pl2();
     lb.onclick=function(){var d=st();d.later=d.later||{};if(d.later[slug])delete d.later[slug];else d.later[slug]=1;sv(d);pl2();};}
 }
 function fmtTime(s){s=Math.floor(s);var m=Math.floor(s/60),ss=s%60;return m+":"+(ss<10?"0":"")+ss;}
