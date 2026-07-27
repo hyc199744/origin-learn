@@ -135,6 +135,19 @@ function initDetail(){
 }
 function fmtTime(s){s=Math.floor(s);var m=Math.floor(s/60),ss=s%60;return m+":"+(ss<10?"0":"")+ss;}
 
+/* ══════ 视频防护:关右键 + 禁下载/画中画 ══════
+   表面防护,挡住"右键→另存为"和下载按钮;录屏与抓包仍防不住,真要严防需 R2 私有+临时链接+HLS 切片。*/
+function guardVideos(){
+  document.querySelectorAll("video").forEach(function(v){
+    try{ v.setAttribute("controlsList","nodownload noremoteplayback"); v.disablePictureInPicture=true; }catch(e){}
+  });
+}
+document.addEventListener("contextmenu",function(e){
+  var t=e.target; if(t&&(t.tagName==="VIDEO"||(t.closest&&t.closest("video")))) e.preventDefault();
+},true);
+guardVideos();
+try{ new MutationObserver(guardVideos).observe(document.documentElement,{childList:true,subtree:true}); }catch(e){}
+
 function boot(){ if(document.getElementById("vidHub"))initHub(); else if(document.getElementById("vidDetail"))initDetail(); }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();

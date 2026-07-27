@@ -1090,6 +1090,7 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
 })();
 </script>
 <script src="i18n.js"></script>
+<script>/* 视频关右键 */document.addEventListener("contextmenu",function(e){var t=e.target;if(t&&(t.tagName==="VIDEO"||(t.closest&&t.closest("video"))))e.preventDefault();},true);</script>
 
 </body>
 </html>
