@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ORIGIN Ecosystem — LGNS, Anubis Chain & On-chain Tools | web3origin.com</title>
 <meta name="description" content="A beginner's guide to the Origin (ORIGIN) ecosystem: understand LGNS, the Anubis privacy chain and (3,3) staking, plus free on-chain tools — contract verification, wallet checkup, referrer lookup, daily on-chain report — all verifiable in a block explorer.">
@@ -57,6 +58,12 @@ p{color:var(--soft);font-size:15px} p b,li b{color:var(--bone);font-weight:600}
 .big{display:inline-block;margin:8px 8px 0 0;background:linear-gradient(180deg,var(--gold-lt),var(--gold));color:#1a0d0a;padding:11px 22px;border-radius:6px;font-weight:600;font-size:15px}
 footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--muted);font-size:13px;text-align:center;line-height:2}
 footer a{margin:0 7px}
+/* ── 中英切换：默认隐藏所有带 data-lang 的块；按 <html lang> 显示对应语言（中文=zh-CN/zh-TW，其余语言一律回退英文）── */
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],
+html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4}
+#langBtn:hover{color:var(--bone);border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -66,6 +73,7 @@ footer a{margin:0 7px}
   <span class="sp"></span>
   <a href="../contracts/">Contracts</a>
   <a href="../">Tools</a>
+  <button id="langBtn" aria-label="Language">🌐</button>
 </nav>
 <div class="wrap">
   <h1>ORIGIN Ecosystem — LGNS, Anubis Chain & On-chain Tools</h1>
@@ -114,5 +122,6 @@ footer a{margin:0 7px}
     <div style="margin-top:8px;color:var(--muted);font-size:12px">web3origin.com · On-chain data hub for the Origin ecosystem · For learning only, not investment advice (DYOR).</div>
   </footer>
 </div>
+<script src="/i18n.js"></script>
 </body>
 </html>

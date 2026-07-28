@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>链上提币｜LGNS 链上操作工具 · Web3Origin</title>
 <meta name="description" content="Web3Origin 链上提币工具：让用户无需依赖 DApp 入口，通过钱包和智能合约直接管理自己的 LGNS 资产。质押合约不可升级、无需许可，官网即使打不开也能链上自取。绝不索要助记词、私钥或钱包密码。">
@@ -123,100 +124,110 @@ footer a{color:var(--green)}
   .flow{grid-template-columns:1fr 1fr}
   .hero{padding:52px 0 26px}
 }
+/* ── 中英切换：默认隐藏所有带 data-lang 的块；按 <html lang> 显示对应语言（中文=zh-CN/zh-TW，其余语言一律回退英文）── */
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],
+html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:none;border:1px solid var(--line);color:var(--sub);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4}
+#langBtn:hover{color:var(--ink);border-color:var(--green)}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <img src="/assets/logo.png" alt="Web3Origin"><span class="nm">链上<b>提币</b></span>
-  <a class="back" href="/">← 返回首页</a>
+  <img src="/assets/logo.png" alt="Web3Origin"><span class="nm"><span data-lang="zh">链上<b>提币</b></span><span data-lang="en">On-chain <b>Withdrawal</b></span></span>
+  <a class="back" href="/"><span data-lang="zh">← 返回首页</span><span data-lang="en">← Home</span></a>
+  <button id="langBtn" aria-label="Language">🌐</button>
 </div></header>
 
 <main class="wrap">
 
   <section class="hero">
-    <span class="eyebrow">On-chain Withdrawal · 去中心化能力展示</span>
-    <h1>你的资产，<br>不应该依赖一个网页。</h1>
-    <p class="sub">在传统应用里，网站关闭，你可能就无法访问服务。<br>但在区块链世界，资产记录在链上，智能合约公开运行。</p>
-    <p class="tag">即使官方 DApp 页面无法访问，你依然可以通过链上工具，连接自己的钱包，直接完成 LGNS 相关操作。</p>
-    <button class="cta" id="unlockBtn"><span>5 LGNS 解锁链上提币</span><span class="p">→ 立即使用</span></button>
-    <div class="buyproof-wrap"><div class="buyproof"><div class="bp-ava"><span>🧑</span><span>👨</span><span>👩</span><span>🧑‍💼</span></div><div class="bp-txt">已有 <b>93</b> 人支付购买<span class="bp-tag">🔥 热销中</span></div></div></div>
-    <div class="cta-note">已解锁过？<a href="javascript:void(0)" id="restoreLink" style="color:var(--green)">恢复我的访问</a></div>
+    <span class="eyebrow">On-chain Withdrawal · <span data-lang="zh">去中心化能力展示</span><span data-lang="en">A Decentralization Showcase</span></span>
+    <h1><span data-lang="zh">你的资产，<br>不应该依赖一个网页。</span><span data-lang="en">Your assets<br>shouldn't depend on one web page.</span></h1>
+    <p class="sub"><span data-lang="zh">在传统应用里，网站关闭，你可能就无法访问服务。<br>但在区块链世界，资产记录在链上，智能合约公开运行。</span><span data-lang="en">In a traditional app, if the site shuts down you may lose access to the service.<br>But in the blockchain world, assets are recorded on-chain and smart contracts run in the open.</span></p>
+    <p class="tag"><span data-lang="zh">即使官方 DApp 页面无法访问，你依然可以通过链上工具，连接自己的钱包，直接完成 LGNS 相关操作。</span><span data-lang="en">Even if the official DApp page is unreachable, you can still use on-chain tools, connect your own wallet, and carry out LGNS operations directly.</span></p>
+    <button class="cta" id="unlockBtn"><span><span data-lang="zh">5 LGNS 解锁链上提币</span><span data-lang="en">Unlock On-chain Withdrawal · 5 LGNS</span></span><span class="p"><span data-lang="zh">→ 立即使用</span><span data-lang="en">→ Use it now</span></span></button>
+    <div class="buyproof-wrap"><div class="buyproof"><div class="bp-ava"><span>🧑</span><span>👨</span><span>👩</span><span>🧑‍💼</span></div><div class="bp-txt"><span data-lang="zh">已有 <b>93</b> 人支付购买</span><span data-lang="en"><b>93</b> people have paid</span><span class="bp-tag"><span data-lang="zh">🔥 热销中</span><span data-lang="en">🔥 Selling fast</span></span></div></div></div>
+    <div class="cta-note"><span data-lang="zh">已解锁过？</span><span data-lang="en">Already unlocked? </span><a href="javascript:void(0)" id="restoreLink" style="color:var(--green)"><span data-lang="zh">恢复我的访问</span><span data-lang="en">Restore my access</span></a></div>
     <div class="concept">
-      <div class="col a"><h4>传统应用</h4><p>如果网站关闭、入口丢失，<br>用户可能无法访问自己的服务。</p></div>
-      <div class="col b"><h4>区块链应用</h4><p>资产记录在链上，合约公开运行。<br>DApp 只是入口，钱包 + 合约才是核心。</p></div>
+      <div class="col a"><h4><span data-lang="zh">传统应用</span><span data-lang="en">Traditional apps</span></h4><p><span data-lang="zh">如果网站关闭、入口丢失，<br>用户可能无法访问自己的服务。</span><span data-lang="en">If the site shuts down or the entrance is lost,<br>users may lose access to their own services.</span></p></div>
+      <div class="col b"><h4><span data-lang="zh">区块链应用</span><span data-lang="en">Blockchain apps</span></h4><p><span data-lang="zh">资产记录在链上，合约公开运行。<br>DApp 只是入口，钱包 + 合约才是核心。</span><span data-lang="en">Assets are recorded on-chain; contracts run in the open.<br>The DApp is just an entrance — your wallet + the contract are the core.</span></p></div>
     </div>
   </section>
 
   <section class="sec" id="why">
-    <h2>为什么需要链上提币？</h2>
-    <p class="lead">DApp 只是连接智能合约的前端入口。真正控制资产的，是你的钱包和链上的智能合约。</p>
+    <h2><span data-lang="zh">为什么需要链上提币？</span><span data-lang="en">Why do you need on-chain withdrawal?</span></h2>
+    <p class="lead"><span data-lang="zh">DApp 只是连接智能合约的前端入口。真正控制资产的，是你的钱包和链上的智能合约。</span><span data-lang="en">A DApp is just a front-end entrance to a smart contract. What truly controls your assets is your wallet and the on-chain smart contract.</span></p>
     <div class="vals">
-      <div class="val"><div class="n">价值 01</div><h3>摆脱 DApp 限制</h3><p>DApp 只是连接智能合约的一种方式。当网页打不开、加载异常或入口变化时，链上工具仍然可以帮助你访问自己的资产。</p></div>
-      <div class="val"><div class="n">价值 02</div><h3>验证去中心化能力</h3><p>真正的区块链应用，不是依赖某个网站，而是依赖：
-公开的智能合约、钱包签名、链上交易。</p></div>
-      <div class="val"><div class="n">价值 03</div><h3>资产自主控制</h3><p>你始终使用自己的钱包操作。网站不会保管资产、不会获取私钥、不会获取助记词。所有交易都由你的钱包确认。</p></div>
-      <div class="val"><div class="n">价值 04</div><h3>降低新人门槛</h3><p>提供一步一步的教程、操作说明、错误处理、交易查询，让普通用户也能看懂并完成链上操作。</p></div>
+      <div class="val"><div class="n"><span data-lang="zh">价值 01</span><span data-lang="en">Value 01</span></div><h3><span data-lang="zh">摆脱 DApp 限制</span><span data-lang="en">Break free from DApp limits</span></h3><p><span data-lang="zh">DApp 只是连接智能合约的一种方式。当网页打不开、加载异常或入口变化时，链上工具仍然可以帮助你访问自己的资产。</span><span data-lang="en">A DApp is just one way to reach a smart contract. When the page won't open, loads abnormally, or the entrance changes, on-chain tools can still help you reach your own assets.</span></p></div>
+      <div class="val"><div class="n"><span data-lang="zh">价值 02</span><span data-lang="en">Value 02</span></div><h3><span data-lang="zh">验证去中心化能力</span><span data-lang="en">Prove real decentralization</span></h3><p><span data-lang="zh">真正的区块链应用，不是依赖某个网站，而是依赖：
+公开的智能合约、钱包签名、链上交易。</span><span data-lang="en">A true blockchain app doesn't depend on some website — it depends on:
+public smart contracts, wallet signatures, and on-chain transactions.</span></p></div>
+      <div class="val"><div class="n"><span data-lang="zh">价值 03</span><span data-lang="en">Value 03</span></div><h3><span data-lang="zh">资产自主控制</span><span data-lang="en">Full control of your assets</span></h3><p><span data-lang="zh">你始终使用自己的钱包操作。网站不会保管资产、不会获取私钥、不会获取助记词。所有交易都由你的钱包确认。</span><span data-lang="en">You always act with your own wallet. The site never holds your assets, never obtains your private key, and never obtains your seed phrase. Every transaction is confirmed by your wallet.</span></p></div>
+      <div class="val"><div class="n"><span data-lang="zh">价值 04</span><span data-lang="en">Value 04</span></div><h3><span data-lang="zh">降低新人门槛</span><span data-lang="en">Lower the barrier for newcomers</span></h3><p><span data-lang="zh">提供一步一步的教程、操作说明、错误处理、交易查询，让普通用户也能看懂并完成链上操作。</span><span data-lang="en">Step-by-step tutorials, instructions, error handling, and transaction lookup let ordinary users understand and complete on-chain operations.</span></p></div>
     </div>
   </section>
 
   <section class="sec" id="how">
-    <h2>它真的能取到吗？（说实话）</h2>
-    <p class="lead">起源质押主池是 Olympus V1 分叉，<b style="color:var(--green)">合约不可升级、无需许可、管理员拿不走用户质押的 LGNS</b>。这意味着——只要你持有 sLGNS，随时都能直接调合约把 LGNS 取回来，不需要任何人批准。</p>
+    <h2><span data-lang="zh">它真的能取到吗？（说实话）</span><span data-lang="en">Can you really withdraw? (Honestly)</span></h2>
+    <p class="lead"><span data-lang="zh">起源质押主池是 Olympus V1 分叉，<b style="color:var(--green)">合约不可升级、无需许可、管理员拿不走用户质押的 LGNS</b>。这意味着——只要你持有 sLGNS，随时都能直接调合约把 LGNS 取回来，不需要任何人批准。</span><span data-lang="en">ORIGIN's main staking pool is an Olympus V1 fork — <b style="color:var(--green)">the contract is non-upgradeable, permissionless, and the admin cannot take users' staked LGNS</b>. That means: as long as you hold sLGNS, you can call the contract to withdraw your LGNS anytime, without anyone's approval.</span></p>
     <div class="concept" style="grid-template-columns:1fr">
-      <div class="col b"><h4>能取</h4><p>普通质押的 sLGNS 随时可通过合约 <code>unstake</code> 按 1:1 取回 LGNS；360/600 天质押、蛛网 / DAO / 涡轮等各类奖励，也能在提币页连钱包直接从链上领取，只花 gas。</p></div>
+      <div class="col b"><h4><span data-lang="zh">能取</span><span data-lang="en">You can withdraw</span></h4><p><span data-lang="zh">普通质押的 sLGNS 随时可通过合约 <code>unstake</code> 按 1:1 取回 LGNS；360/600 天质押、蛛网 / DAO / 涡轮等各类奖励，也能在提币页连钱包直接从链上领取，只花 gas。</span><span data-lang="en">sLGNS from regular staking can be redeemed 1:1 for LGNS anytime via the contract's <code>unstake</code>; rewards from 360/600-day staking, Cobweb / DAO / Turbo, and more can also be claimed straight from the chain on the withdrawal page by connecting your wallet — you only pay gas.</span></p></div>
     </div>
-    <div class="warnmini" style="max-width:760px;margin:18px auto 0">提币页会在你钱包签名前，明明白白显示「要调用哪个合约、哪个函数、取多少」，并永远提供一条「自己去区块浏览器手动操作」的备用路径。真去中心化，就要让你看得见自己在调什么。</div>
+    <div class="warnmini" style="max-width:760px;margin:18px auto 0"><span data-lang="zh">提币页会在你钱包签名前，明明白白显示「要调用哪个合约、哪个函数、取多少」，并永远提供一条「自己去区块浏览器手动操作」的备用路径。真去中心化，就要让你看得见自己在调什么。</span><span data-lang="en">Before your wallet signs, the withdrawal page clearly shows "which contract, which function, and how much" it will call, and always offers a fallback path to "do it manually on a block explorer yourself." Real decentralization means you can see exactly what you're calling.</span></div>
   </section>
 
   <section class="sec" id="price">
-    <h2>价格</h2>
-    <p class="lead">一次性服务费，解锁工具、专属入口、完整教程与后续更新。</p>
+    <h2><span data-lang="zh">价格</span><span data-lang="en">Pricing</span></h2>
+    <p class="lead"><span data-lang="zh">一次性服务费，解锁工具、专属入口、完整教程与后续更新。</span><span data-lang="en">A one-time service fee unlocks the tool, a dedicated entrance, the full tutorial, and future updates.</span></p>
     <div class="price">
       <div class="amt">5<small>LGNS</small></div>
-      <div class="u">一次性 · 永久访问</div>
+      <div class="u"><span data-lang="zh">一次性 · 永久访问</span><span data-lang="en">One-time · Lifetime access</span></div>
       <ul>
-        <li><b>✓</b>链上提币工具使用权限</li>
-        <li><b>✓</b>专属访问链接</li>
-        <li><b>✓</b>完整图文操作教程</li>
-        <li><b>✓</b>常见问题与错误处理</li>
-        <li><b>✓</b>交易查询工具</li>
-        <li><b>✓</b>后续功能更新</li>
+        <li><b>✓</b><span data-lang="zh">链上提币工具使用权限</span><span data-lang="en">Access to the on-chain withdrawal tool</span></li>
+        <li><b>✓</b><span data-lang="zh">专属访问链接</span><span data-lang="en">A dedicated access link</span></li>
+        <li><b>✓</b><span data-lang="zh">完整图文操作教程</span><span data-lang="en">Full illustrated tutorial</span></li>
+        <li><b>✓</b><span data-lang="zh">常见问题与错误处理</span><span data-lang="en">FAQ &amp; error handling</span></li>
+        <li><b>✓</b><span data-lang="zh">交易查询工具</span><span data-lang="en">Transaction lookup tool</span></li>
+        <li><b>✓</b><span data-lang="zh">后续功能更新</span><span data-lang="en">Future feature updates</span></li>
       </ul>
-      <div class="note">5 LGNS 为工具访问服务费用。底层的链上 unstake 操作本身是免费、无需许可的，实际链上 Gas 费用由你的钱包支付。工具不保管你的任何资产。</div>
+      <div class="note"><span data-lang="zh">5 LGNS 为工具访问服务费用。底层的链上 unstake 操作本身是免费、无需许可的，实际链上 Gas 费用由你的钱包支付。工具不保管你的任何资产。</span><span data-lang="en">The 5 LGNS is a service fee for tool access. The underlying on-chain unstake operation itself is free and permissionless; the actual on-chain gas is paid by your wallet. The tool holds none of your assets.</span></div>
     </div>
-    <div style="text-align:center;margin-top:26px"><button class="cta" onclick="document.getElementById('unlockBtn').click()"><span>5 LGNS 解锁</span><span class="p">→</span></button></div>
+    <div style="text-align:center;margin-top:26px"><button class="cta" onclick="document.getElementById('unlockBtn').click()"><span><span data-lang="zh">5 LGNS 解锁</span><span data-lang="en">Unlock · 5 LGNS</span></span><span class="p">→</span></button></div>
   </section>
 
   <section class="sec" id="flow">
-    <h2>购买流程</h2>
-    <p class="lead">和「查推荐人」工具一样简单，全程链上验证。</p>
+    <h2><span data-lang="zh">购买流程</span><span data-lang="en">How to buy</span></h2>
+    <p class="lead"><span data-lang="zh">和「查推荐人」工具一样简单，全程链上验证。</span><span data-lang="en">As simple as the "referrer lookup" tool — verified on-chain end to end.</span></p>
     <div class="flow">
-      <div class="step"><p>连接钱包</p></div>
-      <div class="step"><p>支付 5 LGNS</p></div>
-      <div class="step"><p>链上验证付款</p></div>
-      <div class="step"><p>生成专属链接</p></div>
-      <div class="step"><p>进入提币页</p></div>
+      <div class="step"><p><span data-lang="zh">连接钱包</span><span data-lang="en">Connect wallet</span></p></div>
+      <div class="step"><p><span data-lang="zh">支付 5 LGNS</span><span data-lang="en">Pay 5 LGNS</span></p></div>
+      <div class="step"><p><span data-lang="zh">链上验证付款</span><span data-lang="en">Verify payment on-chain</span></p></div>
+      <div class="step"><p><span data-lang="zh">生成专属链接</span><span data-lang="en">Generate your link</span></p></div>
+      <div class="step"><p><span data-lang="zh">进入提币页</span><span data-lang="en">Enter the withdrawal page</span></p></div>
     </div>
   </section>
 
   <section class="sec" id="safe">
     <div class="secbar">
-      <h3>⚠️ 安全提醒</h3>
+      <h3><span data-lang="zh">⚠️ 安全提醒</span><span data-lang="en">⚠️ Security reminder</span></h3>
       <div class="row">
-        <span>Web3Origin 不会要求：</span>
-        <span>❌ 助记词</span><span>❌ 私钥</span><span>❌ 钱包密码</span>
+        <span><span data-lang="zh">Web3Origin 不会要求：</span><span data-lang="en">Web3Origin will never ask for:</span></span>
+        <span><span data-lang="zh">❌ 助记词</span><span data-lang="en">❌ Seed phrase</span></span><span><span data-lang="zh">❌ 私钥</span><span data-lang="en">❌ Private key</span></span><span><span data-lang="zh">❌ 钱包密码</span><span data-lang="en">❌ Wallet password</span></span>
       </div>
-      <div class="foot">任何人（包括任何自称官方的人）要求你提供以上信息，都是诈骗。本工具只做只读查询和构造交易，所有交易由你的钱包确认，我们永远拿不到你的私钥或助记词。</div>
+      <div class="foot"><span data-lang="zh">任何人（包括任何自称官方的人）要求你提供以上信息，都是诈骗。本工具只做只读查询和构造交易，所有交易由你的钱包确认，我们永远拿不到你的私钥或助记词。</span><span data-lang="en">Anyone (including anyone claiming to be official) who asks you for the above is running a scam. This tool only does read-only queries and builds transactions; every transaction is confirmed by your wallet, and we can never obtain your private key or seed phrase.</span></div>
     </div>
   </section>
 
 </main>
 
 <footer><div class="wrap">
-  Web3Origin · 起源生态链上数据与研究平台 ·
+  <span data-lang="zh">Web3Origin · 起源生态链上数据与研究平台 ·
   <a href="/">返回首页</a> ·
-  <a href="/tools/onchain-withdraw/">链上提币</a><br>
-  <span style="opacity:.6">本工具用于展示 Web3 去中心化特点。数据均可在区块浏览器逐一核实。</span>
+  <a href="/tools/onchain-withdraw/">链上提币</a></span><span data-lang="en">Web3Origin · On-chain data &amp; research platform for the ORIGIN ecosystem ·
+  <a href="/">Home</a> ·
+  <a href="/tools/onchain-withdraw/">On-chain Withdrawal</a></span><br>
+  <span style="opacity:.6"><span data-lang="zh">本工具用于展示 Web3 去中心化特点。数据均可在区块浏览器逐一核实。</span><span data-lang="en">This tool demonstrates the decentralized nature of Web3. All data can be verified one by one on a block explorer.</span></span>
 </div></footer>
 
 <!-- 解锁弹窗 -->
@@ -333,5 +344,6 @@ footer a{color:var(--green)}
   mask.addEventListener("click",function(e){if(e.target===mask)closeM();});
 })();
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>

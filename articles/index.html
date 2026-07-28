@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>起源生态研究文章 - LGNS/Anubis 链上研究 | web3origin.com</title>
 <meta name="description" content="起源(ORIGIN)生态的链上研究与百科：LGNS、Anubis Chain、Awake DAO、合约地址大全、数据来源，均基于可核实的链上事实。">
 <meta name="keywords" content="起源研究,LGNS研究,Anubis研究,起源链上分析,起源文章,web3origin">
@@ -34,16 +34,37 @@ table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px} th,td{te
 .faq{border:1px solid var(--line);border-radius:9px;margin-bottom:9px;padding:2px 15px;background:rgba(214,168,75,.03)}
 .faq summary{cursor:pointer;padding:12px 0;color:var(--bone);font-size:15.5px;font-family:var(--serif)} .faq p{margin:0 0 12px;font-size:14px;line-height:1.8}
 footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--muted);font-size:13px;text-align:center;line-height:2} footer a{margin:0 7px}
+/* ── 中英切换：默认隐藏所有带 data-lang 的块；按 <html lang> 显示对应语言（中文=zh-CN/zh-TW，其余语言一律回退英文）── */
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],
+html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4}
+#langBtn:hover{color:var(--bone);border-color:var(--gold)}
 </style>
 </head><body>
-<nav class="nav"><span class="brand">起源 · <b>研究</b></span><a href="../">← 返回首页</a><span class="sp"></span><a href="../baike/lgns/">LGNS</a><a href="../contracts/">合约大全</a><a href="../faq/">FAQ</a></nav>
-<div class="crumb"><a href="../">起源学习站</a> › 研究文章</div>
-<article class="wrap">
+<nav class="nav"><span class="brand"><span data-lang="zh">起源 · <b>研究</b></span><span data-lang="en">ORIGIN · <b>Research</b></span></span><a href="../"><span data-lang="zh">← 返回首页</span><span data-lang="en">← Home</span></a><span class="sp"></span><a href="../baike/lgns/">LGNS</a><a href="../contracts/"><span data-lang="zh">合约大全</span><span data-lang="en">All Contracts</span></a><a href="../faq/">FAQ</a><button id="langBtn" aria-label="Language">🌐</button></nav>
+<div class="crumb"><span data-lang="zh"><a href="../">起源学习站</a> › 研究文章</span><span data-lang="en"><a href="../">ORIGIN Learn</a> › Research</span></div>
+
+<!-- ══════════ 中文 ══════════ -->
+<article class="wrap" data-lang="zh">
 <h1>起源生态研究文章</h1>
 <p class="lede"><b>一句话：这里汇集起源（ORIGIN）生态的链上研究与数据整理</b>——每篇都基于可核实的链上事实与官方来源，帮你在做决定前先看清数据。</p>
 <h2>研究与百科</h2>
 <a class="card" href="../baike/lgns/"><b>LGNS 是什么？核心代币完整介绍</b><p>LGNS 的定义、合约地址、精度、(3,3) 质押、铸造机制与风险提示。</p></a><a class="card" href="../baike/anubis/"><b>Anubis Chain 是什么？自建隐私公链介绍</b><p>Chain ID 6714、gas 用 DAI、出块 2 秒、双链结构与添加网络方法。</p></a><a class="card" href="../baike/awake-dao/"><b>Awake DAO 是什么？社区治理介绍</b><p>提案→讨论→投票→执行的流程，以及 GLGNS 治理代币与投票权。</p></a><a class="card" href="../contracts/"><b>起源合约地址大全（Polygon + Anubis）</b><p>两条链全部 61 个合约，开源/代理/可升级/Owner/多签，逐一可核实。</p></a><a class="card" href="../sources/"><b>数据来源与可信度</b><p>核心合约、关键交易哈希与官方来源，逐条标注链上验证/官方来源。</p></a><a class="card" href="../faq/"><b>Origin / LGNS / Anubis 常见问题</b><p>最常被问的问题，直接给答案，可自行上链核实。</p></a>
 <h2>说明</h2>
 <p>本站坚持<b>数据驱动、证据优先</b>：文中的结论都对应链上交易哈希或合约地址，可在区块浏览器（PolygonScan / browser.anubispace.org）独立核实。更多主题（起源生态地图、资金流向分析、每日链上日报存档等）持续更新中。</p>
-<p style="margin-top:16px"><a href="../">→ 回首页用链上工具</a>　<a href="../about/">→ 关于 Web3Origin</a></p></article><footer><div><a href="../">首页</a> · <a href="../about/">关于</a> · <a href="../faq/">FAQ</a> · <a href="../baike/lgns/">LGNS百科</a> · <a href="../baike/anubis/">Anubis</a> · <a href="../articles/">研究</a> · <a href="../contracts/">合约</a></div><div style="margin-top:8px;color:var(--muted);font-size:12px">web3origin.com · Origin 生态链上数据查询与研究平台 · 内容仅供学习理解，不构成投资建议（DYOR）</div></footer>
+<p style="margin-top:16px"><a href="../">→ 回首页用链上工具</a>　<a href="../about/">→ 关于 Web3Origin</a></p></article>
+
+<!-- ══════════ English ══════════ -->
+<article class="wrap" data-lang="en">
+<h1>ORIGIN Ecosystem Research Articles</h1>
+<p class="lede"><b>In one line: this is where on-chain research and data on the ORIGIN ecosystem are gathered</b> — every piece is based on verifiable on-chain facts and official sources, to help you see the data clearly before you decide.</p>
+<h2>Research &amp; Wiki</h2>
+<a class="card" href="../baike/lgns/"><b>What Is LGNS? A Complete Guide to the Core Token</b><p>LGNS's definition, contract address, decimals, (3,3) staking, minting mechanism, and risk notes.</p></a><a class="card" href="../baike/anubis/"><b>What Is Anubis Chain? An Intro to the Self-Built Privacy Chain</b><p>Chain ID 6714, gas paid in DAI, ~2s blocks, the two-chain structure, and how to add the network.</p></a><a class="card" href="../baike/awake-dao/"><b>What Is Awake DAO? An Intro to Community Governance</b><p>The Proposal → Discussion → Vote → Execution flow, plus the GLGNS governance token and voting power.</p></a><a class="card" href="../contracts/"><b>The Full ORIGIN Contract Directory (Polygon + Anubis)</b><p>All 61 contracts across both chains — open-source/proxy/upgradeable/Owner/multisig — each verifiable.</p></a><a class="card" href="../sources/"><b>Data Sources &amp; Credibility</b><p>Core contracts, key transaction hashes, and official sources — each tagged as on-chain verified or official source.</p></a><a class="card" href="../faq/"><b>Origin / LGNS / Anubis FAQ</b><p>The most-asked questions, answered directly — verify on-chain yourself.</p></a>
+<h2>About</h2>
+<p>This site sticks to <b>data-driven, evidence-first</b>: every conclusion maps to an on-chain transaction hash or contract address, independently verifiable on a block explorer (PolygonScan / browser.anubispace.org). More topics (an ORIGIN ecosystem map, fund-flow analysis, a daily on-chain report archive, and more) are being added continuously.</p>
+<p style="margin-top:16px"><a href="../">→ Back home for on-chain tools</a>　<a href="../about/">→ About Web3Origin</a></p></article>
+
+<footer><div data-lang="zh"><a href="../">首页</a> · <a href="../about/">关于</a> · <a href="../faq/">FAQ</a> · <a href="../baike/lgns/">LGNS百科</a> · <a href="../baike/anubis/">Anubis</a> · <a href="../articles/">研究</a> · <a href="../contracts/">合约</a></div><div data-lang="en"><a href="../">Home</a> · <a href="../about/">About</a> · <a href="../faq/">FAQ</a> · <a href="../baike/lgns/">LGNS Wiki</a> · <a href="../baike/anubis/">Anubis</a> · <a href="../articles/">Research</a> · <a href="../contracts/">Contracts</a></div><div data-lang="zh" style="margin-top:8px;color:var(--muted);font-size:12px">web3origin.com · Origin 生态链上数据查询与研究平台 · 内容仅供学习理解，不构成投资建议（DYOR）</div><div data-lang="en" style="margin-top:8px;color:var(--muted);font-size:12px">web3origin.com · On-chain data &amp; research platform for the ORIGIN ecosystem · For learning only, not investment advice (DYOR)</div></footer>
+<script src="/i18n.js"></script>
 </body></html>
