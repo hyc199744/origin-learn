@@ -203,5 +203,56 @@
         }
       } catch (_) {}
     }, true);
+    /* ===================== 性能监控(Web Vitals, 采样) ===================== */
+    (function () {
+      try {
+        var PERF_ENDPOINT = "https://count.web3origin.com/api/collect/performance";
+        if (ssGet("w3o_perf_done")) return;
+        var samp = ssGet("w3o_perf_samp");
+        if (samp === null) { samp = (Math.random() < 0.3) ? "1" : "0"; ssSet("w3o_perf_samp", samp); }
+        if (samp !== "1") return;
+        var perf = { ttfb: null, fcp: null, lcp: null, inp: null, cls: 0, load: null };
+        function nav() {
+          try { var e = performance.getEntriesByType && performance.getEntriesByType("navigation")[0]; if (e) { perf.ttfb = Math.round(e.responseStart); perf.load = Math.round(e.loadEventEnd || e.duration); } } catch (_) {}
+          try { var p = performance.getEntriesByType && performance.getEntriesByType("paint"); if (p) p.forEach(function (x) { if (x.name === "first-contentful-paint") perf.fcp = Math.round(x.startTime); }); } catch (_) {}
+        }
+        try {
+          if (window.PerformanceObserver) {
+            var poL = new PerformanceObserver(function (l) { var es = l.getEntries(); var last = es[es.length - 1]; if (last) perf.lcp = Math.round(last.startTime); });
+            poL.observe({ type: "largest-contentful-paint", buffered: true });
+            var poC = new PerformanceObserver(function (l) { l.getEntries().forEach(function (e) { if (!e.hadRecentInput) perf.cls += e.value; }); });
+            poC.observe({ type: "layout-shift", buffered: true });
+          }
+        } catch (_) {}
+        function sendPerf() {
+          if (ssGet("w3o_perf_done")) return; ssSet("w3o_perf_done", "1");
+          nav(); perf.cls = Math.round(perf.cls * 1000) / 1000;
+          var payload = { visitorId: vid, sessionId: sid, pathname: location.pathname.slice(0, 300), ttfb: perf.ttfb, fcp: perf.fcp, lcp: perf.lcp, inp: perf.inp, cls: perf.cls, load: perf.load };
+          try { var body = JSON.stringify(payload); if (navigator.sendBeacon) navigator.sendBeacon(PERF_ENDPOINT, new Blob([body], { type: "application/json" })); else fetch(PERF_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: body, keepalive: true, credentials: "omit" }).catch(function () {}); } catch (_) {}
+        }
+        window.addEventListener("pagehide", sendPerf, { capture: true, once: true });
+        setTimeout(sendPerf, 6000);
+      } catch (e) {}
+    })();
+    /* ===================== 错误监控(脱敏+节流) ===================== */
+    (function () {
+      try {
+        var ERR_ENDPOINT = "https://count.web3origin.com/api/collect/error";
+        var errCount = 0, ERR_MAX = 5, errSeen = {};
+        function sanitize(s) { s = String(s || "").slice(0, 300); return s.replace(/0x[0-9a-fA-F]{6,}/g, "0x…"); }
+        function sendErr(type, message, source) {
+          try {
+            if (errCount >= ERR_MAX) return;
+            var msg = sanitize(message); if (!msg) return;
+            var key = type + "|" + msg.slice(0, 60); if (errSeen[key]) return; errSeen[key] = 1; errCount++;
+            var payload = { visitorId: vid, sessionId: sid, pathname: location.pathname.slice(0, 300), error_type: type, message: msg, source: sanitize(source).slice(0, 200) };
+            var body = JSON.stringify(payload);
+            if (navigator.sendBeacon) navigator.sendBeacon(ERR_ENDPOINT, new Blob([body], { type: "application/json" })); else fetch(ERR_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: body, keepalive: true, credentials: "omit" }).catch(function () {});
+          } catch (_) {}
+        }
+        window.addEventListener("error", function (e) { try { if (e && e.target && (e.target.tagName === "IMG" || e.target.tagName === "SCRIPT" || e.target.tagName === "LINK")) { sendErr("resource", (e.target.src || e.target.href || "") + " 加载失败", ""); } else { sendErr("js", (e && e.message) || "error", (e && e.filename) || ""); } } catch (_) {} }, true);
+        window.addEventListener("unhandledrejection", function (e) { try { var r = e && e.reason; sendErr("promise", (r && (r.message || r)) || "unhandledrejection", ""); } catch (_) {} });
+      } catch (e) {}
+    })();
   } catch (e) { /* 永不影响页面 */ }
 })();

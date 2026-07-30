@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -174,6 +174,47 @@ function fbOne(id){get("/feedback/get?id="+encodeURIComponent(id)).then(function
   ov.querySelector("#fbOffGo").onclick=function(){act({action:"official",content:ov.querySelector("#fbOff").value.trim(),ostatus:ov.querySelector("#fbOffS").value});};
 });}
 
+/* ---------- 性能监控 ---------- */
+function perfMs(v){v=Number(v)||0;return v>=1000?(v/1000).toFixed(2)+"s":Math.round(v)+"ms";}
+function perfColor(lcp){lcp=Number(lcp)||0;return lcp<2500?"var(--green)":(lcp<4000?"var(--gold)":"#e57373");}
+function pPerformance(el){
+  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div id="pfBody"><div class="a-note-real">加载中…</div></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pPerformance(el);};});
+  get("/performance?range="+encodeURIComponent(AN_RANGE)).then(function(r){
+    var host=el.querySelector("#pfBody"); if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var o=r.overview||{};
+    var cards='<div class="a-cards">'
+      +card("📊","采样数",fmtN(o.samples||0),"约30%会话采样","")
+      +card("🎯","LCP最大内容",perfMs(o.lcp),"P75 "+perfMs(o.lcpP75),(o.lcp<2500&&o.lcp>0)?"ok":"")
+      +card("🎨","FCP首次内容",perfMs(o.fcp),"","")
+      +card("⚡","TTFB首字节",perfMs(o.ttfb),"","")
+      +card("📐","CLS布局偏移",(o.cls||0),o.cls<0.1?"良好":"偏高",o.cls<0.1?"ok":"")
+      +card("⏳","页面加载",perfMs(o.load),"","")
+      +'</div>';
+    function box(t,inner){return '<div class="a-panel-box"><h3>'+t+' <span class="a-real">真实</span></h3>'+inner+'</div>';}
+    var dd=(r.byDevice||[]).map(function(x){return '<div class="an-row"><div class="an-lab">'+esc(x.device_type||"—")+'('+fmtN(x.n)+')</div><div class="an-bar"><div style="width:100%;background:'+perfColor(x.lcp)+'"></div></div><div class="an-val">LCP '+perfMs(x.lcp)+'</div></div>';}).join("")||'<div class="a-center" style="color:var(--muted);padding:10px">暂无</div>';
+    var sp=(r.slowPages||[]);
+    var spt=sp.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>页面</th><th>采样</th><th>LCP</th><th>加载</th></tr></thead><tbody>'+sp.map(function(x){return '<tr><td>'+esc(x.pathname||"—")+'</td><td>'+fmtN(x.n)+'</td><td style="color:'+perfColor(x.lcp)+'">'+perfMs(x.lcp)+'</td><td>'+perfMs(x.load)+'</td></tr>';}).join("")+'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据(性能采样自埋点起累计)</div>';
+    host.innerHTML=cards+box("各设备 LCP",dd)+box("慢页面排行(按LCP)",spt)+'<div class="a-note-real">Web Vitals由浏览器采集、约30%会话采样省D1;LCP<2.5s良好、CLS<0.1良好;INP需web-vitals库暂未采。</div>';
+  }).catch(function(){});
+}
+/* ---------- 错误监控 ---------- */
+function pErrors(el){
+  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div id="erBody"><div class="a-note-real">加载中…</div></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pErrors(el);};});
+  get("/errors?range="+encodeURIComponent(AN_RANGE)).then(function(r){
+    var host=el.querySelector("#erBody"); if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var cards='<div class="a-cards">'+card("🐞","错误总数",fmtN(r.total||0),"","")+card("👥","受影响用户",fmtN(r.users||0),"","")+'</div>';
+    var top=(r.top||[]);
+    var tbl=top.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>错误信息</th><th>类型</th><th>次数</th><th>用户</th><th>最近</th></tr></thead><tbody>'+top.map(function(x){return '<tr><td style="max-width:340px;overflow:hidden;text-overflow:ellipsis">'+esc(x.message||"—")+'</td><td>'+esc(x.error_type||"—")+'</td><td>'+fmtN(x.n)+'</td><td>'+fmtN(x.users)+'</td><td>'+anTime(x.last)+'</td></tr>';}).join("")+'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:14px">暂无错误(好事!错误自埋点起累计)</div>';
+    host.innerHTML=cards+'<div class="a-panel-box"><h3>错误排行 <span class="a-real">真实</span></h3>'+tbl+'<div class="a-note-real">错误信息已脱敏(去0x地址等),不含cookie/密码/密钥/助记词;每会话最多上报5条。</div></div>'
+      +'<div class="a-panel-box"><h3>出错页面</h3>'+anBarList(r.byPage,"pathname","n")+'</div>';
+  }).catch(function(){});
+}
 /* ---------- 页面分析 ---------- */
 function pPages(el){
   anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div style="margin:6px 0"><input id="pgQ" class="an-tab" placeholder="按路径搜索" style="width:200px"></div><div id="pgBody"><div class="a-note-real">加载中…</div></div>';
