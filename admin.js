@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["traffic","📈","流量分析"],["analytics","📊","网站分析"],["events","🎯","事件统计"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["traffic","📈","流量分析"],["analytics","📊","网站分析"],["events","🎯","事件统计"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -80,7 +80,8 @@ function go(page){_cur=page;
   document.querySelectorAll(".a-navi").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-go")===page);});
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
-  ({dashboard:pDash,traffic:pTraffic,analytics:pAnalytics,events:pEvents,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
+  ({dashboard:pDash,realtime:pRealtime,traffic:pTraffic,analytics:pAnalytics,events:pEvents,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -159,6 +160,34 @@ function fbOne(id){get("/feedback/get?id="+encodeURIComponent(id)).then(function
   ov.querySelector("#fbOffGo").onclick=function(){act({action:"official",content:ov.querySelector("#fbOff").value.trim(),ostatus:ov.querySelector("#fbOffS").value});};
 });}
 
+/* ---------- 实时访客 ---------- */
+function rtAgo(sec,now){var d=Math.max(0,now-(Number(sec)||0));if(d<60)return d+"秒前";if(d<3600)return Math.floor(d/60)+"分前";return Math.floor(d/3600)+"时前";}
+function loadRt(el){
+  var host=el.querySelector("#rtBody");
+  get("/realtime").then(function(r){
+    if(!host||!document.getElementById("rtBody"))return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">实时数据加载失败。</div></div>';return;}
+    var now=r.serverTime||Math.floor(Date.now()/1000);
+    var cards='<div class="a-cards">'
+      +card("🟢","当前在线",fmtN(r.online5||0),"最近5分钟活跃","ok")
+      +card("👀","最近30分钟",fmtN(r.online30||0),"30分钟内活跃","")
+      +'</div>';
+    var vis=r.visitors||[];
+    var tbl=vis.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>访客</th><th>当前页</th><th>国家</th><th>设备</th><th>浏览器</th><th>来源</th><th>语言</th><th>页数</th><th>进入</th><th>最后活跃</th></tr></thead><tbody>'
+      +vis.map(function(x){return '<tr><td><code style="font-size:11px">'+esc(String(x.visitor_id||"").slice(0,6))+'</code></td><td>'+esc(x.current_page||"—")+'</td><td>'+esc(x.country||"—")+'</td><td>'+esc(x.device_type||"—")+'</td><td>'+esc(x.browser||"—")+'</td><td>'+esc(x.source||"—")+'</td><td>'+esc(x.language||"—")+'</td><td>'+(x.pageview_count||0)+'</td><td>'+rtAgo(x.started_at,now)+'</td><td>'+rtAgo(x.last_active_at,now)+'</td></tr>';}).join("")
+      +'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:14px">当前没有活跃访客</div>';
+    host.innerHTML=cards+'<div class="a-panel-box"><h3>活跃访客(近30分钟) <span class="a-real">真实</span> <span style="color:var(--muted);font-size:12px;font-weight:normal">· 每15秒自动刷新 · '+new Date().toLocaleTimeString()+'</span></h3>'+tbl
+      +'<div class="a-note-real">匿名短ID(前6位);不显示完整IP/钱包;在线判断靠心跳(30秒/次)。</div></div>';
+  }).catch(function(){if(host)host.innerHTML='<div class="a-panel-box"><div class="a-note-real">实时数据加载失败。</div></div>';});
+}
+function pRealtime(el){
+  anEnsureCss();
+  el.innerHTML='<div id="rtBody"><div class="a-note-real">加载中…</div></div>';
+  loadRt(el);
+  if(window._rtTimer)clearInterval(window._rtTimer);
+  window._rtTimer=setInterval(function(){ if(document.getElementById("rtBody"))loadRt(el); else {clearInterval(window._rtTimer);window._rtTimer=null;} },15000);
+}
 /* ---------- 网站分析 ---------- */
 var AN_RANGE="7d",AN_FROM="",AN_TO="";
 function anDur(s){s=Number(s)||0;if(s<60)return s+"秒";var m=Math.floor(s/60),ss=s%60;if(m<60)return m+"分"+(ss?ss+"秒":"");var h=Math.floor(m/60);return h+"时"+(m%60)+"分";}
