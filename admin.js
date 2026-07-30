@@ -105,8 +105,10 @@ function pDash(el){get("/dashboard").then(function(r){
 });}
 
 /* ---------- 流量 ---------- */
+var GEO_NAMES={CN:"中国",HK:"香港",TW:"台湾",MO:"澳门",US:"美国",SG:"新加坡",JP:"日本",KR:"韩国",GB:"英国",DE:"德国",FR:"法国",CA:"加拿大",AU:"澳大利亚",MY:"马来西亚",TH:"泰国",VN:"越南",ID:"印尼",IN:"印度",RU:"俄罗斯",PH:"菲律宾",NL:"荷兰",BR:"巴西",TR:"土耳其",AE:"阿联酋",IT:"意大利",ES:"西班牙",PT:"葡萄牙",UA:"乌克兰",PL:"波兰",SA:"沙特",EG:"埃及",NG:"尼日利亚",ZA:"南非",MX:"墨西哥",AR:"阿根廷",SE:"瑞典",CH:"瑞士",BE:"比利时",AT:"奥地利",NZ:"新西兰",KH:"柬埔寨",LA:"老挝",MM:"缅甸",BD:"孟加拉",PK:"巴基斯坦",KZ:"哈萨克",IR:"伊朗"};
+function geoFlag(cc){ if(!cc||cc.length!==2) return "🏳️"; try{return String.fromCodePoint.apply(String,[].map.call(cc.toUpperCase(),function(c){return 127397+c.charCodeAt(0);}));}catch(e){return "🏳️";} }
 function pTraffic(el){get("/traffic").then(function(r){
-  var rows=(r.geo||[]).map(function(g,i){var pct=r.total?(g.n/r.total*100).toFixed(1):0;return '<tr><td>'+(i+1)+'</td><td>'+esc(g.country)+'</td><td>'+g.n+'</td><td><div class="a-bar"><div style="width:'+pct+'%"></div></div>'+pct+'%</td></tr>';}).join("");
+  var rows=(r.geo||[]).map(function(g,i){var pct=r.total?(g.n/r.total*100).toFixed(1):0;var cc=g.country||"";var nm=GEO_NAMES[cc]||cc;return '<tr><td>'+(i+1)+'</td><td>'+geoFlag(cc)+' '+esc(nm)+'</td><td>'+g.n+'</td><td><div class="a-bar"><div style="width:'+pct+'%"></div></div>'+pct+'%</td></tr>';}).join("");
   el.innerHTML='<div class="a-panel-box"><h3>访客国家/地区分布 <span class="a-real">真实</span></h3>'
     +'<table class="a-tbl"><thead><tr><th>#</th><th>国家/地区</th><th>访客</th><th>占比</th></tr></thead><tbody>'+(rows||'<tr><td colspan=4 class="a-center">暂无数据</td></tr>')+'</tbody></table>'
     +'<div class="a-total">总访客(去重) '+fmtN(r.total)+'</div></div>'
