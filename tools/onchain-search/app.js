@@ -64,7 +64,7 @@
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; }); }
   function short(a) { a = String(a || ""); return a.length > 14 ? a.slice(0, 8) + "…" + a.slice(-6) : a; }
   function fmtBig(v, dec) { try { v = BigInt(v); var neg = v < 0n; if (neg) v = -v; if (dec <= 0) return (neg ? "-" : "") + v.toString(); var s = v.toString().padStart(dec + 1, "0"); var i = s.slice(0, -dec), f = s.slice(-dec).replace(/0+$/, ""); return (neg ? "-" : "") + i + (f ? "." + f : ""); } catch (e) { return "?"; } }
-  function fmtShort(v, dec) { var s = fmtBig(v, dec); var d = s.indexOf("."); if (d < 0) return s; var out = s.slice(0, d + 5); if (parseFloat(out) === 0 && BigIntSafe(v) > 0n) return "少量"; return out; }
+  function fmtShort(v, dec) { return fmtBig(v, dec); } // 完整精度显示(不再截断/不显示"少量")
   function BigIntSafe(v) { try { return BigInt(v); } catch (e) { return 0n; } }
   function fromDec(numStr, dec) { return fmtBig(BigIntSafe(numStr), dec); } // etherscan返回十进制整数字符串
   function tsFmt(ts) { if (!ts) return "-"; try { return new Date(ts * 1000).toLocaleString(); } catch (e) { return "-"; } }
@@ -104,7 +104,7 @@
   function addrHtml(addr, chain) {
     if (!addr) return "-";
     var lab = labelOf(addr), url = (chain ? chain.explorerAddr : "https://polygonscan.com/address/") + addr;
-    var s = '<a class="mono" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(short(addr)) + "</a>";
+    var s = '<a class="mono" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(addr) + "</a>" + copyBtn(addr); // 完整地址
     if (lab && lab.name) s += ' <span class="tag' + (lab.verified ? " green" : "") + '">' + esc(lab.name) + " · " + esc(lab.source) + "</span>";
     return s;
   }
@@ -388,7 +388,7 @@
       if (appr.length) {
         html += '<div class="card"><h2>🔐 授权与风险 · ' + esc(ch.name) + "</h2>";
         appr.slice(0, 12).forEach(function (a) {
-          html += '<div class="kv"><span class="k">' + esc(a.token) + '</span><span class="v mono">授权给 ' + esc(short(a.spender)) + ' ' + (a.unlimited ? '<span class="tag red">无限额度</span>' : '<span class="tag">有限额度</span>') + "</span></div>";
+          html += '<div class="kv"><span class="k">' + esc(a.token) + '</span><span class="v">授权给 ' + addrHtml(a.spender, ch) + ' ' + (a.unlimited ? '<span class="tag red">无限额度</span>' : '<span class="tag">有限额度 ' + esc(a.amount) + "</span>") + "</span></div>";
         });
         if (appr.some(function (a) { return a.unlimited; })) html += '<div class="warnrow">⚠️ 存在【无限额度】授权。若某个被授权合约你已不再使用，建议到 <a href="https://revoke.cash/" target="_blank" rel="noopener noreferrer">revoke.cash</a> 撤销，降低风险。请自行确认被授权合约是否可信。</div>';
         html += "</div>";
@@ -419,11 +419,11 @@
     // 资产流
     if ((a.outs && a.outs.length) || (a.ins && a.ins.length)) {
       h += '<div class="detail">';
-      (a.outs || []).forEach(function (t) { h += '<div class="flow"><span class="neg">- ' + esc(t.amount + " " + (t.token || "代币")) + '</span> → ' + esc(short(t.to)) + "</div>"; });
-      (a.ins || []).forEach(function (t) { h += '<div class="flow"><span class="pos">+ ' + esc(t.amount + " " + (t.token || "代币")) + '</span> ← ' + esc(short(t.from)) + "</div>"; });
+      (a.outs || []).forEach(function (t) { h += '<div class="flow"><span class="neg">- ' + esc(t.amount + " " + (t.token || "代币")) + '</span> → <span class="mono">' + esc(t.to || "-") + "</span></div>"; });
+      (a.ins || []).forEach(function (t) { h += '<div class="flow"><span class="pos">+ ' + esc(t.amount + " " + (t.token || "代币")) + '</span> ← <span class="mono">' + esc(t.from || "-") + "</span></div>"; });
       h += "</div>";
     }
-    h += '<div style="margin-top:6px"><a class="mono" href="' + esc(ch.explorerTx + a.hash) + '" target="_blank" rel="noopener noreferrer" data-ev="explorer">' + esc(short(a.hash)) + " ↗</a></div>";
+    h += '<div style="margin-top:6px"><a class="mono" href="' + esc(ch.explorerTx + a.hash) + '" target="_blank" rel="noopener noreferrer" data-ev="explorer">' + esc(a.hash) + " ↗</a>" + copyBtn(a.hash) + "</div>";
     h += "</div>";
     return h;
   }
@@ -468,7 +468,7 @@
         html += '<div class="card"><h2>🔄 资产变化（按地址）· ' + esc(ch.name) + "</h2>";
         rows.forEach(function (rw) {
           var sign = rw.value < 0n ? "neg" : "pos", pfx = rw.value < 0n ? "- " : "+ ";
-          html += '<div class="flow"><span class="mono">' + esc(short(rw.addr)) + '</span> <span class="' + sign + '">' + pfx + esc(amtOrRaw((rw.value < 0n ? -rw.value : rw.value), rw.dec) + " " + rw.sym) + "</span></div>";
+          html += '<div class="flow"><span class="mono">' + esc(rw.addr) + '</span> <span class="' + sign + '">' + pfx + esc(amtOrRaw((rw.value < 0n ? -rw.value : rw.value), rw.dec) + " " + rw.sym) + (rw.tokenAddr ? " " + esc(rw.tokenAddr) : "") + "</span></div>";
         });
         html += "</div>";
       }
@@ -490,12 +490,22 @@
         });
         html += '<div class="warnrow">仅当「授权人」是你本人时才是你的授权。如果是你的授权且已不再使用，建议到 <a href="https://revoke.cash/" target="_blank" rel="noopener noreferrer">revoke.cash</a> 撤销。</div></div>';
       }
-      // 事件日志 + 原始数据(折叠)
-      html += '<div class="card"><h2>📜 事件日志与原始数据 · ' + esc(ch.name) + "</h2>";
-      html += '<div class="kv"><span class="k">事件数</span><span class="v">' + (n.logs ? n.logs.length : 0) + " 条</span></div>";
-      html += '<a class="act-more" data-toggle="raw' + esc(ch.name) + '">展开原始 Input Data / 依据 ▾</a>';
+      // 事件日志 + 原始数据(完整展开)
+      var logs = n.logs || [];
+      html += '<div class="card"><h2>📜 事件日志与原始数据 · ' + esc(ch.name) + "（共 " + logs.length + " 条事件）</h2>";
+      logs.forEach(function (lg, li) {
+        var ca = String((lg.address && (lg.address.hash || lg.address)) || lg.address || ""), tps = lg.topics || [];
+        var t0 = (tps[0] || "").toLowerCase(), evName = (t0 === TRANSFER_TOPIC ? "Transfer" : (t0 === APPROVAL_TOPIC ? "Approval" : (lg.decoded && lg.decoded.method_call) || "")); // 已识别的事件标出来
+        html += '<div class="act" style="margin-bottom:8px"><div class="act-h"><span class="tag blue">#' + li + (evName ? " " + esc(evName) : "") + '</span></div>';
+        html += '<div class="kv"><span class="k">合约</span><span class="v mono">' + esc(ca) + "</span></div>";
+        tps.forEach(function (tp, ti) { html += '<div class="kv"><span class="k">topic' + ti + '</span><span class="v mono" style="font-size:11px">' + esc(tp) + "</span></div>"; });
+        html += '<div class="kv"><span class="k">data</span><span class="v mono" style="font-size:11px;word-break:break-all">' + esc(lg.data || "0x") + "</span></div>";
+        html += "</div>";
+      });
+      if (!logs.length) html += '<div class="src">这笔交易没有产生事件日志。</div>';
+      html += '<a class="act-more" data-toggle="raw' + esc(ch.name) + '">展开完整 Input Data ▾</a>';
       html += '<div id="raw' + esc(ch.name) + '" style="display:none;margin-top:8px">';
-      html += '<div class="src mono" style="word-break:break-all">Input: ' + esc((n.input || "0x").slice(0, 400)) + ((n.input || "").length > 400 ? "…" : "") + "</div>";
+      html += '<div class="src mono" style="word-break:break-all">Input（完整）：' + esc(n.input || "0x") + "</div>";
       html += '<div class="src">数据来源：' + esc(ch.source) + "</div></div></div>";
     });
     if (errored.length) html += '<div class="warnrow">⚠️ ' + errored.map(function (r) { return r.chain.name; }).join("、") + " 链数据源暂时不可用（不代表交易不存在）。</div>";
