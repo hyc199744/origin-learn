@@ -101,11 +101,13 @@
     for (var a in KNOWN_TOKENS) if (!LABELS[a]) LABELS[a] = { name: KNOWN_TOKENS[a].sym + " 代币", source: "Web3Origin核实", verified: true };
   })();
   function labelOf(addr) { if (!addr) return null; return LABELS[addr.toLowerCase()] || null; }
-  function addrHtml(addr, chain) {
+  function addrHtml(addr, chain, typeHint) {
     if (!addr) return "-";
     var lab = labelOf(addr), url = (chain ? chain.explorerAddr : "https://polygonscan.com/address/") + addr;
     var s = '<a class="mono" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(addr) + "</a>" + copyBtn(addr); // 完整地址
-    if (lab && lab.name) s += ' <span class="tag' + (lab.verified ? " green" : "") + '">' + esc(lab.name) + " · " + esc(lab.source) + "</span>";
+    if (lab && lab.name) s += ' <span class="tag' + (lab.verified ? " green" : "") + '">📄 ' + esc(lab.name) + " · " + esc(lab.source) + "</span>"; // 已知合约
+    else if (typeHint === "contract") s += ' <span class="tag">📄 合约地址</span>';
+    else if (typeHint === "eoa") s += ' <span class="tag green">👤 外部账户</span>';
     return s;
   }
 
@@ -223,8 +225,9 @@
       if (!tx) return { chain: chain, status: "not_found" };
       return Promise.all([
         rpc(chain.rpcUrl, "eth_getTransactionReceipt", [hash]).catch(function () { return null; }),
-        tx.blockNumber ? rpc(chain.rpcUrl, "eth_getBlockByNumber", [tx.blockNumber, false]).catch(function () { return null; }) : null
-      ]).then(function (rb) { return { chain: chain, status: "found", n: normalizeEvmTx(chain, tx, rb[0], rb[1]) }; });
+        tx.blockNumber ? rpc(chain.rpcUrl, "eth_getBlockByNumber", [tx.blockNumber, false]).catch(function () { return null; }) : null,
+        tx.to ? rpc(chain.rpcUrl, "eth_getCode", [tx.to, "latest"]).catch(function () { return null; }) : null // 判断To是合约还是个人
+      ]).then(function (rb) { var nn = normalizeEvmTx(chain, tx, rb[0], rb[1]); nn.fromIsContract = false; nn.toIsContract = (rb[2] == null) ? null : (rb[2] && rb[2] !== "0x"); return { chain: chain, status: "found", n: nn }; });
     }).catch(function () { return { chain: chain, status: "error" }; });
   }
   function normalizeEvmTx(chain, tx, rc, blk) {
@@ -256,6 +259,7 @@
   }
   function normalizeAnubisTx(chain, tx, tt, logs) {
     var n = { chain: chain, hash: tx.hash, from: tx.from && tx.from.hash, to: tx.to && tx.to.hash,
+      fromIsContract: (tx.from && typeof tx.from.is_contract === "boolean") ? tx.from.is_contract : null, toIsContract: (tx.to && typeof tx.to.is_contract === "boolean") ? tx.to.is_contract : null, // 保留三态,缺字段=null(未知)
       nonce: tx.nonce, value: BigIntSafe(tx.value || "0"), input: tx.raw_input || "0x",
       block: tx.block_number || tx.block, time: tx.timestamp ? Math.floor(Date.parse(tx.timestamp) / 1000) : null,
       isCreation: !!(tx.created_contract), contractAddress: tx.created_contract && tx.created_contract.hash,
@@ -363,7 +367,8 @@
       html += '<div class="card"><h2>📇 地址概览 · ' + esc(ch.name) + "</h2>";
       html += '<div class="kv"><span class="k">地址</span><span class="v mono">' + esc(addr) + copyBtn(addr) + "</span></div>";
       if (lab && lab.name) html += '<div class="kv"><span class="k">标签</span><span class="v"><span class="tag green">' + esc(lab.name) + " · " + esc(lab.source) + "</span></span></div>";
-      html += '<div class="kv"><span class="k">类型</span><span class="v">' + (w.isContract ? "有代码（合约，或被 7702 委托的钱包）" : "目前没有合约代码（一般是普通钱包）") + "</span></div>";
+      var knownC = lab && lab.name; // contracts.js 里已知的合约
+      html += '<div class="kv"><span class="k">类型</span><span class="v">' + (w.isContract ? '<span class="tag">📄 合约地址</span>' + (knownC ? "" : " （链上有代码；也可能是被 7702 委托的钱包）") : '<span class="tag green">👤 外部账户 EOA</span> （当前没有合约代码；一般是个人钱包，但也可能是机器人或机构控制的账户）') + "</span></div>";
       html += '<div class="kv"><span class="k">原生余额</span><span class="v mono">' + esc((w.native && w.native.amount != null ? w.native.amount : 0) + " " + (w.native && w.native.sym || ch.nativeSymbol)) + "</span></div>";
       if (w.firstTs) html += '<div class="kv"><span class="k">首次活动</span><span class="v">' + esc(tsFmt(w.firstTs)) + "</span></div>";
       html += '<div class="kv"><span class="k">最近活动</span><span class="v">' + esc(acts[0] ? tsFmt(acts[0].ts) : "-") + "</span></div>";
@@ -453,8 +458,8 @@
       html += kv("交易哈希", '<span class="mono">' + esc(hash) + "</span>" + copyBtn(hash));
       html += kv("时间", esc(tsFmt(n.time)));
       html += kv("区块", esc(String(n.block || "-")));
-      html += kv("From", addrHtml(n.from, ch) + copyBtn(n.from || ""));
-      html += kv("To", n.isCreation ? ("（合约创建 → " + addrHtml(n.contractAddress, ch) + "）") : (addrHtml(n.to, ch) + copyBtn(n.to || "")));
+      html += kv("From", addrHtml(n.from, ch, n.fromIsContract === true ? "contract" : (n.fromIsContract === false ? "eoa" : null)));
+      html += kv("To", n.isCreation ? ("（合约创建 → " + addrHtml(n.contractAddress, ch, "contract") + "）") : addrHtml(n.to, ch, n.toIsContract === true ? "contract" : (n.toIsContract === false ? "eoa" : null)));
       if (n.nonce != null) html += kv("Nonce", esc(String(n.nonce)));
       html += kv("原生金额", esc(fmtBig(n.value, 18) + " " + ch.nativeSymbol));
       if (n.gasUsed != null) html += kv("Gas Used", esc(n.gasUsed.toString()));
