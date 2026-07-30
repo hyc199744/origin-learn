@@ -125,8 +125,10 @@
 
   /* ---- 交易哈希链上只读查询(点击才发请求,防私钥误发;两链并发) ---- */
   var TX_CHAINS = [
-    { cn: "Polygon", en: "Polygon", id: 137, rpc: "https://polygon.drpc.org", sym: "POL", tx: "https://polygonscan.com/tx/", addr: "https://polygonscan.com/address/" },
-    { cn: "Anubis", en: "Anubis", id: 6714, rpc: "https://rpc.anubispace.org", sym: "DAI", tx: "https://browser.anubispace.org/tx/", addr: "https://browser.anubispace.org/address/" }
+    { cn: "Polygon", en: "Polygon", id: 137, rpc: "https://polygon.drpc.org", sym: "POL", tx: "https://polygonscan.com/tx/", addr: "https://polygonscan.com/address/",
+      tokens: [{ sym: "LGNS", a: "0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01", dec: 9 }, { sym: "sLGNS", a: "0x99a57E6C8558BC6689f894e068733ADf83C19725", dec: 9 }] },
+    { cn: "Anubis", en: "Anubis", id: 6714, rpc: "https://rpc.anubispace.org", sym: "DAI", tx: "https://browser.anubispace.org/tx/", addr: "https://browser.anubispace.org/address/",
+      tokens: [{ sym: "LGNS", a: "0x4D1D808a081FdAc440703b3765FC61f8028C06B8", dec: 9 }] }
   ];
   function rpcCall(url, method, params) {
     var ctrl = (typeof AbortController !== "undefined") ? new AbortController() : null;
@@ -136,7 +138,11 @@
       .then(function (j) { if (j.error) throw new Error((j.error && j.error.message) || "RPC error"); return j.result; })
       .then(function (res) { if (timer) clearTimeout(timer); return res; }, function (err) { if (timer) clearTimeout(timer); throw err; });
   }
-  function fmtAmt(hexWei) { try { var v = BigInt(hexWei || "0x0"); var s = v.toString().padStart(19, "0"); var i = s.slice(0, -18), f = s.slice(-18).replace(/0+$/, ""); return i + (f ? "." + f : ""); } catch (e) { return "?"; } }
+  function fmtAmt(hexWei) { return fmtUnit(hexWei, 18); }
+  function fmtUnit(hex, dec) { try { var v = BigInt(hex || "0x0"); if (dec <= 0) return v.toString(); var s = v.toString().padStart(dec + 1, "0"); var i = s.slice(0, -dec), f = s.slice(-dec).replace(/0+$/, ""); return i + (f ? "." + f : ""); } catch (e) { return "?"; } }
+  function bnPos(hex) { try { return hex && hex !== "0x" && BigInt(hex) > 0n; } catch (e) { return false; } }
+  // 大白话用:余额截断到4位小数,灰尘(截断后为0但确有余额)显示"少量"
+  function amtWord(hex, dec, sym) { var full = fmtUnit(hex, dec); var dot = full.indexOf("."); var num = dot >= 0 ? full.slice(0, dot + 5) : full; if (bnPos(hex) && parseFloat(num) === 0) return T("少量 " + sym, "a dust amount of " + sym); return num + " " + sym; }
   // 三态:found=明确查到 / not_found=该链明确无此交易(result:null) / error=查询失败(网络/限流/超时,≠不存在)
   function queryOneChain(chain, hash) {
     return rpcCall(chain.rpc, "eth_getTransactionByHash", [hash]).then(function (tx) {
@@ -169,6 +175,7 @@
       if (rc && rc.gasUsed) card.appendChild(txRow("Gas", String(parseInt(rc.gasUsed, 16))));
       if (fmtAmt(tx.value) === "0") { var note = document.createElement("div"); note.className = "s-tx-note"; note.textContent = T("原生转账为 0,可能是合约调用或代币(ERC-20)转账,代币明细请点下方浏览器查看。", "Native transfer is 0 — likely a contract call or ERC-20 transfer; see the explorer for token details."); card.appendChild(note); }
       var exp = document.createElement("a"); exp.href = ch.tx + hash; exp.target = "_blank"; exp.rel = "noopener noreferrer"; exp.className = "s-chip"; exp.textContent = T("在 " + ch.cn + " 浏览器打开", "Open in " + ch.en + " explorer"); card.appendChild(exp);
+      var ex = document.createElement("div"); ex.className = "s-tx-explain"; ex.textContent = "💬 " + explainTx(f); card.appendChild(ex); // 大白话
       box.appendChild(card);
     });
     // 仅当所有链都"明确无此交易"(无一失败)才敢说不存在
@@ -177,6 +184,75 @@
     if (errored.length) { var er = document.createElement("div"); er.className = "s-tx-err"; er.textContent = "⚠️ " + T(errored.map(function (r) { return r.chain.cn; }).join("、") + " 链查询失败(网络/限流/超时),无法确认这笔交易在该链是否存在,请点下方重试或用浏览器链接核对。", errored.map(function (r) { return r.chain.en; }).join(", ") + " query failed (network/rate-limit/timeout) — can't confirm existence there; retry below or check via explorer."); box.appendChild(er); }
     if (found.length) { var src = document.createElement("div"); src.className = "s-tx-note"; src.textContent = T("数据来自各链公共 RPC 只读查询,仅供参考。", "Data from each chain's public RPC (read-only), for reference."); box.appendChild(src); }
     return errored.length > 0; // 有失败→调用方保留重试按钮
+  }
+  // 交易大白话一句话
+  function explainTx(f) {
+    var tx = f.tx, rc = f.receipt, blk = f.block, ch = f.chain;
+    var st = rc ? (rc.status === "0x1" ? "ok" : "fail") : "unknown"; // 无回执=结果未知,不谎报成功
+    var hasVal = bnPos(tx.value);
+    var kind = tx.to ? (hasVal ? T("转账", "transfer") : T("合约调用", "contract call")) : T("合约创建", "contract creation");
+    var when = blk && blk.timestamp ? new Date(parseInt(blk.timestamp, 16) * 1000).toLocaleDateString() : "";
+    var head = st === "ok" ? T("这是一笔成功的" + kind + "交易,", "A successful " + kind + " ") : (st === "fail" ? T("这是一笔失败的" + kind + "交易,", "A failed " + kind + " ") : T("这是一笔" + kind + "交易(执行结果暂时没取到,以浏览器为准),", "A " + kind + " (result not yet confirmed — see explorer), "));
+    var s = head + (when ? T("发生在 " + when + ",", "on " + when + ", ") : "") + T("在 " + ch.cn + " 链上。", "on " + ch.en + ". ");
+    if (!tx.to) s += T("它创建了一个新合约" + (rc && rc.contractAddress ? "(" + short(rc.contractAddress) + ")" : "") + "。", "It created a new contract" + (rc && rc.contractAddress ? " (" + short(rc.contractAddress) + ")" : "") + ". ");
+    s += hasVal ? T("转了 " + amtWord(tx.value, 18, ch.sym) + "。", "Moved " + amtWord(tx.value, 18, ch.sym) + ". ") : T("没有原生币转账(多半是代币转账或合约操作,代币明细看浏览器)。", "No native transfer (likely a token transfer or contract op — see explorer for tokens).");
+    return s;
+  }
+
+  /* ---- 地址链上只读查询(点击才发请求;两链并发) ---- */
+  function queryAddrOnChain(chain, addr) {
+    return Promise.all([
+      rpcCall(chain.rpc, "eth_getCode", [addr, "latest"]),
+      rpcCall(chain.rpc, "eth_getBalance", [addr, "latest"]),
+      rpcCall(chain.rpc, "eth_getTransactionCount", [addr, "latest"])
+    ]).then(function (base) {
+      var toks = (chain.tokens || []).map(function (t) {
+        var data = "0x70a08231" + addr.slice(2).toLowerCase().padStart(64, "0"); // balanceOf(addr)
+        return rpcCall(chain.rpc, "eth_call", [{ to: t.a, data: data }, "latest"]).then(function (r) { return { sym: t.sym, dec: t.dec, bal: r, ok: true }; }).catch(function () { return { sym: t.sym, dec: t.dec, bal: null, ok: false }; });
+      });
+      return Promise.all(toks).then(function (tk) { return { chain: chain, status: "found", hasCode: !!(base[0] && base[0] !== "0x"), balance: base[1], nonce: base[2], tokens: tk }; });
+    }).catch(function (e) { return { chain: chain, status: "error", error: (e && e.message) || "error" }; });
+  }
+  function queryAddr(addr) { return Promise.all(TX_CHAINS.map(function (c) { return queryAddrOnChain(c, addr); })); }
+  // 地址大白话解读
+  function explainAddr(results) {
+    var ok = results.filter(function (r) { return r.status === "found"; });
+    if (!ok.length) return T("两条链都没查到数据(可能网络问题),请点重试。", "No data from either chain (network issue) — please retry.");
+    var parts = [], anyCode = false;
+    ok.forEach(function (r) {
+      var bits = [amtWord(r.balance, 18, r.chain.sym)];
+      (r.tokens || []).forEach(function (t) { if (t.ok && bnPos(t.bal)) bits.push(amtWord(t.bal, t.dec, t.sym)); }); // 只讲查到的,失败的不冒充0
+      var n = r.nonce != null ? parseInt(r.nonce, 16) : 0;
+      var seg = T("在 " + r.chain.cn + " 上", "On " + r.chain.en);
+      if (r.hasCode) { anyCode = true; parts.push(seg + T("检测到合约代码(可能是合约,也可能是被 7702 委托的钱包),持有 " + bits.join(" + ") + "。", ": has contract code (a contract, or a 7702-delegated wallet); holds " + bits.join(" + ") + ".")); }
+      else { var act = n > 500 ? T(",很活跃", ", very active") : (n < 10 ? T(",几乎没怎么用过", ", barely used") : ""); parts.push(seg + T("目前没有合约代码(一般是普通钱包),持有 " + bits.join(" + ") + ";发起过约 " + n + " 笔交易" + act + "。", ": no contract code (usually a regular wallet), holds " + bits.join(" + ") + "; ~" + n + " sent txs" + act + ".")); }
+    });
+    var hasStake = ok.some(function (r) { return (r.tokens || []).some(function (t) { return t.ok && (t.sym === "LGNS" || t.sym === "sLGNS") && bnPos(t.bal); }); });
+    if (hasStake) parts.push(T("它持有 LGNS/sLGNS,在参与起源生态(持币或质押)。", "It holds LGNS/sLGNS — active in the Origin ecosystem (holding or staking)."));
+    if (anyCode) parts.push(T("提示:显示「有代码」的地址可能是合约,也可能是被 7702 委托的钱包(被盗钱包常见),交互前先确认它的功能和安全性。", "Note: an address with code may be a contract or a 7702-delegated wallet (common for compromised wallets) — verify purpose/safety before interacting."));
+    return parts.join(" ");
+  }
+  function renderAddrData(results, box, addr) {
+    box.textContent = "";
+    var found = results.filter(function (r) { return r.status === "found"; });
+    var errored = results.filter(function (r) { return r.status === "error"; });
+    var tokFail = false;
+    if (found.length) { var ex = document.createElement("div"); ex.className = "s-tx-explain"; ex.textContent = "💬 " + explainAddr(results); box.appendChild(ex); }
+    found.forEach(function (r) {
+      var card = document.createElement("div"); card.className = "s-tx-card";
+      var hd = document.createElement("div"); hd.className = "s-tx-hd"; hd.textContent = T("在 " + r.chain.cn + " 链(只读)", "On " + r.chain.en + " (read-only)"); card.appendChild(hd);
+      card.appendChild(txRow(T("类型", "Type"), r.hasCode ? T("有代码(合约或 7702 委托)", "Has code (contract or 7702)") : T("普通钱包(未检测到代码)", "Wallet (no code)")));
+      card.appendChild(txRow(T("原生余额", "Native"), fmtUnit(r.balance, 18) + " " + r.chain.sym));
+      (r.tokens || []).forEach(function (t) { if (!t.ok) tokFail = true; card.appendChild(txRow(t.sym, t.ok ? ((bnPos(t.bal) ? fmtUnit(t.bal, t.dec) : "0") + " " + t.sym) : T("查询失败", "query failed"))); });
+      card.appendChild(txRow(T("账户 nonce", "Nonce"), r.nonce != null ? String(parseInt(r.nonce, 16)) : "-"));
+      var exp = document.createElement("a"); exp.href = r.chain.addr + addr; exp.target = "_blank"; exp.rel = "noopener noreferrer"; exp.className = "s-chip"; exp.textContent = T("在 " + r.chain.cn + " 浏览器打开", "Open in " + r.chain.en + " explorer"); card.appendChild(exp);
+      box.appendChild(card);
+    });
+    if (!found.length && !errored.length) { var n = document.createElement("div"); n.className = "s-tx-none"; n.textContent = T("两条链都没查到这个地址的数据。", "No data found for this address on either chain."); box.appendChild(n); }
+    if (errored.length) { var er = document.createElement("div"); er.className = "s-tx-err"; er.textContent = "⚠️ " + T(errored.map(function (r) { return r.chain.cn; }).join("、") + " 链查询失败(网络/限流/超时),请点下方重试。", errored.map(function (r) { return r.chain.en; }).join(", ") + " query failed — please retry."); box.appendChild(er); }
+    if (tokFail) { var tw = document.createElement("div"); tw.className = "s-tx-err"; tw.textContent = "⚠️ " + T("部分代币余额查询失败(限流/超时),标为「查询失败」的不代表余额为 0,可点重试。", "Some token balances failed (rate-limit/timeout); 'query failed' does NOT mean zero — retry."); box.appendChild(tw); }
+    if (found.length) { var src = document.createElement("div"); src.className = "s-tx-note"; src.textContent = T("数据来自各链公共 RPC 只读查询;nonce≈已发起交易数(合约除外);完整交易/授权明细可用「钱包监控·链上体检」工具。", "Read-only public RPC data; nonce ≈ txs sent (except contracts); for full tx/approval details use the Wallet Monitor tool."); box.appendChild(src); }
+    return errored.length > 0 || tokFail; // 代币查询失败也保留重试
   }
 
   /* ---- 地址/交易哈希特判横幅 ---- */
@@ -192,6 +268,15 @@
         links.forEach(function (l) { var a = document.createElement("a"); a.href = l[1]; a.className = "s-chip"; a.textContent = l[0]; if (/^https?:/.test(l[1])) { a.target = "_blank"; a.rel = "noopener noreferrer"; } p.appendChild(a); });
         box.appendChild(p);
       } else { var n = document.createElement("div"); n.className = "s-banner-note"; n.textContent = T("在合约库中找到匹配,见下方结果。", "Matched in contract DB, see results below."); box.appendChild(n); }
+      var abtn = document.createElement("button"); abtn.type = "button"; abtn.className = "s-tx-btn";
+      abtn.textContent = T("🔎 查这个地址的链上数据(Polygon + Anubis)", "🔎 Fetch on-chain data (Polygon + Anubis)");
+      var ares = document.createElement("div"); ares.className = "s-tx-res";
+      abtn.addEventListener("click", function () {
+        abtn.disabled = true; abtn.textContent = T("查询中…(两条链只读查询)", "Querying both chains (read-only)…");
+        queryAddr(raw).then(function (results) { var hadErr = renderAddrData(results, ares, raw); if (hadErr) { abtn.disabled = false; abtn.textContent = T("🔎 重试查询", "🔎 Retry"); } else { abtn.style.display = "none"; } })
+          .catch(function () { ares.textContent = T("查询失败,请稍后重试。", "Query failed — please retry."); abtn.disabled = false; abtn.textContent = T("🔎 重试", "🔎 Retry"); });
+      });
+      box.appendChild(abtn); box.appendChild(ares);
       container.appendChild(box);
     } else if (TX_HASH.test(raw)) {
       var box2 = document.createElement("div"); box2.className = "s-banner";
@@ -329,7 +414,7 @@
       '.s-row-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.s-type{font-size:11px;color:#d4af37;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.22);border-radius:20px;padding:1px 8px;white-space:nowrap}',
       '.s-title{font-size:14.5px;font-weight:600}.s-verified{font-size:11px;color:#7bff45}.s-desc{color:#c3cbc4;font-size:12.5px;margin-top:3px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
       '.s-meta{color:#7a857c;font-size:11.5px;margin-top:4px}.s-hl{background:rgba(212,175,55,.32);color:#fff;border-radius:3px;padding:0 1px}',
-      '.s-banner{background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.22);border-radius:11px;padding:11px 13px;margin:6px 4px 10px}.s-banner-h{color:#e8cf7e;font-size:13.5px;font-weight:600}.s-banner-note{color:#7a857c;font-size:11.5px;margin-top:5px}.s-banner-warn{color:#ffb4a8;background:rgba(255,60,40,.08);border:1px solid rgba(255,80,60,.3);border-radius:8px;padding:7px 9px;font-size:12px;margin-top:7px;line-height:1.55}.s-tx-btn{margin-top:9px;background:rgba(212,175,55,.14);color:#e8cf7e;border:1px solid rgba(212,175,55,.4);border-radius:8px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}.s-tx-btn:hover{background:rgba(212,175,55,.22)}.s-tx-btn:disabled{opacity:.6;cursor:default}.s-tx-res{margin-top:8px}.s-tx-card{background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.18);border-radius:9px;padding:10px 12px;margin-top:7px}.s-tx-hd{color:#e8cf7e;font-size:12.5px;font-weight:700;margin-bottom:6px}.s-tx-row{display:flex;gap:8px;font-size:12.5px;padding:2px 0;line-height:1.5}.s-tx-k{color:#7a857c;min-width:52px;flex:none}.s-tx-v{color:#c3cbc4;word-break:break-all}.s-tx-addr{color:#8fb7ff;text-decoration:none;word-break:break-all}.s-tx-addr:hover{text-decoration:underline}.s-tx-note{color:#7a857c;font-size:11px;margin-top:6px;line-height:1.5}.s-tx-none{color:#c3cbc4;font-size:12.5px;padding:6px 2px}.s-tx-err{color:#ffcf9a;background:rgba(255,160,60,.08);border:1px solid rgba(255,160,60,.28);border-radius:8px;padding:7px 9px;font-size:12px;margin-top:7px;line-height:1.5}.s-tx-card .s-chip{margin-top:8px}',
+      '.s-banner{background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.22);border-radius:11px;padding:11px 13px;margin:6px 4px 10px}.s-banner-h{color:#e8cf7e;font-size:13.5px;font-weight:600}.s-banner-note{color:#7a857c;font-size:11.5px;margin-top:5px}.s-banner-warn{color:#ffb4a8;background:rgba(255,60,40,.08);border:1px solid rgba(255,80,60,.3);border-radius:8px;padding:7px 9px;font-size:12px;margin-top:7px;line-height:1.55}.s-tx-btn{margin-top:9px;background:rgba(212,175,55,.14);color:#e8cf7e;border:1px solid rgba(212,175,55,.4);border-radius:8px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}.s-tx-btn:hover{background:rgba(212,175,55,.22)}.s-tx-btn:disabled{opacity:.6;cursor:default}.s-tx-res{margin-top:8px}.s-tx-card{background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.18);border-radius:9px;padding:10px 12px;margin-top:7px}.s-tx-hd{color:#e8cf7e;font-size:12.5px;font-weight:700;margin-bottom:6px}.s-tx-row{display:flex;gap:8px;font-size:12.5px;padding:2px 0;line-height:1.5}.s-tx-k{color:#7a857c;min-width:52px;flex:none}.s-tx-v{color:#c3cbc4;word-break:break-all}.s-tx-addr{color:#8fb7ff;text-decoration:none;word-break:break-all}.s-tx-addr:hover{text-decoration:underline}.s-tx-note{color:#7a857c;font-size:11px;margin-top:6px;line-height:1.5}.s-tx-none{color:#c3cbc4;font-size:12.5px;padding:6px 2px}.s-tx-explain{color:#eef3ef;background:rgba(212,175,55,.1);border-left:3px solid #d4af37;border-radius:6px;padding:8px 11px;font-size:12.5px;line-height:1.65;margin-top:8px}.s-tx-err{color:#ffcf9a;background:rgba(255,160,60,.08);border:1px solid rgba(255,160,60,.28);border-radius:8px;padding:7px 9px;font-size:12px;margin-top:7px;line-height:1.5}.s-tx-card .s-chip{margin-top:8px}',
       '.s-banner-acts,.s-suggest-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}',
       '.s-chip{display:inline-block;font-size:12.5px;color:#e8cf7e;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);border-radius:8px;padding:5px 11px;text-decoration:none;cursor:pointer;font-family:inherit}.s-chip:hover{background:rgba(212,175,55,.2)}',
       '.s-sensitive{background:rgba(229,115,115,.1);border:1px solid rgba(229,115,115,.4);border-radius:12px;padding:14px 16px;margin:8px 4px}.s-sensitive b{color:#e57373;display:block;font-size:14px}.s-sensitive p{color:#c3cbc4;font-size:12.5px;line-height:1.6;margin:8px 0 0}',
