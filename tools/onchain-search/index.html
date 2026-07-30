@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="index,follow">
+<title>链上搜索 · 输入地址或交易哈希，看懂真实链上记录 · Web3Origin</title>
+<meta name="description" content="输入公开的钱包地址、合约地址或交易哈希，读取 Polygon / Anubis 真实链上数据，并用大白话解读每一笔交易。只查公开数据，绝不索要助记词、私钥或钱包密码。">
+<link rel="canonical" href="https://web3origin.com/tools/onchain-search/">
+<link rel="icon" href="/assets/favicon.png">
+<style>
+  :root{--bg:#070806;--card:#0e100e;--card2:#141712;--ink:#e9efea;--soft:#c3cbc4;--muted:#7a857c;--gold:#d4af37;--gold-lt:#e8cf7e;--line:rgba(212,175,55,.2);--green:#25C96F;--red:#ff6b5e;--blue:#8fb7ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,rgba(212,175,55,.06),transparent),var(--bg);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;line-height:1.6}
+  a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+  .wrap{max-width:860px;margin:0 auto;padding:20px 16px 70px}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .top a.home{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--gold-lt)}
+  .top img{height:26px}
+  h1{font-size:23px;margin:14px 0 4px;color:var(--gold-lt)}
+  .sub{color:var(--soft);font-size:14px;margin:0 0 14px}
+  .safe{background:rgba(212,175,55,.07);border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:12.5px;color:var(--muted);margin-bottom:16px}
+  .safe b{color:var(--gold-lt)}
+  .netbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+  .netbtn{background:var(--card);border:1px solid var(--line);color:var(--soft);border-radius:9px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit}
+  .netbtn.on{background:rgba(212,175,55,.15);color:var(--gold);border-color:var(--gold);font-weight:600}
+  .netbtn .dim{font-size:11px;color:var(--muted);margin-left:4px}
+  .inbox{display:flex;gap:8px;align-items:stretch;margin-bottom:8px}
+  #q{flex:1;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:13px 15px;color:var(--ink);font-size:15px;font-family:inherit;outline:none}
+  #q:focus{border-color:var(--gold)}
+  #go{background:linear-gradient(120deg,#d4af37,#b8912a);color:#1a1400;border:0;border-radius:11px;padding:0 22px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
+  #go:disabled{opacity:.6;cursor:default}
+  .hint{font-size:12px;color:var(--muted);min-height:18px;margin-bottom:14px}
+  .hint.warn{color:var(--red)}
+  .sensitive{background:rgba(255,60,40,.09);border:1px solid rgba(255,80,60,.35);border-radius:11px;padding:14px 16px;margin:14px 0;color:#ffb4a8;line-height:1.7}
+  .sensitive b{color:#ff8f80;display:block;margin-bottom:5px;font-size:15px}
+  #results{margin-top:6px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px 16px;margin-bottom:14px}
+  .card h2{font-size:15px;margin:0 0 11px;color:var(--gold-lt);display:flex;align-items:center;gap:7px}
+  .kv{display:flex;gap:10px;padding:4px 0;font-size:13px;flex-wrap:wrap}
+  .kv .k{color:var(--muted);min-width:78px;flex:none}
+  .kv .v{color:var(--soft);word-break:break-all}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  .copy{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;font-size:11px;padding:1px 7px;cursor:pointer;margin-left:6px;font-family:inherit}
+  .copy:hover{color:var(--gold-lt);border-color:var(--gold)}
+  .tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:6px;background:rgba(212,175,55,.12);color:var(--gold-lt);border:1px solid var(--line)}
+  .tag.green{background:rgba(37,201,111,.13);color:#7bffb0;border-color:rgba(37,201,111,.3)}
+  .tag.red{background:rgba(255,80,60,.12);color:#ff9a8f;border-color:rgba(255,80,60,.3)}
+  .tag.blue{background:rgba(143,183,255,.12);color:#bcd3ff;border-color:rgba(143,183,255,.3)}
+  .explain{background:rgba(212,175,55,.1);border-left:3px solid var(--gold);border-radius:7px;padding:10px 13px;font-size:13px;line-height:1.75;color:#eef3ef;margin-top:6px}
+  .conf{font-size:11px;padding:1px 7px;border-radius:5px;margin-left:6px;vertical-align:middle}
+  .conf.c1{background:rgba(37,201,111,.15);color:#7bffb0}
+  .conf.c2{background:rgba(143,183,255,.14);color:#bcd3ff}
+  .conf.c3{background:rgba(212,175,55,.14);color:var(--gold-lt)}
+  .conf.c4{background:rgba(122,133,124,.18);color:var(--soft)}
+  .filters{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px}
+  .fbtn{background:var(--card2);border:1px solid var(--line);color:var(--soft);border-radius:7px;padding:4px 11px;font-size:12px;cursor:pointer;font-family:inherit}
+  .fbtn.on{background:rgba(212,175,55,.15);color:var(--gold);border-color:var(--gold)}
+  .act{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:9px;background:var(--card2)}
+  .act-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
+  .act-h .t{color:var(--ink);font-weight:600}
+  .act-h .time{color:var(--muted);font-size:11.5px;margin-left:auto}
+  .act-body{font-size:12.5px;color:var(--soft);margin-top:5px}
+  .act-more{color:var(--muted);font-size:11.5px;cursor:pointer;margin-top:6px;display:inline-block}
+  .act-more:hover{color:var(--gold-lt)}
+  .detail{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);font-size:12px;color:var(--muted)}
+  .flow{font-size:12.5px;padding:3px 0;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .flow .neg{color:#ff9a8f}.flow .pos{color:#7bffb0}
+  .loadmore{display:block;width:100%;background:var(--card2);border:1px solid var(--line);color:var(--gold-lt);border-radius:9px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;margin-top:4px}
+  .warnrow{background:rgba(255,160,60,.09);border:1px solid rgba(255,160,60,.3);border-radius:8px;padding:8px 11px;font-size:12.5px;color:#ffcf9a;margin-top:8px;line-height:1.6}
+  .err{background:rgba(255,160,60,.09);border:1px solid rgba(255,160,60,.3);border-radius:10px;padding:13px 15px;color:#ffcf9a;font-size:13px;line-height:1.7}
+  .loading{color:var(--muted);text-align:center;padding:26px;font-size:14px}
+  .src{color:var(--muted);font-size:11px;margin-top:8px;line-height:1.6}
+  .netpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .netpick button{background:var(--card2);border:1px solid var(--line);color:var(--gold-lt);border-radius:9px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+  @media(max-width:600px){.kv .k{min-width:64px}h1{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a>
+  </div>
+  <h1>🔍 链上搜索</h1>
+  <p class="sub">输入公开的钱包地址、合约地址或交易哈希，看懂真实链上记录。</p>
+  <div class="safe">🔒 本工具只需要<b>公开的地址或交易哈希</b>，只读查询、不连钱包、不发交易。<b>绝不要输入助记词、私钥或钱包密码。</b></div>
+
+  <div class="netbar" id="netbar"></div>
+  <div class="inbox">
+    <input id="q" type="text" maxlength="80" autocomplete="off" spellcheck="false" placeholder="输入 0x 钱包地址、合约地址或交易哈希">
+    <button id="go">开始查询</button>
+  </div>
+  <div class="hint" id="hint"></div>
+
+  <div id="results"></div>
+</div>
+
+<script src="/contracts.js"></script>
+<script defer src="/assets/analytics.js"></script>
+<script src="/tools/onchain-search/app.js"></script>
+</body>
+</html>

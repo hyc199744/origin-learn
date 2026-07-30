@@ -154,7 +154,7 @@ function wireGate(){ var b=document.getElementById("dGateConnect"); if(b)b.oncli
 
 function topbar(){
   return '<nav class="d-top"><a class="d-brand" href="/"><img src="/assets/logo.svg" alt=""><span>'+t("brand_full")+'</span></a>'
-    +'<span class="d-sp"></span><a href="/feedback/">'+t("nav_feedback")+'</a><a href="/academy/">'+t("nav_academy")+'</a><a href="/#radar">'+t("nav_radar")+'</a><a href="/">'+t("nav_home_site")+'</a></nav>';
+    +'<span class="d-sp"></span><a href="/tools/onchain-search/" style="color:var(--d-gold,#e8cf7e);font-weight:600">🔍 链上搜索</a><a href="/feedback/">'+t("nav_feedback")+'</a><a href="/academy/">'+t("nav_academy")+'</a><a href="/#radar">'+t("nav_radar")+'</a><a href="/">'+t("nav_home_site")+'</a></nav>';
 }
 function shellHTML(){
   var a=addr(),d=def(),ri=rankInfo();
