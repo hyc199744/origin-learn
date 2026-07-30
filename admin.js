@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["events","🎯","事件统计"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,events:pEvents,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,events:pEvents,funnels:pFunnels,languages:pLanguages,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -160,6 +160,46 @@ function fbOne(id){get("/feedback/get?id="+encodeURIComponent(id)).then(function
   ov.querySelector("#fbOffGo").onclick=function(){act({action:"official",content:ov.querySelector("#fbOff").value.trim(),ostatus:ov.querySelector("#fbOffS").value});};
 });}
 
+/* ---------- 转化漏斗 ---------- */
+function pFunnels(el){
+  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div id="fnBody"><div class="a-note-real">加载中…</div></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pFunnels(el);};});
+  get("/funnels?range="+encodeURIComponent(AN_RANGE)).then(function(r){
+    var host=el.querySelector("#fnBody"); if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var html=(r.funnels||[]).map(function(f){
+      var steps=f.steps||[]; var base=steps.length?(steps[0].users||0):0;
+      var rows=steps.map(function(s,i){
+        var pct=base?Math.round(s.users/base*1000)/10:0;
+        var drop=(i>0&&steps[i-1].users)?Math.round((steps[i-1].users-s.users)/steps[i-1].users*1000)/10:0;
+        return '<div class="an-row"><div class="an-lab" style="width:120px">'+esc(s.label)+'</div><div class="an-bar" style="height:20px"><div style="width:'+Math.max(1,pct)+'%;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:11px;color:#0a0f0a">'+fmtN(s.users)+'</div></div><div class="an-val">'+pct+'%'+(i>0?' <i style="color:#e57373">-'+drop+'%</i>':'')+'</div></div>';
+      }).join("");
+      var overall=(base&&steps.length)?Math.round(steps[steps.length-1].users/base*1000)/10:0;
+      return '<div class="a-panel-box"><h3>'+esc(f.name)+' <span class="a-real">真实</span> <span style="color:var(--muted);font-size:12px;font-weight:normal">总转化 '+overall+'%</span></h3>'+rows+'</div>';
+    }).join("");
+    host.innerHTML=html+'<div class="a-note-real">按独立访客去重计;漏斗为区间内跨会话聚合(非严格同会话时序);自埋点起累计。</div>';
+  }).catch(function(){});
+}
+/* ---------- 多语言分析 ---------- */
+var LANG_CN={"zh":"中文","zh-CN":"简体中文","zh-TW":"繁体中文","en":"英语","en-US":"英语(美)","ja":"日语","ko":"韩语","hi":"印地语","id":"印尼语","it":"意大利语","de":"德语","fr":"法语","es":"西班牙语","ar":"阿拉伯语","ru":"俄语","pt":"葡萄牙语","vi":"越南语","th":"泰语"};
+function langcn(c){if(!c)return "(未知)";return LANG_CN[c]||LANG_CN[String(c).split("-")[0]]||c;}
+function pLanguages(el){
+  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div id="lgBody"><div class="a-note-real">加载中…</div></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pLanguages(el);};});
+  get("/languages?range="+encodeURIComponent(AN_RANGE)).then(function(r){
+    var host=el.querySelector("#lgBody"); if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var lg=r.languages||[]; var tot=lg.reduce(function(s,x){return s+(x.sessions||0);},0)||1;
+    var tbl=lg.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>浏览器语言</th><th>会话</th><th>访客</th><th>占比</th><th>跳出率</th><th>平均时长</th></tr></thead><tbody>'+lg.map(function(x){var br=x.sessions?Math.round((x.bounced||0)/x.sessions*100):0;return '<tr><td>'+esc(langcn(x.language))+' <i style="color:var(--muted);font-size:11px">'+esc(x.language||"")+'</i></td><td>'+fmtN(x.sessions||0)+'</td><td>'+fmtN(x.visitors||0)+'</td><td>'+(x.sessions/tot*100).toFixed(1)+'%</td><td>'+br+'%</td><td>'+anDur(Math.round(x.avgdur||0))+'</td></tr>';}).join("")+'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:14px">暂无数据</div>';
+    var sw=(r.switches||[]);
+    var swtbl=sw.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>从</th><th>切到</th><th>次数</th></tr></thead><tbody>'+sw.map(function(x){return '<tr><td>'+esc(langcn(x.f))+'</td><td>'+esc(langcn(x.t))+'</td><td>'+fmtN(x.n||0)+'</td></tr>';}).join("")+'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无切换记录</div>';
+    host.innerHTML='<div class="a-cards">'+card("🗣","语言切换总数",fmtN(r.switchTotal||0),"language_switch 事件","")+'</div>'
+      +'<div class="a-panel-box"><h3>浏览器语言分布 <span class="a-real">真实</span></h3>'+tbl+'<div class="a-note-real">这是浏览器语言(navigator.language),不等于用户国家。</div></div>'
+      +'<div class="a-panel-box"><h3>语言切换流向 <span class="a-real">真实</span></h3>'+swtbl+'</div>';
+  }).catch(function(){});
+}
 /* ---------- 流量趋势 / 国家 / 设备(独立页,复用/an) ---------- */
 function anTabsHtml(active){var rs=[["today","今天"],["yesterday","昨天"],["7d","最近7天"],["30d","最近30天"]];return '<div class="an-tabs">'+rs.map(function(x){return '<button class="an-tab'+(x[0]===active?" on":"")+'" data-r="'+x[0]+'">'+x[1]+'</button>';}).join("")+'</div>';}
 function pTrend(el){
