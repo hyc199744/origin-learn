@@ -86,24 +86,38 @@ function go(page){_cur=page;
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
 /* ---------- 总览 ---------- */
-function pDash(el){get("/dashboard").then(function(r){
-  if(!r.ok){el.innerHTML='<div class="a-center">加载失败</div>';return;}
-  var d=r.data;
-  el.innerHTML='<div class="a-note-real">✔ 真实数据来自 Worker/KV 与链上雷达；标注“未接入”的项目为尚未埋点，<b>不会用假数据冒充</b>。</div>'
-    +'<div class="a-cards">'
-    +card("👀","累计访客(去重)",fmtN(d.visitors.v),"来源：Worker 访客统计")
-    +card("💬","今日留言",fmtN(d.feedbackToday.v),"来源：留言区 KV")
-    +card("🕒","待审留言",fmtN(d.feedbackPending.v),d.feedbackReports.v?("举报 "+d.feedbackReports.v+" 条"):"")
-    +card("⛓","链上同步",d.chain.ok?"正常":"异常",d.chain.ok?("Anubis #"+fmtN(d.chain.anbHeight)):"雷达无数据",d.chain.ok?"ok":"bad")
-    +card("📄","页面浏览量 PV",d.pv.src==="real"?fmtN(d.pv.v):na(d.pv.note),d.pv.src==="real"?("今日 PV "+fmtN(d.pv.today)+" · 今日独立访客 "+fmtN(d.pv.uvToday)):"")
-    +card("🛠","工具使用",na(d.toolUsage.note),"")
-    +card("🎬","视频播放",d.videoViews.src==="real"?fmtN(d.videoViews.v):na(d.videoViews.note),d.videoViews.src==="real"?("覆盖 "+fmtN(d.videoViews.videos)+" 个视频"):"")
-    +card("⚠️","告警",na(d.alerts.note),"")
-    +'</div>'
-    +'<div class="a-panel-box"><h3>说明</h3><ul class="a-ul"><li>访客/留言/链上/PV·UV/视频播放为真实数据，实时读取。</li>'
-    +'<li>工具使用埋点、来源渠道、跳出率、视频完播、漏斗、告警系统尚未接入——需要在前台注入事件采集或让 VPS 推送，接入后这里自动显示真实值。</li>'
-    +'<li>严格的即时会话注销、TOTP 单次不可重放、精确限流锁定，在纯 KV 上是“尽力而为”；强一致保证需升级 Durable Objects（已在方案中标注）。</li></ul></div>';
-});}
+function pDash(el){
+  anEnsureCss();
+  el.innerHTML=anTabsHtml(AN_RANGE)+'<div id="ovBody"><div class="a-note-real">加载中…</div></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pDash(el);};});
+  get("/overview?range="+encodeURIComponent(AN_RANGE)).then(function(r){
+    var host=el.querySelector("#ovBody"); if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var m=r.metrics||{};
+    function cmp(icon,title,mm,suf){var mo=mm||{v:0,prev:0,chg:0};var c=mo.chg||0;var ar=c>0?"▲":(c<0?"▼":"—");var col=c>0?"var(--green)":(c<0?"#e57373":"var(--muted)");return card(icon,title,fmtN(mo.v)+(suf||""),"上周期 "+fmtN(mo.prev||0)+' <span style="color:'+col+'">'+ar+Math.abs(c)+"%</span>","");}
+    var b1=(m.bounceRate||{}),pp=(m.pagesPerSession||{});
+    var cards='<div class="a-cards">'
+      +card("🟢","当前在线",fmtN(r.online||0),"最近5分钟","ok")
+      +cmp("🧑","独立访客",m.visitors)
+      +cmp("📄","页面浏览",m.pageviews)
+      +cmp("👣","会话",m.sessions)
+      +cmp("🆕","新访客",m.newVisitors)
+      +cmp("🔁","回访",m.returning)
+      +'</div><div class="a-cards">'
+      +card("↩️","跳出率",(b1.v||0)+"%","上周期 "+(b1.prev||0)+"%","")
+      +card("📑","人均页数",(pp.v||0),"上周期 "+(pp.prev||0),"")
+      +card("⏱","平均时长",anDur((m.avgDuration&&m.avgDuration.v)||0),"","ok")
+      +card("🤖","AI平台访客",fmtN((m.aiVisitors&&m.aiVisitors.v)||0),"ChatGPT/豆包等","")
+      +card("🏠","自有站导流",fmtN((m.ownedVisitors&&m.ownedVisitors.v)||0),"originweb3等","")
+      +card("📞","转化人数",fmtN((m.conversions&&m.conversions.v)||0),"转化率 "+(r.convRate||0)+"%","ok")
+      +'</div>';
+    var tr=r.trend||[]; var tmax=tr.reduce(function(x,y){return Math.max(x,Number(y.sessions)||0);},0)||1;
+    var trend=tr.length?('<div class="an-trend">'+tr.map(function(x){var h=Math.round((Number(x.sessions)||0)/tmax*100);return '<div class="an-tcol" title="'+esc(x.d)+': '+(x.sessions||0)+'会话/'+(x.visitors||0)+'访客/'+(x.pv||0)+'PV"><div class="an-tbar" style="height:'+Math.max(3,h)+'%"></div><span>'+esc(String(x.d).slice(5))+'</span></div>';}).join("")+'</div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据</div>';
+    host.innerHTML=cards+'<div class="a-panel-box"><h3>访问趋势 <span class="a-real">真实</span></h3>'+trend+'</div>'
+      +'<div class="a-note-real">时间按UTC+8;环比=与上一个等长周期对比;AI平台/自有站按来源渠道识别;更多细分见左侧各菜单。</div>';
+  }).catch(function(){});
+}
 
 /* ---------- 流量 ---------- */
 var GEO_NAMES={CN:"中国",HK:"香港",TW:"台湾",MO:"澳门",US:"美国",SG:"新加坡",JP:"日本",KR:"韩国",GB:"英国",DE:"德国",FR:"法国",CA:"加拿大",AU:"澳大利亚",MY:"马来西亚",TH:"泰国",VN:"越南",ID:"印尼",IN:"印度",RU:"俄罗斯",PH:"菲律宾",NL:"荷兰",BR:"巴西",TR:"土耳其",AE:"阿联酋",IT:"意大利",ES:"西班牙",PT:"葡萄牙",UA:"乌克兰",PL:"波兰",SA:"沙特",EG:"埃及",NG:"尼日利亚",ZA:"南非",MX:"墨西哥",AR:"阿根廷",SE:"瑞典",CH:"瑞士",BE:"比利时",AT:"奥地利",NZ:"新西兰",KH:"柬埔寨",LA:"老挝",MM:"缅甸",BD:"孟加拉",PK:"巴基斯坦",KZ:"哈萨克",IR:"伊朗"};
