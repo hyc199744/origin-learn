@@ -76,13 +76,13 @@
   // 解码 Transfer/Approval 事件(校验topic/data长度,坏数据跳过并标记 parseWarn)
   function decodeLogsInto(n, logs, addrOf, opt) {
     (logs || []).forEach(function (lg) {
-      var tps = lg.topics || [], t0 = (tps[0] || "").toLowerCase(), ca = String(addrOf(lg) || ""), dv = String(lg.data || "").slice(0, 66);
-      if (opt.transfers && t0 === TRANSFER_TOPIC && tps.length >= 3) {
-        if (!isHex32(tps[1]) || !isHex32(tps[2]) || !isHex32(dv)) { n.parseWarn = true; return; }
+      var tps = lg.topics || [], t0 = (tps[0] || "").toLowerCase(), ca = String(addrOf(lg) || ""), dv = String(lg.data || ""); // 用完整data,不截断(超长data=非标准,判为坏)
+      if (opt.transfers && t0 === TRANSFER_TOPIC) {
+        if (tps.length < 3 || !isHex32(tps[1]) || !isHex32(tps[2]) || !isHex32(dv)) { n.parseWarn = true; return; }
         var m = KNOWN_TOKENS[ca.toLowerCase()];
         n.tokenChanges.push({ tokenAddr: ca, sym: m ? m.sym : null, dec: m ? m.dec : null, from: topicAddr(tps[1]), to: topicAddr(tps[2]), value: BigInt(dv) });
-      } else if (opt.approvals && t0 === APPROVAL_TOPIC && tps.length >= 3) {
-        if (!isHex32(tps[1]) || !isHex32(tps[2]) || !isHex32(dv)) { n.parseWarn = true; return; }
+      } else if (opt.approvals && t0 === APPROVAL_TOPIC) {
+        if (tps.length < 3 || !isHex32(tps[1]) || !isHex32(tps[2]) || !isHex32(dv)) { n.parseWarn = true; return; }
         var m2 = KNOWN_TOKENS[ca.toLowerCase()], v = BigInt(dv);
         n.approvals.push({ tokenAddr: ca, sym: m2 ? m2.sym : null, dec: m2 ? m2.dec : null, owner: topicAddr(tps[1]), spender: topicAddr(tps[2]), value: v, unlimited: v > (2n ** 200n) });
       }
@@ -178,7 +178,7 @@
     var conf = "c3"; // 默认"可能"
     if (a.isError) { a.type = "失败交易"; a.conf = "c1"; return; }
     if (/approve|permit/.test(m) || mt === "approve") { a.type = "授权 Approve"; a.conf = a.method ? "c2" : "c3"; return; }
-    if (/swap/.test(m) || mt === "swap") { a.type = "兑换 Swap"; a.conf = "c2"; return; }
+    if (mt === "swap") { a.type = "兑换 Swap"; a.conf = "c2"; return; } // 只认已知swap选择器,不靠方法名字面(防伪造名)
     if (outs.length && ins.length) { a.type = "多向转移"; a.conf = "c3"; return; } // 既转出又转入,但无swap方法,不硬判兑换
     if (mt === "stake" || /stake\b/.test(m)) { a.type = "质押"; a.conf = "c2"; return; }
     if (mt === "unstake" || /unstake/.test(m)) { a.type = "解除质押"; a.conf = "c2"; return; }
@@ -279,8 +279,8 @@
   function tokenAmt(tc) { return (tc.dec != null ? fmtShort(tc.value, tc.dec) : (tc.value.toString() + " (最小单位)")) + " " + (tc.sym || "未知代币"); }
   function netChanges(n) { // 按地址+代币合约聚合净额(以合约地址为主键,防同名假币被错误合并)
     var map = {}, meta = {};
-    n.tokenChanges.forEach(function (tc) {
-      var tkey = (tc.tokenAddr || tc.sym || "?").toLowerCase();
+    n.tokenChanges.forEach(function (tc, i) {
+      var tkey = tc.tokenAddr ? tc.tokenAddr.toLowerCase() : ("__noaddr_" + i); // 无合约地址时每条独立,绝不按symbol合并(防同名假币)
       meta[tkey] = { sym: tc.sym, dec: tc.dec, addr: tc.tokenAddr };
       function add(addr, sign) { if (!addr) return; var k = addr.toLowerCase() + "@@" + tkey; map[k] = (map[k] || 0n) + sign * tc.value; }
       add(tc.from, -1n); add(tc.to, 1n);
@@ -578,7 +578,8 @@
 
   function bootDetect() {
     $("q").addEventListener("input", function () {
-      var q = $("q").value.slice(0, MAX_Q).trim(); // 先截断,避免超长粘贴触发大量正则扫描
+      var box = $("q"); if (box.value.length > MAX_Q) box.value = box.value.slice(0, MAX_Q); // 写回截断,防超长粘贴
+      var q = box.value.trim();
       if (!q) { setHint(""); return; }
       var t = detectType(q);
       if (t === "sensitive") setHint("⚠️ 检测到疑似敏感内容，请勿输入助记词/私钥/密码", true);
