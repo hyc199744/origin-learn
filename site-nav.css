@@ -5,8 +5,8 @@
 :root{ --unav-h: 60px; }
 
 .w3onav{
-  display:flex; align-items:center; gap:6px;
-  position:sticky; top:0; z-index:150;
+  display:none; align-items:center; gap:6px;   /* 默认隐藏;仅手机(<960px)显示,桌面保留旧导航 */
+  position:fixed; left:0; right:0; top:0; z-index:150;
   max-width:100vw; box-sizing:border-box;
   height:var(--unav-h); padding:0 22px;
   background:rgba(6,7,6,.82);
@@ -15,8 +15,7 @@
   box-shadow:0 1px 0 rgba(212,175,55,.06), 0 6px 22px rgba(0,0,0,.35);
   font-family:inherit;
 }
-/* 隐藏旧导航(桌面+手机);DOM保留 */
-html.unav-on nav.nav{ display:none !important; }
+/* 桌面(>=960px)保留旧导航,不隐藏;仅手机隐藏旧导航(见下方media) */
 
 /* 品牌 */
 .w3onav .unav-brand{ display:flex; align-items:center; gap:9px; text-decoration:none; margin-right:14px; flex:0 0 auto; }
@@ -95,7 +94,8 @@ html.unav-on nav.nav{ display:none !important; }
 
 /* ===== 响应式切换 ===== */
 @media (max-width:959px){
-  .w3onav{ position:fixed; left:0; right:0; top:0; width:auto; padding:0 16px; justify-content:flex-start; }
+  .w3onav{ display:flex; position:fixed; left:0; right:0; top:0; width:auto; padding:0 16px; justify-content:flex-start; }
+  html.unav-on nav.nav{ display:none !important; }   /* 手机隐藏旧移动导航,新导航接管 */
   html.unav-on body{ padding-top:var(--unav-h); }
   .w3onav .unav-menu{ display:none; }
   .w3onav .unav-right{ display:none; }
