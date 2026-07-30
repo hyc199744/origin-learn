@@ -194,15 +194,15 @@
     var outs = a.outs || [], ins = a.ins || [];
     function pair(t) { return (t.amount) + " " + (t.token || "代币"); }
     if (a.type === "失败交易") return "这笔交易失败了，操作没有按预期完成。网络仍执行并验证了请求，所以可能已扣除了 Gas 手续费。";
-    if (a.type === "授权 Approve") return "这不是直接转币，而是一次 Token 授权——你允许某个合约在额度内动用你的代币。请确认是你信任的合约；不用了可以在 revoke.cash 撤销。";
+    if (a.type === "授权 Approve") return "这不是直接转币，而是一次 Token 授权——该地址允许某个合约在额度内动用它的代币。授权对象是否可信需自行核实；如果是本人操作且已不再使用，可在 revoke.cash 撤销。";
     if (a.type === "兑换 Swap") {
       var o = outs[0], i = ins[0];
-      if (o && i) return "这看起来是一笔兑换：你支付了约 " + pair(o) + "，收到约 " + pair(i) + "。中间若有多次转账，属于兑换合约与流动池的自动处理，不是你的多笔独立操作。";
+      if (o && i) return "这看起来是一笔兑换：该地址支付了约 " + pair(o) + "，收到约 " + pair(i) + "。中间若有多次转账，属于兑换合约与流动池的自动处理，不是多笔独立操作。";
       return "这看起来是一笔兑换，中间有多次代币流动，属于兑换合约的自动处理。";
     }
-    if (a.type === "多向转移") return "这笔交易里这个地址既有转出（" + outs.map(pair).join("、") + "）又有转入（" + ins.map(pair).join("、") + "）。缺少已验证方法，无法确认是兑换、质押换凭证还是加减流动性，点浏览器可进一步核对。";
-    if (a.type === "转出") return "你从这个地址转出了 " + (outs.map(pair).join("、")) + "，交易已上链。";
-    if (a.type === "转入") return "这是一笔转入：有地址向你转来了 " + (ins.map(pair).join("、")) + "，你是接收方。";
+    if (a.type === "多向转移") return "这笔交易里该地址既有转出（" + outs.map(pair).join("、") + "）又有转入（" + ins.map(pair).join("、") + "）。缺少已验证方法，无法确认是兑换、质押换凭证还是加减流动性，点浏览器可进一步核对。";
+    if (a.type === "转出") return "该地址转出了 " + (outs.map(pair).join("、")) + "，交易已上链。";
+    if (a.type === "转入") return "这是一笔转入：有地址向该地址转来了 " + (ins.map(pair).join("、")) + "，它是接收方。";
     if (a.type === "质押") return "这是一次质押相关操作，把代币存入了质押/合约。";
     if (a.type === "解除质押") return "这是一次解除质押操作，把之前质押的代币取回。";
     if (a.type === "领取奖励") return "这是一次领取操作，从合约领取奖励/解锁的代币。";
@@ -321,7 +321,7 @@
     else if (myApprovals.length) {
       s += "进行了 Token 授权：";
       s += myApprovals.map(function (ap) { return "允许 " + short(ap.spender) + " 动用它的 " + (ap.sym || "代币") + "（额度" + (ap.unlimited ? "【无限额度】" : (ap.dec != null ? fmtShort(ap.value, ap.dec) : ap.value.toString())) + "）"; }).join("；");
-      s += "。" + (myApprovals.some(function (a) { return a.unlimited; }) ? "其中有无限额度授权——该合约以后可在额度内调用你的代币，请确认是你信任的合约，不用了建议到 revoke.cash 撤销。" : "");
+      s += "。" + (myApprovals.some(function (a) { return a.unlimited; }) ? "其中有无限额度授权——被授权合约以后可在额度内调用该地址的代币，授权对象是否可信需自行核实，如是本人操作且不再使用建议到 revoke.cash 撤销。" : "");
     } else {
       var chg = netChanges(n).filter(function (r) { return r.addr === initiator; });
       var outR = chg.filter(function (r) { return r.value < 0n; }), inR = chg.filter(function (r) { return r.value > 0n; });
@@ -390,7 +390,7 @@
         appr.slice(0, 12).forEach(function (a) {
           html += '<div class="kv"><span class="k">' + esc(a.token) + '</span><span class="v">授权给 ' + addrHtml(a.spender, ch) + ' ' + (a.unlimited ? '<span class="tag red">无限额度</span>' : '<span class="tag">有限额度 ' + esc(a.amount) + "</span>") + "</span></div>";
         });
-        if (appr.some(function (a) { return a.unlimited; })) html += '<div class="warnrow">⚠️ 存在【无限额度】授权。若某个被授权合约你已不再使用，建议到 <a href="https://revoke.cash/" target="_blank" rel="noopener noreferrer">revoke.cash</a> 撤销，降低风险。请自行确认被授权合约是否可信。</div>';
+        if (appr.some(function (a) { return a.unlimited; })) html += '<div class="warnrow">⚠️ 该地址存在【无限额度】授权。若为本人钱包且某个被授权合约已不再使用，建议到 <a href="https://revoke.cash/" target="_blank" rel="noopener noreferrer">revoke.cash</a> 撤销，降低风险。被授权合约是否可信需自行确认。</div>';
         html += "</div>";
       }
       // 13 概览统计
@@ -488,7 +488,7 @@
           var byInitiator = (a.owner || "").toLowerCase() === (n.from || "").toLowerCase();
           html += kv(a.sym || "代币", "授权人 " + addrHtml(a.owner, ch) + (byInitiator ? '<span class="tag green">发起地址本人</span>' : '<span class="tag">非发起地址</span>') + " → 被授权合约 " + addrHtml(a.spender, ch) + "；额度 " + (a.unlimited ? '<span class="tag red">无限额度</span>' : esc(amtOrRaw(a.value, a.dec))));
         });
-        html += '<div class="warnrow">仅当「授权人」是你本人时才是你的授权。如果是你的授权且已不再使用，建议到 <a href="https://revoke.cash/" target="_blank" rel="noopener noreferrer">revoke.cash</a> 撤销。</div></div>';
+        html += '<div class="warnrow">「授权人」是谁，这笔授权就属于谁。若授权人是本人钱包且已不再使用该合约，建议到 <a href="https://revoke.cash/" target="_blank" rel="noopener noreferrer">revoke.cash</a> 撤销。</div></div>';
       }
       // 事件日志 + 原始数据(完整展开)
       var logs = n.logs || [];
