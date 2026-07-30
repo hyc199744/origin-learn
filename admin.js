@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["traffic","📈","流量分析"],["analytics","📊","网站分析"],["events","🎯","事件统计"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["traffic","📈","流量分析"],["analytics","📊","网站分析"],["events","🎯","事件统计"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -80,7 +80,7 @@ function go(page){_cur=page;
   document.querySelectorAll(".a-navi").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-go")===page);});
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
-  ({dashboard:pDash,traffic:pTraffic,analytics:pAnalytics,events:pEvents,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,traffic:pTraffic,analytics:pAnalytics,events:pEvents,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -214,7 +214,9 @@ function loadAn(el){
     var tr=r.trend||[]; var tmax=tr.reduce(function(m,x){return Math.max(m,Number(x.sessions)||0);},0)||1;
     var trend=tr.length?('<div class="an-trend">'+tr.map(function(x){var h=Math.round((Number(x.sessions)||0)/tmax*100);return '<div class="an-tcol" title="'+esc(x.d)+': '+(x.sessions||0)+'会话 / '+(x.pv||0)+'PV"><div class="an-tbar" style="height:'+Math.max(3,h)+'%"></div><span>'+esc(String(x.d).slice(5))+'</span></div>';}).join("")+'</div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据</div>';
     host.innerHTML=cards+box("每日趋势(会话)",trend)
-      +box("来源渠道",anBarList(r.sources,"source","sessions"))
+      +box("一级渠道分组",anBarList(r.channelGroups,"group","sessions"))
+      +box("🤖 AI 平台来源",anBarList(r.aiSources,"source","sessions"))
+      +box("来源渠道(细分)",anBarList(r.sources,"source","sessions"))
       +box("设备类型",anBarList(r.devices,"device_type","n"))
       +box("浏览器",anBarList(r.browsers,"browser","n"))
       +box("操作系统",anBarList(r.os,"os","n"))
@@ -233,6 +235,39 @@ function pAnalytics(el){
   el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pAnalytics(el);};});
   var go=el.querySelector("#anGo"); if(go)go.onclick=function(){var f=el.querySelector("#anFrom").value,t=el.querySelector("#anTo").value;if(f&&t){AN_FROM=f;AN_TO=t;AN_RANGE="custom";pAnalytics(el);}};
   loadAn(el);
+}
+/* ---------- 推广链接生成器 ---------- */
+var UTM_PRESETS=[["","— 选择平台预设 —","",""],["ChatGPT (AI平台)","","chatgpt","ai"],["豆包 (AI平台)","","doubao","ai"],["DeepSeek (AI平台)","","deepseek","ai"],["Claude (AI平台)","","claude","ai"],["Gemini (AI平台)","","gemini","ai"],["Perplexity (AI平台)","","perplexity","ai"],["Kimi (AI平台)","","kimi","ai"],["腾讯元宝 (AI平台)","","yuanbao","ai"],["通义千问 (AI平台)","","tongyi","ai"],["秘塔AI搜索 (AI平台)","","metaso","ai"],["X / Twitter (社交)","","twitter","social"],["Telegram (社交)","","telegram","social"],["YouTube (社交)","","youtube","social"],["微信 (社交)","","wechat","social"],["旧站 originweb3 (自有)","","originweb3","owned_site"]];
+function utmClean(s){return String(s||"").trim().replace(/[^\w\-一-龥]/g,"_").slice(0,60);}
+function utmGroup(m){if(m==="ai")return "AI平台";if(m==="social")return "社交媒体";if(m==="owned_site")return "自有网站";if(m==="cpc"||m==="ads")return "广告推广";if(m==="email")return "邮件";return "其他";}
+function pUtm(el){
+  anEnsureCss();
+  el.innerHTML='<div class="a-panel-box"><h3>推广链接生成器</h3>'
+    +'<div style="display:grid;gap:10px;max-width:640px">'
+    +'<label>目标页面 URL<br><input id="uUrl" class="an-tab" style="width:100%" value="https://web3origin.com/"></label>'
+    +'<label>平台预设<br><select id="uPreset" class="an-tab" style="width:100%">'+UTM_PRESETS.map(function(p,i){return '<option value="'+i+'">'+esc(p[1])+'</option>';}).join("")+'</select></label>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+    +'<label>utm_source<br><input id="uSrc" class="an-tab" style="width:100%" placeholder="chatgpt"></label>'
+    +'<label>utm_medium<br><input id="uMed" class="an-tab" style="width:100%" placeholder="ai / social / owned_site"></label>'
+    +'<label>utm_campaign<br><input id="uCam" class="an-tab" style="width:100%" placeholder="ai_recommend"></label>'
+    +'<label>utm_content<br><input id="uCon" class="an-tab" style="width:100%"></label>'
+    +'<label>utm_term<br><input id="uTerm" class="an-tab" style="width:100%"></label>'
+    +'</div><button class="an-tab on" id="uGen" style="justify-self:start">生成链接</button>'
+    +'</div><div id="uOut" style="margin-top:12px"></div>'
+    +'<div class="a-note-real">只含 utm 参数、不含任何用户隐私;utm 值自动清洗非法字符。AI平台用 medium=ai、社交用 social、旧站导流用 owned_site,后台据此自动分渠道。</div></div>';
+  var ps=el.querySelector("#uPreset");
+  ps.onchange=function(){var p=UTM_PRESETS[+ps.value]; if(p&&p[2]){el.querySelector("#uSrc").value=p[2];el.querySelector("#uMed").value=p[3];if(!el.querySelector("#uCam").value)el.querySelector("#uCam").value=(p[3]==="ai"?"ai_recommend":(p[3]==="owned_site"?"old_site_redirect":""));}};
+  el.querySelector("#uGen").onclick=function(){
+    var out=el.querySelector("#uOut"),base=el.querySelector("#uUrl").value.trim(),u;
+    try{u=new URL(base);}catch(e){out.innerHTML='<div style="color:#e57373;padding:8px">URL 格式不对,请以 https:// 开头</div>';return;}
+    var src=utmClean(el.querySelector("#uSrc").value),med=utmClean(el.querySelector("#uMed").value),cam=utmClean(el.querySelector("#uCam").value),con=utmClean(el.querySelector("#uCon").value),term=utmClean(el.querySelector("#uTerm").value);
+    if(!src){out.innerHTML='<div style="color:#e57373;padding:8px">请填 utm_source 或选平台预设</div>';return;}
+    u.searchParams.set("utm_source",src); if(med)u.searchParams.set("utm_medium",med); if(cam)u.searchParams.set("utm_campaign",cam); if(con)u.searchParams.set("utm_content",con); if(term)u.searchParams.set("utm_term",term);
+    var link=u.toString();
+    out.innerHTML='<div class="a-panel-box"><div style="word-break:break-all;color:var(--green);font-size:13px">'+esc(link)+'</div>'
+      +'<div style="margin-top:8px"><button class="an-tab on" id="uCopy">复制链接</button> <span style="color:var(--muted);margin-left:8px">归类到 <b style="color:var(--gold)">'+esc(utmGroup(med))+(med==="ai"?" / "+esc(src):"")+'</b></span></div></div>';
+    var cp=out.querySelector("#uCopy"); cp.onclick=function(){try{navigator.clipboard.writeText(link);cp.textContent="已复制 ✓";setTimeout(function(){cp.textContent="复制链接";},1500);}catch(e){}};
+  };
 }
 /* ---------- 事件统计 ---------- */
 var EV_CN={tool_open:"工具打开",tool_start:"工具启动",tool_success:"工具成功",tool_error:"工具失败",tool_result_view:"查看结果",tool_retry:"工具重试",article_open:"文章打开",article_read_30s:"阅读30秒",article_read_60s:"阅读60秒",article_scroll_25:"滚动25%",article_scroll_50:"滚动50%",article_scroll_75:"滚动75%",article_complete:"读完文章",related_article_click:"点相关文章",article_share_click:"点分享",video_play:"视频播放",video_pause:"视频暂停",video_progress_25:"看到25%",video_progress_50:"看到50%",video_progress_75:"看到75%",video_complete:"看完视频",video_error:"视频出错",contact_open:"打开联系方式",wechat_click:"点微信",qq_click:"点QQ",telegram_click:"点Telegram",x_click:"点X",youtube_click:"点YouTube",register_start:"开始注册",register_success:"注册成功",login_success:"登录成功",payment_start:"开始支付",payment_success:"支付成功",payment_failed:"支付失败",copy_contract:"复制合约",open_block_explorer:"打开浏览器",copy_wallet_address:"复制钱包",open_transaction:"打开交易",network_switch:"切换网络",search:"搜索",search_no_result:"搜索无结果",language_switch:"切换语言",navigation_click:"导航点击",outbound_click:"外链点击",download:"下载",form_start:"开始填表",form_submit:"提交表单",form_success:"表单成功",form_error:"表单出错"};
