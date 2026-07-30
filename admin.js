@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["traffic","📈","流量分析"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["traffic","📈","流量分析"],["analytics","📊","网站分析"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -80,7 +80,7 @@ function go(page){_cur=page;
   document.querySelectorAll(".a-navi").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-go")===page);});
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
-  ({dashboard:pDash,traffic:pTraffic,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,traffic:pTraffic,analytics:pAnalytics,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -159,6 +159,72 @@ function fbOne(id){get("/feedback/get?id="+encodeURIComponent(id)).then(function
   ov.querySelector("#fbOffGo").onclick=function(){act({action:"official",content:ov.querySelector("#fbOff").value.trim(),ostatus:ov.querySelector("#fbOffS").value});};
 });}
 
+/* ---------- 网站分析 ---------- */
+var AN_RANGE="7d",AN_FROM="",AN_TO="";
+function anDur(s){s=Number(s)||0;if(s<60)return s+"秒";var m=Math.floor(s/60),ss=s%60;if(m<60)return m+"分"+(ss?ss+"秒":"");var h=Math.floor(m/60);return h+"时"+(m%60)+"分";}
+function anBarList(rows,nameKey,valKey){
+  if(!rows||!rows.length)return '<div class="a-center" style="padding:14px;color:var(--muted)">暂无数据</div>';
+  var total=rows.reduce(function(s,r){return s+(Number(r[valKey])||0);},0)||1;
+  return rows.map(function(r){var n=Number(r[valKey])||0;var pct=n/total*100;var nm=(r[nameKey]==null||r[nameKey]==="")?"(未知)":r[nameKey];
+    return '<div class="an-row"><div class="an-lab" title="'+esc(String(nm))+'">'+esc(String(nm))+'</div><div class="an-bar"><div style="width:'+pct.toFixed(1)+'%"></div></div><div class="an-val">'+fmtN(n)+' <i>'+pct.toFixed(0)+'%</i></div></div>';
+  }).join("");
+}
+function anEnsureCss(){ if(document.getElementById("anCss"))return;
+  var st=document.createElement("style");st.id="anCss";
+  st.textContent=".an-tabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}"
+    +".an-tab{background:var(--card);border:1px solid var(--line);color:var(--sub);padding:7px 13px;border-radius:8px;cursor:pointer;font-size:13px}"
+    +".an-tab.on{background:rgba(123,255,69,.14);color:var(--green);border-color:var(--green)}"
+    +".an-custom{display:inline-flex;gap:6px;align-items:center;margin-left:auto;flex-wrap:wrap}"
+    +".an-custom input{background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:6px;font-size:12px}"
+    +".an-row{display:flex;align-items:center;gap:10px;margin:7px 0}"
+    +".an-lab{width:34%;min-width:100px;font-size:13px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}"
+    +".an-bar{flex:1;height:9px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden}"
+    +".an-bar>div{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:6px}"
+    +".an-val{width:92px;text-align:right;font-size:12px;color:var(--sub)}.an-val i{color:var(--muted);font-style:normal;font-size:11px}"
+    +".an-trend{display:flex;align-items:flex-end;gap:3px;height:130px;padding:8px 0;overflow-x:auto}"
+    +".an-tcol{flex:1;min-width:16px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}"
+    +".an-tbar{width:70%;max-width:22px;background:linear-gradient(180deg,var(--green),rgba(123,255,69,.3));border-radius:3px 3px 0 0;min-height:3px}"
+    +".an-tcol span{font-size:9px;color:var(--muted);white-space:nowrap}";
+  document.head.appendChild(st);
+}
+function loadAn(el){
+  var host=el.querySelector("#anBody"); if(host)host.innerHTML='<div class="a-note-real">加载中…</div>';
+  var q=(AN_RANGE==="custom"&&AN_FROM&&AN_TO)?("range=custom&from="+encodeURIComponent(AN_FROM)+"&to="+encodeURIComponent(AN_TO)):("range="+encodeURIComponent(AN_RANGE));
+  get("/an?"+q).then(function(r){
+    if(!host)return;
+    if(r&&r.nodb){ host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1 未接入")+'</div></div>'; return; }
+    if(!r||!r.ok){ host.innerHTML='<div class="a-panel-box"><div class="a-note-real">分析数据加载失败,请稍后重试。</div></div>'; return; }
+    var o=r.overview||{};
+    var cards='<div class="a-cards">'
+      +card("👣","会话数",fmtN(o.sessions||0),"独立访客 "+fmtN(o.visitors||0),"")
+      +card("📄","页面浏览",fmtN(o.pageviews||0),"人均 "+(o.pagesPerSession||0)+" 页","")
+      +card("🆕","新/回访",fmtN(o.newVisitors||0)+" / "+fmtN(o.returningVisitors||0),"新访客 / 回访","")
+      +card("⏱","平均时长",anDur(o.avgDuration||0),"中位 "+anDur(o.medianDuration||0),"ok")
+      +card("↩️","跳出率",(o.bounceRate||0)+"%","仅看一页即离开","")
+      +card("✅","互动会话",fmtN(o.engagedSessions||0),"有点击/滚动等","ok")
+      +'</div>';
+    function box(t,inner){return '<div class="a-panel-box"><h3>'+t+' <span class="a-real">真实</span></h3>'+inner+'</div>';}
+    var tr=r.trend||[]; var tmax=tr.reduce(function(m,x){return Math.max(m,Number(x.sessions)||0);},0)||1;
+    var trend=tr.length?('<div class="an-trend">'+tr.map(function(x){var h=Math.round((Number(x.sessions)||0)/tmax*100);return '<div class="an-tcol" title="'+esc(x.d)+': '+(x.sessions||0)+'会话 / '+(x.pv||0)+'PV"><div class="an-tbar" style="height:'+Math.max(3,h)+'%"></div><span>'+esc(String(x.d).slice(5))+'</span></div>';}).join("")+'</div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据</div>';
+    host.innerHTML=cards+box("每日趋势(会话)",trend)
+      +box("来源渠道",anBarList(r.sources,"source","sessions"))
+      +box("设备类型",anBarList(r.devices,"device_type","n"))
+      +box("浏览器",anBarList(r.browsers,"browser","n"))
+      +box("操作系统",anBarList(r.os,"os","n"))
+      +box("热门页面",anBarList(r.pages,"pathname","n"))
+      +box("落地页面",anBarList(r.landings,"landing_page","n"))
+      +'<div class="a-note-real">时间按新加坡时区(UTC+8)展示;机器人与 /adm 后台访问不计入;数据自接入D1当天起累计。</div>';
+  }).catch(function(){ if(host)host.innerHTML='<div class="a-panel-box"><div class="a-note-real">分析数据加载失败。</div></div>'; });
+}
+function pAnalytics(el){
+  anEnsureCss();
+  var ranges=[["today","今天"],["yesterday","昨天"],["7d","最近7天"],["30d","最近30天"]];
+  el.innerHTML='<div class="an-tabs">'+ranges.map(function(x){return '<button class="an-tab'+(x[0]===AN_RANGE?" on":"")+'" data-r="'+x[0]+'">'+x[1]+'</button>';}).join("")
+    +'<span class="an-custom"><input type="date" id="anFrom" value="'+esc(AN_FROM)+'"><span style="color:var(--muted)">至</span><input type="date" id="anTo" value="'+esc(AN_TO)+'"><button class="an-tab'+(AN_RANGE==="custom"?" on":"")+'" id="anGo">自定义查询</button></span></div><div id="anBody"></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pAnalytics(el);};});
+  var go=el.querySelector("#anGo"); if(go)go.onclick=function(){var f=el.querySelector("#anFrom").value,t=el.querySelector("#anTo").value;if(f&&t){AN_FROM=f;AN_TO=t;AN_RANGE="custom";pAnalytics(el);}};
+  loadAn(el);
+}
 /* ---------- 订单记录 ---------- */
 function ordShort(a){a=String(a||"");return a.length>14?a.slice(0,6)+"…"+a.slice(-4):a;}
 function ordRows(list){return (list||[]).slice(0,300).map(function(o){

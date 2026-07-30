@@ -613,6 +613,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <script src="events.js"></script>
 <script src="tools.js"></script>
 <script src="radar.js"></script>
+<script defer src="/assets/analytics.js"></script>
 <script>
 /* ————— 入场序列（用固定计时，不等大视频加载完）————— */
 setTimeout(()=>document.getElementById('loader').classList.add('done'),2900);
@@ -860,7 +861,7 @@ window.renderCodices();
   /* hit=1 会写KV, 若写失败(如KV日写入上限)会返回500; 此时退回只读 hit=0, 保证国家统计照常显示不消失 */
   var GEO_EP="https://count.web3origin.com/";
   function loadGeo(u){return fetch(u,{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json();});}
-  loadGeo(GEO_EP+"?hit=1").catch(function(){return loadGeo(GEO_EP+"?hit=0");}).then(function(d){
+  loadGeo(GEO_EP+"?hit=0").then(function(d){
     if(!d||!d.dist||!d.dist.length){el.style.display="none";return;}
     _dist=d; window.renderGeo();
   }).catch(function(){el.style.display="none";});
