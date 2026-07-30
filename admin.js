@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,events:pEvents,funnels:pFunnels,languages:pLanguages,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -160,6 +160,40 @@ function fbOne(id){get("/feedback/get?id="+encodeURIComponent(id)).then(function
   ov.querySelector("#fbOffGo").onclick=function(){act({action:"official",content:ov.querySelector("#fbOff").value.trim(),ostatus:ov.querySelector("#fbOffS").value});};
 });}
 
+/* ---------- 页面分析 ---------- */
+function pPages(el){
+  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div style="margin:6px 0"><input id="pgQ" class="an-tab" placeholder="按路径搜索" style="width:200px"></div><div id="pgBody"><div class="a-note-real">加载中…</div></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pPages(el);};});
+  var q="";
+  function render(pages){
+    var host=el.querySelector("#pgBody"); if(!host)return;
+    var list=q?pages.filter(function(x){return (x.pathname||"").toLowerCase().indexOf(q)>=0;}):pages;
+    var tbl=list.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>页面路径</th><th>浏览量</th><th>独立访客</th><th>入口</th><th>退出</th><th>入口率</th><th>退出率</th><th>跳出率</th></tr></thead><tbody>'
+      +list.map(function(x){return '<tr><td>'+esc(x.pathname||"—")+'</td><td>'+fmtN(x.pv||0)+'</td><td>'+fmtN(x.uv||0)+'</td><td>'+fmtN(x.entries||0)+'</td><td>'+fmtN(x.exits||0)+'</td><td>'+(x.pv?Math.round(x.entries/x.pv*100):0)+'%</td><td>'+(x.exitRate||0)+'%</td><td>'+(x.bounceRate||0)+'%</td></tr>';}).join("")+'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:14px">暂无数据</div>';
+    host.innerHTML='<div class="a-panel-box"><h3>页面分析('+list.length+') <span class="a-real">真实</span></h3>'+tbl+'<div class="a-note-real">只存清理后的路径,不含敏感查询参数。入口=会话从此页进入,退出=会话在此页离开。</div></div>';
+  }
+  get("/pages?range="+encodeURIComponent(AN_RANGE)).then(function(r){
+    var host=el.querySelector("#pgBody"); if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var pages=r.pages||[]; render(pages);
+    var qi=el.querySelector("#pgQ"); if(qi)qi.oninput=function(){q=qi.value.trim().toLowerCase();render(pages);};
+  }).catch(function(){});
+}
+/* ---------- 文章分析 ---------- */
+function pArticles(el){
+  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div id="arBody"><div class="a-note-real">加载中…</div></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pArticles(el);};});
+  get("/articles?range="+encodeURIComponent(AN_RANGE)).then(function(r){
+    var host=el.querySelector("#arBody"); if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var ar=r.articles||[];
+    var tbl=ar.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>文章</th><th>打开</th><th>读30秒</th><th>读60秒</th><th>过半</th><th>读完</th><th>完成率</th><th>分享</th><th>相关点击</th></tr></thead><tbody>'
+      +ar.map(function(x){return '<tr><td>'+esc(x.content_id||"—")+'</td><td>'+fmtN(x.open||0)+'</td><td>'+fmtN(x.read30||0)+'</td><td>'+fmtN(x.read60||0)+'</td><td>'+fmtN(x.scroll50||0)+'</td><td>'+fmtN(x.complete||0)+'</td><td>'+(x.completeRate||0)+'%</td><td>'+fmtN(x.share||0)+'</td><td>'+fmtN(x.related||0)+'</td></tr>';}).join("")+'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:14px">暂无数据(文章阅读事件自埋点起累计)</div>';
+    host.innerHTML='<div class="a-panel-box"><h3>文章分析('+ar.length+') <span class="a-real">真实</span></h3>'+tbl+'<div class="a-note-real">按独立读者去重;完成率=读完÷打开;学院文章阅读进度由 academy-app.js 上报。</div></div>';
+  }).catch(function(){});
+}
 /* ---------- 转化漏斗 ---------- */
 function pFunnels(el){
   anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div id="fnBody"><div class="a-note-real">加载中…</div></div>';
