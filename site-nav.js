@@ -55,7 +55,8 @@
     var hasChild = !!(it.children || it.groups);
     if (!hasChild) {
       var cur = isCurrent(it) ? " current" : "";
-      return '<div class="unav-item"><a class="unav-link' + cur + '" href="' + esc(it.href || "#") + '">' + esc(L(it.label)) + '</a></div>';
+      var ext = /^https?:/i.test(it.href || "") ? ' target="_blank" rel="noopener noreferrer"' : "";
+      return '<div class="unav-item"><a class="unav-link' + cur + '" href="' + esc(it.href || "#") + '"' + ext + '>' + esc(L(it.label)) + '</a></div>';
     }
     var alignRight = idx >= total - 2 ? " align-right" : "";
     var topCur = anyChildCurrent(it) ? " current" : "";
@@ -102,7 +103,8 @@
       var hasChild = !!(it.children || it.groups);
       if (!hasChild) {
         var cur = isCurrent(it) ? " current" : "";
-        return '<div class="unav-acc"><a class="unav-acc-h' + cur + '" href="' + esc(it.href || "#") + '">' + esc(L(it.label)) + '</a></div>';
+        var ext = /^https?:/i.test(it.href || "") ? ' target="_blank" rel="noopener noreferrer"' : "";
+        return '<div class="unav-acc"><a class="unav-acc-h' + cur + '" href="' + esc(it.href || "#") + '"' + ext + '>' + esc(L(it.label)) + '</a></div>';
       }
       var sub = it.groups
         ? it.groups.map(function (g) { return '<div class="unav-gt">' + esc(L(g.title)) + '</div>' + (g.items || []).map(drawerItemLink).join(""); }).join("")
@@ -209,8 +211,8 @@
   // 语言切换时重建导航文案(观察 <html lang> 变化;render 不改 lang,无循环)
   var mo = null;
   function boot() {
-    render();
-    try { mo = new MutationObserver(function () { render(); }); mo.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] }); } catch (e) {}
+    try { render(); } catch (e) { /* 导航失败也绝不影响页面 */ }
+    try { mo = new MutationObserver(function () { try { render(); } catch (e) {} }); mo.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] }); } catch (e) {}
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
 })();
