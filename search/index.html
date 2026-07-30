@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<title>全站搜索 · Web3Origin</title>
+<link rel="icon" href="/assets/favicon.png">
+<style>
+  :root{--bg:#070806;--card:#0e100e;--ink:#e9efea;--soft:#c3cbc4;--muted:#7a857c;--gold:#d4af37;--gold-lt:#e8cf7e;--line:rgba(212,175,55,.2)}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,rgba(212,175,55,.06),transparent),var(--bg);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;line-height:1.6}
+  .sp-wrap{max-width:760px;margin:0 auto;padding:22px 16px 60px}
+  .sp-top{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .sp-top a.home{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--gold-lt);font-weight:800;font-size:16px}
+  .sp-top img{height:26px}
+  .sp-top .sp-h{color:var(--muted);font-size:13px;margin-left:auto}
+  .sp-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 15px}
+  .sp-box .ic{font-size:18px;opacity:.8}
+  #searchPageInput{flex:1;background:none;border:0;outline:none;color:var(--ink);font-size:17px;font-family:inherit}
+  .sp-clear{background:none;border:0;color:var(--muted);font-size:16px;cursor:pointer}
+  .sp-bar{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:14px 0}
+  .sp-tab{background:var(--card);border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit}
+  .sp-tab.on{background:rgba(212,175,55,.14);color:var(--gold);border-color:var(--gold)}
+  .sp-sort{margin-left:auto;background:var(--card);border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:6px 10px;font-size:13px;font-family:inherit}
+  #searchResults{margin-top:6px}
+  .sp-load{color:var(--muted);text-align:center;padding:30px}
+</style>
+</head>
+<body>
+<div class="sp-wrap">
+  <div class="sp-top">
+    <a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a>
+    <span class="sp-h" id="spHint">全站搜索</span>
+  </div>
+  <div class="sp-box"><span class="ic">🔍</span><input type="text" id="searchPageInput" autocomplete="off" spellcheck="false" placeholder="搜索文章、课程、工具、合约或问题"><button type="button" class="sp-clear" id="spClear" aria-label="清除">✕</button></div>
+  <div class="sp-bar" id="spTabs"></div>
+  <div id="searchResults"><div class="sp-load">加载中…</div></div>
+</div>
+
+<script>
+  try{var _l=localStorage.getItem("web3origin_locale")||"zh-CN";window.SITE_LANG=(_l==="zh-CN"?"zh":_l);}catch(e){window.SITE_LANG="zh";}
+</script>
+<script defer src="/assets/analytics.js"></script>
+<script src="/search-synonyms.js"></script>
+<script src="/search.js"></script>
+<script>
+(function(){
+  var isZh=(window.SITE_LANG!=="en");
+  function T(zh,en){return isZh?zh:en;}
+  var TYPES=isZh?[["all","全部"],["article","文章"],["wiki","百科"],["course","课程"],["video","视频"],["faq","FAQ"],["tool","工具"],["contract","合约"],["evidence","链上证据"],["page","页面"]]
+    :[["all","All"],["article","Articles"],["wiki","Wiki"],["course","Courses"],["video","Videos"],["faq","FAQ"],["tool","Tools"],["contract","Contracts"],["evidence","Evidence"],["page","Pages"]];
+  var state={type:"all",sort:"relevance",q:""};
+  var inp=document.getElementById("searchPageInput"), res=document.getElementById("searchResults"), tabs=document.getElementById("spTabs");
+  document.getElementById("spHint").textContent=T("全站搜索","Global search");
+  inp.placeholder=T("搜索文章、课程、工具、合约或问题","Search articles, courses, tools, contracts or FAQ");
+  // 分类tab + 排序
+  tabs.innerHTML=TYPES.map(function(t){return '<button class="sp-tab'+(t[0]==="all"?" on":"")+'" data-t="'+t[0]+'">'+t[1]+'</button>';}).join("")
+    +'<select class="sp-sort" id="spSort"><option value="relevance">'+T("相关度","Relevance")+'</option><option value="updated">'+T("最近更新","Recent")+'</option><option value="type">'+T("内容类型","Type")+'</option></select>';
+  function render(){ if(window.W3OSearch) window.W3OSearch.renderInto(res, state.q, {type:state.type, sort:state.sort}); }
+  // ?q= 初始
+  try{var qp=new URLSearchParams(location.search).get("q")||"";state.q=qp.slice(0,120);inp.value=state.q;}catch(e){}
+  var deb;
+  inp.addEventListener("input",function(){state.q=inp.value.slice(0,120);clearTimeout(deb);deb=setTimeout(function(){
+    try{var u=new URL(location);if(state.q)u.searchParams.set("q",state.q);else u.searchParams.delete("q");history.replaceState(null,"",u);}catch(e){}
+    render();
+  },200);});
+  tabs.addEventListener("click",function(e){var b=e.target.closest(".sp-tab");if(!b)return;state.type=b.getAttribute("data-t");tabs.querySelectorAll(".sp-tab").forEach(function(x){x.classList.toggle("on",x===b);});render();});
+  document.getElementById("spSort").addEventListener("change",function(e){state.sort=e.target.value;render();});
+  document.getElementById("spClear").addEventListener("click",function(){inp.value="";state.q="";inp.focus();render();});
+  // 等search.js就绪
+  function boot(){ if(window.W3OSearch){ window.W3OSearch.loadIndex(function(){ render(); inp.focus(); }); } else setTimeout(boot,100); }
+  boot();
+})();
+</script>
+</body>
+</html>

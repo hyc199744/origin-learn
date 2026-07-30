@@ -1,0 +1,27 @@
+/* Web3Origin 搜索同义词 —— 集中配置(单一来源),搜索时双向展开 */
+window.W3O_SYNONYMS = {
+  "起源": ["ORIGIN", "Origin", "web3origin"],
+  "LGNS": ["朗基努斯", "lgns", "主代币"],
+  "sLGNS": ["质押凭证", "slgns"],
+  "Anubis": ["阿努比斯", "Anubis Chain", "A链", "ANB"],
+  "Polygon": ["POL", "Polygon链", "P链", "MATIC", "马蹄链"],
+  "质押": ["staking", "stake", "质押"],
+  "取消质押": ["unstake", "解押"],
+  "收益": ["回报", "rebase", "APY", "年化", "复利"],
+  "钱包": ["wallet", "okx", "欧易"],
+  "授权": ["approve", "approval", "批准"],
+  "合约": ["contract", "智能合约"],
+  "交易哈希": ["tx hash", "transaction hash", "txid", "交易ID"],
+  "国库": ["treasury", "金库"],
+  "涡轮": ["turbine", "涡轮增压", "能量值"],
+  "债券": ["bond", "销毁债券"],
+  "创世": ["genesis", "genesis nft", "创世NFT"],
+  "提币": ["withdraw", "提现", "取回"],
+  "推荐人": ["referrer", "上级", "邀请人", "绑定关系"],
+  "安全": ["security", "貔貅", "honeypot", "风险"],
+  "百科": ["wiki", "词条"],
+  "课程": ["course", "教程", "学院", "academy"],
+  "视频": ["video", "教学视频"],
+  "DAO": ["治理", "governance", "提案", "awake"],
+  "DeFi": ["去中心化金融", "defi"]
+};
