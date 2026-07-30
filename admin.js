@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,security:pSecurity,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -174,6 +174,26 @@ function fbOne(id){get("/feedback/get?id="+encodeURIComponent(id)).then(function
   ov.querySelector("#fbOffGo").onclick=function(){act({action:"official",content:ov.querySelector("#fbOff").value.trim(),ostatus:ov.querySelector("#fbOffS").value});};
 });}
 
+/* ---------- CSV导出(防公式注入) ---------- */
+function csvCell(v){v=String(v==null?"":v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;if(/[",\n]/.test(v))v='"'+v.replace(/"/g,'""')+'"';return v;}
+function csvDownload(name,headers,rows){try{var lines=[headers.map(csvCell).join(",")].concat(rows.map(function(r){return r.map(csvCell).join(",");}));var blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name+".csv";document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);}catch(e){}}
+/* ---------- 安全看板 ---------- */
+function pSecurity(el){
+  anEnsureCss(); el.innerHTML='<div id="scBody"><div class="a-note-real">加载中…</div></div>';
+  get("/security").then(function(r){
+    var host=el.querySelector("#scBody"); if(!host)return;
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var cards='<div class="a-cards">'
+      +card("🔒","锁定IP",fmtN(r.lockedIps||0),"登录失败触发",r.lockedIps?"bad":"ok")
+      +card("🚫","锁定账号",fmtN(r.lockedAccts||0),"暴力破解防护",r.lockedAccts?"bad":"ok")
+      +card("🚦","活跃限流桶",fmtN(r.activeRlBuckets||0),"当前被限速IP","")
+      +card("📜","审计记录",fmtN(r.auditCount||0),"管理员操作留痕","")
+      +'</div>';
+    var ra=(r.recentAudit||[]);
+    var tbl=ra.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>时间</th><th>操作</th><th>对象</th><th>账号</th><th>IP哈希</th></tr></thead><tbody>'+ra.map(function(x){return '<tr><td>'+anTime(Math.floor((x.ts||0)/1000))+'</td><td>'+esc(x.action||"—")+'</td><td>'+esc(x.obj||"—")+'</td><td>'+esc(x.who||"—")+'</td><td><code style="font-size:11px">'+esc(String(x.ip||"").slice(0,10))+'</code></td></tr>';}).join("")+'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无审计记录</div>';
+    host.innerHTML=cards+'<div class="a-panel-box"><h3>近期管理员操作 <span class="a-real">真实</span></h3>'+tbl+'<div class="a-note-real">'+esc(r.note||"")+'。采集接口已实施:Origin白名单、机器人过滤、按IP限流、请求体限制、参数化SQL、敏感脱敏。</div></div>';
+  }).catch(function(){});
+}
 /* ---------- 性能监控 ---------- */
 function perfMs(v){v=Number(v)||0;return v>=1000?(v/1000).toFixed(2)+"s":Math.round(v)+"ms";}
 function perfColor(lcp){lcp=Number(lcp)||0;return lcp<2500?"var(--green)":(lcp<4000?"var(--gold)":"#e57373");}
@@ -217,7 +237,7 @@ function pErrors(el){
 }
 /* ---------- 页面分析 ---------- */
 function pPages(el){
-  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div style="margin:6px 0"><input id="pgQ" class="an-tab" placeholder="按路径搜索" style="width:200px"></div><div id="pgBody"><div class="a-note-real">加载中…</div></div>';
+  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div style="margin:6px 0"><input id="pgQ" class="an-tab" placeholder="按路径搜索" style="width:200px"> <button class="an-tab" id="pgCsv">⬇ 导出CSV</button></div><div id="pgBody"><div class="a-note-real">加载中…</div></div>';
   el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pPages(el);};});
   var q="";
   function render(pages){
@@ -233,6 +253,7 @@ function pPages(el){
     if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
     var pages=r.pages||[]; render(pages);
     var qi=el.querySelector("#pgQ"); if(qi)qi.oninput=function(){q=qi.value.trim().toLowerCase();render(pages);};
+    var cb=el.querySelector("#pgCsv"); if(cb)cb.onclick=function(){csvDownload("页面分析_"+AN_RANGE,["路径","浏览量","独立访客","入口","退出","退出率","跳出率"],pages.map(function(x){return [x.pathname,x.pv,x.uv,x.entries,x.exits,(x.exitRate||0)+"%",(x.bounceRate||0)+"%"];}));};
   }).catch(function(){});
 }
 /* ---------- 文章分析 ---------- */
