@@ -169,10 +169,11 @@ function ordRows(list){return (list||[]).slice(0,300).map(function(o){
 }).join("");}
 function pOrders(el){el.innerHTML='<div class="a-note-real">加载订单中…</div>';get("/orders").then(function(r){
   var ref=r.referrer||{},wd=r.withdraw||{};
+  var refIncome=(ref.orders||[]).filter(function(o){return o.status==="paid";}).reduce(function(s,o){return s+Number(o.amount||0);},0).toFixed(2);
   el.innerHTML=''
     +'<div class="a-cards">'
     +card("🔎","查询推荐人 · 订单",fmtN(ref.count||0),"已付 "+(ref.paid||0)+" · 待付 "+(ref.pending||0),"")
-    +card("💰","查询推荐人 · 收入",(ref.income||"0")+" LGNS","约 2 LGNS/单","ok")
+    +card("💰","查询推荐人 · 收入",refIncome+" LGNS","约 2 LGNS/单","ok")
     +card("💸","链上提币 · 订单",fmtN(wd.count||0),"已付 "+(wd.paid||0)+" · 活跃 "+(wd.active||0),"")
     +card("💰","链上提币 · 收入",(wd.income||"0")+" LGNS","约 5 LGNS/单 · 成功"+(wd.wsucc||0)+"/失败"+(wd.wfail||0),"ok")
     +'</div>'
