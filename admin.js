@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["traffic","📈","流量分析"],["feedback","💬","留言管理"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["traffic","📈","流量分析"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -80,7 +80,7 @@ function go(page){_cur=page;
   document.querySelectorAll(".a-navi").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-go")===page);});
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
-  ({dashboard:pDash,traffic:pTraffic,feedback:pFeedback,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,traffic:pTraffic,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -159,6 +159,31 @@ function fbOne(id){get("/feedback/get?id="+encodeURIComponent(id)).then(function
   ov.querySelector("#fbOffGo").onclick=function(){act({action:"official",content:ov.querySelector("#fbOff").value.trim(),ostatus:ov.querySelector("#fbOffS").value});};
 });}
 
+/* ---------- 订单记录 ---------- */
+function ordShort(a){a=String(a||"");return a.length>14?a.slice(0,6)+"…"+a.slice(-4):a;}
+function ordRows(list){return (list||[]).slice(0,300).map(function(o){
+  var st=o.status==="paid"?'<span style="color:var(--green)">已付</span>':'<span style="color:var(--muted)">待付</span>';
+  var tx=o.txHash?'<a href="https://polygonscan.com/tx/'+esc(o.txHash)+'" target="_blank" rel="noopener" style="color:var(--gold-lt)">查</a>':'—';
+  var t=o.paidAt||o.created;
+  return '<tr><td>'+esc(ordShort(o.addr))+'</td><td>'+esc(o.amount)+'</td><td>'+st+'</td><td>'+(o.payer?esc(ordShort(o.payer)):'—')+'</td><td>'+tx+'</td><td>'+(t?new Date(t).toLocaleString():'—')+'</td></tr>';
+}).join("");}
+function pOrders(el){el.innerHTML='<div class="a-note-real">加载订单中…</div>';get("/orders").then(function(r){
+  var ref=r.referrer||{},wd=r.withdraw||{};
+  el.innerHTML=''
+    +'<div class="a-cards">'
+    +card("🔎","查询推荐人 · 订单",fmtN(ref.count||0),"已付 "+(ref.paid||0)+" · 待付 "+(ref.pending||0),"")
+    +card("💰","查询推荐人 · 收入",(ref.income||"0")+" LGNS","约 2 LGNS/单","ok")
+    +card("💸","链上提币 · 订单",fmtN(wd.count||0),"已付 "+(wd.paid||0)+" · 活跃 "+(wd.active||0),"")
+    +card("💰","链上提币 · 收入",(wd.income||"0")+" LGNS","约 5 LGNS/单 · 成功"+(wd.wsucc||0)+"/失败"+(wd.wfail||0),"ok")
+    +'</div>'
+    +'<div class="a-panel-box"><h3>查询推荐人订单（'+(ref.count||0)+'） <span class="a-real">真实</span></h3>'
+    +'<table class="a-tbl"><thead><tr><th>查询地址</th><th>金额</th><th>状态</th><th>付款方</th><th>tx</th><th>时间</th></tr></thead><tbody>'
+    +(ordRows(ref.orders)||'<tr><td colspan=6 class="a-center">暂无数据</td></tr>')+'</tbody></table></div>'
+    +'<div class="a-panel-box"><h3>链上提币订单（'+(wd.count||0)+'） <span class="a-real">真实</span></h3>'
+    +'<table class="a-tbl"><thead><tr><th>用户地址</th><th>金额</th><th>状态</th><th>付款方</th><th>tx</th><th>时间</th></tr></thead><tbody>'
+    +(ordRows(wd.orders)||'<tr><td colspan=6 class="a-center">暂无数据</td></tr>')+'</tbody></table>'
+    +'<div class="a-note-real">收款钱包 0xbd06474d…；金额为精确指纹金额（尾数用于自动对账）。仅读取展示，不涉及任何私钥/助记词。</div></div>';
+}).catch(function(){el.innerHTML='<div class="a-note-real">订单加载失败，请刷新重试。</div>';});}
 /* ---------- 链上状态 ---------- */
 function pOnchain(el){get("/onchain").then(function(r){
   if(!r.ok||!r.anubis){el.innerHTML='<div class="a-center">雷达数据暂无</div>';return;}
