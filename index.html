@@ -356,6 +356,18 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   <button id="mLang" aria-label="切换语言">EN</button>
 </nav>
 
+<style>
+  .hero-search{margin:22px auto 0;max-width:600px;width:92%;animation:hsIn .8s ease .3s both}
+  @keyframes hsIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .hero-search .hs-title{color:var(--gold-lt);font-size:14px;font-weight:600;margin-bottom:10px;text-align:center;letter-spacing:.5px}
+  .hero-search .hs-box{display:flex;gap:8px;background:rgba(20,14,6,.72);border:1.5px solid var(--gold);border-radius:14px;padding:6px 6px 6px 16px;box-shadow:0 6px 26px rgba(214,168,75,.16);backdrop-filter:blur(4px)}
+  #heroSearch{flex:1;background:none;border:0;outline:none;color:var(--ink);font-size:15px;font-family:inherit;min-width:0}
+  #heroSearch::placeholder{color:#9a8358}
+  #heroSearchGo{background:linear-gradient(120deg,#f0d48a,#D6A84B);color:#2a1c05;border:0;border-radius:10px;padding:10px 22px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+  #heroSearchGo:hover{filter:brightness(1.07)}
+  .hero-search .hs-hint{color:#9a8358;font-size:11.5px;text-align:center;margin-top:9px;line-height:1.5}
+  @media(max-width:560px){.hero-search .hs-title{font-size:12.5px}#heroSearchGo{padding:10px 16px}}
+</style>
 <!-- ══════ HERO ══════ -->
 <section id="home">
   <div class="hero-emblem">
@@ -371,6 +383,14 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   </div>
   <p class="hero-lede" data-i18n="h_lede">从一枚代币到一条公链，把复杂的 Web3 拆成<b>你听得懂的话</b>。不需要任何基础，跟着五重试炼走一遍，你就懂了。</p>
   <a class="cta" onclick="jump('path')" data-i18n="h_cta">开启试炼 &#10132;</a>
+  <div class="hero-search">
+    <div class="hs-title"><span data-i18n="hs_title">🔍 链上搜索 · 查真实链上数据，用大白话讲给你听</span></div>
+    <div class="hs-box">
+      <input id="heroSearch" type="text" maxlength="80" autocomplete="off" spellcheck="false" placeholder="输入钱包地址、合约地址或交易哈希" data-i18n-ph="hs_ph">
+      <button id="heroSearchGo" data-i18n="hs_go">查询</button>
+    </div>
+    <div class="hs-hint" id="heroSearchHint"><span data-i18n="hs_safe">🔒 只需要公开的地址或交易哈希，绝不要输入助记词、私钥或钱包密码</span></div>
+  </div>
   <div class="scroll-hint" data-i18n="h_scroll">向 下 滚 动</div>
 </section>
 
@@ -1096,5 +1116,25 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
 <script>/* 视频关右键 */document.addEventListener("contextmenu",function(e){var t=e.target;if(t&&(t.tagName==="VIDEO"||(t.closest&&t.closest("video"))))e.preventDefault();},true);</script>
 
 <script defer src="/search-synonyms.js"></script><script defer src="/search.js"></script>
+<script>
+/* 首页链上搜索入口:地址(0x40)公开→带?q跳转自动查;交易哈希(0x64)与私钥同形→绝不入URL,跳工具页由用户输入;敏感内容本地拦截 */
+(function(){
+  var EA=/^0x[0-9a-fA-F]{40}$/, TH=/^0x[0-9a-fA-F]{64}$/;
+  function sens(s){s=(s||"").trim();var w=s.split(/\s+/).filter(Boolean);if([12,15,18,21,24].indexOf(w.length)>=0&&w.every(function(x){return /^[a-z]{3,10}$/.test(x);}))return true;if(/^[0-9a-fA-F]{64}$/.test(s))return true;if(/(私钥|助记词|mnemonic|seed\s*phrase|private\s*key|钱包密码|wallet\s*password|支付密码)/i.test(s))return true;return false;}
+  var inp=document.getElementById("heroSearch"),go=document.getElementById("heroSearchGo"),hint=document.getElementById("heroSearchHint");
+  if(!inp||!go)return;
+  function warn(m){hint.innerHTML="";hint.textContent=m;hint.style.color="#ff8f80";}
+  function run(){
+    var q=(inp.value||"").trim().slice(0,80);
+    if(!q)return;
+    if(sens(q)){warn("⚠️ 请不要输入助记词/私钥/密码。本工具只需要公开地址或交易哈希。");inp.value="";return;} // 绝不发送/写URL
+    if(EA.test(q)){location.href="/tools/onchain-search/?q="+encodeURIComponent(q);return;} // 地址公开,可带URL自动查
+    if(TH.test(q)){location.href="/tools/onchain-search/";return;} // 交易哈希与私钥同形,不放URL,到工具页由用户输入
+    warn("请输入有效的钱包地址、合约地址(0x+40位)或交易哈希(0x+64位)");
+  }
+  go.addEventListener("click",run);
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter")run();});
+})();
+</script>
 </body>
 </html>
