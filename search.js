@@ -123,6 +123,51 @@
     return a;
   }
 
+  /* ---- 交易哈希链上只读查询(点击才发请求,防私钥误发;两链并发) ---- */
+  var TX_CHAINS = [
+    { cn: "Polygon", en: "Polygon", id: 137, rpc: "https://polygon.drpc.org", sym: "POL", tx: "https://polygonscan.com/tx/", addr: "https://polygonscan.com/address/" },
+    { cn: "Anubis", en: "Anubis", id: 6714, rpc: "https://rpc.anubispace.org", sym: "DAI", tx: "https://browser.anubispace.org/tx/", addr: "https://browser.anubispace.org/address/" }
+  ];
+  function rpcCall(url, method, params) {
+    return fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: method, params: params }) })
+      .then(function (r) { return r.json(); }).then(function (j) { if (j.error) throw new Error((j.error && j.error.message) || "RPC error"); return j.result; });
+  }
+  function fmtAmt(hexWei) { try { var v = BigInt(hexWei || "0x0"); var s = v.toString().padStart(19, "0"); var i = s.slice(0, -18), f = s.slice(-18).replace(/0+$/, ""); return i + (f ? "." + f : ""); } catch (e) { return "?"; } }
+  function queryOneChain(chain, hash) {
+    return rpcCall(chain.rpc, "eth_getTransactionByHash", [hash]).then(function (tx) {
+      if (!tx) return null; // 该链无此交易
+      return Promise.all([
+        rpcCall(chain.rpc, "eth_getTransactionReceipt", [hash]).catch(function () { return null; }),
+        tx.blockNumber ? rpcCall(chain.rpc, "eth_getBlockByNumber", [tx.blockNumber, false]).catch(function () { return null; }) : null
+      ]).then(function (rb) { return { chain: chain, tx: tx, receipt: rb[0], block: rb[1] }; });
+    }).catch(function () { return null; }); // 单链失败(限流/网络)不阻断另一条
+  }
+  function queryTxOnChain(hash) { return Promise.all(TX_CHAINS.map(function (c) { return queryOneChain(c, hash); })).then(function (rs) { return rs.filter(Boolean); }); }
+  function txRow(label, valueNode) { var r = document.createElement("div"); r.className = "s-tx-row"; var k = document.createElement("span"); k.className = "s-tx-k"; k.textContent = label; var v = document.createElement("span"); v.className = "s-tx-v"; if (typeof valueNode === "string") v.textContent = valueNode; else v.appendChild(valueNode); r.appendChild(k); r.appendChild(v); return r; }
+  function addrLink(chain, a) { if (!a) { var s = document.createElement("span"); s.textContent = "-"; return s; } var el = document.createElement("a"); el.href = chain.addr + a; el.target = "_blank"; el.rel = "noopener noreferrer"; el.textContent = a; el.className = "s-tx-addr"; return el; }
+  function renderTxData(found, box, hash) {
+    box.textContent = "";
+    if (!found.length) { var n = document.createElement("div"); n.className = "s-tx-none"; n.textContent = T("Polygon 和 Anubis 两条链都没查到这笔交易 —— 可能在其他链、尚未打包,或这串并非交易哈希。", "Not found on either Polygon or Anubis — it may be on another chain, not yet mined, or not a transaction hash."); box.appendChild(n); return; }
+    found.forEach(function (f) {
+      var tx = f.tx, rc = f.receipt, blk = f.block, ch = f.chain;
+      var card = document.createElement("div"); card.className = "s-tx-card";
+      var hd = document.createElement("div"); hd.className = "s-tx-hd"; hd.textContent = T("在 " + ch.cn + " 链查到(只读)", "Found on " + ch.en + " (read-only)"); card.appendChild(hd);
+      var status = rc ? (rc.status === "0x1" ? T("✓ 成功", "✓ Success") : (rc.status === "0x0" ? T("✗ 失败", "✗ Failed") : T("未知", "Unknown"))) : T("未知(未取到回执)", "Unknown");
+      card.appendChild(txRow(T("状态", "Status"), status));
+      card.appendChild(txRow(T("区块", "Block"), tx.blockNumber ? String(parseInt(tx.blockNumber, 16)) : "-"));
+      card.appendChild(txRow(T("时间", "Time"), blk && blk.timestamp ? new Date(parseInt(blk.timestamp, 16) * 1000).toLocaleString() : T("-(未取到区块)", "-")));
+      card.appendChild(txRow("From", addrLink(ch, tx.from)));
+      var toNode = tx.to ? addrLink(ch, tx.to) : (function () { var s = document.createElement("span"); s.textContent = rc && rc.contractAddress ? T("合约创建 → ", "Contract created → ") + rc.contractAddress : T("合约创建", "Contract creation"); return s; })();
+      card.appendChild(txRow("To", toNode));
+      card.appendChild(txRow(T("金额", "Amount"), fmtAmt(tx.value) + " " + ch.sym));
+      if (rc && rc.gasUsed) card.appendChild(txRow("Gas", String(parseInt(rc.gasUsed, 16))));
+      if (fmtAmt(tx.value) === "0") { var note = document.createElement("div"); note.className = "s-tx-note"; note.textContent = T("原生转账为 0,可能是合约调用或代币(ERC-20)转账,代币明细请点下方浏览器查看。", "Native transfer is 0 — likely a contract call or ERC-20 transfer; see the explorer for token details."); card.appendChild(note); }
+      var exp = document.createElement("a"); exp.href = ch.tx + hash; exp.target = "_blank"; exp.rel = "noopener noreferrer"; exp.className = "s-chip"; exp.textContent = T("在 " + ch.cn + " 浏览器打开", "Open in " + ch.en + " explorer"); card.appendChild(exp);
+      box.appendChild(card);
+    });
+    var src = document.createElement("div"); src.className = "s-tx-note"; src.textContent = T("数据来自各链公共 RPC 只读查询,仅供参考。", "Data from each chain's public RPC (read-only), for reference."); box.appendChild(src);
+  }
+
   /* ---- 地址/交易哈希特判横幅 ---- */
   function specialBanner(q, container) {
     var raw = q.trim();
@@ -145,6 +190,15 @@
       box2.appendChild(p2);
       var warn2 = document.createElement("div"); warn2.className = "s-banner-warn"; warn2.textContent = "⚠️ " + T("私钥也是0x+64位十六进制,外观与交易哈希一致。若这串其实是你的私钥,切勿点击下方链接(会把它发给第三方浏览器),请立即把资产转移到新钱包。", "A private key is also 0x + 64 hex and looks identical to a tx hash. If this is actually your private key, do NOT click the links below (they'd send it to a third-party explorer) — move your assets to a new wallet now."); box2.appendChild(warn2);
       var note2 = document.createElement("div"); note2.className = "s-banner-note"; note2.textContent = T("未确定网络前不断言归属哪条链。", "Network not asserted until confirmed."); box2.appendChild(note2);
+      var qbtn = document.createElement("button"); qbtn.type = "button"; qbtn.className = "s-tx-btn";
+      qbtn.textContent = T("🔎 查这笔交易的链上数据(Polygon + Anubis)", "🔎 Fetch on-chain data (Polygon + Anubis)");
+      var qres = document.createElement("div"); qres.className = "s-tx-res";
+      qbtn.addEventListener("click", function () {
+        qbtn.disabled = true; qbtn.textContent = T("查询中…(两条链只读查询)", "Querying both chains (read-only)…");
+        queryTxOnChain(raw).then(function (found) { renderTxData(found, qres, raw); qbtn.style.display = "none"; })
+          .catch(function () { qres.textContent = T("查询失败,请稍后重试,或点上方浏览器链接。", "Query failed — retry later or use the explorer links above."); qbtn.disabled = false; qbtn.textContent = T("🔎 重试", "🔎 Retry"); });
+      });
+      box2.appendChild(qbtn); box2.appendChild(qres);
       container.appendChild(box2);
     }
   }
@@ -264,7 +318,7 @@
       '.s-row-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.s-type{font-size:11px;color:#d4af37;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.22);border-radius:20px;padding:1px 8px;white-space:nowrap}',
       '.s-title{font-size:14.5px;font-weight:600}.s-verified{font-size:11px;color:#7bff45}.s-desc{color:#c3cbc4;font-size:12.5px;margin-top:3px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
       '.s-meta{color:#7a857c;font-size:11.5px;margin-top:4px}.s-hl{background:rgba(212,175,55,.32);color:#fff;border-radius:3px;padding:0 1px}',
-      '.s-banner{background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.22);border-radius:11px;padding:11px 13px;margin:6px 4px 10px}.s-banner-h{color:#e8cf7e;font-size:13.5px;font-weight:600}.s-banner-note{color:#7a857c;font-size:11.5px;margin-top:5px}.s-banner-warn{color:#ffb4a8;background:rgba(255,60,40,.08);border:1px solid rgba(255,80,60,.3);border-radius:8px;padding:7px 9px;font-size:12px;margin-top:7px;line-height:1.55}',
+      '.s-banner{background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.22);border-radius:11px;padding:11px 13px;margin:6px 4px 10px}.s-banner-h{color:#e8cf7e;font-size:13.5px;font-weight:600}.s-banner-note{color:#7a857c;font-size:11.5px;margin-top:5px}.s-banner-warn{color:#ffb4a8;background:rgba(255,60,40,.08);border:1px solid rgba(255,80,60,.3);border-radius:8px;padding:7px 9px;font-size:12px;margin-top:7px;line-height:1.55}.s-tx-btn{margin-top:9px;background:rgba(212,175,55,.14);color:#e8cf7e;border:1px solid rgba(212,175,55,.4);border-radius:8px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}.s-tx-btn:hover{background:rgba(212,175,55,.22)}.s-tx-btn:disabled{opacity:.6;cursor:default}.s-tx-res{margin-top:8px}.s-tx-card{background:rgba(255,255,255,.03);border:1px solid rgba(212,175,55,.18);border-radius:9px;padding:10px 12px;margin-top:7px}.s-tx-hd{color:#e8cf7e;font-size:12.5px;font-weight:700;margin-bottom:6px}.s-tx-row{display:flex;gap:8px;font-size:12.5px;padding:2px 0;line-height:1.5}.s-tx-k{color:#7a857c;min-width:52px;flex:none}.s-tx-v{color:#c3cbc4;word-break:break-all}.s-tx-addr{color:#8fb7ff;text-decoration:none;word-break:break-all}.s-tx-addr:hover{text-decoration:underline}.s-tx-note{color:#7a857c;font-size:11px;margin-top:6px;line-height:1.5}.s-tx-none{color:#c3cbc4;font-size:12.5px;padding:6px 2px}.s-tx-card .s-chip{margin-top:8px}',
       '.s-banner-acts,.s-suggest-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}',
       '.s-chip{display:inline-block;font-size:12.5px;color:#e8cf7e;background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.25);border-radius:8px;padding:5px 11px;text-decoration:none;cursor:pointer;font-family:inherit}.s-chip:hover{background:rgba(212,175,55,.2)}',
       '.s-sensitive{background:rgba(229,115,115,.1);border:1px solid rgba(229,115,115,.4);border-radius:12px;padding:14px 16px;margin:8px 4px}.s-sensitive b{color:#e57373;display:block;font-size:14px}.s-sensitive p{color:#c3cbc4;font-size:12.5px;line-height:1.6;margin:8px 0 0}',
