@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,security:pSecurity,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,security:pSecurity,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -174,6 +174,48 @@ function fbOne(id){get("/feedback/get?id="+encodeURIComponent(id)).then(function
   ov.querySelector("#fbOffGo").onclick=function(){act({action:"official",content:ov.querySelector("#fbOff").value.trim(),ostatus:ov.querySelector("#fbOffS").value});};
 });}
 
+/* ---------- 系统设置 ---------- */
+function pSettings(el){
+  anEnsureCss(); el.innerHTML='<div id="stBody"><div class="a-note-real">加载中…</div></div>';
+  get("/settings").then(function(r){
+    var host=el.querySelector("#stBody"); if(!host)return;
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var c=r.config||{},st=r.settings||{};
+    function row(k,v){return '<div class="an-row"><div class="an-lab" style="width:130px">'+esc(k)+'</div><div style="flex:1;font-size:13px;color:var(--ink);word-break:break-all">'+esc(v)+'</div></div>';}
+    var cfgView='<div class="a-panel-box"><h3>当前配置(只读) <span class="a-real">真实</span></h3>'
+      +row("AI平台("+(c.aiPlatforms||[]).length+")",(c.aiPlatforms||[]).join(" / "))
+      +row("自有域名",(c.ownedDomains||[]).join(" / "))
+      +row("允许Origin",(c.allowedOrigins||[]).join(" / "))
+      +row("事件白名单",(c.eventWhitelist||0)+" 种")
+      +row("会话/心跳",(c.sessionGapMin||30)+" 分钟超时 · 心跳 "+(c.heartbeatSec||30)+" 秒")
+      +row("D1数据库",c.d1?"已连接":"未连接")
+      +'<div class="a-note-real">AI映射/域名/Origin/事件白名单在Worker源码里(改需重部署),此处只读展示。</div></div>';
+    var editForm='<div class="a-panel-box"><h3>可编辑设置</h3><div style="display:grid;gap:8px;max-width:480px">'
+      +'<label>站点名称<br><input id="stName" class="an-tab" style="width:100%" value="'+esc(st.siteName||"")+'"></label>'
+      +'<label>数据保留天数(7-3650)<br><input id="stRet" type="number" class="an-tab" style="width:100%" value="'+esc(String(st.retentionDays||180))+'"></label>'
+      +'<label>备注<br><input id="stMemo" class="an-tab" style="width:100%" value="'+esc(st.memo||"")+'"></label>'
+      +'<button class="an-tab on" id="stSave" style="justify-self:start">保存设置</button><div id="stMsg" style="font-size:13px"></div></div></div>';
+    var cleanup='<div class="a-panel-box"><h3>⚠️ 数据清理(危险·不可恢复)</h3><div style="display:grid;gap:8px;max-width:480px">'
+      +'<label>删除多少天前的明细(会话/页面/事件/性能/错误)<br><input id="clDays" type="number" class="an-tab" style="width:100%" value="365"></label>'
+      +'<label>重新输入管理员密码(敏感操作验证)<br><input id="clPw" type="password" class="an-tab" style="width:100%" autocomplete="off"></label>'
+      +'<label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="clOk"> 我确认永久删除,不可恢复</label>'
+      +'<button class="an-tab" id="clGo" style="justify-self:start;border-color:#e57373;color:#e57373">执行清理</button><div id="clMsg" style="font-size:13px"></div></div>'
+      +'<div class="a-note-real">删除不可恢复;需二次确认+重输密码;记入审计;不删访客表(仅明细)。</div></div>';
+    host.innerHTML=cfgView+editForm+cleanup;
+    el.querySelector("#stSave").onclick=function(){
+      var msg=el.querySelector("#stMsg");msg.textContent="保存中…";
+      post("/settings",{siteName:el.querySelector("#stName").value,retentionDays:el.querySelector("#stRet").value,memo:el.querySelector("#stMemo").value},true).then(function(rr){msg.innerHTML=rr.ok?'<span style="color:var(--green)">✓ 已保存</span>':'<span style="color:#e57373">失败:'+esc(rr.error||"")+'</span>';}).catch(function(){msg.textContent="保存失败";});
+    };
+    el.querySelector("#clGo").onclick=function(){
+      var msg=el.querySelector("#clMsg");
+      if(!el.querySelector("#clOk").checked){msg.innerHTML='<span style="color:#e57373">请先勾选确认</span>';return;}
+      var days=parseInt(el.querySelector("#clDays").value,10)||365;
+      if(!window.confirm("确定永久删除 "+days+" 天前的所有明细数据?不可恢复!")) return;
+      msg.textContent="执行中…";
+      post("/cleanup",{days:days,password:el.querySelector("#clPw").value,confirm:true},true).then(function(rr){msg.innerHTML=rr.ok?'<span style="color:var(--green)">✓ 已删除 '+fmtN(rr.deleted||0)+' 行('+rr.cutoffDays+'天前)</span>':'<span style="color:#e57373">失败:'+esc(rr.error||"")+'</span>';el.querySelector("#clPw").value="";el.querySelector("#clOk").checked=false;}).catch(function(){msg.textContent="失败";});
+    };
+  }).catch(function(){});
+}
 /* ---------- CSV导出(防公式注入) ---------- */
 function csvCell(v){v=String(v==null?"":v);if(/^[=+\-@\t\r]/.test(v))v="'"+v;if(/[",\n]/.test(v))v='"'+v.replace(/"/g,'""')+'"';return v;}
 function csvDownload(name,headers,rows){try{var lines=[headers.map(csvCell).join(",")].concat(rows.map(function(r){return r.map(csvCell).join(",");}));var blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name+".csv";document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);}catch(e){}}
