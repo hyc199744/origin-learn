@@ -108,9 +108,9 @@ function pDash(el){
       +card("↩️","跳出率",(b1.v||0)+"%","上周期 "+(b1.prev||0)+"%","")
       +card("📑","人均页数",(pp.v||0),"上周期 "+(pp.prev||0),"")
       +card("⏱","平均时长",anDur((m.avgDuration&&m.avgDuration.v)||0),"","ok")
-      +card("🤖","AI平台访客",fmtN((m.aiVisitors&&m.aiVisitors.v)||0),"ChatGPT/豆包等","")
-      +card("🏠","自有站导流",fmtN((m.ownedVisitors&&m.ownedVisitors.v)||0),"originweb3等","")
-      +card("📞","转化人数",fmtN((m.conversions&&m.conversions.v)||0),"转化率 "+(r.convRate||0)+"%","ok")
+      +card("🤖","AI平台会话",fmtN((m.aiVisitors&&m.aiVisitors.v)||0),"ChatGPT/豆包等来访","")
+      +card("🏠","自有站导流",fmtN((m.ownedVisitors&&m.ownedVisitors.v)||0),"originweb3等(会话)","")
+      +card("📞","转化人数",fmtN((m.conversions&&m.conversions.v)||0),"转化率 "+(r.convRate||0)+"% (占访客)","ok")
       +'</div>';
     var tr=r.trend||[]; var tmax=tr.reduce(function(x,y){return Math.max(x,Number(y.sessions)||0);},0)||1;
     var trend=tr.length?('<div class="an-trend">'+tr.map(function(x){var h=Math.round((Number(x.sessions)||0)/tmax*100);return '<div class="an-tcol" title="'+esc(x.d)+': '+(x.sessions||0)+'会话/'+(x.visitors||0)+'访客/'+(x.pv||0)+'PV"><div class="an-tbar" style="height:'+Math.max(3,h)+'%"></div><span>'+esc(String(x.d).slice(5))+'</span></div>';}).join("")+'</div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据</div>';
