@@ -110,5 +110,98 @@
     window.addEventListener("pagehide", leave, { capture: true });
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") send(base("heartbeat"), true); });
     window.addEventListener("beforeunload", leave, { capture: true });
+
+    /* ===================== 事件统计 W3OAnalytics ===================== */
+    var EVENT_ENDPOINT = "https://count.web3origin.com/api/collect/event";
+    var EV_LIST = ("tool_open tool_start tool_success tool_error tool_result_view tool_retry "
+      + "article_open article_read_30s article_read_60s article_scroll_25 article_scroll_50 article_scroll_75 article_complete related_article_click article_share_click "
+      + "video_play video_pause video_progress_25 video_progress_50 video_progress_75 video_complete video_error "
+      + "contact_open wechat_click qq_click telegram_click x_click youtube_click register_start register_success login_success payment_start payment_success payment_failed "
+      + "copy_contract open_block_explorer copy_wallet_address open_transaction network_switch "
+      + "search search_no_result language_switch navigation_click outbound_click download form_start form_submit form_success form_error").split(" ");
+    var EV_WHITELIST = {}; EV_LIST.forEach(function (n) { EV_WHITELIST[n] = 1; });
+    var PROP_KEYS = ("tool_name tool_category network success error_code duration_ms "
+      + "article_id article_title article_category article_language scroll_depth reading_seconds "
+      + "video_id video_title video_duration current_time progress asset_name explorer_name target_type "
+      + "search_keyword from_language to_language navigation_name outbound_domain file_name form_name run_id order_id amount_range product_type payment_network").split(" ");
+    var MAX_PROPS = 25;
+    var sentDedup = {};
+    function evSensitiveClient(s) { s = String(s || ""); return /0x[0-9a-fA-F]{40}/.test(s) || /(私钥|助记词|mnemonic|private\s*key|seed\s*phrase)/i.test(s); }
+    function evClean(props) {
+      var out = {}, n = 0;
+      if (props && typeof props === "object") {
+        for (var k in props) {
+          if (!Object.prototype.hasOwnProperty.call(props, k)) continue;
+          if (PROP_KEYS.indexOf(k) < 0) continue;
+          var v = props[k];
+          if (v === undefined || v === null) continue;
+          if (typeof v === "function" || (typeof v === "object")) continue;
+          if (typeof v === "number") { if (isFinite(v)) out[k] = v; }
+          else if (typeof v === "boolean") { out[k] = v; }
+          else { out[k] = String(v).slice(0, 200); }
+          if (++n >= MAX_PROPS) break;
+        }
+      }
+      if (out.search_keyword && evSensitiveClient(out.search_keyword)) out.search_keyword = "[filtered]";
+      return out;
+    }
+    function evSend(payload, beacon) {
+      try {
+        var body = JSON.stringify(payload);
+        if (beacon && navigator.sendBeacon) { navigator.sendBeacon(EVENT_ENDPOINT, new Blob([body], { type: "application/json" })); return; }
+        fetch(EVENT_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: body, keepalive: true, credentials: "omit" }).catch(function () {});
+      } catch (e) {}
+    }
+    function track(eventName, properties, opts) {
+      try {
+        if (typeof eventName !== "string" || !EV_WHITELIST[eventName]) return;
+        opts = opts || {};
+        if (opts.dedupKey) { var dk = "w3o_ev_" + opts.dedupKey; if (sentDedup[dk] || ssGet(dk)) return; sentDedup[dk] = 1; ssSet(dk, "1"); }
+        var props = evClean(properties);
+        var payload = {
+          event_id: uuid(), event_name: eventName, visitorId: vid, sessionId: sid,
+          pathname: location.pathname.slice(0, 300), pageTitle: (document.title || "").slice(0, 200),
+          referrerDomain: refDomain(document.referrer).slice(0, 120), utm: utm,
+          language: (navigator.language || "").slice(0, 20), ts: Date.now(),
+          run_id: opts.runId || props.run_id || undefined, properties: props
+        };
+        evSend(payload, !!opts.beacon);
+      } catch (e) {}
+    }
+    var lastTrack = {};
+    function trackThrottled(name, props, opts) {
+      var key = name + "|" + ((props && (props.tool_name || props.navigation_name || props.outbound_domain || props.file_name)) || "");
+      var now = Date.now(); if (lastTrack[key] && now - lastTrack[key] < 800) return; lastTrack[key] = now;
+      track(name, props, opts);
+    }
+    window.W3OAnalytics = {
+      track: track,
+      trackOnce: function (name, props, dedupKey) { track(name, props, { dedupKey: dedupKey || (name + ":" + (props && (props.article_id || props.video_id || props.tool_name) || "")) }); },
+      newRunId: function () { return uuid(); }
+    };
+    // 自动埋点1: data-analytics-event
+    document.addEventListener("click", function (e) {
+      try {
+        var el = e.target.closest && e.target.closest("[data-analytics-event]"); if (!el) return;
+        var name = el.getAttribute("data-analytics-event"); var props = {};
+        for (var i = 0; i < el.attributes.length; i++) { var at = el.attributes[i]; if (at.name.indexOf("data-") === 0 && at.name !== "data-analytics-event") { var key = at.name.slice(5).replace(/-([a-z])/g, function (_, c) { return c.toUpperCase(); }); if (PROP_KEYS.indexOf(key) >= 0) props[key] = at.value; } }
+        trackThrottled(name, props);
+      } catch (_) {}
+    }, true);
+    // 自动埋点2: 外链/下载/社交(未手动标注的a标签)
+    document.addEventListener("click", function (e) {
+      try {
+        var a = e.target.closest && e.target.closest("a[href]"); if (!a || a.hasAttribute("data-analytics-event")) return;
+        var href = a.getAttribute("href") || ""; if (href.indexOf("#") === 0 || href.indexOf("javascript:") === 0) return;
+        var host = ""; try { host = new URL(href, location.href).hostname; } catch (_) {}
+        if (/\.(pdf|zip|apk|mp4|dmg|exe|xlsx?|docx?|pptx?)($|\?)/i.test(href) || a.hasAttribute("download")) {
+          trackThrottled("download", { file_name: (href.split("/").pop() || "").slice(0, 120) });
+        } else if (host && host !== location.hostname) {
+          var soc = { "t.me": "telegram_click", "x.com": "x_click", "twitter.com": "x_click", "youtube.com": "youtube_click", "youtu.be": "youtube_click" };
+          var ev = null; for (var d in soc) { if (host === d || host.slice(-(d.length + 1)) === "." + d) { ev = soc[d]; break; } }
+          if (ev) trackThrottled(ev, { outbound_domain: host }); else trackThrottled("outbound_click", { outbound_domain: host.slice(0, 120) });
+        }
+      } catch (_) {}
+    }, true);
   } catch (e) { /* 永不影响页面 */ }
 })();

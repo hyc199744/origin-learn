@@ -48,6 +48,7 @@
   function M(title,html){
     const mask=document.getElementById("modal");
     document.getElementById("modalTitle").textContent=title;
+    try{ if(window.W3OAnalytics) window.W3OAnalytics.track("tool_open",{tool_name:title,tool_category:"onchain"}); }catch(e){}
     document.getElementById("modalBody").innerHTML=html;
     mask.classList.add("show");
     translateModal();

@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["traffic","📈","流量分析"],["analytics","📊","网站分析"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["traffic","📈","流量分析"],["analytics","📊","网站分析"],["events","🎯","事件统计"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -80,7 +80,7 @@ function go(page){_cur=page;
   document.querySelectorAll(".a-navi").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-go")===page);});
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
-  ({dashboard:pDash,traffic:pTraffic,analytics:pAnalytics,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,traffic:pTraffic,analytics:pAnalytics,events:pEvents,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -233,6 +233,51 @@ function pAnalytics(el){
   el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pAnalytics(el);};});
   var go=el.querySelector("#anGo"); if(go)go.onclick=function(){var f=el.querySelector("#anFrom").value,t=el.querySelector("#anTo").value;if(f&&t){AN_FROM=f;AN_TO=t;AN_RANGE="custom";pAnalytics(el);}};
   loadAn(el);
+}
+/* ---------- 事件统计 ---------- */
+var EV_CN={tool_open:"工具打开",tool_start:"工具启动",tool_success:"工具成功",tool_error:"工具失败",tool_result_view:"查看结果",tool_retry:"工具重试",article_open:"文章打开",article_read_30s:"阅读30秒",article_read_60s:"阅读60秒",article_scroll_25:"滚动25%",article_scroll_50:"滚动50%",article_scroll_75:"滚动75%",article_complete:"读完文章",related_article_click:"点相关文章",article_share_click:"点分享",video_play:"视频播放",video_pause:"视频暂停",video_progress_25:"看到25%",video_progress_50:"看到50%",video_progress_75:"看到75%",video_complete:"看完视频",video_error:"视频出错",contact_open:"打开联系方式",wechat_click:"点微信",qq_click:"点QQ",telegram_click:"点Telegram",x_click:"点X",youtube_click:"点YouTube",register_start:"开始注册",register_success:"注册成功",login_success:"登录成功",payment_start:"开始支付",payment_success:"支付成功",payment_failed:"支付失败",copy_contract:"复制合约",open_block_explorer:"打开浏览器",copy_wallet_address:"复制钱包",open_transaction:"打开交易",network_switch:"切换网络",search:"搜索",search_no_result:"搜索无结果",language_switch:"切换语言",navigation_click:"导航点击",outbound_click:"外链点击",download:"下载",form_start:"开始填表",form_submit:"提交表单",form_success:"表单成功",form_error:"表单出错"};
+function evcn(n){return EV_CN[n]||n;}
+var EV_RANGE="7d",EV_F={};
+function loadEv(el){
+  var host=el.querySelector("#evBody"); if(host)host.innerHTML='<div class="a-note-real">加载中…</div>';
+  var q="range="+encodeURIComponent(EV_RANGE); if(EV_F.category)q+="&category="+encodeURIComponent(EV_F.category); if(EV_F.event_name)q+="&event_name="+encodeURIComponent(EV_F.event_name);
+  get("/events?"+q).then(function(r){
+    if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">事件数据加载失败,请稍后重试。</div></div>';return;}
+    var o=r.overview||{};
+    function box(t,inner){return '<div class="a-panel-box"><h3>'+t+' <span class="a-real">真实</span></h3>'+inner+'</div>';}
+    var cards='<div class="a-cards">'
+      +card("🎯","总事件",fmtN(o.total||0),"独立用户 "+fmtN(o.users||0)+" · 人均 "+(o.perUser||0),"")
+      +card("🛠","工具启动",fmtN(o.tool_start||0),"打开 "+fmtN(o.tool_open||0),"")
+      +card("✅","工具成功率",(o.tool_rate||0)+"%","成功"+(o.tool_success||0)+" / 失败"+(o.tool_error||0),"ok")
+      +card("📞","转化点击",fmtN(o.conversions||0),"联系/注册/支付等","")
+      +card("📖","有效阅读",fmtN(o.reads||0),"阅读≥30秒","")
+      +card("🎬","视频完播",fmtN(o.videoComplete||0),"看完整片","ok")
+      +'</div>';
+    var top=(r.ranking&&r.ranking[0])?r.ranking[0].n:1;
+    var rk=(r.ranking||[]).map(function(x){return '<div class="an-row"><div class="an-lab" title="'+esc(x.event_name)+'">'+esc(evcn(x.event_name))+'</div><div class="an-bar"><div style="width:'+(x.n/top*100).toFixed(1)+'%"></div></div><div class="an-val">'+fmtN(x.n)+' <i>'+fmtN(x.u)+'人</i></div></div>';}).join("")||'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据</div>';
+    var tl=(r.tools||[]);
+    var tools=tl.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>工具</th><th>打开</th><th>启动</th><th>成功</th><th>失败</th><th>成功率</th><th>看结果</th><th>重试</th><th>用户</th></tr></thead><tbody>'+tl.map(function(x){return '<tr><td>'+esc(x.tool_name||"—")+'</td><td>'+(x.open||0)+'</td><td>'+(x.start||0)+'</td><td style="color:var(--green)">'+(x.success||0)+'</td><td style="color:#e57373">'+(x.error||0)+'</td><td>'+(x.rate||0)+'%</td><td>'+(x.result_view||0)+'</td><td>'+(x.retry||0)+'</td><td>'+(x.users||0)+'</td></tr>';}).join("")+'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据</div>';
+    var cv=anBarList((r.conversions||[]).map(function(x){return {name:evcn(x.event_name),n:x.n};}),"name","n");
+    var tr=r.trend||[]; var tmax=tr.reduce(function(m,x){return Math.max(m,Number(x.n)||0);},0)||1;
+    var trend=tr.length?('<div class="an-trend">'+tr.map(function(x){var h=Math.round((Number(x.n)||0)/tmax*100);return '<div class="an-tcol" title="'+esc(x.d)+': '+(x.n||0)+'事件 / 成功'+(x.succ||0)+' / 失败'+(x.err||0)+'"><div class="an-tbar" style="height:'+Math.max(3,h)+'%"></div><span>'+esc(String(x.d).slice(5))+'</span></div>';}).join("")+'</div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据</div>';
+    var rc=(r.recent||[]);
+    var recent=rc.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>时间</th><th>事件</th><th>访客</th><th>页面</th><th>国家</th><th>设备</th><th>来源</th><th>工具/状态</th></tr></thead><tbody>'+rc.map(function(x){return '<tr><td>'+anTime(x.created_at)+'</td><td>'+esc(evcn(x.event_name))+'</td><td><code style="font-size:11px">'+esc(String(x.visitor_id||"").slice(0,6))+'</code></td><td>'+esc(x.pathname||"—")+'</td><td>'+esc(x.country||"—")+'</td><td>'+esc(x.device_type||"—")+'</td><td>'+esc(x.source||"—")+'</td><td>'+esc(x.tool_name||"—")+(x.success===1?' <span style="color:var(--green)">成功</span>':(x.success===0?' <span style="color:#e57373">失败</span>':''))+'</td></tr>';}).join("")+'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据</div>';
+    host.innerHTML=cards+box("事件排行榜",rk)+box("工具统计",tools)+box("转化事件",cv)+box("事件趋势",trend)+box("最近事件明细(匿名,近100条)",recent)
+      +'<div class="a-note-real">时间按UTC+8;不记录完整IP/钱包地址/私钥/助记词/密码/敏感搜索;/adm与机器人不计入。</div>';
+  }).catch(function(){if(host)host.innerHTML='<div class="a-panel-box"><div class="a-note-real">事件数据加载失败。</div></div>';});
+}
+function pEvents(el){
+  anEnsureCss();
+  var ranges=[["today","今天"],["yesterday","昨天"],["7d","最近7天"],["30d","最近30天"]];
+  var cats=[["","全部分类"],["tool","工具"],["content","内容"],["video","视频"],["conversion","转化"],["onchain","链上"],["general","通用"]];
+  el.innerHTML='<div class="an-tabs">'+ranges.map(function(x){return '<button class="an-tab'+(x[0]===EV_RANGE?" on":"")+'" data-r="'+x[0]+'">'+x[1]+'</button>';}).join("")
+    +'<span class="an-custom"><select id="evCat" class="an-tab">'+cats.map(function(c){return '<option value="'+c[0]+'"'+(EV_F.category===c[0]?" selected":"")+'>'+c[1]+'</option>';}).join("")+'</select>'
+    +'<input type="text" id="evName" placeholder="事件名 如 tool_start" value="'+esc(EV_F.event_name||"")+'" style="width:150px"><button class="an-tab" id="evGo">筛选</button></span></div><div id="evBody"></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){EV_RANGE=b.getAttribute("data-r");pEvents(el);};});
+  var go=el.querySelector("#evGo"); if(go)go.onclick=function(){EV_F.category=el.querySelector("#evCat").value;EV_F.event_name=el.querySelector("#evName").value.trim();pEvents(el);};
+  loadEv(el);
 }
 /* ---------- 订单记录 ---------- */
 function ordShort(a){a=String(a||"");return a.length>14?a.slice(0,6)+"…"+a.slice(-4):a;}

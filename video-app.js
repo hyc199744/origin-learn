@@ -113,17 +113,18 @@ function initDetail(){
     if(pos>15){ if(rz){rz.style.display="";rz.querySelector("b").textContent=fmtTime(pos);
       rz.querySelector("button").onclick=function(){pl.currentTime=pos;pl.play();rz.style.display="none";};} }
     var hit=false,last=0;
-    pl.addEventListener("play",function(){if(!hit){hit=true;hitView(slug);}});
+    pl.addEventListener("play",function(){if(!hit){hit=true;hitView(slug);} try{if(window.W3OAnalytics)window.W3OAnalytics.trackOnce("video_play",{video_id:slug,video_duration:Math.round(pl.duration||0)},"video_play:"+slug);}catch(e){}});
     pl.addEventListener("timeupdate",function(){
       var now=Date.now(); if(now-last<3000)return; last=now;
       if(!pl.duration)return; var d=st();d.pos=d.pos||{};d.prog=d.prog||{};
       d.pos[slug]=Math.floor(pl.currentTime);
       d.prog[slug]=Math.min(100,Math.round(pl.currentTime/pl.duration*100));
+      try{ if(window.W3OAnalytics){ var _p=pl.currentTime/pl.duration; [[0.25,"video_progress_25"],[0.5,"video_progress_50"],[0.75,"video_progress_75"]].forEach(function(x){ if(_p>=x[0]) window.W3OAnalytics.trackOnce(x[1],{video_id:slug,progress:Math.round(_p*100)},x[1]+":"+slug); }); } }catch(e){}
       d.history=(d.history||[]).filter(function(h){return h.slug!==slug;});
       d.history.unshift({slug:slug,ts:Math.floor(now/1000)}); d.history=d.history.slice(0,30);
       sv(d);
     });
-    pl.addEventListener("ended",function(){var d=st();d.prog=d.prog||{};d.prog[slug]=100;sv(d);});
+    pl.addEventListener("ended",function(){var d=st();d.prog=d.prog||{};d.prog[slug]=100;sv(d); try{if(window.W3OAnalytics)window.W3OAnalytics.trackOnce("video_complete",{video_id:slug},"video_complete:"+slug);}catch(e){}});
   }
   // 收藏 / 稍后看
   var fb=document.getElementById("vidFav");

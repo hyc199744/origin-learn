@@ -139,6 +139,16 @@ function initLesson(){
   function paintMk(){ if(!mk)return; var d=isDone(id); mk.textContent=d?("✓ "+t("finished")):t("mark"); mk.classList.toggle("done",d); }
   paintMk();
   if(mk)mk.addEventListener("click",function(){ setDone(id,!isDone(id)); paintMk(); });
+  // 事件统计:文章阅读(打开/30s/60s/滚动25·50·75/读完;各会话内每文一次)
+  try{ if(window.W3OAnalytics){ var _A=window.W3OAnalytics, _title=((document.querySelector("h1")||{}).textContent)||document.title, _lang=(window.SITE_LANG||"zh");
+    _A.trackOnce("article_open",{article_id:id,article_title:String(_title||"").slice(0,120),article_language:_lang},"article_open:"+id);
+    setTimeout(function(){_A.trackOnce("article_read_30s",{article_id:id},"article_read_30s:"+id);},30000);
+    setTimeout(function(){_A.trackOnce("article_read_60s",{article_id:id},"article_read_60s:"+id);},60000);
+    var _fired={}; function _scroll(){ try{ var h=document.documentElement, sc=(h.scrollTop||document.body.scrollTop||0), sh=(h.scrollHeight-h.clientHeight)||1, p=sc/sh;
+      [[0.25,"article_scroll_25"],[0.5,"article_scroll_50"],[0.75,"article_scroll_75"]].forEach(function(x){ if(p>=x[0]&&!_fired[x[1]]){_fired[x[1]]=1;_A.trackOnce(x[1],{article_id:id,scroll_depth:Math.round(p*100)},x[1]+":"+id);} });
+      if(p>=0.9)_A.trackOnce("article_complete",{article_id:id},"article_complete:"+id); }catch(e){} }
+    window.addEventListener("scroll",_scroll,{passive:true}); _scroll();
+  } }catch(e){}
   // 测验
   var sub=document.getElementById("acQuizSubmit"), res=document.getElementById("acQuizResult");
   if(sub){ sub.textContent=t("q_submit");

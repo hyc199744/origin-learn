@@ -135,6 +135,7 @@ function setChrome(code){
   var l=byCode(code)||{dir:"ltr"};
   document.documentElement.lang=code;
   document.documentElement.dir=l.dir;
+  try{ var _from=window.SITE_LANG,_to=(code==="zh-CN"?"zh":code); if(_from&&_from!==_to&&window.W3OAnalytics) window.W3OAnalytics.track("language_switch",{from_language:_from,to_language:_to}); }catch(e){}
   window.SITE_LANG=(code==="zh-CN"?"zh":code);   // 中文简体→'zh'走原生;其余为完整code(渲染函数非zh即回退英文)
 }
 function persist(code){ try{localStorage.setItem(STORE,code);localStorage.setItem(OLD,code==="zh-CN"?"zh":(code==="en"?"en":"en"));}catch(e){} }
