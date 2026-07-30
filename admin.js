@@ -187,6 +187,13 @@ function anEnsureCss(){ if(document.getElementById("anCss"))return;
     +".an-tcol span{font-size:9px;color:var(--muted);white-space:nowrap}";
   document.head.appendChild(st);
 }
+function anTime(sec){var d=new Date((Number(sec)||0)*1000+8*3600*1000);function z(n){return String(n).padStart(2,"0");}return d.getUTCFullYear()+"-"+z(d.getUTCMonth()+1)+"-"+z(d.getUTCDate())+" "+z(d.getUTCHours())+":"+z(d.getUTCMinutes());}
+function anRecentTable(rows){
+  if(!rows||!rows.length)return '<div class="a-center" style="padding:14px;color:var(--muted)">暂无数据</div>';
+  return '<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>时间</th><th>来源</th><th>引荐域名</th><th>推广(utm)</th><th>落地页</th><th>设备</th><th>国家</th><th>页数</th></tr></thead><tbody>'
+    +rows.map(function(o){return '<tr><td>'+anTime(o.started_at)+'</td><td>'+esc(o.source||"—")+'</td><td>'+esc(o.referrer_domain||"—")+'</td><td>'+esc(o.campaign||"—")+'</td><td>'+esc(o.landing_page||"—")+'</td><td>'+esc(o.device_type||"—")+'</td><td>'+esc(o.country||"—")+'</td><td>'+(o.pageview_count||0)+(o.bounced?' <i style="color:var(--muted);font-style:normal;font-size:11px">跳出</i>':"")+'</td></tr>';}).join("")
+    +'</tbody></table></div>';
+}
 function loadAn(el){
   var host=el.querySelector("#anBody"); if(host)host.innerHTML='<div class="a-note-real">加载中…</div>';
   var q=(AN_RANGE==="custom"&&AN_FROM&&AN_TO)?("range=custom&from="+encodeURIComponent(AN_FROM)+"&to="+encodeURIComponent(AN_TO)):("range="+encodeURIComponent(AN_RANGE));
@@ -213,6 +220,8 @@ function loadAn(el){
       +box("操作系统",anBarList(r.os,"os","n"))
       +box("热门页面",anBarList(r.pages,"pathname","n"))
       +box("落地页面",anBarList(r.landings,"landing_page","n"))
+      +box("来源域名(引荐站)",anBarList(r.referrers,"referrer_domain","n"))
+      +box("最近来源记录(近100条)",anRecentTable(r.recent))
       +'<div class="a-note-real">时间按新加坡时区(UTC+8)展示;机器人与 /adm 后台访问不计入;数据自接入D1当天起累计。</div>';
   }).catch(function(){ if(host)host.innerHTML='<div class="a-panel-box"><div class="a-note-real">分析数据加载失败。</div></div>'; });
 }
