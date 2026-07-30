@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["traffic","📈","流量分析"],["analytics","📊","网站分析"],["events","🎯","事件统计"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["events","🎯","事件统计"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,traffic:pTraffic,analytics:pAnalytics,events:pEvents,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,events:pEvents,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -160,6 +160,47 @@ function fbOne(id){get("/feedback/get?id="+encodeURIComponent(id)).then(function
   ov.querySelector("#fbOffGo").onclick=function(){act({action:"official",content:ov.querySelector("#fbOff").value.trim(),ostatus:ov.querySelector("#fbOffS").value});};
 });}
 
+/* ---------- 流量趋势 / 国家 / 设备(独立页,复用/an) ---------- */
+function anTabsHtml(active){var rs=[["today","今天"],["yesterday","昨天"],["7d","最近7天"],["30d","最近30天"]];return '<div class="an-tabs">'+rs.map(function(x){return '<button class="an-tab'+(x[0]===active?" on":"")+'" data-r="'+x[0]+'">'+x[1]+'</button>';}).join("")+'</div>';}
+function pTrend(el){
+  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div id="trBody"><div class="a-note-real">加载中…</div></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pTrend(el);};});
+  get("/an?range="+encodeURIComponent(AN_RANGE)).then(function(r){
+    var host=el.querySelector("#trBody"); if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var o=r.overview||{};
+    var cards='<div class="a-cards">'+card("👣","会话",fmtN(o.sessions||0),"","")+card("🧑","独立访客",fmtN(o.visitors||0),"新"+(o.newVisitors||0)+"/回访"+(o.returningVisitors||0),"")+card("📄","页面浏览",fmtN(o.pageviews||0),"人均"+(o.pagesPerSession||0)+"页","")+card("↩️","跳出率",(o.bounceRate||0)+"%","","")+card("⏱","平均时长",anDur(o.avgDuration||0),"中位"+anDur(o.medianDuration||0),"ok")+'</div>';
+    var tr=r.trend||[]; var tmax=tr.reduce(function(m,x){return Math.max(m,Number(x.sessions)||0);},0)||1;
+    var bars=tr.length?('<div class="an-trend">'+tr.map(function(x){var h=Math.round((Number(x.sessions)||0)/tmax*100);return '<div class="an-tcol" title="'+esc(x.d)+': '+(x.sessions||0)+'会话/'+(x.visitors||0)+'访客/'+(x.pv||0)+'PV"><div class="an-tbar" style="height:'+Math.max(3,h)+'%"></div><span>'+esc(String(x.d).slice(5))+'</span></div>';}).join("")+'</div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据</div>';
+    var rows=tr.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>日期</th><th>会话</th><th>独立访客</th><th>页面浏览</th></tr></thead><tbody>'+tr.slice().reverse().map(function(x){return '<tr><td>'+esc(x.d)+'</td><td>'+fmtN(x.sessions||0)+'</td><td>'+fmtN(x.visitors||0)+'</td><td>'+fmtN(x.pv||0)+'</td></tr>';}).join("")+'</tbody></table></div>'):'';
+    host.innerHTML=cards+'<div class="a-panel-box"><h3>每日趋势(会话) <span class="a-real">真实</span></h3>'+bars+'</div><div class="a-panel-box"><h3>数据明细</h3>'+rows+'</div>';
+  }).catch(function(){});
+}
+function pCountries(el){
+  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div id="coBody"><div class="a-note-real">加载中…</div></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pCountries(el);};});
+  get("/an?range="+encodeURIComponent(AN_RANGE)).then(function(r){
+    var host=el.querySelector("#coBody"); if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var co=r.countries||[]; var tot=co.reduce(function(s,x){return s+(x.sessions||0);},0)||1;
+    var tbl=co.length?('<div style="overflow-x:auto"><table class="a-tbl"><thead><tr><th>国家/地区</th><th>会话</th><th>独立访客</th><th>占比</th><th>跳出率</th><th>平均时长</th></tr></thead><tbody>'+co.map(function(x){var cc=x.country||"";var nm=GEO_NAMES[cc]||cc;var br=x.sessions?Math.round((x.bounced||0)/x.sessions*100):0;return '<tr><td>'+geoFlag(cc)+' '+esc(nm)+'</td><td>'+fmtN(x.sessions||0)+'</td><td>'+fmtN(x.visitors||0)+'</td><td>'+(x.sessions/tot*100).toFixed(1)+'%</td><td>'+br+'%</td><td>'+anDur(Math.round(x.avgdur||0))+'</td></tr>';}).join("")+'</tbody></table></div>'):'<div class="a-center" style="color:var(--muted);padding:14px">暂无数据</div>';
+    host.innerHTML='<div class="a-panel-box"><h3>国家与地区分布 <span class="a-real">真实</span></h3>'+tbl+'<div class="a-note-real">国家由 Cloudflare cf.country 判定,不存精确位置。</div></div>';
+  }).catch(function(){});
+}
+function pDevices(el){
+  anEnsureCss(); el.innerHTML=anTabsHtml(AN_RANGE)+'<div id="dvBody"><div class="a-note-real">加载中…</div></div>';
+  el.querySelectorAll(".an-tab[data-r]").forEach(function(b){b.onclick=function(){AN_RANGE=b.getAttribute("data-r");pDevices(el);};});
+  get("/an?range="+encodeURIComponent(AN_RANGE)).then(function(r){
+    var host=el.querySelector("#dvBody"); if(!host)return;
+    if(r&&r.nodb){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){host.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    function box(t,inner){return '<div class="a-panel-box"><h3>'+t+' <span class="a-real">真实</span></h3>'+inner+'</div>';}
+    var dd=(r.durationByDevice||[]).map(function(x){return '<div class="an-row"><div class="an-lab">'+esc(x.device_type||"—")+'</div><div class="an-bar"><div style="width:100%"></div></div><div class="an-val">平均 '+anDur(Math.round(x.avgdur||0))+'</div></div>';}).join("")||'<div class="a-center" style="color:var(--muted);padding:10px">暂无</div>';
+    host.innerHTML=box("设备类型",anBarList(r.devices,"device_type","n"))+box("浏览器",anBarList(r.browsers,"browser","n"))+box("操作系统",anBarList(r.os,"os","n"))+box("各设备平均会话时长",dd);
+  }).catch(function(){});
+}
 /* ---------- 实时访客 ---------- */
 function rtAgo(sec,now){var d=Math.max(0,now-(Number(sec)||0));if(d<60)return d+"秒前";if(d<3600)return Math.floor(d/60)+"分前";return Math.floor(d/3600)+"时前";}
 function loadRt(el){
