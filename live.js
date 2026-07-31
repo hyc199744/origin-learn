@@ -121,7 +121,11 @@
     +"#live-wrap .lv-back{display:inline-block;margin:26px auto 0;color:var(--soft);text-decoration:none;font-size:13px}#live-wrap .lv-back:hover{color:var(--glt)}"
     +"#live-wrap .lv-foot{text-align:center;margin-top:30px}"
     +"@media(max-width:860px){#live-wrap .lv-main{grid-template-columns:1fr;gap:16px}#live-wrap .lv-head{padding-top:64px;padding-left:16px;padding-right:16px}#live-wrap .lv-eyebrow{letter-spacing:.16em;font-size:10.5px;word-break:break-word}#live-wrap .lv-ctrls .lv-btn{flex:1 1 auto;justify-content:center}}"
-    +"#live-wrap.lv-fs .lv-stage{border-radius:0}";
+    +"#live-wrap .lv-stage:fullscreen,#live-wrap .lv-stage:-webkit-full-screen{width:100vw;height:100vh;aspect-ratio:auto;border-radius:0;border:0;box-shadow:none}"
+    +"#live-wrap .lv-stage:fullscreen iframe,#live-wrap .lv-stage:-webkit-full-screen iframe{width:100%;height:100%}"
+    +"#live-wrap .lv-fsbtn{position:absolute;right:14px;bottom:14px;z-index:20;padding:9px 13px;color:#fff;background:rgba(0,0,0,.72);border:1px solid rgba(214,168,75,.85);border-radius:8px;cursor:pointer;font:inherit;font-size:13px;display:inline-flex;gap:6px;align-items:center;transition:.2s}"
+    +"#live-wrap .lv-fsbtn:hover{background:rgba(0,0,0,.9);border-color:var(--glt);color:var(--glt)}"
+    +"@media(max-width:768px){#live-wrap .lv-fsbtn{right:10px;bottom:10px;padding:8px 11px}}";
 
   function esc(s){return String(s==null?"":s).replace(/[&<>\"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
   function safeUrl(u){u=String(u||"").trim();if(!/^https:\/\//i.test(u))return "";if(/[\s<>"'`\\]/.test(u))return "";try{var x=new URL(u);return x.protocol==="https:"?x.href:"";}catch(e){return "";}}
@@ -150,17 +154,44 @@
     state.iframeOn=false;
     stage.innerHTML='<div class="lv-overlay"><div class="lv-spin"></div><div class="lv-ovsub">'+esc(T.loading)+'</div></div>';
     var f=document.createElement("iframe");
-    f.id="lv-iframe";f.src=url;
-    f.setAttribute("allow","autoplay; fullscreen; picture-in-picture; microphone; encrypted-media; clipboard-write");
+    f.id="lv-iframe";f.src=url;f.title=T.page_title||"起源线上课堂";
+    f.setAttribute("allow","autoplay; fullscreen; picture-in-picture; encrypted-media; microphone; clipboard-write");
     f.setAttribute("allowfullscreen","true");f.allowFullscreen=true;
+    f.setAttribute("webkitallowfullscreen","true");f.setAttribute("mozallowfullscreen","true");
     f.setAttribute("loading","lazy");
-    f.setAttribute("referrerpolicy","no-referrer-when-downgrade");
+    f.setAttribute("referrerpolicy","strict-origin-when-cross-origin");
     // sandbox:给足播放/登录/全屏/弹窗所需权限,但不过度(不放开 allow-top-navigation-by-user-activation 以外的顶层跳转)
     f.setAttribute("sandbox","allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation allow-orientation-lock allow-modals");
     f.onload=function(){state.iframeOn=true;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}var ov=stage.querySelector(".lv-overlay");if(ov)ov.remove();};
     // 加载超时:12秒未 onload → 显示"加载失败/进入原课堂"(不伪造成功)
     state.failTimer=setTimeout(function(){if(!state.iframeOn)showFail(stage);},12000);
     stage.appendChild(f);
+    // 播放器右下角浮动「全屏观看」按钮:即使外部平台自带全屏失效,本站容器全屏依旧可用
+    var fb=document.createElement("button");fb.type="button";fb.className="lv-fsbtn";fb.id="lv-fsbtn";fb.setAttribute("aria-label",T.btn_fs);
+    fb.innerHTML="⛶ "+esc(T.btn_fs);fb.onclick=toggleFullscreen;stage.appendChild(fb);
+    syncFsButtons();
+  }
+  // ===== 全屏:容器(#lv-stage)全屏,用户点击直接同步触发;iOS/微信不支持则给备用入口 =====
+  function fsElement(){return document.fullscreenElement||document.webkitFullscreenElement||null;}
+  function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent||"")||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+  function toggleFullscreen(){
+    if(fsElement()){var ex=document.exitFullscreen||document.webkitExitFullscreen;if(ex)try{ex.call(document);}catch(e){}return;}
+    var el=document.getElementById("lv-stage");if(!el){fsFallback();return;}
+    var req=el.requestFullscreen||el.webkitRequestFullscreen;
+    if(!req||isIOS()){fsFallback();return;} // iOS Safari 对非<video>元素不支持全屏 → 走备用,不假装成功
+    try{var p=req.call(el);if(p&&p.catch)p.catch(function(){fsFallback();});}catch(e){fsFallback();}
+  }
+  function fsFallback(){
+    var ctrls=document.querySelector("#live-wrap .lv-ctrls");
+    var msg=ZH?"当前浏览器或课程平台限制了嵌入式全屏。请点「在原平台打开」，在原课堂里全屏观看。":"This browser or the course platform blocks embedded fullscreen. Use “Open on original platform” and go fullscreen there.";
+    var note=document.getElementById("lv-fsnote");
+    if(!note&&ctrls&&ctrls.parentNode){note=document.createElement("div");note.id="lv-fsnote";note.style.cssText="width:100%;margin-top:8px;font-size:12.5px;color:#ffb454;line-height:1.7";ctrls.parentNode.insertBefore(note,ctrls.nextSibling);}
+    if(note){note.textContent="⚠ "+msg;clearTimeout(note._t);note._t=setTimeout(function(){if(note)note.textContent="";},9000);}
+  }
+  function syncFsButtons(){
+    var on=!!fsElement();var lbl=on?(ZH?"✕ 退出全屏":"✕ Exit fullscreen"):("⛶ "+T.btn_fs);
+    var b1=document.getElementById("lv-fs");if(b1)b1.innerHTML=lbl;
+    var b2=document.getElementById("lv-fsbtn");if(b2)b2.innerHTML=lbl;
   }
   function showFail(stage){
     var url=safeUrl(state.course&&state.course.external_url);
@@ -245,7 +276,7 @@
       +(c.description?'<div class="lv-card"><div class="lv-h3">'+esc(T.intro)+'</div><div class="lv-desc">'+esc(c.description)+'</div></div>':"")
       +'</div></div>';
     // 控件绑定
-    document.getElementById("lv-fs").onclick=function(){var el=document.getElementById("lv-stage");var f=el&&(el.requestFullscreen||el.webkitRequestFullscreen);if(f)f.call(el);else{var ifr=document.getElementById("lv-iframe");if(ifr&&ifr.requestFullscreen)ifr.requestFullscreen();}};
+    document.getElementById("lv-fs").onclick=toggleFullscreen;
     document.getElementById("lv-refresh").onclick=function(){state.mode=null;state.lastStatus=null;applyStage();};
     state.mode=null;state.lastStatus=null;applyStage();
   }
@@ -306,6 +337,8 @@
     var s=document.createElement("style");s.textContent=css;document.head.appendChild(s);
     renderShell();
     fetchToday().then(function(){beat();fetchHistory();});
+    document.addEventListener("fullscreenchange",syncFsButtons);
+    document.addEventListener("webkitfullscreenchange",syncFsButtons);
     state.tick=setInterval(tickCountdown,1000);
     setInterval(fetchToday,60000);   // 每60秒服务器重判状态(无人值守)
     setInterval(beat,45000);         // 观看心跳
