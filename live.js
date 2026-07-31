@@ -120,7 +120,7 @@
     +"#live-wrap .lv-empty{max-width:640px;margin:40px auto;text-align:center;color:var(--soft);background:var(--pnl);border:1px solid var(--line);border-radius:14px;padding:40px 26px}"
     +"#live-wrap .lv-back{display:inline-block;margin:26px auto 0;color:var(--soft);text-decoration:none;font-size:13px}#live-wrap .lv-back:hover{color:var(--glt)}"
     +"#live-wrap .lv-foot{text-align:center;margin-top:30px}"
-    +"@media(max-width:860px){#live-wrap .lv-main{grid-template-columns:1fr;gap:16px}#live-wrap .lv-head{padding-top:64px}}"
+    +"@media(max-width:860px){#live-wrap .lv-main{grid-template-columns:1fr;gap:16px}#live-wrap .lv-head{padding-top:64px;padding-left:16px;padding-right:16px}#live-wrap .lv-eyebrow{letter-spacing:.16em;font-size:10.5px;word-break:break-word}#live-wrap .lv-ctrls .lv-btn{flex:1 1 auto;justify-content:center}}"
     +"#live-wrap.lv-fs .lv-stage{border-radius:0}";
 
   function esc(s){return String(s==null?"":s).replace(/[&<>\"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
