@@ -1,185 +1,142 @@
-/* 起源线上课堂 · 直播开始自动提醒
-   打开网站→查真实直播状态(/live/today)→直播中弹提醒(用户自选进入/继续浏览/本次不再提醒)。
-   不自动跳转、不自动播放声音、不用假数据；接口异常静默隐藏。数据来自现有直播状态机。 */
+/* 起源线上课堂 · 直播开始提醒（顶部细横幅版）
+   打开网站→查真实直播状态(/live/today)→直播中在页面顶部显示一条细横幅(点此进入/×关闭)。
+   不遮挡正文、不压黑背景、不自动跳转、不自动播声音、接口异常静默。数据来自现有直播状态机。 */
 (function(){
   "use strict";
   var API="https://count.web3origin.com";
   var LIVE_PATH="/live/";
-  // 直播页本身不提醒
   var path=location.pathname||"";
-  if(path===LIVE_PATH||path.indexOf(LIVE_PATH)===0||path.indexOf("/live")===0)return;
+  if(path===LIVE_PATH||path.indexOf(LIVE_PATH)===0||path.indexOf("/live")===0)return; // 直播页本身不提醒
 
-  var DEF={enabled:true,preRemindEnabled:true,preRemindMin:10,snoozeMin:30,floatingEntry:true,
-    btnEnter:"立即进入直播",btnLater:"继续浏览网站",btnNoMore:"本次访问不再提醒",livePath:LIVE_PATH};
+  var DEF={enabled:true,preRemindEnabled:true,preRemindMin:10,livePath:LIVE_PATH};
   var CFG=DEF;
 
-  // ---- 本地存储：尊重用户选择、防重复 ----
   function sesGet(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
   function sesSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-  function locGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
-  function locSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
-  var K_NOMORE="w3o_live_nomore";           // 本次访问不再提醒(会话级)
-  var K_SNOOZE="w3o_live_snooze";            // 稍后再看，30分钟(带过期)
-  function liveKey(c){return "w3o_live_shown_"+(c.id||c.title||"x")+"_"+(c.start||0);}
-  function isSnoozed(){var t=Number(locGet(K_SNOOZE))||0;return t>Date.now();}
-  function noMoreThisSession(){return sesGet(K_NOMORE)==="1";}
+  function liveKey(c){return (c.id||c.title||"x")+"_"+(c.start||0);}
 
-  // ---- 样式(注入，翡翠绿呼吸灯 + 黑金) ----
   function injectCss(){
     if(document.getElementById("w3o-live-css"))return;
     var s=document.createElement("style");s.id="w3o-live-css";
     s.textContent=[
-"#w3oLiveWrap,#w3oLiveFab,#w3oLiveSoon{font-family:'Microsoft YaHei','PingFang SC',system-ui,sans-serif;box-sizing:border-box}",
-"#w3oLiveWrap *,#w3oLiveSoon *{box-sizing:border-box}",
-"#w3oLiveWrap{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(2,1,1,.72);backdrop-filter:blur(3px);padding:16px}",
-"#w3oLiveWrap.on{display:flex}",
-".w3o-live-card{width:100%;max-width:340px;background:linear-gradient(180deg,#0e0b08,#0a0d0b);border:1px solid #2f7d4f;border-radius:16px;overflow:hidden;box-shadow:0 0 42px rgba(61,220,138,.22),0 10px 40px rgba(0,0,0,.6);position:relative;color:#e8d9be}",
-".w3o-live-close{position:absolute;top:8px;right:8px;z-index:3;width:30px;height:30px;border-radius:50%;border:1px solid #3a2313;background:rgba(12,10,8,.8);color:#f1dfc0;font-size:16px;cursor:pointer;line-height:1}",
-".w3o-live-top{padding:14px 15px 0}",
-".w3o-live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(122,11,18,.85);border:1px solid #ff8a8a;color:#ffe3e3;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.04em}",
-".w3o-dot{width:8px;height:8px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 0 rgba(255,77,77,.7);animation:w3oPulse 1.6s infinite}",
+"#w3oLiveBar,#w3oLiveSoon{font-family:'Microsoft YaHei','PingFang SC',system-ui,sans-serif;box-sizing:border-box}",
+"#w3oLiveBar *,#w3oLiveSoon *{box-sizing:border-box}",
+"#w3oLiveBar{position:fixed;top:0;left:0;right:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;gap:9px;min-height:38px;padding:6px 42px 6px 16px;background:linear-gradient(90deg,#1a0406,#320a0e 45%,#320a0e 55%,#1a0406);border-bottom:1px solid #5a1418;box-shadow:0 2px 14px rgba(0,0,0,.4);font-size:13.5px;color:#ffe3e3;line-height:1.35}",
+"#w3oLiveBar .bn-main{display:inline-flex;align-items:center;gap:8px;max-width:100%;min-width:0;text-decoration:none;color:#ffe3e3}",
+"#w3oLiveBar .bn-txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}",
+"#w3oLiveBar .bn-txt b{color:#fff;font-weight:700}",
+"#w3oLiveBar .bn-cta{color:#5df0a6;font-weight:700;white-space:nowrap;flex:0 0 auto}",
+"#w3oLiveBar .bn-x{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;border:1px solid #5a1418;background:rgba(0,0,0,.28);color:#ffdede;cursor:pointer;font-size:13px;line-height:1;padding:0}",
+"#w3oLiveBar .bn-x:hover{background:rgba(0,0,0,.5)}",
+"#w3oLiveBar .bn-x:focus-visible,#w3oLiveBar .bn-main:focus-visible{outline:2px solid #f0d48a;outline-offset:2px}",
+".w3o-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:#ff4d4d;box-shadow:0 0 0 0 rgba(255,77,77,.7);animation:w3oPulse 1.5s infinite}",
 ".w3o-dot.em{background:#3ddc8a;box-shadow:0 0 0 0 rgba(61,220,138,.7)}",
 "@keyframes w3oPulse{0%{box-shadow:0 0 0 0 rgba(255,77,77,.6)}70%{box-shadow:0 0 0 7px rgba(255,77,77,0)}100%{box-shadow:0 0 0 0 rgba(255,77,77,0)}}",
-".w3o-live-body{padding:9px 15px 15px}",
-".w3o-live-head{display:flex;gap:10px;align-items:center;margin-bottom:9px}",
-".w3o-live-thumb{flex:0 0 auto;width:50px;height:50px;border-radius:9px;background:#07100b center/cover no-repeat;border:1px solid #26301f}",
-".w3o-live-h{font-family:'STZhongsong','Songti SC',serif;color:#f1dfc0;font-size:15px;margin:0 0 3px;line-height:1.3}",
-".w3o-live-ct{color:#b79c74;font-size:12.5px;line-height:1.4;overflow-wrap:anywhere}",
-".w3o-live-meta{display:flex;flex-wrap:wrap;gap:3px 14px;font-size:12px;color:#8f7c55;border-top:1px solid #201a12;padding:9px 0 0;margin-bottom:12px}",
-".w3o-live-meta b{color:#3ddc8a;font-weight:700}",".w3o-live-meta .s{color:#e8d9be}",
-".w3o-btn{display:block;width:100%;text-align:center;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;padding:10px;cursor:pointer;border:1px solid #3a2313}",
-".w3o-btn.primary{background:linear-gradient(180deg,#2a6b47,#1c4d33);border-color:#2f7d4f;color:#eafff2;box-shadow:0 0 16px rgba(61,220,138,.22);margin-bottom:8px}",
-".w3o-btn.ghost{background:#141009;color:#f1dfc0;margin-bottom:6px}",
-".w3o-btn.mini{background:transparent;border:0;color:#7c6a4f;font-size:12px;font-weight:400;padding:3px;text-decoration:underline}",
-".w3o-btn:focus-visible{outline:2px solid #f0d48a;outline-offset:2px}",
-"#w3oLiveFab{position:fixed;right:16px;bottom:20px;z-index:99990;display:none;align-items:center;gap:8px;background:linear-gradient(180deg,#0e0b08,#0a0d0b);border:1px solid #2f7d4f;color:#eafff2;font-size:13px;font-weight:700;padding:9px 14px;border-radius:24px;cursor:pointer;box-shadow:0 0 20px rgba(61,220,138,.3),0 6px 18px rgba(0,0,0,.5)}",
-"#w3oLiveFab.on{display:flex}",
-"#w3oLiveSoon{position:fixed;right:16px;bottom:20px;z-index:99988;display:none;max-width:300px;background:linear-gradient(180deg,#0e0b08,#0a0d0b);border:1px solid #3a2313;border-left:3px solid #3ddc8a;border-radius:12px;padding:12px 14px;color:#e8d9be;box-shadow:0 8px 26px rgba(0,0,0,.5)}",
+"#w3oLiveSoon{position:fixed;right:16px;bottom:20px;z-index:2147482000;display:none;max-width:300px;background:linear-gradient(180deg,#0e0b08,#0a0d0b);border:1px solid #3a2313;border-left:3px solid #3ddc8a;border-radius:12px;padding:12px 14px;color:#e8d9be;box-shadow:0 8px 26px rgba(0,0,0,.5)}",
 "#w3oLiveSoon.on{display:block}",
 "#w3oLiveSoon .st{display:flex;align-items:center;gap:7px;font-size:13px;color:#3ddc8a;font-weight:700;margin-bottom:6px}",
-"#w3oLiveSoon .tx{font-size:13.5px;color:#e8d9be;margin-bottom:10px}",
+"#w3oLiveSoon .tx{font-size:13px;color:#e8d9be;margin-bottom:10px;line-height:1.5}",
 "#w3oLiveSoon .acts{display:flex;gap:8px}",
-"#w3oLiveSoon .sb{flex:1;text-align:center;border-radius:8px;font-size:13px;padding:8px;cursor:pointer;border:1px solid #3a2313;text-decoration:none}",
+"#w3oLiveSoon .sb{flex:1;text-align:center;border-radius:8px;font-size:13px;padding:8px;cursor:pointer;border:1px solid #3a2313;text-decoration:none;color:#f1dfc0}",
 "#w3oLiveSoon .sb.p{background:linear-gradient(180deg,#2a6b47,#1c4d33);border-color:#2f7d4f;color:#eafff2}",
-"#w3oLiveSoon .sb.g{background:#141009;color:#f1dfc0}",
-"@media(max-width:600px){",
-"  #w3oLiveWrap{align-items:flex-end;padding:0}",
-"  .w3o-live-card{max-width:100%;border-radius:18px 18px 0 0;border-bottom:0}",
-"  #w3oLiveFab{bottom:84px;right:12px}",
-"  #w3oLiveSoon{left:12px;right:12px;max-width:none;bottom:84px}",
-"}",
+"@media(max-width:600px){#w3oLiveBar{font-size:12.5px;padding:6px 40px 6px 12px}#w3oLiveSoon{left:12px;right:12px;max-width:none;bottom:16px}}",
 "@media(prefers-reduced-motion:reduce){.w3o-dot{animation:none}}"
     ].join("");
     document.head.appendChild(s);
   }
 
-  // ---- 工具 ----
   function esc(s){return String(s==null?"":s).replace(/[&<>\"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
   function hm(sec){try{return new Intl.DateTimeFormat("zh-CN",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Shanghai"}).format(new Date(sec*1000));}catch(e){var d=new Date(sec*1000);return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}}
-  function dur(sec){sec=Math.max(0,Math.floor(sec));var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60);return h>0?(h+" 小时 "+m+" 分"):(m+" 分钟");}
 
-  var STC={live:"直播进行中",waiting:"等待开课",soon:"即将开始",scheduled:"课程已安排",upcoming:"课程已安排",paused:"直播暂时中断",ended:"今日课程已结束",replay:"回放",unavailable:"暂时无法确认",unknown:"暂时无法确认"};
+  // 顶部有 fixed/sticky 导航时，整体下移横幅高度，避免遮挡
+  var bar,shifted=[],padDone=false;
+  function shiftBars(h){
+    try{
+      var els=document.querySelectorAll("header,nav,.nav,.navbar,.top,.topbar,.site-header,.header");
+      Array.prototype.forEach.call(els,function(el){
+        if(el===bar||el.closest&&el.closest("#w3oLiveBar"))return;
+        var cs=getComputedStyle(el);
+        if((cs.position==="fixed"||cs.position==="sticky")){
+          var r=el.getBoundingClientRect();
+          if(r.top<=4 && r.height<220){
+            el.setAttribute("data-w3o-top",el.style.top||"");
+            var cur=parseFloat(cs.top)||0;
+            el.style.top=(cur+h)+"px";
+            shifted.push(el);
+          }
+        }
+      });
+      var pad=parseFloat(getComputedStyle(document.body).paddingTop)||0;
+      document.body.setAttribute("data-w3o-pad",document.body.style.paddingTop||"");
+      document.body.style.paddingTop=(pad+h)+"px";padDone=true;
+    }catch(e){}
+  }
+  function unshiftBars(){
+    try{
+      shifted.forEach(function(el){el.style.top=el.getAttribute("data-w3o-top")||"";el.removeAttribute("data-w3o-top");});
+      shifted=[];
+      if(padDone){document.body.style.paddingTop=document.body.getAttribute("data-w3o-pad")||"";document.body.removeAttribute("data-w3o-pad");padDone=false;}
+    }catch(e){}
+  }
 
-  // ---- DOM ----
-  var wrap,fab,soon,lastFocus,curCourse;
-  function goLive(){location.href=CFG.livePath||LIVE_PATH;}
-  function buildModal(c,srv){
-    var elapsed=srv&&c.start?dur(srv-c.start):"";
-    var thumb=c.cover_url?('<div class="w3o-live-thumb" style="background-image:url(\''+String(c.cover_url).replace(/'/g,"%27")+'\')"></div>'):"";
-    var meta=[];
-    if(elapsed)meta.push('<span>已直播 <b>'+esc(elapsed)+'</b></span>');
-    if(c.start)meta.push('<span>开始 <span class="s">'+hm(c.start)+'</span></span>');
-    if(c.end)meta.push('<span>预计结束 <span class="s">'+hm(c.end)+'</span></span>');
-    wrap.innerHTML='<div class="w3o-live-card" role="dialog" aria-modal="true" aria-label="起源线上课堂正在直播">'
-      +'<button class="w3o-live-close" id="w3oLiveX" aria-label="关闭">×</button>'
-      +'<div class="w3o-live-top"><span class="w3o-live-badge"><span class="w3o-dot"></span>LIVE · 直播中</span></div>'
-      +'<div class="w3o-live-body">'
-      +'<div class="w3o-live-head">'+thumb+'<div><div class="w3o-live-h">起源线上课堂正在直播</div><div class="w3o-live-ct">「'+esc(c.title||"线上课堂")+'」'+(c.teacher_name?(' · 主讲 '+esc(c.teacher_name)):"")+'</div></div></div>'
-      +(meta.length?('<div class="w3o-live-meta">'+meta.join("")+'</div>'):"")
-      +'<a class="w3o-btn primary" id="w3oLiveGo" href="'+esc(CFG.livePath||LIVE_PATH)+'">'+esc(CFG.btnEnter||DEF.btnEnter)+'</a>'
-      +'<button class="w3o-btn ghost" id="w3oLiveLater">'+esc(CFG.btnLater||DEF.btnLater)+'</button>'
-      +'<button class="w3o-btn mini" id="w3oLiveNoMore">'+esc(CFG.btnNoMore||DEF.btnNoMore)+'</button>'
-      +'</div></div>';
-    document.getElementById("w3oLiveX").onclick=function(){closeModal("close");};
-    document.getElementById("w3oLiveLater").onclick=function(){closeModal("later");};
-    document.getElementById("w3oLiveNoMore").onclick=function(){closeModal("nomore");};
-    // 进入直播用a的默认跳转(本站/live/)，无需拦截
+  var curCourse;
+  function showBar(c){
+    if(sesGet("w3o_live_bn_"+liveKey(c))==="1")return; // 本场已关闭→不再显示
+    injectCss();curCourse=c;
+    if(bar)return;
+    var url=CFG.livePath||LIVE_PATH;
+    var tt=esc(c.title||"线上课堂");
+    var when=c.start?(" · 开始 "+hm(c.start)):"";
+    bar=document.createElement("div");bar.id="w3oLiveBar";bar.setAttribute("role","region");bar.setAttribute("aria-label","直播提醒");
+    bar.innerHTML='<a class="bn-main" href="'+esc(url)+'"><span class="w3o-dot"></span>'
+      +'<span class="bn-txt"><b>起源线上课堂正在直播</b> · 「'+tt+'」'+when+'</span>'
+      +'<span class="bn-cta">点此进入 →</span></a>'
+      +'<button class="bn-x" aria-label="关闭">✕</button>';
+    document.body.insertBefore(bar,document.body.firstChild);
+    var h=bar.offsetHeight||38;shiftBars(h);
+    bar.querySelector(".bn-x").addEventListener("click",function(e){e.preventDefault();e.stopPropagation();closeBar(true);});
+    document.addEventListener("keydown",onEsc);
   }
-  function openModal(c,srv){
-    injectCss();curCourse=c;hideFab();
-    if(!wrap){wrap=document.createElement("div");wrap.id="w3oLiveWrap";document.body.appendChild(wrap);
-      wrap.addEventListener("click",function(e){if(e.target===wrap)closeModal("close");});}
-    buildModal(c,srv);
-    lastFocus=document.activeElement;wrap.classList.add("on");
-    var go=document.getElementById("w3oLiveGo");if(go)go.focus();
-    if(!window.__w3oLiveEsc__){window.__w3oLiveEsc__=true;
-      document.addEventListener("keydown",function(e){if(e.key==="Escape"&&wrap&&wrap.classList.contains("on"))closeModal("close");});
-      window.addEventListener("popstate",function(){if(wrap&&wrap.classList.contains("on"))closeModal("close");});}
-    try{history.pushState({w3oLive:1},"");}catch(e){}
+  function onEsc(e){if(e.key==="Escape"&&bar)closeBar(true);}
+  function closeBar(remember){
+    if(remember&&curCourse)sesSet("w3o_live_bn_"+liveKey(curCourse),"1");
+    unshiftBars();
+    if(bar&&bar.parentNode)bar.parentNode.removeChild(bar);
+    bar=null;document.removeEventListener("keydown",onEsc);
   }
-  function closeModal(reason){
-    if(!wrap)return;wrap.classList.remove("on");
-    if(reason==="later")locSet(K_SNOOZE,String(Date.now()+ (CFG.snoozeMin||30)*60000));
-    if(reason==="nomore")sesSet(K_NOMORE,"1");
-    if(lastFocus)try{lastFocus.focus();}catch(e){}
-    showFab(); // 关闭后保留右下角入口(若仍直播)
-  }
-  function showFab(){
-    if(!CFG.floatingEntry||!curCourse||curCourse.status!=="live")return;
-    injectCss();
-    if(!fab){fab=document.createElement("button");fab.id="w3oLiveFab";fab.type="button";
-      fab.innerHTML='<span class="w3o-dot"></span>正在直播';
-      fab.onclick=function(){if(curCourse)openModal(curCourse,curSrv);};
-      document.body.appendChild(fab);}
-    fab.classList.add("on");
-  }
-  function hideFab(){if(fab)fab.classList.remove("on");}
 
-  // ---- 即将开始提示(非全屏) ----
+  // 即将开始（开课前 N 分钟，小卡，非全屏）
+  var soon;
   function showSoon(c,srv){
     injectCss();var mins=Math.max(1,Math.round((c.start-srv)/60));
     if(!soon){soon=document.createElement("div");soon.id="w3oLiveSoon";document.body.appendChild(soon);}
     soon.innerHTML='<div class="st"><span class="w3o-dot em"></span>线上课堂即将开始</div>'
       +'<div class="tx">「'+esc(c.title||"线上课堂")+'」将在 '+mins+' 分钟后开始。</div>'
-      +'<div class="acts"><a class="sb p" href="'+esc(CFG.livePath||LIVE_PATH)+'">查看课程</a><button class="sb g" id="w3oSoonOk">知道了</button></div>';
+      +'<div class="acts"><a class="sb p" href="'+esc(CFG.livePath||LIVE_PATH)+'">查看课程</a><button class="sb" id="w3oSoonOk">知道了</button></div>';
     soon.classList.add("on");
     document.getElementById("w3oSoonOk").onclick=function(){soon.classList.remove("on");};
   }
 
-  // ---- 主逻辑 ----
-  var curSrv=0;
   function decide(d){
-    if(!d||d.ok===false)return;              // 接口异常→静默
+    if(!d||d.ok===false)return;
     if(d.popup)CFG=Object.assign({},DEF,d.popup);
     if(CFG.enabled===false)return;
-    var c=d.course,srv=d.serverTime||Math.floor(Date.now()/1000);curSrv=srv;
-    if(!c||!c.status)return;                  // 无课→不弹
-    // 直播中
-    if(c.status==="live" && c.start && c.end && srv>=c.start && srv<c.end){
-      curCourse=c;
-      var shownKey=liveKey(c);
-      if(noMoreThisSession()||isSnoozed()||sesGet(shownKey)==="1"){showFab();return;} // 尊重用户选择→只留右下角入口
-      sesSet(shownKey,"1");                    // 本场本次访问只自动弹一次
-      openModal(c,srv);                        // 关闭后再显示右下角入口
-      return;
-    }
-    hideFab();
-    // 即将开始(开课前 preRemindMin 分钟内)
+    var c=d.course,srv=d.serverTime||Math.floor(Date.now()/1000);
+    if(!c||!c.status)return;
+    if(c.status==="live" && c.start && c.end && srv>=c.start && srv<c.end){showBar(c);return;}
+    if(bar)closeBar(false);
     if(CFG.preRemindEnabled!==false && (c.status==="soon"||c.status==="upcoming"||c.status==="waiting") && c.start){
       var left=c.start-srv;
       if(left>0 && left<=(CFG.preRemindMin||10)*60){
-        var sk="w3o_live_soon_"+(c.id||c.title||"x")+"_"+(c.start||0);
+        var sk="w3o_live_soon_"+liveKey(c);
         if(sesGet(sk)!=="1"){sesSet(sk,"1");showSoon(c,srv);}
       }
     }
   }
 
   function run(){
-    // 预览注入：window.__LIVE_REMINDER_MOCK__
     if(window.__LIVE_REMINDER_MOCK__){decide(window.__LIVE_REMINDER_MOCK__);return;}
-    try{
-      fetch(API+"/live/today",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(d){decide(d);}).catch(function(){});
-    }catch(e){}
+    try{fetch(API+"/live/today",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(d){decide(d);}).catch(function(){});}catch(e){}
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run);else run();
 })();
