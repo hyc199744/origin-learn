@@ -137,7 +137,7 @@
     if(c.repeat_rule==="custom")return T.repeat_custom+(c.start_hm?(" "+c.start_hm+"–"+(c.end_hm||"")):"");
     return T.repeat_none;}
 
-  var state={course:null,offset:0,online:0,cum:0,iframeOn:false,failTimer:null,tick:null,mode:null,lastStatus:null};
+  var state={course:null,offset:0,online:0,cum:0,iframeOn:false,failTimer:null,tick:null,mode:null,lastStatus:null,loaded:false};
   function serverNow(){return Math.floor(Date.now()/1000)+state.offset;}
 
   function statusInfo(st){return {
@@ -265,9 +265,27 @@
 
   function reportError(type,detail){try{navigator.sendBeacon&&navigator.sendBeacon(API+"/api/collect/error",JSON.stringify({visitorId:vid(),sessionId:vid(),pathname:"/live/",error_type:type,message:String(detail).slice(0,120),source:"live"}));}catch(e){}}
 
+  // 带超时的 fetch(AbortController),避免网络挂起时页面永远转圈
+  function fetchJSON(path,ms){
+    var ctl=("AbortController" in window)?new AbortController():null;
+    var to=setTimeout(function(){if(ctl)ctl.abort();},ms||11000);
+    return fetch(API+path,ctl?{signal:ctl.signal}:{}).then(function(r){return r.json();}).then(function(j){clearTimeout(to);return j;},function(e){clearTimeout(to);throw e;});
+  }
+  function renderError(){
+    if(state.loaded)return; // 已经出过课程/空状态就别用错误页盖掉,只在首屏没加载出来时提示
+    var body=document.getElementById("lv-body");if(!body)return;
+    body.innerHTML='<div class="lv-empty"><div style="font-size:38px;margin-bottom:12px">📡</div>'
+      +'<div class="lv-ctitle" style="color:var(--glt)">'+(ZH?"课程数据加载失败":"Failed to load course data")+'</div>'
+      +'<div style="margin-top:12px;font-size:14px;line-height:1.85">'+(ZH?"没能连上课程数据服务。多半是网络问题，或你的 VPN／广告拦截插件挡住了数据域名 count.web3origin.com（它名字叫 count，容易被误当成追踪器拦掉）。可以关掉拦截插件、或切换网络后点下面重试。":"Couldn't reach the course data service. This is usually a network issue, or your VPN / ad-blocker is blocking the data domain count.web3origin.com. Try disabling the blocker or switching network, then retry.")+'</div>'
+      +'<div style="margin-top:18px"><button class="lv-btn primary big" id="lv-retry">'+(ZH?"↻ 重新加载":"↻ Retry")+'</button></div>'
+      +'<div style="margin-top:14px;font-size:12px;color:var(--muted)"><a href="'+API+'/live/today" target="_blank" rel="noopener noreferrer" style="color:var(--soft)">'+(ZH?"自测：点这里，如果也打不开就是网络/拦截挡了数据接口":"Self-check: open this — if it also fails, the data endpoint is blocked")+'</a></div></div>';
+    var rb=document.getElementById("lv-retry");
+    if(rb)rb.onclick=function(){body.innerHTML='<div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div>';fetchToday().then(function(){beat();fetchHistory();});};
+  }
   function fetchToday(){
-    return fetch(API+"/live/today").then(function(r){return r.json();}).then(function(r){
-      if(!r||!r.ok){return;}
+    return fetchJSON("/live/today",11000).then(function(r){
+      if(!r||!r.ok){renderError();return;}
+      state.loaded=true;
       if(typeof r.serverTime==="number")state.offset=r.serverTime-Math.floor(Date.now()/1000);
       if(typeof r.online==="number")state.online=r.online;
       if(typeof r.cum==="number")state.cum=r.cum;
@@ -277,10 +295,10 @@
       if(changed)renderCourse();
       else applyStage();
       var on=document.getElementById("lv-online"),cu=document.getElementById("lv-cum");if(on)on.textContent=state.online;if(cu)cu.textContent=state.cum;
-    }).catch(function(){});
+    }).catch(function(){renderError();});
   }
-  function fetchHistory(){fetch(API+"/live/list").then(function(r){return r.json();}).then(function(r){if(r&&r.ok)renderHistory(r.courses||[]);}).catch(function(){});}
-  function beat(){fetch(API+"/live/beat?v="+encodeURIComponent(vid())).then(function(r){return r.json();}).then(function(r){if(r&&r.ok){if(typeof r.online==="number")state.online=r.online;if(typeof r.cum==="number")state.cum=r.cum;var on=document.getElementById("lv-online"),cu=document.getElementById("lv-cum");if(on)on.textContent=state.online;if(cu)cu.textContent=state.cum;}}).catch(function(){});}
+  function fetchHistory(){fetchJSON("/live/list",10000).then(function(r){if(r&&r.ok)renderHistory(r.courses||[]);}).catch(function(){});}
+  function beat(){fetchJSON("/live/beat?v="+encodeURIComponent(vid()),8000).then(function(r){if(r&&r.ok){if(typeof r.online==="number")state.online=r.online;if(typeof r.cum==="number")state.cum=r.cum;var on=document.getElementById("lv-online"),cu=document.getElementById("lv-cum");if(on)on.textContent=state.online;if(cu)cu.textContent=state.cum;}}).catch(function(){});}
 
   function boot(){
     var s=document.createElement("style");s.textContent=css;document.head.appendChild(s);
