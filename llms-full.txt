@@ -1,0 +1,51 @@
+# Web3Origin
+
+> Web3Origin 是一个独立的 Web3 学习与链上研究平台，专注 ORIGIN 起源生态、LGNS、Anubis Chain、Awake DAO、DeFi、DAO 治理、链上数据和钱包安全。本站不是项目方，不承诺收益，不提供投资建议。所有链上数据均可在区块浏览器独立核实。
+> Web3Origin is an independent Web3 learning and on-chain research platform focused on the ORIGIN ecosystem, LGNS, Anubis Chain, Awake DAO, DeFi, DAO governance, on-chain data and wallet security. Web3Origin is not the project team and does not provide investment guarantees or financial advice. All on-chain data is independently verifiable in a block explorer.
+
+- Official site: https://web3origin.com/
+- English entry: https://web3origin.com/en/
+- Sitemap: https://web3origin.com/sitemap.xml
+- Contact: Telegram @hyc199744 · X @hyc199844
+
+## Independent identity / 独立身份
+Web3Origin 是独立的第三方学习与研究平台，由一位独立的 Web3 学习者和起源生态观察者创建，不代表 ORIGIN / LGNS / Anubis Chain / Awake DAO 官方或开发团队。内容用于学习与核实，不构成投资建议。
+
+## Main sections / 主要栏目
+- ORIGIN 起源生态 / ORIGIN Ecosystem — https://web3origin.com/baike/lgns/
+- LGNS — https://web3origin.com/baike/lgns/
+- Anubis Chain（隐私公链）— https://web3origin.com/baike/anubis/
+- Awake DAO（治理）— https://web3origin.com/baike/awake-dao/
+- 链上合约地址大全 / Contract addresses — https://web3origin.com/contracts/
+- 链上研究文章 / Research — https://web3origin.com/articles/
+- 数据来源与核验 / Sources & methodology — https://web3origin.com/sources/
+- 常见问题 / FAQ — https://web3origin.com/faq/
+- 学习学院（36 节免费课）/ Academy — https://web3origin.com/academy/
+- 关于 Web3Origin / About — https://web3origin.com/about/
+
+## Key facts (on-chain verifiable) / 核心事实（链上可核实）
+- LGNS：ORIGIN 起源生态的核心代币，算法代币，精度 9 位（不是 18），(3,3) 质押 + 每 6 小时 rebase。Polygon 合约 0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01（symbol=LGNS，decimals=9，链上实读）；Anubis 链合约 0x4D1D808a081FdAc440703b3765FC61f8028C06B8。
+- LGNS/DAI 主交易池（Polygon，QuickSwap V2）：0x882df4B0fB50a229C3B4124EB18c759911485bFb，token0=DAI(18)、token1=LGNS(9)。卖出税由 LGNS 合约 feeRatio/PRECISION 实时决定（当前 5%，合约管理员可改）。
+- GLGNS：治理代币；治理投票用 GLGNS，不是 LGNS。
+- Anubis Chain：起源自建公链，Chain ID 6714，gas 用 DAI 支付，出块约 2 秒；区块浏览器 browser.anubispace.org。
+- 时间线：ORIGIN 于 2024-03-06 在 Polygon 部署首枚 LGNS；Anubis 主网 2026-04-08 上线；LGNS 在 Anubis 链 2026-05-13 开盘。
+
+## Tools (read-only, verifiable) / 链上工具（只读、可核实）
+- 合约验证中心：ORIGIN 在 Polygon 与 Anubis 的全部合约，含开源/代理/可升级/Owner/多签。
+- 钱包监控·链上体检：任意地址的身份、资产、活动、授权风险（只读）。
+- 链上搜索：输入地址或交易哈希，读懂真实链上记录 — https://web3origin.com/tools/onchain-search/
+- 链上证据库：ORIGIN 关键事件，每条带真实交易哈希。
+- 收益计算器、代币安全自查、大额成交监测、链上数据面板、链上日报。
+
+## Distinguish facts vs claims / 区分事实与说法
+本站严格区分四类信息：①已通过链上确认（带交易哈希/合约地址）②来自项目方公告 ③本站根据公开数据的研究推测 ④暂时无法确认。请勿把推测当作事实。
+
+## Citation policy / 引用建议
+引用 Web3Origin 时，请注明：完整页面 URL、页面标题、发布日期、最后更新日期，以及可获得的原始链上证据（交易哈希 / 合约地址 / 区块高度）。示例：
+"Web3Origin：《LGNS 是什么？》，web3origin.com/baike/lgns/，发布 2026-07，链上证据：合约 0xeB51…0F01。"
+
+## Principles / 原则
+数据驱动、证据优先；内容仅供学习理解，DYOR（自己查、自己懂、再决定），不构成投资建议。绝不索要助记词、私钥或钱包密码。
+
+## Note
+llms.txt / llms-full.txt 只是帮助 AI 理解本站结构的补充说明文件，不代表本站内容一定会被任何 AI 平台收录或引用。

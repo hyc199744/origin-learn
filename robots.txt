@@ -1,4 +1,59 @@
+# Web3Origin — https://web3origin.com/
+# 独立的 Web3 学习与链上研究平台（ORIGIN / LGNS / Anubis Chain / Awake DAO）。
+# 允许搜索引擎与 AI 搜索爬虫抓取公开内容；私有工具页与查询参数不收录。
+
 User-agent: *
+Allow: /
+Disallow: /w/
+Disallow: /premium/
+Disallow: /search/
+Disallow: /*?token=
+Disallow: /*?t=
+Disallow: /*?q=
+Disallow: /*?order=
+
+# ---------- 传统搜索引擎（欢迎） ----------
+User-agent: Googlebot
+Allow: /
+User-agent: Bingbot
+Allow: /
+User-agent: Baiduspider
+Allow: /
+User-agent: Sogou web spider
+Allow: /
+User-agent: 360Spider
+Allow: /
+User-agent: YandexBot
+Allow: /
+User-agent: Applebot
+Allow: /
+
+# ---------- AI 搜索 / 即时引用类爬虫（用于搜索结果与用户即时访问，欢迎） ----------
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: Applebot-Extended
+Allow: /
+
+# ---------- AI 模型训练类爬虫（当前允许抓取公开内容；如需禁止训练可改为 Disallow: /） ----------
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: CCBot
+Allow: /
+User-agent: Bytespider
+Allow: /
+User-agent: Amazonbot
+Allow: /
+User-agent: meta-externalagent
 Allow: /
 
 Sitemap: https://web3origin.com/sitemap.xml
