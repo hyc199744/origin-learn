@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","直播课堂"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,9 +81,126 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,security:pSecurity,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
+
+/* ---------- 直播课堂管理 ---------- */
+var _liveEdit=null;
+function lvp2(n){return (n<10?"0":"")+n;}
+function liveSecToDt(sec){if(!sec)return "";var d=new Date(sec*1000+8*3600*1000);return d.getUTCFullYear()+"-"+lvp2(d.getUTCMonth()+1)+"-"+lvp2(d.getUTCDate())+"T"+lvp2(d.getUTCHours())+":"+lvp2(d.getUTCMinutes());}
+function liveDtToSec(v){var m=String(v||"").match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);if(!m)return 0;return Math.floor(Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5])/1000)-8*3600;}
+function liveFmt(sec){if(!sec)return "—";var d=new Date(sec*1000+8*3600*1000);return d.getUTCFullYear()+"-"+lvp2(d.getUTCMonth()+1)+"-"+lvp2(d.getUTCDate())+" "+lvp2(d.getUTCHours())+":"+lvp2(d.getUTCMinutes());}
+var LIVE_ST={upcoming:"未开始",soon:"即将开始",live:"直播中",ended:"已结束",none:"无排期"};
+var LIVE_WK=["周一","周二","周三","周四","周五","周六","周日"];
+function liveSched(c){
+  if(c.repeat_rule==="daily")return "每天 "+(c.start_hm||"?")+"–"+(c.end_hm||"?")+"（北京时间）";
+  if(c.repeat_rule==="weekly"){var ds=String(c.repeat_days||"").split(",").filter(Boolean).map(function(x){var i=+x-1;return (i>=0&&i<7)?LIVE_WK[i]:"";}).filter(Boolean).join("/");return "每周 "+ds+" "+(c.start_hm||"?")+"–"+(c.end_hm||"?");}
+  if(c.repeat_rule==="custom")return "指定日期("+String(c.repeat_days||"").split(",").filter(Boolean).length+"天) "+(c.start_hm||"?")+"–"+(c.end_hm||"?");
+  return liveFmt(c.start_time)+" 至 "+liveFmt(c.end_time);
+}
+function pLive(el){
+  el.innerHTML='<div class="a-center">加载中…</div>';
+  get("/live").then(function(r){
+    if(r&&r.nodb){el.innerHTML='<div class="a-panel-box"><div class="a-note-real">'+esc(r.note||"D1未接入")+'</div></div>';return;}
+    if(!r||!r.ok){el.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var courses=r.courses||[];
+    get("/live?stats=1").then(function(s){
+      var online=(s&&s.online)||0,cum=(s&&s.cum)||0;
+      var stats='<div class="a-cards">'+card("📺","当前观看",fmtN(online),"最近90秒心跳","")+card("👥","累计访问",fmtN(cum),"去重访客","")+card("🎬","课程总数",String(courses.length),"含未公开","")+'</div>';
+      var rows=courses.map(liveRow).join("")||'<div class="a-note-real" style="padding:14px">还没有课程，点上方「➕ 新建课程」添加。</div>';
+      el.innerHTML=stats
+        +'<div class="a-panel-box"><h3>直播课程 <span style="float:right"><button class="a-mini" id="lvNew">➕ 新建课程</button> <a class="a-mini" href="https://web3origin.com/live/" target="_blank" rel="noopener">👁 预览直播页</a></span></h3><div id="lvList" style="margin-top:10px;display:grid;gap:10px">'+rows+'</div></div>'
+        +'<div id="lvFormWrap"></div>'
+        +'<style>.a-mini{cursor:pointer;font:inherit;font-size:12.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line,#3a2313);background:rgba(255,255,255,.03);color:var(--gold-lt,#f0d48a);text-decoration:none;display:inline-block}.a-mini:hover{border-color:var(--gold,#D6A84B)}.lv-r{border:1px solid var(--line,#3a2313);border-radius:10px;padding:12px 14px;background:rgba(255,255,255,.02)}.lv-r .rt{font-size:15px;color:#E9EFEA;font-weight:600}.lv-r .rm{font-size:12.5px;color:#b79c74;margin-top:5px;word-break:break-all}.lv-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;margin-right:5px;border:1px solid}.lv-in{width:100%;box-sizing:border-box;padding:9px 11px;border-radius:8px;border:1px solid var(--line,#3a2313);background:#0b0906;color:#E9EFEA;font:inherit;font-size:14px}.lv-lb{font-size:12.5px;color:#b79c74;margin:10px 0 4px;display:block}</style>';
+      document.getElementById("lvNew").onclick=function(){_liveEdit=null;liveForm();};
+      document.getElementById("lvList").querySelectorAll("[data-act]").forEach(function(b){
+        b.onclick=function(){
+          var id=b.getAttribute("data-id"),act=b.getAttribute("data-act");
+          var c=courses.filter(function(x){return String(x.id)===String(id);})[0];
+          if(act==="edit"){_liveEdit=c;liveForm();window.scrollTo(0,document.body.scrollHeight);}
+          else if(act==="del"){if(!confirm("确定删除课程「"+(c?c.title:id)+"」？不可恢复。"))return;post("/live",{action:"delete",id:id},true).then(function(rr){if(rr.ok){toast("已删除");go("live");}else toast(rr.error||"失败",1);});}
+          else if(act==="open"){}
+        };
+      });
+    });
+  });
+}
+function liveRow(c){
+  var st=LIVE_ST[c._todayStatus]||"—";
+  var stCol=c._todayStatus==="live"?"#ff5a5a;border-color:rgba(255,90,90,.5)":(c._todayStatus==="ended"?"#8fa0a6;border-color:rgba(143,160,166,.4)":"#f0d48a;border-color:rgba(240,212,138,.4)");
+  var tags='<span class="lv-tag" style="color:'+stCol+'">'+esc(st)+'</span>';
+  if(c.is_public)tags+='<span class="lv-tag" style="color:#25c96f;border-color:rgba(37,201,111,.4)">公开</span>';else tags+='<span class="lv-tag" style="color:#8fa0a6;border-color:rgba(143,160,166,.4)">未公开</span>';
+  if(c.is_featured)tags+='<span class="lv-tag" style="color:#f0d48a;border-color:rgba(240,212,138,.4)">置顶</span>';
+  var modeTxt={auto:"自动",embed:"强制嵌入",redirect:"跳转"}[c.embed_mode]||"自动";
+  tags+='<span class="lv-tag" style="color:#b79c74;border-color:var(--line,#3a2313)">'+modeTxt+'</span>';
+  var open=c.external_url?' · <a href="'+esc(c.external_url)+'" target="_blank" rel="noopener" style="color:#f0d48a">原链接↗</a>':"";
+  return '<div class="lv-r"><div class="rt">'+esc(c.title)+'</div>'
+    +'<div style="margin-top:6px">'+tags+'</div>'
+    +'<div class="rm">'+(c.teacher_name?"👨‍🏫 "+esc(c.teacher_name)+" · ":"")+"🕒 "+esc(liveSched(c))+open+'</div>'
+    +'<div style="margin-top:9px;display:flex;gap:7px"><button class="a-mini" data-act="edit" data-id="'+c.id+'">✏️ 编辑</button><button class="a-mini" data-act="del" data-id="'+c.id+'" style="color:#ff8a8a">🗑 删除</button></div></div>';
+}
+function liveForm(){
+  var c=_liveEdit||{embed_mode:"auto",repeat_rule:"none",is_public:1,is_featured:0};
+  var wrap=document.getElementById("lvFormWrap");
+  var wkBoxes=LIVE_WK.map(function(w,i){var on=String(c.repeat_days||"").split(",").indexOf(String(i+1))>=0;return '<label style="margin-right:10px;font-size:13px;color:#E9EFEA"><input type="checkbox" class="lvwk" value="'+(i+1)+'" '+(on?"checked":"")+'> '+w+'</label>';}).join("");
+  wrap.innerHTML='<div class="a-panel-box" id="lvForm"><h3>'+(_liveEdit?"编辑课程 #"+c.id:"新建课程")+'</h3>'
+    +'<label class="lv-lb">课程标题 *</label><input class="lv-in" id="fTitle" maxlength="120" value="'+esc(c.title||"")+'">'
+    +'<label class="lv-lb">主讲老师</label><input class="lv-in" id="fTeacher" maxlength="60" value="'+esc(c.teacher_name||"")+'">'
+    +'<label class="lv-lb">外部课程链接 *（必须 https://）</label><input class="lv-in" id="fUrl" placeholder="https://..." value="'+esc(c.external_url||"")+'">'
+    +'<div style="margin-top:6px"><button class="a-mini" id="fCheck">🔍 检测能否嵌入</button> <span id="fCheckR" style="font-size:12.5px;color:#b79c74"></span></div>'
+    +'<label class="lv-lb">课程封面（粘贴 https 图片链接，或上传小图 ≤200KB）</label><input class="lv-in" id="fCover" placeholder="https://... 或上传" value="'+esc((c.cover_url&&c.cover_url.indexOf("data:")!==0)?c.cover_url:"")+'">'
+    +'<input type="file" id="fCoverFile" accept="image/*" style="margin-top:6px;font-size:12px;color:#b79c74">'
+    +'<div id="fCoverPrev" style="margin-top:6px">'+(c.cover_url?'<img src="'+esc(c.cover_url)+'" style="max-width:180px;border-radius:8px;border:1px solid var(--line,#3a2313)">':"")+'</div>'
+    +'<label class="lv-lb">嵌入模式</label><select class="lv-in" id="fMode">'
+      +'<option value="auto"'+(c.embed_mode==="auto"?" selected":"")+'>自动（先测能否嵌入，不行自动跳转）</option>'
+      +'<option value="embed"'+(c.embed_mode==="embed"?" selected":"")+'>强制页面内嵌入</option>'
+      +'<option value="redirect"'+(c.embed_mode==="redirect"?" selected":"")+'>跳转模式（只显示封面+进入按钮）</option></select>'
+    +'<label class="lv-lb">排期方式</label><select class="lv-in" id="fRule">'
+      +'<option value="none"'+(c.repeat_rule==="none"?" selected":"")+'>单场（指定具体起止时间）</option>'
+      +'<option value="daily"'+(c.repeat_rule==="daily"?" selected":"")+'>每天重复</option>'
+      +'<option value="weekly"'+(c.repeat_rule==="weekly"?" selected":"")+'>每周指定星期</option>'
+      +'<option value="custom"'+(c.repeat_rule==="custom"?" selected":"")+'>自定义日期</option></select>'
+    +'<div id="fOnce" style="display:none"><label class="lv-lb">开始时间（北京时间）</label><input class="lv-in" type="datetime-local" id="fStart" value="'+esc(liveSecToDt(c.start_time))+'">'
+      +'<label class="lv-lb">结束时间（北京时间）</label><input class="lv-in" type="datetime-local" id="fEnd" value="'+esc(liveSecToDt(c.end_time))+'"></div>'
+    +'<div id="fRepeat" style="display:none"><label class="lv-lb">每日开始时刻（HH:MM，北京时间）</label><input class="lv-in" type="time" id="fShm" value="'+esc(c.start_hm||"")+'">'
+      +'<label class="lv-lb">每日结束时刻（HH:MM，北京时间）</label><input class="lv-in" type="time" id="fEhm" value="'+esc(c.end_hm||"")+'">'
+      +'<div id="fWeekly" style="display:none"><label class="lv-lb">星期几</label><div>'+wkBoxes+'</div></div>'
+      +'<div id="fCustom" style="display:none"><label class="lv-lb">日期列表（YYYY-MM-DD，逗号分隔）</label><input class="lv-in" id="fDays" placeholder="2026-08-01,2026-08-05" value="'+esc(c.repeat_rule==="custom"?(c.repeat_days||""):"")+'"></div></div>'
+    +'<label class="lv-lb">今日课程介绍</label><textarea class="lv-in" id="fDesc" rows="4" maxlength="4000">'+esc(c.description||"")+'</textarea>'
+    +'<div style="margin-top:12px"><label style="margin-right:16px;color:#E9EFEA"><input type="checkbox" id="fPub" '+(c.is_public?"checked":"")+'> 公开显示</label>'
+      +'<label style="color:#E9EFEA"><input type="checkbox" id="fFeat" '+(c.is_featured?"checked":"")+'> 置顶优先</label></div>'
+    +'<div style="margin-top:16px;display:flex;gap:10px"><button class="a-btn" id="fSave" style="width:auto;padding:11px 26px">💾 保存</button><button class="a-mini" id="fCancel">取消</button></div>'
+    +'<div class="a-note-real" style="margin-top:12px">提示：重复课程用「每日时刻」，服务器按北京时间每天自动生成当天场次并按服务器时间切换直播状态，无需你保持在线。</div></div>';
+  function syncRule(){var rule=document.getElementById("fRule").value;document.getElementById("fOnce").style.display=rule==="none"?"":"none";document.getElementById("fRepeat").style.display=rule==="none"?"none":"";document.getElementById("fWeekly").style.display=rule==="weekly"?"":"none";document.getElementById("fCustom").style.display=rule==="custom"?"":"none";}
+  document.getElementById("fRule").onchange=syncRule;syncRule();
+  document.getElementById("fCancel").onclick=function(){wrap.innerHTML="";};
+  // 封面上传 → dataURL
+  var fileIn=document.getElementById("fCoverFile");
+  if(fileIn)fileIn.onchange=function(){var f=fileIn.files&&fileIn.files[0];if(!f)return;if(f.size>200000){toast("图片超过200KB，请压缩或改用图片链接",1);fileIn.value="";return;}var rd=new FileReader();rd.onload=function(){document.getElementById("fCover").value=rd.result;document.getElementById("fCoverPrev").innerHTML='<img src="'+rd.result+'" style="max-width:180px;border-radius:8px;border:1px solid #3a2313">';};rd.readAsDataURL(f);};
+  document.getElementById("fCheck").onclick=function(){
+    var u=document.getElementById("fUrl").value.trim();var r=document.getElementById("fCheckR");r.textContent="检测中…";
+    post("/live",{action:"check",external_url:u},true).then(function(rr){
+      if(!rr.ok){r.style.color="#ff8a8a";r.textContent=rr.error||"检测失败";return;}
+      if(rr.embeddable){r.style.color="#25c96f";r.textContent="✓ 可嵌入 — "+(rr.reason||"");}
+      else{r.style.color="#ffb454";r.textContent="✗ 建议跳转 — "+(rr.reason||"");}
+    }).catch(function(){r.textContent="网络错误";});
+  };
+  document.getElementById("fSave").onclick=function(){
+    var rule=document.getElementById("fRule").value;
+    var body={action:"save",title:document.getElementById("fTitle").value.trim(),teacher_name:document.getElementById("fTeacher").value.trim(),
+      external_url:document.getElementById("fUrl").value.trim(),cover_url:document.getElementById("fCover").value.trim(),
+      description:document.getElementById("fDesc").value,embed_mode:document.getElementById("fMode").value,repeat_rule:rule,
+      is_public:document.getElementById("fPub").checked?1:0,is_featured:document.getElementById("fFeat").checked?1:0};
+    if(_liveEdit)body.id=_liveEdit.id;
+    if(rule==="none"){body.start_time=liveDtToSec(document.getElementById("fStart").value);body.end_time=liveDtToSec(document.getElementById("fEnd").value);}
+    else{body.start_hm=document.getElementById("fShm").value;body.end_hm=document.getElementById("fEhm").value;
+      if(rule==="weekly")body.repeat_days=Array.prototype.slice.call(document.querySelectorAll(".lvwk:checked")).map(function(x){return x.value;}).join(",");
+      else if(rule==="custom")body.repeat_days=document.getElementById("fDays").value.trim();}
+    var btn=document.getElementById("fSave");btn.disabled=true;btn.textContent="保存中…";
+    post("/live",body,true).then(function(rr){btn.disabled=false;btn.textContent="💾 保存";if(rr.ok){toast("已保存");wrap.innerHTML="";go("live");}else toast(rr.error||"保存失败",1);}).catch(function(){btn.disabled=false;btn.textContent="💾 保存";toast("网络错误",1);});
+  };
+}
 
 /* ---------- 总览 ---------- */
 function pDash(el){
