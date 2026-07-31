@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web3Origin 方法论：数据来源、合约验证与事实核查 ｜Web3Origin</title>
+<meta property="og:site_name" content="Web3Origin">
+<meta name="description" content="Web3Origin 如何做链上研究：数据从哪来（RPC / 区块浏览器 / DEX 合约）、如何验证合约与代币精度、价格与卖出如何计算、风险等级规则，以及如何区分「已链上确认 / 项目方说法 / 本站推测 / 暂无法确认」。">
+<meta name="keywords" content="Web3Origin方法论,链上数据来源,合约验证方法,数据核查,起源研究方法">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://web3origin.com/about/methodology/">
+<link rel="icon" type="image/png" href="../../assets/favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Web3Origin 方法论：数据来源、合约验证与事实核查">
+<meta property="og:description" content="Web3Origin 如何做链上研究：数据从哪来（RPC / 区块浏览器 / DEX 合约）、如何验证合约与代币精度、价格与卖出如何计算、风险等级规则，以及如何区分「已链上确认 / 项目方说法 / 本站推测 / 暂无法确认」。">
+<meta property="og:url" content="https://web3origin.com/about/methodology/">
+<meta property="og:image" content="https://web3origin.com/assets/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:locale" content="zh_CN"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://web3origin.com/assets/og-image.png">
+<link rel="alternate" hreflang="zh-CN" href="https://web3origin.com/about/methodology/"><link rel="alternate" hreflang="x-default" href="https://web3origin.com/about/methodology/">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Web3Origin 方法论", "description": "Web3Origin 如何做链上研究：数据从哪来（RPC / 区块浏览器 / DEX 合约）、如何验证合约与代币精度、价格与卖出如何计算、风险等级规则，以及如何区分「已链上确认 / 项目方说法 / 本站推测 / 暂无法确认」。", "inLanguage": "zh-CN", "datePublished": "2026-07-31", "dateModified": "2026-07-31", "url": "https://web3origin.com/about/methodology/", "mainEntityOfPage": "https://web3origin.com/about/methodology/", "author": {"@type": "Organization", "name": "Web3Origin", "url": "https://web3origin.com/about/"}, "publisher": {"@type": "Organization", "name": "Web3Origin", "url": "https://web3origin.com/", "logo": {"@type": "ImageObject", "url": "https://web3origin.com/assets/logo.png"}}, "image": "https://web3origin.com/assets/og-image.png"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Web3Origin 的数据从哪里来？", "acceptedAnswer": {"@type": "Answer", "text": "来自区块浏览器/RPC（Polygon 经 Etherscan V2、Anubis 经其浏览器 API）、DEX 主池的储备与 Router 报价、以及合约只读方法直接读取，不依赖第三方缓存。"}}, {"@type": "Question", "name": "你们怎么保证数据不是假的？", "acceptedAnswer": {"@type": "Answer", "text": "关键数字、地址、费率均标注对应区块与读取时间，可自行在区块浏览器核实；RPC 失败时显示「无法确认」，绝不用演示数据代替。"}}, {"@type": "Question", "name": "风险等级是怎么算的？", "acceptedAnswer": {"@type": "Answer", "text": "按价格冲击机械分级（<1% 较低 / 1–3% 一般 / 3–10% 较高 / ≥10% 严重），是机械计算，不代表投资建议。"}}, {"@type": "Question", "name": "怎么区分事实和推测？", "acceptedAnswer": {"@type": "Answer", "text": "每条结论标为四类之一：已链上确认、项目方说法、本站推测、暂无法确认。"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "首页", "item": "https://web3origin.com/"}, {"@type": "ListItem", "position": 2, "name": "关于", "item": "https://web3origin.com/about/methodology/"}]}</script>
+<style>*{box-sizing:border-box}html,body{margin:0;background:#070A08;color:#E9EFEA;font-family:system-ui,-apple-system,"Microsoft YaHei",sans-serif;overflow-x:hidden;line-height:1.75}
+a{color:#f0d48a;text-decoration:none}a:hover{text-decoration:underline}
+.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:12px 18px;background:rgba(7,10,8,.9);border-bottom:1px solid #3a2313;backdrop-filter:blur(6px);font-size:14px}
+.nav .brand{font-family:"STZhongsong","Songti SC",Georgia,serif;color:#f0d48a;font-size:17px}
+.nav a{color:#b79c74}
+.wrap{max-width:820px;margin:0 auto;padding:8px 20px 70px}
+.crumb{font-size:12.5px;color:#7c6a4f;margin:16px 0 6px}
+h1{font-family:"STZhongsong","Songti SC",Georgia,serif;font-weight:400;font-size:clamp(24px,4.5vw,34px);color:#f0d48a;letter-spacing:.03em;margin:6px 0 4px;line-height:1.35}
+h2{font-family:"STZhongsong",serif;font-weight:400;font-size:21px;color:#f0d48a;margin:34px 0 10px;padding-bottom:7px;border-bottom:1px solid #3a2313;scroll-margin-top:64px}
+h3{font-size:16px;color:#E9EFEA;margin:20px 0 8px}
+.answer{background:linear-gradient(90deg,rgba(214,168,75,.12),rgba(118,255,54,.04));border:1px solid rgba(214,168,75,.4);border-left:3px solid #D6A84B;border-radius:10px;padding:15px 18px;margin:14px 0 6px;font-size:15.5px}
+.answer b{color:#f0d48a}
+.meta{font-size:12.5px;color:#7c6a4f;margin:10px 0 4px}
+p{margin:10px 0;color:#cdbfa6}
+ul,ol{color:#cdbfa6;padding-left:22px}li{margin:6px 0}
+.ev{background:#0e0b07;border:1px solid #3a2313;border-radius:10px;padding:6px 16px;margin:12px 0}
+.ev .r{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed #3a2313;font-size:13.5px}
+.ev .r:last-child{border-bottom:0}.ev .k{color:#b79c74;flex:0 0 auto}.ev .v{text-align:right;word-break:break-all;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+.tag{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:6px;border:1px solid;margin-right:6px}
+.t-ok{color:#25c96f;border-color:rgba(37,201,111,.5)}.t-claim{color:#f0d48a;border-color:rgba(240,212,138,.5)}.t-guess{color:#ffb454;border-color:rgba(255,180,84,.5)}.t-no{color:#8fa0a6;border-color:rgba(143,160,166,.5)}
+.box{background:#0e0b07;border:1px solid #3a2313;border-radius:10px;padding:14px 18px;margin:12px 0}
+.faq details{border-bottom:1px solid #3a2313;padding:10px 0}.faq summary{cursor:pointer;color:#f0d48a;font-size:15px}.faq p{margin:8px 0 0}
+.rel a{display:block;padding:8px 0;border-bottom:1px solid #3a2313;color:#cdbfa6}.rel a b{color:#f0d48a}
+.disc{font-size:12.5px;color:#7c6a4f;line-height:1.85;margin-top:24px;border-top:1px solid #3a2313;padding-top:14px}
+.author{font-size:13px;color:#b79c74;background:#0e0b07;border:1px solid #3a2313;border-radius:10px;padding:12px 16px;margin:16px 0}
+code{background:#0b0906;border:1px solid #3a2313;border-radius:5px;padding:1px 6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#f0d48a;word-break:break-all}
+footer{text-align:center;color:#7c6a4f;font-size:12px;padding:30px 20px;border-top:1px solid #3a2313}
+@media(max-width:560px){.wrap{padding:8px 15px 60px}.ev .v{font-size:11.5px}}</style>
+</head>
+<body>
+<nav class="nav"><a class="brand" href="/">起源 · <b>Web3Origin</b></a><a href="/baike/lgns/">百科</a><a href="/contracts/">合约地址</a><a href="/faq/">FAQ</a><a href="/about/">关于</a></nav>
+<div class="wrap">
+<div class="crumb"><a href="/">首页</a> › 关于 › Web3Origin 方法论</div>
+<h1>Web3Origin 方法论</h1>
+<div class="meta">发布 2026-07-31 · 更新 2026-07-31 · 数据核验 2026-07-31 · 作者 Web3Origin（独立研究，非项目方）</div>
+<div class="answer"><b>Web3Origin 的每一个链上数字都标注来源、对应区块与读取时间，并区分「已链上确认 / 项目方说法 / 本站推测 / 暂无法确认」四类。</b> 数据来自区块浏览器与合约只读调用，不用演示数据冒充；关键事实以真实链上读取为准。</div>
+
+<h2 id="data-sources">数据来源</h2>
+<ul>
+<li><b>区块浏览器 / RPC：</b>Polygon 数据经 Etherscan V2 多链接口读取（合约 Read、eth_call、getLogs、交易/转账记录）；Anubis 链数据经其区块浏览器 API（browser.anubispace.org）。</li>
+<li><b>DEX 数据：</b>LGNS/DAI 主池（QuickSwap V2，0x882df4B0…）的 getReserves、Router getAmountsOut。</li>
+<li><b>合约参数：</b>直接调用合约只读方法（如 LGNS 的 feeRatio/PRECISION/decimals），不依赖第三方缓存。</li>
+<li><b>汇率：</b>DAI≈1 美元，人民币按公开实时汇率接口换算，仅供参考。</li>
+</ul>
+<h2 id="verification">合约与数据验证方法</h2>
+<ul>
+<li>任何合约地址使用前，先核实：地址有合约代码、能读 symbol/name/decimals、与所述代币一致。</li>
+<li>LGNS 精度为 <b>9 位</b>（不是 18），所有链上整数计算区分精度，避免 9/18 混淆。</li>
+<li>价格 = 主池 DAI 储备 ÷ LGNS 储备（按各自精度换算）；卖出模拟按合约卖出税 + 0.3% 池费 + AMM 恒定乘积公式。</li>
+<li>数据标注对应区块高度与读取时间；RPC 失败时显示「当前无法从链上确认」，绝不用演示数据冒充。</li>
+</ul>
+<h2 id="risk-rule">风险等级计算规则</h2>
+<p>涉及价格冲击的机械评级：小于 1% 较低、1–3% 一般、3–10% 较高、≥10% 严重。这是本站按公开数据的机械计算，<b>不显示「安全/可以买卖/建议投资」</b>。</p>
+<h2 id="fact-vs-claim">事实、说法与推测如何区分</h2>
+<p>本站所有结论标注为四类之一：</p>
+<p><span class="tag t-ok">已链上确认</span> 有交易哈希/合约地址/区块可独立核实。</p>
+<p><span class="tag t-claim">项目方说法</span> 来自项目方公告或文档，未必等于链上事实。</p>
+<p><span class="tag t-guess">本站推测</span> 基于公开数据的分析或计算，可能有误。</p>
+<p><span class="tag t-no">暂无法确认</span> 数据不足或无法读取。</p>
+<h2 id="ai-review">AI 内容审核流程</h2>
+<p>本站部分整理借助工具辅助，但涉及链上数字、地址、费率、日期的关键事实均以真实链上读取为准，不由 AI 生成或臆测；对外结论经人工核对区块浏览器后发布。发现错误可联系更正。</p>
+
+<h2 id="faq">常见问题</h2>
+<div class="faq"><details><summary>Web3Origin 的数据从哪里来？</summary><p>来自区块浏览器/RPC（Polygon 经 Etherscan V2、Anubis 经其浏览器 API）、DEX 主池的储备与 Router 报价、以及合约只读方法直接读取，不依赖第三方缓存。</p></details><details><summary>你们怎么保证数据不是假的？</summary><p>关键数字、地址、费率均标注对应区块与读取时间，可自行在区块浏览器核实；RPC 失败时显示「无法确认」，绝不用演示数据代替。</p></details><details><summary>风险等级是怎么算的？</summary><p>按价格冲击机械分级（&lt;1% 较低 / 1–3% 一般 / 3–10% 较高 / ≥10% 严重），是机械计算，不代表投资建议。</p></details><details><summary>怎么区分事实和推测？</summary><p>每条结论标为四类之一：已链上确认、项目方说法、本站推测、暂无法确认。</p></details></div>
+<h2>相关页面</h2>
+<div class="rel"><a href="/about/"><b>关于 Web3Origin</b> — 我们是谁、做什么</a><a href="/about/editorial-policy/"><b>编辑政策</b> — 内容标准、引用与更正机制</a><a href="/sources/"><b>数据来源</b> — 核心合约与关键交易哈希</a><a href="/contracts/"><b>合约地址大全</b> — 全部合约，可链上核实</a></div>
+<div class="author"><b>作者：</b>Web3Origin 研究与编辑（独立 Web3 学习者、起源生态观察者，<b>不代表 ORIGIN / LGNS / Anubis Chain / Awake DAO 官方或开发团队</b>）。研究方向：链上数据核实、合约与治理分析、钱包安全。发布日期 2026-07-31 · 最后修改 2026-07-31 · 数据核验 2026-07-31。纠错/联系：Telegram @hyc199744 · X @hyc199844。</div>
+<div class="disc">本页为独立学习与研究整理，内容仅供理解，<b>不构成任何投资建议</b>，不承诺收益。数字资产有风险，请自行核实、自行判断（DYOR）。本站严格区分「已链上确认 / 项目方说法 / 本站推测 / 暂无法确认」四类信息，请勿把推测当作事实。<b>请勿在任何网页输入助记词、私钥或钱包密码。</b></div>
+</div>
+<footer>Web3Origin — 独立的 Web3 学习与链上研究平台 · <a href="/">web3origin.com</a> · 内容仅供学习，不构成投资建议</footer>
+</body>
+</html>
