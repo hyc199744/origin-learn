@@ -68,7 +68,7 @@ footer{text-align:center;color:#7c6a4f;font-size:12px;padding:30px 20px;border-t
 <ul>
 <li>任何合约地址使用前，先核实：地址有合约代码、能读 symbol/name/decimals、与所述代币一致。</li>
 <li>LGNS 精度为 <b>9 位</b>（不是 18），所有链上整数计算区分精度，避免 9/18 混淆。</li>
-<li>价格 = 主池 DAI 储备 ÷ LGNS 储备（按各自精度换算）；卖出模拟按合约卖出税 + 0.3% 池费 + AMM 恒定乘积公式。</li>
+<li>价格 = 主池 DAI 储备 ÷ LGNS 储备（按各自精度换算）；卖出模拟按 0.3% 池费 + AMM 恒定乘积公式。</li>
 <li>数据标注对应区块高度与读取时间；RPC 失败时显示「当前无法从链上确认」，绝不用演示数据冒充。</li>
 </ul>
 <h2 id="risk-rule">风险等级计算规则</h2>
