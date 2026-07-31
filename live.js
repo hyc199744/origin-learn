@@ -6,7 +6,7 @@
   var ZH=document.documentElement.lang!=="en"&&!/^en/i.test(document.documentElement.lang||"");
   var T=ZH?{
     eyebrow:"ORIGIN LIVE · 起源生态学习课堂",
-    page_title:"起源线上课堂",
+    page_title:"线上直播",
     subtitle:"每日直播课程入口 · 服务器自动排期 · 无需管理员在线",
     teacher:"主讲老师",time:"上课时间",to:"至",
     countdown_start:"距开课",countdown_end:"距下课",started:"已开课",
@@ -32,7 +32,7 @@
     server_time:"服务器时间",loading_page:"课堂加载中…"
   }:{
     eyebrow:"ORIGIN LIVE · Learning Classroom",
-    page_title:"Origin Live Classroom",
+    page_title:"Live Stream",
     subtitle:"Daily live course entry · auto-scheduled by server · no admin online required",
     teacher:"Instructor",time:"Time",to:"–",
     countdown_start:"Starts in",countdown_end:"Ends in",started:"Started",
@@ -217,7 +217,7 @@
     state.iframeOn=false;
     stage.innerHTML='<div class="lv-overlay"><div class="lv-spin"></div><div class="lv-ovsub">'+esc(T.loading)+'</div></div>';
     var f=document.createElement("iframe");
-    f.id="lv-iframe";f.src=url;f.title=T.page_title||"起源线上课堂";
+    f.id="lv-iframe";f.src=url;f.title=T.page_title||"线上直播";
     f.setAttribute("allow","autoplay; fullscreen; picture-in-picture; encrypted-media; microphone; clipboard-write");
     f.setAttribute("allowfullscreen","true");f.allowFullscreen=true;
     f.setAttribute("webkitallowfullscreen","true");f.setAttribute("mozallowfullscreen","true");
