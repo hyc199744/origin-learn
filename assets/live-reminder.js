@@ -33,25 +33,24 @@
 "#w3oLiveWrap *,#w3oLiveSoon *{box-sizing:border-box}",
 "#w3oLiveWrap{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(2,1,1,.72);backdrop-filter:blur(3px);padding:16px}",
 "#w3oLiveWrap.on{display:flex}",
-".w3o-live-card{width:100%;max-width:420px;background:linear-gradient(180deg,#0e0b08,#0a0d0b);border:1px solid #2f7d4f;border-radius:16px;overflow:hidden;box-shadow:0 0 42px rgba(61,220,138,.22),0 10px 40px rgba(0,0,0,.6);position:relative;color:#e8d9be}",
-".w3o-live-close{position:absolute;top:10px;right:10px;z-index:3;width:34px;height:34px;border-radius:50%;border:1px solid #3a2313;background:rgba(12,10,8,.8);color:#f1dfc0;font-size:18px;cursor:pointer;line-height:1}",
-".w3o-live-cover{position:relative;width:100%;aspect-ratio:16/9;background:#07100b center/cover no-repeat;border-bottom:1px solid #26301f}",
-".w3o-live-badge{position:absolute;left:12px;top:12px;display:flex;align-items:center;gap:7px;background:rgba(122,11,18,.85);border:1px solid #ff8a8a;color:#ffe3e3;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.05em}",
-".w3o-dot{width:9px;height:9px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 0 rgba(255,77,77,.7);animation:w3oPulse 1.6s infinite}",
+".w3o-live-card{width:100%;max-width:340px;background:linear-gradient(180deg,#0e0b08,#0a0d0b);border:1px solid #2f7d4f;border-radius:16px;overflow:hidden;box-shadow:0 0 42px rgba(61,220,138,.22),0 10px 40px rgba(0,0,0,.6);position:relative;color:#e8d9be}",
+".w3o-live-close{position:absolute;top:8px;right:8px;z-index:3;width:30px;height:30px;border-radius:50%;border:1px solid #3a2313;background:rgba(12,10,8,.8);color:#f1dfc0;font-size:16px;cursor:pointer;line-height:1}",
+".w3o-live-top{padding:14px 15px 0}",
+".w3o-live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(122,11,18,.85);border:1px solid #ff8a8a;color:#ffe3e3;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.04em}",
+".w3o-dot{width:8px;height:8px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 0 rgba(255,77,77,.7);animation:w3oPulse 1.6s infinite}",
 ".w3o-dot.em{background:#3ddc8a;box-shadow:0 0 0 0 rgba(61,220,138,.7)}",
-"@keyframes w3oPulse{0%{box-shadow:0 0 0 0 rgba(255,77,77,.6)}70%{box-shadow:0 0 0 8px rgba(255,77,77,0)}100%{box-shadow:0 0 0 0 rgba(255,77,77,0)}}",
-".w3o-live-body{padding:16px 18px 18px}",
-".w3o-live-h{font-family:'STZhongsong','Songti SC',serif;color:#f1dfc0;font-size:19px;margin:0 0 6px}",
-".w3o-live-intro{color:#b79c74;font-size:13.5px;line-height:1.6;margin:0 0 12px}",
-".w3o-live-info{border:1px solid #26301f;border-radius:10px;overflow:hidden;margin-bottom:14px}",
-".w3o-live-info .r{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:8px 12px;font-size:13px;border-top:1px solid #191d16}",
-".w3o-live-info .r:first-child{border-top:0}",
-".w3o-live-info .k{color:#7c6a4f;white-space:nowrap}",".w3o-live-info .v{color:#e8d9be;text-align:right;min-width:0;overflow-wrap:anywhere}",
-".w3o-live-info .v.live{color:#3ddc8a;font-weight:700}",
-".w3o-btn{display:block;width:100%;text-align:center;text-decoration:none;border-radius:11px;font-size:15px;font-weight:700;padding:12px;cursor:pointer;border:1px solid #3a2313}",
-".w3o-btn.primary{background:linear-gradient(180deg,#2a6b47,#1c4d33);border-color:#2f7d4f;color:#eafff2;box-shadow:0 0 18px rgba(61,220,138,.25);margin-bottom:9px}",
-".w3o-btn.ghost{background:#141009;color:#f1dfc0;margin-bottom:9px}",
-".w3o-btn.mini{background:transparent;border:0;color:#7c6a4f;font-size:12.5px;font-weight:400;padding:4px;text-decoration:underline}",
+"@keyframes w3oPulse{0%{box-shadow:0 0 0 0 rgba(255,77,77,.6)}70%{box-shadow:0 0 0 7px rgba(255,77,77,0)}100%{box-shadow:0 0 0 0 rgba(255,77,77,0)}}",
+".w3o-live-body{padding:9px 15px 15px}",
+".w3o-live-head{display:flex;gap:10px;align-items:center;margin-bottom:9px}",
+".w3o-live-thumb{flex:0 0 auto;width:50px;height:50px;border-radius:9px;background:#07100b center/cover no-repeat;border:1px solid #26301f}",
+".w3o-live-h{font-family:'STZhongsong','Songti SC',serif;color:#f1dfc0;font-size:15px;margin:0 0 3px;line-height:1.3}",
+".w3o-live-ct{color:#b79c74;font-size:12.5px;line-height:1.4;overflow-wrap:anywhere}",
+".w3o-live-meta{display:flex;flex-wrap:wrap;gap:3px 14px;font-size:12px;color:#8f7c55;border-top:1px solid #201a12;padding:9px 0 0;margin-bottom:12px}",
+".w3o-live-meta b{color:#3ddc8a;font-weight:700}",".w3o-live-meta .s{color:#e8d9be}",
+".w3o-btn{display:block;width:100%;text-align:center;text-decoration:none;border-radius:10px;font-size:14px;font-weight:700;padding:10px;cursor:pointer;border:1px solid #3a2313}",
+".w3o-btn.primary{background:linear-gradient(180deg,#2a6b47,#1c4d33);border-color:#2f7d4f;color:#eafff2;box-shadow:0 0 16px rgba(61,220,138,.22);margin-bottom:8px}",
+".w3o-btn.ghost{background:#141009;color:#f1dfc0;margin-bottom:6px}",
+".w3o-btn.mini{background:transparent;border:0;color:#7c6a4f;font-size:12px;font-weight:400;padding:3px;text-decoration:underline}",
 ".w3o-btn:focus-visible{outline:2px solid #f0d48a;outline-offset:2px}",
 "#w3oLiveFab{position:fixed;right:16px;bottom:20px;z-index:99990;display:none;align-items:center;gap:8px;background:linear-gradient(180deg,#0e0b08,#0a0d0b);border:1px solid #2f7d4f;color:#eafff2;font-size:13px;font-weight:700;padding:9px 14px;border-radius:24px;cursor:pointer;box-shadow:0 0 20px rgba(61,220,138,.3),0 6px 18px rgba(0,0,0,.5)}",
 "#w3oLiveFab.on{display:flex}",
@@ -86,21 +85,17 @@
   function goLive(){location.href=CFG.livePath||LIVE_PATH;}
   function buildModal(c,srv){
     var elapsed=srv&&c.start?dur(srv-c.start):"";
-    var cover=c.cover_url?("background-image:url('"+String(c.cover_url).replace(/'/g,"%27")+"')"):"";
-    var rows=""
-      +'<div class="r"><span class="k">直播标题</span><span class="v">'+esc(c.title||"线上课堂")+'</span></div>'
-      +(c.teacher_name?'<div class="r"><span class="k">主讲人</span><span class="v">'+esc(c.teacher_name)+'</span></div>':"")
-      +(c.start?'<div class="r"><span class="k">开始时间</span><span class="v">'+hm(c.start)+'</span></div>':"")
-      +(elapsed?'<div class="r"><span class="k">已直播</span><span class="v live">'+elapsed+'</span></div>':"")
-      +(c.end?'<div class="r"><span class="k">预计结束</span><span class="v">'+hm(c.end)+'</span></div>':"")
-      +'<div class="r"><span class="k">当前状态</span><span class="v live">'+esc(STC[c.status]||"直播进行中")+'</span></div>';
+    var thumb=c.cover_url?('<div class="w3o-live-thumb" style="background-image:url(\''+String(c.cover_url).replace(/'/g,"%27")+'\')"></div>'):"";
+    var meta=[];
+    if(elapsed)meta.push('<span>已直播 <b>'+esc(elapsed)+'</b></span>');
+    if(c.start)meta.push('<span>开始 <span class="s">'+hm(c.start)+'</span></span>');
+    if(c.end)meta.push('<span>预计结束 <span class="s">'+hm(c.end)+'</span></span>');
     wrap.innerHTML='<div class="w3o-live-card" role="dialog" aria-modal="true" aria-label="起源线上课堂正在直播">'
       +'<button class="w3o-live-close" id="w3oLiveX" aria-label="关闭">×</button>'
-      +'<div class="w3o-live-cover" style="'+cover+'"><span class="w3o-live-badge"><span class="w3o-dot"></span>LIVE · 直播进行中</span></div>'
+      +'<div class="w3o-live-top"><span class="w3o-live-badge"><span class="w3o-dot"></span>LIVE · 直播中</span></div>'
       +'<div class="w3o-live-body">'
-      +'<h3 class="w3o-live-h">起源线上课堂正在直播</h3>'
-      +'<p class="w3o-live-intro">今天的线上课程已经开始，你可以立即进入直播间观看，也可以继续浏览网站。</p>'
-      +'<div class="w3o-live-info">'+rows+'</div>'
+      +'<div class="w3o-live-head">'+thumb+'<div><div class="w3o-live-h">起源线上课堂正在直播</div><div class="w3o-live-ct">「'+esc(c.title||"线上课堂")+'」'+(c.teacher_name?(' · 主讲 '+esc(c.teacher_name)):"")+'</div></div></div>'
+      +(meta.length?('<div class="w3o-live-meta">'+meta.join("")+'</div>'):"")
       +'<a class="w3o-btn primary" id="w3oLiveGo" href="'+esc(CFG.livePath||LIVE_PATH)+'">'+esc(CFG.btnEnter||DEF.btnEnter)+'</a>'
       +'<button class="w3o-btn ghost" id="w3oLiveLater">'+esc(CFG.btnLater||DEF.btnLater)+'</button>'
       +'<button class="w3o-btn mini" id="w3oLiveNoMore">'+esc(CFG.btnNoMore||DEF.btnNoMore)+'</button>'
