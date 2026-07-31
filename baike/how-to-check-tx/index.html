@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>如何查询交易哈希？用区块浏览器看懂一笔链上交易 ｜Web3Origin</title>
+<meta property="og:site_name" content="Web3Origin">
+<meta name="description" content="交易哈希（tx hash）是什么、怎么查：把 0x 开头的 64 位哈希粘进对应链的区块浏览器（Polygon 用 polygonscan、Anubis 用 browser.anubispace.org），看状态、区块时间、转账代币与数量、手续费和事件日志，也可用本站链上搜索工具大白话解读。">
+<meta name="keywords" content="交易哈希,交易哈希是什么,如何查交易哈希,tx hash,查询交易,区块浏览器查交易,polygonscan查交易">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://web3origin.com/baike/how-to-check-tx/">
+<link rel="icon" type="image/png" href="../../assets/favicon.png">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何查询交易哈希？用区块浏览器看懂一笔链上交易">
+<meta property="og:description" content="交易哈希（tx hash）是什么、怎么查：把 0x 开头的 64 位哈希粘进对应链的区块浏览器（Polygon 用 polygonscan、Anubis 用 browser.anubispace.org），看状态、区块时间、转账代币与数量、手续费和事件日志，也可用本站链上搜索工具大白话解读。">
+<meta property="og:url" content="https://web3origin.com/baike/how-to-check-tx/">
+<meta property="og:image" content="https://web3origin.com/assets/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:locale" content="zh_CN"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://web3origin.com/assets/og-image.png">
+<link rel="alternate" hreflang="zh-CN" href="https://web3origin.com/baike/how-to-check-tx/"><link rel="alternate" hreflang="x-default" href="https://web3origin.com/baike/how-to-check-tx/">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "如何查询交易哈希？", "description": "交易哈希（tx hash）是什么、怎么查：把 0x 开头的 64 位哈希粘进对应链的区块浏览器（Polygon 用 polygonscan、Anubis 用 browser.anubispace.org），看状态、区块时间、转账代币与数量、手续费和事件日志，也可用本站链上搜索工具大白话解读。", "inLanguage": "zh-CN", "datePublished": "2026-07-31", "dateModified": "2026-07-31", "url": "https://web3origin.com/baike/how-to-check-tx/", "mainEntityOfPage": "https://web3origin.com/baike/how-to-check-tx/", "author": {"@type": "Organization", "name": "Web3Origin", "url": "https://web3origin.com/about/"}, "publisher": {"@type": "Organization", "name": "Web3Origin", "url": "https://web3origin.com/", "logo": {"@type": "ImageObject", "url": "https://web3origin.com/assets/logo.png"}}, "image": "https://web3origin.com/assets/og-image.png"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "交易哈希是什么？", "acceptedAnswer": {"@type": "Answer", "text": "每笔链上交易的唯一标识，0x 开头的 64 位十六进制，用它能在区块浏览器查到这笔交易的全部信息。"}}, {"@type": "Question", "name": "怎么查一笔交易？", "acceptedAnswer": {"@type": "Answer", "text": "把交易哈希粘进对应链区块浏览器的搜索框：Polygon 用 polygonscan.com，Anubis 用 browser.anubispace.org。"}}, {"@type": "Question", "name": "交易哈希和钱包地址有什么区别？", "acceptedAnswer": {"@type": "Answer", "text": "交易哈希是 64 位（一笔交易），钱包/合约地址是 40 位（一个账户）。别搞混。"}}, {"@type": "Question", "name": "查不到交易怎么办？", "acceptedAnswer": {"@type": "Answer", "text": "检查链选对没、哈希有没有抄错，或交易可能还没被打包上链。"}}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "首页", "item": "https://web3origin.com/"}, {"@type": "ListItem", "position": 2, "name": "链上工具百科", "item": "https://web3origin.com/baike/how-to-check-tx/"}]}</script>
+<style>*{box-sizing:border-box}html,body{margin:0;background:#070A08;color:#E9EFEA;font-family:system-ui,-apple-system,"Microsoft YaHei",sans-serif;overflow-x:hidden;line-height:1.75}
+a{color:#f0d48a;text-decoration:none}a:hover{text-decoration:underline}
+.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:12px 18px;background:rgba(7,10,8,.9);border-bottom:1px solid #3a2313;backdrop-filter:blur(6px);font-size:14px}
+.nav .brand{font-family:"STZhongsong","Songti SC",Georgia,serif;color:#f0d48a;font-size:17px}
+.nav a{color:#b79c74}
+.wrap{max-width:820px;margin:0 auto;padding:8px 20px 70px}
+.crumb{font-size:12.5px;color:#7c6a4f;margin:16px 0 6px}
+h1{font-family:"STZhongsong","Songti SC",Georgia,serif;font-weight:400;font-size:clamp(24px,4.5vw,34px);color:#f0d48a;letter-spacing:.03em;margin:6px 0 4px;line-height:1.35}
+h2{font-family:"STZhongsong",serif;font-weight:400;font-size:21px;color:#f0d48a;margin:34px 0 10px;padding-bottom:7px;border-bottom:1px solid #3a2313;scroll-margin-top:64px}
+h3{font-size:16px;color:#E9EFEA;margin:20px 0 8px}
+.answer{background:linear-gradient(90deg,rgba(214,168,75,.12),rgba(118,255,54,.04));border:1px solid rgba(214,168,75,.4);border-left:3px solid #D6A84B;border-radius:10px;padding:15px 18px;margin:14px 0 6px;font-size:15.5px}
+.answer b{color:#f0d48a}
+.meta{font-size:12.5px;color:#7c6a4f;margin:10px 0 4px}
+p{margin:10px 0;color:#cdbfa6}
+ul,ol{color:#cdbfa6;padding-left:22px}li{margin:6px 0}
+.ev{background:#0e0b07;border:1px solid #3a2313;border-radius:10px;padding:6px 16px;margin:12px 0}
+.ev .r{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed #3a2313;font-size:13.5px}
+.ev .r:last-child{border-bottom:0}.ev .k{color:#b79c74;flex:0 0 auto}.ev .v{text-align:right;word-break:break-all;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+.tag{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:6px;border:1px solid;margin-right:6px}
+.t-ok{color:#25c96f;border-color:rgba(37,201,111,.5)}.t-claim{color:#f0d48a;border-color:rgba(240,212,138,.5)}.t-guess{color:#ffb454;border-color:rgba(255,180,84,.5)}.t-no{color:#8fa0a6;border-color:rgba(143,160,166,.5)}
+.box{background:#0e0b07;border:1px solid #3a2313;border-radius:10px;padding:14px 18px;margin:12px 0}
+.faq details{border-bottom:1px solid #3a2313;padding:10px 0}.faq summary{cursor:pointer;color:#f0d48a;font-size:15px}.faq p{margin:8px 0 0}
+.rel a{display:block;padding:8px 0;border-bottom:1px solid #3a2313;color:#cdbfa6}.rel a b{color:#f0d48a}
+.disc{font-size:12.5px;color:#7c6a4f;line-height:1.85;margin-top:24px;border-top:1px solid #3a2313;padding-top:14px}
+.author{font-size:13px;color:#b79c74;background:#0e0b07;border:1px solid #3a2313;border-radius:10px;padding:12px 16px;margin:16px 0}
+code{background:#0b0906;border:1px solid #3a2313;border-radius:5px;padding:1px 6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#f0d48a;word-break:break-all}
+footer{text-align:center;color:#7c6a4f;font-size:12px;padding:30px 20px;border-top:1px solid #3a2313}
+@media(max-width:560px){.wrap{padding:8px 15px 60px}.ev .v{font-size:11.5px}}</style>
+</head>
+<body>
+<nav class="nav"><a class="brand" href="/">起源 · <b>Web3Origin</b></a><a href="/baike/lgns/">百科</a><a href="/contracts/">合约地址</a><a href="/faq/">FAQ</a><a href="/about/">关于</a></nav>
+<div class="wrap">
+<div class="crumb"><a href="/">首页</a> › 链上工具百科 › 如何查询交易哈希？</div>
+<h1>如何查询交易哈希？</h1>
+<div class="meta">发布 2026-07-31 · 更新 2026-07-31 · 数据核验 2026-07-31 · 作者 Web3Origin（独立研究，非项目方）</div>
+<div class="answer"><b>把交易哈希（0x 开头的 64 位）粘进对应链的区块浏览器搜索框即可：Polygon 用 polygonscan.com，Anubis 用 browser.anubispace.org。</b> 就能看到这笔交易的状态、时间、转账代币与数量、手续费和事件日志。也可用本站链上搜索工具直接大白话解读。</div>
+
+<h2 id="key">核心要点</h2>
+<ul>
+<li>交易哈希（tx hash）是每笔链上交易的唯一"身份证"，形如 <code>0x</code> 开头的 64 位十六进制。</li>
+<li>把交易哈希粘进对应链的区块浏览器搜索框，就能看到这笔交易的完整信息。</li>
+<li>Polygon 用 <a href="https://polygonscan.com" target="_blank" rel="noopener">polygonscan.com</a>；Anubis 用 <a href="https://browser.anubispace.org" target="_blank" rel="noopener">browser.anubispace.org</a>。</li>
+</ul>
+<h2 id="how-to">如何查一笔交易（步骤）</h2>
+<ol>
+<li>复制交易哈希（0x + 64 位）。</li>
+<li>打开对应链的区块浏览器（Polygon→polygonscan、Anubis→browser.anubispace.org）。</li>
+<li>粘进顶部搜索框回车。</li>
+<li>看这几项：状态（成功/失败）、区块高度与时间、From/To 地址、转了哪些代币和数量、手续费、以及 Logs（事件日志）里的细节。</li>
+</ol>
+<div class="box">也可以用本站的 <a href="/tools/onchain-search/">链上搜索工具</a>：粘地址或交易哈希，直接用大白话解读这笔交易做了什么。</div>
+<h2 id="confirm">读懂要点</h2>
+<p><span class="tag t-ok">可核实</span> 交易哈希在浏览器能查到即真实存在；查不到可能是链选错、哈希抄错，或交易还没上链。<span class="tag t-no">注意</span> 别把交易哈希（64 位）和钱包/合约地址（40 位）搞混。</p>
+
+<h2 id="faq">常见问题</h2>
+<div class="faq"><details><summary>交易哈希是什么？</summary><p>每笔链上交易的唯一标识，0x 开头的 64 位十六进制，用它能在区块浏览器查到这笔交易的全部信息。</p></details><details><summary>怎么查一笔交易？</summary><p>把交易哈希粘进对应链区块浏览器的搜索框：Polygon 用 polygonscan.com，Anubis 用 browser.anubispace.org。</p></details><details><summary>交易哈希和钱包地址有什么区别？</summary><p>交易哈希是 64 位（一笔交易），钱包/合约地址是 40 位（一个账户）。别搞混。</p></details><details><summary>查不到交易怎么办？</summary><p>检查链选对没、哈希有没有抄错，或交易可能还没被打包上链。</p></details></div>
+<h2>相关页面</h2>
+<div class="rel"><a href="/tools/onchain-search/"><b>链上搜索工具</b> — 粘地址或哈希，大白话解读</a><a href="/academy/how-to-use-block-explorer/"><b>如何用区块浏览器</b> — 读懂链上记录</a><a href="/baike/anubis-network/"><b>Anubis 网络配置</b> — 含 Anubis 区块浏览器</a><a href="/academy/how-to-analyze-wallet/"><b>如何分析钱包</b> — 查地址的资产与活动</a></div>
+<div class="author"><b>作者：</b>Web3Origin 研究与编辑（独立 Web3 学习者、起源生态观察者，<b>不代表 ORIGIN / LGNS / Anubis Chain / Awake DAO 官方或开发团队</b>）。研究方向：链上数据核实、合约与治理分析、钱包安全。发布日期 2026-07-31 · 最后修改 2026-07-31 · 数据核验 2026-07-31。纠错/联系：Telegram @hyc199744 · X @hyc199844。</div>
+<div class="disc">本页为独立学习与研究整理，内容仅供理解，<b>不构成任何投资建议</b>，不承诺收益。数字资产有风险，请自行核实、自行判断（DYOR）。本站严格区分「已链上确认 / 项目方说法 / 本站推测 / 暂无法确认」四类信息，请勿把推测当作事实。<b>请勿在任何网页输入助记词、私钥或钱包密码。</b></div>
+</div>
+<footer>Web3Origin — 独立的 Web3 学习与链上研究平台 · <a href="/">web3origin.com</a> · 内容仅供学习，不构成投资建议</footer>
+</body>
+</html>
