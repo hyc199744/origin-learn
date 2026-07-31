@@ -83,7 +83,7 @@ h1{font-family:var(--serif);color:var(--bone);font-size:clamp(20px,4vw,28px);mar
     ctrls.style.display="none";
     document.getElementById("lcBadge").style.display="none";
   }
-  function clearOverlay(){overlay.style.display="none";ctrls.style.display="flex";document.getElementById("lcBadge").style.display="inline-flex";}
+  function clearOverlay(){overlay.style.display="none";ctrls.style.display="flex";document.getElementById("lcBadge").style.display="inline-flex";if(pollT){clearTimeout(pollT);pollT=null;}}
 
   function destroy(){try{if(hls){hls.destroy();hls=null;}}catch(e){}if(video){try{video.pause();}catch(e){}if(video.parentNode)video.parentNode.removeChild(video);video=null;}}
 
@@ -116,11 +116,14 @@ h1{font-family:var(--serif);color:var(--bone);font-size:clamp(20px,4vw,28px);mar
     } else {showMsg("当前浏览器不支持该直播格式，请换 Chrome / Edge，或用 iPhone Safari。",false);return;}
     setTimeout(function(){if(video&&video.readyState<2&&!readied)onErr();},15000);
   }
+  var pollT=null;
+  function schedulePoll(){if(pollT)clearTimeout(pollT);pollT=setTimeout(load,30000);}
   function onErr(){
     fails++;
     if(fails<=2 && curUrl){showMsg("直播信号中断，正在重连…",true);setTimeout(function(){play(curUrl);},1500);return;}
-    showMsg("暂时无法连接直播信号。可能是未开播、地址过期或跨域(CORS)未开启。请稍后点「刷新播放器」重试。",false);
-    ctrls.style.display="flex";
+    if(fails===3){showMsg("正在刷新直播地址…",true);setTimeout(load,1500);return;}
+    showMsg("暂时无法连接直播信号，可能未开播或已结束。稍后自动重试，或点「刷新播放器」。",false);
+    ctrls.style.display="flex";schedulePoll();
   }
 
   // 控制按钮
@@ -133,16 +136,17 @@ h1{font-family:var(--serif);color:var(--bone);font-size:clamp(20px,4vw,28px);mar
   };
   document.getElementById("lcReload").onclick=function(){fails=0;if(curUrl)play(curUrl);else load();};
 
-  function apply(cfg){
-    if(!cfg||cfg.enabled===false||!cfg.url){showMsg("直播尚未开始 / 正在准备中",false);return;}
-    if(cfg.title)document.getElementById("lcTitle").firstChild.nodeValue=cfg.title;
-    if(cfg.teacher)document.getElementById("lcSub").textContent="主讲 "+cfg.teacher+" · 独立直播观看页";
-    play(cfg.url,cfg.type);
+  function apply(d){
+    if(!d||d.enabled===false){showMsg("直播尚未开启",false);schedulePoll();return;}
+    if(!d.live||!d.url){showMsg("直播尚未开始 / 正在准备中",false);schedulePoll();return;}
+    if(d.title)document.getElementById("lcTitle").firstChild.nodeValue=d.title;
+    if(d.teacher)document.getElementById("lcSub").textContent="主讲 "+d.teacher+" · 独立直播观看页";
+    if(d.url!==curUrl||!video)play(d.url,d.type);
   }
   function load(){
     if(override){play(override,/\.flv(\?|$)/i.test(override)?"flv":"hls");return;}
-    try{fetch(API+"/livecloud/config",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){apply(j&&j.config);}).catch(function(){showMsg("直播尚未开始 / 正在准备中",false);});}
-    catch(e){showMsg("直播尚未开始 / 正在准备中",false);}
+    try{fetch(API+"/livecloud/stream",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){apply(j);}).catch(function(){showMsg("直播尚未开始 / 正在准备中",false);schedulePoll();});}
+    catch(e){showMsg("直播尚未开始 / 正在准备中",false);schedulePoll();}
   }
   load();
 })();
