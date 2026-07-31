@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["livecloud","☁","腾讯云直播"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,aitraffic:pAiTraffic,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,seo:pSeo,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,aitraffic:pAiTraffic,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,livecloud:pLivecloud,seo:pSeo,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -99,6 +99,30 @@ function liveSched(c){
   if(c.repeat_rule==="weekly"){var ds=String(c.repeat_days||"").split(",").filter(Boolean).map(function(x){var i=+x-1;return (i>=0&&i<7)?LIVE_WK[i]:"";}).filter(Boolean).join("/");return "每周 "+ds+" "+(c.start_hm||"?")+"–"+(c.end_hm||"?");}
   if(c.repeat_rule==="custom")return "指定日期("+String(c.repeat_days||"").split(",").filter(Boolean).length+"天) "+(c.start_hm||"?")+"–"+(c.end_hm||"?");
   return liveFmt(c.start_time)+" 至 "+liveFmt(c.end_time);
+}
+/* ---------- 腾讯云直播(独立页) ---------- */
+function pLivecloud(el){
+  el.innerHTML='<div class="a-center">加载中…</div>';
+  var IST='width:100%;background:#0d0f0e;color:#cdb;border:1px solid #333;border-radius:6px;padding:8px;font-size:13px';
+  var LB='font-size:12px;color:#9a8;margin-top:4px';
+  get("/livecloud").then(function(r){
+    var c=(r&&r.config)||{};
+    el.innerHTML='<div class="a-panel-box"><h3>☁ 腾讯云直播（独立页 /live-cloud/，与原「线上直播」互不影响）</h3>'
+      +'<div style="display:grid;gap:7px;max-width:680px">'
+      +'<label style="font-size:13px;color:#cdb"><input type="checkbox" id="lcEn" '+(c.enabled?"checked":"")+'> 开启（打开后 /live-cloud/ 播这个流；关闭则显示“正在准备中”）</label>'
+      +'<label style="'+LB+'">播放地址（m3u8 或 flv）</label><input id="lcUrl" value="'+esc(c.url||"")+'" placeholder="https://播放域名/AppName/流名.m3u8" style="'+IST+'">'
+      +'<label style="'+LB+'">格式</label><select id="lcType" style="'+IST+';max-width:220px"><option value="auto">自动识别</option><option value="hls">HLS (m3u8)</option><option value="flv">HTTP-FLV</option></select>'
+      +'<label style="'+LB+'">标题</label><input id="lcTitle" value="'+esc(c.title||"腾讯云直播")+'" style="'+IST+'">'
+      +'<label style="'+LB+'">主讲人（可空）</label><input id="lcTeacher" value="'+esc(c.teacher||"")+'" style="'+IST+'">'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><button class="an-tab on" id="lcSave">保存</button><button class="an-tab" id="lcCheck">🔍 检测地址</button> <a class="an-tab" href="https://web3origin.com/live-cloud/" target="_blank" rel="noopener">👁 预览播放页</a><span id="lcMsg" style="font-size:13px;align-self:center"></span></div>'
+      +'<div id="lcChk" style="font-size:13px;margin-top:4px"></div>'
+      +'<div class="a-note-real" style="margin-top:8px">「检测」真实请求该地址：能不能连、是不是有效 m3u8、有没有开跨域(CORS)。<b>浏览器直连拉流要求播放域名允许跨域</b>——没开只有 iPhone Safari 能播，电脑/安卓会失败，请在腾讯云直播控制台开 CORS（或用带 CORS 的播放域名）。FLV 低延迟需另配 flv.js，先用 m3u8 最省事。此模块与原「线上直播」完全独立。</div>'
+      +'</div></div>';
+    document.getElementById("lcType").value=c.type||"auto";
+    function collect(){return {enabled:document.getElementById("lcEn").checked,url:document.getElementById("lcUrl").value,type:document.getElementById("lcType").value,title:document.getElementById("lcTitle").value,teacher:document.getElementById("lcTeacher").value};}
+    document.getElementById("lcSave").onclick=function(){var m=document.getElementById("lcMsg");m.textContent="保存中…";m.style.color="#9a8";post("/livecloud",collect(),true).then(function(x){if(x&&x.ok){m.textContent="已保存";m.style.color="#7fe0a0";}else{m.textContent="失败："+((x&&x.error)||"?");m.style.color="#ff8a8a";}}).catch(function(){var mm=document.getElementById("lcMsg");mm.textContent="网络错误";mm.style.color="#ff8a8a";});};
+    document.getElementById("lcCheck").onclick=function(){var m=document.getElementById("lcMsg"),ck=document.getElementById("lcChk");m.textContent="检测中…（真实请求外部地址）";m.style.color="#9a8";ck.textContent="";post("/livecloud",{action:"check",url:document.getElementById("lcUrl").value},true).then(function(x){m.textContent="";if(x&&x.ok&&x.check){var r=x.check;ck.innerHTML='连通：'+(r.reachable?'<span style="color:#7fe0a0">可达 HTTP '+r.status+'</span>':'<span style="color:#ff8a8a">不可达</span>')+' · 有效 m3u8：'+(r.isM3u8?'<span style="color:#7fe0a0">是</span>':'<span style="color:#ffcf8a">否/非 m3u8</span>')+' · 跨域(CORS)：'+(r.cors?('<span style="color:#7fe0a0">已开 '+esc(r.cors)+'</span>'):'<span style="color:#ffcf8a">未开（仅 iPhone 能播，电脑/安卓需在控制台开）</span>');}else{ck.innerHTML='<span style="color:#ff8a8a">检测失败：'+((x&&x.error)||"?")+'</span>';}}).catch(function(){m.textContent="网络错误";m.style.color="#ff8a8a";});};
+  }).catch(function(){el.innerHTML='<div class="a-center">读取失败</div>';});
 }
 function pLive(el){
   el.innerHTML='<div class="a-center">加载中…</div>';
