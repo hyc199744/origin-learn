@@ -176,6 +176,7 @@
     // 加载超时:20秒未 onload → 底部小条提示刷新(播放器页较重给足时间;不遮挡画面、不伪造成功、不外跳)
     state.failTimer=setTimeout(function(){if(!state.iframeOn)showFail(stage);},20000);
     stage.appendChild(f);
+    cropIframe();
     // 播放器右下角浮动「全屏观看」按钮:即使外部平台自带全屏失效,本站容器全屏依旧可用
     var fb=document.createElement("button");fb.type="button";fb.className="lv-fsbtn";fb.id="lv-fsbtn";fb.setAttribute("aria-label",T.btn_fs);
     fb.innerHTML="⛶ "+esc(T.btn_fs);fb.onclick=toggleFullscreen;stage.appendChild(fb);
@@ -184,12 +185,26 @@
   // ===== 全屏:容器(#lv-stage)全屏,用户点击直接同步触发;iOS/微信不支持则给备用入口 =====
   function fsElement(){return document.fullscreenElement||document.webkitFullscreenElement||null;}
   function isIOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent||"")||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+  function isTouch(){return ("ontouchstart" in window)||(navigator.maxTouchPoints>0);}
+  var LV_HDR=46; // 盟主播放页顶部信息条("直播/人气")估算高度(px),裁掉它让视频铺满
+  // 播放器嵌的是整页,顶部有信息条会把视频往下挤致底部被裁。裁掉头部:普通视图让视频铺满16:9;手机全屏按屏高把16:9视频居中
+  function cropIframe(){
+    var f=document.getElementById("lv-iframe");if(!f)return;
+    f.style.position="absolute";
+    if(fsElement()&&isTouch()){
+      var W=window.innerWidth,H=window.innerHeight,hdr=Math.round(H*0.12),vw=Math.min(W,Math.round(H*16/9));
+      f.style.left=Math.round((W-vw)/2)+"px";f.style.top=(-hdr)+"px";f.style.width=vw+"px";f.style.height=(H+hdr)+"px";
+    } else {
+      f.style.left="0";f.style.width="100%";f.style.top=(-LV_HDR)+"px";f.style.height="calc(100% + "+LV_HDR+"px)";
+    }
+  }
   function toggleFullscreen(){
     if(fsElement()){var ex=document.exitFullscreen||document.webkitExitFullscreen;if(ex)try{ex.call(document);}catch(e){}return;}
     var el=document.getElementById("lv-stage");if(!el){fsFallback();return;}
     var req=el.requestFullscreen||el.webkitRequestFullscreen;
     if(!req||isIOS()){fsFallback();return;} // iOS Safari 对非<video>元素不支持全屏 → 走备用,不假装成功
-    try{var p=req.call(el);if(p&&p.catch)p.catch(function(){fsFallback();});}catch(e){fsFallback();}
+    var after=function(){if(isTouch()&&screen.orientation&&screen.orientation.lock){try{screen.orientation.lock("landscape").catch(function(){});}catch(e){}}setTimeout(cropIframe,60);setTimeout(cropIframe,450);};
+    try{var p=req.call(el);if(p&&p.then)p.then(after,function(){fsFallback();});else after();}catch(e){fsFallback();}
   }
   function fsFallback(){
     var ctrls=document.querySelector("#live-wrap .lv-ctrls");
@@ -370,8 +385,11 @@
     var s=document.createElement("style");s.textContent=css;document.head.appendChild(s);
     renderShell();
     fetchToday().then(function(){beat();});
-    document.addEventListener("fullscreenchange",syncFsButtons);
-    document.addEventListener("webkitfullscreenchange",syncFsButtons);
+    function onFsChange(){syncFsButtons();cropIframe();}
+    document.addEventListener("fullscreenchange",onFsChange);
+    document.addEventListener("webkitfullscreenchange",onFsChange);
+    window.addEventListener("resize",function(){cropIframe();});
+    window.addEventListener("orientationchange",function(){setTimeout(cropIframe,300);});
     state.tick=setInterval(tickCountdown,1000);
     setInterval(function(){if(!document.hidden)fetchToday();},30000);   // 可见时每30秒同步(遵规范八:后台标签页降频)
     setInterval(beat,45000);         // 观看心跳
