@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["lgnssim","📉","卖出模拟器"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,lgnssim:pLgnsSim,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -99,6 +99,30 @@ function liveSched(c){
   if(c.repeat_rule==="weekly"){var ds=String(c.repeat_days||"").split(",").filter(Boolean).map(function(x){var i=+x-1;return (i>=0&&i<7)?LIVE_WK[i]:"";}).filter(Boolean).join("/");return "每周 "+ds+" "+(c.start_hm||"?")+"–"+(c.end_hm||"?");}
   if(c.repeat_rule==="custom")return "指定日期("+String(c.repeat_days||"").split(",").filter(Boolean).length+"天) "+(c.start_hm||"?")+"–"+(c.end_hm||"?");
   return liveFmt(c.start_time)+" 至 "+liveFmt(c.end_time);
+}
+function pLgnsSim(el){
+  el.innerHTML='<div class="a-center">读取链上并测试中…</div>';
+  get("/lgnssim").then(function(d){
+    if(!d||!d.ok){el.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
+    var c=d.config||{},t=d.test||{};
+    var cards='<div class="a-cards">'
+      +card(t.ok?"🟢":"🔴","数据源状态",t.ok?"正常":"异常",t.ok?"链上读取成功":esc(t.error||"读取失败"),"")
+      +card("📦","当前区块",fmtN(t.block||0),"链上实时","")
+      +card("💧","池储备 DAI",fmtN(Math.round(t.reservesDai||0)),"LGNS "+fmtN(Math.round(t.reservesLgns||0)),"")
+      +card("🏷","卖出税",(t.sellTaxPct!=null?t.sellTaxPct+"%":"—"),"合约实读","")
+      +card("💱","1000 LGNS 报价",fmtN(Math.round(t.daiOut1000||0))+" DAI",(t.method==="router_getAmountsOut"?"Router实测":"数学模型"),"")
+      +'</div>';
+    var rowsC=[["网络 / ChainID",c.network+" · "+c.chainId],["DEX 类型",c.dexType],["交易路径",c.path],["DEX 手续费",c.dexFeePct+"%"],["卖出税来源",c.sellTax],["LGNS 合约",c.lgns],["DAI 合约",c.dai],["交易池",c.pool],["DEX Factory",c.factory],["DEX Router",c.router],["风险阈值",c.riskThresholds],["最大查询",c.maxQuery],["请求限流",c.rateLimit],["汇率源",c.cnySource]].map(function(kv){return '<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line,#3a2313);font-size:13px"><span style="color:#b79c74;flex:0 0 auto">'+esc(kv[0])+'</span><span style="text-align:right;word-break:break-all;color:#E9EFEA;font-family:ui-monospace,Menlo,Consolas,monospace">'+esc(String(kv[1]))+'</span></div>';}).join("");
+    var lastOk=d.lastSuccess?ago(d.lastSuccess*1000):"—",lastFail=d.lastFail?(ago((d.lastFail.t||0)*1000)+" · "+esc(d.lastFail.e||"")):"无";
+    el.innerHTML=cards
+      +'<div class="a-panel-box"><h3>工具开关与操作 <span style="float:right"><label style="font-size:13px;color:#E9EFEA;margin-right:8px"><input type="checkbox" id="lgToggle" '+(d.enabled?"checked":"")+'> 启用工具</label><button class="a-mini" id="lgTest">🔬 立即测试</button> <button class="a-mini" id="lgClear">🧹 清汇率缓存</button> <a class="a-mini" href="https://web3origin.com/tools/lgns-sell-sim/" target="_blank" rel="noopener">👁 预览</a></span></h3>'
+      +'<div class="a-note-real">最近成功读取：'+lastOk+' · 最近失败：'+lastFail+'。'+(t.cnyRate?"当前汇率 "+t.cnyRate+" CNY/USD。":"")+' 本工具全部为链上实时只读模拟，配置均已链上核实；卖出税每次实时读取(合约管理员可改)。关闭后前台会提示"工具已被管理员暂时关闭"。</div></div>'
+      +'<div class="a-panel-box"><h3>链上配置（已核实）</h3>'+rowsC+'</div>'
+      +'<style>.a-mini{cursor:pointer;font:inherit;font-size:12.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line,#3a2313);background:rgba(255,255,255,.03);color:var(--gold-lt,#f0d48a);text-decoration:none;display:inline-block}.a-mini:hover{border-color:var(--gold,#D6A84B)}</style>';
+    document.getElementById("lgToggle").onchange=function(){var on=this.checked;post("/lgnssim",{action:"toggle",enabled:on},true).then(function(rr){toast(rr.ok?(on?"工具已启用":"工具已关闭"):(rr.error||"失败"),rr.ok?0:1);});};
+    document.getElementById("lgTest").onclick=function(){go("lgnssim");};
+    document.getElementById("lgClear").onclick=function(){post("/lgnssim",{action:"clearCache"},true).then(function(rr){toast(rr.ok?"已清汇率缓存":"失败",rr.ok?0:1);});};
+  }).catch(function(){el.innerHTML='<div class="a-panel-box"><div class="a-note-real">网络错误。</div></div>';});
 }
 function pLive(el){
   el.innerHTML='<div class="a-center">加载中…</div>';
