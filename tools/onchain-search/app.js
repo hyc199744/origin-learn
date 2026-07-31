@@ -533,7 +533,7 @@
     if (!q) { setHint("请输入地址或交易哈希"); return; }
     var type = detectType(q);
     if (type === "sensitive") {
-      track("onchain_search_error", { reason: "sensitive" });
+      track("tool_error", { tool_name: "链上搜索", error_code: "sensitive" });
       $("results").innerHTML = '<div class="sensitive"><b>⚠️ 请不要在任何网站输入助记词、私钥或钱包密码。</b>Web3Origin 只需要公开的钱包地址或交易哈希。如果刚才输入的是真实私钥或助记词，请立即停止操作，并在安全设备上把资产转移到新钱包。</div>';
       $("q").value = ""; setHint(""); return; // 绝不发送/记录/写URL
     }
@@ -550,7 +550,8 @@
     var b = $("txConfirm"); if (b) b.addEventListener("click", function () { doQuery("tx", q, chains); });
   }
   function doQuery(type, q, chains) {
-    track("onchain_search_submit", { type: type, net: state.net });
+    var net = state.net; // 固定本次网络,防查询中途切换导致完成事件记错链
+    track("tool_start", { tool_name: "链上搜索", target_type: type, network: net });
     setHint(""); $("go").disabled = true;
     $("results").innerHTML = '<div class="loading">正在从 ' + chains.map(function (c) { return c.name; }).join(" / ") + " 链读取真实链上数据…</div>";
     var job = type === "address"
@@ -561,18 +562,19 @@
       $("results").innerHTML = html;
       wireResults();
       var okCount = res.filter(function (r) { return r.status === "found"; }).length;
-      track(okCount ? "onchain_search_success" : "onchain_search_error", { type: type, net: state.net, results: okCount });
+      if (okCount) track("tool_success", { tool_name: "链上搜索", target_type: type, network: net });
+      else track("tool_error", { tool_name: "链上搜索", target_type: type, network: net, error_code: "no_result" });
     }).catch(function () {
       $("results").innerHTML = '<div class="err">查询过程中出错，请稍后重试。</div>';
-      track("onchain_search_error", { type: type, reason: "exception" });
+      track("tool_error", { tool_name: "链上搜索", target_type: type, network: net, error_code: "exception" });
     }).then(function () { $("go").disabled = false; });
   }
 
   function wireResults() {
     var root = $("results");
     root.querySelectorAll("[data-copy]").forEach(function (b) { b.addEventListener("click", function () { try { navigator.clipboard.writeText(b.getAttribute("data-copy")); b.textContent = "已复制"; setTimeout(function () { b.textContent = "复制"; }, 1200); } catch (e) {} }); });
-    root.querySelectorAll("[data-toggle]").forEach(function (a) { a.addEventListener("click", function () { var el = $(a.getAttribute("data-toggle")); if (el) { el.style.display = el.style.display === "none" ? "block" : "none"; track("onchain_transaction_expand", {}); } }); });
-    root.querySelectorAll('[data-ev="explorer"]').forEach(function (a) { a.addEventListener("click", function () { track("onchain_explorer_click", {}); }); });
+    root.querySelectorAll("[data-toggle]").forEach(function (a) { a.addEventListener("click", function () { var el = $(a.getAttribute("data-toggle")); if (el) { el.style.display = el.style.display === "none" ? "block" : "none"; track("tool_result_view", { tool_name: "链上搜索" }); } }); });
+    root.querySelectorAll('[data-ev="explorer"]').forEach(function (a) { a.addEventListener("click", function () { track("open_block_explorer", { tool_name: "链上搜索" }); }); });
     root.querySelectorAll(".filters").forEach(function (bar) {
       var list = bar.parentNode.querySelector(".actlist");
       bar.querySelectorAll(".fbtn").forEach(function (b) {
@@ -608,7 +610,7 @@
 
   // 调试/测试钩子(只读渲染函数,生产无副作用)
   window.__OS = { CHAINS: CHAINS, chainByName: chainByName, renderAddress: renderAddress, renderTx: renderTx, wireResults: wireResults, buildActivities: buildActivities };
-  initNetbar(); bootDetect(); track("onchain_search_open", {});
+  initNetbar(); bootDetect(); track("tool_open", { tool_name: "链上搜索" });
   // 支持 ?q= 直接查, &net=Polygon|Anubis|auto 选网络
   // 安全:URL 里只接受"地址"(0x+40,公开无害);0x+64 与私钥同形,绝不从 URL 自动填/自动查(避免暴露到CDN日志/浏览器历史)
   try {
