@@ -21,7 +21,8 @@
     s.textContent=[
 "#w3oLivePill,#w3oLiveSoon{font-family:'Microsoft YaHei','PingFang SC',system-ui,sans-serif;box-sizing:border-box}",
 "#w3oLivePill *,#w3oLiveSoon *{box-sizing:border-box}",
-"#w3oLivePill{position:fixed;right:16px;bottom:20px;z-index:2147483000;display:none;align-items:center;gap:8px;background:linear-gradient(180deg,#0e0b08,#0a0d0b);border:1px solid #2f7d4f;color:#eafff2;font-size:13px;font-weight:700;padding:8px 10px 8px 13px;border-radius:24px;text-decoration:none;box-shadow:0 0 18px rgba(61,220,138,.28),0 6px 18px rgba(0,0,0,.5)}",
+"#w3oLivePill{position:fixed;right:16px;bottom:20px;z-index:2147483000;display:none;align-items:center;gap:8px;background:linear-gradient(180deg,#0e0b08,#0a0d0b);border:1px solid #2f7d4f;color:#eafff2;font-size:13px;font-weight:700;padding:8px 10px 8px 13px;border-radius:24px;text-decoration:none;box-shadow:0 0 18px rgba(61,220,138,.28),0 6px 18px rgba(0,0,0,.5);touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}",
+"#w3oLivePill.dragging{cursor:grabbing;filter:none}",
 "#w3oLivePill.on{display:inline-flex}",
 "#w3oLivePill:hover{filter:brightness(1.1)}",
 "#w3oLivePill:focus-visible{outline:2px solid #f0d48a;outline-offset:2px}",
@@ -45,20 +46,60 @@
 
   function esc(s){return String(s==null?"":s).replace(/[&<>\"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 
-  // ---- 右下角小浮标 ----
+  // ---- 右下角小浮标（可拖动） ----
   var pill,curCourse;
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  var PILL_POS="w3o_live_pill_xy";
+  function applyPos(el){
+    var raw=null;try{raw=JSON.parse(localStorage.getItem(PILL_POS)||"null");}catch(e){}
+    if(raw&&typeof raw.left==="number"&&typeof raw.top==="number"){
+      var w=el.offsetWidth||120,h=el.offsetHeight||40;
+      el.style.left=clamp(raw.left,4,window.innerWidth-w-4)+"px";
+      el.style.top=clamp(raw.top,4,window.innerHeight-h-4)+"px";
+      el.style.right="auto";el.style.bottom="auto";
+    }
+  }
+  function makeDraggable(el){
+    var ox,oy,sx,sy,moved,dragging=false;
+    function move(e){
+      if(!dragging)return;
+      if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)>4)moved=true;
+      var w=el.offsetWidth,h=el.offsetHeight;
+      el.style.left=clamp(e.clientX-ox,4,window.innerWidth-w-4)+"px";
+      el.style.top=clamp(e.clientY-oy,4,window.innerHeight-h-4)+"px";
+      e.preventDefault();
+    }
+    function up(){
+      if(!dragging)return;dragging=false;el.classList.remove("dragging");
+      document.removeEventListener("pointermove",move);document.removeEventListener("pointerup",up);
+      if(moved){el._dragged=true;setTimeout(function(){el._dragged=false;},60);
+        try{var r=el.getBoundingClientRect();localStorage.setItem(PILL_POS,JSON.stringify({left:r.left,top:r.top}));}catch(e){}}
+    }
+    el.addEventListener("pointerdown",function(e){
+      if(e.button!=null&&e.button!==0)return;                 // 只左键
+      if(e.target.closest&&e.target.closest(".pill-x"))return; // 点×不拖
+      var r=el.getBoundingClientRect();
+      el.style.left=r.left+"px";el.style.top=r.top+"px";el.style.right="auto";el.style.bottom="auto";
+      ox=e.clientX-r.left;oy=e.clientY-r.top;sx=e.clientX;sy=e.clientY;moved=false;dragging=true;
+      el.classList.add("dragging");
+      document.addEventListener("pointermove",move);document.addEventListener("pointerup",up);
+    });
+    el.addEventListener("click",function(e){if(el._dragged){e.preventDefault();e.stopPropagation();}}); // 拖动结束的click不跳转
+  }
   function showPill(c){
     if(sesGet("w3o_live_pill_"+liveKey(c))==="1")return; // 本场已关→不再显示
     injectCss();curCourse=c;
     if(!pill){
       pill=document.createElement("a");pill.id="w3oLivePill";pill.href=CFG.livePath||LIVE_PATH;
-      pill.setAttribute("aria-label","线上直播中，点击进入直播");
+      pill.setAttribute("aria-label","线上直播中，点击进入直播（可拖动）");pill.title="点击进入直播 · 可拖动";
       pill.innerHTML='<span class="w3o-dot"></span>直播中<button class="pill-x" aria-label="关闭">✕</button>';
       pill.querySelector(".pill-x").addEventListener("click",function(e){e.preventDefault();e.stopPropagation();closePill(true);});
+      makeDraggable(pill);
       document.body.appendChild(pill);
     }
     pill.href=CFG.livePath||LIVE_PATH;
     pill.classList.add("on");
+    applyPos(pill);
   }
   function closePill(remember){
     if(remember&&curCourse)sesSet("w3o_live_pill_"+liveKey(curCourse),"1");
