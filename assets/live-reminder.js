@@ -124,7 +124,7 @@
         if(!enabledMaster){hidePill("w3oPillMz");return;}
         var c=d.course,srv=d.serverTime||Math.floor(Date.now()/1000);
         if(c&&c.status==="live"&&c.start&&c.end&&srv>=c.start&&srv<c.end){
-          showPill({id:"w3oPillMz",href:"/live/",label:"直播中",dismissKey:"w3o_pill_mz_"+((c.id||"x")+"_"+c.start),posKey:"w3o_pillpos_mz"});
+          showPill({id:"w3oPillMz",href:"/live/",label:"课堂直播中",dismissKey:"w3o_pill_mz_"+((c.id||"x")+"_"+c.start),posKey:"w3o_pillpos_mz"});
         }else{
           hidePill("w3oPillMz");
           if(preRemindEnabled&&c&&(c.status==="soon"||c.status==="upcoming"||c.status==="waiting")&&c.start){
@@ -135,6 +135,18 @@
       }).catch(function(){});
     }catch(e){}
   }
-  function run(){checkMengzhu();}
+  // ---- 腾讯云直播 /live-cloud ----
+  function checkCloud(){
+    try{
+      fetch(API+"/livecloud/stream",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(d){
+        if(!d||d.ok===false)return;
+        if(d.enabled&&d.live){
+          showPill({id:"w3oPillLc",href:"/live-cloud/",label:"直播中",dismissKey:"w3o_pill_lc",posKey:"w3o_pillpos_lc"});
+        }else{hidePill("w3oPillLc");}
+      }).catch(function(){});
+    }catch(e){}
+  }
+
+  function run(){checkCloud();checkMengzhu();}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run);else run();
 })();
