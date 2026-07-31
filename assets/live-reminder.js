@@ -85,12 +85,10 @@
     injectCss();curCourse=c;
     if(bar)return;
     var url=CFG.livePath||LIVE_PATH;
-    var tt=esc(c.title||"线上课堂");
-    var when=c.start?(" · 开始 "+hm(c.start)):"";
     bar=document.createElement("div");bar.id="w3oLiveBar";bar.setAttribute("role","region");bar.setAttribute("aria-label","直播提醒");
     bar.innerHTML='<a class="bn-main" href="'+esc(url)+'"><span class="w3o-dot"></span>'
-      +'<span class="bn-txt"><b>起源线上课堂正在直播</b> · 「'+tt+'」'+when+'</span>'
-      +'<span class="bn-cta">点此进入 →</span></a>'
+      +'<span class="bn-txt"><b>线上直播中</b></span>'
+      +'<span class="bn-cta">进入 →</span></a>'
       +'<button class="bn-x" aria-label="关闭">✕</button>';
     document.body.insertBefore(bar,document.body.firstChild);
     var h=bar.offsetHeight||38;shiftBars(h);
