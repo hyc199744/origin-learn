@@ -193,12 +193,13 @@
       else{lvDestroyHls();state.streamFallback=true;state.mode=null;state.lastStatus=null;applyStage();}
     }).catch(function(){lvDestroyHls();state.streamFallback=true;state.mode=null;applyStage();});
   }
+  function lvTryPlay(v){var p=v.play&&v.play();if(p&&p.catch)p.catch(function(){if(!v.muted){v.muted=true;var p2=v.play&&v.play();if(p2&&p2.catch)p2.catch(function(){});}});}
   function mountVideo(url){
     var stage=document.getElementById("lv-stage");if(!stage)return;
     lvDestroyHls();state.iframeOn=false;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}
     stage.innerHTML='<div class="lv-overlay"><div class="lv-spin"></div></div>';
     var v=document.createElement("video");v.id="lv-video";
-    v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.controls=true;v.autoplay=true;v.muted=true;
+    v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.controls=true;v.autoplay=true;var _ws=false;try{_ws=/[?&](sound|snd)=1/.test(location.search);}catch(e){}v.muted=!_ws;
     v.style.cssText="position:absolute;inset:0;width:100%;height:100%;background:#000;object-fit:contain;display:block";
     stage.appendChild(v);
     var un=document.createElement("button");un.type="button";un.id="lv-unmute";un.className="lv-fsbtn";un.style.left="14px";un.style.right="auto";un.innerHTML="🔊 "+(ZH?"开启声音":"Sound");
@@ -206,12 +207,13 @@
     var readied=false;
     function ready(){if(readied)return;readied=true;_streamFails=0;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}var ov=stage.querySelector(".lv-overlay");if(ov)ov.remove();if(!document.getElementById("lv-unmute"))stage.appendChild(un);syncFsButtons();}
     v.addEventListener("playing",ready);v.addEventListener("loadeddata",ready);
+    v.addEventListener("playing",function(){if(!v.muted){var _b=document.getElementById("lv-unmute");if(_b)_b.remove();}});
     v.addEventListener("error",function(){lvOnStreamError();});
-    if(v.canPlayType("application/vnd.apple.mpegurl")){v.src=url;var p0=v.play&&v.play();if(p0&&p0.catch)p0.catch(function(){});}
+    if(v.canPlayType("application/vnd.apple.mpegurl")){v.src=url;lvTryPlay(v);}
     else if(window.Hls&&window.Hls.isSupported()){
       var hls=new window.Hls({liveDurationInfinity:true,enableWorker:true});state.hls=hls;
       hls.loadSource(url);hls.attachMedia(v);
-      hls.on(window.Hls.Events.MANIFEST_PARSED,function(){var pp=v.play&&v.play();if(pp&&pp.catch)pp.catch(function(){});});
+      hls.on(window.Hls.Events.MANIFEST_PARSED,function(){lvTryPlay(v);});
       hls.on(window.Hls.Events.ERROR,function(e,data){if(data&&data.fatal)lvOnStreamError();});
     } else {state.streamFallback=true;state.mode=null;applyStage();return;}
     state.failTimer=setTimeout(function(){if(v.readyState<2&&!readied)lvOnStreamError();},15000);
