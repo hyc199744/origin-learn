@@ -107,12 +107,21 @@ function pLive(el){
     if(!r||!r.ok){el.innerHTML='<div class="a-panel-box"><div class="a-note-real">加载失败。</div></div>';return;}
     var courses=r.courses||[];
     get("/live?stats=1").then(function(s){
-      var online=(s&&s.online)||0,cum=(s&&s.cum)||0;
-      var stats='<div class="a-cards">'+card("📺","当前观看",fmtN(online),"最近90秒心跳","")+card("👥","累计访问",fmtN(cum),"去重访客","")+card("🎬","课程总数",String(courses.length),"含未公开","")+'</div>';
+      var online=(s&&s.online)||0,cum=(s&&s.cum)||0,likes=(s&&s.likes)||0,chatT=(s&&s.chatTotal)||0,chatD=(s&&s.chatToday)||0,chat=(s&&s.recentChat)||[];
+      var stats='<div class="a-cards">'
+        +card("📺","当前观看",fmtN(online),"最近90秒心跳","")
+        +card("👥","累计访问",fmtN(cum),"去重访客","")
+        +card("❤","点赞总数",fmtN(likes),"全站累计","")
+        +card("💬","公屏消息",fmtN(chatT),"今日 "+fmtN(chatD),"")
+        +card("🎬","课程总数",String(courses.length),"含未公开","")+'</div>';
       var rows=courses.map(liveRow).join("")||'<div class="a-note-real" style="padding:14px">还没有课程，点上方「➕ 新建课程」添加。</div>';
+      var chatRows=chat.map(function(m){return '<div class="lv-r" style="padding:9px 12px"><div style="font-size:13px;color:#E9EFEA;word-break:break-word"><b style="color:#f0d48a">'+esc(m.nick||"游客")+'</b>：'+esc(m.text)+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px"><span style="font-size:11px;color:#8fa0a6">'+liveFmt(m.created_at)+'</span><button class="a-mini" data-chatdel="'+m.id+'" style="color:#ff8a8a;padding:3px 9px">删除</button></div></div>';}).join("")||'<div class="a-note-real" style="padding:12px">暂无弹幕消息</div>';
       el.innerHTML=stats
         +'<div class="a-panel-box"><h3>直播课程 <span style="float:right"><button class="a-mini" id="lvNew">➕ 新建课程</button> <a class="a-mini" href="https://web3origin.com/live/" target="_blank" rel="noopener">👁 预览直播页</a></span></h3><div id="lvList" style="margin-top:10px;display:grid;gap:10px">'+rows+'</div></div>'
         +'<div id="lvFormWrap"></div>'
+        +'<div class="a-panel-box"><h3>直播公屏 · 互动管理 <span style="float:right"><button class="a-mini" id="lvChatRefresh">↻ 刷新</button> <button class="a-mini" id="lvLikeReset">↺ 重置点赞</button> <button class="a-mini" id="lvChatClear" style="color:#ff8a8a">🧹 清空公屏</button></span></h3>'
+        +'<div id="lvChatList" style="margin-top:10px;display:grid;gap:8px;max-height:440px;overflow:auto">'+chatRows+'</div>'
+        +'<div class="a-note-real" style="margin-top:10px">公屏发言已内置：按IP限流、敏感词(助记词/私钥)拦截、XSS转义。此处为最近 40 条，可删单条或清空全部。</div></div>'
         +'<style>.a-mini{cursor:pointer;font:inherit;font-size:12.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line,#3a2313);background:rgba(255,255,255,.03);color:var(--gold-lt,#f0d48a);text-decoration:none;display:inline-block}.a-mini:hover{border-color:var(--gold,#D6A84B)}.lv-r{border:1px solid var(--line,#3a2313);border-radius:10px;padding:12px 14px;background:rgba(255,255,255,.02)}.lv-r .rt{font-size:15px;color:#E9EFEA;font-weight:600}.lv-r .rm{font-size:12.5px;color:#b79c74;margin-top:5px;word-break:break-all}.lv-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;margin-right:5px;border:1px solid}.lv-in{width:100%;box-sizing:border-box;padding:9px 11px;border-radius:8px;border:1px solid var(--line,#3a2313);background:#0b0906;color:#E9EFEA;font:inherit;font-size:14px}.lv-lb{font-size:12.5px;color:#b79c74;margin:10px 0 4px;display:block}</style>';
       document.getElementById("lvNew").onclick=function(){_liveEdit=null;liveForm();};
       document.getElementById("lvList").querySelectorAll("[data-act]").forEach(function(b){
@@ -124,6 +133,10 @@ function pLive(el){
           else if(act==="del"){if(!confirm("确定删除课程「"+(c?c.title:id)+"」？不可恢复。"))return;post("/live",{action:"delete",id:id},true).then(function(rr){if(rr.ok){toast("已删除");go("live");}else toast(rr.error||"失败",1);});}
         };
       });
+      document.getElementById("lvChatRefresh").onclick=function(){go("live");};
+      document.getElementById("lvChatClear").onclick=function(){if(!confirm("确定清空全部公屏消息？不可恢复。"))return;post("/live",{action:"chatClear"},true).then(function(rr){if(rr.ok){toast("已清空公屏");go("live");}else toast(rr.error||"失败",1);});};
+      document.getElementById("lvLikeReset").onclick=function(){if(!confirm("把点赞总数清零？"))return;post("/live",{action:"likesReset"},true).then(function(rr){if(rr.ok){toast("点赞已清零");go("live");}else toast(rr.error||"失败",1);});};
+      document.getElementById("lvChatList").querySelectorAll("[data-chatdel]").forEach(function(b){b.onclick=function(){var id=b.getAttribute("data-chatdel");b.textContent="…";post("/live",{action:"chatDelete",id:id},true).then(function(rr){if(rr.ok){var row=b.closest?b.closest(".lv-r"):b.parentNode.parentNode;if(row&&row.remove)row.remove();}else toast(rr.error||"失败",1);});};});
     });
   });
 }
