@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["seo","🔎","SEO与AI收录"],["guide","🧭","新手流程"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,aitraffic:pAiTraffic,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,seo:pSeo,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,aitraffic:pAiTraffic,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,seo:pSeo,guide:pGuide,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -756,6 +756,39 @@ function pOrders(el){el.innerHTML='<div class="a-note-real">加载订单中…</
     +'<div class="a-note-real">收款钱包 0xbd06474d…；金额为精确指纹金额（尾数用于自动对账）。仅读取展示，不涉及任何私钥/助记词。</div></div>';
 }).catch(function(){el.innerHTML='<div class="a-note-real">订单加载失败，请刷新重试。</div>';});}
 /* ---------- 链上状态 ---------- */
+/* ---------- 新手流程链接管理 ---------- */
+function pGuide(el){
+  el.innerHTML='<div class="a-center">加载中…</div>';
+  var IST='width:100%;background:#0d0f0e;color:#cdb;border:1px solid #333;border-radius:6px;padding:7px;font-size:13px';
+  get("/guide").then(function(r){
+    if(!r||!r.ok){el.innerHTML='<div class="a-center">读取失败</div>';return;}
+    var c=r.config||{},st=r.status||{},hist=r.history||[];
+    function statusLine(s){
+      if(!s)return '<span style="color:#888">尚未检测</span>';
+      var col=s.ok?"#7fe0a0":"#ffcf8a";
+      return '<span style="color:'+col+'">'+(s.reachable?"可达":"不可达")+' · '+(s.https?"HTTPS 正常":"非 HTTPS")+' · 最终域名 '+esc(s.finalDomain||"—")+(s.ok?'':' · 当前无法验证，请谨慎')+'</span>'
+        +((s.redirects&&s.redirects.length)?'<div style="font-size:12px;color:#888;word-break:break-all;margin-top:3px">跳转链：'+s.redirects.map(esc).join(" → ")+'</div>':'')
+        +'<div style="font-size:12px;color:#888">检测时间：'+(s.checkedAt?new Date(s.checkedAt).toLocaleString():"—")+'</div>';
+    }
+    function linkForm(key,c1){
+      return '<div class="a-panel-box"><h3>'+(key==="okx"?"欧易推广/下载入口":"起源后台入口")+'</h3>'
+      +'<div style="display:grid;gap:8px;max-width:660px">'
+      +'<label style="font-size:13px;color:#9a8">链接地址</label><input class="gi" data-k="'+key+'" data-f="url" value="'+esc(c1.url||"")+'" style="'+IST+'">'
+      +'<label style="font-size:13px;color:#9a8">按钮文字</label><input class="gi" data-k="'+key+'" data-f="label" value="'+esc(c1.label||"")+'" style="'+IST+'">'
+      +'<label style="font-size:13px;color:#9a8">安全提示 / 说明</label><textarea class="gi" data-k="'+key+'" data-f="note" style="'+IST+';min-height:60px">'+esc(c1.note||"")+'</textarea>'
+      +'<label style="font-size:13px;color:#cdb"><input type="checkbox" class="gi" data-k="'+key+'" data-f="enabled" '+(c1.enabled!==false?"checked":"")+'> 前台显示该入口（取消勾选 = 停用，前台显示「该入口暂时停止使用，请等待管理员核验」，且不跳转、不切换备用地址）</label>'
+      +'<div style="font-size:13px;margin-top:4px">检测结果：'+statusLine(st[key])+'</div>'
+      +'</div></div>';
+    }
+    el.innerHTML=linkForm("okx",c.okx||{})+linkForm("origin",c.origin||{})
+      +'<div class="a-panel-box"><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="an-tab on" id="gSave">保存设置</button><button class="an-tab" id="gCheck">🔍 检测两个链接</button> <a class="an-tab" href="https://web3origin.com/guides/beginner-buy-lgns/" target="_blank" rel="noopener">👁 预览新手流程页</a><span id="gMsg" style="font-size:13px;align-self:center"></span></div>'
+      +'<div class="a-note-real" style="margin-top:10px">「检测」= 后台真实请求该链接、跟踪跳转、记录最终域名 / HTTPS / 时间，<b>不会伪造「已验证」</b>。检测失败时前台显示「当前无法验证该链接，请谨慎操作」。停用后前台不再跳转，也<b>不会</b>自动切到未经确认的备用地址。</div></div>'
+      +'<div class="a-panel-box"><h3>修改记录</h3>'+(hist.length?('<table class="a-tbl"><thead><tr><th>时间</th><th>管理员</th><th>欧易(前→后)</th><th>起源(前→后)</th></tr></thead><tbody>'+hist.map(function(h){return '<tr><td>'+new Date(h.ts).toLocaleString()+'</td><td>'+esc(h.who||"")+'</td><td style="word-break:break-all;font-size:12px">'+esc(h.beforeOkx||"")+'<br>→ '+esc(h.afterOkx||"")+'</td><td style="word-break:break-all;font-size:12px">'+esc(h.beforeOrigin||"")+'<br>→ '+esc(h.afterOrigin||"")+'</td></tr>';}).join("")+'</tbody></table>'):'<div class="a-center">暂无修改记录</div>')+'</div>';
+    function collect(){var o={okx:{},origin:{}};el.querySelectorAll(".gi").forEach(function(i){var k=i.getAttribute("data-k"),f=i.getAttribute("data-f");if(f==="enabled")o[k][f]=i.checked;else o[k][f]=i.value;});return o;}
+    document.getElementById("gSave").onclick=function(){var m=document.getElementById("gMsg");m.textContent="保存中…";m.style.color="#9a8";var o=collect();post("/guide",{okx:o.okx,origin:o.origin},true).then(function(x){if(x.ok){m.textContent="已保存";m.style.color="#7fe0a0";}else{m.textContent="失败："+(x.error||"?");m.style.color="#ff8a8a";}});};
+    document.getElementById("gCheck").onclick=function(){var m=document.getElementById("gMsg");m.textContent="检测中…（真实请求外部链接，稍等）";m.style.color="#9a8";post("/guide",{action:"check"},true).then(function(x){if(x.ok){m.textContent="检测完成";m.style.color="#7fe0a0";setTimeout(function(){pGuide(el);},700);}else{m.textContent="失败："+(x.error||"?");m.style.color="#ff8a8a";}});};
+  }).catch(function(){el.innerHTML='<div class="a-center">读取失败</div>';});
+}
 /* ---------- AI流量看板 ---------- */
 function aiRecentTable(rows){
   if(!rows||!rows.length)return '<div class="a-center">暂无</div>';

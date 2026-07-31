@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LGNS怎么买？从购买USDT到创建钱包、兑换DAI完整流程｜Web3Origin</title>
+<meta name="description" content="面向Web3新手的LGNS操作流程：下载交易平台、购买USDT、创建钱包、通过Polygon网络提现、兑换DAI、进入起源后台并了解活期与360天质押。每一步先核对、先小额测试，不替你做决定。">
+<meta name="robots" content="index,follow">
+<meta name="keywords" content="LGNS怎么买,如何买入LGNS,新手买LGNS,创建Web3钱包,欧易买USDT,USDT兑换DAI,Polygon提现,起源质押,起源后台">
+<link rel="canonical" href="https://web3origin.com/guides/beginner-buy-lgns/">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="alternate" hreflang="zh-CN" href="https://web3origin.com/guides/beginner-buy-lgns/">
+<link rel="alternate" hreflang="x-default" href="https://web3origin.com/guides/beginner-buy-lgns/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Web3Origin">
+<meta property="og:title" content="小白如何创建钱包并买入LGNS｜完整流程">
+<meta property="og:description" content="从下载欧易、购买USDT、创建Web3钱包，到兑换DAI、买入LGNS和选择质押，用一条流程带你走完。每一步都要先核对、先小额测试。">
+<meta property="og:url" content="https://web3origin.com/guides/beginner-buy-lgns/">
+<meta property="og:image" content="https://web3origin.com/assets/og-image.png">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://web3origin.com/assets/og-image.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Article","headline":"小白如何创建钱包并买入LGNS","description":"面向Web3新手的LGNS操作流程：下载交易平台、购买USDT、创建钱包、通过Polygon网络提现、兑换DAI、进入起源后台并了解活期与360天质押。","inLanguage":"zh-CN","author":{"@type":"Organization","name":"Web3Origin"},"publisher":{"@type":"Organization","name":"Web3Origin","logo":{"@type":"ImageObject","url":"https://web3origin.com/assets/logo.png"}},"mainEntityOfPage":"https://web3origin.com/guides/beginner-buy-lgns/"},
+{"@type":"BreadcrumbList","itemListElement":[
+{"@type":"ListItem","position":1,"name":"首页","item":"https://web3origin.com/"},
+{"@type":"ListItem","position":2,"name":"新手入门","item":"https://web3origin.com/guides/"},
+{"@type":"ListItem","position":3,"name":"小白如何创建钱包并买入LGNS","item":"https://web3origin.com/guides/beginner-buy-lgns/"}]},
+{"@type":"HowTo","name":"小白如何创建钱包并买入LGNS","description":"从下载欧易到买入LGNS并选择质押方式的完整新手流程。","inLanguage":"zh-CN","totalTime":"PT2H","tool":[{"@type":"HowToTool","name":"欧易 App（第三方交易平台）"},{"@type":"HowToTool","name":"自托管 Web3 钱包"}],"supply":[{"@type":"HowToSupply","name":"USDT"},{"@type":"HowToSupply","name":"DAI"},{"@type":"HowToSupply","name":"少量 Polygon 网络 Gas"}],"step":[
+{"@type":"HowToStep","position":1,"name":"下载欧易","text":"通过可信来源下载欧易，打开后核对最终跳转域名、APP名称与开发者，警惕仿冒APP，无法确认来源时停止下载。"},
+{"@type":"HowToStep","position":2,"name":"注册欧易账户","text":"按当前页面提示注册，设置独立登录密码并开启必要的安全验证，验证码不发给任何人，不接受陌生人远程控制手机。"},
+{"@type":"HowToStep","position":3,"name":"完成实名认证","text":"按平台当前要求提交资料，只在确认无误的正规页面提交，遵守所在地法律法规与平台规则。"},
+{"@type":"HowToStep","position":4,"name":"在欧易购买USDT","text":"进入C2C买币区域购买USDT，按订单信息付款，卖家放币后核对USDT余额，不进行订单外交易。"},
+{"@type":"HowToStep","position":5,"name":"创建Web3钱包","text":"在可信钱包中创建钱包，按顺序离线抄写并验证助记词，设置本地密码；助记词就是钱包控制权，绝不截图、上传或告诉任何人。"},
+{"@type":"HowToStep","position":6,"name":"通过Polygon网络转入USDT","text":"钱包切换到Polygon（POL）网络复制收款地址，欧易提现选择USDT并把网络选为Polygon，核对地址首尾字符，先小额测试到账再转大额。"},
+{"@type":"HowToStep","position":7,"name":"USDT兑换DAI","text":"在钱包内把USDT兑换为DAI，核对合约、路径、手续费、价格影响、滑点、预计与最低到账后再签名。"},
+{"@type":"HowToStep","position":8,"name":"进入起源后台","text":"核对浏览器地址栏域名 origindefi.io、当前钱包网络与连接请求；连接钱包不需要输入助记词。"},
+{"@type":"HowToStep","position":9,"name":"使用DAI买入LGNS","text":"连接自己的钱包，输入DAI数量，核对报价、手续费、滑点、价格影响、预计与最低到账及钱包弹出的交互内容后再签名，等待区块确认并核对到账。"},
+{"@type":"HowToStep","position":10,"name":"选择质押方式","text":"根据自身资金安排在活期质押与360天质押之间选择，先看清实际质押规则、退出流程与到账时间，保存交易哈希。"}]},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"提现网络选错了会怎样？","acceptedAnswer":{"@type":"Answer","text":"提现网络与收款钱包网络不一致，可能导致资产无法正常到账。务必两边都确认是Polygon（POL）网络，并先小额测试。"}},
+{"@type":"Question","name":"连接钱包需要输入助记词吗？","acceptedAnswer":{"@type":"Answer","text":"不需要。连接钱包只需在钱包中确认连接请求。任何要求输入助记词、私钥或钱包密码的页面都应立即关闭。"}},
+{"@type":"Question","name":"活期质押和360天质押怎么选？","acceptedAnswer":{"@type":"Answer","text":"没有统一的最佳方式。活期更重视灵活性，360天接受长期安排。应根据自己的资金安排、期限需求和风险承受能力决定，先看清实际合约规则。"}},
+{"@type":"Question","name":"这个页面是欧易或起源官方吗？","acceptedAnswer":{"@type":"Answer","text":"不是。Web3Origin是独立Web3学习与链上研究平台，不代表欧易、ORIGIN、LGNS、Anubis Chain或Awake DAO官方，仅提供操作流程教育，不构成投资建议。"}}]}
+]}
+</script>
+<style>
+:root{--obsidian:#050303;--temple:#210507;--blood:#5a0a10;--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--ink:#e8d9be;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--emerald:#1f5c3d;--emerald-lt:#3ddc8a;--danger:#5a1418;--danger-lt:#ff8a8a;--card:#0c0a08;--serif:"STZhongsong","Songti SC","SimSun",Georgia,serif;--sans:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--obsidian);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75;-webkit-text-size-adjust:100%;overflow-x:hidden;background-image:radial-gradient(1200px 600px at 50% -10%,rgba(122,11,18,.18),transparent 60%),radial-gradient(800px 500px at 90% 20%,rgba(31,92,61,.12),transparent 55%)}
+a{color:var(--gold-lt)}
+.wrap{max-width:960px;margin:0 auto;padding:0 18px}
+.top{border-bottom:1px solid var(--line);padding:14px 0;position:sticky;top:0;background:rgba(5,3,3,.9);backdrop-filter:blur(6px);z-index:20}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{font-family:var(--serif);color:var(--bone);font-size:18px;text-decoration:none}
+.brand b{color:var(--gold-lt)}
+.crumb{font-size:13px;color:var(--muted);margin:16px 0 4px}
+.crumb a{color:var(--soft);text-decoration:none}
+.eyebrow{color:var(--emerald-lt);letter-spacing:.2em;font-size:14px;margin-top:22px;text-shadow:0 0 16px rgba(61,220,138,.35)}
+h1{font-family:var(--serif);color:var(--bone);font-size:clamp(24px,5vw,36px);line-height:1.3;margin:6px 0 10px}
+.lede{color:var(--soft);font-size:clamp(15px,2.4vw,17px);max-width:760px}
+.disc{margin:14px 0;padding:12px 14px;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;background:rgba(214,168,75,.05);font-size:14px;color:var(--soft)}
+h2{font-family:var(--serif);color:var(--gold-lt);font-size:clamp(19px,3.4vw,24px);margin:34px 0 4px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:18px 0 8px}
+.flow .n{flex:1 1 auto;min-width:120px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;position:relative;font-size:14px;color:var(--ink)}
+.flow .n .k{color:var(--emerald-lt);font-weight:700;margin-right:6px}
+.flow .n::after{content:"→";position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:var(--gold);font-weight:700}
+.flow .n:last-child::after{display:none}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none;border:1px solid var(--line);background:#141009;color:var(--bone)}
+.btn:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.btn.primary{background:linear-gradient(180deg,#2a6b47,#1c4d33);border-color:#2f7d4f;color:#eafff2}
+.btn.gold{background:linear-gradient(180deg,#4a3a16,#33280f);border-color:var(--gold);color:var(--gold-lt)}
+.btn.ext::after{content:"↗";font-size:13px;opacity:.8}
+.steps{margin:20px 0}
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0;position:relative}
+.step>.h{display:flex;gap:12px;align-items:flex-start}
+.step .num{flex:0 0 auto;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:18px;color:#eafff2;background:radial-gradient(circle at 40% 35%,#2f7d4f,#173d29);border:1px solid #2f7d4f;box-shadow:0 0 14px rgba(61,220,138,.25)}
+.step h3{margin:4px 0 2px;font-family:var(--serif);color:var(--bone);font-size:18px}
+.step ul,.step ol{margin:8px 0 6px;padding-left:20px}
+.step li{margin:4px 0}
+.note{border-radius:8px;padding:10px 12px;margin:10px 0;font-size:14px}
+.note.warn{background:rgba(90,20,24,.35);border:1px solid var(--danger);color:#f4c9c9}
+.note.check{background:rgba(31,92,61,.16);border:1px solid #2f7d4f;color:#cfeede}
+.note.gold{background:rgba(214,168,75,.08);border:1px solid var(--line);border-left:3px solid var(--gold);color:var(--soft)}
+.note b{color:var(--bone)}
+.redbox{background:rgba(90,20,24,.4);border:1px solid var(--danger-lt);border-radius:10px;padding:14px;margin:12px 0}
+.redbox .t{color:var(--danger-lt);font-weight:700;font-size:16px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all;overflow-wrap:anywhere}
+.linkbox{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#0a0d0b;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;margin:6px 0}
+.linkbox .u{color:var(--soft)}
+.copy{cursor:pointer;border:1px solid var(--line);background:#141009;color:var(--gold-lt);border-radius:6px;padding:4px 10px;font-size:13px;min-height:34px}
+.chk{list-style:none;padding-left:0}
+.chk li{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
+.chk li::before{content:"☐";color:var(--gold)}
+.status-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pill{font-size:12px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--soft)}
+.pill.on{border-color:#2f7d4f;color:var(--emerald-lt)}
+.pill.off{border-color:var(--danger);color:var(--danger-lt)}
+.pill.warnp{border-color:var(--gold);color:var(--gold-lt)}
+.prog{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+.prog span.lb{font-size:12px;color:var(--muted);align-self:center;margin-right:2px}
+.prog button{font-size:12px;min-height:32px;padding:4px 10px;border-radius:16px;border:1px solid var(--line);background:transparent;color:var(--soft);cursor:pointer}
+.prog button.sel{background:#173d29;border-color:#2f7d4f;color:var(--emerald-lt)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.cmp .c{background:#0a0d0b;border:1px solid var(--line);border-radius:12px;padding:14px}
+.cmp .c h4{margin:2px 0 8px;color:var(--bone);font-family:var(--serif);font-size:16px}
+.foot{border-top:1px solid var(--line);margin-top:30px;padding:22px 0 60px;color:var(--muted);font-size:13px}
+.foot .idn{color:var(--soft);font-size:13px;line-height:1.7}
+.modal{position:fixed;inset:0;background:rgba(2,1,1,.82);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}
+.modal.on{display:flex}
+.modal .box{max-width:460px;width:100%;background:#0c0a08;border:1px solid var(--gold);border-radius:14px;padding:20px;box-shadow:0 0 40px rgba(214,168,75,.15)}
+.modal h3{margin:0 0 10px;color:var(--gold-lt);font-family:var(--serif);font-size:19px}
+.modal p{color:var(--ink);font-size:14px}
+.modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#173d29;border:1px solid #2f7d4f;color:#eafff2;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:120}
+.toast.on{opacity:1}
+/* 一步步引导 */
+body.guided .steps .step{display:none}
+body.guided .steps .step.active{display:block}
+.guidebar{display:none;position:sticky;bottom:0;background:rgba(5,3,3,.95);border-top:1px solid var(--line);padding:10px 0;z-index:30}
+body.guided .guidebar{display:block}
+.guidebar .wrap{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.guidebar .gp{font-size:13px;color:var(--soft)}
+@media(max-width:760px){
+  .flow{display:block}
+  .flow .n{min-width:0;margin:0 0 22px;padding-left:16px}
+  .flow .n::after{content:"↓";right:auto;left:18px;top:auto;bottom:-20px;transform:none}
+  .flow .n::before{content:"";position:absolute;left:6px;top:14px;bottom:-22px;width:2px;background:linear-gradient(var(--emerald),transparent)}
+  .flow .n:last-child::before{display:none}
+  .cmp{grid-template-columns:1fr}
+  .step{padding:15px}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/">◎ <b>Web3Origin</b></a>
+  <a href="/" style="font-size:13px;color:var(--soft);text-decoration:none">← 返回首页</a>
+</div></header>
+
+<main class="wrap">
+  <nav class="crumb"><a href="/">首页</a> › <a href="/guides/">新手入门</a> › 小白如何创建钱包并买入LGNS</nav>
+  <div class="eyebrow">Chapter III · 入门</div>
+  <h1>小白如何创建钱包并买入LGNS</h1>
+  <p class="lede">从下载欧易、购买USDT、创建Web3钱包，到兑换DAI、买入LGNS和选择质押，用一条流程带你走完。每一步都要<b>先核对、先小额测试</b>，不替你做决定。</p>
+
+  <div class="disc">📌 <b>先读这一句：</b>本页只是操作流程教育。下面会区分清楚哪些是<b>操作步骤</b>、哪些是<b>第三方推广链接</b>、哪些是<b>链上交易</b>、哪些是<b>你自己的投资决定</b>。流程进度只代表你读到了哪一步，<b>不代表链上交易已经完成</b>。</div>
+
+  <!-- 简化流程 -->
+  <h2>整条流程一览</h2>
+  <div class="flow" aria-label="简化流程">
+    <div class="n"><span class="k">1</span>下载欧易</div>
+    <div class="n"><span class="k">2</span>注册与实名认证</div>
+    <div class="n"><span class="k">3</span>购买USDT</div>
+    <div class="n"><span class="k">4</span>创建Web3钱包</div>
+    <div class="n"><span class="k">5</span>Polygon提现</div>
+    <div class="n"><span class="k">6</span>USDT兑换DAI</div>
+    <div class="n"><span class="k">7</span>进入起源后台</div>
+    <div class="n"><span class="k">8</span>DAI买入LGNS</div>
+    <div class="n"><span class="k">9</span>选择质押方式</div>
+  </div>
+  <div class="btnrow">
+    <button class="btn primary" id="startGuide" type="button">🔰 开始小白引导（一步一步来）</button>
+  </div>
+
+  <div class="steps" id="steps">
+
+    <!-- 第一步 -->
+    <section class="step" id="s1" data-step="1">
+      <div class="h"><div class="num">1</div><div>
+        <h3>通过可信来源下载欧易</h3>
+        <ul>
+          <li>点击下方「打开欧易推广/下载入口」</li>
+          <li>打开后<b>核对最终跳转域名</b></li>
+          <li>核对 APP 名称和开发者信息</li>
+          <li>警惕仿冒 APP 和搜索广告里的假下载</li>
+          <li>无法确认来源时，<b>停止下载</b></li>
+        </ul>
+        <div class="btnrow">
+          <a class="btn gold ext" id="okxBtn" href="https://www.promoohivex.com/join/81097260" target="_blank" rel="noopener noreferrer nofollow sponsored">打开欧易推广/下载入口</a>
+        </div>
+        <div class="status-row" id="okxStatus"></div>
+        <div class="note gold" id="okxNote">第三方推广链接：打开后请核对最终跳转域名、应用名称、开发者信息及下载来源。无法确认时不要下载、注册或输入个人信息。</div>
+        <div class="note gold" style="font-size:13px">这是第三方推广链接，不代表 Web3Origin 对第三方服务作出安全保证。此链接可能包含推广或邀请参数，是否注册、购买或参与由你自行决定。</div>
+      </div></div>
+      <div class="prog" data-prog="1"></div>
+    </section>
+
+    <!-- 第二步 -->
+    <section class="step" id="s2" data-step="2">
+      <div class="h"><div class="num">2</div><div>
+        <h3>注册欧易账户</h3>
+        <ul>
+          <li>根据欧易当前页面提示注册</li>
+          <li>设置一个<b>独立的登录密码</b>（别和其它网站共用）</li>
+          <li>开启必要的安全验证</li>
+          <li><b>不要</b>把验证码发送给任何人</li>
+          <li><b>不要</b>接受陌生人远程控制你的手机</li>
+        </ul>
+      </div></div>
+      <div class="prog" data-prog="2"></div>
+    </section>
+
+    <!-- 第三步 -->
+    <section class="step" id="s3" data-step="3">
+      <div class="h"><div class="num">3</div><div>
+        <h3>完成实名认证</h3>
+        <ul>
+          <li>按照平台当前要求提交资料</li>
+          <li>不同国家和地区的服务可能不同</li>
+          <li>只在<b>确认无误的正规页面</b>提交资料</li>
+          <li>不通过聊天软件向陌生人发送身份证照片</li>
+          <li>遵守所在地法律法规和平台规则</li>
+        </ul>
+      </div></div>
+      <div class="prog" data-prog="3"></div>
+    </section>
+
+    <!-- 第四步 -->
+    <section class="step" id="s4" data-step="4">
+      <div class="h"><div class="num">4</div><div>
+        <h3>在欧易购买 USDT</h3>
+        <ul>
+          <li>进入 C2C 买币区域</li>
+          <li>选择购买 USDT</li>
+          <li>输入购买金额</li>
+          <li>选择商家和付款方式</li>
+          <li>按照平台订单信息付款</li>
+          <li>卖家放币后核对 USDT 余额</li>
+        </ul>
+        <div class="note warn">安全提醒：<b>不进行订单外交易</b>；不相信私聊发来的付款链接；付款金额必须与订单一致；订单未完成前保存付款凭证；不确定时联系<b>平台内客服</b>。</div>
+      </div></div>
+      <div class="prog" data-prog="4"></div>
+    </section>
+
+    <!-- 第五步 -->
+    <section class="step" id="s5" data-step="5">
+      <div class="h"><div class="num">5</div><div>
+        <h3>创建 Web3 钱包</h3>
+        <ul>
+          <li>在可信钱包中选择「创建钱包」</li>
+          <li>按照顺序<b>抄写助记词</b></li>
+          <li>将助记词<b>离线保存</b></li>
+          <li>验证助记词顺序</li>
+          <li>设置钱包本地密码</li>
+          <li>创建完成后<b>先不要立即转入大额资产</b></li>
+        </ul>
+        <div class="redbox">
+          <div class="t">🔥 助记词就是钱包控制权</div>
+          <div style="margin-top:6px">绝对不要：截图保存 · 上传云盘 · 发送到微信 · 发给客服或群友 · 输入陌生网站 · 与别人共用钱包 · 接受陌生人远程操作。</div>
+        </div>
+        <div class="note warn" style="font-weight:600">Web3Origin、欧易客服、起源后台或任何管理员，都不应该向你索要助记词、私钥或钱包密码。</div>
+      </div></div>
+      <div class="prog" data-prog="5"></div>
+    </section>
+
+    <!-- 第六步 -->
+    <section class="step" id="s6" data-step="6">
+      <div class="h"><div class="num">6</div><div>
+        <h3>通过 Polygon 网络转入 USDT（地址和网络必须同时正确）</h3>
+        <ol>
+          <li>在 Web3 钱包中切换到 <b>Polygon（POL）网络</b></li>
+          <li>找到 USDT 并复制收款地址</li>
+          <li>返回欧易选择 USDT 提现</li>
+          <li>粘贴钱包收款地址</li>
+          <li>提现网络选择 <b>Polygon</b></li>
+          <li>核对地址<b>首尾字符</b></li>
+          <li><b>先转一笔小额测试</b></li>
+          <li>确认钱包真实到账</li>
+          <li>再转入计划使用的金额</li>
+        </ol>
+        <div class="note warn">⚠ 重要：<b>提现网络与收款钱包网络不一致，可能导致资产无法正常到账。</b>统一认准「Polygon（POL）网络」，不要只看到「POL链」就以为是别的东西。</div>
+        <div class="note check">下一步前，请逐条确认（没全部确认就先别继续）：</div>
+        <ul class="chk">
+          <li>钱包当前是否为 Polygon 网络？</li>
+          <li>欧易提现网络是否为 Polygon？</li>
+          <li>收款地址是否完整一致？</li>
+          <li>是否已经完成小额测试？</li>
+          <li>钱包是否有足够的网络 Gas？</li>
+        </ul>
+        <div class="btnrow"><button class="copy" data-copy="Polygon（POL）网络" type="button">复制「Polygon（POL）网络」</button>
+        <button class="copy" data-copy="1.钱包是否Polygon网络 2.欧易提现网络是否Polygon 3.收款地址是否完整一致 4.是否已小额测试 5.钱包是否有足够Gas" type="button">复制收款安全检查清单</button></div>
+      </div></div>
+      <div class="prog" data-prog="6"></div>
+    </section>
+
+    <!-- 第七步 -->
+    <section class="step" id="s7" data-step="7">
+      <div class="h"><div class="num">7</div><div>
+        <h3>USDT 到账后，在钱包内兑换为 DAI</h3>
+        <ul>
+          <li>确认钱包当前是 Polygon 网络</li>
+          <li>选择 USDT 兑换 DAI</li>
+          <li>核对 USDT 与 DAI 合约</li>
+          <li>查看兑换路径 / 网络手续费 / 价格影响</li>
+          <li>查看允许滑点 / 预计到账 / 最低到账</li>
+          <li>确认无误后再签名</li>
+          <li>兑换完成后检查 DAI 余额</li>
+        </ul>
+        <div class="note gold">不要只看代币名称和图标，<b>重要代币应核对合约地址</b>。</div>
+        <div class="note warn">本页<b>不自动显示 DAI 合约地址</b>。请通过<b>可信钱包、区块浏览器或已确认的数据来源</b>核对当前 DAI 合约，避免误换到仿冒代币。</div>
+      </div></div>
+      <div class="prog" data-prog="7"></div>
+    </section>
+
+    <!-- 第八步 -->
+    <section class="step" id="s8" data-step="8">
+      <div class="h"><div class="num">8</div><div>
+        <h3>进入起源后台</h3>
+        <div class="linkbox"><span class="u mono" id="originUrlText">origindefi.io</span><button class="copy" id="copyOrigin" type="button">复制链接</button></div>
+        <div class="btnrow">
+          <a class="btn gold ext" id="originBtn" href="https://origindefi.io/#/invite?code=0xA157877962DB92dea2F726516a0955eBb853D70F" target="_blank" rel="noopener noreferrer nofollow sponsored">进入起源后台</a>
+        </div>
+        <div class="status-row" id="originStatus"></div>
+        <div class="note gold">进入前先核对：浏览器地址栏域名是否为 <b>origindefi.io</b> · 是否存在相似拼写域名 · 当前钱包网络是否正确 · 网站是否要求输入助记词 · 钱包连接请求是否合理 · 所在地区是否允许访问该服务。进入后再核对：当前钱包网络、交互合约、支出资产、授权额度、滑点和最低到账。</div>
+        <div class="note warn" style="font-weight:600">连接钱包不需要输入助记词。任何要求输入助记词、私钥或钱包密码的页面都应立即关闭。</div>
+        <div class="note gold" id="originRegion" style="display:none"></div>
+      </div></div>
+      <div class="prog" data-prog="8"></div>
+    </section>
+
+    <!-- 第九步 -->
+    <section class="step" id="s9" data-step="9">
+      <div class="h"><div class="num">9</div><div>
+        <h3>使用 DAI 买入 LGNS</h3>
+        <ul>
+          <li>连接自己的 Web3 钱包，确认当前网络</li>
+          <li>找到 DAI 买入 LGNS 的入口</li>
+          <li>输入准备使用的 DAI 数量</li>
+          <li>查看 LGNS 当前报价 / 手续费 / 滑点 / 价格影响</li>
+          <li>查看预计到账 / 最低到账</li>
+          <li>核对钱包弹出的交互内容，确认无误后再签名</li>
+          <li>等待区块确认</li>
+          <li>在钱包和区块浏览器中检查 LGNS 到账</li>
+        </ul>
+        <div class="note gold">本页不会承诺「保证到账 / 保证赚钱 / 只涨不跌 / 稳赚 / 零风险 / 保本 / 固定收益」。买入与否是你自己的投资决定。</div>
+        <div class="btnrow" style="gap:8px">
+          <a class="btn" href="/baike/how-to-check-tx/">查询交易哈希</a>
+          <a class="btn" href="/tools/onchain-search/">检查钱包最近交易</a>
+          <a class="btn" href="/baike/lgns-which-chain/">查看 LGNS 合约地址</a>
+          <a class="btn" href="/tools/onchain-search/">查看链上证据</a>
+        </div>
+      </div></div>
+      <div class="prog" data-prog="9"></div>
+    </section>
+
+    <!-- 第十步 -->
+    <section class="step" id="s10" data-step="10">
+      <div class="h"><div class="num">10</div><div>
+        <h3>选择质押方式</h3>
+        <div class="cmp">
+          <div class="c">
+            <h4>活期质押 · 更重视灵活性</h4>
+            <ul>
+              <li>查看当前实际质押规则</li>
+              <li>核对解除质押流程</li>
+              <li>核对领取方式</li>
+              <li>核对退出费用</li>
+              <li>核对到账时间</li>
+              <li>保存交易哈希</li>
+            </ul>
+          </div>
+          <div class="c">
+            <h4>360 天质押 · 接受长期安排</h4>
+            <ul>
+              <li>确认质押期限</li>
+              <li>理解本金释放方式</li>
+              <li>核对中途退出规则</li>
+              <li>核对奖励发放方式</li>
+              <li>确认这笔资金长期不用</li>
+              <li>保存交易哈希</li>
+            </ul>
+          </div>
+        </div>
+        <div class="note gold">没有统一的最佳质押方式。请根据自己的<b>资金安排、期限需求和风险承受能力</b>决定。本页不替你默认选择，也不用更醒目的颜色诱导你选长期。</div>
+      </div></div>
+      <div class="prog" data-prog="10"></div>
+    </section>
+
+  </div>
+
+  <footer class="foot">
+    <p class="idn">Web3Origin 是独立 Web3 学习与链上研究平台，不代表欧易、ORIGIN、LGNS、Anubis Chain 或 Awake DAO 官方。本页面仅提供操作流程教育，不保证第三方服务、链接或智能合约始终安全有效，不构成投资建议。</p>
+    <p class="idn">利益关系披露：本页的欧易与起源入口链接可能包含推广或邀请参数。是否注册、购买或参与由你自行决定。我们不隐藏邀请码，也不会把推广链接包装成无利益关系的纯官方入口。</p>
+    <p style="margin-top:10px">© Web3Origin · <a href="/">返回首页</a> · <a href="/baike/is-origin-safe/">如何判断项目风险</a> · <a href="/about/methodology/">方法论</a></p>
+  </footer>
+</main>
+
+<!-- 一步步引导底栏 -->
+<div class="guidebar"><div class="wrap">
+  <span class="gp" id="guideProg">第 1 / 10 步</span>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn" id="gPrev" type="button">上一步</button>
+    <button class="btn primary" id="gDone" type="button">我已了解</button>
+    <button class="btn" id="gNext" type="button">下一步</button>
+    <button class="btn" id="gExit" type="button">暂时退出</button>
+  </div>
+</div></div>
+
+<!-- 欧易跳转确认弹窗 -->
+<div class="modal" id="okxModal" role="dialog" aria-modal="true" aria-labelledby="okxModalT">
+  <div class="box">
+    <h3 id="okxModalT">离开 Web3Origin 前请先确认</h3>
+    <p>你即将打开第三方推广/下载链接。Web3Origin 无法保证该链接始终指向同一页面。请核对最终域名、APP 名称、开发者和证书信息，不要在可疑页面输入密码、验证码或身份证资料。</p>
+    <div class="acts">
+      <button class="btn" id="okxCancel" type="button">取消</button>
+      <button class="btn gold" id="okxGo" type="button">我已了解，继续打开</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script defer src="/assets/analytics.js"></script>
+<script>
+(function(){
+  "use strict";
+  var LS="w3o_guide_beginner_v1";
+  var API="https://count.web3origin.com";
+  var DEFAULT={
+    okx:{url:"https://www.promoohivex.com/join/81097260",label:"打开欧易推广/下载入口",enabled:true},
+    origin:{url:"https://origindefi.io/#/invite?code=0xA157877962DB92dea2F726516a0955eBb853D70F",label:"进入起源后台",enabled:true}
+  };
+  var $=function(s,r){return (r||document).querySelector(s);};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+
+  /* ---------- 复制 ---------- */
+  var toastT;
+  function toast(msg){var t=$("#toast");t.textContent=msg;t.classList.add("on");clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("on");},2200);}
+  function copy(text,after){
+    function ok(){toast(after||"已复制");}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok,fallback);}else{fallback();}
+    function fallback(){try{var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);ok();}catch(e){toast("复制失败，请手动复制");}}
+  }
+  $$(".copy").forEach(function(b){b.addEventListener("click",function(){
+    var t=b.getAttribute("data-copy");
+    if(b.id==="copyOrigin"){t=($("#originBtn").getAttribute("href")||DEFAULT.origin.url);copy(t,"链接已复制，请在打开后再次核对域名");return;}
+    copy(t,"已复制");
+  });});
+
+  /* ---------- 进度(仅本机浏览器) ---------- */
+  var PROG_STATES=[["none","尚未开始"],["reading","正在了解"],["done","已完成"],["recheck","需要重新检查"]];
+  var prog={};
+  try{prog=JSON.parse(localStorage.getItem(LS)||"{}")||{};}catch(e){prog={};}
+  function saveProg(){try{localStorage.setItem(LS,JSON.stringify(prog));}catch(e){}}
+  $$(".prog").forEach(function(row){
+    var k=row.getAttribute("data-prog");
+    var lb=document.createElement("span");lb.className="lb";lb.textContent="这一步：";row.appendChild(lb);
+    PROG_STATES.forEach(function(st){
+      var btn=document.createElement("button");btn.type="button";btn.textContent=st[1];btn.setAttribute("data-v",st[0]);
+      if((prog[k]||"none")===st[0]&&st[0]!=="none")btn.classList.add("sel");
+      if((prog[k]||"none")==="none"&&st[0]==="none")btn.classList.add("sel");
+      btn.addEventListener("click",function(){prog[k]=st[0];saveProg();$$("button",row).forEach(function(x){x.classList.remove("sel");});btn.classList.add("sel");});
+      row.appendChild(btn);
+    });
+  });
+
+  /* ---------- 欧易跳转确认 ---------- */
+  var okxModal=$("#okxModal"),lastFocus=null;
+  function openModal(){lastFocus=document.activeElement;okxModal.classList.add("on");$("#okxGo").focus();}
+  function closeModal(){okxModal.classList.remove("on");if(lastFocus)try{lastFocus.focus();}catch(e){}}
+  $("#okxBtn").addEventListener("click",function(e){e.preventDefault();openModal();});
+  $("#okxCancel").addEventListener("click",closeModal);
+  $("#okxGo").addEventListener("click",function(){var u=$("#okxBtn").getAttribute("href");closeModal();if(u&&u!=="#")window.open(u,"_blank","noopener,noreferrer");});
+  okxModal.addEventListener("click",function(e){if(e.target===okxModal)closeModal();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&okxModal.classList.contains("on"))closeModal();});
+
+  /* ---------- 一步步引导 ---------- */
+  var steps=$$("#steps .step"),cur=0;
+  function showStep(i){cur=Math.max(0,Math.min(steps.length-1,i));steps.forEach(function(s,idx){s.classList.toggle("active",idx===cur);});$("#guideProg").textContent="第 "+(cur+1)+" / "+steps.length+" 步";if(document.body.classList.contains("guided")){try{steps[cur].scrollIntoView({behavior:"smooth",block:"start"});}catch(e){}}}
+  function enterGuide(){document.body.classList.add("guided");showStep(0);}
+  function exitGuide(){document.body.classList.remove("guided");}
+  $("#startGuide").addEventListener("click",enterGuide);
+  $("#gPrev").addEventListener("click",function(){showStep(cur-1);});
+  $("#gNext").addEventListener("click",function(){showStep(cur+1);});
+  $("#gExit").addEventListener("click",exitGuide);
+  $("#gDone").addEventListener("click",function(){var k=String(cur+1);prog[k]="reading";saveProg();var row=$('.prog[data-prog="'+k+'"]');if(row){$$("button",row).forEach(function(x){x.classList.toggle("sel",x.getAttribute("data-v")==="reading");});}toast("已标记为「正在了解」——这只代表你读过，不代表交易完成");if(cur<steps.length-1)showStep(cur+1);});
+
+  /* ---------- 后台配置 + 链接状态(有则用,无则用默认;失败不阻断) ---------- */
+  function statusPills(host,st){
+    var el=$(host);if(!el)return;el.innerHTML="";
+    if(!st){return;}
+    function pill(txt,cls){var s=document.createElement("span");s.className="pill"+(cls?" "+cls:"");s.textContent=txt;el.appendChild(s);}
+    if(st.enabled===false){pill("入口已停用","off");return;}
+    if(st.https===true)pill("HTTPS 正常","on");else if(st.https===false)pill("非 HTTPS","warnp");
+    if(st.finalDomain)pill("最终域名："+st.finalDomain,st.ok?"on":"warnp");
+    if(st.reachable===false)pill("当前无法验证该链接，请谨慎操作","warnp");
+    if(st.checkedAt)pill("检测时间："+new Date(st.checkedAt).toLocaleString(),"");
+  }
+  function applyCfg(cfg){
+    if(!cfg)return;
+    var okx=cfg.okx||{},org=cfg.origin||{};
+    var okxBtn=$("#okxBtn"),originBtn=$("#originBtn");
+    if(okx.enabled===false){okxBtn.setAttribute("aria-disabled","true");okxBtn.style.opacity=".5";okxBtn.style.pointerEvents="none";$("#okxNote").textContent="该入口暂时停止使用，请等待管理员核验。";}
+    else{if(okx.url)okxBtn.setAttribute("href",okx.url);if(okx.label)okxBtn.textContent=okx.label;if(okx.note)$("#okxNote").textContent=okx.note;}
+    if(org.enabled===false){originBtn.setAttribute("aria-disabled","true");originBtn.style.opacity=".5";originBtn.style.pointerEvents="none";var rg=$("#originRegion");rg.style.display="block";rg.textContent="该入口暂时停止使用，请等待管理员核验。";}
+    else{if(org.url){originBtn.setAttribute("href",org.url);}if(org.label)originBtn.textContent=org.label;}
+    // 起源不可达 → 诚实的地区/网络提示(不给绕过方法)
+    if(org.status&&org.status.reachable===false&&org.enabled!==false){var rg2=$("#originRegion");rg2.style.display="block";rg2.textContent="该服务可能因所在地区、网络状态或服务规则暂时无法访问，请遵守所在地法律法规及平台限制。";}
+    statusPills("#okxStatus",okx.status?Object.assign({enabled:okx.enabled},okx.status):null);
+    statusPills("#originStatus",org.status?Object.assign({enabled:org.enabled},org.status):null);
+  }
+  try{
+    fetch(API+"/guide/config",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(j){if(j&&j.ok&&j.config)applyCfg(j.config);}).catch(function(){});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
