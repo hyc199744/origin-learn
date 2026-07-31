@@ -320,6 +320,13 @@ function pDash(el){
     var trend=tr.length?('<div class="an-trend">'+tr.map(function(x){var h=Math.round((Number(x.sessions)||0)/tmax*100);return '<div class="an-tcol" title="'+esc(x.d)+': '+(x.sessions||0)+'会话/'+(x.visitors||0)+'访客/'+(x.pv||0)+'PV"><div class="an-tbar" style="height:'+Math.max(3,h)+'%"></div><span>'+esc(String(x.d).slice(5))+'</span></div>';}).join("")+'</div>'):'<div class="a-center" style="color:var(--muted);padding:12px">暂无数据</div>';
     host.innerHTML=cards+'<div class="a-panel-box"><h3>访问趋势 <span class="a-real">真实</span></h3>'+trend+'</div>'
       +'<div class="a-note-real">时间按UTC+8;环比=与上一个等长周期对比;AI平台/自有站按来源渠道识别;更多细分见左侧各菜单。</div>';
+    get("/livestats").then(function(ls){var h2=el.querySelector("#ovBody");if(!h2||!ls||!ls.ok)return;var st=ls.stats||{},mz=st.mengzhu||{},cl=st.cloud||{};
+      function sc(lbl,v){return '<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px"><div style="font-size:12px;color:#9a8">'+lbl+'</div><div style="font-size:18px;color:#e9efea;font-weight:700">'+fmtN(v||0)+'</div></div>';}
+      function lb(name,d,href,en){var bd=(en===false)?'<span style="color:#999">未启用</span>':(d.live?'<span style="color:#25c96f">● 正在直播</span>':'<span style="color:#e0a94b">未开播</span>');
+        return '<div style="flex:1;min-width:280px;border:1px solid var(--line,#3a2313);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.02)"><div style="font-size:15px;color:#f0d48a;font-weight:600;margin-bottom:8px">'+esc(name)+'　'+bd+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+sc("📺 当前观看",d.online)+sc("👥 累计访问",d.cum)+sc("❤ 点赞",d.likes)+sc("💬 公屏消息",d.chat)+'</div><div style="margin-top:10px"><a class="an-tab" href="'+href+'" target="_blank" rel="noopener">👁 打开页面</a></div></div>';}
+      var box='<div class="a-panel-box"><h3>📺 直播概况（今日两路直播） <span class="a-real">真实</span></h3><div style="display:flex;gap:12px;flex-wrap:wrap">'+lb("线上直播（盟主）",mz,"https://web3origin.com/live/",true)+lb("木火夜聊（腾讯云直播）",cl,"https://web3origin.com/live-cloud/",cl.enabled)+'</div><div class="a-note-real" style="margin-top:8px">两路直播各自独立的观看/累计/点赞/公屏。线上直播在左侧「📺 线上直播」管，木火夜聊在「☁ 腾讯云直播」配链接。</div></div>';
+      h2.insertAdjacentHTML("beforeend",box);
+    }).catch(function(){});
   }).catch(function(){});
 }
 
