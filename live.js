@@ -193,7 +193,7 @@
   }
   function fsFallback(){
     var ctrls=document.querySelector("#live-wrap .lv-ctrls");
-    var msg=ZH?"当前浏览器或课程平台限制了嵌入式全屏。请点「在原平台打开」，在原课堂里全屏观看。":"This browser or the course platform blocks embedded fullscreen. Use “Open on original platform” and go fullscreen there.";
+    var msg=ZH?"当前设备暂不支持容器全屏（常见于 iPhone Safari／微信内置浏览器）。请将手机横屏观看，或改用电脑 Chrome／Edge 打开本页全屏。":"This device doesn't support container fullscreen (common on iPhone Safari / in-app browsers). Please rotate to landscape, or open this page in desktop Chrome/Edge for fullscreen.";
     var note=document.getElementById("lv-fsnote");
     if(!note&&ctrls&&ctrls.parentNode){note=document.createElement("div");note.id="lv-fsnote";note.style.cssText="width:100%;margin-top:8px;font-size:12.5px;color:#ffb454;line-height:1.7";ctrls.parentNode.insertBefore(note,ctrls.nextSibling);}
     if(note){note.textContent="⚠ "+msg;clearTimeout(note._t);note._t=setTimeout(function(){if(note)note.textContent="";},9000);}
@@ -204,48 +204,38 @@
     var b2=document.getElementById("lv-fsbtn");if(b2)b2.innerHTML=lbl;
   }
   function showFail(stage){
-    var url=safeUrl(state.course&&state.course.external_url);
-    stage.insertAdjacentHTML("beforeend",'<div class="lv-overlay" id="lv-failov"><div style="font-size:34px">⚠️</div><div class="lv-ovtitle">'+esc(T.fail_title)+'</div><div class="lv-ovsub">'+esc(T.fail_sub)+'</div>'+(url?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+esc(T.btn_enter)+' ↗</a>':"")+'</div>');
+    stage.insertAdjacentHTML("beforeend",'<div class="lv-overlay" id="lv-failov"><div style="font-size:34px">⚠️</div><div class="lv-ovtitle">'+esc(T.fail_title)+'</div><div class="lv-ovsub">'+(ZH?"播放器加载较慢或暂时未响应。点下方刷新，或稍候片刻会自动重试（无需离开本页）。":"The player is slow or not responding. Tap refresh, or it will auto-retry shortly — no need to leave this page.")+'</div><button class="lv-btn primary big" id="lv-failreload">↻ '+esc(T.btn_refresh)+'</button></div>');
+    var rb=document.getElementById("lv-failreload");if(rb)rb.onclick=function(){state.mode=null;state.lastStatus=null;applyStage();};
     reportError("iframe_timeout",(state.course&&state.course.external_url)||"");
-  }
-  function showRedirect(stage,titleKey){
-    var url=safeUrl(state.course&&state.course.external_url);
-    stage.innerHTML='<div class="lv-overlay">'+(state.course&&safeCover(state.course.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(state.course.cover_url))+'" alt="">':"")
-      +'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:14px"><div style="font-size:34px">🚪</div><div class="lv-ovtitle">'+esc(T[titleKey+"_title"])+'</div><div class="lv-ovsub">'+esc(T[titleKey+"_sub"])+'</div>'
-      +(url?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+esc(T.btn_enter)+' ↗</a>':"")+'</div></div>';
   }
   function showCountdown(stage,st){
     var c=state.course,cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
-    var url=safeUrl(c&&c.external_url);
-    if(st==="waiting"){ // 已到时段但原平台还没开播 → 等待开课(不显示"直播中")
+    if(st==="waiting"){ // 已到时段但原平台还没开播 → 等待开课(不显示"直播中",不外跳)
       stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:14px"><div class="lv-spin"></div>'
         +'<div class="lv-ovtitle">'+(ZH?"等待老师开课":"Waiting for the class to start")+'</div>'
-        +'<div class="lv-ovsub">'+(ZH?"已到开课时段，正在等待老师在原平台开播；开播后本页会自动切换为直播。":"In the class window — waiting for the host to go live. It will switch automatically once the platform starts.")+'</div>'
-        +(url?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+esc(T.btn_enter)+' ↗</a>':"")+'</div></div>';
+        +'<div class="lv-ovsub">'+(ZH?"已到开课时段，正在等待老师开播；开播后本页会自动进入直播，无需离开本页。":"In the class window — waiting for the host to go live. This page will switch to live automatically; no need to leave.")+'</div></div></div>';
       return;
     }
     var hint=st==="soon"?T.soon_hint:T.upcoming_hint;
     stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:14px">'
       +'<div class="lv-cd" id="lv-cd"><small>'+esc(T.countdown_start)+'</small><span id="lv-cdv">--:--</span></div>'
-      +'<div class="lv-ovsub">'+esc(hint)+'</div>'
-      +(st==="soon"&&url?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+esc(T.btn_enter)+' ↗</a>':"")
-      +'</div></div>';
+      +'<div class="lv-ovsub">'+esc(hint)+'</div></div></div>';
   }
   function showEnded(stage,replay){
     var c=state.course,cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
-    var url=safeUrl(c&&c.external_url);
-    var sub=replay?(ZH?"本场直播已结束，回放已就绪。":"This session has ended — replay is ready."):(ZH?"本场直播已结束。有回放时这里会显示「观看回放」。":"This session has ended. A replay button will appear here when available.");
-    var btn=(replay&&url)?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">▶ '+(ZH?"观看回放":"Watch replay")+' ↗</a>':'<div class="lv-ovsub" style="color:#8fa0a6">'+(ZH?"等待回放上传":"Waiting for replay upload")+'</div>';
-    stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:34px">🌙</div><div class="lv-ovtitle">'+(ZH?"今日课程已结束":"Today's session has ended")+'</div><div class="lv-ovsub">'+esc(sub)+'</div>'+btn+'</div></div>';
+    var sub=replay?(ZH?"本场直播已结束，回放即将在本页开始，请稍候…":"This session has ended — replay will start here shortly…"):(ZH?"本场直播已结束。有回放时会在本页自动播放。":"This session has ended. The replay will play here automatically when available.");
+    stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:34px">🌙</div><div class="lv-ovtitle">'+(ZH?"今日课程已结束":"Today's session has ended")+'</div><div class="lv-ovsub">'+esc(sub)+'</div></div></div>';
   }
   function showUnavailable(stage){
-    var c=state.course,url=safeUrl(c&&c.external_url),cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
+    var c=state.course,cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
     var last=c&&c.lastSyncedAt?fmtClock(c.lastSyncedAt):"";
-    stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:32px">🛰️</div><div class="lv-ovtitle">'+(ZH?"课程状态正在同步":"Syncing course status")+'</div><div class="lv-ovsub">'+(ZH?"暂时读不到课程平台的实时状态，正在自动重试。":"Temporarily can't read the platform's live status; auto-retrying.")+(last?(ZH?" 最后更新："+last:" Last update: "+last):"")+'</div>'+(url?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+(ZH?"进入原课堂查看":"Open original classroom")+' ↗</a>':"")+'</div></div>';
+    stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:32px">🛰️</div><div class="lv-ovtitle">'+(ZH?"课程状态正在同步":"Syncing course status")+'</div><div class="lv-ovsub">'+(ZH?"暂时读不到课程平台的实时状态，正在自动重试。":"Temporarily can't read the platform's live status; auto-retrying.")+(last?(ZH?" 最后更新："+last:" Last update: "+last):"")+'</div><button class="lv-btn primary big" id="lv-unavreload">↻ '+esc(T.btn_refresh)+'</button></div></div>';
+    var rb=document.getElementById("lv-unavreload");if(rb)rb.onclick=function(){fetchToday();};
   }
   function showUnknown(stage){
-    var c=state.course,url=safeUrl(c&&c.external_url),cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
-    stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:32px">❔</div><div class="lv-ovtitle">'+(ZH?"课程状态待确认":"Course status pending")+'</div>'+(url?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+(ZH?"进入原课堂查看":"Open original classroom")+' ↗</a>':"")+'</div></div>';
+    var c=state.course,cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
+    stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:32px">❔</div><div class="lv-ovtitle">'+(ZH?"课程状态待确认":"Course status pending")+'</div><button class="lv-btn primary big" id="lv-unkreload">↻ '+esc(T.btn_refresh)+'</button></div></div>';
+    var rb=document.getElementById("lv-unkreload");if(rb)rb.onclick=function(){fetchToday();};
   }
   function togglePausedBanner(on){
     var stage=document.getElementById("lv-stage");if(!stage)return;var b=document.getElementById("lv-pausebar");
@@ -259,9 +249,8 @@
     var c=state.course,st=c.status||"unknown";
     var changed=st!==state.lastStatus;state.lastStatus=st;
     updateBadge(st);
-    if(st==="live"||st==="paused"||st==="replay"){ // 播放器状态:挂/保留 iframe,不重建正在播放的画面
-      if(c.embed_mode==="redirect"){if(changed||state.mode!=="block"){state.mode="block";showRedirect(stage,"block");}}
-      else{if(state.mode!=="embed"){state.mode="embed";mountIframe(safeUrl(c.external_url)||c.external_url);}}
+    if(st==="live"||st==="paused"||st==="replay"){ // 播放器状态:始终页面内嵌入(禁止转跳原站),不重建正在播放的画面
+      if(state.mode!=="embed"){state.mode="embed";mountIframe(safeUrl(c.external_url)||c.external_url);}
       togglePausedBanner(st==="paused");
       return;
     }
@@ -303,7 +292,6 @@
       +'<div class="lv-ctrls">'
       +'<button class="lv-btn" id="lv-fs">⛶ '+esc(T.btn_fs)+'</button>'
       +'<button class="lv-btn" id="lv-refresh">↻ '+esc(T.btn_refresh)+'</button>'
-      +'<a class="lv-btn" id="lv-open" target="_blank" rel="noopener noreferrer" href="'+esc(safeUrl(c.external_url)||"#")+'">↗ '+esc(T.btn_open)+'</a>'
       +'</div></div>'
       +'<div class="lv-infocol">'
       +'<div class="lv-card"><span class="lv-badge b-upcoming" id="lv-badge"><span class="lv-dot"></span>—</span>'
@@ -324,12 +312,12 @@
     if(!list||!list.length){sec.style.display="none";return;}
     sec.style.display="";
     grid.innerHTML=list.map(function(c){
-      var url=safeUrl(c.external_url),cov=safeCover(c.cover_url);
+      var cov=safeCover(c.cover_url);
       var si=statusInfo(c.status),miniBg=c.status==="live"?"background:rgba(255,90,90,.9);color:#fff":(c.status==="ended"?"background:rgba(60,60,60,.85);color:#ccc":"background:rgba(214,168,75,.9);color:#1a1206");
       var when=(c.repeat_rule&&c.repeat_rule!=="none")?repeatText(c):fmtClock(c.start);
       var inner='<div class="cv">'+(cov?'<img src="'+esc(cov)+'" alt="" loading="lazy">':'<div class="ph">🎬</div>')+'<span class="mini" style="'+miniBg+'">'+esc(si[1])+'</span></div>'
         +'<div class="bd"><div class="ht">'+esc(c.title)+'</div>'+(c.teacher_name?'<div style="font-size:12px;color:var(--soft)">'+esc(c.teacher_name)+'</div>':"")+'<div class="hm">'+esc(when)+'</div></div>';
-      return url?'<a class="lv-hc" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+inner+'</a>':'<div class="lv-hc">'+inner+'</div>';
+      return '<div class="lv-hc">'+inner+'</div>';
     }).join("");
   }
 
