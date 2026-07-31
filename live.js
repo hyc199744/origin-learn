@@ -196,11 +196,10 @@
     v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.controls=true;v.autoplay=true;v.muted=true;
     v.style.cssText="position:absolute;inset:0;width:100%;height:100%;background:#000;object-fit:contain;display:block";
     stage.appendChild(v);
-    var fsb=document.createElement("button");fsb.type="button";fsb.id="lv-fsbtn";fsb.className="lv-fsbtn";fsb.setAttribute("aria-label",T.btn_fs);fsb.innerHTML="⛶ "+esc(T.btn_fs);fsb.onclick=toggleFullscreen;
     var un=document.createElement("button");un.type="button";un.id="lv-unmute";un.className="lv-fsbtn";un.style.left="14px";un.style.right="auto";un.innerHTML="🔊 "+(ZH?"开启声音":"Sound");
     un.onclick=function(){v.muted=false;var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});un.remove();};
     var readied=false;
-    function ready(){if(readied)return;readied=true;_streamFails=0;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}var ov=stage.querySelector(".lv-overlay");if(ov)ov.remove();if(!document.getElementById("lv-fsbtn"))stage.appendChild(fsb);if(!document.getElementById("lv-unmute"))stage.appendChild(un);syncFsButtons();}
+    function ready(){if(readied)return;readied=true;_streamFails=0;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}var ov=stage.querySelector(".lv-overlay");if(ov)ov.remove();if(!document.getElementById("lv-unmute"))stage.appendChild(un);syncFsButtons();}
     v.addEventListener("playing",ready);v.addEventListener("loadeddata",ready);
     v.addEventListener("error",function(){lvOnStreamError();});
     if(v.canPlayType("application/vnd.apple.mpegurl")){v.src=url;var p0=v.play&&v.play();if(p0&&p0.catch)p0.catch(function(){});}
@@ -230,9 +229,6 @@
     state.failTimer=setTimeout(function(){if(!state.iframeOn)showFail(stage);},20000);
     stage.appendChild(f);
     cropIframe();
-    // 播放器右下角浮动「全屏观看」按钮:即使外部平台自带全屏失效,本站容器全屏依旧可用
-    var fb=document.createElement("button");fb.type="button";fb.className="lv-fsbtn";fb.id="lv-fsbtn";fb.setAttribute("aria-label",T.btn_fs);
-    fb.innerHTML="⛶ "+esc(T.btn_fs);fb.onclick=toggleFullscreen;stage.appendChild(fb);
     syncFsButtons();
   }
   // ===== 全屏:容器(#lv-stage)全屏,用户点击直接同步触发;iOS/微信不支持则给备用入口 =====
