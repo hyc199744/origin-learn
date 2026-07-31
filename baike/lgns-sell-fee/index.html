@@ -55,41 +55,42 @@ footer{text-align:center;color:#7c6a4f;font-size:12px;padding:30px 20px;border-t
 <div class="crumb"><a href="/">首页</a> › LGNS 百科 › LGNS 卖出手续费是多少？</div>
 <h1>LGNS 卖出手续费是多少？</h1>
 <div class="meta">发布 2026-07-31 · 更新 2026-07-31 · 数据核验 2026-07-31 · 作者 Web3Origin（独立研究，非项目方）</div>
-<div class="answer"><b>卖出 LGNS 时，会先被代币合约按当前卖出税扣一笔（本站链上读数为 <b>5%</b>，由 feeRatio÷PRECISION 决定、合约管理员可改），再被 DEX 池收 0.3% 手续费，大额卖出还会有价格冲击。</b> 这三项是不同概念，最终到账应以你交易当时的链上数据为准。</div>
+<div class="answer"><b>卖出 LGNS 时，会先被代币合约按当前卖出税扣一笔（本站链上实时读数为 <b data-lgns-fee-sell>5%</b>，由 feeRatio÷PRECISION 决定、合约管理员可改），再被 DEX 池收 0.3% 手续费，大额卖出还会有价格冲击。</b> 这三项是不同概念，最终到账应以你交易当时的链上数据为准。<br><span class="meta" data-lgns-fee-time>费率为本页打开时从链上实时读取</span></div>
 
 <h2 id="key">核心要点</h2>
 <ul>
 <li>LGNS 在 Polygon 上通过 <b>QuickSwap V2</b> 的 LGNS/DAI 池交易，<b>卖出时会被合约按当前费率扣一笔手续费</b>。</li>
 <li>手续费不是写死的：由 LGNS 合约的 <code>feeRatio()</code> 除以 <code>PRECISION()</code> 决定，<b>合约管理员可以修改</b>（合约有 FeeRatioChanged 事件）。</li>
-<li>本站按当前链上读数：<code>feeRatio = 5000</code> ÷ <code>PRECISION = 100000</code> = <b>5%</b>（截至数据核验时）。</li>
-<li>买入税 <code>buyFeeRatio()</code> 当前为 <b>0</b>。卖出扣的手续费会转给合约设定的 <b>feeReceiver</b> 地址。</li>
-<li>这 5% 是<b>代币合约层面的转账税</b>，与 DEX 交易本身的 <b>0.3% 池手续费</b> 是两回事，另外还有 AMM 价格冲击（大额卖出时更明显）。</li>
+<li>本站按<b>当前链上实时读数</b>：<code>feeRatio = <span data-lgns-fee-ratio>5000</span></code> ÷ <code>PRECISION = <span data-lgns-fee-precision>100000</span></code> = <b data-lgns-fee-sell>5%</b>。</li>
+<li>买入税 <code>buyFeeRatio()</code> 当前为 <b data-lgns-fee-buy>0%</b>。卖出扣的手续费会转给合约设定的 <b>feeReceiver</b> 地址。</li>
+<li>这笔卖出税是<b>代币合约层面的转账税</b>，与 DEX 交易本身的 <b>0.3% 池手续费</b> 是两回事，另外还有 AMM 价格冲击（大额卖出时更明显）。</li>
 </ul>
 <h2 id="sell-fee">卖出手续费怎么算（大白话）</h2>
 <p>你在 QuickSwap 卖 X 个 LGNS 换 DAI，链上会发生两层扣费：</p>
 <ol>
-<li><b>代币卖出税（当前 5%）</b>：合约检测到你把 LGNS 转给交易池（卖出），先扣 <code>X × 5%</code> 转给 feeReceiver，真正进池参与兑换的是 <code>X × 95%</code>。</li>
+<li><b>代币卖出税（当前 <span data-lgns-fee-sell>5%</span>）</b>：合约检测到你把 LGNS 转给交易池（卖出），先按当前税率扣一笔转给 feeReceiver，剩余部分才进池参与兑换。</li>
 <li><b>DEX 池手续费（0.3%）</b>：进池的部分再按 QuickSwap V2 的 0.3% 收取，剩下的按 x·y=k 恒定乘积公式换成 DAI。</li>
 </ol>
-<p>所以你实际到手的 DAI ≈ 用 95% 的 LGNS 去池子里按 0.3% 手续费兑换的结果，再叠加大额卖出的价格冲击。举例：卖 1000 LGNS，先扣 50 个（5%）作卖出税，剩 950 个进池兑换。</p>
+<p>所以你实际到手的 DAI ≈ 用「扣掉卖出税后剩下的 LGNS」去池子里按 0.3% 手续费兑换的结果，再叠加大额卖出的价格冲击。举例：按当前 <span data-lgns-fee-sell>5%</span> 计，卖 1000 LGNS 先扣 50 个作卖出税，剩 950 个进池兑换（费率若变动，此比例随之变化）。</p>
 <h2 id="onchain-evidence">链上证据（可自行核实）</h2>
 <div class="ev">
-<div class="r"><span class="k">网络 / ChainID</span><span class="v">Polygon · 137</span></div><div class="r"><span class="k">LGNS 合约（9 位精度）</span><span class="v"><a href="https://polygonscan.com/address/0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01" target="_blank" rel="noopener">0xeB51D9A3…4A0F01</a></span></div><div class="r"><span class="k">DAI 合约（18 位精度）</span><span class="v"><a href="https://polygonscan.com/address/0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063" target="_blank" rel="noopener">0x8f3Cf7ad…c6A063</a></span></div><div class="r"><span class="k">LGNS/DAI 主池（QuickSwap V2）</span><span class="v"><a href="https://polygonscan.com/address/0x882df4B0fB50a229C3B4124EB18c759911485bFb" target="_blank" rel="noopener">0x882df4B0…485bFb</a></span></div><div class="r"><span class="k">卖出税接收地址 feeReceiver</span><span class="v"><a href="https://polygonscan.com/address/0xa304823c775d13fc851379c75e2b6f300e223234" target="_blank" rel="noopener">0xa304823c…223234</a></span></div><div class="r"><span class="k">卖出税读数</span><span class="v">feeRatio 5000 / PRECISION 100000 = 5%</span></div><div class="r"><span class="k">买入税读数</span><span class="v">buyFeeRatio 0 = 0%</span></div><div class="r"><span class="k">DEX 池手续费</span><span class="v">0.3%（QuickSwap V2 标准）</span></div>
+<div class="r"><span class="k">网络 / ChainID</span><span class="v">Polygon · 137</span></div><div class="r"><span class="k">LGNS 合约（9 位精度）</span><span class="v"><a href="https://polygonscan.com/address/0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01" target="_blank" rel="noopener">0xeB51D9A3…4A0F01</a></span></div><div class="r"><span class="k">DAI 合约（18 位精度）</span><span class="v"><a href="https://polygonscan.com/address/0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063" target="_blank" rel="noopener">0x8f3Cf7ad…c6A063</a></span></div><div class="r"><span class="k">LGNS/DAI 主池（QuickSwap V2）</span><span class="v"><a href="https://polygonscan.com/address/0x882df4B0fB50a229C3B4124EB18c759911485bFb" target="_blank" rel="noopener">0x882df4B0…485bFb</a></span></div><div class="r"><span class="k">卖出税接收地址 feeReceiver</span><span class="v"><a href="https://polygonscan.com/address/0xa304823c775d13fc851379c75e2b6f300e223234" target="_blank" rel="noopener">0xa304823c…223234</a></span></div><div class="r"><span class="k">卖出税读数</span><span class="v">feeRatio <span data-lgns-fee-ratio>5000</span> / PRECISION <span data-lgns-fee-precision>100000</span> = <span data-lgns-fee-sell>5%</span></span></div><div class="r"><span class="k">买入税读数</span><span class="v">buyFeeRatio 0 = <span data-lgns-fee-buy>0%</span></span></div><div class="r"><span class="k">DEX 池手续费</span><span class="v">0.3%（QuickSwap V2 标准）</span></div>
 </div>
-<p class="meta">以上均可在 Polygonscan 打开对应合约的 Read Contract 页面，调用 feeRatio()、PRECISION()、buyFeeRatio()、feeReceiver() 自行读取当前值。</p>
+<p class="meta"><b data-lgns-fee-time>费率数字为本页打开时从链上实时读取</b>。以上均可在 Polygonscan 打开对应合约的 Read Contract 页面，调用 feeRatio()、PRECISION()、buyFeeRatio()、feeReceiver() 自行读取当前值。</p>
 <h2 id="confirm">哪些已确认 / 哪些是说法 / 哪些无法确认</h2>
-<p><span class="tag t-ok">已链上确认</span> LGNS 合约存在 feeRatio/PRECISION/feeReceiver 且卖向主池时扣费；当前读数 feeRatio=5000、PRECISION=100000（即 5%）、买入税 0；主池为 QuickSwap V2 的 LGNS/DAI 池。</p>
+<p><span class="tag t-ok">已链上确认</span> LGNS 合约存在 feeRatio/PRECISION/feeReceiver 且卖向主池时扣费；当前读数 feeRatio=<span data-lgns-fee-ratio>5000</span>、PRECISION=<span data-lgns-fee-precision>100000</span>（即 <span data-lgns-fee-sell>5%</span>）、买入税 <span data-lgns-fee-buy>0%</span>；主池为 QuickSwap V2 的 LGNS/DAI 池。</p>
 <p><span class="tag t-claim">项目方可改</span> 费率是可修改参数，未来可能被合约管理员调高或调低，请以你交易当时的链上读数为准。</p>
 <p><span class="tag t-guess">本站推测/计算</span> 「实际到账 ≈ 95% 部分按 0.3% 兑换」 是基于合约逻辑与 AMM 公式的计算，未做逐笔状态覆盖模拟；实际成交受当时储备、滑点、gas 影响。</p>
 <p><span class="tag t-no">暂无法确认</span> 白名单地址（INTERN_SYSTEM 角色）是否豁免、以及未来费率变动，需按当时链上状态核实。</p>
 
 <h2 id="faq">常见问题</h2>
-<div class="faq"><details><summary>LGNS 卖出税是固定 5% 吗？</summary><p>不是固定的。它由 LGNS 合约的 feeRatio÷PRECISION 决定，是可被合约管理员修改的参数，当前链上读数为 5%（feeRatio 5000 / PRECISION 100000）。请以交易当时读数为准。</p></details><details><summary>卖出税和 DEX 手续费是同一笔吗？</summary><p>不是。卖出税（5%）是代币合约层面的转账税，扣给 feeReceiver；DEX 手续费（0.3%）是 QuickSwap 池的交易费。两者叠加，还要加大额卖出的价格冲击。</p></details><details><summary>买 LGNS 也要交手续费吗？</summary><p>当前 buyFeeRatio 为 0，即买入税为 0；但 DEX 的 0.3% 池费仍然存在。费率可能变动。</p></details><details><summary>怎么自己核实卖出税？</summary><p>在 Polygonscan 打开 LGNS 合约的 Read Contract，调用 feeRatio() 和 PRECISION()，两者相除即当前卖出税比例。</p></details></div>
+<div class="faq"><details><summary>LGNS 卖出税是固定 5% 吗？</summary><p>不是固定的。它由 LGNS 合约的 feeRatio÷PRECISION 决定，是可被合约管理员修改的参数，当前链上读数为 <span data-lgns-fee-sell>5%</span>（feeRatio <span data-lgns-fee-ratio>5000</span> / PRECISION <span data-lgns-fee-precision>100000</span>）。请以交易当时读数为准。</p></details><details><summary>卖出税和 DEX 手续费是同一笔吗？</summary><p>不是。卖出税（<span data-lgns-fee-sell>5%</span>）是代币合约层面的转账税，扣给 feeReceiver；DEX 手续费（0.3%）是 QuickSwap 池的交易费。两者叠加，还要加大额卖出的价格冲击。</p></details><details><summary>买 LGNS 也要交手续费吗？</summary><p>当前 buyFeeRatio 为 0，即买入税为 0；但 DEX 的 0.3% 池费仍然存在。费率可能变动。</p></details><details><summary>怎么自己核实卖出税？</summary><p>在 Polygonscan 打开 LGNS 合约的 Read Contract，调用 feeRatio() 和 PRECISION()，两者相除即当前卖出税比例。</p></details></div>
 <h2>相关页面</h2>
 <div class="rel"><a href="/baike/lgns/"><b>LGNS 是什么</b> — 起源核心代币的机制、精度与合约</a><a href="/contracts/"><b>起源合约地址大全</b> — LGNS/Anubis 全部合约，可链上核实</a><a href="/academy/what-is-slippage/"><b>什么是滑点</b> — 价格冲击、成交滑点与允许滑点的区别</a><a href="/faq/"><b>常见问题</b> — 起源生态高频问答</a></div>
 <div class="author"><b>作者：</b>Web3Origin 研究与编辑（独立 Web3 学习者、起源生态观察者，<b>不代表 ORIGIN / LGNS / Anubis Chain / Awake DAO 官方或开发团队</b>）。研究方向：链上数据核实、合约与治理分析、钱包安全。发布日期 2026-07-31 · 最后修改 2026-07-31 · 数据核验 2026-07-31。纠错/联系：Telegram @hyc199744 · X @hyc199844。</div>
 <div class="disc">本页为独立学习与研究整理，内容仅供理解，<b>不构成任何投资建议</b>，不承诺收益。数字资产有风险，请自行核实、自行判断（DYOR）。本站严格区分「已链上确认 / 项目方说法 / 本站推测 / 暂无法确认」四类信息，请勿把推测当作事实。<b>请勿在任何网页输入助记词、私钥或钱包密码。</b></div>
 </div>
 <footer>Web3Origin — 独立的 Web3 学习与链上研究平台 · <a href="/">web3origin.com</a> · 内容仅供学习，不构成投资建议</footer>
+<script defer src="/assets/lgns-fee.js"></script>
 </body>
 </html>
