@@ -125,7 +125,24 @@
     +"#live-wrap .lv-stage:fullscreen iframe,#live-wrap .lv-stage:-webkit-full-screen iframe{width:100%;height:100%}"
     +"#live-wrap .lv-fsbtn{position:absolute;right:14px;bottom:14px;z-index:20;padding:9px 13px;color:#fff;background:rgba(0,0,0,.72);border:1px solid rgba(214,168,75,.85);border-radius:8px;cursor:pointer;font:inherit;font-size:13px;display:inline-flex;gap:6px;align-items:center;transition:.2s}"
     +"#live-wrap .lv-fsbtn:hover{background:rgba(0,0,0,.9);border-color:var(--glt);color:var(--glt)}"
-    +"@media(max-width:768px){#live-wrap .lv-fsbtn{right:10px;bottom:10px;padding:8px 11px}}";
+    +"@media(max-width:768px){#live-wrap .lv-fsbtn{right:10px;bottom:10px;padding:8px 11px}}"
+    +"#live-wrap #lv-video::-webkit-media-controls-timeline,#live-wrap #lv-video::-webkit-media-controls-current-time-display,#live-wrap #lv-video::-webkit-media-controls-time-remaining-display,#live-wrap #lv-video::-webkit-media-controls-seek-back-button,#live-wrap #lv-video::-webkit-media-controls-seek-forward-button{display:none!important}"
+    +"#live-wrap .lv-playercol{position:relative}"
+    +"#live-wrap .lv-hearts{position:absolute;left:0;right:0;top:0;bottom:64px;pointer-events:none;overflow:hidden;z-index:12}"
+    +"#live-wrap .lv-heart{position:absolute;bottom:6px;font-size:22px;will-change:transform,opacity;animation:lvfloat 1.9s ease-out forwards}"
+    +"@keyframes lvfloat{0%{opacity:0;transform:translateY(0) scale(.5)}12%{opacity:1}100%{opacity:0;transform:translateY(-170px) translateX(var(--dx,0)) scale(1.25)}}"
+    +"#live-wrap .lv-chat{background:var(--pnl);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;height:360px}"
+    +"#live-wrap .lv-chat-hd{padding:10px 13px;border-bottom:1px solid var(--line);font-size:13px;color:var(--g);display:flex;justify-content:space-between;align-items:center;gap:8px}"
+    +"#live-wrap .lv-chat-list{flex:1;overflow-y:auto;padding:10px 13px;display:flex;flex-direction:column;gap:7px}"
+    +"#live-wrap .lv-msg{font-size:13.5px;line-height:1.5;word-break:break-word;color:var(--soft)}"
+    +"#live-wrap .lv-msg b{color:var(--glt);font-weight:600;margin-right:6px}#live-wrap .lv-msg.me b{color:var(--grn2)}"
+    +"#live-wrap .lv-chat-empty{color:var(--muted);font-size:13px;text-align:center;margin:auto}"
+    +"#live-wrap .lv-chat-in{display:flex;gap:8px;padding:9px;border-top:1px solid var(--line)}"
+    +"#live-wrap .lv-chat-in input{flex:1;min-width:0;background:#0b0906;border:1px solid var(--line);border-radius:8px;color:var(--bone);font:inherit;font-size:13.5px;padding:8px 11px}"
+    +"#live-wrap .lv-chat-in button{flex:0 0 auto;background:linear-gradient(90deg,var(--g),#b8842f);border:0;color:#1a1206;font-weight:700;border-radius:8px;padding:8px 15px;cursor:pointer;font:inherit;font-size:13.5px}"
+    +"#live-wrap .lv-chat-in button:disabled{opacity:.5}"
+    +"#live-wrap .lv-nick{width:96px;background:#0b0906;border:1px solid var(--line);border-radius:6px;color:var(--soft);font:inherit;font-size:12px;padding:3px 7px}"
+    +"#live-wrap #lv-like b{color:var(--grn2);margin-left:4px}";
 
   function esc(s){return String(s==null?"":s).replace(/[&<>\"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
   function safeUrl(u){u=String(u||"").trim();if(!/^https:\/\//i.test(u))return "";if(/[\s<>"'`\\]/.test(u))return "";try{var x=new URL(u);return x.protocol==="https:"?x.href:"";}catch(e){return "";}}
@@ -341,6 +358,49 @@
       +'<div class="lv-foot"><a class="lv-back" href="/">← '+(ZH?"返回起源首页":"Back to Origin home")+'</a></div></div>'
       +'</div>';
   }
+  // ===== 直播互动:公屏聊天(轮询) + 点赞 =====
+  function postJSON(path,body,ms){
+    var ctl=("AbortController" in window)?new AbortController():null;
+    var to=new Promise(function(_,rej){setTimeout(function(){if(ctl)try{ctl.abort();}catch(e){}rej(new Error("t"));},ms||10000);});
+    var req=fetch(API+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body||{}),signal:ctl?ctl.signal:undefined}).then(function(r){return r.json();});
+    return Promise.race([req,to]);
+  }
+  function lvToast(m){var w=document.getElementById("live-wrap");if(!w)return;var t=document.getElementById("lv-toast");if(!t){t=document.createElement("div");t.id="lv-toast";t.style.cssText="position:fixed;left:50%;bottom:42px;transform:translateX(-50%);background:rgba(20,14,6,.96);color:#ffd9a0;padding:10px 18px;border-radius:10px;font-size:14px;z-index:99999;border:1px solid #3a2313;transition:opacity .3s;max-width:88vw;text-align:center";w.appendChild(t);}t.textContent=m;t.style.opacity="1";clearTimeout(t._t);t._t=setTimeout(function(){t.style.opacity="0";},2600);}
+  function lvFmtN(n){n=n||0;return n>=10000?((n/10000).toFixed(1)+"w"):(n>=1000?((n/1000).toFixed(1)+"k"):String(n));}
+  var _chat={lastId:0,nick:""};
+  function lvNick(){try{return localStorage.getItem("live_nick")||"";}catch(e){return "";}}
+  function lvSetNick(n){_chat.nick=n;try{localStorage.setItem("live_nick",n);}catch(e){}}
+  function appendMsgs(msgs){
+    var list=document.getElementById("lv-chat-list");if(!list)return;
+    var empty=document.getElementById("lv-chat-empty");if(empty&&msgs.length)empty.remove();
+    var near=list.scrollHeight-list.scrollTop-list.clientHeight<60;
+    msgs.forEach(function(m){if(m.id>_chat.lastId)_chat.lastId=m.id;var d=document.createElement("div");d.className="lv-msg"+(m.nick&&m.nick===_chat.nick?" me":"");d.innerHTML="<b>"+esc(m.nick||"游客")+"</b>"+esc(m.text);list.appendChild(d);});
+    while(list.children.length>200)list.removeChild(list.firstChild);
+    if(near)list.scrollTop=list.scrollHeight;
+  }
+  function pollChat(){var list=document.getElementById("lv-chat-list");if(!list)return;fetchJSON("/live/chat"+(_chat.lastId?("?after="+_chat.lastId):""),8000).then(function(r){if(r&&r.ok&&r.msgs&&r.msgs.length)appendMsgs(r.msgs);}).catch(function(){});}
+  function sendChat(){
+    var inp=document.getElementById("lv-chat-text");if(!inp)return;var text=inp.value.replace(/\s+/g," ").trim();if(!text)return;
+    var btn=document.getElementById("lv-chat-send");if(btn)btn.disabled=true;
+    postJSON("/live/chat/send",{text:text,nick:_chat.nick},10000).then(function(r){
+      if(btn)btn.disabled=false;
+      if(r&&r.ok){inp.value="";if(r.nick){lvSetNick(r.nick);var ni=document.getElementById("lv-chat-nick");if(ni&&!ni.value)ni.value=r.nick;}pollChat();}
+      else lvToast((r&&(r.msg||r.error))||"发送失败");
+    }).catch(function(){if(btn)btn.disabled=false;lvToast("网络错误，稍后再试");});
+  }
+  var _like={pending:0,total:0,timer:null};
+  function spawnHeart(){var box=document.getElementById("lv-hearts");if(!box)return;var em=["❤️","💛","💚","👍","🎉","🔥"];var h=document.createElement("div");h.className="lv-heart";h.textContent=em[Math.floor(Math.random()*em.length)];h.style.left=(8+Math.random()*76)+"%";h.style.setProperty("--dx",(Math.random()*44-22)+"px");box.appendChild(h);setTimeout(function(){if(h.parentNode)h.parentNode.removeChild(h);},1950);}
+  function doLike(){spawnHeart();_like.pending++;if(_like.timer)return;_like.timer=setTimeout(function(){var n=_like.pending;_like.pending=0;_like.timer=null;fetchJSON("/live/like?n="+n,8000).then(function(r){if(r&&r.ok&&typeof r.total==="number"){_like.total=r.total;var el=document.getElementById("lv-likeN");if(el)el.textContent=lvFmtN(r.total);}}).catch(function(){});},800);}
+  function loadLikes(){fetchJSON("/live/like?read=1",8000).then(function(r){if(r&&r.ok&&typeof r.total==="number"){_like.total=r.total;var el=document.getElementById("lv-likeN");if(el)el.textContent=lvFmtN(r.total);}}).catch(function(){});}
+  function bindChat(){
+    _chat.nick=lvNick();
+    var send=document.getElementById("lv-chat-send"),inp=document.getElementById("lv-chat-text"),ni=document.getElementById("lv-chat-nick"),like=document.getElementById("lv-like");
+    if(send)send.onclick=sendChat;
+    if(inp)inp.addEventListener("keydown",function(e){if(e.key==="Enter")sendChat();});
+    if(ni){ni.value=_chat.nick;ni.addEventListener("change",function(){lvSetNick(ni.value.trim().slice(0,20));});}
+    if(like)like.onclick=doLike;
+    _chat.lastId=0;pollChat();loadLikes();
+  }
   function srcFootnote(c){
     var t=c.source==="page_json"?(ZH?"状态来自课程平台实时同步":"Live-synced from the course platform"):(c.source==="manual"?(ZH?"状态为管理员手动设置":"Set manually by admin"):(c.source==="unavailable"?(ZH?"平台状态暂时读取失败":"Platform status temporarily unavailable"):(ZH?"状态按排期时间显示":"Shown by schedule")));
     var last=c.lastSyncedAt?(" · "+(ZH?"更新于 ":"updated ")+fmtClock(c.lastSyncedAt)):"";
@@ -351,10 +411,12 @@
     if(!c){body.innerHTML='<div class="lv-empty"><div style="font-size:40px;margin-bottom:12px">📭</div><div class="lv-ctitle" style="color:var(--glt)">'+esc(T.no_course)+'</div><div style="margin-top:12px;font-size:14px">'+esc(T.no_course_sub)+'</div></div>';return;}
     var timeTxt=(c.repeat_rule&&c.repeat_rule!=="none")?repeatText(c):(fmtClock(c.start)+" "+T.to+" "+fmtClock(c.end));
     body.innerHTML='<div class="lv-main"><div class="lv-playercol">'
+      +'<div class="lv-hearts" id="lv-hearts"></div>'
       +'<div class="lv-stage" id="lv-stage"><div class="lv-overlay"><div class="lv-spin"></div></div></div>'
       +'<div class="lv-ctrls">'
       +'<button class="lv-btn" id="lv-fs">⛶ '+esc(T.btn_fs)+'</button>'
       +'<button class="lv-btn" id="lv-refresh">↻ '+esc(T.btn_refresh)+'</button>'
+      +'<button class="lv-btn" id="lv-like">❤ '+(ZH?"点赞":"Like")+' <b id="lv-likeN">0</b></button>'
       +'</div></div>'
       +'<div class="lv-infocol">'
       +'<div class="lv-card"><span class="lv-badge b-upcoming" id="lv-badge"><span class="lv-dot"></span>—</span>'
@@ -364,11 +426,15 @@
       +'<div class="lv-stats"><div class="lv-stat"><div class="n" id="lv-online">'+state.online+'</div><div class="l">'+esc(T.online)+'</div></div><div class="lv-stat"><div class="n" id="lv-cum">'+state.cum+'</div><div class="l">'+esc(T.cum)+'</div></div></div>'
       +(c.notice?'<div class="lv-card" style="border-color:rgba(214,168,75,.45)"><div class="lv-h3">'+(ZH?"课程公告":"Notice")+'</div><div class="lv-desc">'+esc(c.notice)+'</div></div>':"")
       +(c.description?'<div class="lv-card"><div class="lv-h3">'+esc(T.intro)+'</div><div class="lv-desc">'+esc(c.description)+'</div></div>':"")
+      +'<div class="lv-chat"><div class="lv-chat-hd"><span>💬 '+(ZH?"直播互动":"Live Chat")+'</span><input class="lv-nick" id="lv-chat-nick" placeholder="'+(ZH?"昵称":"Name")+'" maxlength="20"></div>'
+      +'<div class="lv-chat-list" id="lv-chat-list"><div class="lv-chat-empty" id="lv-chat-empty">'+(ZH?"来发第一条消息吧～":"Say hi in the chat~")+'</div></div>'
+      +'<div class="lv-chat-in"><input id="lv-chat-text" maxlength="200" placeholder="'+(ZH?"和大家聊聊…":"Type a message…")+'"><button id="lv-chat-send">'+(ZH?"发送":"Send")+'</button></div></div>'
       +'</div></div>';
     // 控件绑定
     document.getElementById("lv-fs").onclick=toggleFullscreen;
     document.getElementById("lv-refresh").onclick=function(){state.mode=null;state.lastStatus=null;applyStage();};
     state.mode=null;state.lastStatus=null;applyStage();
+    bindChat();
   }
   function renderHistory(list){
     var sec=document.getElementById("lv-history-sec"),grid=document.getElementById("lv-history");
@@ -438,6 +504,7 @@
     window.addEventListener("orientationchange",function(){setTimeout(cropIframe,300);});
     state.tick=setInterval(tickCountdown,1000);
     setInterval(function(){if(!document.hidden)fetchToday();},30000);   // 可见时每30秒同步(遵规范八:后台标签页降频)
+    setInterval(function(){if(!document.hidden)pollChat();},5000);      // 公屏聊天轮询
     setInterval(beat,45000);         // 观看心跳
     // 标签页重新激活时立即刷新一次
     document.addEventListener("visibilitychange",function(){if(!document.hidden){fetchToday();beat();}});
