@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LGNS 大额卖出冲击模拟器｜起源 Web3Origin</title>
+<meta name="description" content="输入准备卖出的 LGNS 数量，用真实链上数据(QuickSwap V2 池储备、Router 报价、合约卖出税)模拟预计到账 DAI、卖出税、DEX费、价格冲击、成交滑点、最低到账与风险等级。只读查询，不连钱包、不请授权。">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://web3origin.com/tools/lgns-sell-sim/">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<meta property="og:title" content="LGNS 大额卖出冲击模拟器｜起源">
+<meta property="og:description" content="真实链上数据模拟 LGNS 大额卖出的到账、卖出税、价格冲击与风险。只读、不连钱包。">
+<meta property="og:url" content="https://web3origin.com/tools/lgns-sell-sim/">
+<style>
+  *{box-sizing:border-box}
+  :root{--g:#D6A84B;--glt:#f0d48a;--grn:#76FF36;--grn2:#25c96f;--bg:#070A08;--pnl:#0e0b07;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--bone:#E9EFEA;--red:#ff5a5a;--ora:#ffb454}
+  html,body{margin:0;background:radial-gradient(1200px 600px at 50% -8%,rgba(214,168,75,.08),transparent),var(--bg);color:var(--bone);font-family:system-ui,-apple-system,"Microsoft YaHei",sans-serif;overflow-x:hidden}
+  a{color:var(--glt);text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 18px 70px}
+  .head{text-align:center;padding:64px 10px 6px}
+  .eyebrow{font-size:12px;letter-spacing:.36em;color:var(--g);text-transform:uppercase;margin-bottom:12px}
+  h1{font-family:"STZhongsong","Songti SC",Georgia,serif;font-weight:400;font-size:clamp(24px,4.6vw,38px);color:var(--glt);letter-spacing:.05em;text-shadow:0 0 28px rgba(214,168,75,.32);margin:0}
+  .sub{color:var(--soft);font-size:13.5px;margin-top:11px;line-height:1.7}
+  .card{background:var(--pnl);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:16px}
+  .h3{font-size:12.5px;letter-spacing:.2em;color:var(--g);text-transform:uppercase;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  label.lb{font-size:12.5px;color:var(--soft);display:block;margin:10px 0 5px}
+  .in{width:100%;background:#0b0906;border:1px solid var(--line);border-radius:10px;color:var(--bone);font:inherit;font-size:18px;padding:12px 14px;font-variant-numeric:tabular-nums}
+  .quick,.slip{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+  .chip{cursor:pointer;font:inherit;font-size:13.5px;padding:8px 14px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--bone)}
+  .chip:hover{border-color:var(--g)}
+  .chip.on{background:linear-gradient(90deg,rgba(214,168,75,.2),rgba(118,255,54,.06));border-color:var(--g);color:var(--glt);font-weight:700}
+  .go{width:100%;margin-top:16px;background:linear-gradient(90deg,var(--g),#b8842f);border:0;color:#1a1206;font-weight:800;font-size:16px;padding:14px;border-radius:11px;cursor:pointer;letter-spacing:.05em}
+  .go:disabled{opacity:.55}
+  .prog{margin-top:14px;font-size:13px;color:var(--soft);display:none}
+  .prog.on{display:block}
+  .prog .step{padding:3px 0;transition:.2s}.prog .step.done{color:var(--grn2)}.prog .step.cur{color:var(--glt)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .stat{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:11px;padding:13px}
+  .stat .l{font-size:11.5px;color:var(--muted);letter-spacing:.04em}
+  .stat .v{font-size:21px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums;word-break:break-all}
+  .stat .v.big{font-size:26px;color:var(--grn2)}
+  .stat .s{font-size:11px;color:var(--muted);margin-top:3px}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+  .row:last-child{border-bottom:0}.row .k{color:var(--soft)}.row .val{font-variant-numeric:tabular-nums;text-align:right;word-break:break-all}
+  .neg{color:var(--red)}.pos{color:var(--grn2)}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:700;border:1px solid}
+  .b-low{color:var(--grn2);border-color:rgba(37,201,111,.5);background:rgba(37,201,111,.08)}
+  .b-mid{color:var(--glt);border-color:rgba(240,212,138,.5);background:rgba(214,168,75,.08)}
+  .b-high{color:var(--ora);border-color:rgba(255,180,84,.5);background:rgba(255,180,84,.1)}
+  .b-severe{color:var(--red);border-color:rgba(255,90,90,.5);background:rgba(255,90,90,.1)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  .tw{overflow-x:auto}
+  th,td{padding:8px 9px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  th{color:var(--g);font-weight:600;letter-spacing:.03em}th:first-child,td:first-child{text-align:left}
+  .ev .row .val{font-size:12px}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  .cp{cursor:pointer;border:0;background:transparent;color:var(--soft);font-size:11px;padding:2px 5px}
+  .cp:hover{color:var(--glt)}
+  .warn{color:var(--ora);font-size:12.5px}
+  .err{color:var(--red);font-size:14px;line-height:1.7}
+  .tag{font-size:11px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);color:var(--muted);margin-left:6px}
+  .tag.real{color:var(--grn2);border-color:rgba(37,201,111,.4)}
+  .tag.calc{color:var(--glt);border-color:rgba(240,212,138,.4)}
+  .disc{font-size:12px;color:var(--muted);line-height:1.85}
+  .disc li{margin-bottom:6px}
+  .safebar{position:sticky;bottom:0;background:rgba(20,14,6,.94);border:1px solid var(--line);border-radius:10px;padding:9px 14px;margin-top:16px;font-size:12px;color:var(--soft);text-align:center;backdrop-filter:blur(4px)}
+  .back{display:inline-block;margin-top:22px;color:var(--soft);font-size:13px}
+  .muted{color:var(--muted)}.small{font-size:11.5px}
+  @media(max-width:560px){.head{padding-top:54px}.stat .v{font-size:19px}.stat .v.big{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="eyebrow">ORIGIN · ON-CHAIN TOOL</div>
+    <h1>LGNS 大额卖出冲击模拟器</h1>
+    <div class="sub">输入准备卖出的 LGNS 数量，用<b style="color:var(--glt)">真实链上数据</b>模拟这笔交易此刻执行的结果。只做只读查询与模拟，<b>不连钱包、不请授权、不代替你交易</b>。</div>
+  </div>
+
+  <div class="card">
+    <label class="lb">卖出数量（LGNS）</label>
+    <input id="amt" class="in" inputmode="decimal" placeholder="例如 1000" value="1000">
+    <div class="quick" id="quick"></div>
+    <label class="lb" style="margin-top:16px">允许滑点（你愿意接受的最低成交范围，不是已发生的价格冲击）</label>
+    <div class="slip" id="slip"></div>
+    <input id="slipCustom" class="in" style="font-size:14px;margin-top:9px;display:none" inputmode="decimal" placeholder="自定义滑点 %（如 2）">
+    <button class="go" id="go">开始模拟（读取实时链上数据）</button>
+    <div class="prog" id="prog"></div>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="safebar">🔒 本工具只使用公开链上数据进行模拟。请勿在任何网页输入助记词、私钥或钱包密码。</div>
+  <a class="back" href="/">← 返回起源首页</a>
+</div>
+
+<script>
+(function(){
+"use strict";
+var API="https://count.web3origin.com";
+var EXP="https://polygonscan.com";
+var slipBps=100, lastData=null, freshTimer=null;
+var $=function(id){return document.getElementById(id);};
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function n(v,d){if(v==null||!isFinite(v))return "—";d=d==null?2:d;return Number(v).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});}
+function pct(v,d){if(v==null||!isFinite(v))return "—";return (v*100).toLocaleString("en-US",{minimumFractionDigits:d==null?4:d,maximumFractionDigits:d==null?4:d})+"%";}
+function shortA(a){a=String(a||"");return a.length>12?a.slice(0,6)+"…"+a.slice(-4):a;}
+function addr(a,kind){a=String(a||"");var u=EXP+"/"+(kind||"address")+"/"+a;return '<a href="'+u+'" target="_blank" rel="noopener" class="mono">'+shortA(a)+'</a><button class="cp" data-cp="'+esc(a)+'">复制</button>';}
+function riskInfo(r){return {low:["b-low","较低冲击"],mid:["b-mid","一般冲击"],high:["b-high","较高冲击"],severe:["b-severe","严重冲击"]}[r]||["b-mid","—"];}
+function methodTxt(m){return m==="router_getAmountsOut"?"DEX Router 实时报价":"AMM 数学模型（本池已验证与 Router 一致）";}
+
+// 快捷数量 + 滑点
+["100","500","1000","3000","5000","10000"].forEach(function(v){var b=document.createElement("button");b.className="chip";b.textContent=v;b.onclick=function(){$("amt").value=v;};$("quick").appendChild(b);});
+[["0.5",50],["1",100],["3",300],["5",500],["自定义",-1]].forEach(function(o,i){var b=document.createElement("button");b.className="chip"+(o[1]===100?" on":"");b.textContent=o[0]+(o[1]>=0?"%":"");b.dataset.bps=o[1];b.onclick=function(){document.querySelectorAll("#slip .chip").forEach(function(x){x.classList.remove("on");});b.classList.add("on");if(o[1]===-1){$("slipCustom").style.display="";$("slipCustom").focus();}else{$("slipCustom").style.display="none";slipBps=o[1];}};$("slip").appendChild(b);});
+$("slipCustom").addEventListener("input",function(){var v=parseFloat($("slipCustom").value);if(isFinite(v)&&v>=0&&v<=50)slipBps=Math.round(v*100);});
+
+var STEPS=["正在连接 Polygon 链","正在验证 LGNS / DAI 合约","正在读取交易池储备","正在获取 Router 报价","正在核对合约卖出税","模拟完成"];
+function progress(i){var p=$("prog");p.className="prog on";p.innerHTML=STEPS.map(function(s,k){var cls=k<i?"done":(k===i?"cur":"");return '<div class="step '+cls+'">'+(k<i?"✓ ":(k===i?"… ":"· "))+esc(s)+'</div>';}).join("");}
+
+function run(){
+  var amtStr=String($("amt").value||"").trim();
+  if(!/^\d*\.?\d*$/.test(amtStr)||!(parseFloat(amtStr)>0)){$("out").innerHTML='<div class="card"><div class="err">请输入有效的 LGNS 数量。</div></div>';return;}
+  $("go").disabled=true;$("go").textContent="读取链上数据中…";
+  var pi=0;progress(0);var tk=setInterval(function(){pi=Math.min(pi+1,4);progress(pi);},420);
+  fetch(API+"/lgns/sim?amt="+encodeURIComponent(amtStr)+"&slip="+slipBps).then(function(r){return r.json();}).then(function(d){
+    clearInterval(tk);progress(5);setTimeout(function(){$("prog").className="prog";},700);
+    $("go").disabled=false;$("go").textContent="开始模拟（读取实时链上数据）";
+    if(!d||!d.ok){$("out").innerHTML='<div class="card"><div class="err">'+esc((d&&d.note)||"目前无法获得可靠的链上报价。可能是 RPC 节点异常、交易池流动性不足，或代币合约限制了模拟。系统没有使用任何虚假数据代替，请稍后重试。")+'</div></div>';return;}
+    lastData=d;render(d);startFresh();
+  }).catch(function(){clearInterval(tk);$("prog").className="prog";$("go").disabled=false;$("go").textContent="开始模拟（读取实时链上数据）";$("out").innerHTML='<div class="card"><div class="err">连不上链上数据服务。可能是网络问题或 VPN/拦截插件挡住了 count.web3origin.com。系统未使用虚假数据，请稍后重试。</div></div>';});
+}
+
+function startFresh(){if(freshTimer)clearInterval(freshTimer);freshTimer=setInterval(function(){var el=$("freshTxt");if(!el||!lastData)return;var age=Math.floor(Date.now()/1000)-(lastData.serverTime||0);var w="";if(age>180)w=' · <span class="err">数据已超过3分钟，请重新模拟</span>';else if(age>60)w=' · <span class="warn">数据可能已过期</span>';el.innerHTML="距读取约 "+age+" 秒前"+w;},1000);}
+
+function render(d){
+  var r=d.result,f=d.fee,cny=d.cny||{},ri=riskInfo(d.risk);
+  var theo=r.theoreticalValue, sellLoss=r.sellFeeLossDai, afterTax=theo-sellLoss, dexLoss=afterTax*(f.dexFeePct/100), impLoss=Math.max(0,theo-daiSafe(r.daiOut)-sellLoss-dexLoss);
+  function daiSafe(x){return x||0;}
+  var cnyStr=cny.rate?("≈ ￥"+n(cny.daiCny,0)):"（暂无实时汇率，仅显示 DAI）";
+  var html="";
+  // 核心结果
+  html+='<div class="card"><div class="h3"><span>核心结果 <span class="tag real">链上实时</span></span><span class="badge '+ri[0]+'">'+ri[1]+'</span></div>'
+    +'<div class="grid">'
+    +stat("预计收到","big",n(r.daiOut,2)+" DAI",cnyStr)
+    +stat("最低到账（滑点后）","",n(r.minOut,2)+" DAI","允许滑点 "+(slipBps/100)+"%")
+    +stat("实际平均成交价","",n(r.avgPrice,5),"DAI / LGNS（含卖税）")
+    +stat("当前池内现货价","",n(r.priceNow,5),"DAI / LGNS")
+    +'</div>'
+    +'<div class="row" style="margin-top:12px"><span class="k">最优路由</span><span class="val">'+esc(r.route)+'</span></div>'
+    +'<div class="row"><span class="k">报价方法</span><span class="val">'+esc(methodTxt(r.method))+(r.routerQuote?' <span class="tag real">Router实测</span>':' <span class="tag calc">数学模型</span>')+'</span></div>'
+    +'<div class="row"><span class="k">数据区块</span><span class="val"><a href="'+EXP+'/block/'+d.block+'" target="_blank" rel="noopener" class="mono">'+d.block+'</a></span></div>'
+    +'<div class="row"><span class="k">数据更新</span><span class="val" id="freshTxt">刚刚</span></div></div>';
+  // 成本拆分
+  html+='<div class="card"><div class="h3">成本拆分 <span class="tag calc">按链上数据计算</span></div>'
+    +costRow("理论市值（现货价×数量）",n(theo,2)+" DAI","")
+    +costRow("卖出手续费（合约 "+f.sellTaxPct+"%）","−"+n(sellLoss,2)+" DAI","neg")
+    +costRow("DEX 交易手续费（"+f.dexFeePct+"%）","−"+n(dexLoss,2)+" DAI","neg")
+    +costRow("价格冲击（AMM 曲线）","−"+n(impLoss,2)+" DAI","neg")
+    +costRow("预计 Gas","由你的钱包按当时网络估算（通常几分钱 POL）","muted")
+    +'<div class="row" style="border-top:1px solid var(--line);margin-top:4px;padding-top:10px"><span class="k" style="color:var(--glt);font-weight:700">最终预计到账</span><span class="val" style="color:var(--grn2);font-weight:700">'+n(r.daiOut,2)+' DAI</span></div>'
+    +'<div class="small muted" style="margin-top:8px">注：不同损失分别列出，未统一笼统写成“滑点”。卖出税与 DEX 费为链上确认的费率，价格冲击为 AMM 恒定乘积模型计算。</div></div>';
+  // 价格冲击
+  html+='<div class="card"><div class="h3">价格冲击</div><div class="grid">'
+    +stat("卖出前池内价","",n(r.priceNow,5),"DAI/LGNS")
+    +stat("卖出后预计池价","",n(r.priceAfter,5),"DAI/LGNS")
+    +stat("价格变化","",pct(r.priceImpact,4),ri[1])
+    +stat("卖出量占 LGNS 池","",pct(r.sellRatioOfPool,4),"扣税后进池比例")
+    +'</div></div>';
+  // LP 前后
+  html+='<div class="card"><div class="h3">卖出前后 LP 储备变化 <span class="tag real">链上实时</span></div><div class="tw"><table><thead><tr><th>储备</th><th>卖出前</th><th>卖出后（预计）</th><th>变化</th></tr></thead><tbody>'
+    +lpRow("DAI 储备",r.priceNow&&d.reserves.dai,r.newReserves.dai,r.newReserves.dai-d.reserves.dai)
+    +lpRow("LGNS 储备",d.reserves.lgns,r.newReserves.lgns,r.newReserves.lgns-d.reserves.lgns)
+    +'</tbody></table></div></div>';
+  // 压力测试
+  html+='<div class="card"><div class="h3">多金额压力测试 <span class="tag calc">V2 数学模型</span></div><div class="tw"><table><thead><tr><th>卖出量</th><th>预计到账 DAI</th><th>平均价</th><th>价格冲击</th><th>卖出后池价</th><th>风险</th></tr></thead><tbody>'
+    +(d.stress||[]).map(function(s){var sri=riskInfo(s.risk);return '<tr><td>'+esc(s.amt)+'</td><td>'+n(s.dai,2)+'</td><td>'+n(s.avg,5)+'</td><td>'+pct(s.impact,4)+'</td><td>'+n(s.poolPriceAfter,5)+'</td><td><span class="badge '+sri[0]+'" style="font-size:11px;padding:2px 8px">'+sri[1]+'</span></td></tr>';}).join("")
+    +'</tbody></table></div></div>';
+  // 拆单
+  html+='<div class="card"><div class="h3">整笔 vs 拆单对比 <span class="tag calc">同池连续模拟</span></div><div class="tw"><table><thead><tr><th>方式</th><th>预计到账 DAI</th><th>与整笔差异</th></tr></thead><tbody>'
+    +(function(){var base=(d.splits&&d.splits[0])?d.splits[0].dai:0;return (d.splits||[]).map(function(s){var diff=s.dai-base;return '<tr><td>'+(s.parts===1?"一次卖出":("分 "+s.parts+" 次"))+'</td><td>'+n(s.dai,2)+'</td><td class="'+(diff<-0.01?"neg":(diff>0.01?"pos":"muted"))+'">'+(Math.abs(diff)<0.01?"≈ 持平":(diff>0?"+":"")+n(diff,2))+'</td></tr>';}).join("");})()
+    +'</tbody></table></div><div class="small muted" style="margin-top:8px">⚠ 连续拆单不代表一定能减少损失。若拆单都在同一池内连续完成、期间没有新增买盘/套利/流动性变化，拆单通常不会凭空减少 AMM 总冲击。只有出现新买盘、套利恢复、流动性增加或换不同路由时结果才可能不同。</div></div>';
+  // 链上证据
+  html+='<div class="card ev"><div class="h3">本次计算依据（链上证据）</div>'
+    +erow("网络 / ChainID",esc(d.chain.name)+" · "+d.chain.chainId)
+    +erow("当前区块",'<a href="'+EXP+'/block/'+d.block+'" target="_blank" rel="noopener" class="mono">'+d.block+'</a>')
+    +erow("LGNS 合约",addr(d.addr.lgns)+' <span class="tag">decimals '+d.decimals.lgns+'</span>')
+    +erow("DAI 合约",addr(d.addr.dai)+' <span class="tag">decimals '+d.decimals.dai+'</span>')
+    +erow("交易池（token0=DAI，token1=LGNS）",addr(d.addr.pool))
+    +erow("DEX Factory",addr(d.addr.factory)+' <span class="tag">QuickSwap V2</span>')
+    +erow("DEX Router",addr(d.addr.router))
+    +erow("卖税接收地址",addr(d.addr.feeReceiver))
+    +erow("原始储备 DAI",'<span class="mono small">'+esc(d.reservesRaw.dai)+'</span>')
+    +erow("原始储备 LGNS",'<span class="mono small">'+esc(d.reservesRaw.lgns)+'</span>')
+    +erow("卖出税",f.sellTaxPct+"% （feeRatio "+f.sellTaxRatio+" / PRECISION "+f.precision+"）")
+    +erow("卖出税来源",esc(f.sellTaxSource))
+    +erow("DEX 手续费",f.dexFeePct+"% — "+esc(f.dexFeeSource))
+    +erow("报价调用方法",esc(methodTxt(r.method)))
+    +erow("人民币汇率",cny.rate?(n(cny.rate,4)+" CNY/USD · 来源 "+esc(cny.source||"—")):'<span class="warn">暂无实时汇率</span>')
+    +'</div>';
+  // 风险 + 声明
+  html+='<div class="card"><div class="h3">风险等级（本站机械计算，不构成任何建议）</div>'
+    +'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span class="badge '+ri[0]+'" style="font-size:15px;padding:8px 16px">'+ri[1]+'</span><span class="muted small">按价格冲击 '+pct(r.priceImpact,4)+' 机械评级：&lt;1% 较低 / 1–3% 一般 / 3–10% 较高 / ≥10% 严重。本站不显示“安全/可以卖/建议投资”。</span></div>'
+    +'<ul class="disc" style="margin-top:14px"><li>本工具只做只读模拟：不连接钱包、不请求授权、不发送交易、不代替你卖出。</li><li>价格影响、成交滑点、允许滑点、卖出手续费为四个不同概念，已分别展示。</li><li>卖出税由 LGNS 合约实时读取，合约管理员可修改；若无法确认费率，页面会提示而不显示精确报价。</li><li>数字资产有风险，是否卖出请自行判断（DYOR）。</li></ul></div>';
+  $("out").innerHTML=html;
+  $("out").querySelectorAll("[data-cp]").forEach(function(b){b.onclick=function(){try{navigator.clipboard.writeText(b.getAttribute("data-cp"));b.textContent="已复制";setTimeout(function(){b.textContent="复制";},1200);}catch(e){}};});
+}
+function stat(l,cls,v,s){return '<div class="stat"><div class="l">'+esc(l)+'</div><div class="v '+(cls||"")+'">'+v+'</div>'+(s?'<div class="s">'+esc(s)+'</div>':"")+'</div>';}
+function costRow(k,v,cls){return '<div class="row"><span class="k">'+esc(k)+'</span><span class="val '+(cls||"")+'">'+v+'</span></div>';}
+function erow(k,v){return '<div class="row"><span class="k">'+esc(k)+'</span><span class="val">'+v+'</span></div>';}
+function lpRow(name,before,after,ch){return '<tr><td>'+esc(name)+'</td><td>'+n(before,2)+'</td><td>'+n(after,2)+'</td><td class="'+(ch<0?"neg":"pos")+'">'+(ch>0?"+":"")+n(ch,2)+'</td></tr>';}
+
+$("go").onclick=run;
+$("amt").addEventListener("keydown",function(e){if(e.key==="Enter")run();});
+try{var qa=new URLSearchParams(location.search).get("amt");if(qa&&/^\d*\.?\d*$/.test(qa)&&parseFloat(qa)>0){$("amt").value=qa;run();}}catch(e){}
+})();
+</script>
+</body>
+</html>
