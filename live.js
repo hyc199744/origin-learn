@@ -273,7 +273,6 @@
     root.innerHTML='<div id="live-wrap">'
       +'<div class="lv-head"><div class="lv-eyebrow">'+esc(T.eyebrow)+'</div><h1>'+esc(T.page_title)+'</h1><div class="lv-sub">'+esc(T.subtitle)+'</div></div>'
       +'<div id="lv-body"><div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div></div>'
-      +'<div class="lv-section" id="lv-history-sec" style="display:none"><div class="lv-h3">'+esc(T.history)+'</div><div class="lv-grid" id="lv-history"></div></div>'
       +'<div class="lv-section"><div class="lv-card"><div class="lv-h3">🛡 '+esc(T.disclaimer_t)+'</div><div class="lv-disc"><ul>'+T.disc.map(function(d){return "<li>"+esc(d)+"</li>";}).join("")+'</ul></div></div>'
       +'<div class="lv-foot"><a class="lv-back" href="/">← '+(ZH?"返回起源首页":"Back to Origin home")+'</a></div></div>'
       +'</div>';
@@ -340,7 +339,7 @@
       +'<div style="margin-top:18px"><button class="lv-btn primary big" id="lv-retry">'+(ZH?"↻ 重新加载":"↻ Retry")+'</button></div>'
       +'<div style="margin-top:14px;font-size:12px;color:var(--muted)"><a href="'+API+'/live/today" target="_blank" rel="noopener noreferrer" style="color:var(--soft)">'+(ZH?"自测：点这里，如果也打不开就是网络/拦截挡了数据接口":"Self-check: open this — if it also fails, the data endpoint is blocked")+'</a></div></div>';
     var rb=document.getElementById("lv-retry");
-    if(rb)rb.onclick=function(){body.innerHTML='<div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div>';fetchToday().then(function(){beat();fetchHistory();});};
+    if(rb)rb.onclick=function(){body.innerHTML='<div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div>';fetchToday().then(function(){beat();});};
   }
   function fetchToday(){
     return fetchJSON("/live/today",11000).then(function(r){
@@ -366,13 +365,12 @@
   function boot(){
     var s=document.createElement("style");s.textContent=css;document.head.appendChild(s);
     renderShell();
-    fetchToday().then(function(){beat();fetchHistory();});
+    fetchToday().then(function(){beat();});
     document.addEventListener("fullscreenchange",syncFsButtons);
     document.addEventListener("webkitfullscreenchange",syncFsButtons);
     state.tick=setInterval(tickCountdown,1000);
     setInterval(function(){if(!document.hidden)fetchToday();},30000);   // 可见时每30秒同步(遵规范八:后台标签页降频)
     setInterval(beat,45000);         // 观看心跳
-    setInterval(fetchHistory,180000);
     // 标签页重新激活时立即刷新一次
     document.addEventListener("visibilitychange",function(){if(!document.hidden){fetchToday();beat();}});
     // 语言切换 → 重载(与 dashboard 一致)
