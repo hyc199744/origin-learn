@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,seo:pSeo,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,aitraffic:pAiTraffic,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,seo:pSeo,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -756,6 +756,38 @@ function pOrders(el){el.innerHTML='<div class="a-note-real">加载订单中…</
     +'<div class="a-note-real">收款钱包 0xbd06474d…；金额为精确指纹金额（尾数用于自动对账）。仅读取展示，不涉及任何私钥/助记词。</div></div>';
 }).catch(function(){el.innerHTML='<div class="a-note-real">订单加载失败，请刷新重试。</div>';});}
 /* ---------- 链上状态 ---------- */
+/* ---------- AI流量看板 ---------- */
+function aiRecentTable(rows){
+  if(!rows||!rows.length)return '<div class="a-center">暂无</div>';
+  return '<table class="a-tbl"><thead><tr><th>时间</th><th>AI平台</th><th>落地页</th><th>地区</th></tr></thead><tbody>'
+    +rows.map(function(x){return '<tr><td>'+new Date(x.started_at*1000).toLocaleString()+'</td><td>'+esc(x.source||"")+'</td><td>'+esc(x.landing_page||"")+'</td><td>'+esc(x.country||"")+'</td></tr>';}).join("")
+    +'</tbody></table>';
+}
+function pAiTraffic(el){
+  el.innerHTML='<div class="a-center">加载中…</div>';
+  var range=window._aiRange||"30d";
+  get("/aitraffic?range="+range).then(function(r){
+    if(r&&r.nodb){el.innerHTML='<div class="a-center">分析库(D1)未接入</div>';return;}
+    if(!r||!r.ok){el.innerHTML='<div class="a-center">读取失败</div>';return;}
+    var o=r.overview||{};
+    function box(t,inner){return '<div class="a-panel-box"><h3>'+t+' <span class="a-real">真实</span></h3>'+inner+'</div>';}
+    var LB={today:"今天","7d":"近7天","30d":"近30天"};
+    var rangeBtns=["today","7d","30d"].map(function(x){return '<button class="an-tab'+(range===x?" on":"")+'" data-air="'+x+'">'+LB[x]+'</button>';}).join(" ");
+    el.innerHTML='<div style="margin-bottom:10px">'+rangeBtns+'</div>'
+      +'<div class="a-cards">'
+      +card("🤖","AI 带来的会话",fmtN(o.aiSessions||0),"占全站 "+(o.share||0)+"%","ok")
+      +card("👥","AI 独立访客",fmtN(o.aiVisitors||0),"","")
+      +card("⏱","AI 访客平均停留",(o.avgDuration||0)+"s","")
+      +card("↩","AI 跳出率",(o.bounceRate||0)+"%","")
+      +'</div>'
+      +box("🤖 各 AI 平台明细",(r.platforms&&r.platforms.length)?anBarList(r.platforms,"source","sessions"):'<div class="a-center">这段时间还没有识别到 AI 来源的访问</div>')
+      +box("📄 AI 把访客导到了哪些页面",(r.landings&&r.landings.length)?anBarList(r.landings,"landing_page","sessions"):'<div class="a-center">暂无</div>')
+      +box("📈 AI 流量趋势（按天）",(r.trend&&r.trend.length)?anBarList(r.trend,"d","sessions"):'<div class="a-center">暂无</div>')
+      +box("🕑 最近 AI 来访",aiRecentTable(r.recent))
+      +'<div class="a-note-real">识别口径：按访客的 referrer 域名或链接上的 utm_source 标签判断来自哪个 AI 平台，已覆盖 '+((r.tracked&&r.tracked.length)||0)+' 个平台（'+((r.tracked||[]).slice(0,6).join(" / "))+'…）。<b>注意：很多 AI（尤其手机 App、或带 no-referrer 的链接）点进来不带来源，这部分会被算成「直接访问」而不是 AI，所以真实 AI 流量只多不少。</b>想统计更准，用「推广链接」给对外发布的链接加上 utm 标签即可。</div>';
+    el.querySelectorAll("[data-air]").forEach(function(btn){btn.onclick=function(){window._aiRange=btn.getAttribute("data-air");pAiTraffic(el);};});
+  }).catch(function(){el.innerHTML='<div class="a-center">读取失败</div>';});
+}
 /* ---------- SEO与AI收录 ---------- */
 function pSeo(el){
   el.innerHTML='<div class="a-center">加载中…</div>';
