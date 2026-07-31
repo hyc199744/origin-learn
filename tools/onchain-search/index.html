@@ -73,6 +73,8 @@
   .src{color:var(--muted);font-size:11px;margin-top:8px;line-height:1.6}
   .netpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
   .netpick button{background:var(--card2);border:1px solid var(--line);color:var(--gold-lt);border-radius:9px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+  #langBtn{margin-left:auto;background:var(--card);border:1px solid var(--line);color:var(--soft);border-radius:9px;padding:6px 11px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;line-height:1}
+  #langBtn:hover{color:var(--gold-lt);border-color:var(--gold)}
   @media(max-width:600px){.kv .k{min-width:64px}h1{font-size:20px}}
 </style>
 </head>
@@ -80,6 +82,7 @@
 <div class="wrap">
   <div class="top">
     <a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a>
+    <button id="langBtn" aria-label="Language">🌐</button>
   </div>
   <h1>🔍 链上搜索</h1>
   <p class="sub">输入公开的钱包地址、合约地址或交易哈希，看懂真实链上记录。</p>
@@ -97,6 +100,7 @@
 
 <script src="/contracts.js"></script>
 <script defer src="/assets/analytics.js"></script>
+<script src="/i18n.js"></script>
 <script src="/tools/onchain-search/app.js"></script>
 </body>
 </html>
