@@ -117,6 +117,18 @@ function pLive(el){
       var rows=courses.map(liveRow).join("")||'<div class="a-note-real" style="padding:14px">还没有课程，点上方「➕ 新建课程」添加。</div>';
       var chatRows=chat.map(function(m){return '<div class="lv-r" style="padding:9px 12px"><div style="font-size:13px;color:#E9EFEA;word-break:break-word"><b style="color:#f0d48a">'+esc(m.nick||"游客")+'</b>：'+esc(m.text)+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px"><span style="font-size:11px;color:#8fa0a6">'+liveFmt(m.created_at)+'</span><button class="a-mini" data-chatdel="'+m.id+'" style="color:#ff8a8a;padding:3px 9px">删除</button></div></div>';}).join("")||'<div class="a-note-real" style="padding:12px">暂无弹幕消息</div>';
       el.innerHTML=stats
+        +'<div class="a-panel-box" id="lvPopupBox"><h3>🔔 直播开始自动提醒（弹窗设置）</h3><div style="display:grid;gap:6px;max-width:640px">'
+          +'<label style="font-size:13px;color:#cdb"><input type="checkbox" id="lpEnabled"> 开启直播弹窗提醒（关掉后全站不再弹）</label>'
+          +'<label style="font-size:13px;color:#cdb"><input type="checkbox" id="lpFloat"> 关闭弹窗后保留右下角「● 正在直播」入口</label>'
+          +'<label style="font-size:13px;color:#cdb"><input type="checkbox" id="lpPre"> 开启「开课前提醒」小提示</label>'
+          +'<label class="lv-lb">开课前提醒时间（分钟）</label><input class="lv-in" id="lpPreMin" type="number" min="1" max="120" style="max-width:160px">'
+          +'<label class="lv-lb">点「稍后再看」后多久内不再弹（分钟）</label><input class="lv-in" id="lpSnooze" type="number" min="1" max="1440" style="max-width:160px">'
+          +'<label class="lv-lb">按钮文字 · 进入直播</label><input class="lv-in" id="lpBtnEnter" maxlength="20" style="max-width:280px">'
+          +'<label class="lv-lb">按钮文字 · 继续浏览</label><input class="lv-in" id="lpBtnLater" maxlength="20" style="max-width:280px">'
+          +'<label class="lv-lb">按钮文字 · 本次不再提醒</label><input class="lv-in" id="lpBtnNoMore" maxlength="20" style="max-width:280px">'
+          +'<div style="margin-top:10px"><button class="a-mini" id="lvPopupSave" style="padding:8px 16px">保存弹窗设置</button> <span id="lpMsg" style="font-size:13px;margin-left:8px"></span></div>'
+          +'<div class="a-note-real" style="margin-top:10px">弹窗只在“真的正在直播”时出现（读上面课程的真实状态）；不自动跳转、不自动播声音、接口异常静默不弹。想“强制直播中”或“强制关闭某课”，用课程里的「直播状态来源 = 手动」。</div>'
+        +'</div></div>'
         +'<div class="a-panel-box"><h3>直播课程 <span style="float:right"><button class="a-mini" id="lvNew">➕ 新建课程</button> <a class="a-mini" href="https://web3origin.com/live/" target="_blank" rel="noopener">👁 预览直播页</a></span></h3><div id="lvList" style="margin-top:10px;display:grid;gap:10px">'+rows+'</div></div>'
         +'<div id="lvFormWrap"></div>'
         +'<div class="a-panel-box"><h3>直播公屏 · 互动管理 <span style="float:right"><button class="a-mini" id="lvChatRefresh">↻ 刷新</button> <button class="a-mini" id="lvLikeReset">↺ 重置点赞</button> <button class="a-mini" id="lvChatClear" style="color:#ff8a8a">🧹 清空公屏</button></span></h3>'
@@ -124,6 +136,21 @@ function pLive(el){
         +'<div class="a-note-real" style="margin-top:10px">公屏发言已内置：按IP限流、敏感词(助记词/私钥)拦截、XSS转义。此处为最近 40 条，可删单条或清空全部。</div></div>'
         +'<style>.a-mini{cursor:pointer;font:inherit;font-size:12.5px;padding:6px 12px;border-radius:8px;border:1px solid var(--line,#3a2313);background:rgba(255,255,255,.03);color:var(--gold-lt,#f0d48a);text-decoration:none;display:inline-block}.a-mini:hover{border-color:var(--gold,#D6A84B)}.lv-r{border:1px solid var(--line,#3a2313);border-radius:10px;padding:12px 14px;background:rgba(255,255,255,.02)}.lv-r .rt{font-size:15px;color:#E9EFEA;font-weight:600}.lv-r .rm{font-size:12.5px;color:#b79c74;margin-top:5px;word-break:break-all}.lv-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;margin-right:5px;border:1px solid}.lv-in{width:100%;box-sizing:border-box;padding:9px 11px;border-radius:8px;border:1px solid var(--line,#3a2313);background:#0b0906;color:#E9EFEA;font:inherit;font-size:14px}.lv-lb{font-size:12.5px;color:#b79c74;margin:10px 0 4px;display:block}</style>';
       document.getElementById("lvNew").onclick=function(){_liveEdit=null;liveForm();};
+      // 直播弹窗设置
+      (function(){var $=function(id){return document.getElementById(id);};
+        get("/livepopup").then(function(pp){var p=(pp&&pp.popup)||{};
+          if($("lpEnabled"))$("lpEnabled").checked=p.enabled!==false;
+          if($("lpFloat"))$("lpFloat").checked=p.floatingEntry!==false;
+          if($("lpPre"))$("lpPre").checked=p.preRemindEnabled!==false;
+          if($("lpPreMin"))$("lpPreMin").value=p.preRemindMin||10;
+          if($("lpSnooze"))$("lpSnooze").value=p.snoozeMin||30;
+          if($("lpBtnEnter"))$("lpBtnEnter").value=p.btnEnter||"立即进入直播";
+          if($("lpBtnLater"))$("lpBtnLater").value=p.btnLater||"继续浏览网站";
+          if($("lpBtnNoMore"))$("lpBtnNoMore").value=p.btnNoMore||"本次访问不再提醒";
+        });
+        var sv=$("lvPopupSave");if(sv)sv.onclick=function(){var m=$("lpMsg");m.textContent="保存中…";m.style.color="#9a8";
+          post("/livepopup",{enabled:$("lpEnabled").checked,floatingEntry:$("lpFloat").checked,preRemindEnabled:$("lpPre").checked,preRemindMin:$("lpPreMin").value,snoozeMin:$("lpSnooze").value,btnEnter:$("lpBtnEnter").value,btnLater:$("lpBtnLater").value,btnNoMore:$("lpBtnNoMore").value},true).then(function(x){if(x&&x.ok){m.textContent="已保存";m.style.color="#7fe0a0";}else{m.textContent="失败："+((x&&x.error)||"?");m.style.color="#ff8a8a";}}).catch(function(){m.textContent="网络错误";m.style.color="#ff8a8a";});};
+      })();
       document.getElementById("lvList").querySelectorAll("[data-act]").forEach(function(b){
         b.onclick=function(){
           var id=b.getAttribute("data-id"),act=b.getAttribute("data-act");
