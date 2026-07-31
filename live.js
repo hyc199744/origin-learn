@@ -142,7 +142,7 @@
     if(c.repeat_rule==="slots")return (ZH?"每天 ":"Daily ")+String(c.daily_times||"").split(",").filter(Boolean).join(" / ");
     return T.repeat_none;}
 
-  var state={course:null,offset:0,online:0,cum:0,iframeOn:false,failTimer:null,tick:null,mode:null,lastStatus:null,loaded:false};
+  var state={course:null,offset:0,online:0,cum:0,iframeOn:false,failTimer:null,tick:null,mode:null,lastStatus:null,loaded:false,hls:null,streamFallback:false};
   function serverNow(){return Math.floor(Date.now()/1000)+state.offset;}
 
   function statusInfo(st){var m={
@@ -159,6 +159,42 @@
     fail:["b-fail",T.st_fail],block:["b-block",T.st_block],none:["b-ended",ZH?"暂无课程":"No course"]
   };return m[st]||m.scheduled;}
 
+  // ===== 自建播放器:直接播直播流(hls.js/原生HLS),原生全屏完美,断流换token重连,不行回退iframe =====
+  function lvCanHls(){try{return !!(window.Hls&&window.Hls.isSupported())||!!document.createElement("video").canPlayType("application/vnd.apple.mpegurl");}catch(e){return false;}}
+  function lvDestroyHls(){if(state.hls){try{state.hls.destroy();}catch(e){}state.hls=null;}}
+  var _streamFails=0;
+  function lvOnStreamError(){
+    _streamFails++;
+    if(_streamFails>3){lvDestroyHls();state.streamFallback=true;state.mode=null;state.lastStatus=null;applyStage();return;} // 多次失败→回退iframe
+    fetchJSON("/live/stream",10000).then(function(r){ // 拉最新流地址(换token)重连
+      if(r&&r.ok&&r.live&&r.streamUrl){if(state.course)state.course.streamUrl=r.streamUrl;state.mode=null;applyStage();}
+      else{lvDestroyHls();state.streamFallback=true;state.mode=null;state.lastStatus=null;applyStage();}
+    }).catch(function(){lvDestroyHls();state.streamFallback=true;state.mode=null;applyStage();});
+  }
+  function mountVideo(url){
+    var stage=document.getElementById("lv-stage");if(!stage)return;
+    lvDestroyHls();state.iframeOn=false;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}
+    stage.innerHTML='<div class="lv-overlay"><div class="lv-spin"></div></div>';
+    var v=document.createElement("video");v.id="lv-video";
+    v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.controls=true;v.autoplay=true;v.muted=true;
+    v.style.cssText="position:absolute;inset:0;width:100%;height:100%;background:#000;object-fit:contain;display:block";
+    stage.appendChild(v);
+    var fsb=document.createElement("button");fsb.type="button";fsb.id="lv-fsbtn";fsb.className="lv-fsbtn";fsb.setAttribute("aria-label",T.btn_fs);fsb.innerHTML="⛶ "+esc(T.btn_fs);fsb.onclick=toggleFullscreen;
+    var un=document.createElement("button");un.type="button";un.id="lv-unmute";un.className="lv-fsbtn";un.style.left="14px";un.style.right="auto";un.innerHTML="🔊 "+(ZH?"开启声音":"Sound");
+    un.onclick=function(){v.muted=false;var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});un.remove();};
+    var readied=false;
+    function ready(){if(readied)return;readied=true;_streamFails=0;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}var ov=stage.querySelector(".lv-overlay");if(ov)ov.remove();if(!document.getElementById("lv-fsbtn"))stage.appendChild(fsb);if(!document.getElementById("lv-unmute"))stage.appendChild(un);syncFsButtons();}
+    v.addEventListener("playing",ready);v.addEventListener("loadeddata",ready);
+    v.addEventListener("error",function(){lvOnStreamError();});
+    if(v.canPlayType("application/vnd.apple.mpegurl")){v.src=url;var p0=v.play&&v.play();if(p0&&p0.catch)p0.catch(function(){});}
+    else if(window.Hls&&window.Hls.isSupported()){
+      var hls=new window.Hls({liveDurationInfinity:true,enableWorker:true});state.hls=hls;
+      hls.loadSource(url);hls.attachMedia(v);
+      hls.on(window.Hls.Events.MANIFEST_PARSED,function(){var pp=v.play&&v.play();if(pp&&pp.catch)pp.catch(function(){});});
+      hls.on(window.Hls.Events.ERROR,function(e,data){if(data&&data.fatal)lvOnStreamError();});
+    } else {state.streamFallback=true;state.mode=null;applyStage();return;}
+    state.failTimer=setTimeout(function(){if(v.readyState<2&&!readied)lvOnStreamError();},15000);
+  }
   function mountIframe(url){
     var stage=document.getElementById("lv-stage");if(!stage)return;
     state.iframeOn=false;
@@ -200,9 +236,16 @@
   }
   function toggleFullscreen(){
     if(fsElement()){var ex=document.exitFullscreen||document.webkitExitFullscreen;if(ex)try{ex.call(document);}catch(e){}return;}
+    var v=document.getElementById("lv-video");
+    if(v){ // 自建视频播放器:用视频原生全屏(iOS webkitEnterFullscreen 也能完美铺满,手机全屏就靠这条)
+      if(v.webkitEnterFullscreen){try{v.webkitEnterFullscreen();return;}catch(e){}}
+      var vr=v.requestFullscreen||v.webkitRequestFullscreen;
+      if(vr){try{var vp=vr.call(v);if(vp&&vp.catch)vp.catch(function(){fsFallback();});return;}catch(e){}}
+      fsFallback();return;
+    }
     var el=document.getElementById("lv-stage");if(!el){fsFallback();return;}
     var req=el.requestFullscreen||el.webkitRequestFullscreen;
-    if(!req||isIOS()){fsFallback();return;} // iOS Safari 对非<video>元素不支持全屏 → 走备用,不假装成功
+    if(!req||isIOS()){fsFallback();return;} // iOS Safari 对非<video>容器不支持全屏 → 走备用(视频路径见下,不受此限)
     var after=function(){if(isTouch()&&screen.orientation&&screen.orientation.lock){try{screen.orientation.lock("landscape").catch(function(){});}catch(e){}}setTimeout(cropIframe,60);setTimeout(cropIframe,450);};
     try{var p=req.call(el);if(p&&p.then)p.then(after,function(){fsFallback();});else after();}catch(e){fsFallback();}
   }
@@ -268,12 +311,14 @@
     var c=state.course,st=c.status||"unknown";
     var changed=st!==state.lastStatus;state.lastStatus=st;
     updateBadge(st);
-    if(st==="live"||st==="paused"||st==="replay"){ // 播放器状态:始终页面内嵌入(禁止转跳原站),不重建正在播放的画面
-      if(state.mode!=="embed"){state.mode="embed";mountIframe(safeUrl(c.external_url)||c.external_url);}
+    if(st==="live"||st==="paused"||st==="replay"){ // 播放器:优先自建视频播放器(直播流),无流/不支持则回退iframe;不重建正在播放的画面
+      var su=(!state.streamFallback&&c.streamUrl&&/^https:\/\//i.test(c.streamUrl)&&lvCanHls())?c.streamUrl:"";
+      var want=su?"video":"embed";
+      if(state.mode!==want){state.mode=want;if(want==="video")mountVideo(su);else{lvDestroyHls();mountIframe(safeUrl(c.external_url)||c.external_url);}}
       togglePausedBanner(st==="paused");
       return;
     }
-    togglePausedBanner(false);
+    togglePausedBanner(false);lvDestroyHls();
     if(st==="scheduled"||st==="soon"||st==="upcoming"||st==="waiting"){if(state.mode!=="cd_"+st){state.mode="cd_"+st;showCountdown(stage,st);}return;}
     if(st==="ended"){if(state.mode!=="ended"){state.mode="ended";showEnded(stage,!!c.replayAvailable);}return;}
     if(st==="unavailable"){if(state.mode!=="unavail"){state.mode="unavail";showUnavailable(stage);}return;}
@@ -370,6 +415,7 @@
       var newCourse=r.course||null;
       // 播放器状态之间(live/paused/replay)互切不整块重建,以免打断正在播放的画面(遵规范十一)
       var playerSet={live:1,paused:1,replay:1},oldC=state.course,os=oldC&&oldC.status,ns=newCourse&&newCourse.status;
+      if(oldC&&newCourse&&oldC.id!==newCourse.id){state.streamFallback=false;_streamFails=0;lvDestroyHls();}
       var bothPlayer=oldC&&newCourse&&playerSet[os]&&playerSet[ns]&&oldC.id===newCourse.id&&oldC.embed_mode===newCourse.embed_mode;
       var changed=!oldC||!newCourse||oldC.id!==newCourse.id||oldC.embed_mode!==newCourse.embed_mode||(os!==ns&&!bothPlayer);
       state.course=newCourse;
