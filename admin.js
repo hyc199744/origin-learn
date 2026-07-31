@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,seo:pSeo,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -756,6 +756,47 @@ function pOrders(el){el.innerHTML='<div class="a-note-real">加载订单中…</
     +'<div class="a-note-real">收款钱包 0xbd06474d…；金额为精确指纹金额（尾数用于自动对账）。仅读取展示，不涉及任何私钥/助记词。</div></div>';
 }).catch(function(){el.innerHTML='<div class="a-note-real">订单加载失败，请刷新重试。</div>';});}
 /* ---------- 链上状态 ---------- */
+/* ---------- SEO与AI收录 ---------- */
+function pSeo(el){
+  el.innerHTML='<div class="a-center">加载中…</div>';
+  get("/seo").then(function(r){
+    if(!r.ok){el.innerHTML='<div class="a-center">读取失败</div>';return;}
+    var last=r.last,lastHtml="尚未提交过";
+    if(last){
+      var rs=Object.keys(last.results||{}).map(function(k){var v=last.results[k];var ok=(v===200||v===202);return '<span style="color:'+(ok?"#7fe0a0":"#ff8a8a")+'">'+k+":"+v+'</span>';}).join(" · ");
+      lastHtml=new Date(last.ts).toLocaleString()+" · "+last.count+" 条 · "+rs+" ("+(last.mode==="custom"?"自定义":"全站sitemap")+")";
+    }
+    var catRows=Object.keys(r.cats||{}).sort().map(function(k){return '<tr><td>'+esc(k)+'</td><td style="text-align:right">'+r.cats[k]+'</td></tr>';}).join("");
+    el.innerHTML='<div class="a-cards">'
+      +card("🗺","Sitemap 页数",fmtN(r.total),"提交给引擎的URL总数","ok")
+      +card("🔑","IndexNow 密钥",r.keyFileOk?"正常":"缺失",r.keyFileOk?"密钥文件可访问":"密钥文件404",r.keyFileOk?"ok":"")
+      +card("🤖","robots.txt",r.robotsOk?"正常":"缺失","含AI爬虫规则",r.robotsOk?"ok":"")
+      +card("📄","llms.txt",r.llmsOk?"正常":"缺失","AI导引文件",r.llmsOk?"ok":"")
+      +'</div>'
+      +'<div class="a-panel-box"><h3>一键提交收录（IndexNow）</h3>'
+      +'<div class="a-note-real">点下面按钮，把全站 sitemap 里的所有页面推送给 <b>Bing / Yandex</b> 等支持 IndexNow 的引擎，让它们更快发现更新。<b>发布新内容后点一次即可。</b><br>注意：Google 和百度<b>不支持</b> IndexNow，需要你分别在 <b>Google Search Console</b> 与 <b>百度站长平台</b> 验证站点后提交 sitemap（验证要你登录，拿到验证码/文件给我，我来接）。这里只是「已推送」，是否收录由各引擎决定。</div>'
+      +'<div style="margin-top:12px"><button class="an-tab on" id="seoSubmit">🚀 立即提交全站到 IndexNow</button> <span id="seoMsg" style="font-size:13px;margin-left:8px"></span></div>'
+      +'<div style="margin-top:10px;font-size:13px;color:#9a8">上次提交：'+lastHtml+'</div></div>'
+      +'<div class="a-panel-box"><h3>提交指定页面（可选）</h3>'
+      +'<div class="a-note-real">只想推送某几页时，一行一个完整网址（https://web3origin.com/... 开头），最多 500 条。</div>'
+      +'<textarea id="seoUrls" style="width:100%;min-height:88px;margin-top:8px;background:#0d0f0e;color:#cdb;border:1px solid #333;border-radius:6px;padding:8px;font-size:13px" placeholder="https://web3origin.com/baike/xxx/"></textarea>'
+      +'<div style="margin-top:8px"><button class="an-tab" id="seoSubmitUrls">提交这些页面</button> <span id="seoMsg2" style="font-size:13px;margin-left:8px"></span></div></div>'
+      +'<div class="a-panel-box"><h3>各栏目页数</h3><table class="a-tbl" style="width:auto;min-width:220px"><thead><tr><th>栏目</th><th style="text-align:right">页数</th></tr></thead><tbody>'+catRows+'</tbody></table></div>';
+    function doSubmit(msgId,urls){
+      var m=document.getElementById(msgId);m.textContent="提交中…";m.style.color="#9a8";
+      post("/seo",urls?{urls:urls}:{},true).then(function(x){
+        if(x.ok){var rs=Object.keys(x.results).map(function(k){return k+":"+x.results[k];}).join(" · ");m.textContent="已提交 "+x.submitted+" 条 · "+rs;m.style.color="#7fe0a0";setTimeout(function(){pSeo(el);},1600);}
+        else{m.textContent="失败："+(x.error||"?");m.style.color="#ff8a8a";}
+      }).catch(function(){m.textContent="网络错误";m.style.color="#ff8a8a";});
+    }
+    document.getElementById("seoSubmit").onclick=function(){doSubmit("seoMsg",null);};
+    document.getElementById("seoSubmitUrls").onclick=function(){
+      var raw=document.getElementById("seoUrls").value.split(/\s+/).map(function(s){return s.trim();}).filter(Boolean);
+      if(!raw.length){var m=document.getElementById("seoMsg2");m.textContent="请先填网址";m.style.color="#ff8a8a";return;}
+      doSubmit("seoMsg2",raw);
+    };
+  });
+}
 function pOnchain(el){get("/onchain").then(function(r){
   if(!r.ok||!r.anubis){el.innerHTML='<div class="a-center">雷达数据暂无</div>';return;}
   var a=r.anubis,m=r.market||{},ec=r.eco||{},tr=r.treasury||{};
