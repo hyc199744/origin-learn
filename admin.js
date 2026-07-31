@@ -91,9 +91,10 @@ function lvp2(n){return (n<10?"0":"")+n;}
 function liveSecToDt(sec){if(!sec)return "";var d=new Date(sec*1000+8*3600*1000);return d.getUTCFullYear()+"-"+lvp2(d.getUTCMonth()+1)+"-"+lvp2(d.getUTCDate())+"T"+lvp2(d.getUTCHours())+":"+lvp2(d.getUTCMinutes());}
 function liveDtToSec(v){var m=String(v||"").match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);if(!m)return 0;return Math.floor(Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5])/1000)-8*3600;}
 function liveFmt(sec){if(!sec)return "—";var d=new Date(sec*1000+8*3600*1000);return d.getUTCFullYear()+"-"+lvp2(d.getUTCMonth()+1)+"-"+lvp2(d.getUTCDate())+" "+lvp2(d.getUTCHours())+":"+lvp2(d.getUTCMinutes());}
-var LIVE_ST={upcoming:"未开始",soon:"即将开始",live:"直播中",ended:"已结束",none:"无排期"};
+var LIVE_ST={scheduled:"已安排",upcoming:"未开始",waiting:"等待开课",soon:"即将开始",live:"直播中",paused:"直播中断",ended:"已结束",replay:"回放",unavailable:"无法读取",unknown:"待确认",none:"无排期"};
 var LIVE_WK=["周一","周二","周三","周四","周五","周六","周日"];
 function liveSched(c){
+  if(c.repeat_rule==="slots")return "每天 "+String(c.daily_times||"").split(",").filter(Boolean).join(" / ")+"（北京时间，每场约"+(c.slot_minutes||90)+"分钟）";
   if(c.repeat_rule==="daily")return "每天 "+(c.start_hm||"?")+"–"+(c.end_hm||"?")+"（北京时间）";
   if(c.repeat_rule==="weekly"){var ds=String(c.repeat_days||"").split(",").filter(Boolean).map(function(x){var i=+x-1;return (i>=0&&i<7)?LIVE_WK[i]:"";}).filter(Boolean).join("/");return "每周 "+ds+" "+(c.start_hm||"?")+"–"+(c.end_hm||"?");}
   if(c.repeat_rule==="custom")return "指定日期("+String(c.repeat_days||"").split(",").filter(Boolean).length+"天) "+(c.start_hm||"?")+"–"+(c.end_hm||"?");
@@ -119,8 +120,8 @@ function pLive(el){
           var id=b.getAttribute("data-id"),act=b.getAttribute("data-act");
           var c=courses.filter(function(x){return String(x.id)===String(id);})[0];
           if(act==="edit"){_liveEdit=c;liveForm();window.scrollTo(0,document.body.scrollHeight);}
+          else if(act==="sync"){if(!c||!c.external_url)return;b.textContent="同步中…";post("/live",{action:"sync",external_url:c.external_url},true).then(function(rr){var r=rr&&rr.result;if(rr.ok&&r){toast(r.unsupported?"非盟主页(将按排期显示)":(r.ok?"已同步：平台状态="+(LIVE_ST[r.state]||r.state||"?"):("同步失败："+(r.error||""))));go("live");}else toast(rr.error||"同步失败",1);}).catch(function(){toast("网络错误",1);});}
           else if(act==="del"){if(!confirm("确定删除课程「"+(c?c.title:id)+"」？不可恢复。"))return;post("/live",{action:"delete",id:id},true).then(function(rr){if(rr.ok){toast("已删除");go("live");}else toast(rr.error||"失败",1);});}
-          else if(act==="open"){}
         };
       });
     });
@@ -135,10 +136,21 @@ function liveRow(c){
   var modeTxt={auto:"自动",embed:"强制嵌入",redirect:"跳转"}[c.embed_mode]||"自动";
   tags+='<span class="lv-tag" style="color:#b79c74;border-color:var(--line,#3a2313)">'+modeTxt+'</span>';
   var open=c.external_url?' · <a href="'+esc(c.external_url)+'" target="_blank" rel="noopener" style="color:#f0d48a">原链接↗</a>':"";
+  var smTxt=(c.sync_mode==="manual")?'手动'+(c.manual_status?("："+(LIVE_ST[c.manual_status]||c.manual_status)):""):'自动(以平台为准)';
+  var sy=c._sync,syncTxt="";
+  if(c.sync_mode!=="manual"){
+    if(!sy)syncTxt="未同步";
+    else if(sy.unsupported)syncTxt="非盟主页(按排期显示)";
+    else if(sy.state)syncTxt="平台="+(LIVE_ST[sy.state]||sy.state)+"(码"+(sy.raw||"?")+")"+(sy.lastSyncedAt?" · "+liveFmt(sy.lastSyncedAt):"")+(sy.fails?" · 失败"+sy.fails+"次":"");
+    else syncTxt="等待首次同步";
+  }
   return '<div class="lv-r"><div class="rt">'+esc(c.title)+'</div>'
     +'<div style="margin-top:6px">'+tags+'</div>'
     +'<div class="rm">'+(c.teacher_name?"👨‍🏫 "+esc(c.teacher_name)+" · ":"")+"🕒 "+esc(liveSched(c))+open+'</div>'
-    +'<div style="margin-top:9px;display:flex;gap:7px"><button class="a-mini" data-act="edit" data-id="'+c.id+'">✏️ 编辑</button><button class="a-mini" data-act="del" data-id="'+c.id+'" style="color:#ff8a8a">🗑 删除</button></div></div>';
+    +'<div class="rm" style="color:#8fa0a6">🔄 状态来源：'+esc(smTxt)+(syncTxt?" · "+esc(syncTxt):"")+'</div>'
+    +'<div style="margin-top:9px;display:flex;gap:7px;flex-wrap:wrap"><button class="a-mini" data-act="edit" data-id="'+c.id+'">✏️ 编辑</button>'
+    +(c.sync_mode!=="manual"?'<button class="a-mini" data-act="sync" data-id="'+c.id+'">🔄 立即同步</button>':"")
+    +'<button class="a-mini" data-act="del" data-id="'+c.id+'" style="color:#ff8a8a">🗑 删除</button></div></div>';
 }
 function liveForm(){
   var c=_liveEdit||{embed_mode:"auto",repeat_rule:"none",is_public:1,is_featured:0};
@@ -158,22 +170,32 @@ function liveForm(){
       +'<option value="redirect"'+(c.embed_mode==="redirect"?" selected":"")+'>跳转模式（只显示封面+进入按钮）</option></select>'
     +'<label class="lv-lb">排期方式</label><select class="lv-in" id="fRule">'
       +'<option value="none"'+(c.repeat_rule==="none"?" selected":"")+'>单场（指定具体起止时间）</option>'
-      +'<option value="daily"'+(c.repeat_rule==="daily"?" selected":"")+'>每天重复</option>'
+      +'<option value="slots"'+(c.repeat_rule==="slots"?" selected":"")+'>多时段（每天多场，如 6:30/12:30/14:30/20:00）</option>'
+      +'<option value="daily"'+(c.repeat_rule==="daily"?" selected":"")+'>每天一场（单一时段）</option>'
       +'<option value="weekly"'+(c.repeat_rule==="weekly"?" selected":"")+'>每周指定星期</option>'
       +'<option value="custom"'+(c.repeat_rule==="custom"?" selected":"")+'>自定义日期</option></select>'
     +'<div id="fOnce" style="display:none"><label class="lv-lb">开始时间（北京时间）</label><input class="lv-in" type="datetime-local" id="fStart" value="'+esc(liveSecToDt(c.start_time))+'">'
       +'<label class="lv-lb">结束时间（北京时间）</label><input class="lv-in" type="datetime-local" id="fEnd" value="'+esc(liveSecToDt(c.end_time))+'"></div>'
+    +'<div id="fSlots" style="display:none"><label class="lv-lb">每日开播时刻（多个用英文逗号，24小时制 HH:MM，北京时间）</label><input class="lv-in" id="fDaily" placeholder="06:30,12:30,14:30,20:00" value="'+esc(c.daily_times||"")+'">'
+      +'<label class="lv-lb">每场默认时长（分钟，仅用于排期窗口；真开播/结束以原平台为准）</label><input class="lv-in" type="number" id="fSlotMin" min="5" max="1440" value="'+esc(String(c.slot_minutes||90))+'"></div>'
     +'<div id="fRepeat" style="display:none"><label class="lv-lb">每日开始时刻（HH:MM，北京时间）</label><input class="lv-in" type="time" id="fShm" value="'+esc(c.start_hm||"")+'">'
       +'<label class="lv-lb">每日结束时刻（HH:MM，北京时间）</label><input class="lv-in" type="time" id="fEhm" value="'+esc(c.end_hm||"")+'">'
       +'<div id="fWeekly" style="display:none"><label class="lv-lb">星期几</label><div>'+wkBoxes+'</div></div>'
       +'<div id="fCustom" style="display:none"><label class="lv-lb">日期列表（YYYY-MM-DD，逗号分隔）</label><input class="lv-in" id="fDays" placeholder="2026-08-01,2026-08-05" value="'+esc(c.repeat_rule==="custom"?(c.repeat_days||""):"")+'"></div></div>'
+    +'<label class="lv-lb">直播状态来源</label><select class="lv-in" id="fSyncMode">'
+      +'<option value="auto"'+((c.sync_mode||"auto")==="auto"?" selected":"")+'>自动 · 以原课程平台实时状态为准（推荐）</option>'
+      +'<option value="manual"'+(c.sync_mode==="manual"?" selected":"")+'>手动 · 管理员指定状态（平台异常时备用）</option></select>'
+    +'<div id="fManual" style="display:none"><label class="lv-lb">手动状态</label><select class="lv-in" id="fManualSt">'
+      +["scheduled|课程已安排","waiting|等待开课","live|正在直播","paused|直播暂时中断","ended|今日课程已结束","replay|观看回放","unavailable|暂时无法读取"].map(function(o){var kv=o.split("|");return '<option value="'+kv[0]+'"'+(c.manual_status===kv[0]?" selected":"")+'>'+kv[1]+'</option>';}).join("")+'</select></div>'
     +'<label class="lv-lb">今日课程介绍</label><textarea class="lv-in" id="fDesc" rows="4" maxlength="4000">'+esc(c.description||"")+'</textarea>'
     +'<div style="margin-top:12px"><label style="margin-right:16px;color:#E9EFEA"><input type="checkbox" id="fPub" '+(c.is_public?"checked":"")+'> 公开显示</label>'
       +'<label style="color:#E9EFEA"><input type="checkbox" id="fFeat" '+(c.is_featured?"checked":"")+'> 置顶优先</label></div>'
     +'<div style="margin-top:16px;display:flex;gap:10px"><button class="a-btn" id="fSave" style="width:auto;padding:11px 26px">💾 保存</button><button class="a-mini" id="fCancel">取消</button></div>'
     +'<div class="a-note-real" style="margin-top:12px">提示：重复课程用「每日时刻」，服务器按北京时间每天自动生成当天场次并按服务器时间切换直播状态，无需你保持在线。</div></div>';
-  function syncRule(){var rule=document.getElementById("fRule").value;document.getElementById("fOnce").style.display=rule==="none"?"":"none";document.getElementById("fRepeat").style.display=rule==="none"?"none":"";document.getElementById("fWeekly").style.display=rule==="weekly"?"":"none";document.getElementById("fCustom").style.display=rule==="custom"?"":"none";}
+  function syncRule(){var rule=document.getElementById("fRule").value;document.getElementById("fOnce").style.display=rule==="none"?"":"none";document.getElementById("fSlots").style.display=rule==="slots"?"":"none";document.getElementById("fRepeat").style.display=(rule==="daily"||rule==="weekly"||rule==="custom")?"":"none";document.getElementById("fWeekly").style.display=rule==="weekly"?"":"none";document.getElementById("fCustom").style.display=rule==="custom"?"":"none";}
   document.getElementById("fRule").onchange=syncRule;syncRule();
+  function syncModeToggle(){document.getElementById("fManual").style.display=document.getElementById("fSyncMode").value==="manual"?"":"none";}
+  document.getElementById("fSyncMode").onchange=syncModeToggle;syncModeToggle();
   document.getElementById("fCancel").onclick=function(){wrap.innerHTML="";};
   // 封面上传 → dataURL
   var fileIn=document.getElementById("fCoverFile");
@@ -191,9 +213,11 @@ function liveForm(){
     var body={action:"save",title:document.getElementById("fTitle").value.trim(),teacher_name:document.getElementById("fTeacher").value.trim(),
       external_url:document.getElementById("fUrl").value.trim(),cover_url:document.getElementById("fCover").value.trim(),
       description:document.getElementById("fDesc").value,embed_mode:document.getElementById("fMode").value,repeat_rule:rule,
+      sync_mode:document.getElementById("fSyncMode").value,manual_status:document.getElementById("fManualSt")?document.getElementById("fManualSt").value:"",
       is_public:document.getElementById("fPub").checked?1:0,is_featured:document.getElementById("fFeat").checked?1:0};
     if(_liveEdit)body.id=_liveEdit.id;
     if(rule==="none"){body.start_time=liveDtToSec(document.getElementById("fStart").value);body.end_time=liveDtToSec(document.getElementById("fEnd").value);}
+    else if(rule==="slots"){body.daily_times=document.getElementById("fDaily").value.trim();body.slot_minutes=parseInt(document.getElementById("fSlotMin").value,10)||90;}
     else{body.start_hm=document.getElementById("fShm").value;body.end_hm=document.getElementById("fEhm").value;
       if(rule==="weekly")body.repeat_days=Array.prototype.slice.call(document.querySelectorAll(".lvwk:checked")).map(function(x){return x.value;}).join(",");
       else if(rule==="custom")body.repeat_days=document.getElementById("fDays").value.trim();}

@@ -139,15 +139,25 @@
     if(c.repeat_rule==="daily")return T.repeat_daily+(c.start_hm?(" "+c.start_hm+"–"+(c.end_hm||"")):"");
     if(c.repeat_rule==="weekly"){var ds=String(c.repeat_days||"").split(",").filter(Boolean).map(function(x){var i=parseInt(x,10)-1;return (i>=0&&i<7)?T.wk[i]:"";}).filter(Boolean).join("/");return T.repeat_weekly+" "+ds+(c.start_hm?(" "+c.start_hm+"–"+(c.end_hm||"")):"");}
     if(c.repeat_rule==="custom")return T.repeat_custom+(c.start_hm?(" "+c.start_hm+"–"+(c.end_hm||"")):"");
+    if(c.repeat_rule==="slots")return (ZH?"每天 ":"Daily ")+String(c.daily_times||"").split(",").filter(Boolean).join(" / ");
     return T.repeat_none;}
 
   var state={course:null,offset:0,online:0,cum:0,iframeOn:false,failTimer:null,tick:null,mode:null,lastStatus:null,loaded:false};
   function serverNow(){return Math.floor(Date.now()/1000)+state.offset;}
 
-  function statusInfo(st){return {
-    upcoming:["b-upcoming",T.st_upcoming],soon:["b-soon",T.st_soon],live:["b-live",T.st_live],
-    ended:["b-ended",T.st_ended],fail:["b-fail",T.st_fail],block:["b-block",T.st_block],none:["b-ended",T.st_none]
-  }[st]||["b-upcoming",T.st_upcoming];}
+  function statusInfo(st){var m={
+    scheduled:["b-upcoming",ZH?"课程已安排":"Scheduled"],
+    upcoming:["b-upcoming",ZH?"课程已安排":"Scheduled"],
+    waiting:["b-soon",ZH?"等待开课":"Waiting to start"],
+    soon:["b-soon",ZH?"即将开始":"Starting soon"],
+    live:["b-live",ZH?"正在直播":"Live"],
+    paused:["b-soon",ZH?"直播暂时中断":"Paused"],
+    ended:["b-ended",ZH?"今日课程已结束":"Ended"],
+    replay:["b-upcoming",ZH?"观看回放":"Replay"],
+    unavailable:["b-fail",ZH?"平台暂时无法连接":"Platform unreachable"],
+    unknown:["b-ended",ZH?"课程状态待确认":"Status pending"],
+    fail:["b-fail",T.st_fail],block:["b-block",T.st_block],none:["b-ended",ZH?"暂无课程":"No course"]
+  };return m[st]||m.scheduled;}
 
   function mountIframe(url){
     var stage=document.getElementById("lv-stage");if(!stage)return;
@@ -207,6 +217,13 @@
   function showCountdown(stage,st){
     var c=state.course,cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
     var url=safeUrl(c&&c.external_url);
+    if(st==="waiting"){ // 已到时段但原平台还没开播 → 等待开课(不显示"直播中")
+      stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:14px"><div class="lv-spin"></div>'
+        +'<div class="lv-ovtitle">'+(ZH?"等待老师开课":"Waiting for the class to start")+'</div>'
+        +'<div class="lv-ovsub">'+(ZH?"已到开课时段，正在等待老师在原平台开播；开播后本页会自动切换为直播。":"In the class window — waiting for the host to go live. It will switch automatically once the platform starts.")+'</div>'
+        +(url?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+esc(T.btn_enter)+' ↗</a>':"")+'</div></div>';
+      return;
+    }
     var hint=st==="soon"?T.soon_hint:T.upcoming_hint;
     stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:14px">'
       +'<div class="lv-cd" id="lv-cd"><small>'+esc(T.countdown_start)+'</small><span id="lv-cdv">--:--</span></div>'
@@ -214,37 +231,52 @@
       +(st==="soon"&&url?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+esc(T.btn_enter)+' ↗</a>':"")
       +'</div></div>';
   }
-  function showEnded(stage){
+  function showEnded(stage,replay){
     var c=state.course,cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
-    stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:34px">🌙</div><div class="lv-ovtitle">'+esc(T.ended_title)+'</div><div class="lv-ovsub">'+esc(T.ended_sub)+'</div></div></div>';
+    var url=safeUrl(c&&c.external_url);
+    var sub=replay?(ZH?"本场直播已结束，回放已就绪。":"This session has ended — replay is ready."):(ZH?"本场直播已结束。有回放时这里会显示「观看回放」。":"This session has ended. A replay button will appear here when available.");
+    var btn=(replay&&url)?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">▶ '+(ZH?"观看回放":"Watch replay")+' ↗</a>':'<div class="lv-ovsub" style="color:#8fa0a6">'+(ZH?"等待回放上传":"Waiting for replay upload")+'</div>';
+    stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:34px">🌙</div><div class="lv-ovtitle">'+(ZH?"今日课程已结束":"Today's session has ended")+'</div><div class="lv-ovsub">'+esc(sub)+'</div>'+btn+'</div></div>';
+  }
+  function showUnavailable(stage){
+    var c=state.course,url=safeUrl(c&&c.external_url),cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
+    var last=c&&c.lastSyncedAt?fmtClock(c.lastSyncedAt):"";
+    stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:32px">🛰️</div><div class="lv-ovtitle">'+(ZH?"课程状态正在同步":"Syncing course status")+'</div><div class="lv-ovsub">'+(ZH?"暂时读不到课程平台的实时状态，正在自动重试。":"Temporarily can't read the platform's live status; auto-retrying.")+(last?(ZH?" 最后更新："+last:" Last update: "+last):"")+'</div>'+(url?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+(ZH?"进入原课堂查看":"Open original classroom")+' ↗</a>':"")+'</div></div>';
+  }
+  function showUnknown(stage){
+    var c=state.course,url=safeUrl(c&&c.external_url),cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
+    stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:32px">❔</div><div class="lv-ovtitle">'+(ZH?"课程状态待确认":"Course status pending")+'</div>'+(url?'<a class="lv-btn primary big" target="_blank" rel="noopener noreferrer" href="'+esc(url)+'">'+(ZH?"进入原课堂查看":"Open original classroom")+' ↗</a>':"")+'</div></div>';
+  }
+  function togglePausedBanner(on){
+    var stage=document.getElementById("lv-stage");if(!stage)return;var b=document.getElementById("lv-pausebar");
+    if(on){if(!b){b=document.createElement("div");b.id="lv-pausebar";b.style.cssText="position:absolute;left:0;right:0;top:0;z-index:15;background:rgba(214,168,75,.94);color:#1a1206;font-size:13px;font-weight:700;text-align:center;padding:7px 10px";b.textContent=ZH?"⏸ 直播暂时中断，请稍候…正在自动检查恢复":"⏸ Stream paused, please wait… auto-checking for resume";stage.appendChild(b);}}
+    else if(b){b.remove();}
   }
 
-  // 根据服务器判定的 status + 本地校准时间,决定舞台呈现
+  // 完全按服务器(=原平台)状态呈现,前端不再本地重算"直播中"(遵"以原平台实际状态为准")
   function applyStage(){
     var stage=document.getElementById("lv-stage");if(!stage||!state.course)return;
-    var c=state.course,now=serverNow(),st=c.status;
-    // 本地时间穿越边界的即时修正(无人值守核心)
-    if(c.start&&c.end){if(now>=c.start&&now<c.end)st="live";else if(now>=c.end)st="ended";else st=(c.start-now<=1800)?"soon":"upcoming";}
+    var c=state.course,st=c.status||"unknown";
     var changed=st!==state.lastStatus;state.lastStatus=st;
-    if(st==="live"){
-      if(c.embed_mode==="redirect"){if(changed||state.mode!=="block"){state.mode="block";showRedirect(stage,"block");updateBadge("block");}return;}
-      if(changed||state.mode!=="embed"){state.mode="embed";updateBadge("live");mountIframe(safeUrl(c.external_url)||c.external_url);}
+    updateBadge(st);
+    if(st==="live"||st==="paused"||st==="replay"){ // 播放器状态:挂/保留 iframe,不重建正在播放的画面
+      if(c.embed_mode==="redirect"){if(changed||state.mode!=="block"){state.mode="block";showRedirect(stage,"block");}}
+      else{if(state.mode!=="embed"){state.mode="embed";mountIframe(safeUrl(c.external_url)||c.external_url);}}
+      togglePausedBanner(st==="paused");
       return;
     }
-    if(st==="soon"||st==="upcoming"){if(changed||state.mode!=="cd"){state.mode="cd";showCountdown(stage,st);}updateBadge(st);return;}
-    if(st==="ended"){if(changed||state.mode!=="ended"){state.mode="ended";showEnded(stage);}updateBadge("ended");return;}
+    togglePausedBanner(false);
+    if(st==="scheduled"||st==="soon"||st==="upcoming"||st==="waiting"){if(state.mode!=="cd_"+st){state.mode="cd_"+st;showCountdown(stage,st);}return;}
+    if(st==="ended"){if(state.mode!=="ended"){state.mode="ended";showEnded(stage,!!c.replayAvailable);}return;}
+    if(st==="unavailable"){if(state.mode!=="unavail"){state.mode="unavail";showUnavailable(stage);}return;}
+    if(state.mode!=="unknown"){state.mode="unknown";showUnknown(stage);}
   }
   function updateBadge(st){var b=document.getElementById("lv-badge");if(!b)return;var si=statusInfo(st);b.className="lv-badge "+si[0];b.innerHTML='<span class="lv-dot"></span>'+esc(si[1]);}
 
+  // 倒计时只更新数字显示;到点不本地判直播,等服务器(原平台)切换
   function tickCountdown(){
     if(!state.course)return;var c=state.course,now=serverNow();
-    var cdv=document.getElementById("lv-cdv"),cd=document.getElementById("lv-cd");
-    if(state.mode==="cd"&&c.start){
-      if(now<c.start){if(cdv)cdv.textContent=fmtDur(c.start-now);}
-      else{applyStage();} // 到点自动切播放器
-    } else if(state.mode==="embed"&&c.end){
-      if(now>=c.end)applyStage(); // 到结束自动切"已结束"
-    }
+    if(String(state.mode).indexOf("cd_")===0&&c.start){var cdv=document.getElementById("lv-cdv");if(cdv)cdv.textContent=now<c.start?fmtDur(c.start-now):"00:00";}
   }
 
   function renderShell(){
@@ -256,6 +288,11 @@
       +'<div class="lv-section"><div class="lv-card"><div class="lv-h3">🛡 '+esc(T.disclaimer_t)+'</div><div class="lv-disc"><ul>'+T.disc.map(function(d){return "<li>"+esc(d)+"</li>";}).join("")+'</ul></div></div>'
       +'<div class="lv-foot"><a class="lv-back" href="/">← '+(ZH?"返回起源首页":"Back to Origin home")+'</a></div></div>'
       +'</div>';
+  }
+  function srcFootnote(c){
+    var t=c.source==="page_json"?(ZH?"状态来自课程平台实时同步":"Live-synced from the course platform"):(c.source==="manual"?(ZH?"状态为管理员手动设置":"Set manually by admin"):(c.source==="unavailable"?(ZH?"平台状态暂时读取失败":"Platform status temporarily unavailable"):(ZH?"状态按排期时间显示":"Shown by schedule")));
+    var last=c.lastSyncedAt?(" · "+(ZH?"更新于 ":"updated ")+fmtClock(c.lastSyncedAt)):"";
+    return '<div style="margin-top:8px;font-size:11.5px;color:var(--muted)">'+esc(t+last)+'</div>';
   }
   function renderCourse(){
     var body=document.getElementById("lv-body"),c=state.course;
@@ -271,8 +308,10 @@
       +'<div class="lv-infocol">'
       +'<div class="lv-card"><span class="lv-badge b-upcoming" id="lv-badge"><span class="lv-dot"></span>—</span>'
       +'<div class="lv-ctitle" style="margin-top:12px">'+esc(c.title)+'</div>'
-      +'<div class="lv-meta">'+(c.teacher_name?'<span>'+esc(T.teacher)+'：<b>'+esc(c.teacher_name)+'</b></span>':"")+'<span>'+esc(T.time)+'：<b>'+esc(timeTxt)+'</b></span></div></div>'
+      +'<div class="lv-meta">'+(c.teacher_name?'<span>'+esc(T.teacher)+'：<b>'+esc(c.teacher_name)+'</b></span>':"")+'<span>'+esc(T.time)+'：<b>'+esc(timeTxt)+'</b></span></div>'
+      +srcFootnote(c)+'</div>'
       +'<div class="lv-stats"><div class="lv-stat"><div class="n" id="lv-online">'+state.online+'</div><div class="l">'+esc(T.online)+'</div></div><div class="lv-stat"><div class="n" id="lv-cum">'+state.cum+'</div><div class="l">'+esc(T.cum)+'</div></div></div>'
+      +(c.notice?'<div class="lv-card" style="border-color:rgba(214,168,75,.45)"><div class="lv-h3">'+(ZH?"课程公告":"Notice")+'</div><div class="lv-desc">'+esc(c.notice)+'</div></div>':"")
       +(c.description?'<div class="lv-card"><div class="lv-h3">'+esc(T.intro)+'</div><div class="lv-desc">'+esc(c.description)+'</div></div>':"")
       +'</div></div>';
     // 控件绑定
@@ -323,7 +362,10 @@
       if(typeof r.online==="number")state.online=r.online;
       if(typeof r.cum==="number")state.cum=r.cum;
       var newCourse=r.course||null;
-      var changed=!state.course||!newCourse||state.course.id!==newCourse.id||state.course.status!==newCourse.status||state.course.embed_mode!==newCourse.embed_mode;
+      // 播放器状态之间(live/paused/replay)互切不整块重建,以免打断正在播放的画面(遵规范十一)
+      var playerSet={live:1,paused:1,replay:1},oldC=state.course,os=oldC&&oldC.status,ns=newCourse&&newCourse.status;
+      var bothPlayer=oldC&&newCourse&&playerSet[os]&&playerSet[ns]&&oldC.id===newCourse.id&&oldC.embed_mode===newCourse.embed_mode;
+      var changed=!oldC||!newCourse||oldC.id!==newCourse.id||oldC.embed_mode!==newCourse.embed_mode||(os!==ns&&!bothPlayer);
       state.course=newCourse;
       if(changed)renderCourse();
       else applyStage();
@@ -340,9 +382,11 @@
     document.addEventListener("fullscreenchange",syncFsButtons);
     document.addEventListener("webkitfullscreenchange",syncFsButtons);
     state.tick=setInterval(tickCountdown,1000);
-    setInterval(fetchToday,60000);   // 每60秒服务器重判状态(无人值守)
+    setInterval(function(){if(!document.hidden)fetchToday();},30000);   // 可见时每30秒同步(遵规范八:后台标签页降频)
     setInterval(beat,45000);         // 观看心跳
     setInterval(fetchHistory,180000);
+    // 标签页重新激活时立即刷新一次
+    document.addEventListener("visibilitychange",function(){if(!document.hidden){fetchToday();beat();}});
     // 语言切换 → 重载(与 dashboard 一致)
     try{var l=document.documentElement.lang;new MutationObserver(function(){if(document.documentElement.lang!==l)location.reload();}).observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});}catch(e){}
   }
