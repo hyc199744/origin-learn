@@ -172,9 +172,9 @@
     f.setAttribute("referrerpolicy","strict-origin-when-cross-origin");
     // sandbox:给足播放/登录/全屏/弹窗所需权限,但不过度(不放开 allow-top-navigation-by-user-activation 以外的顶层跳转)
     f.setAttribute("sandbox","allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation allow-orientation-lock allow-modals");
-    f.onload=function(){state.iframeOn=true;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}var ov=stage.querySelector(".lv-overlay");if(ov)ov.remove();};
-    // 加载超时:12秒未 onload → 显示"加载失败/进入原课堂"(不伪造成功)
-    state.failTimer=setTimeout(function(){if(!state.iframeOn)showFail(stage);},12000);
+    f.onload=function(){state.iframeOn=true;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}var ovs=stage.querySelectorAll(".lv-overlay,#lv-failbar");for(var oi=0;oi<ovs.length;oi++)ovs[oi].remove();};
+    // 加载超时:20秒未 onload → 底部小条提示刷新(播放器页较重给足时间;不遮挡画面、不伪造成功、不外跳)
+    state.failTimer=setTimeout(function(){if(!state.iframeOn)showFail(stage);},20000);
     stage.appendChild(f);
     // 播放器右下角浮动「全屏观看」按钮:即使外部平台自带全屏失效,本站容器全屏依旧可用
     var fb=document.createElement("button");fb.type="button";fb.className="lv-fsbtn";fb.id="lv-fsbtn";fb.setAttribute("aria-label",T.btn_fs);
@@ -203,8 +203,12 @@
     var b1=document.getElementById("lv-fs");if(b1)b1.innerHTML=lbl;
     var b2=document.getElementById("lv-fsbtn");if(b2)b2.innerHTML=lbl;
   }
-  function showFail(stage){
-    stage.insertAdjacentHTML("beforeend",'<div class="lv-overlay" id="lv-failov"><div style="font-size:34px">⚠️</div><div class="lv-ovtitle">'+esc(T.fail_title)+'</div><div class="lv-ovsub">'+(ZH?"播放器加载较慢或暂时未响应。点下方刷新，或稍候片刻会自动重试（无需离开本页）。":"The player is slow or not responding. Tap refresh, or it will auto-retry shortly — no need to leave this page.")+'</div><button class="lv-btn primary big" id="lv-failreload">↻ '+esc(T.btn_refresh)+'</button></div>');
+  function showFail(stage){ // 底部小条,不遮挡正在加载的播放器
+    if(document.getElementById("lv-failbar"))return;
+    var bar=document.createElement("div");bar.id="lv-failbar";
+    bar.style.cssText="position:absolute;left:0;right:0;bottom:0;z-index:16;background:rgba(20,14,6,.9);color:#ffd9a0;font-size:12.5px;padding:8px 12px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap";
+    bar.innerHTML='<span>'+(ZH?"若画面未出现，点右侧刷新（无需离开本页）":"If the video hasn't appeared, tap refresh — no need to leave this page")+'</span><button class="lv-btn" style="padding:5px 12px" id="lv-failreload">↻ '+esc(T.btn_refresh)+'</button>';
+    stage.appendChild(bar);
     var rb=document.getElementById("lv-failreload");if(rb)rb.onclick=function(){state.mode=null;state.lastStatus=null;applyStage();};
     reportError("iframe_timeout",(state.course&&state.course.external_url)||"");
   }
