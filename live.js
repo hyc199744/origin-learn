@@ -265,11 +265,13 @@
 
   function reportError(type,detail){try{navigator.sendBeacon&&navigator.sendBeacon(API+"/api/collect/error",JSON.stringify({visitorId:vid(),sessionId:vid(),pathname:"/live/",error_type:type,message:String(detail).slice(0,120),source:"live"}));}catch(e){}}
 
-  // 带超时的 fetch(AbortController),避免网络挂起时页面永远转圈
+  // 带超时的 fetch:AbortController 能中止请求;老浏览器无 AbortController 时也用 Promise.race 到点拒绝兜底,保证一定会 settle(不会永远 pending 卡转圈)
   function fetchJSON(path,ms){
+    ms=ms||11000;
     var ctl=("AbortController" in window)?new AbortController():null;
-    var to=setTimeout(function(){if(ctl)ctl.abort();},ms||11000);
-    return fetch(API+path,ctl?{signal:ctl.signal}:{}).then(function(r){return r.json();}).then(function(j){clearTimeout(to);return j;},function(e){clearTimeout(to);throw e;});
+    var timeout=new Promise(function(_,rej){setTimeout(function(){if(ctl){try{ctl.abort();}catch(e){}}rej(new Error("timeout"));},ms);});
+    var req=fetch(API+path,ctl?{signal:ctl.signal}:{}).then(function(r){return r.json();});
+    return Promise.race([req,timeout]);
   }
   function renderError(){
     if(state.loaded)return; // 已经出过课程/空状态就别用错误页盖掉,只在首屏没加载出来时提示
