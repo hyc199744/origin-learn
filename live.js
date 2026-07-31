@@ -3,6 +3,8 @@
 (function(){
   "use strict";
   var API="https://count.web3origin.com";
+  var EP=window.LV_EP||{};
+  var EPtoday=EP.today||"/live/today",EPstream=EP.stream||"/live/stream",EPchat=EP.chat||"/live/chat",EPsend=EP.send||"/live/chat/send",EPlike=EP.like||"/live/like",EPbeat=EP.beat||"/live/beat";
   var ZH=document.documentElement.lang!=="en"&&!/^en/i.test(document.documentElement.lang||"");
   var T=ZH?{
     eyebrow:"ORIGIN LIVE · 起源生态学习课堂",
@@ -57,6 +59,9 @@
     wk:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
     server_time:"Server time",loading_page:"Loading…"
   };
+  if(window.LV_TITLE){T.page_title=window.LV_TITLE;}
+  if(window.LV_EYEBROW){T.eyebrow=window.LV_EYEBROW;}
+  if(window.LV_SUB){T.subtitle=window.LV_SUB;}
 
   var css="#live-wrap *{box-sizing:border-box}"
     +"#live-wrap{--g:#D6A84B;--glt:#f0d48a;--grn:#76FF36;--grn2:#25c96f;--bg:#070A08;--pnl:#0e0b07;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--bone:#E9EFEA;"
@@ -183,7 +188,7 @@
   function lvOnStreamError(){
     _streamFails++;
     if(_streamFails>3){lvDestroyHls();state.streamFallback=true;state.mode=null;state.lastStatus=null;applyStage();return;} // 多次失败→回退iframe
-    fetchJSON("/live/stream",10000).then(function(r){ // 拉最新流地址(换token)重连
+    fetchJSON(EPstream,10000).then(function(r){ // 拉最新流地址(换token)重连
       if(r&&r.ok&&r.live&&r.streamUrl){if(state.course)state.course.streamUrl=r.streamUrl;state.mode=null;applyStage();}
       else{lvDestroyHls();state.streamFallback=true;state.mode=null;state.lastStatus=null;applyStage();}
     }).catch(function(){lvDestroyHls();state.streamFallback=true;state.mode=null;applyStage();});
@@ -374,11 +379,11 @@
     while(list.children.length>200)list.removeChild(list.firstChild);
     if(near)list.scrollTop=list.scrollHeight;
   }
-  function pollChat(){var list=document.getElementById("lv-chat-list");if(!list)return;fetchJSON("/live/chat"+(_chat.lastId?("?after="+_chat.lastId):""),8000).then(function(r){if(r&&r.ok&&r.msgs&&r.msgs.length)appendMsgs(r.msgs);}).catch(function(){});}
+  function pollChat(){var list=document.getElementById("lv-chat-list");if(!list)return;fetchJSON(EPchat+(_chat.lastId?("?after="+_chat.lastId):""),8000).then(function(r){if(r&&r.ok&&r.msgs&&r.msgs.length)appendMsgs(r.msgs);}).catch(function(){});}
   function sendChat(){
     var inp=document.getElementById("lv-chat-text");if(!inp)return;var text=inp.value.replace(/\s+/g," ").trim();if(!text)return;
     var btn=document.getElementById("lv-chat-send");if(btn)btn.disabled=true;
-    postJSON("/live/chat/send",{text:text,nick:_chat.nick},10000).then(function(r){
+    postJSON(EPsend,{text:text,nick:_chat.nick},10000).then(function(r){
       if(btn)btn.disabled=false;
       if(r&&r.ok){inp.value="";if(r.nick){lvSetNick(r.nick);var ni=document.getElementById("lv-chat-nick");if(ni&&!ni.value)ni.value=r.nick;}pollChat();}
       else lvToast((r&&(r.msg||r.error))||"发送失败");
@@ -386,8 +391,8 @@
   }
   var _like={pending:0,total:0,timer:null};
   function spawnHeart(){var box=document.getElementById("lv-hearts");if(!box)return;var em=["❤️","💛","💚","👍","🎉","🔥"];var h=document.createElement("div");h.className="lv-heart";h.textContent=em[Math.floor(Math.random()*em.length)];h.style.left=(8+Math.random()*76)+"%";h.style.setProperty("--dx",(Math.random()*44-22)+"px");box.appendChild(h);setTimeout(function(){if(h.parentNode)h.parentNode.removeChild(h);},1950);}
-  function doLike(){spawnHeart();_like.pending++;if(_like.timer)return;_like.timer=setTimeout(function(){var n=_like.pending;_like.pending=0;_like.timer=null;fetchJSON("/live/like?n="+n,8000).then(function(r){if(r&&r.ok&&typeof r.total==="number"){_like.total=r.total;var el=document.getElementById("lv-likeN");if(el)el.textContent=lvFmtN(r.total);}}).catch(function(){});},800);}
-  function loadLikes(){fetchJSON("/live/like?read=1",8000).then(function(r){if(r&&r.ok&&typeof r.total==="number"){_like.total=r.total;var el=document.getElementById("lv-likeN");if(el)el.textContent=lvFmtN(r.total);}}).catch(function(){});}
+  function doLike(){spawnHeart();_like.pending++;if(_like.timer)return;_like.timer=setTimeout(function(){var n=_like.pending;_like.pending=0;_like.timer=null;fetchJSON(EPlike+"?n="+n,8000).then(function(r){if(r&&r.ok&&typeof r.total==="number"){_like.total=r.total;var el=document.getElementById("lv-likeN");if(el)el.textContent=lvFmtN(r.total);}}).catch(function(){});},800);}
+  function loadLikes(){fetchJSON(EPlike+"?read=1",8000).then(function(r){if(r&&r.ok&&typeof r.total==="number"){_like.total=r.total;var el=document.getElementById("lv-likeN");if(el)el.textContent=lvFmtN(r.total);}}).catch(function(){});}
   function bindChat(){
     _chat.nick=lvNick();
     var send=document.getElementById("lv-chat-send"),inp=document.getElementById("lv-chat-text"),ni=document.getElementById("lv-chat-nick"),like=document.getElementById("lv-like");
@@ -463,12 +468,12 @@
       +'<div class="lv-ctitle" style="color:var(--glt)">'+(ZH?"课程数据加载失败":"Failed to load course data")+'</div>'
       +'<div style="margin-top:12px;font-size:14px;line-height:1.85">'+(ZH?"没能连上课程数据服务。多半是网络问题，或你的 VPN／广告拦截插件挡住了数据域名 count.web3origin.com（它名字叫 count，容易被误当成追踪器拦掉）。可以关掉拦截插件、或切换网络后点下面重试。":"Couldn't reach the course data service. This is usually a network issue, or your VPN / ad-blocker is blocking the data domain count.web3origin.com. Try disabling the blocker or switching network, then retry.")+'</div>'
       +'<div style="margin-top:18px"><button class="lv-btn primary big" id="lv-retry">'+(ZH?"↻ 重新加载":"↻ Retry")+'</button></div>'
-      +'<div style="margin-top:14px;font-size:12px;color:var(--muted)"><a href="'+API+'/live/today" target="_blank" rel="noopener noreferrer" style="color:var(--soft)">'+(ZH?"自测：点这里，如果也打不开就是网络/拦截挡了数据接口":"Self-check: open this — if it also fails, the data endpoint is blocked")+'</a></div></div>';
+      +'<div style="margin-top:14px;font-size:12px;color:var(--muted)"><a href="'+API+EPtoday+'" target="_blank" rel="noopener noreferrer" style="color:var(--soft)">'+(ZH?"自测：点这里，如果也打不开就是网络/拦截挡了数据接口":"Self-check: open this — if it also fails, the data endpoint is blocked")+'</a></div></div>';
     var rb=document.getElementById("lv-retry");
     if(rb)rb.onclick=function(){body.innerHTML='<div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div>';fetchToday().then(function(){beat();});};
   }
   function fetchToday(){
-    return fetchJSON("/live/today",11000).then(function(r){
+    return fetchJSON(EPtoday,11000).then(function(r){
       if(!r||!r.ok){renderError();return;}
       state.loaded=true;
       if(typeof r.serverTime==="number")state.offset=r.serverTime-Math.floor(Date.now()/1000);
@@ -487,7 +492,7 @@
     }).catch(function(){renderError();});
   }
   function fetchHistory(){fetchJSON("/live/list",10000).then(function(r){if(r&&r.ok)renderHistory(r.courses||[]);}).catch(function(){});}
-  function beat(){fetchJSON("/live/beat?v="+encodeURIComponent(vid()),8000).then(function(r){if(r&&r.ok){if(typeof r.online==="number")state.online=r.online;if(typeof r.cum==="number")state.cum=r.cum;var on=document.getElementById("lv-online"),cu=document.getElementById("lv-cum");if(on)on.textContent=state.online;if(cu)cu.textContent=state.cum;}}).catch(function(){});}
+  function beat(){fetchJSON(EPbeat+"?v="+encodeURIComponent(vid()),8000).then(function(r){if(r&&r.ok){if(typeof r.online==="number")state.online=r.online;if(typeof r.cum==="number")state.cum=r.cum;var on=document.getElementById("lv-online"),cu=document.getElementById("lv-cum");if(on)on.textContent=state.online;if(cu)cu.textContent=state.cum;}}).catch(function(){});}
 
   function boot(){
     var s=document.createElement("style");s.textContent=css;document.head.appendChild(s);
