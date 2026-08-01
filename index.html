@@ -240,7 +240,7 @@ section{position:relative;padding:100px 0}
 .codices{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:44px}
 .codex{position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--line);aspect-ratio:134/212;background:#0a0304;transition:transform .3s,border-color .3s,box-shadow .3s}
 .codex:hover{transform:translateY(-6px) scale(1.03);border-color:var(--gold-lt);box-shadow:0 14px 40px rgba(0,0,0,.6),0 0 26px rgba(240,90,50,.35);z-index:2}
-.codex video{width:100%;height:100%;object-fit:cover;display:block}
+.codex video,.codex img{width:100%;height:100%;object-fit:cover;display:block}
 .codex .lbl{position:absolute;left:0;right:0;bottom:0;padding:8px 10px 7px;font-size:11px;color:var(--bone);background:linear-gradient(0deg,rgba(5,3,3,.9),transparent);font-family:var(--serif);letter-spacing:.05em}
 
 .filters{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:22px}
@@ -792,8 +792,7 @@ const CARDS=["apostle1","apostle2","apostle3","apostle4","apostle5","apostle6"];
 const LBL=["信 · 火","信 · 金","信 · 焰","信 · 血","信 · 生","信 · 曦"];
 const LBL_EN=["Faith · Fire","Faith · Gold","Faith · Flame","Faith · Blood","Faith · Life","Faith · Dawn"];
 window.renderCodices=function(){var en=(window.SITE_LANG||"zh")!=="zh";
-document.getElementById('codices').innerHTML=CARDS.map(function(c,i){return '<div class="codex"><video muted loop playsinline preload="none"><source src="https://media.web3origin.com/'+c+'.mp4" type="video/mp4"></video><div class="lbl">'+(en?LBL_EN[i]:LBL[i])+'</div></div>';}).join('');
-document.querySelectorAll('.codex').forEach(function(card){var v=card.querySelector('video');card.addEventListener('mouseenter',function(){v.play().catch(function(){});});card.addEventListener('mouseleave',function(){v.pause();});});};
+document.getElementById('codices').innerHTML=CARDS.map(function(c,i){var t=en?LBL_EN[i]:LBL[i];return '<div class="codex"><img src="assets/trials/'+c+'.webp" alt="'+t+'" loading="lazy" decoding="async" width="520" height="830"><div class="lbl">'+t+'</div></div>';}).join('');};
 window.renderCodices();
 
 /* ————— 资料中心（数据来自 library.js 的 LIBRARY 清单）————— */
