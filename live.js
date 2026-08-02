@@ -212,9 +212,10 @@
     if(v.canPlayType("application/vnd.apple.mpegurl")){v.src=url;lvTryPlay(v);}
     else if(window.Hls&&window.Hls.isSupported()){
       var hls=new window.Hls({liveDurationInfinity:true,enableWorker:true,lowLatencyMode:false,
-        backBufferLength:30,maxBufferLength:30,maxMaxBufferLength:60,
-        liveSyncDurationCount:4,liveMaxLatencyDurationCount:15,maxLiveSyncPlaybackRate:1.5,
-        fragLoadingMaxRetry:8,fragLoadingRetryDelay:500,manifestLoadingMaxRetry:4,levelLoadingMaxRetry:4});state.hls=hls;
+        backBufferLength:30,maxBufferLength:60,maxMaxBufferLength:120,
+        liveSyncDurationCount:5,liveMaxLatencyDurationCount:60,
+        maxBufferHole:0.5,nudgeMaxRetry:10,nudgeOffset:0.2,
+        fragLoadingMaxRetry:10,fragLoadingRetryDelay:500,manifestLoadingMaxRetry:6,levelLoadingMaxRetry:6});state.hls=hls;
       hls.loadSource(url);hls.attachMedia(v);
       hls.on(window.Hls.Events.MANIFEST_PARSED,function(){lvTryPlay(v);});
       hls.on(window.Hls.Events.ERROR,function(e,data){if(data&&data.fatal)lvOnStreamError();});
