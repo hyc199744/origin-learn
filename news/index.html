@@ -2,8 +2,10 @@
 <html lang="zh"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Web3Origin · 最新资讯</title>
+<meta name="description" content="实时整理 ORIGIN 起源、LGNS、Awake DAO、Anubis Chain、DeFi 与链上数据。官方公告自动同步，全文站内直读并附原始出处，方便自行核验。独立研究平台，不代表任何项目方。">
+<link rel="canonical" href="https://web3origin.com/news/">
 <style>
-:root{--bg:#0c0c0f;--panel:#141419;--line:#2a2a33;--txt:#f0ece3;--sub:#a49e92;--dim:#6f6a60;--gold:#e8b04b;--goldd:#c8913a;--ink:#0c0c0f;--blue:#5ba3e0;--green:#4bcf8a;--violet:#a894f0;--amberbg:#231d10}
+:root{--bg:#0c0c0f;--panel:#141419;--line:#2a2a33;--txt:#f0ece3;--sub:#a49e92;--dim:#6f6a60;--gold:#e8b04b;--goldd:#c8913a;--ink:#0c0c0f;--blue:#5ba3e0;--green:#4bcf8a;--violet:#a894f0;--amberbg:#231d10;--red:#e0685b}
 *{box-sizing:border-box;margin:0;padding:0}html,body{overflow-x:hidden}
 body{background:var(--bg);color:var(--txt);font:15px/1.65 "Georgia","Songti SC",-apple-system,"PingFang SC","Microsoft YaHei",serif;-webkit-font-smoothing:antialiased}
 .sans{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -13,92 +15,61 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 .mast{border-bottom:1px solid var(--line)}.mast .wrap{display:flex;align-items:center;gap:16px;height:64px}
 .brand{font-size:22px;letter-spacing:1px;font-weight:700}.brand em{color:var(--gold);font-style:normal}
 .mast nav{margin-left:auto;display:flex;gap:20px;font-family:sans-serif;font-size:14px}.mast nav a{color:var(--sub);padding:4px 0;border-bottom:2px solid transparent}.mast nav a.on{color:var(--txt);border-color:var(--gold)}
-.lang{font-family:sans-serif;font-size:13px;color:var(--sub);border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+.lang{font-family:sans-serif;font-size:13px;color:var(--sub);border:1px solid var(--line);border-radius:20px;padding:4px 12px;cursor:pointer}
 @media(max-width:760px){.mast nav{display:none}.brand{font-size:19px}}
 .strap{border-bottom:1px solid var(--line);font-family:sans-serif}.strap .wrap{display:flex;align-items:center;gap:18px;height:44px;font-size:13px;color:var(--sub);overflow-x:auto;white-space:nowrap;scrollbar-width:none}.strap .wrap::-webkit-scrollbar{display:none}
-.strap b{color:var(--txt)}.strap .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 8px var(--green);animation:bp 1.6s infinite}@keyframes bp{50%{opacity:.4}}.strap .rf{margin-left:auto;color:var(--gold);cursor:pointer}
+.strap b{color:var(--txt)}.strap .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 8px var(--green);animation:bp 1.6s infinite}.strap .dot.bad{background:var(--red);box-shadow:0 0 8px var(--red)}@keyframes bp{50%{opacity:.4}}.strap .rf{margin-left:auto;color:var(--gold);cursor:pointer}
 .title{padding:26px 0 6px}.title h1{font-size:30px}.title h1 em{color:var(--gold);font-style:normal}.title p{font-family:sans-serif;color:var(--sub);font-size:13.5px;margin-top:8px;max-width:720px}
 .tabs{display:flex;gap:22px;overflow-x:auto;border-bottom:1px solid var(--line);padding:12px 0;margin-top:12px;font-family:sans-serif;font-size:14px;scrollbar-width:none;white-space:nowrap}.tabs::-webkit-scrollbar{display:none}.tabs a{color:var(--sub);cursor:pointer;padding-bottom:6px}.tabs a.on{color:var(--gold);font-weight:600;box-shadow:0 2px 0 var(--gold)}
 .cols{display:grid;grid-template-columns:1.5fr 1fr;gap:32px;padding:24px 0}@media(max-width:860px){.cols{grid-template-columns:1fr;gap:24px}}
-.lead .kicker{font-family:sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);display:flex;gap:8px;align-items:center}
-.tag{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:700}.tag.off{background:var(--blue);color:var(--ink)}.tag.gov{background:var(--violet);color:var(--ink)}
+.lead .kicker{font-family:sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tag{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:700}.tag.off{background:var(--blue);color:var(--ink)}.tag.gov{background:var(--violet);color:var(--ink)}.tag.chain{background:var(--green);color:var(--ink)}
 .lead h2{font-size:27px;line-height:1.35;margin:12px 0;cursor:pointer}
-.lead .art{background:linear-gradient(135deg,#1c1710,#141419);border:1px solid var(--line);border-radius:14px;height:180px;margin:16px 0;display:flex;align-items:center;justify-content:center;color:var(--goldd);font-family:sans-serif;font-size:13px;position:relative;overflow:hidden;cursor:pointer}.lead .art::after{content:"";position:absolute;inset:0;background:radial-gradient(400px 200px at 30% 20%,rgba(232,176,75,.14),transparent)}
+.lead .art{background:linear-gradient(135deg,#1c1710,#141419);border:1px solid var(--line);border-radius:14px;min-height:150px;margin:16px 0;display:flex;align-items:center;justify-content:center;color:var(--goldd);font-family:sans-serif;font-size:14px;position:relative;overflow:hidden;cursor:pointer;text-align:center;padding:24px;line-height:1.5}.lead .art::after{content:"";position:absolute;inset:0;background:radial-gradient(400px 200px at 30% 20%,rgba(232,176,75,.14),transparent)}
 .lead .stand{color:var(--sub);font-size:15px}
 .byl{font-family:sans-serif;font-size:12.5px;color:var(--dim);display:flex;flex-wrap:wrap;gap:8px 16px;border-top:1px solid var(--line);padding-top:12px;margin-top:14px}.byl b{color:var(--sub);font-weight:500}.byl .lv{font-size:10.5px;padding:1px 6px;border-radius:4px;background:rgba(91,163,224,.16);color:var(--blue)}
 .readmore{display:inline-block;margin-top:14px;font-family:sans-serif;font-size:14px;color:var(--gold);font-weight:600;cursor:pointer}
 .feed h3{font-family:sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:6px}
-.item{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--line)}.item:hover h4{color:var(--gold)}
+.item{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--line);cursor:pointer}.item:hover h4{color:var(--gold)}
 .item .time{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--dim);min-width:52px;padding-top:2px}.item .bd{flex:1}
 .lab{font-family:sans-serif;font-size:11px;font-weight:700;padding:1px 7px;border-radius:4px;display:inline-block;margin-bottom:5px;margin-right:4px}
 .lab.off{background:rgba(91,163,224,.16);color:var(--blue)}.lab.chain{background:rgba(75,207,138,.16);color:var(--green)}.lab.gov{background:rgba(168,148,240,.16);color:var(--violet)}.lab.wait{background:rgba(232,176,75,.16);color:var(--gold)}
-.item h4{font-size:16px;line-height:1.45;font-weight:600;transition:.15s}.item .s{font-family:sans-serif;font-size:12.5px;color:var(--sub);margin-top:4px}.item .lk{font-family:sans-serif;font-size:12px;color:var(--gold);margin-top:6px;display:inline-block;cursor:pointer}
-.item .kv,.lead .kv{font-family:sans-serif;background:#0f120e;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12px;color:var(--sub);margin-top:6px}.kv .nn{color:var(--green);font-weight:600}
+.item h4{font-size:16px;line-height:1.45;font-weight:600;transition:.15s}.item .s{font-family:sans-serif;font-size:12.5px;color:var(--sub);margin-top:4px}.item .lk{font-family:sans-serif;font-size:12px;color:var(--gold);margin-top:6px;display:inline-block}
+.kv{font-family:sans-serif;background:#0f120e;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12px;color:var(--sub);margin-top:6px}.kv .nn{color:var(--green);font-weight:600}
 .sec{margin:14px 0 12px;font-family:sans-serif;display:flex;align-items:center;gap:12px}.sec h3{font-size:16px}.sec .ln{flex:1;height:1px;background:var(--line)}.sec .note{font-size:12px;color:var(--dim)}
 .links{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;font-family:sans-serif;padding-bottom:8px}@media(max-width:860px){.links{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.links{grid-template-columns:1fr}}
 .lk2{border:1px solid var(--line);border-radius:11px;padding:13px 14px;background:var(--panel)}.lk2 .t{font-weight:600;font-size:13.5px;display:flex;gap:7px;align-items:center}.lk2 .u{font-size:11.5px;color:var(--blue);margin-top:5px;word-break:break-all}.lk2 .p{font-size:10.5px;color:var(--green);margin-top:7px}.lk2 .p.b{color:var(--blue)}
-.empty{border:1px dashed var(--line);border-radius:12px;padding:20px;text-align:center;color:var(--dim);font-family:sans-serif;font-size:13px;margin-bottom:8px}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:26px;text-align:center;color:var(--dim);font-family:sans-serif;font-size:13.5px;margin:20px 0}
 .disc{margin:22px 0 44px;border-top:2px solid var(--gold);background:var(--panel);border-radius:0 0 12px 12px;padding:16px 18px;color:var(--sub);font-size:12.5px;line-height:1.75;font-family:sans-serif}.disc b{color:var(--txt)}.disc .w{color:var(--gold);font-weight:600;margin-top:8px}
-/* reader */
-.mask{position:fixed;inset:0;background:rgba(4,4,7,.72);backdrop-filter:blur(4px);z-index:50;display:none;padding:20px}
-.mask.on{display:block}
+.mask{position:fixed;inset:0;background:rgba(4,4,7,.72);backdrop-filter:blur(4px);z-index:50;display:none;padding:20px}.mask.on{display:block}
 .reader{max-width:760px;margin:24px auto;background:var(--bg);border:1px solid var(--line);border-radius:16px;max-height:90vh;overflow:auto}
-.reader .rh{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:16px 22px;display:flex;align-items:center;gap:12px;z-index:2}
-.reader .rh .x{margin-left:auto;font-family:sans-serif;font-size:22px;color:var(--sub);cursor:pointer;line-height:1}
-.reader .rb{padding:8px 26px 26px}
-.reader h2{font-size:23px;line-height:1.4;margin:14px 0 6px}
-.tcard{font-family:sans-serif;background:#0f120e;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0;font-size:12.5px;color:var(--sub);display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
-.tcard b{color:var(--txt);font-weight:600}.tcard .g{color:var(--green)}.tcard .bl{color:var(--blue)}
+.reader .rh{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:16px 22px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;z-index:2}.reader .rh .x{margin-left:auto;font-family:sans-serif;font-size:22px;color:var(--sub);cursor:pointer;line-height:1}
+.reader .rb{padding:8px 26px 26px}.reader h2{font-size:23px;line-height:1.4;margin:14px 0 6px}
+.tcard{font-family:sans-serif;background:#0f120e;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0;font-size:12.5px;color:var(--sub);display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}.tcard b{color:var(--txt);font-weight:600}.tcard .g{color:var(--green)}.tcard .bl{color:var(--blue)}
 .reader p{margin:11px 0;color:#e7e2d7;font-size:15.5px;line-height:1.85}
-.oc{font-family:sans-serif;margin:16px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.oc .h{background:rgba(75,207,138,.1);color:var(--green);font-size:12.5px;font-weight:600;padding:8px 12px;border-bottom:1px solid var(--line)}
-.oc a{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--sub)}.oc a:last-child{border:0}.oc a:hover{background:#12160f}.oc .ad{font-family:ui-monospace,monospace;color:var(--blue)}
+.oc{font-family:sans-serif;margin:16px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden}.oc .h{background:rgba(75,207,138,.1);color:var(--green);font-size:12.5px;font-weight:600;padding:8px 12px;border-bottom:1px solid var(--line)}.oc a{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--sub)}.oc a:last-child{border:0}.oc a:hover{background:#12160f}.oc .ad{font-family:ui-monospace,monospace;color:var(--blue)}
 .verify{font-family:sans-serif;font-size:13px;color:var(--dim);margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}.verify a{color:var(--gold)}
+.load{text-align:center;color:var(--dim);font-family:sans-serif;padding:40px;font-size:14px}
 </style></head><body>
 
-<div class="pv">🔧 <b>预览版</b> · 全文<b>站内直读、不跳外站</b>。内容为官方来源真实抓取（公告 origindao.io 官方接口 · 链上实时读取），非编造。正式版接自动同步+后台管理。</div>
+<div class="pv">📡 <b>官方公告自动同步</b> · 内容真实抓取自 origindao.io 官方接口，全文<b>站内直读、不跳外站</b>，并附原始出处便于核验。绝不编造。</div>
 
 <div class="mast"><div class="wrap">
   <a class="brand" href="/">Web3<em>Origin</em></a>
   <nav><a href="/#radar">链上雷达</a><a href="/academy/">学习学院</a><a class="on">最新资讯</a><a href="/live/">线上直播</a><a href="/">首页</a></nav>
-  <span class="lang">中 · EN</span>
+  <span class="lang" onclick="alert('中英切换将随全站 i18n 统一接入')">中 · EN</span>
 </div></div>
 
 <div class="strap"><div class="wrap">
-  <span><span class="dot"></span> <b>数据源正常</b></span><span>最后同步 <b>刚刚</b></span><span>今日新增 <b>0</b></span><span>官方来源 <b>4</b></span><span>链上已验证 <b>3</b></span><span>自动刷新 <b id="cd">05:00</b></span><span class="rf">↻ 手动刷新</span>
+  <span><span class="dot" id="dot"></span> <b id="srcState">加载中…</b></span><span>最后同步 <b id="syncAgo">—</b></span><span>官方公告 <b id="cOff">—</b></span><span>链上已验证 <b>1</b></span><span class="rf" onclick="loadFeed(1)">↻ 手动刷新</span>
 </div></div>
 
 <div class="wrap">
   <div class="title"><h1>最新资讯 · <em>Origin 生态情报</em></h1>
-  <p>实时整理 ORIGIN 起源、LGNS、Awake DAO、Anubis Chain、DeFi 与链上数据。全文站内直读，并附原始出处便于自行核验。独立研究平台，不代表任何项目方。</p></div>
-  <div class="tabs"><a class="on">全部</a><a>官方公告</a><a>DAO治理</a><a>ORIGIN起源</a><a>LGNS</a><a>Anubis Chain</a><a>Awake DAO</a><a>链上数据</a><a>DeFi观察</a><a>Web3安全</a><a>新手学院</a><a>官方入口</a></div>
+  <p>实时整理 ORIGIN 起源、LGNS、Awake DAO、Anubis Chain、DeFi 与链上数据。官方公告自动同步，全文站内直读并附原始出处，方便自行核验。独立研究平台，不代表任何项目方。</p></div>
+  <div class="tabs"><a class="on">全部</a><a>官方公告</a><a>DAO治理</a><a>Awake DAO</a><a>链上数据</a><a>ORIGIN起源</a><a>LGNS</a><a>Anubis Chain</a><a>新手学院</a><a>官方入口</a></div>
 
-  <div class="cols">
-    <div class="lead">
-      <div class="kicker">头条 · 官方公告 <span class="tag off">官方</span><span class="tag gov">DAO治理</span></div>
-      <h2 onclick="openReader('a378')">關於設立 gLGNS NFT 激勵池的公告</h2>
-      <div class="art" onclick="openReader('a378')">Awake DAO · gLGNS NFT 激励池</div>
-      <div class="stand">平台从 gLGNS 生态基金提取 100 枚 gLGNS 全额注入「gLGNS NFT 激励池」，作为 Awake NFT 持有者的专属分红池，未来定期分红。此为第一期注入。</div>
-      <div class="byl"><span class="lv">B级 · 项目官方</span><span><b>来源</b> Origin 官方公告 · origindao.io</span><span><b>发布</b> 2026-07-24</span><span><b>语言</b> 繁中/英/韩/印</span></div>
-      <span class="readmore" onclick="openReader('a378')">阅读全文（站内）→</span>
-    </div>
-    <div class="feed"><h3>实时信息流</h3>
-      <div class="item">
-   <div class="time">刚刚</div>
-   <div class="bd"><span class="lab chain">链上已验证</span><h4>LGNS 实时行情与底池储备</h4><div class="kv">现价 <span class="nn">≈ 1.4279 DAI</span> · 池 LGNS <span class="nn">58,080,934</span> / DAI <span class="nn">82,934,097</span></div>
-   <div class="s">QuickSwap 主池链上直读 · 池 <span class="mono">0x882d…5bFb</span></div>
-   <a class="lk" href="https://polygonscan.com/address/0x882df4B0fB50a229C3B4124EB18c759911485bFb" target="_blank" rel="noopener">链上核验 →</a></div>
- </div>
-<div class="item" onclick="openReader('a374')" style="cursor:pointer">
-   <div class="time">2026-07-16</div>
-   <div class="bd"><span class="lab off">官方公告</span><span class="lab gov">DAO治理</span><h4>關於執行 Awake DAO 第012號治理提案的公告</h4><div class="s">Awake-012 提案通过后，Awake DAO 已完成执行并成立「LGNS 价格保护基金」，从生态储备基金划拨 10,000,000 DAI，并公示了基金总地址与两链操作地址。</div><a class="lk" onclick="openReader('a374')" style="cursor:pointer">阅读全文（站内）→</a></div>
- </div>
-<div class="item" onclick="openReader('a373')" style="cursor:pointer">
-   <div class="time">2026-07-15</div>
-   <div class="bd"><span class="lab off">官方公告</span><span class="lab gov">DAO治理</span><span class="lab wait">英文原文·待补中文</span><h4>Awake DAO Proposal No. 012 Voting Results and Official Execution Announcement</h4><div class="s">Awake-012 提案投票结果公布：赞成 99.82%（1,151 票）、反对 0.17%（2 票），提案正式通过并进入执行阶段。此条官方为英文原文，如实标注来源语言。</div><a class="lk" onclick="openReader('a373')" style="cursor:pointer">阅读全文（站内）→</a></div>
- </div>
-    </div>
-  </div>
+  <div id="main"><div class="load">正在从官方来源同步最新资讯…</div></div>
 
   <div class="sec"><h3>官方入口</h3><div class="ln"></div><span class="note">均经核验 · 官方站自我引用</span></div>
   <div class="links">
@@ -109,7 +80,7 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
     <div class="lk2"><div class="t">🛡 CertiK 审计</div><div class="u">skynet.certik.com/projects/origin</div><div class="p">权威第三方 C级</div></div>
     <div class="lk2"><div class="t">🚀 Rocket 面板</div><div class="u">rocket.origindefi.io</div><div class="p">官方协议数据</div></div>
     <div class="lk2"><div class="t">💬 Discord</div><div class="u">discord.gg/XmG5nbtP</div><div class="p b">官方社群</div></div>
-    <div class="lk2"><div class="t">🔗 更多入口</div><div class="u">官方入口大全 →</div><div class="p">全部已核验清单</div></div>
+    <div class="lk2"><div class="t">🔗 更多入口</div><div class="u">官方入口大全（整理中）</div><div class="p">全部已核验清单</div></div>
   </div>
 
   <div class="sec"><h3>官方 X 动态</h3><div class="ln"></div></div>
@@ -121,22 +92,83 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 <div class="mask" id="mask" onclick="if(event.target===this)closeReader()"><div class="reader" id="reader"></div></div>
 
 <script>
-var NEWS={"a378":{"title":"關於設立 gLGNS NFT 激勵池的公告","date":"2026-07-24","lang":"zh","src":"Origin 官方公告 · origindao.io","lv":"B级 · 项目官方","kind":"官方公告","fullurl":"https://origindao.io/index.php/notice/378.html","paras":["尊敬的 Awake 全球社群用戶：","為回饋社群並提升 Awake NFT 的長期權益，平台現正式設立「gLGNS NFT 激勵池」。具體事項如下：","一、資金注入","平台已從 gLGNS 生態基金中提取 100 枚 gLGNS，全額注入該激勵池。本次注入為激勵池的第一期，後續平台將根據生態發展情況持續向該池注入，以保障分紅的長期性與穩定性。","二、權益說明","該激勵池將作為 Awake NFT 持有者的專屬分紅池。未來，平台將定期向 Awake NFT 持有者發放分紅，共享生態發展紅利。","特此公告。","Awake DAO 組織自治委員會","2026 年 7 月 24 日"],"addrs":[]},"a374":{"title":"關於執行 Awake DAO 第012號治理提案的公告","date":"2026-07-16","lang":"zh","src":"Origin 官方公告 · origindao.io","lv":"B级 · 项目官方","kind":"官方公告","fullurl":"https://origindao.io/index.php/notice/374.html","paras":["尊敬的 Awake 全球社群成員：","根據 Awake DAO 第012號治理提案（Awake-012）的投票結果，社群已正式通過《關於設立 LGNS 價格保護基金的提案》。","目前，Awake DAO 已完成第012號治理提案的全部執行工作，並正式成立 LGNS 價格保護基金（LGNS Price Protection Fund）。","現將執行情況公告如下：","📌 提案執行情況","根據提案內容，Awake DAO 已從 Awake 生態儲備基金（Ecosystem Reserve Fund） 中劃撥 10,000,000 DAI，並完成價格保護基金專項資金劃轉。","同時，價格保護基金相關管理帳戶及鏈上操作帳戶已全部部署完成，並正式投入運行。","🌐 鏈上地址公示","價格保護基金總地址","0x589B441A19fdFD28aEe5E57891a842e96d91de31","Polygon 鏈 LGNS 操作地址（一）","0x922CeB4EfBA4515F672905D3820dd490f65e341A","Polygon 鏈 LGNS 操作地址（二）","0xA55b8aCfE75c6147bdc142B12b1A8c8B435eB186","Anubis 鏈 LGNS 操作地址","0x40716B74800089742c54857442C19d03F708f20F","📋 說明","LGNS 價格保護基金將嚴格按照 Awake DAO 治理規則運行，專項用於 Polygon 鏈與 Anubis 鏈 LGNS 生態代幣的價格保護、市場流動性維護及生態穩定機制建設。","Awake DAO 將持續對價格保護基金的運行情況進行公開披露，接受全球社群監督，確保基金管理公開、透明、可追溯。","感謝全球社群成員一直以來對 Awake 生態建設的信任、支持與參與。","Awake 營運團隊","Awake DAO 組織自治委員會","2026 年 7 月 16 日"],"addrs":[{"a":"0x589B441A19fdFD28aEe5E57891a842e96d91de31","label":"价格保护基金 · 总地址","url":"https://polygonscan.com/address/0x589B441A19fdFD28aEe5E57891a842e96d91de31"},{"a":"0x922CeB4EfBA4515F672905D3820dd490f65e341A","label":"Polygon · LGNS 操作地址(一)","url":"https://polygonscan.com/address/0x922CeB4EfBA4515F672905D3820dd490f65e341A"},{"a":"0xA55b8aCfE75c6147bdc142B12b1A8c8B435eB186","label":"Polygon · LGNS 操作地址(二)","url":"https://polygonscan.com/address/0xA55b8aCfE75c6147bdc142B12b1A8c8B435eB186"},{"a":"0x40716B74800089742c54857442C19d03F708f20F","label":"Anubis · LGNS 操作地址","url":"https://browser.anubispace.org/address/0x40716B74800089742c54857442C19d03F708f20F"}]},"a373":{"title":"Awake DAO Proposal No. 012 Voting Results and Official Execution Announcement","date":"2026-07-15","lang":"en","src":"Origin 官方公告 · origindao.io","lv":"B级 · 项目官方","kind":"官方公告","fullurl":"https://origindao.io/index.php/notice/373.html","paras":["Dear Awake Global Community Members,","In accordance with the governance process of Awake DAO Proposal No. 012 (Awake-012), the “Proposal to Establish the LGNS Price Protection Fund” has successfully completed the community voting process.","According to the voting system statistics, this proposal received overwhelming support from the community and has met the approval requirements under the DAO governance framework. It has now officially passed and entered the execution phase.","📊 Voting Results","In Favor: 99.82% (1,151 votes)","Against: 0.17% (2 votes)","This proposal has been officially approved.","📌 Proposal Execution","Pursuant to this governance proposal, Awake DAO will officially allocate 10,000,000 DAI from the Awake Ecosystem Reserve Fund to establish the LGNS Price Protection Fund.","The fund will be dedicated to supporting price protection, maintaining market liquidity, and strengthening ecosystem stability for the LGNS ecosystem token on the Polygon and Anubis blockchains. The fund will be managed and executed in strict accordance with the DAO governance rules.","🌐 Next Steps","Effective immediately upon the publication of this announcement, the LGNS Price Protection Fund is officially established and operational.","Awake DAO will continue to improve the fund management framework and will regularly disclose the fund’s operation and utilization to the community in accordance with DAO governance rules, ensuring a process that is transparent, open, and subject to community oversight.","We sincerely thank every community member for actively participating in this DAO governance vote.","Every vote cast by the community represents another important step toward strengthening Awake’s decentralized governance framework. Moving forward, Awake will continue to uphold the principles of openness, transparency, and community governance while working together with the global community to promote the long-term, stable, and sustainable development of the ecosystem.","Awake Operations Team","Awake DAO Autonomous Governance Committee","July 15, 2026"],"addrs":[]}};
-function openReader(k){var n=NEWS[k];if(!n)return;
- var oc=n.addrs&&n.addrs.length?('<div class="oc"><div class="h">⛓ 链上证据 · 点击到区块浏览器核验</div>'+n.addrs.map(function(x){return '<a href="'+x.url+'" target="_blank" rel="noopener"><span>'+x.label+'</span><span class="ad">'+x.a.slice(0,10)+'…'+x.a.slice(-6)+'</span></a>'}).join('')+'</div>'):'';
+var API="https://count.web3origin.com/news/feed";
+var FEED=null, ITEMS=[];
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function ago(ts){if(!ts)return"—";var s=Math.floor((Date.now()-ts)/1000);if(s<60)return"刚刚";if(s<3600)return Math.floor(s/60)+" 分钟前";if(s<86400)return Math.floor(s/3600)+" 小时前";return Math.floor(s/86400)+" 天前";}
+function ymd(ct){var d=new Date(ct*1000);return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0");}
+function isZh(l){return l==="zh"||l==="zh-tw"||l==="zh-cn";}
+function langName(l){return {zh:"繁体中文","zh-tw":"繁体中文","zh-cn":"简体中文",en:"英文",ko:"韩文",hi:"印地文"}[l]||l;}
+function explorer(a){return "https://polygonscan.com/address/"+a;}
+
+function chainCard(){
+ return '<div class="item" onclick="location.href=\'/#radar\'">'+
+  '<div class="time">链上</div><div class="bd"><span class="lab chain">链上已验证 · A级</span>'+
+  '<h4>LGNS 实时行情 · 底池 · 国库（链上雷达）</h4>'+
+  '<div class="s">价格、储备、国库、供应销毁等均为链上直读，非第三方报价。点击进入「链上雷达」看实时数据。</div>'+
+  '<span class="lk">进入链上雷达 →</span></div></div>';
+}
+
+function render(){
+ var main=document.getElementById("main");
+ if(!FEED||FEED.ok===false||!ITEMS.length){
+   main.innerHTML='<div class="cols"><div><div class="empty">'+(FEED&&FEED.ok===false?'⚠️ 官方来源暂时无法同步，稍后自动重试。为避免误导，此处不显示可能过时的内容。':'暂无已同步的资讯。')+'</div></div><div class="feed"><h3>实时信息流</h3>'+chainCard()+'</div></div>';
+   return;
+ }
+ var f=ITEMS[0];
+ var rest=ITEMS.slice(1);
+ var wait=isZh(f.lang)?"":'<span class="tag" style="background:var(--gold);color:var(--ink)">'+langName(f.lang)+'原文</span>';
+ var lead='<div class="lead"><div class="kicker">头条 · 官方公告 <span class="tag off">官方</span><span class="tag gov">DAO治理</span>'+wait+'</div>'+
+   '<h2 onclick="openReader(0)">'+esc(f.title)+'</h2>'+
+   '<div class="art" onclick="openReader(0)">'+esc(f.title)+'</div>'+
+   '<div class="stand">'+esc(f.summary||(f.paras&&f.paras[0])||"")+'</div>'+
+   '<div class="byl"><span class="lv">B级 · 项目官方</span><span><b>来源</b> Origin 官方公告 · origindao.io</span><span><b>发布</b> '+ymd(f.createtime)+'</span><span><b>语言</b> '+ (f.langs&&f.langs.length?f.langs.map(langName).join("/"):langName(f.lang)) +'</span>'+(f.addrs&&f.addrs.length?'<span><b>链上证据</b> <span style="color:var(--green)">'+f.addrs.length+' 地址</span></span>':'')+'</div>'+
+   '<span class="readmore" onclick="openReader(0)">阅读全文（站内）→</span></div>';
+ var feed='<div class="feed"><h3>实时信息流</h3>'+chainCard();
+ rest.forEach(function(it,i){
+   var idx=i+1;
+   var wl=isZh(it.lang)?"":'<span class="lab wait">'+langName(it.lang)+'原文</span>';
+   feed+='<div class="item" onclick="openReader('+idx+')"><div class="time">'+ymd(it.createtime).slice(5)+'</div><div class="bd">'+
+     '<span class="lab off">官方公告</span><span class="lab gov">DAO治理</span>'+wl+
+     '<h4>'+esc(it.title)+'</h4><div class="s">'+esc(it.summary||"")+'</div>'+
+     (it.addrs&&it.addrs.length?'<div class="kv">⛓ 含 '+it.addrs.length+' 个链上地址可核验</div>':'')+
+     '<span class="lk">阅读全文（站内）→</span></div></div>';
+ });
+ feed+='</div>';
+ main.innerHTML='<div class="cols">'+lead+feed+'</div>';
+}
+
+function openReader(i){
+ var n=ITEMS[i];if(!n)return;
+ var oc=n.addrs&&n.addrs.length?('<div class="oc"><div class="h">⛓ 链上证据 · 公告原文公示地址，点击到区块浏览器核验（以原文标注的链为准）</div>'+n.addrs.map(function(a){return '<a href="'+explorer(a)+'" target="_blank" rel="noopener"><span>链上地址</span><span class="ad">'+a.slice(0,12)+'…'+a.slice(-8)+'</span></a>'}).join('')+'</div>'):'';
+ var langNote=isZh(n.lang)?'':'<p style="color:var(--gold);font-size:13.5px;font-family:sans-serif">※ 此公告官方目前为'+langName(n.lang)+'原文，中文版待官方发布后自动补入。以下为官方原文全文。</p>';
  document.getElementById('reader').innerHTML=
-  '<div class="rh"><span class="lab off">'+n.kind+'</span><span class="lab gov">DAO治理</span><span class="x" onclick="closeReader()">×</span></div>'+
-  '<div class="rb"><h2>'+n.title+'</h2>'+
-  '<div class="tcard"><span><b>内容性质</b> 官方公告（非投资建议）</span><span><b>来源</b> '+n.src+'</span>'+
-   '<span><b>信息来源等级</b> <span class="bl">'+n.lv+'</span></span><span><b>核验状态</b> <span class="g">官方原文已抓取</span></span>'+
-   '<span><b>原始发布时间</b> '+n.date+'</span><span><b>原文语言</b> '+n.lang+'</span>'+
-   '<span><b>链上证据</b> '+(n.addrs.length?('<span class="g">'+n.addrs.length+' 个地址可核验</span>'):'—')+'</span><span><b>AI参与</b> 仅整理排版，未改动原意</span></div>'+
-  n.paras.map(function(p){return '<p>'+p+'</p>'}).join('')+oc+
-  '<div class="verify">以上为官方公告全文（站内直读）。如需在官方站二次核验：<a href="'+n.fullurl+'" target="_blank" rel="noopener">在 origindao.io 查看原文 ↗</a></div></div>';
+  '<div class="rh"><span class="lab off">官方公告</span><span class="lab gov">DAO治理</span><span class="x" onclick="closeReader()">×</span></div>'+
+  '<div class="rb"><h2>'+esc(n.title)+'</h2>'+
+  '<div class="tcard"><span><b>内容性质</b> 官方公告（非投资建议）</span><span><b>来源</b> Origin 官方公告 · origindao.io</span>'+
+   '<span><b>信息来源等级</b> <span class="bl">B级 · 项目官方</span></span><span><b>核验状态</b> <span class="g">官方原文已抓取</span></span>'+
+   '<span><b>原始发布时间</b> '+ymd(n.createtime)+'</span><span><b>原文语言</b> '+langName(n.lang)+'</span>'+
+   '<span><b>链上证据</b> '+(n.addrs&&n.addrs.length?'<span class="g">'+n.addrs.length+' 地址可核验</span>':'—')+'</span><span><b>AI参与</b> 仅整理排版，未改动原意</span></div>'+
+  langNote+n.paras.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+oc+
+  '<div class="verify">以上为官方公告全文（站内直读）。如需在官方站二次核验：<a href="'+esc(n.fullurl||'https://origindao.io/')+'" target="_blank" rel="noopener">在 origindao.io 查看原文 ↗</a></div></div>';
  document.getElementById('mask').classList.add('on');document.body.style.overflow='hidden';
 }
 function closeReader(){document.getElementById('mask').classList.remove('on');document.body.style.overflow='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeReader();});
-var s=300,cd=document.getElementById('cd');setInterval(function(){s=s<=0?300:s-1;cd.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');},1000);
+
+function loadFeed(manual){
+ var dot=document.getElementById('dot'),st=document.getElementById('srcState');
+ fetch(API,{cache:manual?'reload':'default'}).then(function(r){return r.json()}).then(function(j){
+   FEED=j;ITEMS=(j&&j.items)||[];
+   var stale=j&&j.updatedAt&&(Date.now()-j.updatedAt>86400000);
+   if(j&&j.ok&&ITEMS.length){dot.className='dot';st.textContent=stale?'数据可能存在延迟':'数据源正常';}
+   else{dot.className='dot bad';st.textContent='暂时无法更新';}
+   document.getElementById('syncAgo').textContent=j&&j.updatedAt?ago(j.updatedAt):'—';
+   document.getElementById('cOff').textContent=ITEMS.length||'—';
+   render();
+ }).catch(function(){FEED={ok:false};ITEMS=[];dot.className='dot bad';st.textContent='连接失败';render();});
+}
+loadFeed();
+setInterval(loadFeed,300000);
 </script>
 </body></html>
