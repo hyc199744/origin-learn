@@ -50,6 +50,15 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 .oc{font-family:sans-serif;margin:16px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden}.oc .h{background:rgba(75,207,138,.1);color:var(--green);font-size:12.5px;font-weight:600;padding:8px 12px;border-bottom:1px solid var(--line)}.oc a{display:flex;justify-content:space-between;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--sub)}.oc a:last-child{border:0}.oc a:hover{background:#12160f}.oc .ad{font-family:ui-monospace,monospace;color:var(--blue)}
 .verify{font-family:sans-serif;font-size:13px;color:var(--dim);margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}.verify a{color:var(--gold)}
 .load{text-align:center;color:var(--dim);font-family:sans-serif;padding:40px;font-size:14px}
+.xf{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-family:sans-serif;padding-bottom:8px}@media(max-width:720px){.xf{grid-template-columns:1fr}}
+.tw{border:1px solid var(--line);border-radius:13px;padding:14px 16px;background:var(--panel)}
+.tw .u{display:flex;gap:10px;align-items:center}
+.tw .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1c2b3f,#0f1620);display:flex;align-items:center;justify-content:center;font-size:18px;border:1px solid var(--line)}
+.tw .n{font-weight:600;font-size:14px;display:flex;align-items:center;gap:5px}.tw .vf{color:var(--blue);font-size:12px}
+.tw .h{font-size:12px;color:var(--dim)}
+.tw .tx{font-size:14.5px;color:var(--txt);margin:11px 0;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.tw .img{font-size:12px;color:var(--dim);margin:6px 0}
+.tw .ft{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--dim);border-top:1px solid var(--line);padding-top:9px;margin-top:6px}.tw .ft a{color:var(--gold);font-weight:600}
 </style></head><body>
 
 <div class="pv">📡 <b>官方公告自动同步</b> · 内容真实抓取自 origindao.io 官方接口，全文<b>站内直读、不跳外站</b>，并附原始出处便于核验。绝不编造。</div>
@@ -83,8 +92,8 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
     <div class="lk2"><div class="t">🔗 更多入口</div><div class="u">官方入口大全（整理中）</div><div class="p">全部已核验清单</div></div>
   </div>
 
-  <div class="sec"><h3>官方 X 动态</h3><div class="ln"></div></div>
-  <div class="empty">将以官方时间线嵌入方式接入（真实推文 · 直达原推）。接入前不显示任何未核实内容。</div>
+  <div class="sec"><h3>官方 X 动态</h3><div class="ln"></div><span class="note">镜像已核验官方账号推文 · 国内无需翻墙可读</span></div>
+  <div id="xfeed"><div class="empty">官方 X 动态接入中，待添加官方推文。</div></div>
 
   <div class="disc"><b>Web3Origin</b> 是独立的 Web3 学习与链上研究平台，不代表任何项目方。内容基于公开信息、官方来源及链上数据整理，仅供学习研究，不构成投资建议或收益承诺。外部网站、账号、合约与规则均可能变化，请在连接钱包或操作资产前自行核验。<div class="w">⚠️ 任何网站或个人都不应向你索要助记词、私钥、钱包密码或验证码。Web3Origin 绝不会要求你填写上述信息。</div></div>
 </div>
@@ -156,6 +165,19 @@ function openReader(i){
 function closeReader(){document.getElementById('mask').classList.remove('on');document.body.style.overflow='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeReader();});
 
+function renderTweets(){
+ var box=document.getElementById('xfeed');if(!box)return;
+ var tw=(FEED&&FEED.tweets)||[];
+ if(!tw.length){box.innerHTML='<div class="empty">官方 X 动态接入中。将镜像展示已核验官方账号（如 @SaluteOrigin）的重要推文——真实正文站内直读、直达原推，国内无需翻墙即可阅读。</div>';return;}
+ box.innerHTML='<div class="xf">'+tw.map(function(t){
+   var img=(t.media&&t.media.length)?'<div class="img">🖼 含 '+t.media.length+' 张图片，点「查看原推」查看</div>':'';
+   var dt=t.created_at?new Date(t.created_at).toISOString().slice(0,10):'';
+   return '<div class="tw"><div class="u"><div class="av">🐦</div><div><div class="n">'+esc(t.name||'')+(t.verified?' <span class="vf">✔ 认证</span>':'')+'</div><div class="h">@'+esc(t.handle||'')+'</div></div></div>'+
+   '<div class="tx">'+esc(t.text||'')+'</div>'+img+
+   '<div class="ft"><span>'+dt+' · 官方推文（镜像）</span><a href="'+esc(t.url||'')+'" target="_blank" rel="noopener">查看原推 ↗</a></div></div>';
+ }).join('')+'</div>';
+}
+
 function loadFeed(manual){
  var dot=document.getElementById('dot'),st=document.getElementById('srcState');
  fetch(API,{cache:manual?'reload':'default'}).then(function(r){return r.json()}).then(function(j){
@@ -165,8 +187,8 @@ function loadFeed(manual){
    else{dot.className='dot bad';st.textContent='暂时无法更新';}
    document.getElementById('syncAgo').textContent=j&&j.updatedAt?ago(j.updatedAt):'—';
    document.getElementById('cOff').textContent=ITEMS.length||'—';
-   render();
- }).catch(function(){FEED={ok:false};ITEMS=[];dot.className='dot bad';st.textContent='连接失败';render();});
+   render();renderTweets();
+ }).catch(function(){FEED={ok:false};ITEMS=[];dot.className='dot bad';st.textContent='连接失败';render();renderTweets();});
 }
 loadFeed();
 setInterval(loadFeed,300000);
