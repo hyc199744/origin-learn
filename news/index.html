@@ -65,10 +65,10 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
   <div class="title"><h1>最新资讯 · <em>Origin 生态情报</em></h1>
   <p>Origin 官方公告与官方 X 动态，自动同步、全文站内直读并翻译成中文。独立研究平台，不代表任何项目方。</p></div>
 
-  <div class="sec"><h2>📢 官方公告</h2><div class="ln"></div><span class="c">来源 · origindao.io</span></div>
+  <div class="sec"><h2>📢 官方公告</h2><div class="ln"></div></div>
   <div id="anns"><div class="load">正在同步官方公告…</div></div>
 
-  <div class="sec"><h2>🐦 官方 X 动态</h2><div class="ln"></div><span class="c">中文镜像 · 无需翻墙</span></div>
+  <div class="sec"><h2>🐦 官方 X 动态</h2><div class="ln"></div></div>
   <div id="xfeed"><div class="load">正在同步官方推文…</div></div>
 
   <div class="disc"><b>Web3Origin</b> 是独立的 Web3 学习与链上研究平台，不代表任何项目方。内容基于官方公开信息整理，仅供学习研究，不构成投资建议或收益承诺。请在连接钱包或操作资产前自行核验。<div class="w">⚠️ 任何网站或个人都不应向你索要助记词、私钥、钱包密码或验证码。Web3Origin 绝不会要求你填写上述信息。</div></div>
@@ -92,8 +92,8 @@ function renderAnns(){
    var wl=isZh(a.lang)?"":'<span class="lab wait">'+langName(a.lang)+'原文</span>';
    return '<div class="ann" onclick="openReader('+i+')"><span class="lab">官方公告</span><span class="lab gov">DAO治理</span>'+wl+
      '<h3>'+esc(a.title)+'</h3><div class="s">'+esc(a.summary||(a.paras&&a.paras[0])||"")+'</div>'+
-     '<div class="m"><span><b>发布</b> '+ymd(a.createtime)+'</span><span><b>来源</b> Origin 官方公告 · origindao.io</span>'+(a.addrs&&a.addrs.length?'<span><b>链上证据</b> <span style="color:var(--green)">'+a.addrs.length+' 地址</span></span>':'')+'</div>'+
-     '<span class="more">阅读全文（站内）→</span></div>';
+     '<div class="m"><span><b>发布</b> '+ymd(a.createtime)+'</span>'+(a.addrs&&a.addrs.length?'<span><b>链上证据</b> <span style="color:var(--green)">'+a.addrs.length+' 地址</span></span>':'')+'</div>'+
+     '<span class="more">阅读全文 →</span></div>';
  }).join('');
 }
 function renderTweets(){
@@ -106,7 +106,7 @@ function renderTweets(){
    var dt=t.created_at?new Date(t.created_at).toISOString().slice(0,10):"";
    return '<div class="tw"><div class="u"><div class="av">🐦</div><div><div class="n">'+esc(t.name||"")+(t.verified?' <span class="vf">✔ 认证</span>':'')+'</div><div class="h">@'+esc(t.handle||"")+'</div></div></div>'+
    '<div class="tx">'+esc(mainTx)+'</div>'+orig+img+
-   '<div class="ft">'+dt+' · 官方推文（中文镜像）</div></div>';
+   '<div class="ft">'+dt+' · 官方推文</div></div>';
  }).join('');
 }
 function openReader(i){
@@ -116,8 +116,7 @@ function openReader(i){
  document.getElementById('reader').innerHTML=
   '<div class="rh"><span class="lab">官方公告</span><span class="lab gov">DAO治理</span><span class="x" onclick="closeReader()">×</span></div>'+
   '<div class="rb"><h2>'+esc(n.title)+'</h2>'+
-  '<div class="tcard"><span><b>内容性质</b> 官方公告</span><span><b>来源</b> Origin 官方公告 · origindao.io</span>'+
-   '<span><b>信息来源等级</b> <span class="bl">B级 · 项目官方</span></span><span><b>核验状态</b> <span class="g">官方原文已抓取</span></span>'+
+  '<div class="tcard"><span><b>内容性质</b> 官方公告</span><span><b>核验状态</b> <span class="g">官方原文已抓取</span></span>'+
    '<span><b>原始发布时间</b> '+ymd(n.createtime)+'</span><span><b>原文语言</b> '+langName(n.lang)+'</span>'+
    '<span><b>链上证据</b> '+(n.addrs&&n.addrs.length?'<span class="g">'+n.addrs.length+' 地址</span>':'—')+'</span><span><b>AI参与</b> 仅整理排版，未改动原意</span></div>'+
   langNote+n.paras.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+oc+'</div>';
