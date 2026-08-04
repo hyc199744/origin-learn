@@ -90,7 +90,7 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 </div></div>
 
 <div class="strap"><div class="wrap">
-  <span><span class="dot" id="dot"></span> <b id="srcState">加载中…</b></span><span>最后同步 <b id="syncAgo">—</b></span><span class="rf" onclick="loadFeed(1)">↻ 刷新</span>
+  <span><span class="dot" id="dot"></span> <b id="srcState">加载中…</b></span><span class="rf" onclick="loadFeed(1)">↻ 刷新</span>
 </div></div>
 
 <div class="wrap">
@@ -100,10 +100,10 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
     <p>Origin 官方公告与官方 X 动态，自动同步、全文站内直读并翻译成中文。独立研究平台，不代表任何项目方。</p>
   </div>
 
-  <div class="sect"><div class="l"></div><h2>官方公告</h2><div class="l r"></div></div>
+  <div class="sect"><div class="l"></div><h2>Awake 官方公告</h2><div class="l r"></div></div>
   <div id="anns"><div class="load">正在同步官方公告…</div></div>
 
-  <div class="sect"><div class="l"></div><h2>官方 X 动态</h2><div class="l r"></div></div>
+  <div class="sect"><div class="l"></div><h2>Awake 官方推特</h2><div class="l r"></div></div>
   <div id="xfeed"><div class="load">正在同步官方推文…</div></div>
 
   <div class="disc"><b>Web3Origin</b> 是独立的 Web3 学习与链上研究平台，不代表任何项目方。内容基于官方公开信息整理，仅供学习研究，不构成投资建议或收益承诺。请在连接钱包或操作资产前自行核验。<div class="w">⚠️ 任何网站或个人都不应向你索要助记词、私钥、钱包密码或验证码。Web3Origin 绝不会要求你填写上述信息。</div></div>
@@ -165,7 +165,6 @@ function loadFeed(manual){
  fetch(API,{cache:manual?'reload':'default'}).then(function(r){return r.json()}).then(function(j){
    FEED=j;ANNS=(j&&j.items)||[];
    if(j&&j.ok){dot.className='dot';st.textContent='数据源正常';}else{dot.className='dot bad';st.textContent='暂时无法更新';}
-   document.getElementById('syncAgo').textContent=j&&j.updatedAt?ago(j.updatedAt):'—';
    renderAnns();renderTweets();
  }).catch(function(){FEED={ok:false};ANNS=[];dot.className='dot bad';st.textContent='连接失败';renderAnns();renderTweets();});
 }
