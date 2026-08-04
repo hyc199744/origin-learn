@@ -167,6 +167,7 @@ function loadFeed(manual){
  }).catch(function(){FEED={ok:false};ANNS=[];dot.className='dot bad';st.textContent='连接失败';renderAnns();renderTweets();});
 }
 loadFeed();
-setInterval(loadFeed,300000);
+setInterval(loadFeed,90000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)loadFeed();});
 </script>
 </body></html>
