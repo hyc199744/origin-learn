@@ -866,13 +866,15 @@
           </div>
         </div>
         <div class="dncard">
-          <div class="dngrp">2️⃣ 今日大额成交 <span style="font-size:11px;color:var(--muted);font-weight:400">（≥1万 DAI，采样底池近千笔）</span></div>
+          <div class="dngrp">2️⃣ 今日大额成交 <span style="font-size:11px;color:var(--muted);font-weight:400">（≥1万 DAI · ${d.eventsSource==="whale"?"全天实时监测":"采样近千笔"}）</span></div>
           ${(d.events&&d.events.length)?d.events.map(e=>{
             const wl=label(e.who);
+            const lg=(e.lgns!=null)?`换 ${fmtN(e.lgns)} LGNS　`:"";
+            const tx=e.tx?`<a href="${exTx(e.tx)}" target="_blank">交易 ↗</a>`:"";
             return `<div class="dnev">
               <div class="top"><span class="amt ${e.dir}">${e.dir==="buy"?"买入":"卖出"} ${fmtN(e.dai)} DAI</span><span>${stars(evStars(e.dai))}</span></div>
-              <div class="sub">换 ${fmtN(e.lgns)} LGNS　${fmtTime(e.ts)}　${wl?wl:""}　<a href="${exTx(e.tx)}" target="_blank">交易 ↗</a></div>
-            </div>`; }).join(""):'<div style="font-size:12.5px;color:var(--muted)">采样区间内暂无 ≥1万 DAI 的单笔成交。</div>'}
+              <div class="sub">${lg}${fmtTime(e.ts)}　${wl?wl:""}　${tx}</div>
+            </div>`; }).join(""):'<div style="font-size:12.5px;color:var(--muted)">今日暂无 ≥1万 DAI 的大额成交。</div>'}
         </div>
         <div class="dncard">
           <div class="dngrp">3️⃣ 今日买卖概况</div>
