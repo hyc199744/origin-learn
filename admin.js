@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["livecloud","☁","腾讯云直播"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["livecloud","☁","腾讯云直播"],["newstweets","🐦","官方X动态"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -81,7 +81,7 @@ function go(page){_cur=page;
   var t=(NAV.filter(function(n){return n[0]===page;})[0]||["","","后台"]);document.getElementById("aTitle").textContent=t[2];
   var el=document.getElementById("aPanel");el.innerHTML='<div class="a-center">加载中…</div>';
   if(window._rtTimer){clearInterval(window._rtTimer);window._rtTimer=null;}
-  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,aitraffic:pAiTraffic,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,livecloud:pLivecloud,seo:pSeo,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
+  ({dashboard:pDash,realtime:pRealtime,trend:pTrend,analytics:pAnalytics,countries:pCountries,devices:pDevices,pages:pPages,articles:pArticles,events:pEvents,funnels:pFunnels,languages:pLanguages,aitraffic:pAiTraffic,performance:pPerformance,errors:pErrors,security:pSecurity,live:pLive,livecloud:pLivecloud,newstweets:pNewsTweets,seo:pSeo,settings:pSettings,utm:pUtm,feedback:pFeedback,orders:pOrders,onchain:pOnchain,audit:pAudit,system:pSystem}[page]||pDash)(el);
 }
 function card(ic,label,val,sub,cls){return '<div class="a-card '+(cls||"")+'"><div class="a-card-ic">'+ic+'</div><div class="a-card-v">'+val+'</div><div class="a-card-l">'+label+'</div>'+(sub?'<div class="a-card-s">'+sub+'</div>':'')+'</div>';}
 
@@ -101,6 +101,43 @@ function liveSched(c){
   return liveFmt(c.start_time)+" 至 "+liveFmt(c.end_time);
 }
 /* ---------- 腾讯云直播(独立页) ---------- */
+function pNewsTweets(el){
+  el.innerHTML='<div class="a-center">加载中…</div>';
+  var IST='width:100%;background:#0d0f0e;color:#cdb;border:1px solid #333;border-radius:6px;padding:8px;font-size:13px';
+  function load(){
+    get("/newstweets").then(function(r){
+      var list=(r&&r.list)||[];
+      var rows=list.map(function(t){
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #222">'
+          +'<a href="'+esc(t.url)+'" target="_blank" rel="noopener" style="color:#7fbfff;font-size:12px;font-family:monospace">'+esc(t.id)+'</a>'
+          +'<span style="font-size:12px;color:#8a9">'+(t.addedBy==="migrate"?"(已有)":"")+'</span>'
+          +'<button class="an-tab" data-del="'+esc(t.id)+'" style="margin-left:auto;color:#ff8a8a">删除</button></div>';
+      }).join('')||'<div style="color:#8a9;padding:12px 0">清单为空，粘一条官方推文链接添加。</div>';
+      el.innerHTML='<div class="a-panel-box"><h3>🐦 官方 X 动态（精选镜像）</h3>'
+        +'<div style="max-width:720px">'
+        +'<div style="display:flex;gap:8px;margin-bottom:8px"><input id="ntUrl" placeholder="粘官方推文链接：https://x.com/…/status/数字" style="'+IST+'"><button class="an-tab on" id="ntAdd">添加</button></div>'
+        +'<div id="ntMsg" style="font-size:13px;margin-bottom:8px"></div>'
+        +'<div id="ntList">'+rows+'</div>'
+        +'<div class="a-note-real" style="margin-top:10px">粘官方号（@SaluteOrigin / @ANUBISCHAIN_ / @Anubis_Labs / @Anubi_sab）里重要推文的链接，点「添加」即可。系统每约20分钟自动抓取正文+配图并翻译成中文，显示在 <a href="https://web3origin.com/news" target="_blank" style="color:#7fbfff">web3origin.com/news</a> 的「官方X动态」区，国内无需翻墙。删除只是不再展示，不影响原推。</div>'
+        +'</div></div>';
+      document.getElementById("ntAdd").onclick=function(){
+        var u=document.getElementById("ntUrl").value.trim(),m=document.getElementById("ntMsg");
+        if(!u){m.textContent="请先粘链接";m.style.color="#ffcf8a";return;}
+        m.textContent="添加中…";m.style.color="#9a8";
+        post("/newstweets",{action:"add",url:u},true).then(function(x){
+          if(x&&x.ok){document.getElementById("ntUrl").value="";m.textContent="已添加（约20分钟内出现在资讯页）";m.style.color="#7fe0a0";load();}
+          else{m.textContent="失败："+((x&&x.error)||"?");m.style.color="#ff8a8a";}
+        }).catch(function(){m.textContent="网络错误";m.style.color="#ff8a8a";});
+      };
+      var btns=el.querySelectorAll("[data-del]");
+      for(var i=0;i<btns.length;i++){btns[i].onclick=function(){
+        var id=this.getAttribute("data-del");if(!confirm("删除这条推文？"))return;
+        post("/newstweets",{action:"del",id:id},true).then(function(x){if(x&&x.ok)load();});
+      };}
+    }).catch(function(){el.innerHTML='<div class="a-center">读取失败</div>';});
+  }
+  load();
+}
 function pLivecloud(el){
   el.innerHTML='<div class="a-center">加载中…</div>';
   var IST='width:100%;background:#0d0f0e;color:#cdb;border:1px solid #333;border-radius:6px;padding:8px;font-size:13px';
