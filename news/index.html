@@ -127,7 +127,7 @@ function renderAnns(){
  var box=document.getElementById("anns");
  if(!ANNS.length){box.innerHTML='<div class="empty">'+(FEED&&FEED.ok===false?'⚠️ 官方来源暂时无法同步，稍后自动重试。':'暂无公告。')+'</div>';return;}
  box.innerHTML=ANNS.map(function(a,i){
-   var wl=isZh(a.lang)?"":'<span class="lab wait">'+langName(a.lang)+'原文</span>';
+   var wl=a.translated?'<span class="lab wait">AI译</span>':"";
    return '<div class="ann" onclick="openReader('+i+')"><span class="lab">官方公告</span><span class="lab gov">DAO治理</span>'+wl+
      '<h3>'+esc(a.title)+'</h3><div class="s">'+esc(a.summary||(a.paras&&a.paras[0])||"")+'</div>'+
      '<div class="m"><span><b>发布</b> '+ymd(a.createtime)+'</span>'+(a.addrs&&a.addrs.length?'<span><b>链上证据</b> <span style="color:var(--green)">'+a.addrs.length+' 地址</span></span>':'')+'</div>'+
@@ -150,7 +150,7 @@ function renderTweets(){
 function openReader(i){
  var n=ANNS[i];if(!n)return;
  var oc=n.addrs&&n.addrs.length?('<div class="oc"><div class="h">⛓ 链上证据 · 公告原文公示地址，点击到区块浏览器核验</div>'+n.addrs.map(function(a){return '<a href="https://polygonscan.com/address/'+a+'" target="_blank" rel="noopener"><span>链上地址</span><span class="ad">'+a.slice(0,12)+'…'+a.slice(-8)+'</span></a>'}).join('')+'</div>'):'';
- var langNote=isZh(n.lang)?'':'<p style="color:var(--gold);font-size:13.5px;font-family:var(--sans)">※ 此公告官方目前为'+langName(n.lang)+'原文，中文版待官方发布后自动补入。以下为官方原文全文。</p>';
+ var langNote=n.translated?'<p style="color:var(--gold);font-size:13.5px;font-family:var(--sans)">※ 本篇官方原文为英文，以下为 AI 辅助翻译，以原文为准。</p>':'';
  document.getElementById('reader').innerHTML=
   '<div class="rh"><span class="lab">官方公告</span><span class="lab gov">DAO治理</span><span class="x" onclick="closeReader()">×</span></div>'+
   '<div class="rb"><h2>'+esc(n.title)+'</h2>'+
