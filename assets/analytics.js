@@ -118,12 +118,14 @@
       + "video_play video_pause video_progress_25 video_progress_50 video_progress_75 video_complete video_error "
       + "contact_open wechat_click qq_click telegram_click x_click youtube_click register_start register_success login_success payment_start payment_success payment_failed "
       + "copy_contract open_block_explorer copy_wallet_address open_transaction network_switch "
-      + "search search_no_result language_switch navigation_click outbound_click download form_start form_submit form_success form_error").split(" ");
+      + "search search_no_result language_switch navigation_click outbound_click download form_start form_submit form_success form_error "
+      + "announcement_open announcement_onchain_click tweet_expand_original tweet_media_click").split(" ");
     var EV_WHITELIST = {}; EV_LIST.forEach(function (n) { EV_WHITELIST[n] = 1; });
     var PROP_KEYS = ("tool_name tool_category network success error_code duration_ms "
       + "article_id article_title article_category article_language scroll_depth reading_seconds "
       + "video_id video_title video_duration current_time progress asset_name explorer_name target_type "
-      + "search_keyword from_language to_language navigation_name outbound_domain file_name form_name run_id order_id amount_range product_type payment_network").split(" ");
+      + "search_keyword from_language to_language navigation_name outbound_domain file_name form_name run_id order_id amount_range product_type payment_network "
+      + "tweet_handle").split(" ");
     var MAX_PROPS = 25;
     var sentDedup = {};
     function evSensitiveClient(s) { s = String(s || ""); return /0x[0-9a-fA-F]{40}/.test(s) || /(私钥|助记词|mnemonic|private\s*key|seed\s*phrase)/i.test(s); }
@@ -191,7 +193,7 @@
     // 自动埋点2: 外链/下载/社交(未手动标注的a标签)
     document.addEventListener("click", function (e) {
       try {
-        var a = e.target.closest && e.target.closest("a[href]"); if (!a || a.hasAttribute("data-analytics-event")) return;
+        var a = e.target.closest && e.target.closest("a[href]"); if (!a || a.hasAttribute("data-analytics-event") || a.hasAttribute("data-analytics-skip")) return;
         var href = a.getAttribute("href") || ""; if (href.indexOf("#") === 0 || href.indexOf("javascript:") === 0) return;
         var host = ""; try { host = new URL(href, location.href).hostname; } catch (_) {}
         if (/\.(pdf|zip|apk|mp4|dmg|exe|xlsx?|docx?|pptx?)($|\?)/i.test(href) || a.hasAttribute("download")) {

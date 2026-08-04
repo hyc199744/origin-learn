@@ -784,7 +784,7 @@ function pUtm(el){
   };
 }
 /* ---------- 事件统计 ---------- */
-var EV_CN={tool_open:"工具打开",tool_start:"工具启动",tool_success:"工具成功",tool_error:"工具失败",tool_result_view:"查看结果",tool_retry:"工具重试",article_open:"文章打开",article_read_30s:"阅读30秒",article_read_60s:"阅读60秒",article_scroll_25:"滚动25%",article_scroll_50:"滚动50%",article_scroll_75:"滚动75%",article_complete:"读完文章",related_article_click:"点相关文章",article_share_click:"点分享",video_play:"视频播放",video_pause:"视频暂停",video_progress_25:"看到25%",video_progress_50:"看到50%",video_progress_75:"看到75%",video_complete:"看完视频",video_error:"视频出错",contact_open:"打开联系方式",wechat_click:"点微信",qq_click:"点QQ",telegram_click:"点Telegram",x_click:"点X",youtube_click:"点YouTube",register_start:"开始注册",register_success:"注册成功",login_success:"登录成功",payment_start:"开始支付",payment_success:"支付成功",payment_failed:"支付失败",copy_contract:"复制合约",open_block_explorer:"打开浏览器",copy_wallet_address:"复制钱包",open_transaction:"打开交易",network_switch:"切换网络",search:"搜索",search_no_result:"搜索无结果",language_switch:"切换语言",navigation_click:"导航点击",outbound_click:"外链点击",download:"下载",form_start:"开始填表",form_submit:"提交表单",form_success:"表单成功",form_error:"表单出错"};
+var EV_CN={tool_open:"工具打开",tool_start:"工具启动",tool_success:"工具成功",tool_error:"工具失败",tool_result_view:"查看结果",tool_retry:"工具重试",article_open:"文章打开",article_read_30s:"阅读30秒",article_read_60s:"阅读60秒",article_scroll_25:"滚动25%",article_scroll_50:"滚动50%",article_scroll_75:"滚动75%",article_complete:"读完文章",related_article_click:"点相关文章",article_share_click:"点分享",video_play:"视频播放",video_pause:"视频暂停",video_progress_25:"看到25%",video_progress_50:"看到50%",video_progress_75:"看到75%",video_complete:"看完视频",video_error:"视频出错",contact_open:"打开联系方式",wechat_click:"点微信",qq_click:"点QQ",telegram_click:"点Telegram",x_click:"点X",youtube_click:"点YouTube",register_start:"开始注册",register_success:"注册成功",login_success:"登录成功",payment_start:"开始支付",payment_success:"支付成功",payment_failed:"支付失败",copy_contract:"复制合约",open_block_explorer:"打开浏览器",copy_wallet_address:"复制钱包",open_transaction:"打开交易",network_switch:"切换网络",search:"搜索",search_no_result:"搜索无结果",language_switch:"切换语言",navigation_click:"导航点击",outbound_click:"外链点击",download:"下载",form_start:"开始填表",form_submit:"提交表单",form_success:"表单成功",form_error:"表单出错",announcement_open:"打开公告",announcement_onchain_click:"点链上证据",tweet_expand_original:"展开推文原文",tweet_media_click:"点推文配图"};
 function evcn(n){return EV_CN[n]||n;}
 var EV_RANGE="7d",EV_F={};
 function loadEv(el){
@@ -820,7 +820,7 @@ function loadEv(el){
 function pEvents(el){
   anEnsureCss();
   var ranges=[["today","今天"],["yesterday","昨天"],["7d","最近7天"],["30d","最近30天"]];
-  var cats=[["","全部分类"],["tool","工具"],["content","内容"],["video","视频"],["conversion","转化"],["onchain","链上"],["general","通用"]];
+  var cats=[["","全部分类"],["tool","工具"],["content","内容"],["video","视频"],["conversion","转化"],["onchain","链上"],["news","资讯"],["general","通用"]];
   el.innerHTML='<div class="an-tabs">'+ranges.map(function(x){return '<button class="an-tab'+(x[0]===EV_RANGE?" on":"")+'" data-r="'+x[0]+'">'+x[1]+'</button>';}).join("")
     +'<span class="an-custom"><select id="evCat" class="an-tab">'+cats.map(function(c){return '<option value="'+c[0]+'"'+(EV_F.category===c[0]?" selected":"")+'>'+c[1]+'</option>';}).join("")+'</select>'
     +'<input type="text" id="evName" placeholder="事件名 如 tool_start" value="'+esc(EV_F.event_name||"")+'" style="width:150px"><button class="an-tab" id="evGo">筛选</button></span></div><div id="evBody"></div>';

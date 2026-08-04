@@ -116,7 +116,14 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 
 <script>
 var API="https://count.web3origin.com/news/feed";
-var FEED=null, ANNS=[];
+var FEED=null, ANNS=[], _curAnnId="";
+/* 埋点:若 analytics.js(defer)尚未就绪,先入队,就绪后补发,避免早点击丢事件 */
+var _evq=[];
+function _evReady(){return !!(window.W3OAnalytics&&typeof W3OAnalytics.track==="function");}
+function _evFlush(){if(!_evReady())return;while(_evq.length){var e=_evq.shift();try{W3OAnalytics.track(e[0],e[1]);}catch(_){}}}
+function trk(n,p){try{if(_evReady()){_evFlush();W3OAnalytics.track(n,p);}else if(_evq.length<50){_evq.push([n,p]);}}catch(e){}}
+var _evTimer=setInterval(function(){if(_evReady()){clearInterval(_evTimer);_evFlush();}},200);
+setTimeout(function(){try{clearInterval(_evTimer);}catch(_){}},15000);
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function ago(ts){if(!ts)return"—";var s=Math.floor((Date.now()-ts)/1000);if(s<60)return"刚刚";if(s<3600)return Math.floor(s/60)+" 分钟前";if(s<86400)return Math.floor(s/3600)+" 小时前";return Math.floor(s/86400)+" 天前";}
 function ymd(ct){var d=new Date(ct*1000);return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0");}
@@ -140,17 +147,20 @@ function renderTweets(){
  box.innerHTML=tw.map(function(t){
    var zh=t.text_zh&&t.text_zh.trim();var mainTx=zh||t.text||"";
    var orig=(zh&&t.text)?'<details class="tworig"><summary></summary><div class="txo">'+esc(t.text)+'</div></details><div class="ainote">🌐 由 AI 辅助翻译，以原文为准</div>':'';
-   var img=(t.media&&t.media.length)?'<div class="twmedia'+(t.media.length>1?' multi':'')+'">'+t.media.slice(0,4).map(function(m){var pu="https://count.web3origin.com/news/img?u="+encodeURIComponent(m);return '<a href="'+pu+'" target="_blank" rel="noopener"><img loading="lazy" src="'+pu+'" alt="推文配图"></a>'}).join('')+'</div>':'';
+   var img=(t.media&&t.media.length)?'<div class="twmedia'+(t.media.length>1?' multi':'')+'">'+t.media.slice(0,4).map(function(m){var pu="https://count.web3origin.com/news/img?u="+encodeURIComponent(m);return '<a data-analytics-skip href="'+pu+'" target="_blank" rel="noopener"><img loading="lazy" src="'+pu+'" alt="推文配图"></a>'}).join('')+'</div>':'';
    var dt=t.created_at?new Date(t.created_at).toISOString().slice(0,10):"";
    var avimg=t.avatar?'<img class="avimg" loading="lazy" alt="" src="https://count.web3origin.com/news/img?u='+encodeURIComponent(t.avatar)+'" onerror="this.remove()">':'';
-   return '<div class="tw"><div class="u"><div class="av"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff" aria-hidden="true"><path d="M18.9 2H22l-7.6 8.7L23.4 22h-6.9l-5.4-7-6.2 7H1.7l8.2-9.3L1 2h7l4.9 6.5L18.9 2Zm-2.4 18h1.9L7.1 3.9H5.1L16.5 20Z"/></svg>'+avimg+'</div><div><div class="n">'+esc(t.name||"")+(t.verified?' <span class="vf">✔ 认证</span>':'')+'</div><div class="h">@'+esc(t.handle||"")+'</div></div></div>'+
+   return '<div class="tw" data-h="'+esc(t.handle||"")+'"><div class="u"><div class="av"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff" aria-hidden="true"><path d="M18.9 2H22l-7.6 8.7L23.4 22h-6.9l-5.4-7-6.2 7H1.7l8.2-9.3L1 2h7l4.9 6.5L18.9 2Zm-2.4 18h1.9L7.1 3.9H5.1L16.5 20Z"/></svg>'+avimg+'</div><div><div class="n">'+esc(t.name||"")+(t.verified?' <span class="vf">✔ 认证</span>':'')+'</div><div class="h">@'+esc(t.handle||"")+'</div></div></div>'+
    '<div class="tx">'+esc(mainTx)+'</div>'+orig+img+
    '<div class="ft">'+dt+' · 官方推文</div></div>';
  }).join('');
 }
 function openReader(i){
  var n=ANNS[i];if(!n)return;
- var oc=n.addrs&&n.addrs.length?('<div class="oc"><div class="h">⛓ 链上证据 · 公告原文公示地址，点击到区块浏览器核验</div>'+n.addrs.map(function(a){return '<a href="https://polygonscan.com/address/'+a+'" target="_blank" rel="noopener"><span>链上地址</span><span class="ad">'+a.slice(0,12)+'…'+a.slice(-8)+'</span></a>'}).join('')+'</div>'):'';
+ _curAnnId=String(n.id||"");
+ trk('announcement_open',{article_id:_curAnnId,article_title:String(n.title||"").slice(0,120)});
+ var _oadr=(Array.isArray(n.addrs)?n.addrs:[]).filter(function(a){return typeof a==="string"&&/^0x[0-9a-fA-F]{40}$/.test(a);});
+ var oc=_oadr.length?('<div class="oc"><div class="h">⛓ 链上证据 · 公告原文公示地址，点击到区块浏览器核验</div>'+_oadr.map(function(a){return '<a class="octrk" data-analytics-skip href="https://polygonscan.com/address/'+encodeURIComponent(a)+'" target="_blank" rel="noopener"><span>链上地址</span><span class="ad">'+esc(a.slice(0,12))+'…'+esc(a.slice(-8))+'</span></a>'}).join('')+'</div>'):'';
  var langNote=n.translated?'<p style="color:var(--gold);font-size:13.5px;font-family:var(--sans)">※ 本篇官方原文为英文，以下为 AI 辅助翻译，以原文为准。</p>':'';
  document.getElementById('reader').innerHTML=
   '<div class="rh"><span class="lab">官方公告</span><span class="lab gov">DAO治理</span><span class="x" onclick="closeReader()">×</span></div>'+
@@ -173,5 +183,28 @@ function loadFeed(manual){
 loadFeed();
 setInterval(loadFeed,90000);
 document.addEventListener('visibilitychange',function(){if(!document.hidden)loadFeed();});
+
+/* —— 资讯栏事件埋点(推文/公告互动 → 后台事件统计) —— */
+(function(){
+ var xf=document.getElementById('xfeed');
+ if(xf){
+   xf.addEventListener('click',function(e){
+     var a=e.target.closest&&e.target.closest('.twmedia a'); if(!a)return;
+     var tw=a.closest('.tw'); trk('tweet_media_click',{tweet_handle:(tw&&tw.getAttribute('data-h'))||''});
+   },true);
+   xf.addEventListener('toggle',function(e){   // details展开时(捕获,toggle不冒泡)
+     var d=e.target; if(!d||!d.classList||!d.classList.contains('tworig')||!d.open)return;
+     var tw=d.closest('.tw'); trk('tweet_expand_original',{tweet_handle:(tw&&tw.getAttribute('data-h'))||''});
+   },true);
+ }
+ var rd=document.getElementById('reader');
+ if(rd){
+   rd.addEventListener('click',function(e){
+     var a=e.target.closest&&e.target.closest('a.octrk'); if(!a)return;
+     trk('announcement_onchain_click',{article_id:_curAnnId});
+   },true);
+ }
+})();
 </script>
+<script defer src="/assets/analytics.js"></script>
 </body></html>
