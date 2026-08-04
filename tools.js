@@ -870,7 +870,7 @@
           ${(d.events&&d.events.length)?d.events.map(e=>{
             const wl=label(e.who);
             const lg=(e.lgns!=null)?`${e.lgnsEst?"约":"换"} ${fmtN(e.lgns)} LGNS　`:"";
-            const tx=e.tx?`<a href="${exTx(e.tx)}" target="_blank">交易 ↗</a>`:"";
+            const tx=e.tx?`<a href="${exTx(e.tx)}" target="_blank" style="font-family:var(--mono);white-space:nowrap" title="${e.tx}">${e.tx.slice(0,10)}…${e.tx.slice(-8)} ↗</a>`:"";
             return `<div class="dnev">
               <div class="top"><span class="amt ${e.dir}">${e.dir==="buy"?"买入":"卖出"} ${fmtN(e.dai)} DAI</span><span>${stars(evStars(e.dai))}</span></div>
               <div class="sub">${lg}${fmtTime(e.ts)}　${wl?wl:""}　${tx}</div>
