@@ -869,7 +869,7 @@
           <div class="dngrp">2️⃣ 今日大额成交 <span style="font-size:11px;color:var(--muted);font-weight:400">（≥1万 DAI · ${d.eventsSource==="whale"?"全天实时监测":"采样近千笔"}）</span></div>
           ${(d.events&&d.events.length)?d.events.map(e=>{
             const wl=label(e.who);
-            const lg=(e.lgns!=null)?`换 ${fmtN(e.lgns)} LGNS　`:"";
+            const lg=(e.lgns!=null)?`${e.lgnsEst?"约":"换"} ${fmtN(e.lgns)} LGNS　`:"";
             const tx=e.tx?`<a href="${exTx(e.tx)}" target="_blank">交易 ↗</a>`:"";
             return `<div class="dnev">
               <div class="top"><span class="amt ${e.dir}">${e.dir==="buy"?"买入":"卖出"} ${fmtN(e.dai)} DAI</span><span>${stars(evStars(e.dai))}</span></div>
