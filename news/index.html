@@ -95,9 +95,9 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 
 <div class="wrap">
   <div class="hero">
-    <h1>最新资讯 · <em>Origin 生态情报</em></h1>
+    <h1>最新资讯 · <em>Awake 生态情报</em></h1>
     <div class="orn"><i></i><span>❖</span><i></i></div>
-    <p>Origin 官方公告与官方 X 动态，自动同步、全文站内直读并翻译成中文。独立研究平台，不代表任何项目方。</p>
+    <p>Awake 官方公告与官方推特，自动同步、全文站内直读并翻译成中文。独立研究平台，不代表任何项目方。</p>
   </div>
 
   <div class="sect"><div class="l"></div><h2>Awake 官方公告</h2><div class="l r"></div></div>
@@ -151,9 +151,7 @@ function openReader(i){
  document.getElementById('reader').innerHTML=
   '<div class="rh"><span class="lab">官方公告</span><span class="lab gov">DAO治理</span><span class="x" onclick="closeReader()">×</span></div>'+
   '<div class="rb"><h2>'+esc(n.title)+'</h2>'+
-  '<div class="tcard"><span><b>内容性质</b> 官方公告</span><span><b>核验状态</b> <span class="g">官方原文已抓取</span></span>'+
-   '<span><b>原始发布时间</b> '+ymd(n.createtime)+'</span><span><b>原文语言</b> '+langName(n.lang)+'</span>'+
-   '<span><b>链上证据</b> '+(n.addrs&&n.addrs.length?'<span class="g">'+n.addrs.length+' 地址</span>':'—')+'</span><span><b>AI参与</b> 仅整理排版，未改动原意</span></div>'+
+  '<div class="tcard"><span><b>内容性质</b> 官方公告</span><span><b>原始发布时间</b> '+ymd(n.createtime)+'</span></div>'+
   langNote+n.paras.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+oc+'</div>';
  document.getElementById('mask').classList.add('on');document.body.style.overflow='hidden';
 }
