@@ -142,7 +142,7 @@ function renderTweets(){
    var orig=(zh&&t.text)?'<details class="tworig"><summary></summary><div class="txo">'+esc(t.text)+'</div></details><div class="ainote">🌐 由 AI 辅助翻译，以原文为准</div>':'';
    var img=(t.media&&t.media.length)?'<div class="twmedia'+(t.media.length>1?' multi':'')+'">'+t.media.slice(0,4).map(function(m){var pu="https://count.web3origin.com/news/img?u="+encodeURIComponent(m);return '<a href="'+pu+'" target="_blank" rel="noopener"><img loading="lazy" src="'+pu+'" alt="推文配图"></a>'}).join('')+'</div>':'';
    var dt=t.created_at?new Date(t.created_at).toISOString().slice(0,10):"";
-   return '<div class="tw"><div class="u"><div class="av">🐦</div><div><div class="n">'+esc(t.name||"")+(t.verified?' <span class="vf">✔ 认证</span>':'')+'</div><div class="h">@'+esc(t.handle||"")+'</div></div></div>'+
+   return '<div class="tw"><div class="u"><div class="av"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff" aria-hidden="true"><path d="M18.9 2H22l-7.6 8.7L23.4 22h-6.9l-5.4-7-6.2 7H1.7l8.2-9.3L1 2h7l4.9 6.5L18.9 2Zm-2.4 18h1.9L7.1 3.9H5.1L16.5 20Z"/></svg></div><div><div class="n">'+esc(t.name||"")+(t.verified?' <span class="vf">✔ 认证</span>':'')+'</div><div class="h">@'+esc(t.handle||"")+'</div></div></div>'+
    '<div class="tx">'+esc(mainTx)+'</div>'+orig+img+
    '<div class="ft">'+dt+' · 官方推文</div></div>';
  }).join('');

@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["livecloud","☁","腾讯云直播"],["newstweets","🐦","官方X动态"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["livecloud","☁","腾讯云直播"],["newstweets","𝕏","官方X动态"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -113,7 +113,7 @@ function pNewsTweets(el){
           +'<span style="font-size:12px;color:#8a9">'+(t.addedBy==="migrate"?"(已有)":"")+'</span>'
           +'<button class="an-tab" data-del="'+esc(t.id)+'" style="margin-left:auto;color:#ff8a8a">删除</button></div>';
       }).join('')||'<div style="color:#8a9;padding:12px 0">清单为空，粘一条官方推文链接添加。</div>';
-      el.innerHTML='<div class="a-panel-box"><h3>🐦 官方 X 动态（精选镜像）</h3>'
+      el.innerHTML='<div class="a-panel-box"><h3>𝕏 官方 X 动态（精选镜像）</h3>'
         +'<div style="max-width:720px">'
         +'<div style="display:flex;gap:8px;margin-bottom:8px"><input id="ntUrl" placeholder="粘官方推文链接：https://x.com/…/status/数字" style="'+IST+'"><button class="an-tab on" id="ntAdd">添加</button></div>'
         +'<div id="ntMsg" style="font-size:13px;margin-bottom:8px"></div>'
