@@ -59,7 +59,7 @@ function loginView(){
 }
 
 /* ---------- 后台主框架 ---------- */
-var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["livecloud","☁","腾讯云直播"],["newstweets","𝕏","官方X动态"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
+var NAV=[["dashboard","🏠","总览"],["realtime","🟢","实时访客"],["trend","📈","流量趋势"],["analytics","📊","网站分析"],["countries","🌍","国家与地区"],["devices","📱","设备与浏览器"],["pages","📄","页面分析"],["articles","📰","文章分析"],["events","🎯","事件统计"],["funnels","⏬","转化漏斗"],["languages","🗣","多语言"],["aitraffic","🤖","AI流量"],["performance","⚡","性能监控"],["errors","🐞","错误监控"],["security","🛡","安全看板"],["live","📺","线上直播"],["livecloud","☁","木火夜聊"],["newstweets","𝕏","官方X动态"],["seo","🔎","SEO与AI收录"],["settings","⚙","系统设置"],["utm","🔗","推广链接"],["feedback","💬","留言管理"],["orders","🧾","订单记录"],["onchain","⛓","链上状态"],["audit","📜","审计日志"],["system","🖥","系统状态"]];
 var _cur="dashboard";
 function app(page){_cur=page;
   root().innerHTML='<div class="a-shell"><aside class="a-side"><div class="a-brand">◎ <b>Admin</b></div>'
@@ -144,19 +144,16 @@ function pLivecloud(el){
   var LB='font-size:12px;color:#9a8;margin-top:4px';
   get("/livecloud").then(function(r){
     var c=(r&&r.config)||{};
-    el.innerHTML='<div class="a-panel-box"><h3>☁ 腾讯云直播（独立页 /live-cloud/，与原「线上直播」互不影响）</h3>'
-      +'<div style="display:grid;gap:7px;max-width:680px">'
-      +'<label style="font-size:13px;color:#cdb"><input type="checkbox" id="lcEn" '+(c.enabled?"checked":"")+'> 开启（打开后 /live-cloud/ 播这个流；关闭则显示“正在准备中”）</label>'
-      +'<label style="'+LB+'">播放地址（推荐直接粘腾讯会议直播链接；也支持 m3u8/flv 直连地址）</label><input id="lcUrl" value="'+esc(c.url||"")+'" placeholder="https://meeting.tencent.com/live/…  或  https://…/xxx.m3u8" style="'+IST+'">'
-      +'<label style="'+LB+'">格式</label><select id="lcType" style="'+IST+';max-width:220px"><option value="auto">自动识别</option><option value="hls">HLS (m3u8)</option><option value="flv">HTTP-FLV</option></select>'
-      +'<label style="'+LB+'">标题</label><input id="lcTitle" value="'+esc(c.title||"腾讯云直播")+'" style="'+IST+'">'
-      +'<label style="'+LB+'">主讲人（可空）</label><input id="lcTeacher" value="'+esc(c.teacher||"")+'" style="'+IST+'">'
-      +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px"><button class="an-tab on" id="lcSave">保存</button><button class="an-tab" id="lcCheck">🔍 检测地址</button> <a class="an-tab" href="https://web3origin.com/live-cloud/" target="_blank" rel="noopener">👁 预览播放页</a><span id="lcMsg" style="font-size:13px;align-self:center"></span></div>'
+    el.innerHTML='<div class="a-panel-box"><h3>☁ 木火夜聊 · 换直播链接</h3>'
+      +'<div style="display:grid;gap:10px;max-width:680px">'
+      +'<label style="font-size:14px;color:#cdb;font-weight:600">直播链接（粘贴每天的腾讯会议直播链接）</label>'
+      +'<input id="lcUrl" value="'+esc(c.url||"")+'" placeholder="https://meeting.tencent.com/l/…" style="'+IST+';padding:11px;font-size:15px">'
+      +'<label style="font-size:13px;color:#cdb"><input type="checkbox" id="lcEn" '+(c.enabled?"checked":"")+'> 开启直播间（关闭则 /live-cloud 显示“正在准备中”）</label>'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px"><button class="an-tab on" id="lcSave">💾 保存</button><button class="an-tab" id="lcCheck">🔍 检测链接</button> <a class="an-tab" href="https://web3origin.com/live-cloud/" target="_blank" rel="noopener">👁 看直播页</a><span id="lcMsg" style="font-size:13px;align-self:center"></span></div>'
       +'<div id="lcChk" style="font-size:13px;margin-top:4px"></div>'
-      +'<div class="a-note-real" style="margin-top:8px"><b>粘腾讯会议直播链接（meeting.tencent.com/live/…）最省事</b>：后台会自动调腾讯接口取当前 m3u8（每次刷新 token 不会过期），它的直播 CDN 默认对本站开了跨域，电脑/手机都能播。「检测」显示是否直播中+能否取到流。若粘自有 m3u8 直连地址，则需该播放域名允许跨域(CORS)。此模块与原「线上直播」完全独立，互不影响。</div>'
+      +'<div class="a-note-real" style="margin-top:8px">把每天新的腾讯会议直播链接（meeting.tencent.com/l/… ）粘进去，点<b>保存</b>就换台了。点<b>检测链接</b>能看现在是不是正在直播。木火夜聊与原「线上直播」互不影响。</div>'
       +'</div></div>';
-    document.getElementById("lcType").value=c.type||"auto";
-    function collect(){return {enabled:document.getElementById("lcEn").checked,url:document.getElementById("lcUrl").value,type:document.getElementById("lcType").value,title:document.getElementById("lcTitle").value,teacher:document.getElementById("lcTeacher").value};}
+    function collect(){return {enabled:document.getElementById("lcEn").checked,url:document.getElementById("lcUrl").value,type:"auto",title:"木火夜聊",teacher:""};}
     document.getElementById("lcSave").onclick=function(){var m=document.getElementById("lcMsg");m.textContent="保存中…";m.style.color="#9a8";post("/livecloud",collect(),true).then(function(x){if(x&&x.ok){m.textContent="已保存";m.style.color="#7fe0a0";}else{m.textContent="失败："+((x&&x.error)||"?");m.style.color="#ff8a8a";}}).catch(function(){var mm=document.getElementById("lcMsg");mm.textContent="网络错误";mm.style.color="#ff8a8a";});};
     document.getElementById("lcCheck").onclick=function(){var m=document.getElementById("lcMsg"),ck=document.getElementById("lcChk");m.textContent="检测中…（真实请求外部地址）";m.style.color="#9a8";ck.textContent="";post("/livecloud",{action:"check",url:document.getElementById("lcUrl").value},true).then(function(x){m.textContent="";if(x&&x.ok&&x.check){var r=x.check;if(r.meeting){ck.innerHTML='腾讯会议直播：'+(r.ok?'<span style="color:#7fe0a0">解析成功</span>':'<span style="color:#ff8a8a">解析失败</span>')+' · 状态：'+(r.live?'<span style="color:#7fe0a0">直播中</span>':'<span style="color:#ffcf8a">未开播/已结束(status '+(r.status||0)+')</span>')+(r.title?' · 标题：'+esc(r.title):'')+' · m3u8：'+esc(r.m3u8||'?')+' · 跨域：'+(r.cors?('<span style="color:#7fe0a0">已开</span>'):(r.reachable?'<span style="color:#ffcf8a">未开</span>':'—'));}else{ck.innerHTML='连通：'+(r.reachable?'<span style="color:#7fe0a0">可达 HTTP '+r.status+'</span>':'<span style="color:#ff8a8a">不可达</span>')+' · 有效 m3u8：'+(r.isM3u8?'<span style="color:#7fe0a0">是</span>':'<span style="color:#ffcf8a">否/非 m3u8</span>')+' · 跨域(CORS)：'+(r.cors?('<span style="color:#7fe0a0">已开 '+esc(r.cors)+'</span>'):'<span style="color:#ffcf8a">未开（仅 iPhone 能播，电脑/安卓需在控制台开）</span>');}}else{ck.innerHTML='<span style="color:#ff8a8a">检测失败：'+((x&&x.error)||"?")+'</span>';}}).catch(function(){m.textContent="网络错误";m.style.color="#ff8a8a";});};
   }).catch(function(){el.innerHTML='<div class="a-center">读取失败</div>';});
