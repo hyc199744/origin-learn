@@ -7,6 +7,7 @@ Allow: /
 Disallow: /w/
 Disallow: /premium/
 Disallow: /search/
+Disallow: /dashboard/
 Disallow: /*?token=
 Disallow: /*?t=
 Disallow: /*?q=

@@ -11,17 +11,7 @@
 <meta name="baidu-site-verification" content="codeva-A7fg5qS7VR" />
 <link rel="canonical" href="https://web3origin.com/">
 <link rel="alternate" hreflang="zh-CN" href="https://web3origin.com/">
-<link rel="alternate" hreflang="zh-TW" href="https://web3origin.com/?lang=zh-TW">
 <link rel="alternate" hreflang="en" href="https://web3origin.com/en/">
-<link rel="alternate" hreflang="ja" href="https://web3origin.com/?lang=ja">
-<link rel="alternate" hreflang="ko" href="https://web3origin.com/?lang=ko">
-<link rel="alternate" hreflang="hi" href="https://web3origin.com/?lang=hi">
-<link rel="alternate" hreflang="id" href="https://web3origin.com/?lang=id">
-<link rel="alternate" hreflang="it" href="https://web3origin.com/?lang=it">
-<link rel="alternate" hreflang="de" href="https://web3origin.com/?lang=de">
-<link rel="alternate" hreflang="fr" href="https://web3origin.com/?lang=fr">
-<link rel="alternate" hreflang="es" href="https://web3origin.com/?lang=es">
-<link rel="alternate" hreflang="ar" href="https://web3origin.com/?lang=ar">
 <link rel="alternate" hreflang="x-default" href="https://web3origin.com/">
 <link rel="icon" type="image/png" href="assets/favicon.png"><link rel="apple-touch-icon" href="assets/apple-touch-icon.png"><link rel="icon" href="assets/logo.png"><link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#050303">
 <meta property="og:type" content="website">
@@ -629,8 +619,8 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   <div id="geoDist" style="margin:12px auto 0;font-size:12.5px;color:var(--muted);max-width:680px;line-height:2"><span data-i18n="geoload">访客国家分布加载中…</span></div>
 </footer>
 
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script defer src="/assets/qrcode.min.js"></script>
+<script defer src="/assets/pdf.min.js"></script>
 <script src="library.js"></script>
 <script src="contracts.js"></script>
 <script src="events.js"></script>
@@ -640,7 +630,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <script defer src="/assets/live-reminder.js"></script>
 <script>
 /* ————— 入场序列（用固定计时，不等大视频加载完）————— */
-setTimeout(()=>document.getElementById('loader').classList.add('done'),2900);
+setTimeout(()=>document.getElementById('loader').classList.add('done'),800);
 
 /* ————— 支持 /?tool=openX 从学院等外部页跳回首页直接打开对应工具 ————— */
 (function(){try{var tf=new URLSearchParams(location.search).get('tool');
@@ -834,7 +824,7 @@ window.renderCodices();
     box.innerHTML='<div style="text-align:center;color:var(--muted);padding:40px 20px">正在加载课件…</div>';
     if(!window.pdfjsLib){ box.innerHTML='<div style="text-align:center;color:var(--muted);padding:30px 20px">PDF 组件还在加载，请稍等两秒重新点开；<br>或 <a href="'+url+'" target="_blank" style="color:var(--gold-lt)">在新窗口打开 ↗</a></div>'; return; }
     try{
-      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      pdfjsLib.GlobalWorkerOptions.workerSrc='/assets/pdf.worker.min.js';
       const pdf=await pdfjsLib.getDocument({url}).promise;
       const scroller=document.createElement('div');
       scroller.style.cssText='max-height:80vh;overflow-y:auto;background:#2b2b2b;border-radius:8px;padding:12px 8px;-webkit-overflow-scrolling:touch';
