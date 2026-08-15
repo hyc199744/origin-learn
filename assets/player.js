@@ -63,7 +63,7 @@
     $("op-play").onclick=toggle;
     $("op-next").onclick=function(){go(1);};
     $("op-prev").onclick=function(){go(-1);};
-    $("op-x").onclick=function(){if(LIVE){if(ONCLOSE)ONCLOSE();detachLive();}else stop();};
+    $("op-x").onclick=function(){if(LIVE)endLive();else stop();};
     var rates=[1,1.25,1.5,2,0.75];
     $("op-rate").onclick=function(){if(!A)return;var i=rates.indexOf(A.playbackRate);i=(i+1)%rates.length;A.playbackRate=rates[i];$("op-rate").textContent=rates[i]+"x";save();};
     var bp=$("op-bar-p");
@@ -140,22 +140,38 @@
   function save(){if(LIVE)return;try{if(!items.length){localStorage.removeItem(LS);return;}localStorage.setItem(LS,JSON.stringify({items:items,idx:idx,time:A?A.currentTime:0,rate:A?A.playbackRate:1,playing:!!(A&&!A.paused)}));}catch(e){}}
 
   function norm(list){return (list||[]).map(function(c){return {url:safe(c.url||c.play_url),title:String(c.title||"").slice(0,120),cover:safe(c.cover||"")};}).filter(function(c){return c.url;});}
-  // 接管外部音频(直播:hls已由调用方attach到该audio元素),用同一悬浮条控制
-  function attachLive(el,meta){meta=meta||{};LIVE=true;LA=el;ONCLOSE=meta.onClose||null;items=[{url:"",title:String(meta.title||"").slice(0,120),cover:safe(meta.cover||"")}];idx=0;
-    if(el&&!el._opw){el._opw=1;el.addEventListener("play",sync);el.addEventListener("pause",sync);}
-    build();show();media();sync();}
-  function detachLive(){LIVE=false;LA=null;ONCLOSE=null;items=[];if(BAR){BAR.classList.remove("op-live");BAR.classList.remove("on");}}
+  // ===== 直播:播放器自己接管(纯音频),跨页面续播(本地标记+重新取流) =====
+  var API="https://count.web3origin.com",LHLS=null,liveT=null;
+  var LIVEMARK="origin_player_live";
+  function ensureLA(){if(LA)return LA;LA=document.createElement("audio");LA.setAttribute("playsinline","");LA.setAttribute("webkit-playsinline","");(document.body||document.documentElement).appendChild(LA);LA.addEventListener("play",sync);LA.addEventListener("pause",sync);return LA;}
+  function loadHls(cb){if(window.Hls){cb();return;}var ex=document.getElementById("op-hls");if(ex){var t=setInterval(function(){if(window.Hls){clearInterval(t);cb();}},200);setTimeout(function(){clearInterval(t);cb();},8000);return;}var s=document.createElement("script");s.id="op-hls";s.src="/assets/hls.min.js";s.onload=function(){cb();};s.onerror=function(){cb();};document.head.appendChild(s);}
+  function fetchStream(){return fetch(API+"/live/stream").then(function(r){return r.json();}).catch(function(){return null;});}
+  function playLiveUrl(url){var a=ensureLA();if(LHLS){try{LHLS.destroy();}catch(e){}LHLS=null;}
+    if(a.canPlayType("application/vnd.apple.mpegurl")){a.src=url;var p=a.play();if(p&&p.catch)p.catch(function(){});}
+    else{loadHls(function(){if(window.Hls&&window.Hls.isSupported()){var h=new window.Hls({liveDurationInfinity:true,enableWorker:true,lowLatencyMode:false,liveSyncDurationCount:8,liveMaxLatencyDurationCount:40,maxBufferLength:90,maxMaxBufferLength:180,backBufferLength:30,fragLoadingMaxRetry:10,manifestLoadingMaxRetry:8,levelLoadingMaxRetry:8});LHLS=h;h.loadSource(url);h.attachMedia(a);h.on(window.Hls.Events.ERROR,function(e,d){if(d&&d.fatal)refreshLive();});var p2=a.play&&a.play();if(p2&&p2.catch)p2.catch(function(){});}else{a.src=url;a.play&&a.play();}});}}
+  function refreshLive(){fetchStream().then(function(r){if(r&&r.ok&&r.live&&r.streamUrl)playLiveUrl(r.streamUrl);else endLive();});}
+  function checkLive(){if(!LIVE)return;fetchStream().then(function(r){if(!r||!r.ok||!r.live)endLive();});}
+  function startLive(meta){meta=meta||{};LIVE=true;ONCLOSE=meta.onClose||null;items=[{url:"",title:String(meta.title||(ZH?"起源直播":"Origin Live")).slice(0,120),cover:safe(meta.cover||"")}];idx=0;ensureLA();
+    try{localStorage.setItem(LIVEMARK,JSON.stringify({title:items[0].title,cover:items[0].cover}));}catch(e){}
+    build();show();media();sync();
+    fetchStream().then(function(r){if(r&&r.ok&&r.live&&r.streamUrl)playLiveUrl(r.streamUrl);else endLive();});
+    if(!liveT)liveT=setInterval(checkLive,30000);}
+  function endLive(){LIVE=false;if(LHLS){try{LHLS.destroy();}catch(e){}LHLS=null;}if(LA){try{LA.pause();}catch(e){}LA.removeAttribute("src");try{LA.load();}catch(e){}}if(liveT){clearInterval(liveT);liveT=null;}try{localStorage.removeItem(LIVEMARK);}catch(e){}items=[];if(BAR){BAR.classList.remove("op-live");BAR.classList.remove("on");}try{if("mediaSession" in navigator)navigator.mediaSession.playbackState="none";}catch(e){}var cb=ONCLOSE;ONCLOSE=null;if(cb)try{cb();}catch(e){}}
   window.OriginPlayer={
-    playList:function(list,i){var L=norm(list);if(!L.length)return;LIVE=false;LA=null;if(BAR)BAR.classList.remove("op-live");items=L;loadIdx(Math.max(0,Math.min(i||0,L.length-1)),0,true);},
+    playList:function(list,i){var L=norm(list);if(!L.length)return;if(LIVE)endLive();items=L;loadIdx(Math.max(0,Math.min(i||0,L.length-1)),0,true);},
     play:function(url,title,cover){this.playList([{url:url,title:title,cover:cover}],0);},
-    attachLive:attachLive,
-    detachLive:detachLive,
+    startLive:startLive,
+    stopLive:endLive,
+    isLive:function(){return !!LIVE;},
     current:function(){return items[idx]||null;},
-    isActive:function(){return items.length>0;}
+    isActive:function(){return items.length>0||!!LIVE;}
   };
 
   // 翻页恢复:读上次状态,续播(自动播放被拦时显示▶,点一下继续)
   function restore(){
+    // 直播:上个页面在后台收听直播→本页重新取流续播(锁屏/翻页不停)
+    var lv=null;try{lv=JSON.parse(localStorage.getItem(LIVEMARK));}catch(e){lv=null;}
+    if(lv){startLive({title:lv.title,cover:lv.cover});return;}
     var st;try{st=JSON.parse(localStorage.getItem(LS));}catch(e){st=null;}
     if(!st||!st.items||!st.items.length)return;
     items=norm(st.items);if(!items.length)return;idx=Math.max(0,Math.min(st.idx||0,items.length-1));

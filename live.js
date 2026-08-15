@@ -263,10 +263,10 @@
     if(v.canPlayType("application/vnd.apple.mpegurl")){v.src=url;lvTryPlay(v);}
     else if(window.Hls&&window.Hls.isSupported()){
       var hls=new window.Hls({liveDurationInfinity:true,enableWorker:true,lowLatencyMode:false,
-        backBufferLength:30,maxBufferLength:60,maxMaxBufferLength:120,
-        liveSyncDurationCount:5,liveMaxLatencyDurationCount:60,
-        maxBufferHole:0.5,nudgeMaxRetry:10,nudgeOffset:0.2,
-        fragLoadingMaxRetry:10,fragLoadingRetryDelay:500,manifestLoadingMaxRetry:6,levelLoadingMaxRetry:6});state.hls=hls;
+        backBufferLength:30,maxBufferLength:90,maxMaxBufferLength:200,
+        liveSyncDurationCount:8,liveMaxLatencyDurationCount:40,
+        maxBufferHole:0.5,nudgeMaxRetry:12,nudgeOffset:0.2,
+        fragLoadingMaxRetry:12,fragLoadingRetryDelay:500,manifestLoadingMaxRetry:8,levelLoadingMaxRetry:8});state.hls=hls;
       hls.loadSource(url);hls.attachMedia(v);
       hls.on(window.Hls.Events.MANIFEST_PARSED,function(){lvTryPlay(v);});
       hls.on(window.Hls.Events.ERROR,function(e,data){if(data&&data.fatal)lvOnStreamError();});
@@ -384,6 +384,8 @@
   function applyStage(){
     var stage=document.getElementById("lv-stage");if(!stage||!state.course)return;
     var c=state.course,st=c.status||"unknown";
+    // 返回直播页时若悬浮播放器正在后台听直播(本地标记),别再挂视频(避免双声道),显示后台收听提示
+    if(!state.bgOn&&st==="live"){try{if(localStorage.getItem("origin_player_live")){state.bgOn=true;updateBadge("live");renderBgNote(c);bgSyncBtn();return;}}catch(e){}}
     if(state.bgOn){if(st==="live"){updateBadge("live");return;}else{stopBgListen(false);}}// 后台收听中:直播继续则不动,结束则退出后台模式再正常渲染
     var changed=st!==state.lastStatus;state.lastStatus=st;
     updateBadge(st);
@@ -749,24 +751,15 @@
     var bk=document.getElementById("lv-bg-back");if(bk)bk.onclick=function(){stopBgListen(true);};
   }
   function lvBgError(){fetchJSON(EPstream,10000).then(function(r){if(r&&r.ok&&r.live&&r.streamUrl){if(state.course)state.course.streamUrl=r.streamUrl;if(state.bgOn)startBgListen();}else stopBgListen(true);}).catch(function(){if(state.bgOn)stopBgListen(true);});}
+  function liveClosed(){state.bgOn=false;state.mode=null;state.lastStatus=null;bgSyncBtn();setTimeout(function(){if(state.course)applyStage();},0);}
   function startBgListen(){
-    var c=state.course;if(!c||c.status!=="live"||!(c.streamUrl&&/^https:\/\//i.test(c.streamUrl))){lvToast(ZH?"直播进行中才能后台收听":"Only available during live");return;}
-    var url=c.streamUrl;
+    var c=state.course;if(!c||c.status!=="live"){lvToast(ZH?"直播进行中才能后台收听":"Only available during live");return;}
+    if(!(window.OriginPlayer&&window.OriginPlayer.startLive)){lvToast(ZH?"播放器未就绪，请刷新":"Player not ready");return;}
     lvDestroyHls();state.iframeOn=false;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}
-    if(!state.laudio){state.laudio=document.createElement("audio");state.laudio.id="lv-laudio";state.laudio.setAttribute("playsinline","");state.laudio.setAttribute("webkit-playsinline","");document.body.appendChild(state.laudio);
-      state.laudio.addEventListener("pause",bgSyncBtn);state.laudio.addEventListener("play",bgSyncBtn);}
-    var a=state.laudio;
-    if(state.lhls){try{state.lhls.destroy();}catch(e){}state.lhls=null;}
-    if(a.canPlayType("application/vnd.apple.mpegurl")){a.src=url;}
-    else if(window.Hls&&window.Hls.isSupported()){var h=new window.Hls({liveDurationInfinity:true,enableWorker:true,fragLoadingMaxRetry:10,manifestLoadingMaxRetry:6,levelLoadingMaxRetry:6});state.lhls=h;h.loadSource(url);h.attachMedia(a);h.on(window.Hls.Events.ERROR,function(e,d){if(d&&d.fatal)lvBgError();});}
-    else {lvToast(ZH?"此浏览器不支持后台收听":"Not supported here");return;}
-    var p=a.play();if(p&&p.catch)p.catch(function(){});
     state.bgOn=true;state.mode="bg";
-    if(window.OriginPlayer&&window.OriginPlayer.attachLive){
-      window.OriginPlayer.attachLive(a,{title:c.title||(ZH?"起源直播":"Origin Live"),cover:safeCover(c.cover_url),onClose:function(){stopBgListen(true);}});
-      renderBgNote(c);
-    } else { setLiveMedia(c);renderBgPanel(c); }
-    bgSyncBtn();
+    // 交给全站播放器接管直播音频(自己取流+断流重连+跨页面续播),不停在本页
+    window.OriginPlayer.startLive({title:c.title||(ZH?"起源直播":"Origin Live"),cover:safeCover(c.cover_url),onClose:liveClosed});
+    renderBgNote(c);bgSyncBtn();
   }
   function renderBgNote(c){
     var stage=document.getElementById("lv-stage");if(!stage)return;var cov=safeCover(c.cover_url);
@@ -778,13 +771,9 @@
     var bk=document.getElementById("lv-bg-back");if(bk)bk.onclick=function(){stopBgListen(true);};
   }
   function stopBgListen(back){
-    if(window.OriginPlayer&&window.OriginPlayer.detachLive)window.OriginPlayer.detachLive();
-    if(state.lhls){try{state.lhls.destroy();}catch(e){}state.lhls=null;}
-    if(state.laudio){try{state.laudio.pause();}catch(e){}state.laudio.removeAttribute("src");try{state.laudio.load();}catch(e){}}
-    state.bgOn=false;state.mode=null;state.lastStatus=null;
-    try{if("mediaSession" in navigator)navigator.mediaSession.playbackState="none";}catch(e){}
-    bgSyncBtn();
-    if(back!==false)applyStage();
+    // 交给播放器停止(→endLive→liveClosed 会重置状态并切回视频)
+    if(window.OriginPlayer&&window.OriginPlayer.stopLive){window.OriginPlayer.stopLive();}
+    else{state.bgOn=false;state.mode=null;state.lastStatus=null;bgSyncBtn();if(back!==false)applyStage();}
   }
   function beat(){fetchJSON(EPbeat+"?v="+encodeURIComponent(vid()),8000).then(function(r){if(r&&r.ok){if(typeof r.online==="number")state.online=r.online;if(typeof r.cum==="number")state.cum=r.cum;var on=document.getElementById("lv-online"),cu=document.getElementById("lv-cum");if(on)on.textContent=state.online;if(cu)cu.textContent=state.cum;}}).catch(function(){});}
 
