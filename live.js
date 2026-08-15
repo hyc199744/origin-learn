@@ -166,6 +166,7 @@
     +"#live-wrap .lv-rep-m{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-top:5px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}"
     +"#live-wrap .lv-rep-tag{font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(118,255,54,.12);color:var(--grn2);border:1px solid rgba(37,201,111,.4);font-weight:600}"
     +"#live-wrap .lv-rep-plays{color:var(--g);font-weight:700;font-variant-numeric:tabular-nums}"
+    +"#live-wrap .lv-rep-share{flex:0 0 auto;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--glt);font-size:16px;cursor:pointer;transition:.15s}#live-wrap .lv-rep-share:hover{border-color:var(--g);background:rgba(214,168,75,.1);transform:scale(1.06)}"
     +"#live-wrap .lv-modal{position:fixed;inset:0;z-index:100000;background:rgba(3,5,4,.86);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}"
     +"#live-wrap .lv-modal.on{display:flex}"
     +"#live-wrap .lv-modal-box{width:min(1000px,96vw);background:var(--pnl);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);display:flex;flex-direction:column;max-height:92vh}"
@@ -580,7 +581,9 @@
         +'<div class="lv-rep-m"><span class="lv-rep-tag">'+esc(tag)+'</span>'
         +(dur?'<span>⏱ '+(ZH?"时长 ":"")+esc(dur)+'</span>':"")
         +'<span class="lv-rep-plays" data-t="'+tkt+'">▶ '+plays+(ZH?" 次":"")+'</span>'
-        +'</div></div></div>';
+        +'</div></div>'
+        +'<button type="button" class="lv-rep-share" data-t="'+tkt+'" aria-label="'+(ZH?"转发":"share")+'" title="'+(ZH?"转发到微信":"Share")+'">↗</button>'
+        +'</div>';
     }).join("");
     var cards=grid.querySelectorAll(".lv-rep-item");
     for(var i=0;i<cards.length;i++){(function(el){
@@ -597,7 +600,17 @@
       };
       el.addEventListener("click",go);
       el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});
+      var sb=el.querySelector(".lv-rep-share");
+      if(sb)sb.addEventListener("click",function(e){e.stopPropagation();shareReplay(el.getAttribute("data-ticket"),el.getAttribute("data-title"));});
     })(cards[i]);}
+  }
+  function shareReplay(tkt,label){
+    if(!tkt)return;
+    var link="https://count.web3origin.com/listen?r="+encodeURIComponent(tkt);
+    var txt=(ZH?"🎧 起源线上课堂回放":"Origin class replay")+(label?(" · "+label):"");
+    if(navigator.share){navigator.share({title:ZH?"起源课程回放":"Origin replay",text:txt,url:link}).catch(function(){});return;}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(function(){lvToast(ZH?"链接已复制，粘贴到微信发送即可":"Link copied");}).catch(function(){window.prompt(ZH?"复制此链接发到微信：":"Copy this link:",link);});return;}
+    window.prompt(ZH?"复制此链接发到微信：":"Copy this link:",link);
   }
   function ensureReplayModal(){
     var m=document.getElementById("lv-replay-modal");if(m)return m;
