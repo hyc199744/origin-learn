@@ -606,19 +606,11 @@
   }
   function shareReplay(tkt,label){
     if(!tkt)return;
-    var fileUrl=API+"/live/replays/file?r="+encodeURIComponent(tkt);
-    var fname=(ZH?"起源回放_":"origin_")+String(label||tkt).replace(/[^\w一-鿿\-]/g,"_").slice(0,40)+".mp3";
-    lvToast(ZH?"正在准备音频…":"Preparing audio…");
-    fetch(fileUrl).then(function(r){if(!r.ok)throw 0;return r.blob();}).then(function(blob){
-      var file=null;try{file=new File([blob],fname,{type:"audio/mpeg"});}catch(e){}
-      if(file&&navigator.canShare&&navigator.canShare({files:[file]})&&navigator.share){
-        navigator.share({files:[file],title:ZH?"起源课程回放":"Origin replay",text:(ZH?"🎧 起源线上课堂回放":"Origin class replay")}).catch(function(){});
-      }else{
-        var a=document.createElement("a"),ou=URL.createObjectURL(blob);a.href=ou;a.download=fname;document.body.appendChild(a);a.click();
-        setTimeout(function(){a.remove();URL.revokeObjectURL(ou);},1500);
-        lvToast(ZH?"已下载音频，在微信里发送这个文件给好友即可":"Audio downloaded — send this file in WeChat");
-      }
-    }).catch(function(){lvToast(ZH?"获取音频失败，请重试":"Failed, try again");});
+    var link="https://count.web3origin.com/listen?r="+encodeURIComponent(tkt);
+    var title=ZH?"起源课程回放":"Origin replay",txt=(ZH?"🎧 点开收听起源线上课堂回放":"Origin class replay")+(label?(" · "+label):"");
+    if(navigator.share){navigator.share({title:title,text:txt,url:link}).catch(function(){});return;}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(function(){lvToast(ZH?"链接已复制，粘贴到微信发送，对方点开即播":"Link copied");}).catch(function(){window.prompt(ZH?"复制此链接发到微信：":"Copy link:",link);});return;}
+    window.prompt(ZH?"复制此链接发到微信：":"Copy link:",link);
   }
   function ensureReplayModal(){
     var m=document.getElementById("lv-replay-modal");if(m)return m;
