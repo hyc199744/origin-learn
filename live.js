@@ -575,8 +575,14 @@
     var cards=grid.querySelectorAll(".lv-rep-item");
     for(var i=0;i<cards.length;i++){(function(el){
       var go=function(){var k=el.getAttribute("data-kind"),u=el.getAttribute("data-url"),ti=el.getAttribute("data-title"),cv=el.getAttribute("data-cover");
-        if(k==="video"||k==="embed"){openReplay(u,ti,k,cv);}
-        else{playAudio(safeUrl(u),ti,cv,true);}};// 音频:直接播+悬浮小条,不弹全屏
+        if(k==="video"||k==="embed"){openReplay(u,ti,k,cv);return;}
+        // 音频:交给全站持久播放器(跨页面不停),点一下直接播
+        if(window.OriginPlayer){
+          var au=(state.replays||[]).filter(function(c){return (c.kind||"audio")==="audio"&&c.play_url;}).map(function(c){return {url:c.play_url,title:c.title,cover:c.cover};});
+          var ci=0;for(var q=0;q<au.length;q++){if(safeUrl(au[q].url)===safeUrl(u)){ci=q;break;}}
+          window.OriginPlayer.playList(au,ci);
+        } else { playAudio(safeUrl(u),ti,cv,true); }
+      };
       el.addEventListener("click",go);
       el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});
     })(cards[i]);}
