@@ -361,7 +361,7 @@
   }
   function showEnded(stage,replay){
     var c=state.course,cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
-    var sub=replay?(ZH?"本场直播已结束，回放即将在本页开始，请稍候…":"This session has ended — replay will start here shortly…"):(ZH?"本场直播已结束。有回放时会在本页自动播放。":"This session has ended. The replay will play here automatically when available.");
+    var sub=ZH?"本场直播已结束。音频回放在下方「往期回放」里，点开即可收听。":"This session has ended. Audio replays are available below in “Past Replays”.";
     stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:34px">🌙</div><div class="lv-ovtitle">'+(ZH?"今日课程已结束":"Today's session has ended")+'</div><div class="lv-ovsub">'+esc(sub)+'</div></div></div>';
   }
   function showUnavailable(stage){
