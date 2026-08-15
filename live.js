@@ -179,7 +179,9 @@
     +"#live-wrap .lv-ap-art{width:clamp(120px,30vw,176px);height:clamp(120px,30vw,176px);border-radius:20px;overflow:hidden;box-shadow:0 22px 54px rgba(0,0,0,.55);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(214,168,75,.28),rgba(214,168,75,.05))}"
     +"#live-wrap .lv-ap-art img{width:100%;height:100%;object-fit:cover}#live-wrap .lv-ap-art span{font-size:62px;filter:drop-shadow(0 8px 20px rgba(214,168,75,.4))}"
     +"#live-wrap .lv-ap-title{font-family:'STZhongsong',serif;font-size:clamp(17px,3.4vw,21px);color:var(--glt);text-align:center;max-width:92%;line-height:1.4;word-break:break-word}"
-    +"#live-wrap .lv-ap-ctrls{display:flex;align-items:center;gap:12px;width:min(560px,94%);margin-top:4px}"
+    +"#live-wrap .lv-ap-transport{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:2px}"
+    +"#live-wrap .lv-ap-nav{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--glt);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}#live-wrap .lv-ap-nav:hover{border-color:var(--g);background:rgba(214,168,75,.1);transform:scale(1.06)}"
+    +"#live-wrap .lv-ap-ctrls{display:flex;align-items:center;gap:11px;width:min(560px,94%);margin-top:4px}"
     +"#live-wrap .lv-ap-btn{flex:0 0 auto;width:52px;height:52px;border-radius:50%;border:0;cursor:pointer;background:linear-gradient(135deg,var(--glt),#b8842f);color:#1a1206;font-size:19px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(214,168,75,.36);transition:.15s}#live-wrap .lv-ap-btn:hover{transform:scale(1.06)}"
     +"#live-wrap .lv-ap-time{flex:0 0 auto;font-size:12.5px;color:var(--soft);font-variant-numeric:tabular-nums;min-width:40px;text-align:center}"
     +"#live-wrap .lv-ap-bar{position:relative;flex:1;height:6px;background:rgba(255,255,255,.13);border-radius:999px;cursor:pointer;touch-action:none}"
@@ -193,6 +195,7 @@
     +"#live-wrap .lv-mini-t{font-size:13px;color:var(--glt);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"
     +"#live-wrap .lv-mini-p{margin-top:5px;height:4px;background:rgba(255,255,255,.13);border-radius:999px;overflow:hidden}#live-wrap .lv-mini-fill{height:100%;width:0;background:linear-gradient(90deg,var(--g),var(--glt))}"
     +"#live-wrap .lv-mini-btn{flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:0;cursor:pointer;background:linear-gradient(135deg,var(--glt),#b8842f);color:#1a1206;font-size:15px;display:flex;align-items:center;justify-content:center}"
+    +"#live-wrap .lv-mini-next{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--glt);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}#live-wrap .lv-mini-next:hover{border-color:var(--g)}"
     +"#live-wrap .lv-mini-x{flex:0 0 auto;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--soft);cursor:pointer;font-size:13px}#live-wrap .lv-mini-x:hover{color:var(--glt);border-color:var(--g)}"
     +"@media(max-width:600px){#live-wrap .lv-mini{bottom:78px}}";
 
@@ -555,6 +558,7 @@
   function renderReplays(list){
     var sec=document.getElementById("lv-replays-sec"),grid=document.getElementById("lv-replays");
     if(!sec||!grid)return;
+    state.replays=list||[];
     if(!list||!list.length){sec.style.display="";grid.innerHTML='<div class="lv-empty" style="grid-column:1/-1;margin:8px auto">'+esc(T.no_replays)+'</div>';return;}
     sec.style.display="";
     grid.innerHTML=list.map(function(c){
@@ -594,9 +598,17 @@
     document.body.appendChild(a);state.pa=a;
     a.addEventListener("play",pSync);a.addEventListener("pause",pSync);
     a.addEventListener("timeupdate",pSync);a.addEventListener("loadedmetadata",pSync);
-    a.addEventListener("ended",function(){pSync();});
+    a.addEventListener("ended",function(){pSync();if(replayList().length>1)playNext();});
     return a;
   }
+  function replayList(){return (state.replays||[]).filter(function(c){return c.play_url&&((c.kind||"audio")==="audio");});}
+  function curIndex(){var l=replayList();if(!state.pmeta)return -1;for(var i=0;i<l.length;i++){if(safeUrl(l[i].play_url)===state.pmeta.url)return i;}return -1;}
+  function gotoDelta(d){var l=replayList();if(!l.length)return;var i=curIndex();i=(i<0)?0:((i+d+l.length)%l.length);var c=l[i],url=safeUrl(c.play_url);if(!url)return;
+    playAudio(url,c.title,c.cover,true);
+    var modal=document.getElementById("lv-replay-modal");
+    if(modal&&modal.classList.contains("on")){var t=document.getElementById("lv-modal-title");if(t)t.textContent=c.title||T.replays_title;renderBigAudio(c.title,safeCover(c.cover));}}
+  function playNext(){gotoDelta(1);}
+  function playPrev(){gotoDelta(-1);}
   function setMedia(meta){
     try{if(!("mediaSession" in navigator))return;var art=[];if(meta.cover)art.push({src:meta.cover,sizes:"512x512",type:"image/jpeg"});
       navigator.mediaSession.metadata=new MediaMetadata({title:meta.title||T.replays_title,artist:ZH?"起源线上课堂":"Origin Live",album:"Origin",artwork:art});
@@ -604,6 +616,8 @@
       navigator.mediaSession.setActionHandler("pause",function(){if(state.pa)state.pa.pause();});
       navigator.mediaSession.setActionHandler("seekbackward",function(){if(state.pa)state.pa.currentTime=Math.max(0,state.pa.currentTime-15);});
       navigator.mediaSession.setActionHandler("seekforward",function(){if(state.pa)state.pa.currentTime=Math.min(state.pa.duration||1e9,state.pa.currentTime+15);});
+      try{navigator.mediaSession.setActionHandler("nexttrack",replayList().length>1?function(){playNext();}:null);}catch(e){}
+      try{navigator.mediaSession.setActionHandler("previoustrack",replayList().length>1?function(){playPrev();}:null);}catch(e){}
     }catch(e){}
   }
   function pSync(){
@@ -625,12 +639,17 @@
     stage.innerHTML='<div class="lv-ap">'
       +'<div class="lv-ap-art">'+(cover?'<img src="'+esc(cover)+'" alt="">':'<span>🎧</span>')+'</div>'
       +'<div class="lv-ap-title">'+esc(title||T.replays_title)+'</div>'
-      +'<div class="lv-ap-ctrls"><button type="button" class="lv-ap-btn" id="lv-ap-toggle" aria-label="play/pause">▶</button>'
-      +'<span class="lv-ap-time" id="lv-ap-cur">0:00</span>'
+      +'<div class="lv-ap-transport"><button type="button" class="lv-ap-nav" id="lv-ap-prev" aria-label="'+(ZH?"上一曲":"prev")+'">⏮</button>'
+      +'<button type="button" class="lv-ap-btn" id="lv-ap-toggle" aria-label="play/pause">▶</button>'
+      +'<button type="button" class="lv-ap-nav" id="lv-ap-next" aria-label="'+(ZH?"下一曲":"next")+'">⏭</button></div>'
+      +'<div class="lv-ap-ctrls"><span class="lv-ap-time" id="lv-ap-cur">0:00</span>'
       +'<div class="lv-ap-bar" id="lv-ap-bar"><div class="lv-ap-fill" id="lv-ap-fill"></div><div class="lv-ap-knob" id="lv-ap-knob"></div></div>'
       +'<span class="lv-ap-time" id="lv-ap-dur">0:00</span>'
       +'<button type="button" class="lv-ap-rate" id="lv-ap-rate" aria-label="'+(ZH?"倍速":"speed")+'">'+((state.pa&&state.pa.playbackRate)||1)+'x</button></div></div>';
     var a=state.pa,bar=document.getElementById("lv-ap-bar"),tog=document.getElementById("lv-ap-toggle"),rate=document.getElementById("lv-ap-rate");
+    var pv=document.getElementById("lv-ap-prev"),nx=document.getElementById("lv-ap-next");
+    if(pv)pv.onclick=playPrev;if(nx)nx.onclick=playNext;
+    if(replayList().length<2){if(pv)pv.style.display="none";if(nx)nx.style.display="none";}
     if(tog)tog.onclick=function(){if(a.paused){var p=a.play();if(p&&p.catch)p.catch(function(){});}else a.pause();};
     function seek(e){var r=bar.getBoundingClientRect(),cx=(e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX),x=(cx-r.left)/r.width;x=Math.min(1,Math.max(0,x));if(isFinite(a.duration))a.currentTime=x*a.duration;}
     if(bar){bar.addEventListener("click",seek);bar.addEventListener("mousedown",function(e){state._drag=1;seek(e);});bar.addEventListener("touchstart",function(e){seek(e);},{passive:true});bar.addEventListener("touchmove",function(e){seek(e);},{passive:true});
@@ -670,9 +689,11 @@
     mini.innerHTML='<div class="lv-mini-art" id="lv-mini-art"></div>'
       +'<div class="lv-mini-info" id="lv-mini-open"><div class="lv-mini-t" id="lv-mini-t"></div><div class="lv-mini-p"><div class="lv-mini-fill" id="lv-mini-fill"></div></div></div>'
       +'<button type="button" class="lv-mini-btn" id="lv-mini-toggle" aria-label="play/pause">⏸</button>'
+      +'<button type="button" class="lv-mini-next" id="lv-mini-next" aria-label="'+(ZH?"下一曲":"next")+'">⏭</button>'
       +'<button type="button" class="lv-mini-x" id="lv-mini-x" aria-label="close">✕</button>';
     wrap.appendChild(mini);
     document.getElementById("lv-mini-toggle").onclick=function(){var a=state.pa;if(!a)return;if(a.paused){var p=a.play();if(p&&p.catch)p.catch(function(){});}else a.pause();};
+    document.getElementById("lv-mini-next").onclick=playNext;
     document.getElementById("lv-mini-x").onclick=stopReplay;
     document.getElementById("lv-mini-open").onclick=function(){if(state.pmeta)openReplay(state.pmeta.url,state.pmeta.title,"audio",state.pmeta.cover);};
     return mini;
@@ -682,6 +703,7 @@
     var art=document.getElementById("lv-mini-art"),tt=document.getElementById("lv-mini-t");
     if(art)art.innerHTML=state.pmeta.cover?'<img src="'+esc(state.pmeta.cover)+'" alt="">':'🎧';
     if(tt)tt.textContent=state.pmeta.title||T.replays_title;
+    var mn=document.getElementById("lv-mini-next");if(mn)mn.style.display=replayList().length<2?"none":"";
     mini.classList.add("on");pSync();
   }
   function hideMini(){var mini=document.getElementById("lv-mini");if(mini)mini.classList.remove("on");}
