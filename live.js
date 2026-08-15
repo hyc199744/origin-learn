@@ -571,12 +571,12 @@
       var cov=safeCover(c.cover),when=c.live_time?fmtClock(c.live_time):"",dur=c.duration?fmtDur(c.duration):"";
       var tag=kind==="audio"?(ZH?"🎧 音频":"🎧 Audio"):(kind==="video"?(ZH?"▶ 视频":"▶ Video"):(ZH?"直播回放":"Replay"));
       var tkt=esc(c.ticket_id||""),plays=Number(c.plays)||0;
-      return '<div class="lv-rep-item" data-url="'+esc(url)+'" data-title="'+esc(c.title||"")+'" data-kind="'+esc(kind)+'" data-cover="'+esc(cov)+'" data-ticket="'+tkt+'" tabindex="0" role="button" aria-label="'+esc(T.watch_replay+" "+(c.title||""))+'">'
+      var label=when||(c.title||T.replays_title);// 标题位改成 日期+时间(取消觉醒14:30那种场次名)
+      return '<div class="lv-rep-item" data-url="'+esc(url)+'" data-title="'+esc(label)+'" data-kind="'+esc(kind)+'" data-cover="'+esc(cov)+'" data-ticket="'+tkt+'" tabindex="0" role="button" aria-label="'+esc(T.watch_replay+" "+label)+'">'
         +'<div class="lv-rep-play">'+(cov?'<img src="'+esc(cov)+'" alt="">':"")+'<span>▶</span></div>'
-        +'<div class="lv-rep-body"><div class="lv-rep-h">'+esc(c.title||T.replays_title)+'</div>'
+        +'<div class="lv-rep-body"><div class="lv-rep-h">'+esc(label)+'</div>'
         +'<div class="lv-rep-m"><span class="lv-rep-tag">'+esc(tag)+'</span>'
-        +(when?'<span>📅 '+esc(when)+'</span>':"")
-        +(dur?'<span>⏱ '+esc(dur)+'</span>':"")
+        +(dur?'<span>⏱ '+(ZH?"时长 ":"")+esc(dur)+'</span>':"")
         +'<span class="lv-rep-plays" data-t="'+tkt+'">▶ '+plays+(ZH?" 次":"")+'</span>'
         +'</div></div></div>';
     }).join("");
