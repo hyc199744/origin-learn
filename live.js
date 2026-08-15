@@ -384,6 +384,7 @@
   function applyStage(){
     var stage=document.getElementById("lv-stage");if(!stage||!state.course)return;
     var c=state.course,st=c.status||"unknown";
+    if(state.bgOn){if(st==="live"){updateBadge("live");return;}else{stopBgListen(false);}}// 后台收听中:直播继续则不动,结束则退出后台模式再正常渲染
     var changed=st!==state.lastStatus;state.lastStatus=st;
     updateBadge(st);
     if(st==="live"||st==="paused"||st==="replay"){ // 播放器:优先自建视频播放器(直播流),无流/不支持则回退iframe;不重建正在播放的画面
@@ -474,6 +475,7 @@
       +'<div class="lv-stage" id="lv-stage"><div class="lv-overlay"><div class="lv-spin"></div></div></div>'
       +'<div class="lv-ctrls">'
       +'<button class="lv-btn" id="lv-fs">⛶ '+esc(T.btn_fs)+'</button>'
+      +'<button class="lv-btn" id="lv-bg">🎧 '+(ZH?"后台收听":"Listen in background")+'</button>'
       +'<button class="lv-btn" id="lv-refresh">↻ '+esc(T.btn_refresh)+'</button>'
       +'<button class="lv-btn" id="lv-like">❤ '+(ZH?"点赞":"Like")+' <b id="lv-likeN">0</b></button>'
       +'</div></div>'
@@ -491,6 +493,7 @@
       +'</div></div>';
     // 控件绑定
     document.getElementById("lv-fs").onclick=toggleFullscreen;
+    var bgb=document.getElementById("lv-bg");if(bgb)bgb.onclick=function(){if(state.bgOn)stopBgListen(true);else startBgListen();};
     document.getElementById("lv-refresh").onclick=function(){state.mode=null;state.lastStatus=null;applyStage();};
     state.mode=null;state.lastStatus=null;applyStage();
     bindChat();
@@ -730,6 +733,44 @@
     if(stage&&wasAudio)stage.innerHTML="";// 清大播放器DOM(音频靠常驻audio继续放)
     m.classList.remove("on");
     if(state.pmeta)showMini();// 音频还在→显示悬浮小条继续听
+  }
+  // ===== 直播后台收听:切成纯音频(hls attach 到 audio),可切微信继续放+锁屏控制 =====
+  function bgSyncBtn(){var b=document.getElementById("lv-bg");if(b)b.innerHTML=state.bgOn?("🎬 "+(ZH?"切回视频":"Back to video")):("🎧 "+(ZH?"后台收听":"Listen in background"));var pp=document.getElementById("lv-bg-toggle");if(pp&&state.laudio)pp.textContent=state.laudio.paused?"▶":"⏸";}
+  function setLiveMedia(c){try{if(!("mediaSession" in navigator))return;var art=[],cov=safeCover(c.cover_url);if(cov)art.push({src:cov,sizes:"512x512",type:"image/jpeg"});navigator.mediaSession.metadata=new MediaMetadata({title:c.title||(ZH?"起源直播":"Origin Live"),artist:ZH?"起源线上直播":"Origin Live",artwork:art});navigator.mediaSession.setActionHandler("play",function(){state.laudio&&state.laudio.play();});navigator.mediaSession.setActionHandler("pause",function(){state.laudio&&state.laudio.pause();});navigator.mediaSession.playbackState="playing";}catch(e){}}
+  function renderBgPanel(c){
+    var stage=document.getElementById("lv-stage");if(!stage)return;var cov=safeCover(c.cover_url);
+    stage.innerHTML='<div class="lv-ap" style="background:radial-gradient(620px 340px at 50% 22%,rgba(255,90,90,.16),transparent),#0b0906">'
+      +'<div class="lv-ap-art">'+(cov?'<img src="'+esc(cov)+'" alt="">':'<span>🎧</span>')+'</div>'
+      +'<div class="lv-ap-title">'+esc(c.title||(ZH?"起源直播":"Origin Live"))+'</div>'
+      +'<div style="font-size:13px;color:var(--soft);text-align:center;max-width:92%;line-height:1.6">'+(ZH?"🔴 正在后台收听直播 —— 可以切到微信回消息，声音继续播放；手机锁屏也能控制":"🔴 Listening to the live audio — switch to WeChat freely, audio keeps playing")+'</div>'
+      +'<div class="lv-ap-transport"><button type="button" class="lv-ap-btn" id="lv-bg-toggle" aria-label="play/pause">⏸</button>'
+      +'<button type="button" class="lv-btn" id="lv-bg-back" style="padding:11px 16px">🎬 '+(ZH?"切回视频":"Back to video")+'</button></div></div>';
+    var tg=document.getElementById("lv-bg-toggle");if(tg)tg.onclick=function(){var a=state.laudio;if(!a)return;if(a.paused){var p=a.play();if(p&&p.catch)p.catch(function(){});}else a.pause();};
+    var bk=document.getElementById("lv-bg-back");if(bk)bk.onclick=function(){stopBgListen(true);};
+  }
+  function lvBgError(){fetchJSON(EPstream,10000).then(function(r){if(r&&r.ok&&r.live&&r.streamUrl){if(state.course)state.course.streamUrl=r.streamUrl;if(state.bgOn)startBgListen();}else stopBgListen(true);}).catch(function(){if(state.bgOn)stopBgListen(true);});}
+  function startBgListen(){
+    var c=state.course;if(!c||c.status!=="live"||!(c.streamUrl&&/^https:\/\//i.test(c.streamUrl))){lvToast(ZH?"直播进行中才能后台收听":"Only available during live");return;}
+    var url=c.streamUrl;
+    lvDestroyHls();state.iframeOn=false;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}
+    if(!state.laudio){state.laudio=document.createElement("audio");state.laudio.id="lv-laudio";state.laudio.setAttribute("playsinline","");state.laudio.setAttribute("webkit-playsinline","");document.body.appendChild(state.laudio);
+      state.laudio.addEventListener("pause",bgSyncBtn);state.laudio.addEventListener("play",bgSyncBtn);}
+    var a=state.laudio;
+    if(state.lhls){try{state.lhls.destroy();}catch(e){}state.lhls=null;}
+    if(a.canPlayType("application/vnd.apple.mpegurl")){a.src=url;}
+    else if(window.Hls&&window.Hls.isSupported()){var h=new window.Hls({liveDurationInfinity:true,enableWorker:true,fragLoadingMaxRetry:10,manifestLoadingMaxRetry:6,levelLoadingMaxRetry:6});state.lhls=h;h.loadSource(url);h.attachMedia(a);h.on(window.Hls.Events.ERROR,function(e,d){if(d&&d.fatal)lvBgError();});}
+    else {lvToast(ZH?"此浏览器不支持后台收听":"Not supported here");return;}
+    var p=a.play();if(p&&p.catch)p.catch(function(){});
+    state.bgOn=true;state.mode="bg";
+    setLiveMedia(c);renderBgPanel(c);bgSyncBtn();
+  }
+  function stopBgListen(back){
+    if(state.lhls){try{state.lhls.destroy();}catch(e){}state.lhls=null;}
+    if(state.laudio){try{state.laudio.pause();}catch(e){}state.laudio.removeAttribute("src");try{state.laudio.load();}catch(e){}}
+    state.bgOn=false;state.mode=null;state.lastStatus=null;
+    try{if("mediaSession" in navigator)navigator.mediaSession.playbackState="none";}catch(e){}
+    bgSyncBtn();
+    if(back!==false)applyStage();
   }
   function beat(){fetchJSON(EPbeat+"?v="+encodeURIComponent(vid()),8000).then(function(r){if(r&&r.ok){if(typeof r.online==="number")state.online=r.online;if(typeof r.cum==="number")state.cum=r.cum;var on=document.getElementById("lv-online"),cu=document.getElementById("lv-cum");if(on)on.textContent=state.online;if(cu)cu.textContent=state.cum;}}).catch(function(){});}
 
