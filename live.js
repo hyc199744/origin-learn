@@ -762,9 +762,23 @@
     else {lvToast(ZH?"此浏览器不支持后台收听":"Not supported here");return;}
     var p=a.play();if(p&&p.catch)p.catch(function(){});
     state.bgOn=true;state.mode="bg";
-    setLiveMedia(c);renderBgPanel(c);bgSyncBtn();
+    if(window.OriginPlayer&&window.OriginPlayer.attachLive){
+      window.OriginPlayer.attachLive(a,{title:c.title||(ZH?"起源直播":"Origin Live"),cover:safeCover(c.cover_url),onClose:function(){stopBgListen(true);}});
+      renderBgNote(c);
+    } else { setLiveMedia(c);renderBgPanel(c); }
+    bgSyncBtn();
+  }
+  function renderBgNote(c){
+    var stage=document.getElementById("lv-stage");if(!stage)return;var cov=safeCover(c.cover_url);
+    stage.innerHTML='<div class="lv-ap" style="background:radial-gradient(620px 340px at 50% 22%,rgba(255,90,90,.16),transparent),#0b0906">'
+      +'<div class="lv-ap-art">'+(cov?'<img src="'+esc(cov)+'" alt="">':'<span>🎧</span>')+'</div>'
+      +'<div class="lv-ap-title">'+esc(c.title||(ZH?"起源直播":"Origin Live"))+'</div>'
+      +'<div style="font-size:13px;color:var(--soft);text-align:center;max-width:92%;line-height:1.6">'+(ZH?"🔴 后台收听中 —— 用屏幕底部的悬浮条控制，可切到微信继续听；点下面切回视频":"🔴 Listening in background — use the floating bar at the bottom")+'</div>'
+      +'<button type="button" class="lv-btn" id="lv-bg-back" style="padding:11px 18px">🎬 '+(ZH?"切回视频":"Back to video")+'</button></div>';
+    var bk=document.getElementById("lv-bg-back");if(bk)bk.onclick=function(){stopBgListen(true);};
   }
   function stopBgListen(back){
+    if(window.OriginPlayer&&window.OriginPlayer.detachLive)window.OriginPlayer.detachLive();
     if(state.lhls){try{state.lhls.destroy();}catch(e){}state.lhls=null;}
     if(state.laudio){try{state.laudio.pause();}catch(e){}state.laudio.removeAttribute("src");try{state.laudio.load();}catch(e){}}
     state.bgOn=false;state.mode=null;state.lastStatus=null;

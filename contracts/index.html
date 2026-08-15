@@ -363,7 +363,7 @@ document.getElementById('stat').textContent="共 "+n+" 个合约"+(chain!=="全�
 document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});t.classList.add('on');chain=t.dataset.c;apply();}});
 document.getElementById('q').addEventListener('input',function(e){kw=e.target.value.trim().toLowerCase();apply();});
 </script>
-<script defer src="/assets/analytics.js"></script><script defer src="/assets/player.js?v=2"></script>
+<script defer src="/assets/analytics.js"></script><script defer src="/assets/player.js?v=3"></script>
 <script defer src="/assets/live-reminder.js"></script>
 <script defer src="/search-synonyms.js"></script><script defer src="/search.js"></script>
 </body>
