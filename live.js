@@ -150,11 +150,21 @@
     +"#live-wrap .lv-chat-in button:disabled{opacity:.5}"
     +"#live-wrap .lv-nick{width:96px;background:#0b0906;border:1px solid var(--line);border-radius:6px;color:var(--soft);font:inherit;font-size:12px;padding:3px 7px}"
     +"#live-wrap #lv-like b{color:var(--grn2);margin-left:4px}"
-    +"#live-wrap .lv-rc{cursor:pointer}"
-    +"#live-wrap .lv-rc .cv .rcplay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;background:rgba(0,0,0,.28);opacity:0;transition:.2s;text-shadow:0 2px 10px rgba(0,0,0,.6)}"
-    +"#live-wrap .lv-rc:hover .cv .rcplay,#live-wrap .lv-rc:focus .cv .rcplay{opacity:1}"
-    +"#live-wrap .lv-rc .cv .rcbadge{position:absolute;top:8px;left:8px;font-size:11px;padding:3px 9px;border-radius:999px;font-weight:700;background:rgba(214,168,75,.92);color:#1a1206}"
-    +"#live-wrap .lv-rc .cv .rcdur{position:absolute;right:6px;bottom:6px;font-size:11px;padding:2px 7px;border-radius:6px;background:rgba(0,0,0,.7);color:#fff;font-variant-numeric:tabular-nums}"
+    +"#live-wrap .lv-rep-head{display:flex;align-items:center;gap:13px;margin-bottom:16px}"
+    +"#live-wrap .lv-rep-ic{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(214,168,75,.22),rgba(214,168,75,.06));border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:21px}"
+    +"#live-wrap .lv-rep-title{font-family:'STZhongsong',serif;font-size:20px;color:var(--glt);letter-spacing:.08em}"
+    +"#live-wrap .lv-rep-desc{font-size:12.5px;color:var(--soft);margin-top:2px}"
+    +"#live-wrap .lv-rep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}"
+    +"#live-wrap .lv-rep-item{display:flex;align-items:center;gap:14px;padding:13px 15px;background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,0));border:1px solid var(--line);border-radius:14px;cursor:pointer;transition:.2s;text-align:left}"
+    +"#live-wrap .lv-rep-item:hover,#live-wrap .lv-rep-item:focus{border-color:var(--g);transform:translateY(-2px);background:rgba(214,168,75,.06);box-shadow:0 12px 28px rgba(0,0,0,.35);outline:none}"
+    +"#live-wrap .lv-rep-play{position:relative;flex:0 0 auto;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--glt),#b8842f);display:flex;align-items:center;justify-content:center;color:#1a1206;font-size:17px;box-shadow:0 6px 16px rgba(214,168,75,.32);transition:.2s;overflow:hidden}"
+    +"#live-wrap .lv-rep-play img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}"
+    +"#live-wrap .lv-rep-play span{position:relative;z-index:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}"
+    +"#live-wrap .lv-rep-item:hover .lv-rep-play{transform:scale(1.07)}"
+    +"#live-wrap .lv-rep-body{min-width:0;flex:1}"
+    +"#live-wrap .lv-rep-h{font-size:15px;color:var(--bone);font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"
+    +"#live-wrap .lv-rep-m{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-top:5px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}"
+    +"#live-wrap .lv-rep-tag{font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(118,255,54,.12);color:var(--grn2);border:1px solid rgba(37,201,111,.4);font-weight:600}"
     +"#live-wrap .lv-modal{position:fixed;inset:0;z-index:100000;background:rgba(3,5,4,.86);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}"
     +"#live-wrap .lv-modal.on{display:flex}"
     +"#live-wrap .lv-modal-box{width:min(1000px,96vw);background:var(--pnl);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);display:flex;flex-direction:column;max-height:92vh}"
@@ -383,7 +393,7 @@
     root.innerHTML='<div id="live-wrap">'
       +'<div class="lv-head"><div class="lv-eyebrow">'+esc(T.eyebrow)+'</div><h1>'+esc(T.page_title)+'</h1><div class="lv-sub">'+esc(T.subtitle)+'</div></div>'
       +'<div id="lv-body"><div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div></div>'
-      +'<div class="lv-section" id="lv-replays-sec" style="display:none"><div class="lv-h3">🎬 '+esc(T.replays_title)+'</div><div style="font-size:13px;color:var(--soft);margin:-4px 0 4px">'+esc(T.replays_sub)+'</div><div class="lv-grid" id="lv-replays"></div></div>'
+      +'<div class="lv-section" id="lv-replays-sec" style="display:none"><div class="lv-rep-head"><div class="lv-rep-ic">🎧</div><div><div class="lv-rep-title">'+esc(T.replays_title)+'</div><div class="lv-rep-desc">'+esc(T.replays_sub)+'</div></div></div><div class="lv-rep-grid" id="lv-replays"></div></div>'
       +'<div class="lv-section"><div class="lv-card"><div class="lv-h3">🛡 '+esc(T.disclaimer_t)+'</div><div class="lv-disc"><ul>'+T.disc.map(function(d){return "<li>"+esc(d)+"</li>";}).join("")+'</ul></div></div>'
       +'<div class="lv-foot"><a class="lv-back" href="/">← '+(ZH?"返回起源首页":"Back to Origin home")+'</a></div></div>'
       +'</div>';
@@ -536,13 +546,14 @@
       var url=safeUrl(c.play_url);if(!url)return "";
       var kind=(c.kind==="video"||c.kind==="embed")?c.kind:"audio";
       var cov=safeCover(c.cover),when=c.live_time?fmtClock(c.live_time):"",dur=c.duration?fmtDur(c.duration):"";
-      var icon=kind==="audio"?"🎧":"▶";var ph=kind==="audio"?"🎧":"🎬";
-      return '<div class="lv-hc lv-rc" data-url="'+esc(url)+'" data-title="'+esc(c.title||"")+'" data-kind="'+esc(kind)+'" data-cover="'+esc(cov)+'" tabindex="0" role="button" aria-label="'+esc(T.watch_replay+" "+(c.title||""))+'">'
-        +'<div class="cv">'+(cov?'<img src="'+esc(cov)+'" alt="" loading="lazy">':'<div class="ph">'+ph+'</div>')
-        +'<span class="rcbadge">'+(kind==="audio"?"🎧 ":"")+esc(T.watch_replay)+'</span>'+(dur?'<span class="rcdur">'+esc(dur)+'</span>':"")+'<span class="rcplay">'+icon+'</span></div>'
-        +'<div class="bd"><div class="ht">'+esc(c.title||"")+'</div>'+(when?'<div class="hm">'+esc(when)+'</div>':"")+'</div></div>';
+      var tag=kind==="audio"?(ZH?"🎧 音频":"🎧 Audio"):(kind==="video"?(ZH?"▶ 视频":"▶ Video"):(ZH?"直播回放":"Replay"));
+      var meta=[when,dur].filter(Boolean).join(" · ");
+      return '<div class="lv-rep-item" data-url="'+esc(url)+'" data-title="'+esc(c.title||"")+'" data-kind="'+esc(kind)+'" data-cover="'+esc(cov)+'" tabindex="0" role="button" aria-label="'+esc(T.watch_replay+" "+(c.title||""))+'">'
+        +'<div class="lv-rep-play">'+(cov?'<img src="'+esc(cov)+'" alt="">':"")+'<span>▶</span></div>'
+        +'<div class="lv-rep-body"><div class="lv-rep-h">'+esc(c.title||T.replays_title)+'</div>'
+        +'<div class="lv-rep-m"><span class="lv-rep-tag">'+esc(tag)+'</span>'+(meta?'<span>'+esc(meta)+'</span>':"")+'</div></div></div>';
     }).join("");
-    var cards=grid.querySelectorAll(".lv-rc");
+    var cards=grid.querySelectorAll(".lv-rep-item");
     for(var i=0;i<cards.length;i++){(function(el){
       var go=function(){openReplay(el.getAttribute("data-url"),el.getAttribute("data-title"),el.getAttribute("data-kind"),el.getAttribute("data-cover"));};
       el.addEventListener("click",go);
