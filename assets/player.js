@@ -94,14 +94,17 @@
     A.setAttribute("playsinline","");A.setAttribute("webkit-playsinline","");
     (document.body||document.documentElement).appendChild(A);
     A.addEventListener("play",sync);A.addEventListener("pause",sync);
+    A.addEventListener("playing",function(){media();try{navigator.mediaSession.playbackState="playing";}catch(e){}});
     A.addEventListener("timeupdate",function(){sync();var t=Date.now();if(t-lastSave>2500){lastSave=t;save();}});
     A.addEventListener("loadedmetadata",sync);
     A.addEventListener("ended",function(){if(items.length>1)go(1);else{sync();save();}});
     return A;
   }
   function media(){
-    try{if(!("mediaSession" in navigator))return;var c=items[idx]||{},art=[];if(c.cover)art.push({src:c.cover,sizes:"512x512",type:"image/jpeg"});
-      navigator.mediaSession.metadata=new MediaMetadata({title:c.title||"回放",artist:ZH?"起源线上课堂":"Origin Live",album:"Origin",artwork:art});
+    try{if(!("mediaSession" in navigator))return;var c=items[idx]||{};
+      var cov=c.cover||"https://web3origin.com/assets/og-image.png";// 锁屏需要封面图,没有就用站点默认图
+      var art=[{src:cov,sizes:"256x256"},{src:cov,sizes:"512x512"}];
+      navigator.mediaSession.metadata=new MediaMetadata({title:c.title||(LIVE?(ZH?"起源直播":"Origin Live"):(ZH?"回放":"Replay")),artist:ZH?"起源线上课堂":"Origin Live",album:"Origin",artwork:art});
       navigator.mediaSession.setActionHandler("play",function(){var m=M();m&&m.play();});
       navigator.mediaSession.setActionHandler("pause",function(){var m=M();m&&m.pause();});
       navigator.mediaSession.setActionHandler("seekbackward",LIVE?null:function(){if(A)A.currentTime=Math.max(0,A.currentTime-15);});
@@ -143,11 +146,13 @@
   // ===== 直播:播放器自己接管(纯音频),跨页面续播(本地标记+重新取流) =====
   var API="https://count.web3origin.com",LHLS=null,liveT=null;
   var LIVEMARK="origin_player_live";
-  function ensureLA(){if(LA)return LA;LA=document.createElement("audio");LA.setAttribute("playsinline","");LA.setAttribute("webkit-playsinline","");(document.body||document.documentElement).appendChild(LA);LA.addEventListener("play",sync);LA.addEventListener("pause",sync);return LA;}
+  function isiOS(){return /iphone|ipad|ipod/i.test(navigator.userAgent||"")||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);}
+  function ensureLA(){if(LA)return LA;LA=document.createElement("audio");LA.setAttribute("playsinline","");LA.setAttribute("webkit-playsinline","");(document.body||document.documentElement).appendChild(LA);LA.addEventListener("play",sync);LA.addEventListener("pause",sync);LA.addEventListener("playing",function(){media();try{navigator.mediaSession.playbackState="playing";}catch(e){}});return LA;}
   function loadHls(cb){if(window.Hls){cb();return;}var ex=document.getElementById("op-hls");if(ex){var t=setInterval(function(){if(window.Hls){clearInterval(t);cb();}},200);setTimeout(function(){clearInterval(t);cb();},8000);return;}var s=document.createElement("script");s.id="op-hls";s.src="/assets/hls.min.js";s.onload=function(){cb();};s.onerror=function(){cb();};document.head.appendChild(s);}
   function fetchStream(){return fetch(API+"/live/stream").then(function(r){return r.json();}).catch(function(){return null;});}
   function playLiveUrl(url){var a=ensureLA();if(LHLS){try{LHLS.destroy();}catch(e){}LHLS=null;}
-    if(a.canPlayType("application/vnd.apple.mpegurl")){a.src=url;var p=a.play();if(p&&p.catch)p.catch(function(){});}
+    // iOS 必须用原生HLS(hls.js的MSE在iOS锁屏/后台会被系统掐掉,原生才能后台放)
+    if(isiOS()||a.canPlayType("application/vnd.apple.mpegurl")){a.src=url;var p=a.play();if(p&&p.catch)p.catch(function(){});media();}
     else{loadHls(function(){if(window.Hls&&window.Hls.isSupported()){var h=new window.Hls({liveDurationInfinity:true,enableWorker:true,lowLatencyMode:false,liveSyncDurationCount:8,liveMaxLatencyDurationCount:40,maxBufferLength:90,maxMaxBufferLength:180,backBufferLength:30,fragLoadingMaxRetry:10,manifestLoadingMaxRetry:8,levelLoadingMaxRetry:8});LHLS=h;h.loadSource(url);h.attachMedia(a);h.on(window.Hls.Events.ERROR,function(e,d){if(d&&d.fatal)refreshLive();});var p2=a.play&&a.play();if(p2&&p2.catch)p2.catch(function(){});}else{a.src=url;a.play&&a.play();}});}}
   function refreshLive(){fetchStream().then(function(r){if(r&&r.ok&&r.live&&r.streamUrl)playLiveUrl(r.streamUrl);else endLive();});}
   function checkLive(){if(!LIVE)return;fetchStream().then(function(r){if(!r||!r.ok||!r.live)endLive();});}

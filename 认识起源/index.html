@@ -1038,7 +1038,7 @@ secs.forEach(s=>navIo.observe(s));
   function tick(){x.clearRect(0,0,w,h);for(const p of parts){const dx=p.x-mouse.x,dy=p.y-mouse.y,dist=Math.hypot(dx,dy);if(dist<90){p.x+=dx/dist*1.6;p.y+=dy/dist*1.6;}p.y-=p.s;p.x+=p.d+Math.sin(p.y*.01)*.3;p.life+=.006;if(p.y<-10||p.x<-10||p.x>w+10)Object.assign(p,newP(false));const a=(.5+Math.sin(p.life*4)*.5)*.7;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle=p.hue===42?`rgba(240,212,138,${a})`:`rgba(224,90,50,${a})`;x.shadowBlur=8;x.shadowColor=p.hue===42?'rgba(240,180,80,.8)':'rgba(224,70,40,.8)';x.fill();}requestAnimationFrame(tick);}
   if(!reduce)tick();})();
 </script>
-<script defer src="/assets/analytics.js"></script><script defer src="/assets/player.js?v=4"></script>
+<script defer src="/assets/analytics.js"></script><script defer src="/assets/player.js?v=5"></script>
 <script defer src="/assets/live-reminder.js"></script>
 <script defer src="/search-synonyms.js"></script><script defer src="/search.js"></script>
 </body>
