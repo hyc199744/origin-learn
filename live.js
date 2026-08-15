@@ -31,7 +31,8 @@
       "所有外部链接均经过 https 协议校验。如遇要求转账、索要助记词/私钥的情况,一律为诈骗,请立即停止并向社区举报。"],
     repeat_daily:"每天",repeat_weekly:"每周",repeat_custom:"指定日期",repeat_none:"单场",
     wk:["一","二","三","四","五","六","日"],
-    server_time:"服务器时间",loading_page:"课堂加载中…"
+    server_time:"服务器时间",loading_page:"课堂加载中…",
+    replays_title:"往期回放",replays_sub:"过去录播课程 · 点击任意一节即可在本页回看",no_replays:"暂无往期回放，录制过的课程结束后会自动出现在这里",watch_replay:"观看回放",replay_min:"分钟"
   }:{
     eyebrow:"ORIGIN LIVE · Learning Classroom",
     page_title:"Live Stream",
@@ -57,7 +58,8 @@
       "All external links are https-validated. Any request to transfer funds or reveal your seed phrase/private key is a scam — stop and report it to the community."],
     repeat_daily:"Daily",repeat_weekly:"Weekly",repeat_custom:"Custom dates",repeat_none:"One-off",
     wk:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-    server_time:"Server time",loading_page:"Loading…"
+    server_time:"Server time",loading_page:"Loading…",
+    replays_title:"Past Replays",replays_sub:"Recorded past sessions · tap any one to watch it here",no_replays:"No replays yet — recorded sessions will appear here automatically after they end",watch_replay:"Watch replay",replay_min:"min"
   };
   if(window.LV_TITLE){T.page_title=window.LV_TITLE;}
   if(window.LV_EYEBROW){T.eyebrow=window.LV_EYEBROW;}
@@ -147,7 +149,22 @@
     +"#live-wrap .lv-chat-in button{flex:0 0 auto;background:linear-gradient(90deg,var(--g),#b8842f);border:0;color:#1a1206;font-weight:700;border-radius:8px;padding:8px 15px;cursor:pointer;font:inherit;font-size:13.5px}"
     +"#live-wrap .lv-chat-in button:disabled{opacity:.5}"
     +"#live-wrap .lv-nick{width:96px;background:#0b0906;border:1px solid var(--line);border-radius:6px;color:var(--soft);font:inherit;font-size:12px;padding:3px 7px}"
-    +"#live-wrap #lv-like b{color:var(--grn2);margin-left:4px}";
+    +"#live-wrap #lv-like b{color:var(--grn2);margin-left:4px}"
+    +"#live-wrap .lv-rc{cursor:pointer}"
+    +"#live-wrap .lv-rc .cv .rcplay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;background:rgba(0,0,0,.28);opacity:0;transition:.2s;text-shadow:0 2px 10px rgba(0,0,0,.6)}"
+    +"#live-wrap .lv-rc:hover .cv .rcplay,#live-wrap .lv-rc:focus .cv .rcplay{opacity:1}"
+    +"#live-wrap .lv-rc .cv .rcbadge{position:absolute;top:8px;left:8px;font-size:11px;padding:3px 9px;border-radius:999px;font-weight:700;background:rgba(214,168,75,.92);color:#1a1206}"
+    +"#live-wrap .lv-rc .cv .rcdur{position:absolute;right:6px;bottom:6px;font-size:11px;padding:2px 7px;border-radius:6px;background:rgba(0,0,0,.7);color:#fff;font-variant-numeric:tabular-nums}"
+    +"#live-wrap .lv-modal{position:fixed;inset:0;z-index:100000;background:rgba(3,5,4,.86);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}"
+    +"#live-wrap .lv-modal.on{display:flex}"
+    +"#live-wrap .lv-modal-box{width:min(1000px,96vw);background:var(--pnl);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);display:flex;flex-direction:column;max-height:92vh}"
+    +"#live-wrap .lv-modal-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}"
+    +"#live-wrap .lv-modal-hd .t{font-family:'STZhongsong',serif;font-size:16px;color:var(--glt);line-height:1.4;word-break:break-word;min-width:0}"
+    +"#live-wrap .lv-modal-hd .x{flex:0 0 auto;appearance:none;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:7px 12px;font:inherit;font-size:14px}"
+    +"#live-wrap .lv-modal-hd .x:hover{border-color:var(--g);color:var(--glt)}"
+    +"#live-wrap .lv-modal-stage{position:relative;width:100%;aspect-ratio:16/9;background:#000}"
+    +"#live-wrap .lv-modal-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}"
+    +"@media(max-width:600px){#live-wrap .lv-modal{padding:0}#live-wrap .lv-modal-box{width:100vw;height:100vh;max-height:100vh;border-radius:0;border:0}}";
 
   function esc(s){return String(s==null?"":s).replace(/[&<>\"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
   function safeUrl(u){u=String(u||"").trim();if(!/^https:\/\//i.test(u))return "";if(/[\s<>"'`\\]/.test(u))return "";try{var x=new URL(u);return x.protocol==="https:"?x.href:"";}catch(e){return "";}}
@@ -361,6 +378,7 @@
     root.innerHTML='<div id="live-wrap">'
       +'<div class="lv-head"><div class="lv-eyebrow">'+esc(T.eyebrow)+'</div><h1>'+esc(T.page_title)+'</h1><div class="lv-sub">'+esc(T.subtitle)+'</div></div>'
       +'<div id="lv-body"><div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div></div>'
+      +'<div class="lv-section" id="lv-replays-sec" style="display:none"><div class="lv-h3">🎬 '+esc(T.replays_title)+'</div><div style="font-size:13px;color:var(--soft);margin:-4px 0 4px">'+esc(T.replays_sub)+'</div><div class="lv-grid" id="lv-replays"></div></div>'
       +'<div class="lv-section"><div class="lv-card"><div class="lv-h3">🛡 '+esc(T.disclaimer_t)+'</div><div class="lv-disc"><ul>'+T.disc.map(function(d){return "<li>"+esc(d)+"</li>";}).join("")+'</ul></div></div>'
       +'<div class="lv-foot"><a class="lv-back" href="/">← '+(ZH?"返回起源首页":"Back to Origin home")+'</a></div></div>'
       +'</div>';
@@ -498,12 +516,71 @@
     }).catch(function(){renderError();});
   }
   function fetchHistory(){fetchJSON("/live/list",10000).then(function(r){if(r&&r.ok)renderHistory(r.courses||[]);}).catch(function(){});}
+  // ===== 往期回放:自动存档的历史录播,点卡片→本页弹层内嵌播放(不外跳) =====
+  function fetchReplays(){
+    fetchJSON("/live/replays",10000).then(function(r){
+      if(!r||!r.ok)return;renderReplays(r.replays||[]);
+    }).catch(function(){});
+  }
+  function renderReplays(list){
+    var sec=document.getElementById("lv-replays-sec"),grid=document.getElementById("lv-replays");
+    if(!sec||!grid)return;
+    if(!list||!list.length){sec.style.display="";grid.innerHTML='<div class="lv-empty" style="grid-column:1/-1;margin:8px auto">'+esc(T.no_replays)+'</div>';return;}
+    sec.style.display="";
+    grid.innerHTML=list.map(function(c){
+      var url=safeUrl(c.play_url);if(!url)return "";
+      var cov=safeCover(c.cover),when=c.live_time?fmtClock(c.live_time):"",dur=c.duration?fmtDur(c.duration):"";
+      return '<div class="lv-hc lv-rc" data-url="'+esc(url)+'" data-title="'+esc(c.title||"")+'" tabindex="0" role="button" aria-label="'+esc(T.watch_replay+" "+(c.title||""))+'">'
+        +'<div class="cv">'+(cov?'<img src="'+esc(cov)+'" alt="" loading="lazy">':'<div class="ph">🎬</div>')
+        +'<span class="rcbadge">'+esc(T.watch_replay)+'</span>'+(dur?'<span class="rcdur">'+esc(dur)+'</span>':"")+'<span class="rcplay">▶</span></div>'
+        +'<div class="bd"><div class="ht">'+esc(c.title||"")+'</div>'+(when?'<div class="hm">'+esc(when)+'</div>':"")+'</div></div>';
+    }).join("");
+    var cards=grid.querySelectorAll(".lv-rc");
+    for(var i=0;i<cards.length;i++){(function(el){
+      el.addEventListener("click",function(){openReplay(el.getAttribute("data-url"),el.getAttribute("data-title"));});
+      el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();openReplay(el.getAttribute("data-url"),el.getAttribute("data-title"));}});
+    })(cards[i]);}
+  }
+  function ensureReplayModal(){
+    var m=document.getElementById("lv-replay-modal");if(m)return m;
+    var wrap=document.getElementById("live-wrap");if(!wrap)return null;
+    m=document.createElement("div");m.id="lv-replay-modal";m.className="lv-modal";
+    m.innerHTML='<div class="lv-modal-box"><div class="lv-modal-hd"><span class="t" id="lv-modal-title"></span><button class="x" id="lv-modal-close" aria-label="close">✕</button></div><div class="lv-modal-stage" id="lv-modal-stage"></div></div>';
+    wrap.appendChild(m);
+    m.addEventListener("click",function(e){if(e.target===m)closeReplay();});
+    document.getElementById("lv-modal-close").onclick=closeReplay;
+    return m;
+  }
+  function openReplay(url,title){
+    url=safeUrl(url);if(!url)return;
+    var m=ensureReplayModal();if(!m)return;
+    var t=document.getElementById("lv-modal-title");if(t)t.textContent=title||T.replays_title;
+    var stage=document.getElementById("lv-modal-stage");
+    stage.innerHTML='<div class="lv-overlay"><div class="lv-spin"></div></div>';
+    var f=document.createElement("iframe");
+    f.src=url;f.title=title||T.replays_title;
+    f.setAttribute("allow","autoplay; fullscreen; picture-in-picture; encrypted-media; clipboard-write");
+    f.setAttribute("allowfullscreen","true");f.allowFullscreen=true;f.setAttribute("webkitallowfullscreen","true");f.setAttribute("mozallowfullscreen","true");
+    f.setAttribute("referrerpolicy","strict-origin-when-cross-origin");
+    f.setAttribute("sandbox","allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation allow-orientation-lock allow-modals");
+    f.onload=function(){var ov=stage.querySelector(".lv-overlay");if(ov)ov.remove();};
+    stage.appendChild(f);
+    m.classList.add("on");
+  }
+  function closeReplay(){
+    var m=document.getElementById("lv-replay-modal");if(!m)return;
+    var stage=document.getElementById("lv-modal-stage");if(stage)stage.innerHTML="";// 清空iframe停止播放
+    m.classList.remove("on");
+  }
   function beat(){fetchJSON(EPbeat+"?v="+encodeURIComponent(vid()),8000).then(function(r){if(r&&r.ok){if(typeof r.online==="number")state.online=r.online;if(typeof r.cum==="number")state.cum=r.cum;var on=document.getElementById("lv-online"),cu=document.getElementById("lv-cum");if(on)on.textContent=state.online;if(cu)cu.textContent=state.cum;}}).catch(function(){});}
 
   function boot(){
     var s=document.createElement("style");s.textContent=css;document.head.appendChild(s);
     renderShell();
     fetchToday().then(function(){beat();});
+    // 往期回放:仅主直播页(/live)显示,木火夜聊(/live-cloud,自定义LV_EP)不显示;开屏拉一次+每5分钟刷新
+    if(EPtoday==="/live/today"){fetchReplays();setInterval(function(){if(!document.hidden)fetchReplays();},300000);}
+    document.addEventListener("keydown",function(e){if(e.key==="Escape")closeReplay();});
     function onFsChange(){syncFsButtons();cropIframe();}
     document.addEventListener("fullscreenchange",onFsChange);
     document.addEventListener("webkitfullscreenchange",onFsChange);
