@@ -184,7 +184,8 @@
     +"#live-wrap .lv-ap-time{flex:0 0 auto;font-size:12.5px;color:var(--soft);font-variant-numeric:tabular-nums;min-width:40px;text-align:center}"
     +"#live-wrap .lv-ap-bar{position:relative;flex:1;height:6px;background:rgba(255,255,255,.13);border-radius:999px;cursor:pointer;touch-action:none}"
     +"#live-wrap .lv-ap-fill{position:absolute;left:0;top:0;height:100%;width:0;background:linear-gradient(90deg,var(--g),var(--glt));border-radius:999px}"
-    +"#live-wrap .lv-ap-knob{position:absolute;top:50%;left:0;width:13px;height:13px;border-radius:50%;background:var(--glt);transform:translate(-50%,-50%);box-shadow:0 2px 7px rgba(0,0,0,.45)}";
+    +"#live-wrap .lv-ap-knob{position:absolute;top:50%;left:0;width:13px;height:13px;border-radius:50%;background:var(--glt);transform:translate(-50%,-50%);box-shadow:0 2px 7px rgba(0,0,0,.45)}"
+    +"#live-wrap .lv-ap-rate{flex:0 0 auto;min-width:44px;padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--soft);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;font-variant-numeric:tabular-nums;transition:.15s}#live-wrap .lv-ap-rate:hover{border-color:var(--g);color:var(--glt)}";
 
   function esc(s){return String(s==null?"":s).replace(/[&<>\"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
   function safeUrl(u){u=String(u||"").trim();if(!/^https:\/\//i.test(u))return "";if(/[\s<>"'`\\]/.test(u))return "";try{var x=new URL(u);return x.protocol==="https:"?x.href:"";}catch(e){return "";}}
@@ -588,7 +589,8 @@
         +'<div class="lv-ap-ctrls"><button type="button" class="lv-ap-btn" id="lv-ap-toggle" aria-label="play/pause">▶</button>'
         +'<span class="lv-ap-time" id="lv-ap-cur">0:00</span>'
         +'<div class="lv-ap-bar" id="lv-ap-bar"><div class="lv-ap-fill" id="lv-ap-fill"></div><div class="lv-ap-knob" id="lv-ap-knob"></div></div>'
-        +'<span class="lv-ap-time" id="lv-ap-dur">0:00</span></div>'
+        +'<span class="lv-ap-time" id="lv-ap-dur">0:00</span>'
+        +'<button type="button" class="lv-ap-rate" id="lv-ap-rate" aria-label="'+(ZH?"倍速":"speed")+'">1x</button></div>'
         +'<audio id="lv-ap-audio" preload="metadata" src="'+esc(url)+'"></audio></div>';
       wireAudioPlayer();
     } else if(kind==="video"){
@@ -628,6 +630,9 @@
     bar.addEventListener("click",seek);
     bar.addEventListener("touchstart",function(e){seek(e);},{passive:true});
     bar.addEventListener("touchmove",function(e){seek(e);},{passive:true});
+    var rateBtn=document.getElementById("lv-ap-rate");
+    if(rateBtn){var rates=[1,1.25,1.5,2,0.75],ri=0;rateBtn.textContent="1x";
+      rateBtn.onclick=function(){ri=(ri+1)%rates.length;a.playbackRate=rates[ri];rateBtn.textContent=rates[ri]+"x";};}
     var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});setBtn();
   }
   function closeReplay(){
