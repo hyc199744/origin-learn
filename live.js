@@ -165,6 +165,7 @@
     +"#live-wrap .lv-rep-h{font-size:15px;color:var(--bone);font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"
     +"#live-wrap .lv-rep-m{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-top:5px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}"
     +"#live-wrap .lv-rep-tag{font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(118,255,54,.12);color:var(--grn2);border:1px solid rgba(37,201,111,.4);font-weight:600}"
+    +"#live-wrap .lv-rep-plays{color:var(--g);font-weight:700;font-variant-numeric:tabular-nums}"
     +"#live-wrap .lv-modal{position:fixed;inset:0;z-index:100000;background:rgba(3,5,4,.86);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}"
     +"#live-wrap .lv-modal.on{display:flex}"
     +"#live-wrap .lv-modal-box{width:min(1000px,96vw);background:var(--pnl);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);display:flex;flex-direction:column;max-height:92vh}"
@@ -566,16 +567,22 @@
       var kind=(c.kind==="video"||c.kind==="embed")?c.kind:"audio";
       var cov=safeCover(c.cover),when=c.live_time?fmtClock(c.live_time):"",dur=c.duration?fmtDur(c.duration):"";
       var tag=kind==="audio"?(ZH?"🎧 音频":"🎧 Audio"):(kind==="video"?(ZH?"▶ 视频":"▶ Video"):(ZH?"直播回放":"Replay"));
-      var meta=[when,dur].filter(Boolean).join(" · ");
-      return '<div class="lv-rep-item" data-url="'+esc(url)+'" data-title="'+esc(c.title||"")+'" data-kind="'+esc(kind)+'" data-cover="'+esc(cov)+'" tabindex="0" role="button" aria-label="'+esc(T.watch_replay+" "+(c.title||""))+'">'
+      var tkt=esc(c.ticket_id||""),plays=Number(c.plays)||0;
+      return '<div class="lv-rep-item" data-url="'+esc(url)+'" data-title="'+esc(c.title||"")+'" data-kind="'+esc(kind)+'" data-cover="'+esc(cov)+'" data-ticket="'+tkt+'" tabindex="0" role="button" aria-label="'+esc(T.watch_replay+" "+(c.title||""))+'">'
         +'<div class="lv-rep-play">'+(cov?'<img src="'+esc(cov)+'" alt="">':"")+'<span>▶</span></div>'
         +'<div class="lv-rep-body"><div class="lv-rep-h">'+esc(c.title||T.replays_title)+'</div>'
-        +'<div class="lv-rep-m"><span class="lv-rep-tag">'+esc(tag)+'</span>'+(meta?'<span>'+esc(meta)+'</span>':"")+'</div></div></div>';
+        +'<div class="lv-rep-m"><span class="lv-rep-tag">'+esc(tag)+'</span>'
+        +(when?'<span>📅 '+esc(when)+'</span>':"")
+        +(dur?'<span>⏱ '+esc(dur)+'</span>':"")
+        +'<span class="lv-rep-plays" data-t="'+tkt+'">▶ '+plays+(ZH?" 次":"")+'</span>'
+        +'</div></div></div>';
     }).join("");
     var cards=grid.querySelectorAll(".lv-rep-item");
     for(var i=0;i<cards.length;i++){(function(el){
-      var go=function(){var k=el.getAttribute("data-kind"),u=el.getAttribute("data-url"),ti=el.getAttribute("data-title"),cv=el.getAttribute("data-cover");
+      var go=function(){var k=el.getAttribute("data-kind"),u=el.getAttribute("data-url"),ti=el.getAttribute("data-title"),cv=el.getAttribute("data-cover"),tkt=el.getAttribute("data-ticket");
         if(k==="video"||k==="embed"){openReplay(u,ti,k,cv);return;}
+        // 播放量+1(后台同IP同曲30min去重),更新显示
+        if(tkt){fetchJSON("/live/replays/play?ticket="+encodeURIComponent(tkt),8000).then(function(r){if(r&&r.ok&&typeof r.plays==="number"){var pe=el.querySelector(".lv-rep-plays");if(pe)pe.textContent="▶ "+r.plays+(ZH?" 次":"");}}).catch(function(){});}
         // 音频:交给全站持久播放器(跨页面不停),点一下直接播
         if(window.OriginPlayer){
           var au=(state.replays||[]).filter(function(c){return (c.kind||"audio")==="audio"&&c.play_url;}).map(function(c){return {url:c.play_url,title:c.title,cover:c.cover};});
