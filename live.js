@@ -574,7 +574,9 @@
     }).join("");
     var cards=grid.querySelectorAll(".lv-rep-item");
     for(var i=0;i<cards.length;i++){(function(el){
-      var go=function(){openReplay(el.getAttribute("data-url"),el.getAttribute("data-title"),el.getAttribute("data-kind"),el.getAttribute("data-cover"));};
+      var go=function(){var k=el.getAttribute("data-kind"),u=el.getAttribute("data-url"),ti=el.getAttribute("data-title"),cv=el.getAttribute("data-cover");
+        if(k==="video"||k==="embed"){openReplay(u,ti,k,cv);}
+        else{playAudio(safeUrl(u),ti,cv,true);}};// 音频:直接播+悬浮小条,不弹全屏
       el.addEventListener("click",go);
       el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});
     })(cards[i]);}
@@ -604,9 +606,7 @@
   function replayList(){return (state.replays||[]).filter(function(c){return c.play_url&&((c.kind||"audio")==="audio");});}
   function curIndex(){var l=replayList();if(!state.pmeta)return -1;for(var i=0;i<l.length;i++){if(safeUrl(l[i].play_url)===state.pmeta.url)return i;}return -1;}
   function gotoDelta(d){var l=replayList();if(!l.length)return;var i=curIndex();i=(i<0)?0:((i+d+l.length)%l.length);var c=l[i],url=safeUrl(c.play_url);if(!url)return;
-    playAudio(url,c.title,c.cover,true);
-    var modal=document.getElementById("lv-replay-modal");
-    if(modal&&modal.classList.contains("on")){var t=document.getElementById("lv-modal-title");if(t)t.textContent=c.title||T.replays_title;renderBigAudio(c.title,safeCover(c.cover));}}
+    playAudio(url,c.title,c.cover,true);}
   function playNext(){gotoDelta(1);}
   function playPrev(){gotoDelta(-1);}
   function setMedia(meta){
@@ -633,6 +633,8 @@
     if(state.paurl!==url){state.paurl=url;a.src=url;a.currentTime=0;var p=a.play();if(p&&p.catch)p.catch(function(){});}
     else if(restart&&a.paused){var p2=a.play();if(p2&&p2.catch)p2.catch(function(){});}
     setMedia(state.pmeta);showMini();pSync();
+    var modal=document.getElementById("lv-replay-modal");// 大播放器若开着,同步换成当前曲
+    if(modal&&modal.classList.contains("on")){var t=document.getElementById("lv-modal-title");if(t)t.textContent=state.pmeta.title;renderBigAudio(state.pmeta.title,cover);}
   }
   function renderBigAudio(title,cover){
     var stage=document.getElementById("lv-modal-stage");if(!stage)return;
