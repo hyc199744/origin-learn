@@ -40,7 +40,7 @@
       +"#op-bar.op-min #op-art:after{content:'▸';position:absolute;right:-3px;bottom:-3px;width:21px;height:21px;border-radius:50%;background:#D6A84B;color:#1a1206;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px rgba(0,0,0,.45)}"
       +"#op-bar.op-live #op-row,#op-bar.op-live #op-rate,#op-bar.op-live #op-prev,#op-bar.op-live #op-next{display:none}"
       +"#op-bar.op-live #op-t{color:#ff8a8a}"
-      +"@media(max-width:640px){#op-bar{bottom:78px;gap:8px;padding:9px 10px}#op-rate{display:none}#op-prev{display:none}}";
+      +"@media(max-width:640px){#op-bar{bottom:78px;gap:7px;padding:9px 10px}#op-rate{display:none}#op-ctrls{gap:6px}#op-prev,#op-next{width:28px;height:28px;font-size:14px}}";
     document.head.appendChild(s);
   }
   function build(){
