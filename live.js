@@ -589,14 +589,10 @@
     for(var i=0;i<cards.length;i++){(function(el){
       var go=function(){var k=el.getAttribute("data-kind"),u=el.getAttribute("data-url"),ti=el.getAttribute("data-title"),cv=el.getAttribute("data-cover"),tkt=el.getAttribute("data-ticket");
         if(k==="video"||k==="embed"){openReplay(u,ti,k,cv);return;}
-        // 播放量+1(后台同IP同曲30min去重),更新显示
-        if(tkt){fetchJSON("/live/replays/play?ticket="+encodeURIComponent(tkt),8000).then(function(r){if(r&&r.ok&&typeof r.plays==="number"){var pe=el.querySelector(".lv-rep-plays");if(pe)pe.textContent="▶ "+r.plays+(ZH?" 次":"");}}).catch(function(){});}
-        // 音频:交给全站持久播放器(跨页面不停),点一下直接播
-        if(window.OriginPlayer){
-          var au=(state.replays||[]).filter(function(c){return (c.kind||"audio")==="audio"&&c.play_url;}).map(function(c){return {url:c.play_url,title:c.title,cover:c.cover};});
-          var ci=0;for(var q=0;q<au.length;q++){if(safeUrl(au[q].url)===safeUrl(u)){ci=q;break;}}
-          window.OriginPlayer.playList(au,ci);
-        } else { playAudio(safeUrl(u),ti,cv,true); }
+        // 音频:转跳到专门播放页(整屏大播放器);播放量由播放页统计
+        if(tkt){location.href="/live/play/?t="+encodeURIComponent(tkt);}
+        else if(window.OriginPlayer){window.OriginPlayer.play(safeUrl(u),ti,cv);}
+        else{playAudio(safeUrl(u),ti,cv,true);}
       };
       el.addEventListener("click",go);
       el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});

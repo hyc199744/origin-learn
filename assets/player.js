@@ -6,7 +6,10 @@
   var LS="origin_player_v1";
   var ZH=document.documentElement.lang!=="en"&&!/^en/i.test(document.documentElement.lang||"");
   var A=null,BAR=null,items=[],idx=0,lastSave=0,POS=null,LIVE=false,LA=null,ONCLOSE=null,acTimer=null;
-  var DRAGERS=[];
+  var DRAGERS=[],SUBS=[];
+  // 对外状态快照 + 订阅(给专门播放页 /live/play/ 用)
+  function snap(){var m=M(),c=items[idx]||{};return {title:c.title||"",cover:c.cover||"",paused:m?!!m.paused:true,time:m?(m.currentTime||0):0,duration:(!LIVE&&A&&isFinite(A.duration))?A.duration:0,rate:(A&&A.playbackRate)||1,idx:idx,count:items.length,live:!!LIVE,active:items.length>0};}
+  function emit(){if(!SUBS.length)return;var st=snap();for(var i=0;i<SUBS.length;i++){try{SUBS[i](st);}catch(e){}}}
   function M(){return LIVE?LA:A;}
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
   function safe(u){u=String(u||"").trim();if(!/^https:\/\//i.test(u))return "";if(/[\s<>"'`\\]/.test(u))return "";try{var x=new URL(u);return x.protocol==="https:"?x.href:"";}catch(e){return "";}}
@@ -129,6 +132,7 @@
     if(cu)cu.textContent=fmt(m.currentTime);if(du&&d)du.textContent=fmt(d);
     if(ring)ring.style.background="conic-gradient(#f0d48a "+(p*100).toFixed(1)+"%,rgba(255,255,255,.15) 0)";
     var pv=$("op-prev"),nx=$("op-next");if(pv)pv.style.display=items.length>1?"":"none";if(nx)nx.style.display=items.length>1?"":"none";
+    emit();
   }
   function paint(){
     if(!BAR)return;var c=items[idx]||{};
@@ -177,7 +181,20 @@
     stopLive:endLive,
     isLive:function(){return !!LIVE;},
     current:function(){return items[idx]||null;},
-    isActive:function(){return items.length>0||!!LIVE;}
+    isActive:function(){return items.length>0||!!LIVE;},
+    // ===== 给专门播放页 /live/play/ 的控制接口 =====
+    onUpdate:function(cb){if(typeof cb!=="function")return function(){};SUBS.push(cb);try{cb(snap());}catch(e){}return function(){var i=SUBS.indexOf(cb);if(i>=0)SUBS.splice(i,1);};},
+    getState:snap,
+    toggle:function(){toggle();},
+    seek:function(sec){if(A&&isFinite(A.duration)){A.currentTime=Math.max(0,Math.min(A.duration,sec||0));sync();}},
+    seekBy:function(d){if(A&&!LIVE){A.currentTime=Math.max(0,Math.min(A.duration||1e9,(A.currentTime||0)+(d||0)));sync();}},
+    cycleRate:function(){if(!A)return 1;var r=[1,1.25,1.5,2,0.75],i=(r.indexOf(A.playbackRate)+1)%r.length;A.playbackRate=r[i];if($("op-rate"))$("op-rate").textContent=r[i]+"x";save();emit();return r[i];},
+    setRate:function(v){if(!A)return;A.playbackRate=v;if($("op-rate"))$("op-rate").textContent=v+"x";save();emit();},
+    next:function(){go(1);},
+    prev:function(){go(-1);},
+    jump:function(i){if(i>=0&&i<items.length)loadIdx(i,0,true);},
+    hideBar:function(){build();if(BAR)BAR.style.display="none";},
+    showBar:function(){if(BAR)BAR.style.display="";}
   };
 
   // 翻页恢复:读上次状态,续播(自动播放被拦时显示▶,点一下继续)。恢复时保持小球态,不打扰。

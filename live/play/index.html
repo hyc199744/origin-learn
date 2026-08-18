@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>课堂回放 · 起源线上课堂</title>
+<style>
+  :root{--ink:#0b0906;--bg1:#1a1206;--bg2:#0e0a05;--line:#3a2a15;--gold:#D6A84B;--gold-lt:#f0d48a;--gold-dp:#b8842f;--txt:#f0d48a;--muted:#b79c74;--track:rgba(255,255,255,.13)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 46%,#070503 100%);background-attachment:fixed;color:var(--muted);font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh}
+  body{max-width:460px;margin:0 auto;display:flex;flex-direction:column;min-height:100vh;padding:env(safe-area-inset-top) 0 0}
+  #op-bar{display:none!important}/* 本页自己就是播放器,隐藏悬浮小球 */
+  a{color:inherit;text-decoration:none}
+
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 4px}
+  .bar .bk,.bar .mn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--gold-lt);display:grid;place-items:center;font-size:19px;cursor:pointer}
+  .bar .mn{color:var(--muted);font-size:16px}
+  .bar .tt{font-size:12px;letter-spacing:2px;color:var(--muted)}
+
+  .cover{margin:24px auto 0;width:210px;height:210px;border-radius:26px;position:relative;background:radial-gradient(circle at 34% 28%,#2c2210,#160f07);border:1px solid #4a3416;box-shadow:0 22px 50px rgba(0,0,0,.55),inset 0 0 60px rgba(214,168,75,.06);display:grid;place-items:center}
+  .disc{width:120px;height:120px;border-radius:50%;background:repeating-radial-gradient(circle at 50% 50%,#0c0906 0 3px,#1a130a 3px 6px);position:relative;box-shadow:inset 0 0 0 1px #2a1e10;animation:spin 9s linear infinite;animation-play-state:paused}
+  body.playing .disc{animation-play-state:running}
+  @media(prefers-reduced-motion:reduce){.disc{animation:none}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .disc:after{content:"";position:absolute;inset:42px;border-radius:50%;background:radial-gradient(circle at 38% 32%,var(--gold-lt),var(--gold-dp))}
+  .badge{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);background:linear-gradient(135deg,var(--gold-lt),var(--gold-dp));color:var(--ink);font-size:11px;font-weight:800;padding:4px 12px;border-radius:99px;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+
+  .meta{text-align:center;padding:34px 24px 0}
+  .meta .t{font-size:22px;font-weight:800;color:var(--gold-lt);text-wrap:balance}
+  .meta .s{font-size:12.5px;color:var(--muted);margin-top:6px}
+
+  .prog{padding:22px 24px 0}
+  .wave{display:flex;align-items:center;gap:2px;height:36px;cursor:pointer;touch-action:none}
+  .wave i{flex:1 1 0;min-width:0;border-radius:2px;background:var(--track);pointer-events:none;transition:background .1s}
+  .wave i.on{background:linear-gradient(180deg,var(--gold-lt),var(--gold-dp))}
+  .wave i.cur{background:var(--gold-lt);box-shadow:0 0 8px rgba(240,212,138,.8)}
+  .tms{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:9px;font-variant-numeric:tabular-nums}
+
+  .ctr{display:flex;align-items:center;justify-content:center;gap:30px;padding:18px 0 4px}
+  .ctr button{border:0;background:transparent;color:var(--gold-lt);cursor:pointer;display:grid;place-items:center;font-family:inherit}
+  .ctr .sk{width:44px;height:44px;font-size:23px}
+  .ctr .play{width:74px;height:74px;border-radius:50%;font-size:27px;color:var(--ink);background:linear-gradient(135deg,#fff2cf,var(--gold));box-shadow:0 10px 26px rgba(214,168,75,.45)}
+  .ctr .play:active{transform:scale(.96)}
+
+  .sub{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 0 20px;flex-wrap:wrap}
+  .sub .chip{border:1px solid var(--line);color:var(--muted);background:rgba(255,255,255,.03);border-radius:99px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-variant-numeric:tabular-nums}
+  .sub .chip:active{transform:scale(.96)}
+  .sub .chip.g{color:var(--gold-lt);border-color:#5a4118}
+
+  .list{border-top:1px solid #1c1509;margin-top:auto;padding:14px 12px 26px}
+  .list .h{font-size:12px;color:var(--muted);margin:2px 6px 10px;letter-spacing:1px}
+  .li{display:flex;align-items:center;gap:11px;padding:9px 8px;border-radius:12px;cursor:pointer}
+  .li:active{background:rgba(255,255,255,.04)}
+  .li.now{background:rgba(214,168,75,.1)}
+  .li .n{flex:0 0 auto;width:34px;height:34px;border-radius:9px;background:radial-gradient(circle at 35% 30%,rgba(240,212,138,.3),rgba(184,132,47,.1));border:1px solid var(--line);display:grid;place-items:center;color:var(--gold-lt);font-size:13px}
+  .li .x{flex:1;min-width:0}
+  .li .x b{display:block;font-size:13px;color:var(--gold-lt);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .li .x span{font-size:11px;color:var(--muted)}
+  .li .d{flex:0 0 auto;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:14px}
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bk" id="pp-back" role="button" aria-label="返回">‹</div>
+    <div class="tt">正在播放</div>
+    <a class="mn" href="/live/" aria-label="回直播页">☰</a>
+  </div>
+
+  <div class="cover"><div class="disc"></div><div class="badge" id="pp-plays">▶ 已播 0 次</div></div>
+
+  <div class="meta">
+    <div class="t" id="pp-title">加载中…</div>
+    <div class="s" id="pp-sub"></div>
+  </div>
+
+  <div class="prog">
+    <div class="wave" id="pp-wave"></div>
+    <div class="tms"><span id="pp-cur">0:00</span><span id="pp-dur">0:00</span></div>
+  </div>
+
+  <div class="ctr">
+    <button class="sk" id="pp-prev" aria-label="上一节">⏮</button>
+    <button class="play" id="pp-play" aria-label="播放/暂停">▶</button>
+    <button class="sk" id="pp-next" aria-label="下一节">⏭</button>
+  </div>
+  <div class="sub">
+    <button class="chip" id="pp-b15" aria-label="快退15秒">⟲ 15</button>
+    <button class="chip g" id="pp-rate" aria-label="倍速">1.0x</button>
+    <button class="chip" id="pp-f15" aria-label="快进15秒">15 ⟳</button>
+    <button class="chip" id="pp-share" aria-label="分享">分享</button>
+  </div>
+
+  <div class="list">
+    <div class="h">往期回放</div>
+    <div id="pp-list"></div>
+  </div>
+
+<script src="/assets/player.js?v=10"></script>
+<script>
+(function(){
+  "use strict";
+  var API="https://count.web3origin.com", WAVEN=48;
+  var replays=[], curIdx=0, lastIdx=-1, unsub=null;
+  var $=function(id){return document.getElementById(id);};
+  function fmt(s){s=Math.max(0,Math.floor(s||0));var m=Math.floor(s/60),ss=s%60;return m+":"+(ss<10?"0":"")+ss;}
+  function two(n){return (n<10?"0":"")+n;}
+  function fmtDate(sec){if(!sec)return "";try{var d=new Date(sec*1000);return d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate());}catch(e){return "";}}
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
+  function sameUrl(a,b){return a&&b&&String(a).split("?")[0]===String(b).split("?")[0];}
+  var OP=window.OriginPlayer;
+
+  // 波形竖条
+  (function(){var w=$("pp-wave");var seed=[7,12,20,28,16,10,22,30,24,14,9,18,26,34,30,20,12,8,15,25,33,28,18,11,7,14,23,31,26,17,10,13,21,29,24,15,9,19,27,22,13,8,11,16,24,30,18,10];
+    for(var i=0;i<WAVEN;i++){var b=document.createElement("i");b.style.height=(8+seed[i%seed.length])+"px";w.appendChild(b);}})();
+  function setWave(p){var w=$("pp-wave"),bars=w.children,n=bars.length,cur=Math.round(p*(n-1));for(var i=0;i<n;i++){var cls=(i<cur)?"on":(i===cur?"cur":"");if(bars[i].className!==cls)bars[i].className=cls;}}
+
+  function renderList(){
+    var box=$("pp-list"),h="";
+    for(var i=0;i<replays.length;i++){var c=replays[i];
+      h+='<div class="li'+(i===curIdx?' now':'')+'" data-i="'+i+'"><div class="n">'+(i===curIdx?'▶':'🎧')+'</div>'
+        +'<div class="x"><b>'+esc(c.title||"回放")+'</b><span>'+esc(fmtDate(c.live_time))+' · '+Math.round((c.duration||0)/60)+'分钟</span></div>'
+        +'<div class="d">'+(i===curIdx?'正在放':fmt(c.duration))+'</div></div>';
+    }
+    box.innerHTML=h||'<div class="empty">暂无往期回放</div>';
+    Array.prototype.forEach.call(box.querySelectorAll(".li"),function(el){
+      el.addEventListener("click",function(){var i=parseInt(el.getAttribute("data-i"),10);if(OP&&OP.jump)OP.jump(i);});
+    });
+  }
+  function pingPlay(tid){if(!tid)return;fetch(API+"/live/replays/play?ticket="+encodeURIComponent(tid)).then(function(r){return r.json();}).then(function(r){if(r&&typeof r.plays==="number"){var c=replays[curIdx];if(c)c.plays=r.plays;$("pp-plays").textContent="▶ 已播 "+r.plays+" 次";}}).catch(function(){});}
+  function updateUrl(tid){try{history.replaceState(null,"","?t="+encodeURIComponent(tid));}catch(e){}}
+
+  function onTrackChange(){
+    var c=replays[curIdx]||{};
+    $("pp-title").textContent=c.title||"回放";
+    $("pp-sub").textContent=(fmtDate(c.live_time)||"")+" · "+Math.round((c.duration||0)/60)+" 分钟";
+    $("pp-plays").textContent="▶ 已播 "+(c.plays||0)+" 次";
+    document.title=(c.title||"课堂回放")+" · 起源线上课堂";
+    renderList(); updateUrl(c.ticket_id); pingPlay(c.ticket_id);
+  }
+  function paint(st){
+    if(!st||!st.active)return;
+    if(typeof st.idx==="number"&&st.idx!==curIdx&&st.idx<replays.length){curIdx=st.idx;onTrackChange();}
+    $("pp-play").textContent=st.paused?"▶":"⏸";
+    document.body.classList.toggle("playing",!st.paused);
+    $("pp-rate").textContent=(st.rate||1)+"x";
+    var c=replays[curIdx]||{},d=st.duration||c.duration||0;
+    $("pp-cur").textContent=fmt(st.time);$("pp-dur").textContent=fmt(d);
+    setWave(d?st.time/d:0);
+  }
+
+  // 波形定位
+  (function(){var w=$("pp-wave"),dragging=false;
+    function seek(e){var r=w.getBoundingClientRect(),cx=(e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX),x=(cx-r.left)/r.width;x=Math.min(1,Math.max(0,x));var st=OP&&OP.getState&&OP.getState();var d=st&&st.duration;if(OP&&OP.seek&&d)OP.seek(x*d);}
+    w.addEventListener("click",seek);
+    w.addEventListener("mousedown",function(e){dragging=true;seek(e);});
+    document.addEventListener("mousemove",function(e){if(dragging)seek(e);});
+    document.addEventListener("mouseup",function(){dragging=false;});
+    w.addEventListener("touchstart",function(e){seek(e);},{passive:true});
+    w.addEventListener("touchmove",function(e){seek(e);},{passive:true});
+  })();
+
+  // 按钮
+  $("pp-back").addEventListener("click",function(){if(history.length>1)history.back();else location.href="/live/";});
+  $("pp-play").addEventListener("click",function(){if(OP)OP.toggle();});
+  $("pp-prev").addEventListener("click",function(){if(OP)OP.prev();});
+  $("pp-next").addEventListener("click",function(){if(OP)OP.next();});
+  $("pp-b15").addEventListener("click",function(){if(OP)OP.seekBy(-15);});
+  $("pp-f15").addEventListener("click",function(){if(OP)OP.seekBy(15);});
+  $("pp-rate").addEventListener("click",function(){if(OP&&OP.cycleRate)OP.cycleRate();});
+  $("pp-share").addEventListener("click",function(){
+    var c=replays[curIdx];if(!c)return;
+    var url=location.origin+"/live/play/?t="+encodeURIComponent(c.ticket_id||"");
+    var title="起源课堂回放 · "+(c.title||"");
+    if(navigator.share){navigator.share({title:title,text:"🎧 "+title,url:url}).catch(function(){});}
+    else if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){alert("链接已复制,发给朋友即可收听");},function(){prompt("复制这个链接:",url);});}
+    else{prompt("复制这个链接:",url);}
+  });
+
+  // 载入回放列表 → 播放目标那一节
+  function boot(){
+    if(!OP){document.getElementById("pp-title").textContent="播放器未就绪";return;}
+    OP.hideBar&&OP.hideBar();
+    var want=new URLSearchParams(location.search).get("t")||"";
+    fetch(API+"/live/replays?limit=80").then(function(r){return r.json();}).then(function(d){
+      var rows=(d&&d.replays)||[];
+      replays=rows.filter(function(c){return c.play_url&&((c.kind||"audio")==="audio");});
+      if(!replays.length){$("pp-title").textContent="暂无回放";$("pp-list").innerHTML='<div class="empty">录制过的课程结束后会自动出现在这里</div>';return;}
+      var i=0;if(want){for(var k=0;k<replays.length;k++){if(replays[k].ticket_id===want){i=k;break;}}}
+      curIdx=i;
+      var list=replays.map(function(c){return {url:c.play_url,title:c.title,cover:c.cover};});
+      var cur=OP.current&&OP.current();
+      if(cur&&cur.url&&sameUrl(cur.url,list[i].url)){/* 已在放这一节:接管UI,不重头开始 */}
+      else{OP.playList(list,i);}
+      onTrackChange();
+      unsub=OP.onUpdate(paint);
+    }).catch(function(){$("pp-title").textContent="加载失败,请返回重试";});
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
+})();
+</script>
+</body>
+</html>
