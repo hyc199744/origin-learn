@@ -1,10 +1,11 @@
-/* 起源全站音频播放器 —— 跨页面持久:底部常驻播放条,用localStorage记住进度/曲目,翻页自动接着播。
+/* 起源全站音频播放器 —— 跨页面持久:底部常驻「声波播放器」,用localStorage记住进度/曲目,翻页自动接着播。
    API: window.OriginPlayer.playList(items,index) / .play(url,title,cover) ; item={url,title,cover} */
 (function(){
   "use strict";
   var LS="origin_player_v1";
   var ZH=document.documentElement.lang!=="en"&&!/^en/i.test(document.documentElement.lang||"");
   var A=null,BAR=null,items=[],idx=0,lastSave=0,drag=false,POS=null,LIVE=false,LA=null,ONCLOSE=null;
+  var WAVEN=40; // 波形竖条数量
   function M(){return LIVE?LA:A;}
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
   function safe(u){u=String(u||"").trim();if(!/^https:\/\//i.test(u))return "";if(/[\s<>"'`\\]/.test(u))return "";try{var x=new URL(u);return x.protocol==="https:"?x.href:"";}catch(e){return "";}}
@@ -14,67 +15,75 @@
   function injectCss(){
     if($("op-style"))return;
     var s=document.createElement("style");s.id="op-style";
-    s.textContent="#op-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(160%);z-index:2147483000;display:flex;align-items:center;gap:11px;width:min(560px,94vw);padding:10px 12px;"
-      +"background:rgba(14,11,7,.97);border:1px solid #D6A84B;border-radius:15px;box-shadow:0 16px 46px rgba(0,0,0,.6);backdrop-filter:blur(7px);opacity:0;transition:.3s;pointer-events:none;font-family:system-ui,-apple-system,'Microsoft YaHei',sans-serif}"
+    s.textContent="#op-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(170%);z-index:2147483000;display:flex;flex-direction:column;align-items:stretch;width:min(430px,94vw);padding:11px 13px 13px;"
+      +"background:linear-gradient(180deg,rgba(26,19,11,.98),rgba(15,11,6,.98));border:1px solid #3a2a15;border-radius:16px;box-shadow:0 16px 46px rgba(0,0,0,.6);backdrop-filter:blur(7px);opacity:0;transition:.3s;pointer-events:none;font-family:system-ui,-apple-system,'Microsoft YaHei',sans-serif}"
       +"#op-bar.on{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}"
-      +"#op-art{flex:0 0 auto;width:44px;height:44px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:22px;background:linear-gradient(135deg,rgba(214,168,75,.32),rgba(214,168,75,.06));border:1px solid #3a2313}"
-      +"#op-art img{width:100%;height:100%;object-fit:cover}"
+      +"#op-r1{display:flex;align-items:center;gap:11px}"
+      +"#op-art{flex:0 0 auto;width:44px;height:44px;border-radius:11px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;background:radial-gradient(circle at 35% 30%,rgba(240,212,138,.32),rgba(184,132,47,.10));border:1px solid #3a2a15;cursor:grab;touch-action:none;user-select:none}"
+      +"#op-art:active{cursor:grabbing}#op-art img{width:100%;height:100%;object-fit:cover}"
       +"#op-mid{flex:1;min-width:0}"
-      +"#op-t{font-size:13.5px;color:#f0d48a;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"
-      +"#op-row{display:flex;align-items:center;gap:8px;margin-top:6px}"
-      +"#op-cur,#op-dur{font-size:11px;color:#b79c74;font-variant-numeric:tabular-nums;flex:0 0 auto;min-width:32px;text-align:center}"
-      +"#op-bar-p{position:relative;flex:1;height:5px;background:rgba(255,255,255,.14);border-radius:999px;cursor:pointer;touch-action:none}"
-      +"#op-fill{position:absolute;left:0;top:0;height:100%;width:0;background:linear-gradient(90deg,#D6A84B,#f0d48a);border-radius:999px}"
-      +"#op-knob{position:absolute;top:50%;left:0;width:12px;height:12px;border-radius:50%;background:#f0d48a;transform:translate(-50%,-50%);box-shadow:0 2px 6px rgba(0,0,0,.45)}"
+      +"#op-t{font-size:14px;color:#f0d48a;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"
+      +"#op-st{font-size:11px;color:#b79c74;margin-top:3px;display:flex;align-items:center;gap:7px;font-variant-numeric:tabular-nums}"
+      +"#op-tm{white-space:nowrap}"
+      +"#op-rate{flex:0 0 auto;cursor:pointer;color:#D6A84B;font-weight:700;font-size:11px;border:1px solid #3a2a15;border-radius:6px;padding:1px 6px;background:transparent}"
+      +"#op-ctrls{flex:0 0 auto;display:flex;align-items:center;gap:8px}"
       +".op-btn{flex:0 0 auto;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;background:transparent;color:#f0d48a}"
-      +"#op-prev,#op-next{width:30px;height:30px;font-size:15px;border-radius:50%;border:1px solid #3a2313;background:rgba(255,255,255,.04)}"
+      +"#op-prev,#op-next{width:30px;height:30px;font-size:15px;border-radius:50%;border:1px solid #3a2a15;background:rgba(255,255,255,.04)}"
       +"#op-play{width:42px;height:42px;font-size:16px;border-radius:50%;background:linear-gradient(135deg,#f0d48a,#b8842f);color:#1a1206;box-shadow:0 6px 16px rgba(214,168,75,.35)}"
-      +"#op-rate{width:42px;height:30px;border-radius:8px;border:1px solid #3a2313;background:rgba(255,255,255,.04);color:#b79c74;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}"
-      +"#op-x,#op-collapse{width:28px;height:28px;border-radius:7px;border:1px solid #3a2313;color:#b79c74;font-size:13px}"
+      +"#op-collapse,#op-x{width:26px;height:26px;border-radius:7px;border:1px solid #3a2a15;color:#b79c74;font-size:13px}"
       +".op-btn:hover{color:#f0d48a;border-color:#D6A84B}"
-      +"#op-ctrls{flex:0 0 auto;display:flex;align-items:center;gap:7px}"
-      +"#op-art{cursor:grab;touch-action:none;user-select:none}#op-art:active{cursor:grabbing}"
-      +"#op-bar.op-min{width:auto;min-width:0;padding:0;background:transparent;border:0;box-shadow:none;backdrop-filter:none;gap:0}"
-      +"#op-bar.op-min #op-mid,#op-bar.op-min #op-ctrls{display:none}"
+      +"#op-wave{display:flex;align-items:center;gap:2.5px;height:34px;margin-top:11px;cursor:pointer;touch-action:none}"
+      +"#op-wave i{flex:1 1 0;min-width:0;height:10px;border-radius:2px;background:rgba(255,255,255,.14);pointer-events:none;transition:background .12s}"
+      +"#op-wave i.on{background:linear-gradient(180deg,#f0d48a,#b8842f)}"
+      +"#op-wave i.cur{background:#f0d48a;box-shadow:0 0 8px rgba(240,212,138,.7)}"
+      +"#op-bar.op-min{width:auto;min-width:0;padding:0;background:transparent;border:0;box-shadow:none;backdrop-filter:none}"
+      +"#op-bar.op-min #op-mid,#op-bar.op-min #op-ctrls,#op-bar.op-min #op-wave{display:none}"
       +"#op-bar.op-min #op-art{width:58px;height:58px;border-radius:50%;border:2px solid #D6A84B;box-shadow:0 12px 32px rgba(0,0,0,.55);font-size:26px;position:relative}"
       +"#op-bar.op-min #op-art:after{content:'▸';position:absolute;right:-3px;bottom:-3px;width:21px;height:21px;border-radius:50%;background:#D6A84B;color:#1a1206;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px rgba(0,0,0,.45)}"
-      +"#op-bar.op-live #op-row,#op-bar.op-live #op-rate,#op-bar.op-live #op-prev,#op-bar.op-live #op-next{display:none}"
+      +"#op-bar.op-live #op-wave,#op-bar.op-live #op-rate,#op-bar.op-live #op-prev,#op-bar.op-live #op-next{display:none}"
       +"#op-bar.op-live #op-t{color:#ff8a8a}"
-      +"@media(max-width:640px){#op-bar{bottom:78px;gap:7px;padding:9px 10px}#op-rate{display:none}#op-ctrls{gap:6px}#op-prev,#op-next{width:28px;height:28px;font-size:14px}}";
+      +"@media(max-width:640px){#op-bar{bottom:78px}#op-prev,#op-next{width:28px;height:28px;font-size:14px}#op-ctrls{gap:6px}}";
     document.head.appendChild(s);
+  }
+  function buildWave(){
+    var w=$("op-wave");if(!w)return;w.innerHTML="";
+    // 固定高低起伏的波形(视觉装饰,播放进度用点亮体现)
+    var seed=[7,12,20,28,16,10,22,30,24,14,9,18,26,31,28,20,12,8,15,25,30,27,18,11,7,14,23,29,25,17,10,13,21,28,24,15,9,19,26,21];
+    for(var i=0;i<WAVEN;i++){var b=document.createElement("i");b.style.height=(8+(seed[i%seed.length]))+"px";w.appendChild(b);}
   }
   function build(){
     if(BAR)return;
     injectCss();
     BAR=document.createElement("div");BAR.id="op-bar";
-    BAR.innerHTML='<div id="op-art"></div>'
+    BAR.innerHTML='<div id="op-r1"><div id="op-art"></div>'
       +'<div id="op-mid"><div id="op-t"></div>'
-      +'<div id="op-row"><span id="op-cur">0:00</span>'
-      +'<div id="op-bar-p"><div id="op-fill"></div><div id="op-knob"></div></div>'
-      +'<span id="op-dur">0:00</span></div></div>'
+      +'<div id="op-st"><span id="op-tm"><span id="op-cur">0:00</span> / <span id="op-dur">0:00</span></span>'
+      +'<button class="op-btn" id="op-rate" aria-label="'+(ZH?"倍速":"speed")+'">1x</button></div></div>'
       +'<div id="op-ctrls">'
       +'<button class="op-btn" id="op-prev" aria-label="'+(ZH?"上一节":"prev")+'">⏮</button>'
       +'<button class="op-btn" id="op-play" aria-label="play/pause">▶</button>'
       +'<button class="op-btn" id="op-next" aria-label="'+(ZH?"下一节":"next")+'">⏭</button>'
-      +'<button class="op-btn" id="op-rate" aria-label="'+(ZH?"倍速":"speed")+'">1x</button>'
       +'<button class="op-btn" id="op-collapse" aria-label="'+(ZH?"收起":"minimize")+'">▾</button>'
-      +'<button class="op-btn" id="op-x" aria-label="close">✕</button></div>';
+      +'<button class="op-btn" id="op-x" aria-label="close">✕</button></div></div>'
+      +'<div id="op-wave"></div>';
     (document.body||document.documentElement).appendChild(BAR);
+    buildWave();
     $("op-play").onclick=toggle;
     $("op-next").onclick=function(){go(1);};
     $("op-prev").onclick=function(){go(-1);};
     $("op-x").onclick=function(){if(LIVE)endLive();else stop();};
     var rates=[1,1.25,1.5,2,0.75];
     $("op-rate").onclick=function(){if(!A)return;var i=rates.indexOf(A.playbackRate);i=(i+1)%rates.length;A.playbackRate=rates[i];$("op-rate").textContent=rates[i]+"x";save();};
-    var bp=$("op-bar-p");
-    function seek(e){if(LIVE)return;var r=bp.getBoundingClientRect(),cx=(e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX),x=(cx-r.left)/r.width;x=Math.min(1,Math.max(0,x));if(A&&isFinite(A.duration))A.currentTime=x*A.duration;}
-    bp.addEventListener("click",seek);
-    bp.addEventListener("mousedown",function(e){drag=true;seek(e);});
-    bp.addEventListener("touchstart",function(e){seek(e);},{passive:true});
-    bp.addEventListener("touchmove",function(e){seek(e);},{passive:true});
+    // ==== 波形进度:点/拖定位 ====
+    var wv=$("op-wave");
+    function seek(e){if(LIVE)return;var r=wv.getBoundingClientRect(),cx=(e.touches&&e.touches[0]?e.touches[0].clientX:e.clientX),x=(cx-r.left)/r.width;x=Math.min(1,Math.max(0,x));if(A&&isFinite(A.duration))A.currentTime=x*A.duration;sync();}
+    wv.addEventListener("click",seek);
+    wv.addEventListener("mousedown",function(e){drag=true;seek(e);});
+    wv.addEventListener("touchstart",function(e){seek(e);},{passive:true});
+    wv.addEventListener("touchmove",function(e){seek(e);},{passive:true});
     document.addEventListener("mousemove",function(e){if(drag)seek(e);});
     document.addEventListener("mouseup",function(){drag=false;});
-    // ==== 拖动 + 收缩 ====
+    // ==== 拖动整条 + 收缩 ====
     var art=$("op-art"),dr={on:false,moved:false,sx:0,sy:0,ox:0,oy:0};
     function dstart(e){var t=e.touches&&e.touches[0];dr.on=true;dr.moved=false;dr.sx=t?t.clientX:e.clientX;dr.sy=t?t.clientY:e.clientY;var r=BAR.getBoundingClientRect();dr.ox=r.left;dr.oy=r.top;}
     function dmove(e){if(!dr.on)return;var t=e.touches&&e.touches[0],cx=t?t.clientX:e.clientX,cy=t?t.clientY:e.clientY,dx=cx-dr.sx,dy=cy-dr.sy;if(Math.abs(dx)+Math.abs(dy)>4)dr.moved=true;if(dr.moved){BAR.style.left=(dr.ox+dx)+"px";BAR.style.top=(dr.oy+dy)+"px";BAR.style.bottom="auto";BAR.style.transform="none";if(e.cancelable)e.preventDefault();}}
@@ -118,8 +127,10 @@
     if(pb)pb.textContent=m.paused?"▶":"⏸";
     try{if("mediaSession" in navigator)navigator.mediaSession.playbackState=m.paused?"paused":"playing";}catch(e){}
     if(LIVE)return;
-    var d=m.duration||0,p=d?(m.currentTime/d*100):0,f=$("op-fill"),k=$("op-knob"),cu=$("op-cur"),du=$("op-dur");
-    if(f)f.style.width=p+"%";if(k)k.style.left=p+"%";if(cu)cu.textContent=fmt(m.currentTime);if(du&&d)du.textContent=fmt(d);
+    var d=m.duration||0,p=d?(m.currentTime/d):0,cu=$("op-cur"),du=$("op-dur"),wv=$("op-wave");
+    if(cu)cu.textContent=fmt(m.currentTime);if(du&&d)du.textContent=fmt(d);
+    if(wv){var bars=wv.children,n=bars.length,cur=d?Math.round(p*(n-1)):-1;
+      for(var i=0;i<n;i++){var cls=(i<cur)?"on":(i===cur?"cur":"");if(bars[i].className!==cls)bars[i].className=cls;}}
     var pv=$("op-prev"),nx=$("op-next");if(pv)pv.style.visibility=items.length>1?"visible":"hidden";if(nx)nx.style.visibility=items.length>1?"visible":"hidden";
   }
   function paint(){
