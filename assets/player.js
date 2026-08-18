@@ -15,10 +15,11 @@
   function injectCss(){
     if($("op-style"))return;
     var s=document.createElement("style");s.id="op-style";
-    s.textContent="#op-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(170%);z-index:2147483000;display:flex;flex-direction:column;align-items:stretch;width:min(430px,94vw);padding:11px 13px 13px;"
+    s.textContent="#op-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%) translateY(170%);z-index:2147483000;box-sizing:border-box;display:flex;flex-direction:column;align-items:stretch;width:min(430px,94vw);max-width:calc(100vw - 16px);padding:11px 13px 13px;"
       +"background:linear-gradient(180deg,rgba(26,19,11,.98),rgba(15,11,6,.98));border:1px solid #3a2a15;border-radius:16px;box-shadow:0 16px 46px rgba(0,0,0,.6);backdrop-filter:blur(7px);opacity:0;transition:.3s;pointer-events:none;font-family:system-ui,-apple-system,'Microsoft YaHei',sans-serif}"
       +"#op-bar.on{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}"
-      +"#op-r1{display:flex;align-items:center;gap:11px}"
+      +"#op-r1{display:flex;align-items:center;gap:11px;min-width:0}"
+      +"#op-bar *{box-sizing:border-box}"
       +"#op-art{flex:0 0 auto;width:44px;height:44px;border-radius:11px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;background:radial-gradient(circle at 35% 30%,rgba(240,212,138,.32),rgba(184,132,47,.10));border:1px solid #3a2a15;cursor:grab;touch-action:none;user-select:none}"
       +"#op-art:active{cursor:grabbing}#op-art img{width:100%;height:100%;object-fit:cover}"
       +"#op-mid{flex:1;min-width:0}"
@@ -30,14 +31,15 @@
       +".op-btn{flex:0 0 auto;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;background:transparent;color:#f0d48a}"
       +"#op-prev,#op-next{width:30px;height:30px;font-size:15px;border-radius:50%;border:1px solid #3a2a15;background:rgba(255,255,255,.04)}"
       +"#op-play{width:42px;height:42px;font-size:16px;border-radius:50%;background:linear-gradient(135deg,#f0d48a,#b8842f);color:#1a1206;box-shadow:0 6px 16px rgba(214,168,75,.35)}"
-      +"#op-collapse,#op-x{width:26px;height:26px;border-radius:7px;border:1px solid #3a2a15;color:#b79c74;font-size:13px}"
+      +"#op-win{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:-3px -1px 5px 0}"
+      +"#op-collapse,#op-x{width:24px;height:24px;border-radius:7px;border:1px solid #3a2a15;color:#b79c74;font-size:12px}"
       +".op-btn:hover{color:#f0d48a;border-color:#D6A84B}"
       +"#op-wave{display:flex;align-items:center;gap:2.5px;height:34px;margin-top:11px;cursor:pointer;touch-action:none}"
       +"#op-wave i{flex:1 1 0;min-width:0;height:10px;border-radius:2px;background:rgba(255,255,255,.14);pointer-events:none;transition:background .12s}"
       +"#op-wave i.on{background:linear-gradient(180deg,#f0d48a,#b8842f)}"
       +"#op-wave i.cur{background:#f0d48a;box-shadow:0 0 8px rgba(240,212,138,.7)}"
       +"#op-bar.op-min{width:auto;min-width:0;padding:0;background:transparent;border:0;box-shadow:none;backdrop-filter:none}"
-      +"#op-bar.op-min #op-mid,#op-bar.op-min #op-ctrls,#op-bar.op-min #op-wave{display:none}"
+      +"#op-bar.op-min #op-win,#op-bar.op-min #op-mid,#op-bar.op-min #op-ctrls,#op-bar.op-min #op-wave{display:none}"
       +"#op-bar.op-min #op-art{width:58px;height:58px;border-radius:50%;border:2px solid #D6A84B;box-shadow:0 12px 32px rgba(0,0,0,.55);font-size:26px;position:relative}"
       +"#op-bar.op-min #op-art:after{content:'▸';position:absolute;right:-3px;bottom:-3px;width:21px;height:21px;border-radius:50%;background:#D6A84B;color:#1a1206;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 7px rgba(0,0,0,.45)}"
       +"#op-bar.op-live #op-wave,#op-bar.op-live #op-rate,#op-bar.op-live #op-prev,#op-bar.op-live #op-next{display:none}"
@@ -55,16 +57,17 @@
     if(BAR)return;
     injectCss();
     BAR=document.createElement("div");BAR.id="op-bar";
-    BAR.innerHTML='<div id="op-r1"><div id="op-art"></div>'
+    BAR.innerHTML='<div id="op-win">'
+      +'<button class="op-btn" id="op-collapse" aria-label="'+(ZH?"收起":"minimize")+'">▾</button>'
+      +'<button class="op-btn" id="op-x" aria-label="close">✕</button></div>'
+      +'<div id="op-r1"><div id="op-art"></div>'
       +'<div id="op-mid"><div id="op-t"></div>'
       +'<div id="op-st"><span id="op-tm"><span id="op-cur">0:00</span> / <span id="op-dur">0:00</span></span>'
       +'<button class="op-btn" id="op-rate" aria-label="'+(ZH?"倍速":"speed")+'">1x</button></div></div>'
       +'<div id="op-ctrls">'
       +'<button class="op-btn" id="op-prev" aria-label="'+(ZH?"上一节":"prev")+'">⏮</button>'
       +'<button class="op-btn" id="op-play" aria-label="play/pause">▶</button>'
-      +'<button class="op-btn" id="op-next" aria-label="'+(ZH?"下一节":"next")+'">⏭</button>'
-      +'<button class="op-btn" id="op-collapse" aria-label="'+(ZH?"收起":"minimize")+'">▾</button>'
-      +'<button class="op-btn" id="op-x" aria-label="close">✕</button></div></div>'
+      +'<button class="op-btn" id="op-next" aria-label="'+(ZH?"下一节":"next")+'">⏭</button></div></div>'
       +'<div id="op-wave"></div>';
     (document.body||document.documentElement).appendChild(BAR);
     buildWave();
