@@ -101,6 +101,11 @@ a.lnk{color:var(--gold);text-decoration:none}a.lnk:hover{text-decoration:underli
   </div>
 
   <hr class="mdiv">
+  <h2 class="mh">🔍 通用<span>链上搜索</span></h2>
+  <div class="sub" style="margin:0 0 10px">任意钱包地址、合约地址或交易哈希 → 读真实链上记录、逐笔大白话解读、授权风险。支持交易哈希查询。</div>
+  <iframe id="ocsframe" src="/tools/onchain-search/" title="链上搜索" scrolling="no" style="width:100%;border:1px solid var(--line);border-radius:12px;background:var(--panel);min-height:520px;display:block"></iframe>
+
+  <hr class="mdiv">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
     <div><h2 class="mh">起源全生态 <span>链上监控中心</span></h2>
     <div class="sub" style="margin:0">全网 DAO 等级 · 大户 · 供应 · 国库 · 销毁 — 链上实测</div></div>
@@ -363,6 +368,20 @@ async function loadLive(){
 }
 try{ renderSnap(); try{$('mrf').onclick=loadLive;}catch(e){} loadLive(); }
 catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="background:#e06a6a;color:#111;padding:10px">监控脚本出错: '+err.message+'</div>'); }
+})();
+</script>
+<script>
+// 内嵌链上搜索(同源): 去掉其重复顶栏 + 自动撑高
+(function(){
+ var f=document.getElementById('ocsframe');if(!f)return;
+ function fit(){try{var d=f.contentDocument;if(!d||!d.body)return;
+   if(!d.getElementById('_embcss')){var s=d.createElement('style');s.id='_embcss';
+     s.textContent='.top{display:none!important}.wrap{max-width:100%!important;padding:6px 2px 20px!important}h1{margin-top:2px!important}';
+     (d.head||d.documentElement).appendChild(s);}
+   var h=d.body.scrollHeight;if(h>60)f.style.height=(h+24)+'px';
+ }catch(e){}}
+ f.addEventListener('load',function(){fit();setInterval(fit,1000);});
+ setTimeout(fit,1500);
 })();
 </script>
 </body>
