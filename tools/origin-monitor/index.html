@@ -119,6 +119,7 @@ a.lnk{color:var(--gold);text-decoration:none}a.lnk:hover{text-decoration:underli
   <div class="status" id="status"></div>
   <div id="out"></div>
   </div>
+  <div id="monitorContent" style="display:none">
   <div class="foot">
     数据来源：Polygon / Anubis 公开 RPC 实时读取，每个数字均可点「链上验证」自行核对。<br>
     单钱包查询中的 DAO等级 / 团队业绩为链上不直读项，见下方「全生态监控」板块（等级走链上 daoLevel）。
@@ -155,6 +156,7 @@ a.lnk{color:var(--gold);text-decoration:none}a.lnk:hover{text-decoration:underli
   <div class="grid" id="massets"></div>
 
   <div class="foot" id="mfoot"></div>
+  </div>
 </div>
 <script>
 const CHAINS={
@@ -265,6 +267,7 @@ async function validToken(t){try{const r=await fetch(WK+'/mon/access?token='+enc
 function unlockUI(){
  const g=document.getElementById('gate');if(g)g.innerHTML='<div class="chain" style="border-color:rgba(37,201,111,.4);margin-bottom:14px"><div style="padding:2px;color:#7bffb0;font-size:13.5px">✓ 已解锁 · 本设备永久访问全部查询工具</div></div>';
  const q=document.getElementById('queryTool');if(q)q.style.display='block';
+ var mc=document.getElementById('monitorContent');if(mc)mc.style.display='block';
  var we=document.getElementById('wdEnter');if(we)we.onclick=function(){if(MONTOKEN)window.open('/w/?t='+encodeURIComponent(MONTOKEN),'_blank');};
  try{var _q=new URLSearchParams(location.search).get('q');if(_q&&/^0x[0-9a-fA-F]{40}$/.test(_q.trim())){document.getElementById('addr').value=_q.trim();run();}}catch(e){}
 }
@@ -525,8 +528,8 @@ async function loadLive(){
   const ar=await mcall(RPC.anb,'0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0','0x0902f1ac');
   if(!pr&&!ar)throw new Error('节点连不上');
   const d={...SNAP};
-  if(pr){const[a,b]=resv(pr);d.polyPrice=(Number(a*10n**15n/b)/1e6).toFixed(4);}
-  if(ar){const[a,b]=resv(ar);d.anbPrice=(Number(b*10n**15n/a)/1e6).toFixed(4);}
+  if(pr){const[a,b]=resv(pr);if(b>0n)d.polyPrice=(Number((a*10n**15n)/(b*10n**18n))/1e6).toFixed(4);}
+  if(ar){const[a,b]=resv(ar);if(a>0n)d.anbPrice=(Number((b*10n**15n)/(a*10n**18n))/1e6).toFixed(4);}
   const[sp,sa,ssp,ssa,dai,usdt,bp,ba]=await Promise.all([
    mcall(RPC.poly,AL,'0x18160ddd'),mcall(RPC.anb,NL,'0x18160ddd'),
    mcall(RPC.poly,'0x99a57E6C8558BC6689f894e068733ADf83C19725','0x18160ddd'),mcall(RPC.anb,'0x2243aE29F73137d678197b61B0621AE942845B8C','0x18160ddd'),
