@@ -158,6 +158,7 @@ a.lnk{color:var(--gold);text-decoration:none}a.lnk:hover{text-decoration:underli
   <div class="foot" id="mfoot"></div>
   </div>
 </div>
+<script src="/assets/qrcode.min.js"></script>
 <script>
 const CHAINS={
  polygon:{name:'Polygon',chainId:137,native:'POL',explorer:'https://polygonscan.com/address/',
@@ -297,17 +298,23 @@ function monShowPay(el,o){
  el.innerHTML=`<div class="pos" style="padding:15px">
   <div class="t" style="margin-bottom:8px">支付解锁 · 一次性 10 LGNS · 永久访问</div>
   <div class="det" style="justify-content:space-between"><span>精确金额（务必一分不差）</span><b class="mono" style="color:var(--gold);font-size:16px">${o.amount} LGNS</b> <button class="verify" data-c="${o.amount}">复制金额</button></div>
-  <div class="det" style="margin-top:6px"><span>收款地址（Polygon 链）</span></div>
+  <div class="det" style="margin-top:6px"><span>收款地址</span><span style="color:var(--gold2);font-size:11.5px">Polygon 或 Anubis 链的 LGNS 均可支付</span></div>
   <div class="det"><code class="mono" style="word-break:break-all;color:var(--txt)">${o.receive}</code><button class="verify" data-c="${o.receive}">复制</button></div>
-  <div style="font-size:12.5px;color:var(--dim);margin-top:8px;line-height:1.7">用支持 <b>Polygon</b> 的钱包，把上面<b style="color:var(--gold2)">精确金额</b>的 LGNS 转到收款地址，约 20–60 秒<b style="color:var(--gold2)">自动解锁</b>（勿关窗口）。<br><span id="monStatus" style="color:var(--gold2)">● 等待付款中…</span></div>
-  <div style="font-size:11px;color:var(--dim);margin-top:8px;border-top:1px solid var(--line);padding-top:7px">订单号 <code class="mono" style="word-break:break-all">${o.orderId}</code> <button class="verify" data-c="${o.orderId}">复制订单号</button> · 换设备/清缓存后凭此找回</div></div>`;
+  <div class="monqr" style="text-align:center;margin:12px 0"></div>
+  <div style="font-size:12.5px;color:var(--dim);margin-top:2px;line-height:1.7">用支持 <b>Polygon</b> 或 <b>Anubis</b> 的钱包，扫上面二维码或复制地址，把<b style="color:var(--gold2)">精确金额</b>的 LGNS 转过去，约 20–60 秒<b style="color:var(--gold2)">自动解锁</b>（勿关窗口）。<br><span id="monStatus" style="color:var(--gold2)">● 等待付款中…</span></div>
+  <div style="font-size:11px;color:var(--dim);margin-top:8px;border-top:1px solid var(--line);padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span>订单号 <code class="mono" style="word-break:break-all">${o.orderId}</code> <button class="verify" data-c="${o.orderId}">复制</button></span><button class="verify" id="monCancelBtn" style="border-color:#e06a6a;color:#ff9a8f">✕ 取消订单</button></div></div>`;
  el.querySelectorAll('[data-c]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent='已复制✓';setTimeout(()=>b.textContent=t,1200);};});
+ try{const q=el.querySelector('.monqr');if(q&&window.QRCode)new QRCode(q,{text:o.receive,width:150,height:150,colorDark:'#1a1305',colorLight:'#ffffff'});}catch(e){}
  const start=Date.now();
  const timer=setInterval(async()=>{
+  if(!document.body.contains(el)){clearInterval(timer);return;}
   if(Date.now()-start>15*60*1000){clearInterval(timer);const s=document.getElementById('monStatus');if(s)s.innerHTML='<span style="color:#ff9a8f">● 等待较久。若已付款，稍后用订单号找回即可，系统仍认款。</span>';return;}
   let c;try{c=await fetch(WK+'/mon/check?order='+o.orderId).then(r=>r.json());}catch(e){return;}
+  if(c&&c.status==='canceled'){clearInterval(timer);return;}
   if(c&&c.status==='paid'&&c.access){clearInterval(timer);monGrant(c.access);}
  },5000);
+ const cb=el.querySelector('#monCancelBtn');
+ if(cb)cb.onclick=async()=>{clearInterval(timer);cb.disabled=true;cb.textContent='取消中…';try{await fetch(WK+'/mon/cancel?order='+o.orderId);}catch(e){}el.innerHTML='<div class="meta" style="text-align:center;padding:8px">订单已取消。可重新下单。</div>';};
 }
 function monGrant(token){MONTOKEN=token;try{localStorage.setItem(MLS,token);}catch(e){}unlockUI();try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}}
 function monRestoreUI(){
