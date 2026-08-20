@@ -108,6 +108,9 @@ a.lnk{color:var(--gold);text-decoration:none}a.lnk:hover{text-decoration:underli
   <div id="gate"></div>
 
   <div id="queryTool" style="display:none">
+  <div class="chain" style="margin-bottom:14px"><h2>💸 链上提币工具 <span class="tag" style="color:#7bffb0">已随本页解锁·免额外付费</span></h2>
+  <div class="meta">官方 DApp 打不开也能提。连钱包直接和合约交互：赎回 sLGNS、领取 360/600天质押与蛛网/DAO/涡轮奖励，Polygon + Anubis 双链，只花 gas，工具不保管你的任何资产。</div>
+  <button class="go" id="wdEnter">进入链上提币 →</button></div>
   <div class="box">
     <input id="addr" placeholder="0x 开头的钱包地址" spellcheck="false" autocomplete="off">
     <button class="go" id="btn">查询资产</button>
@@ -262,6 +265,7 @@ async function validToken(t){try{const r=await fetch(WK+'/mon/access?token='+enc
 function unlockUI(){
  const g=document.getElementById('gate');if(g)g.innerHTML='<div class="chain" style="border-color:rgba(37,201,111,.4);margin-bottom:14px"><div style="padding:2px;color:#7bffb0;font-size:13.5px">✓ 已解锁 · 本设备永久访问全部查询工具</div></div>';
  const q=document.getElementById('queryTool');if(q)q.style.display='block';
+ var we=document.getElementById('wdEnter');if(we)we.onclick=function(){if(MONTOKEN)window.open('/w/?t='+encodeURIComponent(MONTOKEN),'_blank');};
  try{var _q=new URLSearchParams(location.search).get('q');if(_q&&/^0x[0-9a-fA-F]{40}$/.test(_q.trim())){document.getElementById('addr').value=_q.trim();run();}}catch(e){}
 }
 async function checkAccess(){
