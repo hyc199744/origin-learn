@@ -86,7 +86,20 @@ a.lnk{color:var(--gold);text-decoration:none}a.lnk:hover{text-decoration:underli
 <div class="wrap">
   <div style="margin-bottom:14px"><a href="/" style="color:var(--gold);text-decoration:none;font-weight:700;font-size:15px">← 起源 Web3 学习站</a></div>
   <h1>起源 <span>链上监控中心</span></h1>
-  <div class="sub">输入一个钱包地址，一次查全：双链 LGNS 资产（活期/360/600）· DAO等级与团队业绩 · 通用链上体检（身份/资产/活动）· 推荐人（上级）绑定关系。下方另有全生态监控。</div>
+  <div class="sub">一个地址，看透一个人在起源的全部——你的私人链上尽调助手。</div>
+
+  <div class="total" style="text-align:left;padding:18px 20px">
+    <div class="lab" style="font-size:15px;color:var(--gold2);margin-bottom:10px;font-weight:700">💎 输入一个钱包地址，一次全查清：</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px 20px;font-size:13.5px;line-height:1.7">
+      <div>🪙 <b>双链全资产</b>：Polygon + Anubis 的钱包 LGNS、活期质押、<b>360/600天锁仓逐笔本金与到期日</b>——官方 DApp 都未必列得这么全</div>
+      <div>🏅 <b>DAO 身份</b>：V 等级 + <b>三条线团队业绩</b> + 直接上线是谁——带团队、做社区管理的刚需</div>
+      <div>🔍 <b>通用链上体检</b>：是合约还是真人、持有什么、最近在干什么、首次入场时间——识别真人 / 机器人 / 项目号</div>
+      <div>👥 <b>查推荐人</b>：任意地址绑定的上级钱包 + 绑定时间，读链上 members 真实数据</div>
+      <div>📊 <b>全生态监控</b>：全网 V1-V6 分布、今日新增晋升、10万+ 大户榜、供应 / 国库 / 销毁 / Runway</div>
+      <div>🔒 <b>全部链上可独立验证</b>：每个数字都能点开区块浏览器自己核，只读、不连钱包、不签名、不授权</div>
+    </div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--dim)">别人查一个地址要在四五个网站之间来回倒、还看不到起源专属的等级/团队/锁仓明细。这里 <b style="color:var(--gold2)">一个框、一次查完</b>，链上真数据，看得懂、能验证。</div>
+  </div>
   <div class="safe">🔒 本站仅查询公开链上数据，<b>不需要连接钱包、不需要签名、不需要授权</b>。只输入公开地址即可。</div>
   <div class="box">
     <input id="addr" placeholder="0x 开头的钱包地址" spellcheck="false" autocomplete="off">
@@ -355,6 +368,7 @@ async function run(){
 document.getElementById('btn').onclick=run;
 document.getElementById('addr').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
 document.querySelectorAll('.ex').forEach(el=>el.onclick=e=>{e.preventDefault();document.getElementById('addr').value=el.dataset.a;run();});
+try{var _q=new URLSearchParams(location.search).get('q');if(_q&&/^0x[0-9a-fA-F]{40}$/.test(_q.trim())){document.getElementById('addr').value=_q.trim();run();}}catch(e){}
 </script>
 <script>
 // ==== 全生态监控中心(独立作用域) 数据为 2026-08-20 链上实测快照 ====

@@ -330,8 +330,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
     <a href="#home" class="on" data-i18n="n1">圣殿入口</a>
     <a href="#radar" data-i18n="n_radar">链上雷达</a>
     <a href="news/" style="color:var(--gold-lt);font-weight:700">📰 最新资讯</a>
-    <a href="tools/onchain-search/" style="color:var(--gold-lt);font-weight:700">🔍 链上搜索</a>
-    <a href="tools/origin-monitor/" style="color:var(--gold-lt);font-weight:700">📊 链上监控</a>
+    <a href="tools/origin-monitor/" style="color:var(--gold-lt);font-weight:700">🔍 链上搜索</a>
     <a href="tools/onchain-withdraw/" style="color:var(--gold-lt);font-weight:700">💸 链上提币</a>
     <a href="live/" style="color:var(--gold-lt);font-weight:700">📺 线上直播</a>
     <a href="live-cloud/" style="color:var(--gold-lt);font-weight:700">🎬 木火夜聊</a>
@@ -1123,7 +1122,7 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
     var q=(inp.value||"").trim().slice(0,80);
     if(!q)return;
     if(sens(q)){warn("⚠️ 请不要输入助记词/私钥/密码。本工具只需要公开地址或交易哈希。");inp.value="";return;} // 绝不发送/写URL
-    if(EA.test(q)){location.href="/tools/onchain-search/?q="+encodeURIComponent(q);return;} // 地址公开,可带URL自动查
+    if(EA.test(q)){location.href="/tools/origin-monitor/?q="+encodeURIComponent(q);return;} // 地址→一体化链上搜索/监控页,可带URL自动查
     if(TH.test(q)){location.href="/tools/onchain-search/";return;} // 交易哈希与私钥同形,不放URL,到工具页由用户输入
     warn("请输入有效的钱包地址、合约地址(0x+40位)或交易哈希(0x+64位)");
   }
