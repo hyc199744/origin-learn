@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index,follow">
+<title>起源链上监控中心 · 钱包查询 / V1-V6 / 大户 · Web3Origin</title>
+<meta property="og:site_name" content="Web3Origin">
+<meta name="description" content="输入钱包地址查 Polygon / Anubis 双链 Origin/LGNS 资产与 DAO 等级团队业绩，并实时监控全网 V1-V6 等级分布、10万+大户、供应、国库、销毁。只查公开数据，不需连钱包、不需签名。">
+<link rel="canonical" href="https://web3origin.com/tools/origin-monitor/">
+<link rel="icon" href="/assets/favicon.png">
+<style>
+:root{--bg:#0b0d10;--panel:#14181d;--panel2:#1b2027;--line:#2a323c;--gold:#e8c069;--gold2:#f3d68a;--txt:#e8edf2;--dim:#8b97a5;--green:#4ecb8d;--red:#e06a6a}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#0b0d10,#0e1319);color:var(--txt);font:15px/1.6 -apple-system,"Segoe UI",Roboto,"Microsoft YaHei",sans-serif;min-height:100vh}
+.wrap{max-width:940px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:24px;margin:0 0 4px;color:var(--gold);letter-spacing:.5px}
+h1 span{color:var(--txt)}
+.sub{color:var(--dim);font-size:13px;margin-bottom:18px}
+.safe{background:rgba(78,203,141,.08);border:1px solid rgba(78,203,141,.3);color:#a9e6c6;border-radius:10px;padding:9px 13px;font-size:12.5px;margin-bottom:18px}
+.box{display:flex;gap:10px;margin-bottom:14px}
+input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 15px;color:var(--txt);font-size:15px;font-family:ui-monospace,Consolas,monospace}
+input:focus{outline:none;border-color:var(--gold)}
+button.go{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1205;border:none;border-radius:10px;padding:0 22px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
+button.go:disabled{opacity:.5;cursor:wait}
+.status{color:var(--dim);font-size:13px;min-height:20px;margin-bottom:10px}
+.total{background:linear-gradient(135deg,#171b21,#1d2530);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;text-align:center}
+.total .lab{color:var(--dim);font-size:13px}
+.total .big{font-size:34px;font-weight:800;color:var(--gold);margin:2px 0}
+.total .split{display:flex;justify-content:center;gap:26px;margin-top:8px;flex-wrap:wrap}
+.total .split div{font-size:13px;color:var(--dim)}
+.total .split b{color:var(--txt);font-size:16px;display:block}
+.chain{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+.chain h2{margin:0 0 12px;font-size:17px;display:flex;align-items:center;gap:8px}
+.tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--panel2);color:var(--dim);border:1px solid var(--line)}
+.meta{color:var(--dim);font-size:12px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:6px}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.card .k{color:var(--dim);font-size:12px}
+.card .v{font-size:19px;font-weight:700;margin-top:2px;word-break:break-all}
+.card .v.gold{color:var(--gold)}
+.sec{margin-top:14px}
+.sec .t{font-size:14px;color:var(--gold2);margin-bottom:8px;font-weight:600}
+.pos{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;font-size:13px}
+.pos .top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.pos .amt{font-weight:700;color:var(--gold)}
+.pos .det{color:var(--dim);font-size:12px;margin-top:3px;display:flex;gap:14px;flex-wrap:wrap}
+.badge{font-size:11px;padding:1px 7px;border-radius:20px;background:rgba(78,203,141,.14);color:var(--green);border:1px solid rgba(78,203,141,.3)}
+.unknown{color:var(--dim);font-size:12.5px;margin-top:12px;padding:9px 12px;background:rgba(224,106,106,.06);border:1px dashed rgba(224,106,106,.3);border-radius:9px}
+.verify{color:var(--gold);text-decoration:none;font-size:12px;border:1px solid var(--line);padding:2px 9px;border-radius:20px}
+.verify:hover{border-color:var(--gold)}
+.chainsum{border-top:1px solid var(--line);margin-top:12px;padding-top:10px;font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.chainsum b{color:var(--gold)}
+.err{color:var(--red);font-size:12px;margin-top:8px}
+.foot{color:var(--dim);font-size:12px;text-align:center;margin-top:24px;line-height:1.8}
+.hint{color:var(--dim);font-size:12.5px;margin:6px 0 0}
+/* ==== 监控中心追加样式 ==== */
+.mdiv{border:none;border-top:1px solid var(--line);margin:34px 0 8px}
+.mh{font-size:20px;color:var(--gold);margin:0 0 4px}.mh span{color:var(--txt)}
+.mdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:middle}
+.mdot.off{background:var(--red)}
+.msec-h{font-size:15px;margin:22px 0 10px;color:var(--txt);border-left:3px solid var(--gold);padding-left:9px}
+.pill{font-size:10px;padding:1px 7px;border-radius:20px;border:1px solid var(--line);color:var(--dim)}
+.pill.live{color:var(--green);border-color:rgba(78,203,141,.4)}
+.pill.snap{color:#e8a45c;border-color:rgba(232,164,92,.4)}
+.pill.poly{color:#a97bff;border-color:rgba(169,123,255,.4)}
+.pill.anb{color:var(--gold);border-color:rgba(232,192,105,.4)}
+.levels{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.lv{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
+.lv .n{font-size:12px;color:var(--dim)}.lv .c{font-size:22px;font-weight:800;color:var(--gold);margin-top:2px}
+.bar{height:5px;background:#0a0d12;border-radius:3px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+table.mt{width:100%;border-collapse:collapse;font-size:12.5px}
+table.mt th,table.mt td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.mt th{color:var(--dim);font-weight:600}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mono{font-family:ui-monospace,Consolas,monospace}
+a.lnk{color:var(--gold);text-decoration:none}a.lnk:hover{text-decoration:underline}
+.up{color:var(--green);font-weight:700}
+.scroll{overflow-x:auto}
+.mnote{color:var(--dim);font-size:12px;background:var(--panel);border:1px dashed var(--line);border-radius:9px;padding:11px 13px;margin-top:8px;line-height:1.7}
+@media(max-width:560px){.box{flex-direction:column}.total .big{font-size:28px}.levels{grid-template-columns:repeat(3,1fr)}.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="margin-bottom:14px"><a href="/" style="color:var(--gold);text-decoration:none;font-weight:700;font-size:15px">← 起源 Web3 学习站</a></div>
+  <h1>起源 <span>链上监控中心</span></h1>
+  <div class="sub">输入任意钱包地址，查询其在 Polygon + Anubis 双链的 Origin / LGNS 生态资产 · 纯链上实时数据</div>
+  <div class="safe">🔒 本站仅查询公开链上数据，<b>不需要连接钱包、不需要签名、不需要授权</b>。只输入公开地址即可。</div>
+  <div class="box">
+    <input id="addr" placeholder="0x 开头的钱包地址" spellcheck="false" autocomplete="off">
+    <button class="go" id="btn">查询资产</button>
+  </div>
+  <div class="hint">试试：<a href="#" class="ex" data-a="0xd5b610963deec4fae7d17a5191e80bb7281aadc5">0xd5b6…adc5（两链都有持仓）</a></div>
+  <div class="status" id="status"></div>
+  <div id="out"></div>
+  <div class="foot">
+    数据来源：Polygon / Anubis 公开 RPC 实时读取，每个数字均可点「链上验证」自行核对。<br>
+    单钱包查询中的 DAO等级 / 团队业绩为链上不直读项，见下方「全生态监控」板块（等级走链上 daoLevel）。
+  </div>
+
+  <hr class="mdiv">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <div><h2 class="mh">起源全生态 <span>链上监控中心</span></h2>
+    <div class="sub" style="margin:0">全网 DAO 等级 · 大户 · 供应 · 国库 · 销毁 — 链上实测</div></div>
+    <button class="go" id="mrf" style="padding:8px 16px">刷新实时</button>
+  </div>
+  <div class="status" style="margin-top:8px"><span class="mdot" id="mdot"></span><span id="mst"></span></div>
+
+  <div class="msec-h">核心链上指标</div>
+  <div class="grid" id="mcore"></div>
+
+  <div class="msec-h">官方核心指标 <span class="pill snap">后台口径·非链上</span></div>
+  <div class="grid" id="mofficial"></div>
+
+  <div class="msec-h">DAO 等级 V1–V6 分布 <span class="pill anb">Anubis</span> <span class="pill snap">链上daoLevel</span></div>
+  <div class="levels" id="mlevels"></div>
+  <div class="mnote" id="mlvnote"></div>
+
+  <div class="msec-h">最新晋升记录</div>
+  <div class="scroll"><table class="mt" id="mpromos"><thead><tr><th>钱包</th><th>变化</th><th>区块</th><th>交易</th></tr></thead><tbody></tbody></table></div>
+
+  <div class="msec-h">个人持仓 10万+ 大户 <span style="color:var(--dim);font-size:12px;font-weight:400">钱包LGNS + 活期sLGNS 合并 · 仅EOA</span></div>
+  <div class="two">
+    <div class="card"><div class="k"><span class="pill poly">Polygon</span> 大户</div><div class="v gold" id="mpwc"></div><div class="scroll" style="margin-top:8px"><table class="mt" id="mpwt"><tbody></tbody></table></div></div>
+    <div class="card"><div class="k"><span class="pill anb">Anubis</span> 大户</div><div class="v gold" id="mawc"></div><div class="scroll" style="margin-top:8px"><table class="mt" id="mawt"><tbody></tbody></table></div></div>
+  </div>
+
+  <div class="msec-h">供应 · 国库 · 销毁</div>
+  <div class="grid" id="massets"></div>
+
+  <div class="foot" id="mfoot"></div>
+</div>
+<script>
+const CHAINS={
+ polygon:{name:'Polygon',chainId:137,native:'POL',explorer:'https://polygonscan.com/address/',
+  rpcs:['https://polygon-bor-rpc.publicnode.com','https://polygon.drpc.org','https://polygon-rpc.com'],
+  tokens:{LGNS:'0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01',sLGNS:'0x99a57E6C8558BC6689f894e068733ADf83C19725'},
+  pool:'0x882df4B0fB50a229C3B4124EB18c759911485bFb',
+  lockStakes:[{label:'600天质押',addr:'0x8cA97F41d2C81AF050656e8AD0Cf543820a24504'}],
+  bonds:[{label:'360债券',addr:'0x6c0Ac888b075c6b5141cbC1Da6170B6686aFd07D'}]},
+ anubis:{name:'Anubis',chainId:6714,native:'DAI',explorer:'https://browser.anubispace.org/address/',
+  rpcs:['https://rpc.anubispace.org'],
+  tokens:{LGNS:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',sLGNS:'0x2243aE29F73137d678197b61B0621AE942845B8C',GLGNS:'0xf140a92C156e76F5A1d3D6f96284b250330F8F4c'},
+  pool:'0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0',
+  lockStakes:[{label:'360天质押',addr:'0x88ea98af226Cd4402A3873400308a4D78784eCE6'},{label:'600天质押',addr:'0x04eD22c6d1D020A9B5e032E93D79ab28293EF72f'}],
+  bonds:[]}
+};
+const SEL={balanceOf:'0x70a08231',decimals:'0x313ce567',getReserves:'0x0902f1ac',token0:'0x0dfe1681',
+ getUserStakesCount:'0x98dc8dea',stakes:'0x584b62a1',getDepositorBalance:'0xb79215d6',getStakedAmount:'0x4da6a556'};
+const encAddr=a=>a.toLowerCase().replace(/^0x/,'').padStart(64,'0');
+const encU=n=>BigInt(n).toString(16).padStart(64,'0');
+const okHex=h=>h&&h!=='0x';
+const toBig=h=>okHex(h)?BigInt(h):0n;
+const decAddr=h=>'0x'+h.replace(/^0x/,'').slice(24);
+function reserves(h){const s=h.replace(/^0x/,'');return{r0:BigInt('0x'+s.slice(0,64)),r1:BigInt('0x'+s.slice(64,128))};}
+function words(h){const s=h.replace(/^0x/,'');const w=[];for(let i=0;i<s.length;i+=64)w.push(BigInt('0x'+s.slice(i,i+64)));return w;}
+function fmt(raw,dec){let n=raw<0n;if(n)raw=-raw;const b=10n**BigInt(dec);const i=raw/b;let f=(raw%b).toString().padStart(dec,'0').replace(/0+$/,'');return(n?'-':'')+i.toString()+(f?'.'+f:'');}
+function pretty(raw,dec){let[i,f='']=fmt(raw,dec).split('.');i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,6);return f?i+'.'+f:i;}
+function toDai(raw9,ps){return ps==null?'—':pretty(raw9*ps/10n**9n,6);}
+async function rpc(rpcs,method,params){let e;for(const url of rpcs){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),9000);
+ const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),signal:c.signal});
+ clearTimeout(t);const j=await r.json();if(j.error)throw new Error(j.error.message);return j.result;}catch(x){e=x;}}throw e;}
+const call=(rpcs,to,data)=>rpc(rpcs,'eth_call',[{to,data},'latest']);
+async function blockTime(cfg){try{const cur=Number(toBig(await rpc(cfg.rpcs,'eth_blockNumber',[])));const back=Math.max(1,cur-100000);
+ const[b2,b1]=await Promise.all([rpc(cfg.rpcs,'eth_getBlockByNumber',['0x'+cur.toString(16),false]),rpc(cfg.rpcs,'eth_getBlockByNumber',['0x'+back.toString(16),false])]);
+ const t2=Number(toBig(b2.timestamp)),t1=Number(toBig(b1.timestamp));return{cur,ts:t2,spb:(t2-t1)/(cur-back)};}catch(e){return null;}}
+const blkDate=(blk,bt)=>!bt?'—':new Date((bt.ts+(Number(blk)-bt.cur)*bt.spb)*1000).toISOString().slice(0,10);
+const remainDays=(blk,bt)=>!bt?'—':Math.round((Number(blk)-bt.cur)*bt.spb/86400);
+async function query(key,addr){
+ const cfg=CHAINS[key];const o={cfg,block:'—',balances:{},price:null,positions:[],bonds:[],bt:null,errors:[]};
+ try{o.block=Number(toBig(await rpc(cfg.rpcs,'eth_blockNumber',[]))).toString();}catch(e){o.errors.push('区块:'+e.message);}
+ o.bt=await blockTime(cfg);
+ for(const[sym,tk]of Object.entries(cfg.tokens)){try{const d=Number(toBig(await call(cfg.rpcs,tk,SEL.decimals)));
+  const b=toBig(await call(cfg.rpcs,tk,SEL.balanceOf+encAddr(addr)));o.balances[sym]={raw:b,dec:d};}catch(e){o.balances[sym]=null;o.errors.push(sym);}}
+ try{const t0=decAddr(await call(cfg.rpcs,cfg.pool,SEL.token0)).toLowerCase();const{r0,r1}=reserves(await call(cfg.rpcs,cfg.pool,SEL.getReserves));
+  const l0=t0===cfg.tokens.LGNS.toLowerCase();const lr=l0?r0:r1,dr=l0?r1:r0;if(lr>0n)o.price=(dr*10n**6n*10n**9n)/(lr*10n**18n);}catch(e){o.errors.push('池价');}
+ for(const ls of cfg.lockStakes){try{const cnt=Number(toBig(await call(cfg.rpcs,ls.addr,SEL.getUserStakesCount+encAddr(addr))));
+  const total=toBig(await call(cfg.rpcs,ls.addr,SEL.getDepositorBalance+encAddr(addr)));const items=[];
+  for(let i=0;i<cnt&&i<50;i++){const w=words(await call(cfg.rpcs,ls.addr,SEL.stakes+encAddr(addr)+encU(i)));
+   items.push({principal:w[0],matBlk:w[3],startBlk:w[5],status:w[7],accrued:w[10]});}
+  if(cnt>0||total>0n)o.positions.push({label:ls.label,addr:ls.addr,count:cnt,total,items});}catch(e){o.errors.push(ls.label);}}
+ for(const bd of cfg.bonds){try{const dep=toBig(await call(cfg.rpcs,bd.addr,SEL.getDepositorBalance+encAddr(addr)));
+  const stk=toBig(await call(cfg.rpcs,bd.addr,SEL.getStakedAmount+encAddr(addr)));if(dep>0n||stk>0n)o.bonds.push({label:bd.label,addr:bd.addr,dep,stk});}catch(e){}}
+ return o;
+}
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function chainHTML(o){
+ const c=o.cfg;const b=o.balances;const wL=b.LGNS?b.LGNS.raw:null,sL=b.sLGNS?b.sLGNS.raw:null;
+ let total=0n,known=true;if(wL!=null)total+=wL;else known=false;if(sL!=null)total+=sL;else known=false;
+ o.positions.forEach(p=>total+=p.total);
+ let h=`<div class="chain"><h2>${c.name} <span class="tag">chainId ${c.chainId}</span></h2>`;
+ h+=`<div class="meta">区块高度 ${o.block} · 出块≈${o.bt?o.bt.spb.toFixed(2)+'s':'—'} · LGNS 现价 ${o.price!=null?fmt(o.price,6):'—'} DAI</div>`;
+ h+=`<div class="grid">`;
+ h+=card('钱包 LGNS 余额',wL==null?'UNKNOWN':pretty(wL,b.LGNS.dec),true);
+ h+=card('活期质押 sLGNS',sL==null?'UNKNOWN':pretty(sL,b.sLGNS.dec));
+ if(b.GLGNS)h+=card('GLGNS 治理',pretty(b.GLGNS.raw,b.GLGNS.dec));
+ h+=`</div>`;
+ for(const p of o.positions){
+  h+=`<div class="sec"><div class="t">${p.label} · ${p.count}笔 · 本金合计 ${pretty(p.total,9)} LGNS</div>`;
+  p.items.forEach((it,i)=>{h+=`<div class="pos"><div class="top"><span class="amt">#${i+1} 本金 ${pretty(it.principal,9)} LGNS</span><span class="badge">${it.status==1n?'质押中':'状态'+it.status}</span></div>
+   <div class="det"><span>起 ${blkDate(it.startBlk,o.bt)}</span><span>到期 ${blkDate(it.matBlk,o.bt)}</span><span>剩 ${remainDays(it.matBlk,o.bt)} 天</span><span>待领≈${pretty(it.accrued,9)} LGNS</span></div></div>`;});
+  h+=`</div>`;
+ }
+ for(const bd of o.bonds){h+=`<div class="sec"><div class="t">${bd.label}</div><div class="pos"><div class="det"><span>getDepositorBalance ${pretty(bd.dep,9)}</span><span>getStakedAmount ${pretty(bd.stk,9)}</span><span style="color:#e0a06a">⚠字段含义待与官方核对，暂不计入总资产</span></div></div></div>`;}
+ h+=`<div class="unknown">蛛网奖励 / DAO奖励 / DAO等级 / V1-V6 / 团队业绩 / 推荐关系 = <b>UNKNOWN</b>（项目方后台挂账，链上不可验证，本站不显示）</div>`;
+ h+=`<div class="chainsum"><span>本链可验证 LGNS 资产：<b>${known?pretty(total,9):pretty(total,9)+'+'} LGNS</b> ≈ ${o.price!=null?toDai(total,o.price):'—'} DAI</span>
+   <a class="verify" href="${c.explorer}${document.getElementById('addr').value.trim()}" target="_blank">🔗 链上验证</a></div>`;
+ if(o.errors.length)h+=`<div class="err">部分读取失败：${esc(o.errors.join('、'))}</div>`;
+ h+=`</div>`;
+ return{html:h,total,known,price:o.price};
+}
+function card(k,v,gold){return`<div class="card"><div class="k">${k}</div><div class="v ${gold?'gold':''}">${v}</div></div>`;}
+async function fetchCommunity(addr){
+ try{const c=new AbortController();const t=setTimeout(()=>c.abort(),9000);
+  const r=await fetch('https://apiv2.ocros.io/api/v1/community/'+addr,{headers:{'Referer':'https://rocket.origindefi.io/'},signal:c.signal});
+  clearTimeout(t);if(!r.ok)return null;const d=await r.json();if(!d||!d.address)return null;return d;}catch(e){return null;}
+}
+function daoHTML(d){
+ if(!d)return `<div class="chain"><h2>DAO 身份 · 团队业绩 <span class="tag" style="color:#e0a06a">官方后台口径</span></h2><div class="meta">该地址在官方社区体系中暂无记录，或接口暂不可用。</div></div>`;
+ const up=(d.rewardPath||[]).find(x=>/Peer/i.test(x.type||''));
+ const upline=up&&up.source?up.source:null;
+ const n=x=>x?Number(x).toLocaleString(undefined,{maximumFractionDigits:2}):'0';
+ let h=`<div class="chain"><h2>DAO 身份 · 团队业绩 <span class="tag" style="color:#e0a06a">官方后台口径·非链上</span></h2>`;
+ h+=`<div class="grid">`;
+ h+=card('DAO 等级', d.level&&+d.level>0?('V'+d.level):'未定级', true);
+ h+=card('团队业绩合计', n(d.stake)+' LGNS');
+ h+=card('本人质押合计', n(d.amount)+' LGNS');
+ h+=`</div>`;
+ h+=`<div class="sec"><div class="t">团队业绩分链</div><div class="pos"><div class="det"><span>Polygon线 ${n(d.polygonStake)} LGNS</span><span>Anubis线 ${n(d.anubisStake)} LGNS</span></div></div></div>`;
+ if(upline)h+=`<div class="sec"><div class="t">推荐上线</div><div class="pos"><div class="det"><span class="mono">${upline}</span><a class="verify" href="https://browser.anubispace.org/address/${upline}" target="_blank" style="margin-left:8px">🔗</a></div></div></div>`;
+ h+=`<div class="unknown">以上等级/团队/上线来自项目方后台接口(apiv2.ocros.io)，<b>非链上可独立验证</b>。其中「DAO等级」在 Anubis 链上有 daoLevel 记录可交叉核对，团队业绩/上线仅后台口径。</div></div>`;
+ return h;
+}
+async function run(){
+ const addr=document.getElementById('addr').value.trim();
+ const out=document.getElementById('out'),st=document.getElementById('status'),btn=document.getElementById('btn');
+ out.innerHTML='';
+ if(!/^0x[0-9a-fA-F]{40}$/.test(addr)){st.textContent='⚠ 请输入正确的 0x 开头 42 位钱包地址';return;}
+ btn.disabled=true;st.textContent='正在读取 Polygon + Anubis 两条链的链上数据…';
+ try{
+  const[p,a,comm]=await Promise.all([query('polygon',addr),query('anubis',addr),fetchCommunity(addr)]);
+  const rp=chainHTML(p),ra=chainHTML(a);
+  const sum=rp.total+ra.total;
+  let head=`<div class="total"><div class="lab">两链可验证 LGNS 资产合计</div><div class="big">${pretty(sum,9)} LGNS</div>
+   <div class="split"><div>Polygon<b>${pretty(rp.total,9)} LGNS</b>${rp.price!=null?'≈'+toDai(rp.total,rp.price)+' DAI':''}</div>
+   <div>Anubis<b>${pretty(ra.total,9)} LGNS</b>${ra.price!=null?'≈'+toDai(ra.total,ra.price)+' DAI':''}</div></div>
+   <div style="color:#8b97a5;font-size:11.5px;margin-top:8px">两链价格不同，分别按各自 LGNS/DAI 池计价，不混算</div></div>`;
+  out.innerHTML=head+daoHTML(comm)+rp.html+ra.html;
+  st.textContent='查询完成 · 数据更新时间 '+new Date().toLocaleString('zh-CN')+'（日期按实测出块速率估算）';
+ }catch(e){st.textContent='查询出错：'+e.message;}
+ btn.disabled=false;
+}
+document.getElementById('btn').onclick=run;
+document.getElementById('addr').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+document.querySelectorAll('.ex').forEach(el=>el.onclick=e=>{e.preventDefault();document.getElementById('addr').value=el.dataset.a;run();});
+</script>
+<script>
+// ==== 全生态监控中心(独立作用域) 数据为 2026-08-20 链上实测快照 ====
+(function(){
+const SNAP={at:'2026-08-20',
+ polyPrice:'1.2938',anbPrice:'1.8093',
+ supP:'4813228866',supA:'2587613151',ssupP:'5175543079',ssupA:'1909211082',
+ treDai:'11921089',treUsdt:'2307888',burnP:'8102358',burnA:'440341318',
+ levels:{1:20590,2:3215,3:1331,4:1012,5:837,6:153},v1plus:27138,events:75475,promo24h:111,
+ official:{runway:'397.9',stakeRate:'94.71',rfv:'4951397517',tvl:'5878479869',burnTotal:'145244509'},
+ promos:[
+  ['0x43debecf50ce92d107667357c9d149bdac70f619',2,3,11683649,'0xf00ede8c3c747e2e89ad0a6ecb826a5f0054c6c3a0632c7ce73bbab9fb965ab5'],
+  ['0x3b78be598b8e3f5cd02846a043127ea3415173cd',2,3,11683580,'0x0e3e71c4fc04f57a4d0f4fb5d5edb51decb90d371a904e90912c8b95a54e54dc'],
+  ['0x3b3e25c051ce4efa53c1ce201f1918d7ce2b30ee',1,2,11683580,'0x0e3e71c4fc04f57a4d0f4fb5d5edb51decb90d371a904e90912c8b95a54e54dc'],
+  ['0x39a00a5b7441d56a78d9fe665c29b9e0bd47fa01',2,3,11683559,'0x47a7c083216917572a1dfd9a64cf22e2a3c1da7f3564cb855dbf63ceb4d29f8f'],
+  ['0x396c0e7803710918e270267c944939d4c064f89e',2,3,11683559,'0x47a7c083216917572a1dfd9a64cf22e2a3c1da7f3564cb855dbf63ceb4d29f8f'],
+  ['0x395d7ec98f99ee79d06663c06090d7086496add5',1,2,11683559,'0x47a7c083216917572a1dfd9a64cf22e2a3c1da7f3564cb855dbf63ceb4d29f8f'],
+ ],
+ polyWhales:{count:73,top:[
+  ['0xbaebae93d995b0992dde79cb0bf50eb9edcc9b4e','796,533'],['0xf45c9df6a92929310e3e3414aee08f4f6a499a4c','533,691'],
+  ['0x8db492ef9c4ad8bee1192de2cbe53a3aba100981','328,080'],['0x5612e1ba204d5607c558b492e42a9a758f7d5789','305,477'],
+  ['0xe7597e1c3020caf8cba0ad31a3d4339bd079fb44','303,997'],['0xb9e12035b128f7017e3ea4cf874c3778db1cca7b','303,093'],
+  ['0x6c5ebada9f52e1556bfc86d7aff44863b937e2a2','293,988'],['0x219ff4d5c306d90c3bd8703df2ff01bb6e910b12','280,025'],
+  ['0xbb44097f03681feb037e6fe677401f632170ff17','259,726'],['0x51c1b9f105391d78cce8a693b2806250a71a26a0','255,203'],
+ ]},
+ anbWhales:{count:1,top:[['0x3dd4d969c662f02520167e3b60302f0ce885da96','107,961']]},
+};
+const EX={poly:'https://polygonscan.com/address/',anb:'https://browser.anubispace.org/address/',anbtx:'https://browser.anubispace.org/tx/'};
+const $=id=>document.getElementById(id);
+const short=a=>a.slice(0,8)+'…'+a.slice(-4);
+const comma=s=>String(s).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const big=h=>h?BigInt(h):0n;
+const g=(r,d)=>(big(r)/(10n**BigInt(d))).toString();
+const mcard=(k,v,sub)=>`<div class="card"><div class="k">${k}</div><div class="v gold">${v}</div>${sub?`<div style="color:var(--dim);font-size:11.5px;margin-top:2px">${sub}</div>`:''}</div>`;
+function renderCore(d,live){
+ const t=live?'<span class="pill live">实时</span>':'<span class="pill snap">快照</span>';
+ const tre=comma((BigInt(d.treDai)+BigInt(d.treUsdt)).toString());
+ $('mcore').innerHTML=
+  mcard('<span class="pill poly">Polygon</span> LGNS 价格 '+t,d.polyPrice+' DAI','QuickSwap V2 主池')+
+  mcard('<span class="pill anb">Anubis</span> LGNS 价格 '+t,d.anbPrice+' DAI','Anubis DEX 主池')+
+  mcard('Polygon 国库硬储备 '+t,'$'+tre,'DAI '+comma(d.treDai)+' + USDT '+comma(d.treUsdt))+
+  mcard('DAO V1+ 总人数 <span class="pill snap">快照</span>',comma(SNAP.v1plus),'见下方等级分布');
+ $('massets').innerHTML=
+  mcard('<span class="pill poly">Poly</span> LGNS 供应 '+t,comma(d.supP),'sLGNS '+comma(d.ssupP))+
+  mcard('<span class="pill anb">Anubis</span> LGNS 供应 '+t,comma(d.supA),'sLGNS '+comma(d.ssupA))+
+  mcard('Polygon 已销毁 '+t,comma(d.burnP),'dEaD 地址')+
+  mcard('Anubis 已销毁 '+t,comma(d.burnA),'dEaD 地址');
+}
+function renderOfficial(o,live){
+ const t=live?'<span class="pill live">实时</span>':'<span class="pill snap">快照</span>';
+ const usd=v=>'$'+comma(Math.round(Number(v)).toString());
+ $('mofficial').innerHTML=
+  mcard('平台 Runway '+t,(o.runway||'—')+' 天','官方口径可运行周期')+
+  mcard('质押率 '+t,(o.stakeRate||'—')+' %','已质押/总供应')+
+  mcard('累计销毁 LGNS '+t,comma(Math.round(Number(o.burnTotal)).toString()),'官方 totalBurn')+
+  mcard('国库无风险价值 '+t,usd(o.rfv),'⚠账面记账数,含注水,非硬储备');
+}
+function renderSnap(){
+ renderCore(SNAP,false);
+ renderOfficial(SNAP.official,false);
+ const mx=Math.max(...Object.values(SNAP.levels));
+ $('mlevels').innerHTML=[1,2,3,4,5,6].map(l=>`<div class="lv"><div class="n">V${l}</div><div class="c">${comma(SNAP.levels[l])}</div><div class="bar"><i style="width:${SNAP.levels[l]/mx*100}%"></i></div></div>`).join('');
+ $('mlvnote').innerHTML=`共 <b>${comma(SNAP.v1plus)}</b> 个 V1+ 地址 · 过去24小时新增晋升 <b style="color:var(--green)">${SNAP.promo24h}</b> 笔 · 扫描 <b>${comma(SNAP.events)}</b> 条链上 daoLevel 事件（合约 0x579a71…，Anubis）。等级由官方按"三条线各≥5万"规则算好后写入链上，本站只读链上最终 daoLevel，可独立验证。<b>Polygon 无此等级系统</b>。`;
+ $('mpromos').querySelector('tbody').innerHTML=SNAP.promos.map(p=>`<tr><td><a class="lnk mono" href="${EX.anb}${p[0]}" target="_blank">${short(p[0])}</a></td><td class="up">V${p[1]} → V${p[2]}</td><td class="mono">${comma(p[3])}</td><td><a class="lnk mono" href="${EX.anbtx}${p[4]}" target="_blank">${p[4].slice(0,10)}…</a></td></tr>`).join('');
+ $('mpwc').textContent=SNAP.polyWhales.count+' 人';
+ $('mpwt').querySelector('tbody').innerHTML=SNAP.polyWhales.top.map((w,i)=>`<tr><td>${i+1}</td><td><a class="lnk mono" href="${EX.poly}${w[0]}" target="_blank">${short(w[0])}</a></td><td style="text-align:right">${w[1]}</td></tr>`).join('')+`<tr><td colspan=3 style="color:var(--dim)">…共 ${SNAP.polyWhales.count} 人（上线后可展开全部）</td></tr>`;
+ $('mawc').textContent=SNAP.anbWhales.count+' 人';
+ $('mawt').querySelector('tbody').innerHTML=SNAP.anbWhales.top.map((w,i)=>`<tr><td>${i+1}</td><td><a class="lnk mono" href="${EX.anb}${w[0]}" target="_blank">${short(w[0])}</a></td><td style="text-align:right">${w[1]}</td></tr>`).join('');
+ $('mfoot').innerHTML=`口径：价格/供应/国库/销毁可实时读链，连不上海外节点则显示 ${SNAP.at} 快照；V1-V6 与大户名单需后端定时扫描，当前为 ${SNAP.at} 链上实测。大户=钱包LGNS + 直接持sLGNS(活期) 合并去重，仅EOA，已排除合约/池/国库/销毁/项目钱包；不含360/600锁仓/债券/warmup/未领奖励。`;
+ $('mdot').className='mdot';$('mst').innerHTML='已显示 '+SNAP.at+' 链上快照 · 尝试连节点刷新实时…';
+}
+const RPC={poly:['https://polygon-bor-rpc.publicnode.com','https://polygon.drpc.org','https://polygon-rpc.com'],anb:['https://rpc.anubispace.org']};
+async function mcall(rpcs,to,data){for(const u of rpcs){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),9000);const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to,data},'latest']}),signal:c.signal});clearTimeout(t);const j=await r.json();if(j.result&&j.result!=='0x')return j.result;}catch(e){}}return null;}
+const enc=a=>a.toLowerCase().replace(/^0x/,'').padStart(64,'0');
+function resv(h){const s=h.replace(/^0x/,'');return[BigInt('0x'+s.slice(0,64)),BigInt('0x'+s.slice(64,128))];}
+async function loadLive(){
+ const rf=$('mrf');rf.disabled=true;
+ const AL='0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01',NL='0x4D1D808a081FdAc440703b3765FC61f8028C06B8';
+ const TRE='0x7B9B7d4F870A38e92c9a181B00f9b33cc8Ef5321',DEAD='0x000000000000000000000000000000000000dEaD';
+ try{
+  const pr=await mcall(RPC.poly,'0x882df4B0fB50a229C3B4124EB18c759911485bFb','0x0902f1ac');
+  const ar=await mcall(RPC.anb,'0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0','0x0902f1ac');
+  if(!pr&&!ar)throw new Error('节点连不上');
+  const d={...SNAP};
+  if(pr){const[a,b]=resv(pr);d.polyPrice=(Number(a*10n**15n/b)/1e6).toFixed(4);}
+  if(ar){const[a,b]=resv(ar);d.anbPrice=(Number(b*10n**15n/a)/1e6).toFixed(4);}
+  const[sp,sa,ssp,ssa,dai,usdt,bp,ba]=await Promise.all([
+   mcall(RPC.poly,AL,'0x18160ddd'),mcall(RPC.anb,NL,'0x18160ddd'),
+   mcall(RPC.poly,'0x99a57E6C8558BC6689f894e068733ADf83C19725','0x18160ddd'),mcall(RPC.anb,'0x2243aE29F73137d678197b61B0621AE942845B8C','0x18160ddd'),
+   mcall(RPC.poly,'0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063','0x70a08231'+enc(TRE)),mcall(RPC.poly,'0xc2132D05D31c914a87C6611C10748AEb04B58e8F','0x70a08231'+enc(TRE)),
+   mcall(RPC.poly,AL,'0x70a08231'+enc(DEAD)),mcall(RPC.anb,NL,'0x70a08231'+enc(DEAD))]);
+  if(sp)d.supP=g(sp,9);if(sa)d.supA=g(sa,9);if(ssp)d.ssupP=g(ssp,9);if(ssa)d.ssupA=g(ssa,9);
+  if(dai)d.treDai=g(dai,18);if(usdt)d.treUsdt=g(usdt,6);if(bp)d.burnP=g(bp,9);if(ba)d.burnA=g(ba,9);
+  renderCore(d,true);
+  try{const[dash,metr]=await Promise.all([
+    fetch('https://apiv2.ocros.io/api/v1/dashboard',{headers:{'Referer':'https://rocket.origindefi.io/'}}).then(r=>r.json()),
+    fetch('https://apiv2.ocros.io/api/v1/metricsv2',{headers:{'Referer':'https://rocket.origindefi.io/'}}).then(r=>r.json())]);
+   const dd=Array.isArray(dash)?dash[0]:dash,mm=Array.isArray(metr)?metr[0]:metr;
+   renderOfficial({runway:(+mm.runwayCurrent).toFixed(1),stakeRate:(+dd.stakeRate).toFixed(2),burnTotal:dd.totalBurn,rfv:dd.treasuryRiskFreeValue,tvl:dd.totalValueLocked},true);
+  }catch(e){}
+  $('mdot').className='mdot';$('mst').innerHTML='✓ 实时数据已更新 · '+new Date().toLocaleString('zh-CN')+' · V1-V6/大户为 '+SNAP.at+' 快照';
+ }catch(e){
+  $('mdot').className='mdot off';$('mst').innerHTML='⚠ 你的网络连不上海外链上节点（可能需开VPN），核心指标显示 '+SNAP.at+' 快照；V1-V6/大户不受影响。';
+ }
+ rf.disabled=false;
+}
+try{ renderSnap(); try{$('mrf').onclick=loadLive;}catch(e){} loadLive(); }
+catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="background:#e06a6a;color:#111;padding:10px">监控脚本出错: '+err.message+'</div>'); }
+})();
+</script>
+</body>
+</html>
