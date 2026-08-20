@@ -10,11 +10,14 @@
 <link rel="canonical" href="https://web3origin.com/tools/origin-monitor/">
 <link rel="icon" href="/assets/favicon.png">
 <style>
-:root{--bg:#0b0d10;--panel:#14181d;--panel2:#1b2027;--line:#2a323c;--gold:#e8c069;--gold2:#f3d68a;--txt:#e8edf2;--dim:#8b97a5;--green:#4ecb8d;--red:#e06a6a}
+:root{--bg:#070806;--panel:#0e100e;--panel2:#141712;--line:rgba(212,175,55,.2);--gold:#d4af37;--gold2:#e8cf7e;--txt:#e9efea;--dim:#7a857c;--soft:#c3cbc4;--green:#25C96F;--red:#ff6b5e;--anb:#e8cf7e;--poly:#a97bff}
 *{box-sizing:border-box}
-body{margin:0;background:linear-gradient(180deg,#0b0d10,#0e1319);color:var(--txt);font:15px/1.6 -apple-system,"Segoe UI",Roboto,"Microsoft YaHei",sans-serif;min-height:100vh}
+body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,rgba(212,175,55,.06),transparent),var(--bg);color:var(--txt);font:15px/1.6 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.top a.home{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--gold2);text-decoration:none}
+.top img{height:26px}
 .wrap{max-width:940px;margin:0 auto;padding:28px 18px 60px}
-h1{font-size:24px;margin:0 0 4px;color:var(--gold);letter-spacing:.5px}
+h1{font-size:24px;margin:0 0 4px;color:var(--gold2);letter-spacing:.5px}
 h1 span{color:var(--txt)}
 .sub{color:var(--dim);font-size:13px;margin-bottom:18px}
 .safe{background:rgba(78,203,141,.08);border:1px solid rgba(78,203,141,.3);color:#a9e6c6;border-radius:10px;padding:9px 13px;font-size:12.5px;margin-bottom:18px}
@@ -24,7 +27,7 @@ input:focus{outline:none;border-color:var(--gold)}
 button.go{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1205;border:none;border-radius:10px;padding:0 22px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
 button.go:disabled{opacity:.5;cursor:wait}
 .status{color:var(--dim);font-size:13px;min-height:20px;margin-bottom:10px}
-.total{background:linear-gradient(135deg,#171b21,#1d2530);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;text-align:center}
+.total{background:linear-gradient(135deg,rgba(212,175,55,.06),var(--panel));border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;text-align:center}
 .total .lab{color:var(--dim);font-size:13px}
 .total .big{font-size:34px;font-weight:800;color:var(--gold);margin:2px 0}
 .total .split{display:flex;justify-content:center;gap:26px;margin-top:8px;flex-wrap:wrap}
@@ -84,7 +87,7 @@ a.lnk{color:var(--gold);text-decoration:none}a.lnk:hover{text-decoration:underli
 </head>
 <body>
 <div class="wrap">
-  <div style="margin-bottom:14px"><a href="/" style="color:var(--gold);text-decoration:none;font-weight:700;font-size:15px">← 起源 Web3 学习站</a></div>
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
   <h1>起源 <span>链上监控中心</span></h1>
   <div class="sub">一个地址，看透一个人在起源的全部——你的私人链上尽调助手。</div>
 
