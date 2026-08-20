@@ -312,15 +312,40 @@ function renderGate(){
   <div class="big" style="font-size:27px">🔓 10 LGNS 一次性解锁</div>
   <div style="color:var(--dim);font-size:13.5px;margin:8px 0 2px;line-height:1.7">一次付费、<b style="color:var(--gold2)">永久使用</b>本页全部查询工具：双链资产 · 360/600明细 · DAO等级团队业绩 · 通用链上体检 · <b style="color:var(--gold2)">完整推荐人+绑定时间</b>。付款后本设备自动识别，换设备可凭订单号找回。</div>
   <button class="go" id="monBuy" style="margin-top:14px;padding:12px 28px;font-size:15px">🔓 支付 10 LGNS 解锁</button>
-  <a href="javascript:void(0)" id="monRestore" style="display:block;color:var(--dim);font-size:12.5px;margin-top:12px">🔎 已付款？凭订单号找回访问</a>
+  <div style="margin-top:12px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+    <a href="javascript:void(0)" id="monMine" style="color:var(--gold2);font-size:12.5px">📋 我的订单 / 查订单号</a>
+    <a href="javascript:void(0)" id="monRestore" style="color:var(--dim);font-size:12.5px">🔎 凭订单号找回访问</a>
+  </div>
   <div id="monPay" style="margin-top:14px;text-align:left"></div></div>`;
  document.getElementById('monBuy').onclick=monStartPay;
  document.getElementById('monRestore').onclick=monRestoreUI;
+ document.getElementById('monMine').onclick=renderMyOrders;
+}
+const MORD='mon_orders_v1';
+function loadMonOrders(){try{return JSON.parse(localStorage.getItem(MORD)||'[]');}catch(e){return[];}}
+function saveMonOrder(o){try{const a=loadMonOrders().filter(x=>x.orderId!==o.orderId);a.unshift({orderId:o.orderId,amount:o.amount,created:Date.now()});localStorage.setItem(MORD,JSON.stringify(a.slice(0,20)));}catch(e){}}
+async function renderMyOrders(){
+ const el=document.getElementById('monPay');if(!el)return;
+ const arr=loadMonOrders();
+ if(!arr.length){el.innerHTML='<div class="pos" style="padding:13px;text-align:center;color:var(--dim)">本设备还没有下单记录。点上面「支付 10 LGNS 解锁」生成订单后，订单号会自动记在这里。</div>';return;}
+ el.innerHTML='<div class="pos" style="padding:13px"><div class="t" style="margin-bottom:8px">我的订单（本设备）</div><div id="monMineList"></div></div>';
+ const box=document.getElementById('monMineList');
+ box.innerHTML=arr.map((o,i)=>`<div style="border:1px solid var(--line);border-radius:9px;padding:10px 11px;margin-bottom:8px">
+   <div class="det" style="justify-content:space-between"><span style="color:var(--dim);font-size:11px">${new Date(o.created).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${o.amount} LGNS</span><span class="mst-${i}" style="font-size:11.5px;color:var(--gold2)">查状态中…</span></div>
+   <div class="det" style="margin-top:5px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1;font-size:11.5px">${o.orderId}</code><button class="verify" data-c="${o.orderId}">复制订单号</button></div></div>`).join('');
+ box.querySelectorAll('[data-c]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent='已复制✓';setTimeout(()=>b.textContent=t,1200);};});
+ arr.forEach(async(o,i)=>{let c;try{c=await fetch(WK+'/mon/check?order='+o.orderId).then(r=>r.json());}catch(e){return;}
+   const s=box.querySelector('.mst-'+i);if(!s)return;
+   if(c&&c.status==='paid'&&c.access){s.innerHTML='<b style="color:#7bffb0">✓ 已付款 · 点恢复</b>';s.style.cursor='pointer';s.onclick=()=>monGrant(c.access);}
+   else if(c&&c.status==='canceled')s.innerHTML='<span style="color:var(--dim)">已取消</span>';
+   else s.innerHTML='<span style="color:var(--gold2)">● 待付款</span>';
+ });
 }
 async function monStartPay(){
  const el=document.getElementById('monPay');el.innerHTML='<div class="meta" style="text-align:center">正在生成订单…</div>';
  let o;try{o=await fetch(WK+'/mon/order').then(r=>r.json());}catch(e){el.innerHTML='<div class="err">生成订单失败，稍后再试</div>';return;}
  if(!o||!o.ok){el.innerHTML='<div class="err">生成订单失败，稍后再试</div>';return;}
+ saveMonOrder(o);
  monShowPay(el,o);
 }
 function monShowPay(el,o){
