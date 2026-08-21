@@ -140,10 +140,6 @@ a.lnk{color:var(--gold);text-decoration:none}a.lnk:hover{text-decoration:underli
   <div id="out"></div>
   </div>
   <div id="monitorContent" style="display:none">
-  <div class="foot">
-    数据来源：Polygon / Anubis 公开 RPC 实时读取，每个数字均可点「链上验证」自行核对。<br>
-    单钱包查询中的 DAO等级 / 团队业绩为链上不直读项，见下方「全生态监控」板块（等级走链上 daoLevel）。
-  </div>
 
   <hr class="mdiv">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
@@ -156,10 +152,10 @@ a.lnk{color:var(--gold);text-decoration:none}a.lnk:hover{text-decoration:underli
   <div class="msec-h">核心链上指标</div>
   <div class="grid" id="mcore"></div>
 
-  <div class="msec-h">官方核心指标 <span class="pill snap">后台口径·非链上</span></div>
+  <div class="msec-h">官方核心指标</div>
   <div class="grid" id="mofficial"></div>
 
-  <div class="msec-h">DAO 等级 V1–V6 分布 <span class="pill anb">Anubis</span> <span class="pill snap">链上daoLevel</span></div>
+  <div class="msec-h">DAO 等级 V1–V6 分布 <span class="pill anb">Anubis</span></div>
   <div class="levels" id="mlevels"></div>
   <div class="mnote" id="mlvnote"></div>
 
@@ -269,7 +265,7 @@ function daoHTML(d){
  const up=(d.rewardPath||[]).find(x=>/Peer/i.test(x.type||''));
  const upline=up&&up.source?up.source:null;
  const n=x=>x?Number(x).toLocaleString(undefined,{maximumFractionDigits:2}):'0';
- let h=`<div class="chain"><h2>DAO 身份 · 团队业绩 <span class="tag" style="color:#e0a06a">官方后台口径·非链上</span></h2>`;
+ let h=`<div class="chain"><h2>DAO 身份 · 团队业绩</h2>`;
  h+=`<div class="grid">`;
  h+=card('DAO 等级', d.level&&+d.level>0?('V'+d.level):'未定级', true);
  h+=card('团队业绩合计', n(d.stake)+' LGNS');
