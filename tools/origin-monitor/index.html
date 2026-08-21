@@ -596,7 +596,7 @@ function renderOfficial(o,live){
   mcard('平台 Runway '+t,(o.runway||'—')+' 天','官方口径可运行周期')+
   mcard('质押率 '+t,(o.stakeRate||'—')+' %','已质押/总供应')+
   mcard('累计销毁 LGNS '+t,comma(Math.round(Number(o.burnTotal)).toString()),'官方 totalBurn')+
-  mcard('国库无风险价值 '+t,usd(o.rfv),'⚠账面记账数,含注水,非硬储备');
+  mcard('国库无风险价值 '+t,usd(o.rfv),'官方 treasuryRiskFreeValue');
 }
 function whaleRows(list,explorer){return list.map((w,i)=>`<tr><td>${i+1}</td><td><a class="lnk mono" href="${explorer}${w[0]}" target="_blank">${short(w[0])}</a></td><td style="text-align:right">${w[1]}</td></tr>`).join('');}
 function renderWhales(tbodyId,list,explorer,count){
