@@ -268,8 +268,12 @@ function chainHTML(o){
  h+=`</div>`;
  for(const p of o.positions){
   h+=`<div class="sec"><div class="t">${p.label} · 合计 ${pretty(p.total,9)} LGNS${p.count>0?' · '+p.count+'笔':''}</div>`;
-  p.items.forEach((it,i)=>{h+=`<div class="pos"><div class="top"><span class="amt">#${i+1} 本金 ${pretty(it.principal,9)} LGNS</span><span class="badge">${it.status==1n?'质押中':'状态'+it.status}</span></div>
-   <div class="det"><span>起 ${blkDate(it.startBlk,o.bt)}</span><span>到期 ${blkDate(it.matBlk,o.bt)}</span><span>剩 ${remainDays(it.matBlk,o.bt)} 天</span><span>待领≈${pretty(it.accrued,9)} LGNS</span></div></div>`;});
+  p.items.forEach((it,i)=>{
+   const sd=blkDate(it.startBlk,o.bt),md=blkDate(it.matBlk,o.bt),rd=remainDays(it.matBlk,o.bt);
+   const okDate=sd!=='—'&&md!=='—'&&rd!=='—'&&Math.abs(rd)<3000&&(+md.slice(0,4))>=2023&&(+md.slice(0,4))<=2031;
+   h+=`<div class="pos"><div class="top"><span class="amt">#${i+1} 本金 ${pretty(it.principal,9)} LGNS</span><span class="badge">${it.status==1n?'质押中':'状态'+it.status}</span></div>`;
+   if(okDate)h+=`<div class="det"><span>起 ${sd}</span><span>到期 ${md}</span><span>剩 ${rd} 天</span><span>待领≈${pretty(it.accrued,9)} LGNS</span></div>`;
+   h+=`</div>`;});
   h+=`</div>`;
  }
  for(const bd of o.bonds){h+=`<div class="sec"><div class="t">${bd.label} · 合计 ${pretty(bd.dep,9)} LGNS</div></div>`;}
