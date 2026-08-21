@@ -186,7 +186,7 @@ const CHAINS={
   tokens:{LGNS:'0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01',sLGNS:'0x99a57E6C8558BC6689f894e068733ADf83C19725'},
   pool:'0x882df4B0fB50a229C3B4124EB18c759911485bFb',
   lockStakes:[{label:'600天质押',addr:'0x8cA97F41d2C81AF050656e8AD0Cf543820a24504'}],
-  bonds:[{label:'360债券',addr:'0x6c0Ac888b075c6b5141cbC1Da6170B6686aFd07D'}]},
+  bonds:[]},
  anubis:{name:'Anubis',chainId:6714,native:'DAI',explorer:'https://browser.anubispace.org/address/',
   rpcs:['https://rpc.anubispace.org'],
   tokens:{LGNS:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',sLGNS:'0x2243aE29F73137d678197b61B0621AE942845B8C',GLGNS:'0xf140a92C156e76F5A1d3D6f96284b250330F8F4c'},
@@ -250,7 +250,6 @@ function chainHTML(o){
    <div class="det"><span>起 ${blkDate(it.startBlk,o.bt)}</span><span>到期 ${blkDate(it.matBlk,o.bt)}</span><span>剩 ${remainDays(it.matBlk,o.bt)} 天</span><span>待领≈${pretty(it.accrued,9)} LGNS</span></div></div>`;});
   h+=`</div>`;
  }
- for(const bd of o.bonds){h+=`<div class="sec"><div class="t">${bd.label}</div><div class="pos"><div class="det"><span>getDepositorBalance ${pretty(bd.dep,9)}</span><span>getStakedAmount ${pretty(bd.stk,9)}</span><span style="color:#e0a06a">⚠字段含义待与官方核对，暂不计入总资产</span></div></div></div>`;}
  h+=`<div class="unknown">蛛网奖励 / DAO奖励 / DAO等级 / V1-V6 / 团队业绩 / 推荐关系 = <b>UNKNOWN</b>（项目方后台挂账，链上不可验证，本站不显示）</div>`;
  h+=`<div class="chainsum"><span>本链可验证 LGNS 资产：<b>${known?pretty(total,9):pretty(total,9)+'+'} LGNS</b> ≈ ${o.price!=null?toDai(total,o.price):'—'} DAI</span>
    <a class="verify" href="${c.explorer}${document.getElementById('addr').value.trim()}" target="_blank">🔗 链上验证</a></div>`;
