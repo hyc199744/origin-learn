@@ -609,7 +609,25 @@ async function loadLive(){
  }
  rf.disabled=false;
 }
-try{ renderSnap(); try{$('mrf').onclick=loadLive;}catch(e){} loadLive(); }
+async function loadStats(){
+ const rf=$('mrf');if(rf)rf.disabled=true;
+ try{
+  const d=await fetch(WK+'/mon/stats').then(r=>r.json());
+  if(!d||d.ok===false||!d.levels)throw new Error('no data');
+  const L=d.levels;
+  if(L.dist)SNAP.levels=L.dist; if(L.v1plus)SNAP.v1plus=L.v1plus; if(L.promo24h!=null)SNAP.promo24h=L.promo24h; if(L.events)SNAP.events=L.events;
+  if(Array.isArray(L.latestPromotions))SNAP.promos=L.latestPromotions;
+  if(d.polyWhales&&Array.isArray(d.polyWhales.list))SNAP.polyWhales={count:d.polyWhales.count,top:d.polyWhales.list};
+  if(d.anbWhales&&Array.isArray(d.anbWhales.list))SNAP.anbWhales={count:d.anbWhales.count,top:d.anbWhales.list};
+  const m=d.metrics||{};['polyPrice','anbPrice','supP','ssupP','supA','ssupA','treDai','treUsdt','burnP','burnA'].forEach(k=>{if(m[k]!=null)SNAP[k]=m[k];});
+  if(m.official)SNAP.official=m.official;
+  if(d.updatedAt)SNAP.at=d.updatedAt.slice(0,10);
+  renderSnap(); renderCore(SNAP,true); renderOfficial(SNAP.official,true);
+  $('mdot').className='mdot';$('mst').innerHTML='✓ 数据已自动更新 · '+(d.updatedAt?new Date(d.updatedAt).toLocaleString('zh-CN'):'');
+ }catch(e){ try{await loadLive();}catch(e2){} }
+ if(rf)rf.disabled=false;
+}
+try{ renderSnap(); try{$('mrf').onclick=loadStats;}catch(e){} loadStats(); }
 catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="background:#e06a6a;color:#111;padding:10px">监控脚本出错: '+err.message+'</div>'); }
 })();
 </script>
