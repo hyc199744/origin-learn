@@ -226,7 +226,7 @@ const decAddr=h=>'0x'+h.replace(/^0x/,'').slice(24);
 function reserves(h){const s=h.replace(/^0x/,'');return{r0:BigInt('0x'+s.slice(0,64)),r1:BigInt('0x'+s.slice(64,128))};}
 function words(h){const s=h.replace(/^0x/,'');const w=[];for(let i=0;i<s.length;i+=64)w.push(BigInt('0x'+s.slice(i,i+64)));return w;}
 function fmt(raw,dec){if(typeof raw!=='bigint'){try{raw=BigInt(raw||0);}catch(e){raw=0n;}}let n=raw<0n;if(n)raw=-raw;const b=10n**BigInt(dec);const i=raw/b;let f=(raw%b).toString().padStart(dec,'0').replace(/0+$/,'');return(n?'-':'')+i.toString()+(f?'.'+f:'');}
-function pretty(raw,dec){let[i,f='']=fmt(raw,dec).split('.');i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,6);return f?i+'.'+f:i;}
+function pretty(raw,dec){let[i,f='']=fmt(raw,dec).split('.');const neg=i.startsWith('-');const ia=i.replace('-','');f=(ia!=='0')?f.slice(0,2):f.slice(0,6);i=(neg?'-':'')+ia.replace(/\B(?=(\d{3})+(?!\d))/g,',');return f?i+'.'+f:i;}
 function toDai(raw9,ps){return ps==null?'—':pretty(raw9*ps/10n**9n,6);}
 async function rpc(rpcs,method,params){let e;for(const url of rpcs){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),9000);
  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),signal:c.signal});
