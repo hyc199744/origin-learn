@@ -203,7 +203,7 @@ const toBig=h=>okHex(h)?BigInt(h):0n;
 const decAddr=h=>'0x'+h.replace(/^0x/,'').slice(24);
 function reserves(h){const s=h.replace(/^0x/,'');return{r0:BigInt('0x'+s.slice(0,64)),r1:BigInt('0x'+s.slice(64,128))};}
 function words(h){const s=h.replace(/^0x/,'');const w=[];for(let i=0;i<s.length;i+=64)w.push(BigInt('0x'+s.slice(i,i+64)));return w;}
-function fmt(raw,dec){let n=raw<0n;if(n)raw=-raw;const b=10n**BigInt(dec);const i=raw/b;let f=(raw%b).toString().padStart(dec,'0').replace(/0+$/,'');return(n?'-':'')+i.toString()+(f?'.'+f:'');}
+function fmt(raw,dec){if(typeof raw!=='bigint'){try{raw=BigInt(raw||0);}catch(e){raw=0n;}}let n=raw<0n;if(n)raw=-raw;const b=10n**BigInt(dec);const i=raw/b;let f=(raw%b).toString().padStart(dec,'0').replace(/0+$/,'');return(n?'-':'')+i.toString()+(f?'.'+f:'');}
 function pretty(raw,dec){let[i,f='']=fmt(raw,dec).split('.');i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,6);return f?i+'.'+f:i;}
 function toDai(raw9,ps){return ps==null?'—':pretty(raw9*ps/10n**9n,6);}
 async function rpc(rpcs,method,params){let e;for(const url of rpcs){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),9000);
@@ -228,8 +228,7 @@ async function query(key,addr){
   for(let i=0;i<cnt&&i<50;i++){const w=words(await call(cfg.rpcs,ls.addr,SEL.stakes+encAddr(addr)+encU(i)));
    items.push({principal:w[0],matBlk:w[3],startBlk:w[5],status:w[7],accrued:w[10]});}
   if(cnt>0||total>0n)o.positions.push({label:ls.label,addr:ls.addr,count:cnt,total,items});}catch(e){o.errors.push(ls.label);}}
- for(const bd of cfg.bonds){try{const dep=toBig(await call(cfg.rpcs,bd.addr,SEL.getDepositorBalance+encAddr(addr)));
-  const stk=toBig(await call(cfg.rpcs,bd.addr,SEL.getStakedAmount+encAddr(addr)));if(dep>0n||stk>0n)o.bonds.push({label:bd.label,addr:bd.addr,dep,stk});}catch(e){}}
+ for(const bd of cfg.bonds){try{const dep=toBig(await call(cfg.rpcs,bd.addr,SEL.getDepositorBalance+encAddr(addr)));if(dep>0n)o.bonds.push({label:bd.label,addr:bd.addr,dep});}catch(e){o.errors.push(bd.label);}}
  return o;
 }
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
