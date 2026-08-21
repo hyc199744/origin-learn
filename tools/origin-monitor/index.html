@@ -442,10 +442,6 @@ function walletHealthHTML(pol,anb,addr){
   ${walletOne(anb,'Anubis','https://browser.anubispace.org/address/',addr)}</div>`;
 }
 // ===== 查推荐人 (Worker /referrer + 2LGNS解锁) =====
-const ROK='origin_ref_orders_v1';
-const loadOrders=()=>{try{return JSON.parse(localStorage.getItem(ROK)||'[]');}catch(e){return[];}};
-const saveOrder=(o,a)=>{const arr=loadOrders().filter(x=>x.orderId!==o.orderId);arr.unshift({orderId:o.orderId,addr:a,amount:o.amount,receive:o.receive,created:Date.now()});try{localStorage.setItem(ROK,JSON.stringify(arr.slice(0,40)));}catch(e){}};
-const fmtBind=ts=>ts?new Date(ts*1000).toLocaleString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'未查到';
 function refShell(msg){return `<div class="chain"><h2>查推荐人 · 绑定关系</h2><div class="meta">${msg}</div></div>`;}
 async function loadReferrer(addr){
  const el=document.getElementById('refBlock');if(!el)return;
@@ -460,58 +456,6 @@ async function loadReferrer(addr){
   ${d.bindTime?'<div class="card"><div class="k">绑定时间</div><div class="v" style="font-size:14px">'+new Date(d.bindTime*1000).toLocaleString('zh-CN')+'</div></div>':''}</div></div>`;
  el.querySelectorAll('[data-c]').forEach(b=>{const o=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent='已复制✓';setTimeout(()=>b.textContent=o,1200);};});
  el.querySelectorAll('[data-drill]').forEach(b=>b.onclick=()=>queryAddr(b.dataset.drill));
-}
-function renderRefUnlock(addr){
- const el=document.getElementById('refUnlock');if(!el)return;
- el.innerHTML=`<div class="unknown" style="border-style:solid">支付 <b style="color:var(--gold2)">2 LGNS</b> 可查看：<b>完整推荐人地址</b> + <b>绑定时间</b>。付款后若没自动解锁，可用订单号找回。</div>
-  <button class="verify" id="refBuy" style="border-color:#c9313a;color:#ff9a8f;padding:9px 18px;font-size:14px">🔓 支付 2 LGNS 解锁完整</button>
-  <a href="javascript:void(0)" id="refRestore" style="color:var(--dim);font-size:12px;margin-left:14px">🔎 凭订单号找回</a>
-  <div id="refPay" style="margin-top:12px"></div>`;
- document.getElementById('refBuy').onclick=()=>startRefPay(addr);
- document.getElementById('refRestore').onclick=refRestore;
-}
-async function startRefPay(addr){
- const el=document.getElementById('refPay');if(!el)return;
- el.innerHTML='<div class="meta">正在生成订单…</div>';
- let o;try{o=await fetch(WK+'/order?addr='+addr).then(r=>r.json());}catch(e){el.innerHTML='<div class="err">生成订单失败，稍后再试</div>';return;}
- if(!o||!o.ok){el.innerHTML='<div class="err">生成订单失败，稍后再试</div>';return;}
- saveOrder(o,addr);showRefPay(el,o);
-}
-function showRefPay(el,o){
- el.innerHTML=`<div class="pos" style="padding:15px">
-  <div class="t" style="margin-bottom:8px">支付解锁 · 完整推荐人 + 绑定时间</div>
-  <div class="det" style="justify-content:space-between"><span>精确金额（务必一分不差）</span><b class="mono" style="color:var(--gold);font-size:15px">${o.amount} LGNS</b> <button class="verify" data-c="${o.amount}">复制金额</button></div>
-  <div class="det" style="margin-top:6px"><span>收款地址（Polygon）</span></div>
-  <div class="det"><code class="mono" style="word-break:break-all;color:var(--txt)">${o.receive}</code><button class="verify" data-c="${o.receive}">复制</button></div>
-  <div style="font-size:12.5px;color:var(--dim);margin-top:8px;line-height:1.7">用支持 <b>Polygon</b> 的钱包，把上面<b style="color:var(--gold2)">精确金额</b>的 LGNS 转到收款地址，约 20–60 秒<b style="color:var(--gold2)">自动解锁</b>。<br><span id="refStatus" style="color:var(--gold2)">● 等待付款中…</span></div>
-  <div style="font-size:11px;color:var(--dim);margin-top:8px;border-top:1px solid var(--line);padding-top:7px">订单号 <code class="mono" style="word-break:break-all">${o.orderId}</code> <button class="verify" data-c="${o.orderId}">复制订单号</button></div></div>`;
- el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{copyText(b.dataset.c);const o0=b.textContent;b.textContent='已复制✓';setTimeout(()=>b.textContent=o0,1200);});
- const start=Date.now();
- const timer=setInterval(async()=>{
-  if(!document.body.contains(el)){clearInterval(timer);return;}
-  if(Date.now()-start>15*60*1000){clearInterval(timer);const s=document.getElementById('refStatus');if(s)s.innerHTML='<span style="color:#ff9a8f">● 等待较久。若已付款，稍后用订单号找回即可，系统仍认款。</span>';return;}
-  let c;try{c=await fetch(WK+'/checkpay?order='+o.orderId).then(r=>r.json());}catch(e){return;}
-  if(c&&c.status==='paid'&&c.referrer){clearInterval(timer);const m=document.getElementById('refMasked');if(m)m.textContent=sh(c.referrer);showRefPaid(el,c.referrer,c.bindTime);}
- },5000);
-}
-function showRefPaid(el,ref,bt){
- el.innerHTML=`<div class="pos" style="padding:14px;border-color:rgba(78,203,141,.4)">
-  <div class="det"><b style="color:#7bffb0">✓ 已付款 · 完整推荐人地址</b></div>
-  <div class="det" style="margin-top:6px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1">${ref}</code><button class="verify" data-c="${ref}">复制</button></div>
-  <div class="det" style="margin-top:6px"><span>绑定时间</span><b>${fmtBind(bt)}</b></div></div>`;
- el.querySelector('[data-c]').onclick=e=>{copyText(ref);e.target.textContent='已复制✓';setTimeout(()=>e.target.textContent='复制',1200);};
-}
-function refRestore(){
- const el=document.getElementById('refPay');if(!el)return;
- el.innerHTML=`<div class="pos" style="padding:13px"><div class="det"><input id="refFind" placeholder="粘贴订单号找回…" spellcheck="false" style="flex:1;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:8px 10px;font-size:12px"><button class="verify" id="refFindGo">查</button></div><div id="refFindOut" style="margin-top:8px"></div></div>`;
- document.getElementById('refFindGo').onclick=async()=>{
-  const id=document.getElementById('refFind').value.trim();if(!id)return;
-  const fo=document.getElementById('refFindOut');fo.innerHTML='<div class="meta">查询中…</div>';
-  let c;try{c=await fetch(WK+'/checkpay?order='+encodeURIComponent(id)).then(r=>r.json());}catch(e){fo.innerHTML='<div class="err">查询失败</div>';return;}
-  if(!c||c.ok===false){fo.innerHTML='<div class="err">没找到这个订单号（检查是否粘贴完整）</div>';return;}
-  if(c.status==='paid'&&c.referrer){showRefPaid(fo,c.referrer,c.bindTime);}
-  else fo.innerHTML='<div class="meta" style="color:var(--gold2)">● 该订单还没到账（待付款）</div>';
- };
 }
 const RCT='mon_recent_v1',FAV='mon_fav_v1';
 const loadRec=()=>{try{return JSON.parse(localStorage.getItem(RCT)||'[]');}catch(e){return[];}};
