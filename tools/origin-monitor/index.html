@@ -8,6 +8,32 @@
 <meta property="og:site_name" content="Web3Origin">
 <meta name="description" content="链上尽调助手：输入一个钱包地址，一次查全 Polygon / Anubis 双链 LGNS 资产、360/600明细、DAO 等级与团队业绩、通用链上体检、推荐人，还能链上提币，外加全网 V1-V6/大户/国库监控。只查公开数据，不需连钱包、不需签名。">
 <link rel="canonical" href="https://web3origin.com/tools/origin-monitor/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="链上尽调助手 · 一个地址查全起源双链资产">
+<meta property="og:description" content="输入任意起源钱包地址，一次看清 Polygon 与 Anubis 双链资产、质押明细、DAO 等级、团队业绩和绑定关系。纯只读查询，不连钱包、不签名。">
+<meta property="og:url" content="https://web3origin.com/tools/origin-monitor/">
+<meta property="og:image" content="https://web3origin.com/assets/logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="链上尽调助手 · Web3Origin">
+<meta name="twitter:description" content="一个地址查全起源双链资产、质押明细、DAO 等级与团队业绩。纯只读，不连钱包、不签名。">
+<meta name="twitter:image" content="https://web3origin.com/assets/logo.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"链上尽调助手","url":"https://web3origin.com/tools/origin-monitor/","applicationCategory":"FinanceApplication","operatingSystem":"Web","description":"输入任意起源钱包地址，一次查全 Polygon 与 Anubis 双链 LGNS 资产、质押明细、DAO 等级、团队业绩与绑定关系。纯只读查询。","offers":{"@type":"Offer","price":"10","priceCurrency":"LGNS"},"publisher":{"@type":"Organization","name":"Web3Origin"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"查询钱包地址安全吗？","acceptedAnswer":{"@type":"Answer","text":"安全。查询与监控只读取公开链上数据，全程不连接钱包、不签名、不授权，也不会保存你的私钥或助记词。"}},
+{"@type":"Question","name":"查询时需要连接钱包吗？","acceptedAnswer":{"@type":"Answer","text":"不需要。地址查询只要粘贴 0x 地址即可，纯只读。只有在你主动使用链上提币工具时才需要连接钱包。"}},
+{"@type":"Question","name":"链上提币为什么需要签名？","acceptedAnswer":{"@type":"Answer","text":"提币是把资产从合约转出的链上写操作，必须由你本人钱包对交易签名确认。工具只调用页面配置的目标合约，不托管你的资产，也不会索要私钥或助记词。"}},
+{"@type":"Question","name":"为什么价格是 10 LGNS，订单金额却可能是 10.71？","acceptedAnswer":{"@type":"Answer","text":"10 LGNS 是基础解锁价。下单后系统会生成一个带订单识别尾数的精确金额（如 10.71 LGNS），用于自动匹配你的付款，请严格按订单显示金额转账。"}},
+{"@type":"Question","name":"Polygon 和 Anubis 都可以付款吗？","acceptedAnswer":{"@type":"Answer","text":"都可以。用支持 Polygon 或 Anubis 的钱包，向收款地址转对应链上的 LGNS 精确金额即可，系统会自动识别。"}},
+{"@type":"Question","name":"换手机后怎么恢复？","acceptedAnswer":{"@type":"Answer","text":"付款后本设备会自动识别。换设备时用解锁后生成的专属访问链接，或用订单号在页面『凭订单号找回访问』即可恢复。"}},
+{"@type":"Question","name":"订单号丢失怎么办？","acceptedAnswer":{"@type":"Answer","text":"下单时订单号会自动保存在本设备的『我的订单』里。若都丢失，可联系客服凭付款交易记录协助核验。"}},
+{"@type":"Question","name":"数据是实时的吗？","acceptedAnswer":{"@type":"Answer","text":"资产查询是实时读取链上；全网监控中价格、供应、国库为链上实时，等级分布与持仓榜为后台定时扫描，页面每项数据都标注了来源与更新时间。"}},
+{"@type":"Question","name":"为什么持仓榜不包含 360/600 锁仓？","acceptedAnswer":{"@type":"Answer","text":"持仓榜统计的是钱包直接持有的 LGNS 与 sLGNS，暂不含 360/600 锁仓、债券和未领取奖励，因此不代表完整资产排名。"}},
+{"@type":"Question","name":"付款后没有自动解锁怎么办？","acceptedAnswer":{"@type":"Answer","text":"稍等 20–60 秒等待区块确认。若较久仍未解锁，用订单号在『凭订单号找回访问』重新匹配，系统仍会认款；确认金额与网络无误后可联系客服核验。"}}
+]}
+</script>
 <link rel="icon" href="/assets/favicon.png">
 <style>
 :root{--bg:#070806;--panel:#0e100e;--panel2:#141712;--line:rgba(212,175,55,.2);--gold:#d4af37;--gold2:#e8cf7e;--txt:#e9efea;--dim:#7a857c;--soft:#c3cbc4;--green:#25C96F;--red:#ff6b5e;--anb:#e8cf7e;--poly:#a97bff}
@@ -108,6 +134,75 @@ a.lnk{transition:color .12s}
 .pos{transition:border-color .14s}.pos:hover{border-color:rgba(212,175,55,.3)}
 .sec .t{position:relative;padding-left:11px}
 .sec .t::before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:3px;border-radius:3px;background:linear-gradient(var(--gold),var(--gold2))}
+/* ===== v1 优化：首屏 / 功能卡 / 信任 / 示例 / 付款 / FAQ ===== */
+.hero-sub{font-size:15px;color:var(--soft);line-height:1.75;margin:4px 0 18px;max-width:720px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.btn2{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:11px;padding:13px 22px;font-size:15px;font-weight:700;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;gap:8px;transition:all .14s}
+.btn2:hover{border-color:var(--gold);background:rgba(212,175,55,.08)}
+button.go,.btn2{min-height:44px}
+.trust2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.tcard{border-radius:12px;padding:14px 16px;font-size:13.5px;line-height:1.75}
+.tcard h4{margin:0 0 8px;font-size:14.5px;display:flex;align-items:center;gap:7px}
+.tcard.read{background:rgba(37,201,111,.07);border:1px solid rgba(37,201,111,.32)}
+.tcard.read h4{color:#7bffb0}
+.tcard.sign{background:rgba(232,164,92,.07);border:1px solid rgba(232,164,92,.34)}
+.tcard.sign h4{color:#f0b878}
+.tcard ul{margin:0;padding-left:18px;color:var(--soft)}
+.tcard li{margin:3px 0}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.fcard{background:linear-gradient(162deg,rgba(212,175,55,.05),var(--panel2));border:1px solid var(--line);border-radius:12px;padding:15px 16px;min-height:118px;transition:transform .16s,border-color .16s}
+.fcard:hover{transform:translateY(-2px);border-color:rgba(212,175,55,.42)}
+.fcard .ic{font-size:20px}
+.fcard .ti{font-size:14.5px;font-weight:700;color:var(--gold2);margin:5px 0 4px}
+.fcard .de{font-size:13px;color:var(--soft);line-height:1.6}
+.locked{position:relative}
+.locked .lockwrap{filter:blur(5px);pointer-events:none;user-select:none;opacity:.7}
+.lockmask{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;background:radial-gradient(circle at 50% 40%,rgba(14,16,14,.55),rgba(7,8,6,.82));border-radius:12px;padding:16px}
+.lockmask .lt{font-size:15px;color:var(--gold2);font-weight:800}
+.lockmask .ls{font-size:12.5px;color:var(--soft)}
+.stag{font-size:10.5px;padding:2px 8px;border-radius:20px;border:1px solid var(--line);color:var(--dim);white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.stag.rt{color:var(--green);border-color:rgba(37,201,111,.4)}
+.stag.scan{color:#6fb6ff;border-color:rgba(111,182,255,.4)}
+.stag.snap{color:#e8a45c;border-color:rgba(232,164,92,.4)}
+.stag.bad{color:var(--red);border-color:rgba(255,107,94,.45)}
+.cardhd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.ntabs{display:flex;gap:8px;margin-bottom:12px}
+.ntab{flex:1;text-align:center;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);font-size:13px;font-weight:700;cursor:pointer;min-height:44px}
+.ntab.on{color:#1a1205;background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:var(--gold)}
+.paystep{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
+.paystep .s{flex:1;min-width:70px;text-align:center;font-size:10.5px;color:var(--dim);padding:6px 4px;border-radius:7px;background:var(--panel2);border:1px solid var(--line)}
+.paystep .s.on{color:var(--gold2);border-color:var(--gold);background:rgba(212,175,55,.1)}
+.paystep .s.done{color:#7bffb0;border-color:rgba(37,201,111,.4)}
+.copied{color:#7bffb0 !important}
+.progline{height:6px;background:#0a0d12;border-radius:4px;overflow:hidden;margin-top:5px}
+.progline i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));box-shadow:0 0 8px rgba(212,175,55,.5)}
+.faq{border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:10px;background:var(--panel)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq details:last-child{border-bottom:none}
+.faq summary{cursor:pointer;padding:13px 15px;font-size:14px;color:var(--txt);list-style:none;display:flex;justify-content:space-between;gap:10px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--gold);font-weight:700}
+.faq details[open] summary::after{content:"−"}
+.faq .ans{padding:0 15px 14px;font-size:13.5px;color:var(--soft);line-height:1.75}
+.tools-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:13px;margin:14px 0}
+.tools-links a{color:var(--gold2);text-decoration:none}
+.tools-links a:hover{text-decoration:underline}
+.skel{background:linear-gradient(90deg,var(--panel2) 25%,rgba(212,175,55,.06) 37%,var(--panel2) 63%);background-size:400% 100%;animation:sk 1.2s ease infinite;border-radius:10px}
+@keyframes sk{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.toolbar input,.toolbar select{flex:0 1 auto;font-size:13px;padding:8px 10px;border-radius:8px;background:var(--panel);border:1px solid var(--line);color:var(--txt);min-height:40px}
+.pager{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:10px;font-size:13px;color:var(--dim)}
+.pager button{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:7px;padding:6px 12px;cursor:pointer;min-height:36px}
+.pager button:disabled{opacity:.4;cursor:default}
+.riskbar{background:rgba(255,107,94,.08);border:1px solid rgba(255,107,94,.35);color:#ffb3aa;border-radius:10px;padding:10px 13px;font-size:12.5px;margin:10px 0;line-height:1.7}
+@media(max-width:640px){
+ .feat{grid-template-columns:1fr}
+ .trust2{grid-template-columns:1fr}
+ .ntabs{flex-direction:row}
+ .hero-btns .go,.hero-btns .btn2{flex:1;justify-content:center}
+ .grid{grid-template-columns:1fr 1fr}
+ h1{font-size:21px}
+}
 </style>
 </head>
 <body>
@@ -115,33 +210,40 @@ a.lnk{transition:color .12s}
   <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
   <h1>链上<span>尽调助手</span></h1>
   <div id="introBlock">
-  <div class="sub" style="font-size:15px;color:var(--txt);line-height:1.7">输一个地址，把这个人在起源的底细<b style="color:var(--gold2)">一次查清</b>。</div>
+  <div class="hero-sub">输入任意起源钱包地址，一次看清 <b style="color:var(--gold2)">Polygon 与 Anubis 双链资产</b>、质押明细、DAO 等级、团队业绩和绑定关系。</div>
 
-  <div class="total" style="text-align:left;padding:18px 20px">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:11px 24px;font-size:14px;line-height:1.6;color:var(--txt)">
-      <div>🪙 <b>双链全资产</b>　钱包 / 活期 / 360-600 锁仓逐笔明细</div>
-      <div>🏅 <b>DAO 身份</b>　V 等级 + 三线团队业绩 + 上线</div>
-      <div>🔍 <b>链上体检</b>　真人 / 机器人 / 项目号一眼识破</div>
-      <div>👥 <b>查推荐人</b>　任意地址的完整上级 + 绑定时间</div>
-      <div>💸 <b>链上提币</b>　DApp 打不开也能提，双链，只花 gas</div>
-      <div>📡 <b>全网监控</b>　V1-V6 / 大户榜 / 国库 / 销毁</div>
-    </div>
-    <div style="margin-top:15px;padding-top:13px;border-top:1px solid var(--line);text-align:center">
-      <span style="font-size:15px;color:var(--gold2);font-weight:800">一次 10 LGNS，终身使用</span>
-      <span style="font-size:12.5px;color:var(--dim)"> · 查询+提币全解锁 · 双链通用 · 换手机一键恢复</span>
-    </div>
+  <div class="hero-btns">
+    <button class="btn2" id="heroSample" aria-label="查看示例报告">👁 查看示例报告</button>
+    <button class="go" id="heroUnlock" aria-label="支付 10 LGNS 解锁完整功能">🔓 10 LGNS 解锁完整功能</button>
   </div>
-  <div class="safe">🔒 全是链上真数据，可自行核实 · 只读，不连钱包、不签名、不授权，绝不索要私钥 / 助记词。</div>
+
+  <div class="trust2">
+    <div class="tcard read"><h4>🔒 查询与监控 · 纯只读</h4>读取公开链上数据，<b>不连接钱包、不签名、不授权</b>，全程不保存你的私钥或助记词。</div>
+    <div class="tcard sign"><h4>✍ 链上提币 · 需你确认</h4>仅在你<b>主动操作时</b>连接钱包，由你本人确认交易签名。工具不托管资产，只调用页面配置的目标合约。</div>
+  </div>
+
+  <div class="feat">
+    <div class="fcard"><div class="ic">🪙</div><div class="ti">双链资产</div><div class="de">钱包余额、活期、360/600 质押、债券和奖励明细。</div></div>
+    <div class="fcard"><div class="ic">🏅</div><div class="ti">DAO 身份</div><div class="de">DAO 等级、三条主线业绩、上线和晋级情况。</div></div>
+    <div class="fcard"><div class="ic">🧭</div><div class="ti">地址画像</div><div class="de">地址行为画像与可信度分析：活跃度、交互规律、资金轨迹（附判断依据，不作身份认定）。</div></div>
+    <div class="fcard"><div class="ic">👥</div><div class="ti">推荐关系</div><div class="de">查询完整上线、绑定时间和主要团队关系。</div></div>
+    <div class="fcard"><div class="ic">💸</div><div class="ti">链上提币</div><div class="de">官方 DApp 无法打开时，直接调用对应合约领取或赎回资产。</div></div>
+    <div class="fcard"><div class="ic">📡</div><div class="ti">全生态监控</div><div class="de">V1–V6 等级、晋级记录、国库、销毁、供应量和流动持仓。</div></div>
+  </div>
+
+  <div id="sampleReport"></div>
   </div>
 
   <div id="gate"></div>
 
   <div id="queryTool" style="display:none">
   <div class="chain" style="margin-bottom:14px"><h2>💸 链上提币工具 <span class="tag" style="color:#7bffb0">已随本页解锁·免额外付费</span></h2>
-  <div class="meta">官方 DApp 打不开也能提。连钱包直接和合约交互：赎回 sLGNS、领取 360/600天质押与蛛网/DAO/涡轮奖励，Polygon + Anubis 双链，只花 gas，工具不保管你的任何资产。</div>
-  <button class="go" id="wdEnter">进入链上提币 →</button></div>
+  <div class="meta">官方 DApp 打不开也能提。连钱包直接和合约交互：赎回 sLGNS、领取 360/600天质押与蛛网/DAO/涡轮奖励，Polygon + Anubis 双链，只花 gas，工具不保管你的任何资产。提交前会显示网络、目标合约、操作类型与预计 Gas。</div>
+  <div class="riskbar">⚠ 请确认当前网络、钱包地址和交易内容。<b>任何人索要私钥或助记词都属于高风险行为</b>，本工具永远不会向你索取。</div>
+  <button class="go" id="wdEnter" aria-label="进入链上提币工具">进入链上提币 →</button></div>
   <div class="box">
-    <input id="addr" placeholder="0x 开头的钱包地址" spellcheck="false" autocomplete="off">
+    <label for="addr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">钱包地址</label>
+    <input id="addr" placeholder="0x 开头的钱包地址" spellcheck="false" autocomplete="off" aria-label="输入要查询的钱包地址">
     <button class="go" id="btn">查询资产</button>
   </div>
   <div class="hint">试试：<a href="#" class="ex" data-a="0xd5b610963deec4fae7d17a5191e80bb7281aadc5">0xd5b6…adc5（两链都有持仓）</a></div>
@@ -169,19 +271,54 @@ a.lnk{transition:color .12s}
   <div class="levels" id="mlevels"></div>
   <div class="mnote" id="mlvnote"></div>
 
-  <div class="msec-h">最新晋升记录</div>
+  <div class="msec-h">晋级动态 <span class="pill anb">Anubis</span></div>
+  <div class="grid" id="mpromostat"></div>
+  <div style="font-size:13px;color:var(--gold2);margin:14px 0 8px">最新晋级记录</div>
   <div class="scroll"><table class="mt" id="mpromos"><thead><tr><th>钱包</th><th>变化</th><th>区块</th><th>交易</th></tr></thead><tbody></tbody></table></div>
 
-  <div class="msec-h">个人持仓 10万+ 大户</div>
-  <div class="two">
-    <div class="card"><div class="k"><span class="pill poly">Polygon</span> 大户</div><div class="v gold" id="mpwc"></div><div class="scroll" style="margin-top:8px"><table class="mt" id="mpwt"><tbody></tbody></table></div></div>
-    <div class="card"><div class="k"><span class="pill anb">Anubis</span> 大户</div><div class="v gold" id="mawc"></div><div class="scroll" style="margin-top:8px"><table class="mt" id="mawt"><tbody></tbody></table></div></div>
+  <div class="msec-h">可见流动持仓榜 <span class="stag scan" id="whStatus">后台扫描</span></div>
+  <div class="mnote">统计钱包<b style="color:var(--soft)">直接持有</b>的 LGNS 与 sLGNS，并排除已知合约、池子、国库和销毁地址；当前<b style="color:var(--soft)">不包含</b> 360/600 锁仓、债券和未领取奖励，因此不代表完整资产排名。</div>
+  <div class="toolbar">
+    <select id="whChain" aria-label="按链筛选"><option value="all">全部链</option><option value="poly">Polygon</option><option value="anb">Anubis</option></select>
+    <input id="whSearch" placeholder="搜索地址…" aria-label="搜索地址" spellcheck="false" style="flex:1;min-width:130px">
+    <select id="whSort" aria-label="排序方式"><option value="desc">持仓从高到低</option><option value="asc">从低到高</option></select>
+    <span id="whCount" style="color:var(--dim);font-size:12.5px;width:100%"></span>
   </div>
+  <div class="scroll"><table class="mt" id="whTable"><thead><tr><th>#</th><th>链</th><th>地址</th><th>持仓 (LGNS+sLGNS)</th><th>估算价值</th><th>核验</th></tr></thead><tbody></tbody></table></div>
+  <div class="pager" id="whPager"></div>
 
   <div class="msec-h">供应 · 国库 · 销毁</div>
   <div class="grid" id="massets"></div>
 
   <div class="foot" id="mfoot"></div>
+  </div>
+
+  <hr class="mdiv">
+  <div class="msec-h">常见问题</div>
+  <div class="faq">
+    <details><summary>查询钱包地址安全吗？</summary><div class="ans">安全。查询与监控只读取公开链上数据，全程不连接钱包、不签名、不授权，也不会保存你的私钥或助记词。</div></details>
+    <details><summary>查询时需要连接钱包吗？</summary><div class="ans">不需要。地址查询只要粘贴 0x 地址即可，纯只读。只有在你主动使用链上提币工具时才需要连接钱包。</div></details>
+    <details><summary>链上提币为什么需要签名？</summary><div class="ans">提币是把资产从合约转出的链上写操作，必须由你本人钱包对交易签名确认。工具只调用页面配置的目标合约，不托管你的资产，也永远不会索要私钥或助记词。</div></details>
+    <details><summary>为什么价格是 10 LGNS，订单金额却可能是 10.71？</summary><div class="ans">10 LGNS 是基础解锁价。下单后系统会生成一个带订单识别尾数的精确金额（如 10.71 LGNS），用于自动匹配你的付款，请严格按订单显示金额转账。</div></details>
+    <details><summary>Polygon 和 Anubis 都可以付款吗？</summary><div class="ans">都可以。用支持 Polygon 或 Anubis 的钱包，向收款地址转对应链上的 LGNS 精确金额即可，系统会自动识别。付款窗口内可切换两个网络分别查看合约与二维码。</div></details>
+    <details><summary>换手机后怎么恢复？</summary><div class="ans">付款后本设备会自动识别。换设备时用解锁后生成的专属访问链接，或用订单号在『凭订单号找回访问』即可恢复。</div></details>
+    <details><summary>订单号丢失怎么办？</summary><div class="ans">下单时订单号会自动保存在本设备的『我的订单』里。若都丢失，可联系客服凭付款交易记录协助核验。</div></details>
+    <details><summary>数据是实时的吗？</summary><div class="ans">资产查询是实时读取链上。全网监控里价格、供应、国库为链上实时，等级分布与持仓榜为后台定时扫描，页面每项数据都标注了来源与更新时间。</div></details>
+    <details><summary>为什么持仓榜不包含 360/600 锁仓？</summary><div class="ans">持仓榜统计的是钱包直接持有的 LGNS 与 sLGNS，暂不含 360/600 锁仓、债券和未领取奖励，因此不代表完整资产排名。</div></details>
+    <details><summary>付款后没有自动解锁怎么办？</summary><div class="ans">稍等 20–60 秒等待区块确认。若较久仍未解锁，用订单号在『凭订单号找回访问』重新匹配，系统仍会认款；确认金额与网络无误后可联系客服核验。</div></details>
+  </div>
+
+  <div class="msec-h">数据来源与安全</div>
+  <div class="mnote" style="line-height:1.85">
+    <b style="color:var(--soft)">数据来源与统计口径：</b>资产、余额、质押明细、销毁、供应量来自 Polygon 与 Anubis 公开链上记录（RPC 读取）；DAO 等级来自 Anubis 链 daoLevel 记录并结合官方社区接口；团队业绩/上线为官方后台口径。数据来自公开链上记录与规则计算，<b style="color:var(--soft)">每项关键数据均可跳转区块浏览器核验</b>。<br>
+    <b style="color:var(--soft)">隐私与安全：</b>查询与监控纯只读，不连钱包、不签名、不授权、不保存私钥或助记词；提币需你本人签名确认。<br>
+    <b style="color:var(--soft)">付款异常处理：</b>金额务必一分不差、认准网络；付款后未解锁可凭订单号找回，仍未解锁请联系客服。<br>
+    <b style="color:var(--soft)">更新日志：</b>v1 · 首屏与示例报告、结果重排、数据状态标注、付款双网络与 FAQ 优化。
+  </div>
+  <div class="tools-links">
+    <a href="/tools/onchain-search/">🔎 链上搜索工具</a>
+    <a href="/academy/">🎓 链上学习学院</a>
+    <a href="/#contact">💬 联系客服</a>
   </div>
 </div>
 <script src="/assets/qrcode.min.js"></script>
@@ -279,19 +416,25 @@ async function fetchCommunity(addr){
   clearTimeout(t);if(!r.ok)return null;const d=await r.json();if(!d||!d.address)return null;return d;}catch(e){return null;}
 }
 function daoHTML(d){
- if(!d)return `<div class="chain"><h2>DAO 身份 · 团队业绩 <span class="tag" style="color:#e0a06a">官方后台口径</span></h2><div class="meta">该地址在官方社区体系中暂无记录，或接口暂不可用。</div></div>`;
+ if(!d)return `<div class="chain"><h2>④ DAO 与团队 <span class="stag scan">官方后台口径</span></h2><div class="meta">该地址在官方社区体系中暂无记录，或接口暂不可用。</div></div>`;
  const up=(d.rewardPath||[]).find(x=>/Peer/i.test(x.type||''));
  const upline=up&&up.source?up.source:null;
  const n=x=>x?Number(x).toLocaleString(undefined,{maximumFractionDigits:2}):'0';
- let h=`<div class="chain"><h2>DAO 身份 · 团队业绩</h2>`;
+ let h=`<div class="chain"><h2>④ DAO 与团队 <span class="stag scan">官方后台口径</span></h2>`;
  h+=`<div class="grid">`;
- h+=card('DAO 等级', d.level&&+d.level>0?('V'+d.level):'未定级', true);
+ h+=card('当前 DAO 等级', d.level&&+d.level>0?('V'+d.level):'未定级', true);
+ h+=card('距下一级', '<span class="stag snap">暂未接入</span>');
  h+=card('团队业绩合计', n(d.stake)+' LGNS');
  h+=card('本人质押合计', n(d.amount)+' LGNS');
  h+=`</div>`;
- h+=`<div class="sec"><div class="t">团队业绩分链</div><div class="pos"><div class="det"><span>Polygon线 ${n(d.polygonStake)} LGNS</span><span>Anubis线 ${n(d.anubisStake)} LGNS</span></div></div></div>`;
+ const ps=Number(d.polygonStake||0),as=Number(d.anubisStake||0),mx=Math.max(ps,as,1);
+ const barRow=(nm,val,w)=>`<div style="margin:6px 0"><div class="det" style="justify-content:space-between"><span>${nm}</span><span style="color:var(--txt)">${n(val)} LGNS</span></div><div class="bar" style="height:7px"><i style="width:${Math.round(w*100)}%"></i></div></div>`;
+ h+=`<div class="sec"><div class="t">三条主线业绩</div><div class="pos">`;
+ h+=barRow('Polygon 线',ps,ps/mx);
+ h+=barRow('Anubis 线',as,as/mx);
+ h+=`<div style="font-size:11.5px;color:var(--dim);margin-top:4px">官方接口按链返回两条主线业绩；如有第三条线接口未提供，暂不展示。</div></div></div>`;
  if(upline)h+=`<div class="sec"><div class="t">推荐上线</div><div class="pos"><div class="det"><span class="mono">${upline}</span><a class="verify" href="https://browser.anubispace.org/address/${upline}" target="_blank" style="margin-left:8px">🔗</a></div></div></div>`;
- h+=`<div class="unknown">以上等级/团队/上线来自项目方后台接口(apiv2.ocros.io)，<b>非链上可独立验证</b>。其中「DAO等级」在 Anubis 链上有 daoLevel 记录可交叉核对，团队业绩/上线仅后台口径。</div></div>`;
+ h+=`<div class="unknown">以上等级/团队/上线来自项目方后台接口(apiv2.ocros.io)，<b>非链上可独立验证</b>。其中「DAO 等级」在 Anubis 链上有 daoLevel 记录可交叉核对，团队业绩/上线仅后台口径。</div></div>`;
  return h;
 }
 // ===== 通用链上体检 (Worker /wallet) =====
@@ -324,14 +467,19 @@ async function checkAccess(){
 }
 function renderGate(){
  const g=document.getElementById('gate');if(!g)return;
- g.innerHTML=`<div class="total" style="text-align:center;padding:24px">
-  <div class="big" style="font-size:27px">🔓 10 LGNS 一次性解锁</div>
-  <div style="color:var(--dim);font-size:13.5px;margin:8px 0 2px;line-height:1.7">一次付费、<b style="color:var(--gold2)">永久使用</b>本页全部查询工具：双链资产 · 360/600明细 · DAO等级团队业绩 · 通用链上体检 · <b style="color:var(--gold2)">完整推荐人+绑定时间</b>。付款后本设备自动识别，换设备可凭订单号找回。</div>
-  <button class="go" id="monBuy" style="margin-top:14px;padding:12px 28px;font-size:15px">🔓 支付 10 LGNS 解锁</button>
-  <div style="margin-top:12px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-    <a href="javascript:void(0)" id="monMine" style="color:var(--gold2);font-size:12.5px">📋 我的订单 / 查订单号</a>
-    <a href="javascript:void(0)" id="monRestore" style="color:var(--dim);font-size:12.5px">🔎 凭订单号找回访问</a>
+ g.innerHTML=`<div class="total" id="gateCard" style="text-align:center;padding:24px">
+  <div class="big" style="font-size:27px">🔓 10 LGNS 解锁完整功能</div>
+  <div style="color:var(--soft);font-size:14px;margin:10px 0 2px;line-height:1.75">一次性付费，解锁<b style="color:var(--gold2)">当前全部查询功能</b>：双链资产 · 360/600 质押明细 · DAO 等级与团队业绩 · 地址行为画像 · <b style="color:var(--gold2)">完整推荐人 + 绑定时间</b> · 报告导出。</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin:12px 0 2px;font-size:12.5px;color:var(--soft)">
+    <span>✓ 一次性付款</span><span>✓ Polygon 与 Anubis 双链通用</span><span>✓ 本设备自动识别</span><span>✓ 换设备可凭订单凭证恢复</span><span>✓ 链上提币工具无需再次付费</span>
   </div>
+  <div style="font-size:12.5px;color:var(--dim);margin:6px 0 0;line-height:1.7">10 LGNS 为基础解锁价格。创建订单后系统会生成带订单识别尾数的<b style="color:var(--gold2)">精确金额</b>（例如 10.71 LGNS）用于自动匹配付款，请严格按订单显示金额转账。<br><span style="color:#f0b878">🔑「永久使用」指本页服务持续运营期间，无需重复支付当前功能的解锁费用。</span></div>
+  <button class="go" id="monBuy" style="margin-top:14px;padding:12px 28px;font-size:15px" aria-label="支付 10 LGNS 解锁">🔓 支付 10 LGNS 解锁</button>
+  <div style="margin-top:12px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+    <button class="btn2" id="monMine" style="padding:6px 14px;font-size:12.5px;min-height:auto" aria-label="查看我的订单">📋 我的订单 / 查订单号</button>
+    <button class="btn2" id="monRestore" style="padding:6px 14px;font-size:12.5px;min-height:auto;color:var(--dim)" aria-label="凭订单号找回访问">🔎 凭订单号找回访问</button>
+  </div>
+  <div style="font-size:11.5px;color:var(--dim);margin-top:9px">🛡 订单号是访问恢复凭证，请勿公开发送或发布截图。</div>
   <div id="monPay" style="margin-top:14px;text-align:left"></div></div>`;
  document.getElementById('monBuy').onclick=monStartPay;
  document.getElementById('monRestore').onclick=monRestoreUI;
@@ -364,27 +512,87 @@ async function monStartPay(){
  saveMonOrder(o);
  monShowPay(el,o);
 }
+function toBase9(amtStr){const[i,f='']=String(amtStr).split('.');const frac=(f+'000000000').slice(0,9);try{return(BigInt(i||'0')*1000000000n+BigInt(frac||'0')).toString();}catch(e){return'0';}}
+const PAYNETS={
+ poly:{name:'Polygon',chainId:CHAINS.polygon.chainId,lgns:CHAINS.polygon.tokens.LGNS,ex:CHAINS.polygon.explorer},
+ anb:{name:'Anubis',chainId:CHAINS.anubis.chainId,lgns:CHAINS.anubis.tokens.LGNS,ex:CHAINS.anubis.explorer}
+};
+function payStepHTML(state){
+ // state: 'wait' | 'paid' | 'err' — 只按后端真实返回点亮，中间步骤仅作说明
+ const labels=['等待付款','到账确认(≥2块)','支付成功','自动解锁'];
+ let cls=[ '', '', '', '' ];
+ if(state==='paid'){cls=['done','done','done','on'];}
+ else if(state==='err'){cls=['on','','','']; }
+ else {cls=['on','','','']; }
+ return '<div class="paystep">'+labels.map((l,i)=>`<div class="s ${cls[i]}">${l}</div>`).join('')+'</div>';
+}
 function monShowPay(el,o){
- el.innerHTML=`<div class="pos" style="padding:15px">
-  <div class="t" style="margin-bottom:8px">支付解锁 · 一次性 10 LGNS · 永久访问</div>
-  <div class="det" style="justify-content:space-between"><span>精确金额（务必一分不差）</span><b class="mono" style="color:var(--gold);font-size:16px">${o.amount} LGNS</b> <button class="verify" data-c="${o.amount}">复制金额</button></div>
-  <div class="det" style="margin-top:6px"><span>收款地址</span><span style="color:var(--gold2);font-size:11.5px">Polygon 或 Anubis 链的 LGNS 均可支付</span></div>
-  <div class="det"><code class="mono" style="word-break:break-all;color:var(--txt)">${o.receive}</code><button class="verify" data-c="${o.receive}">复制</button></div>
-  <div class="monqr" style="text-align:center;margin:12px 0"></div>
-  <div style="font-size:12.5px;color:var(--dim);margin-top:2px;line-height:1.7">用支持 <b>Polygon</b> 或 <b>Anubis</b> 的钱包，扫上面二维码或复制地址，把<b style="color:var(--gold2)">精确金额</b>的 LGNS 转过去，约 20–60 秒<b style="color:var(--gold2)">自动解锁</b>（勿关窗口）。<br><span id="monStatus" style="color:var(--gold2)">● 等待付款中…</span></div>
-  <div style="font-size:11px;color:var(--dim);margin-top:8px;border-top:1px solid var(--line);padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span>订单号 <code class="mono" style="word-break:break-all">${o.orderId}</code> <button class="verify" data-c="${o.orderId}">复制</button></span><button class="verify" id="monCancelBtn" style="border-color:#e06a6a;color:#ff9a8f">✕ 取消订单</button></div></div>`;
- el.querySelectorAll('[data-c]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent='已复制✓';setTimeout(()=>b.textContent=t,1200);};});
- try{const q=el.querySelector('.monqr');if(q&&window.QRCode){q.innerHTML='';new QRCode(q,{text:'ethereum:'+o.receive,width:160,height:160,colorDark:'#000000',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:undefined});}}catch(e){}
- const start=Date.now();
- const timer=setInterval(async()=>{
-  if(!document.body.contains(el)){clearInterval(timer);return;}
-  if(Date.now()-start>15*60*1000){clearInterval(timer);const s=document.getElementById('monStatus');if(s)s.innerHTML='<span style="color:#ff9a8f">● 等待较久。若已付款，稍后用订单号找回即可，系统仍认款。</span>';return;}
-  let c;try{c=await fetch(WK+'/mon/check?order='+o.orderId).then(r=>r.json());}catch(e){return;}
-  if(c&&c.status==='canceled'){clearInterval(timer);return;}
-  if(c&&c.status==='paid'&&c.access){clearInterval(timer);monGrant(c.access);}
- },5000);
- const cb=el.querySelector('#monCancelBtn');
- if(cb)cb.onclick=async()=>{clearInterval(timer);cb.disabled=true;cb.textContent='取消中…';try{await fetch(WK+'/mon/cancel?order='+o.orderId);}catch(e){}el.innerHTML='<div class="meta" style="text-align:center;padding:8px">订单已取消。可重新下单。</div>';};
+ let cur='poly';
+ const baseAmt=toBase9(o.amount);
+ const createdStr=(()=>{try{return new Date(o.created||Date.now()).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});}catch(e){return'—';}})();
+ let timer=null,closed=false;
+ function panel(state){
+  const nt=PAYNETS[cur];
+  const uri='ethereum:'+nt.lgns+'@'+nt.chainId+'/transfer?address='+o.receive+'&uint256='+baseAmt;
+  el.innerHTML=`<div class="pos" style="padding:15px">
+   <div class="t" style="margin-bottom:6px">支付解锁 · 一次性 10 LGNS · 永久访问</div>
+   <div class="ntabs">
+     <div class="ntab ${cur==='poly'?'on':''}" data-net="poly" role="button" tabindex="0" aria-label="用 Polygon 网络付款">Polygon</div>
+     <div class="ntab ${cur==='anb'?'on':''}" data-net="anb" role="button" tabindex="0" aria-label="用 Anubis 网络付款">Anubis</div>
+   </div>
+   <div class="det" style="justify-content:space-between"><span>网络</span><span style="color:var(--gold2)">${nt.name} · Chain ID ${nt.chainId}</span></div>
+   <div class="det" style="margin-top:6px"><span>LGNS 合约（该网络）</span></div>
+   <div class="det"><code class="mono" style="word-break:break-all;color:var(--soft);font-size:11.5px">${nt.lgns}</code><button class="verify" data-c="${nt.lgns}" aria-label="复制LGNS合约地址">复制</button></div>
+   <div class="det" style="justify-content:space-between;margin-top:8px"><span>精确金额（务必一分不差）</span><b class="mono" style="color:var(--gold);font-size:17px">${o.amount} LGNS</b></div>
+   <div style="text-align:right"><button class="verify" data-c="${o.amount}" aria-label="复制精确金额">复制金额</button></div>
+   <div class="det" style="margin-top:8px"><span>收款地址</span></div>
+   <div class="det"><code class="mono" style="word-break:break-all;color:var(--txt)">${o.receive}</code><button class="verify" data-c="${o.receive}" aria-label="复制收款地址">复制</button></div>
+   <div class="monqr" style="text-align:center;margin:12px auto 4px;max-width:100%"></div>
+   <div style="font-size:12px;color:var(--dim);text-align:center">扫码后请在钱包内确认是 <b style="color:var(--gold2)">${nt.name} 上的 LGNS</b>、金额为 <b style="color:var(--gold2)">${o.amount}</b></div>
+   ${payStepHTML(state)}
+   <div style="font-size:12.5px;color:var(--dim);margin-top:2px;line-height:1.7">系统检测到<b style="color:var(--gold2)">精确金额</b>且区块确认 ≥2 后约 20–60 秒<b style="color:var(--gold2)">自动解锁</b>。<span id="monStatus" style="color:var(--gold2)">● 等待付款中…</span></div>
+   <div style="font-size:11px;color:var(--dim);margin-top:8px;border-top:1px solid var(--line);padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span>订单号 <code class="mono" style="word-break:break-all">${o.orderId}</code> <button class="verify" data-c="${o.orderId}" aria-label="复制订单号">复制</button></span><span style="color:var(--dim)">创建 ${createdStr} · 有效 24h</span></div>
+   <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+     <button class="btn2" id="monCloseBtn" style="padding:8px 14px;font-size:12.5px;flex:1" aria-label="关闭窗口稍后继续">关闭窗口，稍后继续</button>
+     <button class="btn2" id="monMineBtn" style="padding:8px 14px;font-size:12.5px;flex:1;min-width:110px" aria-label="查看我的订单">📋 我的订单</button>
+     <button class="btn2" id="monCancelBtn" style="padding:8px 14px;font-size:12.5px;flex:1;border-color:#e06a6a;color:#ff9a8f;min-width:90px" aria-label="取消订单">✕ 取消订单</button>
+   </div>
+   <details style="margin-top:10px"><summary style="cursor:pointer;font-size:12px;color:var(--gold2)">付款遇到问题？点这里</summary>
+     <div style="font-size:12px;color:var(--soft);line-height:1.8;padding-top:6px">
+       · <b>金额不一致：</b>系统按精确金额匹配，转错金额不会自动到账，请用订单号找回并联系客服核验。<br>
+       · <b>选错网络：</b>只要转的是 Polygon 或 Anubis 上的 LGNS 到收款地址、金额正确即可识别；转成原生币或其它代币无法识别。<br>
+       · <b>付款后没自动解锁：</b>稍等区块确认；较久未解锁用「凭订单号找回访问」重试，系统仍认款。<br>
+       · <b>订单过期后付款：</b>仍可用订单号找回匹配；如未识别请联系客服。<br>
+       · <b>人工核验：</b>本页暂不支持自助填交易哈希核验，如遇异常请 <a href="/#contact" style="color:var(--gold2)">联系客服</a> 凭付款记录处理。
+     </div></details>
+   </div>`;
+  el.querySelectorAll('[data-c]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent='已复制';b.classList.add('copied');setTimeout(()=>{b.textContent=t;b.classList.remove('copied');},1200);};});
+  el.querySelectorAll('[data-net]').forEach(t=>{const sw=()=>{cur=t.dataset.net;panel('wait');};t.onclick=sw;t.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sw();}};});
+  try{const q=el.querySelector('.monqr');if(q&&window.QRCode){q.innerHTML='';new QRCode(q,{text:uri,width:168,height:168,colorDark:'#000000',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:undefined});}}catch(e){}
+  const closeB=el.querySelector('#monCloseBtn');
+  if(closeB)closeB.onclick=()=>{closed=true;if(timer)clearInterval(timer);el.innerHTML='<div class="pos" style="padding:13px;text-align:center"><div style="color:var(--soft);font-size:13px">订单已保留在「我的订单」，随时可继续。</div><button class="btn2" id="monResume" style="margin-top:10px;padding:8px 18px;font-size:13px">继续付款</button></div>';const rb=el.querySelector('#monResume');if(rb)rb.onclick=()=>{closed=false;startPoll();panel('wait');};};
+  const mineB=el.querySelector('#monMineBtn');if(mineB)mineB.onclick=renderMyOrders;
+  const cb=el.querySelector('#monCancelBtn');
+  if(cb){let armed=false,rearm=null;
+   const doCancel=async()=>{closed=true;if(timer)clearInterval(timer);cb.disabled=true;cb.textContent='取消中…';try{await fetch(WK+'/mon/cancel?order='+o.orderId);}catch(e){}el.innerHTML='<div class="meta" style="text-align:center;padding:8px">订单已取消。可重新下单。</div>';};
+   cb.onclick=()=>{
+     if(armed){doCancel();return;}
+     armed=true;cb.textContent='确认取消？再点一次';cb.style.background='rgba(224,106,106,.15)';
+     rearm=setTimeout(()=>{armed=false;cb.textContent='✕ 取消订单';cb.style.background='';},4000);
+   };}
+ }
+ function startPoll(){
+  const start=Date.now();
+  timer=setInterval(async()=>{
+   if(closed||!document.body.contains(el)){clearInterval(timer);return;}
+   if(Date.now()-start>15*60*1000){clearInterval(timer);const s=document.getElementById('monStatus');if(s)s.innerHTML='<span style="color:#ff9a8f">● 等待较久。若已付款，用订单号找回即可，系统仍认款。</span>';return;}
+   let c;try{c=await fetch(WK+'/mon/check?order='+o.orderId).then(r=>r.json());}catch(e){const s=document.getElementById('monStatus');if(s)s.innerHTML='<span style="color:#ff9a8f">● 网络波动，重试中…</span>';return;}
+   if(c&&c.status==='canceled'){clearInterval(timer);return;}
+   if(c&&c.status==='paid'&&c.access){clearInterval(timer);const s=document.getElementById('monStatus');if(s)s.innerHTML='<b style="color:#7bffb0">✓ 支付成功 · 正在解锁…</b>';monGrant(c.access);}
+  },5000);
+ }
+ panel('wait');
+ startPoll();
 }
 function monGrant(token){MONTOKEN=token;try{localStorage.setItem(MLS,token);}catch(e){}unlockUI();try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}}
 function monRestoreUI(){
@@ -420,6 +628,96 @@ function walletOne(d,label,explorer,addr){
  h+=`<div style="text-align:right;margin-top:4px"><a class="verify" href="${explorer}${addr}" target="_blank">🔗 完整记录</a></div></div>`;
  return h;
 }
+const SAMPLE_ADDR='0xd5b610963deec4fae7d17a5191e80bb7281aadc5';
+function skeletonHTML(){return '<div class="chain"><div class="skel" style="height:22px;width:40%;margin-bottom:12px"></div><div class="grid"><div class="skel" style="height:64px"></div><div class="skel" style="height:64px"></div><div class="skel" style="height:64px"></div></div><div class="skel" style="height:64px;margin-top:10px"></div></div>';}
+function walActive(w){return !!(w&&(w.firstTs||(w.transfers&&w.transfers.length)||(w.txs&&w.txs.length)||(w.native&&+w.native.amount>0)||(w.tokens&&w.tokens.some(t=>+t.amount>0))));}
+function lastActiveTs(w){if(!w)return null;let m=0;(w.transfers||[]).forEach(t=>{if(t.ts>m)m=t.ts;});(w.txs||[]).forEach(t=>{if(t.ts>m)m=t.ts;});return m||null;}
+function firstActiveTs(w){if(!w)return null;if(w.firstTs)return w.firstTs;let m=Infinity;(w.transfers||[]).forEach(t=>{if(t.ts&&t.ts<m)m=t.ts;});(w.txs||[]).forEach(t=>{if(t.ts&&t.ts<m)m=t.ts;});return m===Infinity?null:m;}
+function addressOverviewHTML(wp,wa,addr){
+ const pAct=walActive(wp),aAct=walActive(wa);
+ const typeStr=w=>!w?'<span style="color:#e0a06a">数据源暂不可用</span>':(w.isContract?'📄 合约地址':'👤 外部账户 EOA');
+ const la=[lastActiveTs(wp),lastActiveTs(wa)].filter(Boolean);const last=la.length?Math.max.apply(null,la):null;
+ const fa=[firstActiveTs(wp),firstActiveTs(wa)].filter(Boolean);const first=fa.length?Math.min.apply(null,fa):null;
+ let h='<div class="chain"><h2>① 地址总览 <span class="stag rt">链上实时</span></h2>';
+ h+='<div class="det" style="margin-bottom:10px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1">'+esc(addr)+'</code><button class="verify" data-copy="'+esc(addr)+'" aria-label="复制地址">复制</button></div>';
+ h+='<div class="grid">';
+ h+=card('Polygon 类型',typeStr(wp));
+ h+=card('Anubis 类型',typeStr(wa));
+ h+=card('Polygon 活动',pAct?'<span style="color:#7bffb0">有</span>':'<span style="color:var(--dim)">无</span>');
+ h+=card('Anubis 活动',aAct?'<span style="color:#7bffb0">有</span>':'<span style="color:var(--dim)">无</span>');
+ h+=card('Gas · POL',wp&&wp.native?num(wp.native.amount):'—');
+ h+=card('Gas · DAI(Anubis)',wa&&wa.native?num(wa.native.amount):'—');
+ h+=card('首次活动',first?tsD(first):'采样内未知');
+ h+=card('最后活动(采样)',last?tsD(last):'—');
+ h+='</div>';
+ h+='<div class="meta" style="margin-top:8px">查询时间 '+new Date().toLocaleString('zh-CN')+' · 首次/最后活动基于链上记录采样（Anubis 首次活动以采样最早记录估算）</div></div>';
+ return h;
+}
+function behaviorHTML(wp,wa,addr){
+ const all=[];
+ [['Polygon',wp],['Anubis',wa]].forEach(function(pair){var cn=pair[0],w=pair[1];if(w){(w.txs||[]).forEach(function(t){all.push({ts:t.ts,to:t.to,from:t.from,isError:t.isError,cn:cn,kind:'tx'});});(w.transfers||[]).forEach(function(t){all.push({ts:t.ts,to:t.to,from:t.from,dir:t.dir,cn:cn,kind:'tf'});});}});
+ let h='<div class="chain"><h2>⑥ 地址行为画像 <span class="stag rt">链上行为分析</span></h2>';
+ h+='<div class="meta">基于公开链上记录的<b style="color:var(--soft)">采样</b>分析（每条链最近约 18 笔交易 / 转账），用于辅助判断，<b style="color:#f0b878">不代表真实身份认定</b>。</div>';
+ if(!all.length){h+='<div class="pos"><span style="color:var(--dim)">采样区间内暂无可分析的交易记录，或数据源暂不可用。</span></div></div>';return h;}
+ const txs=all.filter(x=>x.kind==='tx');const errs=txs.filter(x=>x.isError).length;
+ const times=all.map(x=>x.ts).filter(Boolean).sort((a,b)=>a-b);
+ const spanDays=times.length>1?Math.max(1,Math.round((times[times.length-1]-times[0])/86400)):'<1';
+ const hours=all.map(x=>x.ts?new Date(x.ts*1000).getUTCHours():null).filter(x=>x!=null);
+ let hourNote='—';if(hours.length){const cnt={};hours.forEach(hh=>cnt[hh]=(cnt[hh]||0)+1);hourNote='UTC '+Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]+'时').join('/');}
+ const cp={};txs.forEach(t=>{if(t.to){const k=t.to.toLowerCase();cp[k]=(cp[k]||0)+1;}});
+ const topCp=Object.entries(cp).sort((a,b)=>b[1]-a[1]).slice(0,3);
+ const src={},sink={};all.filter(x=>x.kind==='tf').forEach(t=>{if(t.dir==='in'&&t.from)src[t.from.toLowerCase()]=(src[t.from.toLowerCase()]||0)+1;if(t.dir==='out'&&t.to)sink[t.to.toLowerCase()]=(sink[t.to.toLowerCase()]||0)+1;});
+ const topSrc=Object.entries(src).sort((a,b)=>b[1]-a[1]).slice(0,2);
+ const topSink=Object.entries(sink).sort((a,b)=>b[1]-a[1]).slice(0,2);
+ h+='<div class="grid">';
+ h+=card('采样交易数',txs.length+' 笔');
+ h+=card('采样活跃跨度',spanDays+' 天');
+ h+=card('采样失败率',txs.length?Math.round(errs/txs.length*100)+'%':'—');
+ h+=card('高频时段(采样)',hourNote);
+ h+='</div>';
+ const listRow=(t,arr)=>arr.length?('<div class="pos"><div style="font-size:12px;color:var(--dim);margin-bottom:4px">'+t+'</div>'+arr.map(x=>'<div class="det" style="justify-content:space-between"><span class="mono">'+sh(x[0])+'</span><span style="color:var(--dim)">'+x[1]+' 次</span></div>').join('')+'</div>'):'';
+ h+=listRow('采样内主要交互对象',topCp);
+ h+=listRow('采样内主要资金来源',topSrc);
+ h+=listRow('采样内主要转出对象',topSink);
+ let flags=[];
+ if((wp&&wp.isContract)||(wa&&wa.isContract))flags.push('该地址在某条链上是合约地址');
+ if(txs.length&&errs/txs.length>0.3)flags.push('采样内失败交易占比偏高');
+ if(hours.length>=6&&new Set(hours).size<=2)flags.push('采样操作时段高度集中，存在自动化可能');
+ h+='<div class="unknown" style="border-style:solid">🧭 可信度参考：'+(flags.length?flags.map(esc).join('；'):'采样内未见明显异常信号')+'。<br>判断依据：以上仅基于最近约 18 笔链上采样，样本有限；深度自动化识别与完整交易计数暂未接入。<b style="color:#f0b878">该结果属于链上行为分析，不代表真实身份认定。</b></div>';
+ h+='</div>';return h;
+}
+function openPay(){const g=document.getElementById('gate');if(g)try{g.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}const mb=document.getElementById('monBuy');if(mb)monStartPay();}
+async function sampleReport(){
+ const box=document.getElementById('sampleReport');if(!box)return;
+ const btn=document.getElementById('heroSample');if(btn){btn.disabled=true;btn.textContent='加载示例中…';}
+ box.innerHTML='<div style="margin-top:14px">'+skeletonHTML()+'</div>';
+ const addr=SAMPLE_ADDR;const ai=document.getElementById('addr');if(ai)ai.value=addr;
+ let p,a,comm,wpol,wanb;
+ try{[p,a,comm,wpol,wanb]=await Promise.all([query('polygon',addr),query('anubis',addr),fetchCommunity(addr),fetchWallet('polygon',addr),fetchWallet('anubis',addr)]);}
+ catch(e){box.innerHTML='<div class="chain"><div class="err">示例加载失败，请稍后重试</div></div>';if(btn){btn.disabled=false;btn.textContent='👁 查看示例报告';}return;}
+ const rp=chainHTML(p),ra=chainHTML(a);const sum=rp.total+ra.total;
+ const bal=(o,sym)=>o.balances&&o.balances[sym]?pretty(o.balances[sym].raw,o.balances[sym].dec):'—';
+ let free='<div class="chain"><h2>📄 示例报告 · <span style="color:var(--gold2)">'+sh(addr)+'</span> <span class="stag rt">真实链上数据</span></h2>';
+ free+='<div class="meta">这是对一个真实公开地址的实时查询（免费预览基础项，完整明细付费解锁）。</div>';
+ free+='<div class="grid">';
+ free+=card('地址所在链','Polygon + Anubis');
+ free+=card('地址类型',wpol&&wpol.isContract?'📄 合约':'👤 外部账户 EOA');
+ free+=card('Polygon 钱包 LGNS',bal(p,'LGNS'),true);
+ free+=card('Polygon 活期 sLGNS',bal(p,'sLGNS'));
+ free+=card('Anubis 钱包 LGNS',bal(a,'LGNS'),true);
+ free+=card('Anubis 活期 sLGNS',bal(a,'sLGNS'));
+ free+=card('双链可验证合计',pretty(sum,9)+' LGNS',true);
+ const last=[lastActiveTs(wpol),lastActiveTs(wanb)].filter(Boolean);
+ free+=card('最后活跃(采样)',last.length?tsD(Math.max.apply(null,last)):'—');
+ free+='</div><div class="meta" style="margin-top:8px">数据来源：Polygon / Anubis 公开链上（RPC 读取） · 查询时间 '+new Date().toLocaleString('zh-CN')+'</div></div>';
+ const lockedInner=daoHTML(comm)+rp.html+ra.html+behaviorHTML(wpol,wanb,addr);
+ const locked='<div class="locked" style="margin-top:14px"><div class="lockwrap">'+lockedInner+'</div><div class="lockmask"><div class="lt">🔒 解锁完整链上尽调报告</div><div class="ls">360/600 质押逐笔明细 · DAO 等级 · 三线团队业绩 · 完整推荐人关系 · 待领奖励 · 链上行为分析 · 报告导出</div><div class="ls" style="color:var(--gold2)">一次性 10 LGNS，永久使用当前全部查询功能</div><button class="go" id="sampleUnlock" style="margin-top:6px" aria-label="解锁完整功能">🔓 解锁完整功能</button></div></div>';
+ box.innerHTML=free+locked;
+ box.querySelectorAll('[data-copy]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.copy);b.textContent='已复制';b.classList.add('copied');setTimeout(()=>{b.textContent=t;b.classList.remove('copied');},1200);};});
+ const su=document.getElementById('sampleUnlock');if(su)su.onclick=openPay;
+ if(btn){btn.disabled=false;btn.textContent='👁 重新加载示例';}
+ try{box.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}
+}
 function walletHealthHTML(pol,anb,addr){
  return `<div class="chain"><h2>通用链上体检 <span class="tag">身份 / 资产 / 活动</span></h2>
   <div class="meta">读公开链上数据：是谁、持有什么、做过什么（经 Worker 取 Etherscan/Blockscout，key 在服务端）</div>
@@ -435,8 +733,10 @@ async function loadReferrer(addr){
  if(!d||!d.ok){el.innerHTML=refShell('查询失败，稍后再试');return;}
  if(!d.hasRef){el.innerHTML=refShell('这个地址<b style="color:var(--gold2)">还没有绑定推荐人</b>（或还没加入社区）');return;}
  const full=d.referrer||d.masked;
- el.innerHTML=`<div class="chain"><h2>查推荐人 · 绑定关系 <span class="tag" style="color:#e0a06a">链上 members</span></h2>
-  <div class="grid"><div class="card"><div class="k">推荐人（上级）</div><div class="v gold mono" style="font-size:15px;word-break:break-all">${full}</div>${d.referrer?'<button class="verify" style="margin-top:7px" data-drill="'+d.referrer+'">🔎 查这个上线</button> <button class="verify" style="margin-top:7px" data-c="'+d.referrer+'">复制</button> <a class="verify" style="margin-top:7px" href="https://browser.anubispace.org/address/'+d.referrer+'" target="_blank">🔗 验证</a>':''}</div>
+ const meAddr=(document.getElementById('addr')&&document.getElementById('addr').value.trim())||'';
+ el.innerHTML=`<div class="chain"><h2>⑤ 推荐关系 · 绑定 <span class="tag" style="color:#e0a06a">链上 members</span></h2>
+  <div class="pos" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;font-size:12.5px"><span class="mono" style="color:var(--txt)">${sh(meAddr)}</span><span style="color:var(--gold2)">→ 上线 →</span><span class="mono" style="color:var(--gold)">${sh(full)}</span>${d.bindTime?'<span style="color:var(--dim)">· 绑定 '+new Date(d.bindTime*1000).toLocaleDateString('zh-CN')+'</span>':''}</div>
+  <div class="grid" style="margin-top:8px"><div class="card"><div class="k">推荐人（上级）</div><div class="v gold mono" style="font-size:15px;word-break:break-all">${full}</div>${d.referrer?'<button class="verify" style="margin-top:7px" data-drill="'+d.referrer+'">🔎 查这个上线</button> <button class="verify" style="margin-top:7px" data-c="'+d.referrer+'">复制</button> <a class="verify" style="margin-top:7px" href="https://browser.anubispace.org/address/'+d.referrer+'" target="_blank">🔗 验证</a>':''}</div>
   <div class="card"><div class="k">社区等级</div><div class="v gold">${d.level?('V'+d.level):'—'}</div></div>
   ${d.bindTime?'<div class="card"><div class="k">绑定时间</div><div class="v" style="font-size:14px">'+new Date(d.bindTime*1000).toLocaleString('zh-CN')+'</div></div>':''}</div></div>`;
  el.querySelectorAll('[data-c]').forEach(b=>{const o=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent='已复制✓';setTimeout(()=>b.textContent=o,1200);};});
@@ -451,7 +751,7 @@ function queryAddr(a){const el=document.getElementById('addr');if(el){el.value=a
 function renderRecent(){
  const el=document.getElementById('recentBox');if(!el)return;
  const fav=loadFav(),rec=loadRec().filter(a=>!fav.includes(a));
- const chip=(a,star)=>`<span style="display:inline-flex;align-items:center;gap:5px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px 10px;margin:3px 5px 3px 0;font-size:12px"><a class="lnk mono" href="javascript:void(0)" data-q="${a}">${star?'⭐':''}${a.slice(0,6)}…${a.slice(-4)}</a><a href="javascript:void(0)" data-fav="${a}" style="color:var(--dim);text-decoration:none" title="收藏/取消收藏">${star?'✕':'☆'}</a></span>`;
+ const chip=(a,star)=>`<span style="display:inline-flex;align-items:center;gap:5px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px 10px;margin:3px 5px 3px 0;font-size:12px"><button class="lnk mono" type="button" data-q="${a}" style="background:none;border:none;padding:0;cursor:pointer;font:inherit" aria-label="查询 ${a}">${star?'⭐':''}${a.slice(0,6)}…${a.slice(-4)}</button><button type="button" data-fav="${a}" style="background:none;border:none;padding:0;color:var(--dim);cursor:pointer" title="收藏/取消收藏" aria-label="收藏或取消收藏">${star?'✕':'☆'}</button></span>`;
  let h='';
  if(fav.length)h+='<div style="font-size:11.5px;color:var(--dim);margin-bottom:2px">⭐ 收藏</div>'+fav.map(a=>chip(a,true)).join('');
  if(rec.length)h+='<div style="font-size:11.5px;color:var(--dim);margin:6px 0 2px">🕘 最近查询</div>'+rec.slice(0,10).map(a=>chip(a,false)).join('');
@@ -459,30 +759,43 @@ function renderRecent(){
  el.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>queryAddr(b.dataset.q));
  el.querySelectorAll('[data-fav]').forEach(b=>b.onclick=()=>toggleFav(b.dataset.fav));
 }
+let _running=false;
 async function run(){
+ if(_running)return;
  const addr=document.getElementById('addr').value.trim();
  const out=document.getElementById('out'),st=document.getElementById('status'),btn=document.getElementById('btn');
  out.innerHTML='';
  if(!/^0x[0-9a-fA-F]{40}$/.test(addr)){st.textContent='⚠ 请输入正确的 0x 开头 42 位钱包地址';return;}
- btn.disabled=true;st.textContent='正在读取 Polygon + Anubis 两条链的链上数据…';
+ _running=true;btn.disabled=true;btn.textContent='查询中…';st.textContent='正在读取 Polygon + Anubis 两条链的链上数据…';
+ out.innerHTML=skeletonHTML()+skeletonHTML();
  try{
   const[p,a,comm,wpol,wanb]=await Promise.all([query('polygon',addr),query('anubis',addr),fetchCommunity(addr),fetchWallet('polygon',addr),fetchWallet('anubis',addr)]);
   const rp=chainHTML(p),ra=chainHTML(a);
   const sum=rp.total+ra.total;
-  let head=`<div class="total"><div class="lab">两链可验证 LGNS 资产合计</div><div class="big">${pretty(sum,9)} LGNS</div>
+  let head=`<div class="total"><div class="lab">② 双链可验证 LGNS 资产合计</div><div class="big">${pretty(sum,9)} LGNS</div>
    <div class="split"><div>Polygon<b>${pretty(rp.total,9)} LGNS</b>${rp.price!=null?'≈'+toDai(rp.total,rp.price)+' DAI':''}</div>
    <div>Anubis<b>${pretty(ra.total,9)} LGNS</b>${ra.price!=null?'≈'+toDai(ra.total,ra.price)+' DAI':''}</div></div>
    <div style="color:#8b97a5;font-size:11.5px;margin-top:8px">两链价格不同，分别按各自 LGNS/DAI 池计价，不混算</div></div>`;
-  out.innerHTML=head+daoHTML(comm)+'<div id="refBlock"></div>'+walletHealthHTML(wpol,wanb,addr)+rp.html+ra.html;
+  out.innerHTML='<div style="text-align:right;margin-bottom:8px"><button class="btn2" id="exportBtn" style="padding:6px 14px;font-size:12.5px;min-height:auto" aria-label="导出或打印报告">🖨 导出 / 打印报告</button></div>'
+    +addressOverviewHTML(wpol,wanb,addr)
+    +head
+    +'<div class="msec-h" style="margin:4px 0 10px">③ 各链资产与质押 / 债券明细</div>'
+    +rp.html+ra.html
+    +daoHTML(comm)
+    +'<div id="refBlock"></div>'
+    +behaviorHTML(wpol,wanb,addr);
+  out.querySelectorAll('[data-copy]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.copy);b.textContent='已复制';b.classList.add('copied');setTimeout(()=>{b.textContent=t;b.classList.remove('copied');},1200);};});
+  var eb=document.getElementById('exportBtn');if(eb)eb.onclick=()=>{try{window.print();}catch(e){}};
   saveRec(addr);renderRecent();
   loadReferrer(addr);
   st.textContent='查询完成 · 数据更新时间 '+new Date().toLocaleString('zh-CN')+'（日期按实测出块速率估算）';
- }catch(e){st.textContent='查询出错：'+e.message;}
- btn.disabled=false;
+ }catch(e){out.innerHTML='<div class="chain"><div class="err">查询出错：'+esc(e.message||'未知错误')+'</div><button class="btn2" id="retryBtn" style="margin-top:10px">重试</button></div>';const rb=document.getElementById('retryBtn');if(rb)rb.onclick=run;st.textContent='';}
+ _running=false;btn.disabled=false;btn.textContent='查询资产';
 }
 document.getElementById('btn').onclick=run;
 document.getElementById('addr').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
 document.querySelectorAll('.ex').forEach(el=>el.onclick=e=>{e.preventDefault();document.getElementById('addr').value=el.dataset.a;run();});
+(function(){var hs=document.getElementById('heroSample');if(hs)hs.onclick=sampleReport;var hu=document.getElementById('heroUnlock');if(hu)hu.onclick=openPay;})();
 checkAccess();
 </script>
 <script>
@@ -512,22 +825,23 @@ const comma=s=>String(s).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 const big=h=>h?BigInt(h):0n;
 const g=(r,d)=>(big(r)/(10n**BigInt(d))).toString();
 const mcard=(k,v,sub)=>`<div class="card"><div class="k">${k}</div><div class="v gold">${v}</div>${sub?`<div style="color:var(--dim);font-size:11.5px;margin-top:2px">${sub}</div>`:''}</div>`;
-function renderCore(d,live){
- const t=live?'<span class="pill live">实时</span>':'<span class="pill snap">快照</span>';
+function srcTag(src){return src==='live'?'<span class="stag rt">链上实时</span>':src==='scan'?'<span class="stag scan">后台扫描</span>':src==='bad'?'<span class="stag bad">数据异常</span>':'<span class="stag snap">快照数据</span>';}
+function renderCore(d,src){
+ const t=srcTag(src);
  const tre=comma((BigInt(d.treDai)+BigInt(d.treUsdt)).toString());
  $('mcore').innerHTML=
   mcard('<span class="pill poly">Polygon</span> LGNS 价格 '+t,d.polyPrice+' DAI','QuickSwap V2 主池')+
   mcard('<span class="pill anb">Anubis</span> LGNS 价格 '+t,d.anbPrice+' DAI','Anubis DEX 主池')+
   mcard('Polygon 国库硬储备 '+t,'$'+tre,'DAI '+comma(d.treDai)+' + USDT '+comma(d.treUsdt))+
-  mcard('DAO V1+ 总人数 <span class="pill snap">快照</span>',comma(SNAP.v1plus),'见下方等级分布');
+  mcard('DAO V1+ 总人数 <span class="stag scan">后台扫描</span>',comma(SNAP.v1plus),'见下方等级分布');
  $('massets').innerHTML=
   mcard('<span class="pill poly">Poly</span> LGNS 供应 '+t,comma(d.supP),'sLGNS '+comma(d.ssupP))+
   mcard('<span class="pill anb">Anubis</span> LGNS 供应 '+t,comma(d.supA),'sLGNS '+comma(d.ssupA))+
   mcard('Polygon 已销毁 '+t,comma(d.burnP),'dEaD 地址')+
   mcard('Anubis 已销毁 '+t,comma(d.burnA),'dEaD 地址');
 }
-function renderOfficial(o,live){
- const t=live?'<span class="pill live">实时</span>':'<span class="pill snap">快照</span>';
+function renderOfficial(o,src){
+ const t=srcTag(src);
  const usd=v=>'$'+comma(Math.round(Number(v)).toString());
  $('mofficial').innerHTML=
   mcard('平台 Runway '+t,(o.runway||'—')+' 天','官方口径可运行周期')+
@@ -535,27 +849,51 @@ function renderOfficial(o,live){
   mcard('累计销毁 LGNS '+t,comma(Math.round(Number(o.burnTotal)).toString()),'官方 totalBurn')+
   mcard('国库无风险价值 '+t,usd(o.rfv),'官方 treasuryRiskFreeValue');
 }
-function whaleRows(list,explorer){return list.map((w,i)=>`<tr><td>${i+1}</td><td><a class="lnk mono" href="${explorer}${w[0]}" target="_blank">${short(w[0])}</a></td><td style="text-align:right">${w[1]}</td></tr>`).join('');}
-function renderWhales(tbodyId,list,explorer,count){
- const tb=document.querySelector('#'+tbodyId+' tbody');if(!tb)return;
- if(list.length<=10){tb.innerHTML=whaleRows(list,explorer);return;}
- function collapsed(){tb.innerHTML=whaleRows(list.slice(0,10),explorer)+`<tr><td colspan="3" style="text-align:center;padding:10px"><a class="lnk" href="javascript:void(0)" id="${tbodyId}Exp">展开全部 ${count} 人 ↓</a></td></tr>`;var b=document.getElementById(tbodyId+'Exp');if(b)b.onclick=expanded;}
- function expanded(){tb.innerHTML=whaleRows(list,explorer)+`<tr><td colspan="3" style="text-align:center;padding:10px"><a class="lnk" href="javascript:void(0)" id="${tbodyId}Col">收起 ↑</a></td></tr>`;var b=document.getElementById(tbodyId+'Col');if(b)b.onclick=collapsed;}
- collapsed();
+let whPage=1;const WH_PS=20;
+function whaleData(){
+ const out=[];
+ (SNAP.polyWhales.top||[]).forEach(w=>out.push({addr:w[0],amtStr:w[1],amt:Number(String(w[1]).replace(/,/g,''))||0,chain:'poly'}));
+ (SNAP.anbWhales.top||[]).forEach(w=>out.push({addr:w[0],amtStr:w[1],amt:Number(String(w[1]).replace(/,/g,''))||0,chain:'anb'}));
+ return out;
 }
-function renderSnap(){
- renderCore(SNAP,false);
- renderOfficial(SNAP.official,false);
+function renderHoldings(){
+ const tb=document.querySelector('#whTable tbody');if(!tb)return;
+ const chain=($('whChain')||{}).value||'all';
+ const q=((($('whSearch')||{}).value)||'').trim().toLowerCase();
+ const sort=($('whSort')||{}).value||'desc';
+ let list=whaleData();
+ if(chain!=='all')list=list.filter(x=>x.chain===chain);
+ if(q)list=list.filter(x=>x.addr.toLowerCase().indexOf(q)>=0);
+ list.sort((a,b)=>sort==='asc'?a.amt-b.amt:b.amt-a.amt);
+ const total=list.length,pages=Math.max(1,Math.ceil(total/WH_PS));
+ if(whPage>pages)whPage=pages;if(whPage<1)whPage=1;
+ const start=(whPage-1)*WH_PS,pageList=list.slice(start,start+WH_PS);
+ const price=c=>c==='poly'?Number(SNAP.polyPrice||0):Number(SNAP.anbPrice||0);
+ tb.innerHTML=pageList.length?pageList.map((w,i)=>{
+   const ex=w.chain==='poly'?EX.poly:EX.anb,val=w.amt*price(w.chain);
+   const pill=w.chain==='poly'?'<span class="pill poly">Poly</span>':'<span class="pill anb">ANB</span>';
+   return `<tr><td>${start+i+1}</td><td>${pill}</td><td><a class="lnk mono" href="${ex}${w.addr}" target="_blank">${short(w.addr)}</a></td><td style="text-align:right">${w.amtStr} LGNS</td><td style="text-align:right;color:var(--dim)">$${comma(Math.round(val).toString())}</td><td><a class="verify" href="${ex}${w.addr}" target="_blank" aria-label="区块浏览器核验">🔗</a></td></tr>`;
+ }).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--dim);padding:14px">没有匹配的地址</td></tr>';
+ const pc=Number(SNAP.polyWhales.count||0),ac=Number(SNAP.anbWhales.count||0);
+ const wc=$('whCount');if(wc)wc.innerHTML=`共 Polygon <b>${pc}</b> + Anubis <b>${ac}</b> 人 · 当前筛选 ${total} 条 · 单位 LGNS，估值按各链现价 · 更新 ${SNAP.at}`;
+ const pg=$('whPager');if(pg){pg.innerHTML=`<button ${whPage<=1?'disabled':''} id="whPrev" aria-label="上一页">上一页</button><span>第 ${whPage} / ${pages} 页</span><button ${whPage>=pages?'disabled':''} id="whNext" aria-label="下一页">下一页</button>`;const pv=$('whPrev'),nx=$('whNext');if(pv)pv.onclick=()=>{whPage--;renderHoldings();};if(nx)nx.onclick=()=>{whPage++;renderHoldings();};}
+}
+function setupHoldings(){['whChain','whSearch','whSort'].forEach(id=>{const e=$(id);if(e&&!e._wired){e._wired=1;const h=()=>{whPage=1;renderHoldings();};e.onchange=h;e.oninput=h;}});}
+function renderPromoStat(){const el=$('mpromostat');if(!el)return;
+ el.innerHTML=mcard('今日新增晋级 <span class="stag scan">后台扫描</span>',comma(SNAP.promo24h||0)+' 笔','过去 24 小时')
+  +mcard('近 7 日新增晋级 <span class="stag snap">暂未接入</span>','—','缺历史快照，暂未接入')
+  +mcard('近 30 日新增晋级 <span class="stag snap">暂未接入</span>','—','缺历史快照，暂未接入');
+}
+function renderSnap(src){
+ renderCore(SNAP,src||'snap');
+ renderOfficial(SNAP.official,src==='live'?'scan':(src||'snap'));
+ renderPromoStat();
  const mx=Math.max(...Object.values(SNAP.levels));
  $('mlevels').innerHTML=[1,2,3,4,5,6].map(l=>`<div class="lv"><div class="n">V${l}</div><div class="c">${comma(SNAP.levels[l])}</div><div class="bar"><i style="width:${SNAP.levels[l]/mx*100}%"></i></div></div>`).join('');
- $('mlvnote').innerHTML=`共 <b>${comma(SNAP.v1plus)}</b> 个 V1+ 地址 · 过去24小时新增晋升 <b style="color:var(--green)">${SNAP.promo24h}</b> 笔 · 扫描 <b>${comma(SNAP.events)}</b> 条链上 daoLevel 事件（合约 0x579a71…，Anubis）。等级由官方按"三条线各≥5万"规则算好后写入链上，本站只读链上最终 daoLevel，可独立验证。<b>Polygon 无此等级系统</b>。`;
+ $('mlvnote').innerHTML=`共 <b>${comma(SNAP.v1plus)}</b> 个 V1+ 地址 · 过去24小时新增晋升 <b style="color:var(--green)">${SNAP.promo24h}</b> 笔 · 扫描 <b>${comma(SNAP.events)}</b> 条链上 daoLevel 事件（合约 0x579a71…，Anubis）。等级由官方按"三条线各≥5万"规则算好后写入链上，本站只读链上最终 daoLevel，可独立验证。<b>Polygon 无此等级系统</b>；两链地址各自独立、不做跨链合并。`;
  $('mpromos').querySelector('tbody').innerHTML=SNAP.promos.map(p=>`<tr><td><a class="lnk mono" href="${EX.anb}${p[0]}" target="_blank">${short(p[0])}</a></td><td class="up">V${p[1]} → V${p[2]}</td><td class="mono">${comma(p[3])}</td><td><a class="lnk mono" href="${EX.anbtx}${p[4]}" target="_blank">${p[4].slice(0,10)}…</a></td></tr>`).join('');
- $('mpwc').textContent=SNAP.polyWhales.count+' 人';
- renderWhales('mpwt',SNAP.polyWhales.top,EX.poly,SNAP.polyWhales.count);
- $('mawc').textContent=SNAP.anbWhales.count+' 人';
- renderWhales('mawt',SNAP.anbWhales.top,EX.anb,SNAP.anbWhales.count);
- $('mfoot').innerHTML=`口径：价格/供应/国库/销毁可实时读链，连不上海外节点则显示 ${SNAP.at} 快照；V1-V6 与大户名单需后端定时扫描，当前为 ${SNAP.at} 链上实测。大户=钱包LGNS + 直接持sLGNS(活期) 合并去重，仅EOA，已排除合约/池/国库/销毁/项目钱包；不含360/600锁仓/债券/warmup/未领奖励。`;
- $('mdot').className='mdot';$('mst').innerHTML='已显示 '+SNAP.at+' 链上快照 · 尝试连节点刷新实时…';
+ setupHoldings();renderHoldings();
+ $('mfoot').innerHTML=`口径：价格/供应/国库/销毁可实时读链，连不上海外节点则显示 ${SNAP.at} 快照；V1-V6 与持仓榜为后端定时扫描（当前 ${SNAP.at}）。持仓榜=钱包 LGNS + 直接持 sLGNS(活期) 合并去重，仅 EOA，已排除合约/池/国库/销毁/项目钱包；不含 360/600 锁仓、债券、warmup、未领奖励。`;
 }
 const RPC={poly:['https://polygon-bor-rpc.publicnode.com','https://polygon.drpc.org','https://polygon-rpc.com'],anb:['https://rpc.anubispace.org']};
 async function mcall(rpcs,to,data){for(const u of rpcs){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),9000);const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to,data},'latest']}),signal:c.signal});clearTimeout(t);const j=await r.json();if(j.result&&j.result!=='0x')return j.result;}catch(e){}}return null;}
@@ -579,16 +917,18 @@ async function loadLive(){
    mcall(RPC.poly,AL,'0x70a08231'+enc(DEAD)),mcall(RPC.anb,NL,'0x70a08231'+enc(DEAD))]);
   if(sp)d.supP=g(sp,9);if(sa)d.supA=g(sa,9);if(ssp)d.ssupP=g(ssp,9);if(ssa)d.ssupA=g(ssa,9);
   if(dai)d.treDai=g(dai,18);if(usdt)d.treUsdt=g(usdt,6);if(bp)d.burnP=g(bp,9);if(ba)d.burnA=g(ba,9);
-  renderCore(d,true);
+  renderCore(d,'live');
+  SNAP.polyPrice=d.polyPrice;SNAP.anbPrice=d.anbPrice;renderHoldings();
   try{const[dash,metr]=await Promise.all([
     fetch('https://apiv2.ocros.io/api/v1/dashboard',{headers:{'Referer':'https://rocket.origindefi.io/'}}).then(r=>r.json()),
     fetch('https://apiv2.ocros.io/api/v1/metricsv2',{headers:{'Referer':'https://rocket.origindefi.io/'}}).then(r=>r.json())]);
    const dd=Array.isArray(dash)?dash[0]:dash,mm=Array.isArray(metr)?metr[0]:metr;
-   renderOfficial({runway:(+mm.runwayCurrent).toFixed(1),stakeRate:(+dd.stakeRate).toFixed(2),burnTotal:dd.totalBurn,rfv:dd.treasuryRiskFreeValue,tvl:dd.totalValueLocked},true);
+   renderOfficial({runway:(+mm.runwayCurrent).toFixed(1),stakeRate:(+dd.stakeRate).toFixed(2),burnTotal:dd.totalBurn,rfv:dd.treasuryRiskFreeValue,tvl:dd.totalValueLocked},'scan');
   }catch(e){}
-  $('mdot').className='mdot';$('mst').innerHTML='✓ 实时数据已更新 · '+new Date().toLocaleString('zh-CN')+' · V1-V6/大户为 '+SNAP.at+' 快照';
+  $('mdot').className='mdot';$('mst').innerHTML='✓ 价格/供应/国库为链上实时 · '+new Date().toLocaleString('zh-CN')+' · V1-V6/持仓榜为 '+SNAP.at+' 后台扫描';
  }catch(e){
-  $('mdot').className='mdot off';$('mst').innerHTML='⚠ 你的网络连不上海外链上节点（可能需开VPN），核心指标显示 '+SNAP.at+' 快照；V1-V6/大户不受影响。';
+  renderSnap('snap');
+  $('mdot').className='mdot off';$('mst').innerHTML='⚠ 当前 RPC 暂时不可用（可能需开 VPN），正在显示最近一次可用快照（'+SNAP.at+'）。';
  }
  rf.disabled=false;
 }
@@ -605,12 +945,12 @@ async function loadStats(){
   const m=d.metrics||{};['polyPrice','anbPrice','supP','ssupP','supA','ssupA','treDai','treUsdt','burnP','burnA'].forEach(k=>{if(m[k]!=null)SNAP[k]=m[k];});
   if(m.official)SNAP.official=m.official;
   if(d.updatedAt)SNAP.at=d.updatedAt.slice(0,10);
-  renderSnap(); renderCore(SNAP,true); renderOfficial(SNAP.official,true);
-  $('mdot').className='mdot';$('mst').innerHTML='✓ 数据已自动更新 · '+(d.updatedAt?new Date(d.updatedAt).toLocaleString('zh-CN'):'');
+  renderSnap('scan');
+  $('mdot').className='mdot';$('mst').innerHTML='✓ 数据已自动更新（后台扫描）· '+(d.updatedAt?new Date(d.updatedAt).toLocaleString('zh-CN'):'');
  }catch(e){ try{await loadLive();}catch(e2){} }
  if(rf)rf.disabled=false;
 }
-try{ renderSnap(); try{$('mrf').onclick=loadStats;}catch(e){} loadStats(); }
+try{ renderSnap('snap'); $('mst').innerHTML='正在加载最新数据…'; try{$('mrf').onclick=loadStats;}catch(e){} loadStats(); }
 catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="background:#e06a6a;color:#111;padding:10px">监控脚本出错: '+err.message+'</div>'); }
 })();
 </script>
