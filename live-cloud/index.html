@@ -318,7 +318,11 @@
       cnt=document.getElementById('cnt'), cnt2=document.getElementById('cnt2'),
       ws=null, reconn=null;
   if(!list) return;
-  try{var sn=localStorage.getItem('yeliao_nick'); if(sn)nick.value=sn;}catch(e){}
+  // 随机有趣昵称(没设过就自动给一个,不用"游客")
+  var NA=['深夜','抄底','满仓','潜水','摸鱼','佛系','月光','迷路','快乐','淡定','稳健','冲浪','吃瓜','熬夜','逆袭','链上','一夜','起源','抱团','隐形','追风','闪电','自由','幸运','躺赢','围观','低调','高冷','元气','养生','硬核','暴富','神秘','看戏','贪吃'];
+  var NB=['打工人','冲浪手','观察员','小散户','老铁','侠客','夜猫子','萌新','大佬','矿工','持币人','吃瓜群众','守夜人','追梦人','幸运星','锦鲤','行者','过客','船长','舵手','书生','剑客','浪人','骑士','柠檬','土豆','布丁','汤圆','橙子','阿源','花卷','包子','气球','喵星人','程序猿','小可爱'];
+  function genName(){ return NA[Math.floor(Math.random()*NA.length)]+'的'+NB[Math.floor(Math.random()*NB.length)]+(Math.random()<0.5?(Math.floor(Math.random()*90)+10):''); }
+  (function(){ var sn=''; try{sn=localStorage.getItem('yeliao_nick')||'';}catch(e){} if(!sn){ sn=genName(); try{localStorage.setItem('yeliao_nick',sn);}catch(e){} } nick.value=sn; })();
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function addMsg(m){
     var atBottom=list.scrollHeight-list.scrollTop-list.clientHeight<50;
@@ -344,7 +348,7 @@
   function send(){
     var t=(msg.value||'').trim(); if(!t) return;
     if(!ws||ws.readyState!==1){ sys('连接中，请稍候…'); return; }
-    var nm=(nick.value||'').trim()||'游客';
+    var nm=(nick.value||'').trim()||genName();
     try{localStorage.setItem('yeliao_nick',nm);}catch(e){}
     ws.send(JSON.stringify({type:'msg',name:nm,text:t})); msg.value='';
   }
