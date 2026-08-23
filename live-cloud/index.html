@@ -167,10 +167,12 @@
   <div class="foot">Origin Web3 · <a href="https://web3origin.com">web3origin.com</a></div>
 </div>
 
+<script src="/assets/flv.min.js"></script>
 <script src="/assets/hls.min.js"></script>
 <script>
 (function(){
   var SRC="https://live.web3origin.com/live/yeliao.m3u8";
+  var FLV="https://live.web3origin.com/live/yeliao.flv";
   var v=document.getElementById('v'), badge=document.getElementById('badge'),
       status=document.getElementById('status'), tip=document.getElementById('tip'),
       tipst=document.getElementById('tipst'), play=document.getElementById('play'),
@@ -193,13 +195,25 @@
   function probe(cb){
     fetch(SRC+'?p='+Date.now(),{cache:'no-store'}).then(function(r){cb(r.ok);}).catch(function(){cb(false);});
   }
-  function start(){
-    if(started) return; started=true;
-    tip.style.display='none';
+  var flvp=null;
+  function startFlv(){
+    flvp=flvjs.createPlayer(
+      {type:'flv',isLive:true,url:FLV},
+      {enableStashBuffer:false,stashInitialSize:128,
+       liveBufferLatencyChasing:true,liveBufferLatencyMaxLatency:3.0,liveBufferLatencyMinRemain:0.5}
+    );
+    flvp.attachMediaElement(v);
+    flvp.load();
+    online();
+    v.play().catch(function(){});
+    flvp.on(flvjs.Events.ERROR,function(){ // FLV失败→退回HLS
+      try{flvp.destroy();}catch(_){} flvp=null; startHls(true);
+    });
+  }
+  function startHls(fallback){
     if(window.Hls && Hls.isSupported()){
-      hls=new Hls({liveSyncDurationCount:3,maxBufferLength:30});
-      hls.loadSource(SRC);
-      hls.attachMedia(v);
+      hls=new Hls({liveSyncDurationCount:3,maxBufferLength:20});
+      hls.loadSource(SRC); hls.attachMedia(v);
       hls.on(Hls.Events.MANIFEST_PARSED,function(){online();v.play().catch(function(){});});
       hls.on(Hls.Events.ERROR,function(e,d){
         if(d && d.fatal){
@@ -209,7 +223,14 @@
       });
     } else if(v.canPlayType('application/vnd.apple.mpegurl')){
       v.src=SRC; v.addEventListener('loadedmetadata',function(){online();v.play();});
-    } else { tip.style.display='flex'; tipst.textContent='此浏览器不支持直播，请用 Chrome 或 Safari。'; started=false; }
+    } else if(!fallback){ tip.style.display='flex'; tipst.textContent='此浏览器不支持直播，请用 Chrome 或 Safari。'; started=false; }
+  }
+  function start(){
+    if(started) return; started=true;
+    tip.style.display='none';
+    // 优先低延迟FLV(桌面Chrome/Edge/Firefox+安卓),iOS等退回HLS
+    if(window.flvjs && flvjs.isSupported()){ startFlv(); }
+    else { startHls(false); }
   }
   play.onclick=start;
 
