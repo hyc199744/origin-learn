@@ -68,6 +68,21 @@
   .bigplay:hover{background:var(--gold-lt)}
   .cover-tip .st{color:var(--bone);font-size:14px}
 
+  /* 直播:去掉原生进度条,用自定义控件 */
+  video::-webkit-media-controls-timeline,
+  video::-webkit-media-controls-current-time-display,
+  video::-webkit-media-controls-time-remaining-display{display:none!important}
+  .ctrl{display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid var(--line);
+    background:rgba(8,5,4,.6)}
+  .cbtn{background:transparent;border:1px solid var(--line);color:var(--gold-lt);border-radius:9px;
+    width:40px;height:36px;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+  .cbtn:hover{border-color:var(--gold);background:rgba(214,168,75,.1)}
+  .vol{width:96px;accent-color:var(--gold)}
+  .livepill{display:none;align-items:center;gap:6px;color:var(--blood-lt);font-size:13px;font-weight:800;letter-spacing:.5px}
+  .livepill.on{display:inline-flex}
+  .livepill i{width:8px;height:8px;border-radius:50%;background:var(--blood-lt);animation:blink 1.3s infinite}
+  .ctrl .sp{flex:1}
+
   .bar{display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--line)}
   .bar .t{font-weight:700;color:var(--bone)}
   .bar .s{font-size:12px;color:var(--soft);margin-top:2px}
@@ -102,10 +117,18 @@
 
   <div class="stage">
     <div class="badge" id="badge"><i></i> LIVE</div>
-    <video id="v" playsinline controls preload="none" poster="https://live.web3origin.com/cover.png"></video>
+    <video id="v" playsinline preload="none" poster="https://live.web3origin.com/cover.png"></video>
     <div class="cover-tip" id="tip">
       <div class="st" id="tipst">正在检测直播状态…</div>
       <button class="bigplay" id="play">▶ 收听直播</button>
+    </div>
+    <div class="ctrl">
+      <button class="cbtn" id="pp" aria-label="播放/暂停" title="播放/暂停">▶</button>
+      <button class="cbtn" id="mute" aria-label="静音" title="静音">🔊</button>
+      <input class="vol" id="vol" type="range" min="0" max="1" step="0.05" value="1" aria-label="音量">
+      <span class="livepill" id="pill"><i></i> 直播中</span>
+      <span class="sp"></span>
+      <button class="cbtn" id="full" aria-label="全屏" title="全屏">⛶</button>
     </div>
     <div class="bar">
       <div>
@@ -132,10 +155,21 @@
   var v=document.getElementById('v'), badge=document.getElementById('badge'),
       status=document.getElementById('status'), tip=document.getElementById('tip'),
       tipst=document.getElementById('tipst'), play=document.getElementById('play'),
+      pp=document.getElementById('pp'), mute=document.getElementById('mute'),
+      vol=document.getElementById('vol'), full=document.getElementById('full'),
+      pill=document.getElementById('pill'),
       started=false, hls=null;
 
-  function online(){badge.classList.add('on');status.textContent='● 直播中';}
-  function offline(t){badge.classList.remove('on');status.textContent=t||'○ 暂未开播';}
+  function online(){badge.classList.add('on');pill.classList.add('on');status.textContent='● 直播中';}
+  function offline(t){badge.classList.remove('on');pill.classList.remove('on');status.textContent=t||'○ 暂未开播';}
+
+  // ==== 自定义控件(无进度条) ====
+  pp.onclick=function(){ if(!started){start();return;} if(v.paused)v.play().catch(function(){}); else v.pause(); };
+  v.addEventListener('play',function(){pp.textContent='⏸';});
+  v.addEventListener('pause',function(){pp.textContent='▶';});
+  mute.onclick=function(){ v.muted=!v.muted; mute.textContent=v.muted?'🔇':'🔊'; if(!v.muted&&v.volume===0){v.volume=1;vol.value=1;} };
+  vol.oninput=function(){ v.volume=parseFloat(vol.value); v.muted=(v.volume===0); mute.textContent=v.muted?'🔇':'🔊'; };
+  full.onclick=function(){ var el=document.querySelector('.stage'); if(document.fullscreenElement){document.exitFullscreen();} else if(el.requestFullscreen){el.requestFullscreen();} else if(v.webkitEnterFullscreen){v.webkitEnterFullscreen();} };
 
   function probe(cb){
     fetch(SRC+'?p='+Date.now(),{cache:'no-store'}).then(function(r){cb(r.ok);}).catch(function(){cb(false);});
