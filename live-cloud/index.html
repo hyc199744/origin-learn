@@ -91,6 +91,16 @@
     padding:9px 15px;font-size:14px;font-weight:700;white-space:nowrap}
   .tg:hover{background:rgba(214,168,75,.12)}
 
+  .wxmask{position:fixed;inset:0;z-index:9998;background:rgba(3,2,2,.72);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;padding:20px}
+  .wxmask[hidden]{display:none}
+  .wxcard{position:relative;background:#0d0806;border:1px solid var(--gold);border-radius:16px;
+    padding:24px 26px;text-align:center;max-width:320px;box-shadow:0 24px 70px rgba(0,0,0,.7)}
+  .wxclose{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--soft);font-size:24px;cursor:pointer}
+  .wxtitle{color:var(--gold-lt);font-weight:800;font-size:16px;margin-bottom:14px}
+  .wxcard img{width:220px;max-width:70vw;border-radius:10px;background:#fff;padding:8px}
+  .wxsub{color:var(--soft);font-size:13px;margin-top:12px}
+
   .safe{margin:20px auto 0;max-width:640px;text-align:center;color:var(--soft);font-size:13px;line-height:1.7;
     border:1px solid var(--line);border-radius:12px;padding:14px 18px;background:rgba(122,11,18,.06)}
   .safe b{color:var(--blood-lt)}
@@ -136,7 +146,16 @@
         <div class="s" id="status">连接中…</div>
       </div>
       <div class="sp"></div>
-      <a class="tg" href="https://t.me/hyc199744" target="_blank" rel="noopener">✈ 进群互动</a>
+      <button class="tg" id="wxbtn" type="button">💬 进群互动</button>
+    </div>
+  </div>
+
+  <div class="wxmask" id="wxmask" hidden>
+    <div class="wxcard">
+      <button class="wxclose" id="wxclose" aria-label="关闭">×</button>
+      <div class="wxtitle">微信扫码 · 进群互动</div>
+      <img src="/assets/wechat-qr.png" alt="微信加好友二维码">
+      <div class="wxsub">📲 打开微信「扫一扫」，加好友进群一起聊</div>
     </div>
   </div>
 
@@ -193,6 +212,16 @@
     } else { tip.style.display='flex'; tipst.textContent='此浏览器不支持直播，请用 Chrome 或 Safari。'; started=false; }
   }
   play.onclick=start;
+
+  // ==== 进群互动:微信二维码弹层 ====
+  var wxbtn=document.getElementById('wxbtn'), wxmask=document.getElementById('wxmask'),
+      wxclose=document.getElementById('wxclose');
+  if(wxbtn){
+    wxbtn.onclick=function(){wxmask.hidden=false;};
+    wxclose.onclick=function(){wxmask.hidden=true;};
+    wxmask.onclick=function(e){if(e.target===wxmask)wxmask.hidden=true;};
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')wxmask.hidden=true;});
+  }
 
   // 初始探测
   probe(function(ok){
