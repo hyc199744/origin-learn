@@ -135,15 +135,14 @@
       }).catch(function(){});
     }catch(e){}
   }
-  // ---- 腾讯云直播 /live-cloud ----
+  // ---- 木火夜聊 /live-cloud (自建SRS,直接查真实流是否在推) ----
   function checkCloud(){
     try{
-      fetch(API+"/livecloud/stream",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).then(function(d){
-        if(!d||d.ok===false)return;
-        if(d.enabled&&d.live){
-          showPill({id:"w3oPillLc",href:"/live-cloud/?sound=1",label:"直播中",dismissKey:"w3o_pill_lc",posKey:"w3o_pillpos_lc"});
+      fetch("https://live.web3origin.com/live/yeliao.m3u8?_="+Date.now(),{cache:"no-store"}).then(function(r){
+        if(r&&r.ok){
+          showPill({id:"w3oPillLc",href:"/live-cloud/?sound=1",label:"木火夜聊 直播中",dismissKey:"w3o_pill_lc",posKey:"w3o_pillpos_lc"});
         }else{hidePill("w3oPillLc");}
-      }).catch(function(){});
+      }).catch(function(){hidePill("w3oPillLc");});
     }catch(e){}
   }
 
