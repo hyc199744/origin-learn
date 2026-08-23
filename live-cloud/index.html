@@ -173,6 +173,8 @@
 (function(){
   var SRC="https://live.web3origin.com/live/yeliao.m3u8";
   var FLV="https://live.web3origin.com/live/yeliao.flv";
+  var RTC_API="https://live.web3origin.com/rtc/v1/play/";
+  var RTC_URL="webrtc://live.web3origin.com/live/yeliao";
   var v=document.getElementById('v'), badge=document.getElementById('badge'),
       status=document.getElementById('status'), tip=document.getElementById('tip'),
       tipst=document.getElementById('tipst'), play=document.getElementById('play'),
@@ -195,8 +197,32 @@
   function probe(cb){
     fetch(SRC+'?p='+Date.now(),{cache:'no-store'}).then(function(r){cb(r.ok);}).catch(function(){cb(false);});
   }
+  // ==== 第一顺位:WebRTC(约1秒延迟) ====
+  var rtcpc=null;
+  function startRtc(){
+    var pc=new RTCPeerConnection({bundlePolicy:'max-bundle'}), done=false;
+    rtcpc=pc;
+    try{pc.addTransceiver('audio',{direction:'recvonly'});pc.addTransceiver('video',{direction:'recvonly'});}catch(_){}
+    pc.ontrack=function(e){ if(e.streams&&e.streams[0]){v.srcObject=e.streams[0];online();v.play().catch(function(){});} };
+    var fb=setTimeout(function(){ if(!done){done=true;fail();} },6000); // 6秒连不上→退FLV
+    function fail(){ try{pc.close();}catch(_){} rtcpc=null; startFlv(); }
+    pc.oniceconnectionstatechange=function(){
+      var s=pc.iceConnectionState;
+      if(s==='connected'||s==='completed'){done=true;clearTimeout(fb);}
+      else if(s==='failed'){ if(!done){done=true;clearTimeout(fb);fail();} }
+    };
+    pc.createOffer().then(function(o){return pc.setLocalDescription(o).then(function(){return o;});})
+     .then(function(o){ return fetch(RTC_API,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({api:RTC_API,streamurl:RTC_URL,sdp:o.sdp})}); })
+     .then(function(r){return r.json();})
+     .then(function(j){ if(!j||!j.sdp)throw new Error('nosdp'); return pc.setRemoteDescription(new RTCSessionDescription({type:'answer',sdp:j.sdp})); })
+     .catch(function(){ if(!done){done=true;clearTimeout(fb);fail();} });
+  }
+
   var flvp=null;
   function startFlv(){
+    v.srcObject=null;
+    if(!(window.flvjs && flvjs.isSupported())){ startHls(true); return; }
     flvp=flvjs.createPlayer(
       {type:'flv',isLive:true,url:FLV},
       {enableStashBuffer:false,stashInitialSize:128,
@@ -228,8 +254,9 @@
   function start(){
     if(started) return; started=true;
     tip.style.display='none';
-    // 优先低延迟FLV(桌面Chrome/Edge/Firefox+安卓),iOS等退回HLS
-    if(window.flvjs && flvjs.isSupported()){ startFlv(); }
+    // 顺位:WebRTC(约1秒)→FLV(几秒)→HLS
+    if(window.RTCPeerConnection){ startRtc(); }
+    else if(window.flvjs && flvjs.isSupported()){ startFlv(); }
     else { startHls(false); }
   }
   play.onclick=start;
