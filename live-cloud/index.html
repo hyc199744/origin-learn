@@ -101,6 +101,25 @@
   .wxcard img{width:220px;max-width:70vw;border-radius:10px;background:#fff;padding:8px}
   .wxsub{color:var(--soft);font-size:13px;margin-top:12px}
 
+  .online{color:var(--green);font-size:13px;font-weight:700;white-space:nowrap}
+  .chat{margin:18px auto 0;max-width:900px;border:1px solid var(--line);border-radius:14px;background:#0b0705;overflow:hidden}
+  .chat-h{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);color:var(--gold-lt);font-weight:700;font-size:14px}
+  .chat-h .cnt{margin-left:auto;color:var(--green);font-weight:700;font-size:13px}
+  .chat-list{height:300px;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:7px}
+  .chat-list .m{font-size:14px;line-height:1.5;word-break:break-word}
+  .chat-list .m .nm{color:var(--gold-lt);font-weight:700}
+  .chat-list .m .tx{color:var(--ink)}
+  .chat-list .sys{color:var(--muted);font-size:12px;text-align:center;padding:2px 0}
+  .chat-in{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:rgba(8,5,4,.5)}
+  .chat-in input{background:#120b07;border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:9px 12px;font:inherit;font-size:14px;outline:none;min-width:0}
+  .chat-in #cmsg{flex:1}
+  .chat-in .nick{width:92px;flex:none}
+  .chat-in input:focus{border-color:var(--gold)}
+  .chat-in .send{background:var(--gold);color:#241505;border:none;border-radius:9px;padding:0 18px;font-weight:800;cursor:pointer;white-space:nowrap}
+  .chat-in .send:hover{background:var(--gold-lt)}
+  .chat-tip{color:var(--muted);font-size:12px;padding:0 14px 11px;line-height:1.5}
+  .chat-tip b{color:var(--blood-lt)}
+
   .safe{margin:20px auto 0;max-width:640px;text-align:center;color:var(--soft);font-size:13px;line-height:1.7;
     border:1px solid var(--line);border-radius:12px;padding:14px 18px;background:rgba(122,11,18,.06)}
   .safe b{color:var(--blood-lt)}
@@ -146,8 +165,20 @@
         <div class="s" id="status">连接中…</div>
       </div>
       <div class="sp"></div>
+      <span id="cnt2" class="online">👥 --</span>
       <button class="tg" id="wxbtn" type="button">💬 进群互动</button>
     </div>
+  </div>
+
+  <div class="chat">
+    <div class="chat-h">💬 公屏互动 <span class="cnt" id="cnt">👥 -- 在线</span></div>
+    <div class="chat-list" id="clist"></div>
+    <div class="chat-in">
+      <input class="nick" id="nick" maxlength="16" placeholder="昵称">
+      <input id="cmsg" maxlength="200" placeholder="说点什么…文明发言">
+      <button class="send" id="csend">发送</button>
+    </div>
+    <div class="chat-tip">起源公屏 · 涉及索要助记词/私钥、拉人加微、外部联系方式、辱骂等内容会被<b>自动屏蔽</b></div>
   </div>
 
   <div class="wxmask" id="wxmask" hidden>
@@ -276,6 +307,50 @@
     if(ok){online();tipst.textContent='直播进行中，点下方按钮开始收听';}
     else{offline();tipst.textContent='主播暂未开播，开播后刷新即可收听';play.textContent='🔄 刷新看看';play.onclick=function(){location.reload();};}
   });
+})();
+</script>
+<script>
+/* 公屏聊天 + 在线人数 */
+(function(){
+  var WS="wss://live.web3origin.com/chat";
+  var list=document.getElementById('clist'), msg=document.getElementById('cmsg'),
+      nick=document.getElementById('nick'), sendb=document.getElementById('csend'),
+      cnt=document.getElementById('cnt'), cnt2=document.getElementById('cnt2'),
+      ws=null, reconn=null;
+  if(!list) return;
+  try{var sn=localStorage.getItem('yeliao_nick'); if(sn)nick.value=sn;}catch(e){}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function addMsg(m){
+    var atBottom=list.scrollHeight-list.scrollTop-list.clientHeight<50;
+    var d=document.createElement('div'); d.className='m';
+    d.innerHTML='<span class="nm">'+esc(m.name)+'：</span><span class="tx">'+esc(m.text)+'</span>';
+    list.appendChild(d);
+    if(atBottom) list.scrollTop=list.scrollHeight;
+  }
+  function sys(t){var d=document.createElement('div');d.className='sys';d.textContent=t;list.appendChild(d);list.scrollTop=list.scrollHeight;}
+  function setCount(n){ if(cnt)cnt.textContent='👥 '+n+' 在线'; if(cnt2)cnt2.textContent='👥 '+n; }
+  function connect(){
+    try{ws=new WebSocket(WS);}catch(e){reconn=setTimeout(connect,3000);return;}
+    ws.onmessage=function(ev){
+      var m; try{m=JSON.parse(ev.data);}catch(e){return;}
+      if(m.type==='hello'){ list.innerHTML=''; (m.history||[]).forEach(addMsg); setCount(m.n||0); if(!(m.history&&m.history.length))sys('欢迎来到木火夜聊公屏 · 文明发言'); }
+      else if(m.type==='msg'){ addMsg(m); }
+      else if(m.type==='count'){ setCount(m.n); }
+      else if(m.type==='blocked'){ sys('⚠️ 你的消息含违规内容，已被屏蔽'); }
+    };
+    ws.onclose=function(){ clearTimeout(reconn); reconn=setTimeout(connect,3000); };
+    ws.onerror=function(){ try{ws.close();}catch(e){} };
+  }
+  function send(){
+    var t=(msg.value||'').trim(); if(!t) return;
+    if(!ws||ws.readyState!==1){ sys('连接中，请稍候…'); return; }
+    var nm=(nick.value||'').trim()||'游客';
+    try{localStorage.setItem('yeliao_nick',nm);}catch(e){}
+    ws.send(JSON.stringify({type:'msg',name:nm,text:t})); msg.value='';
+  }
+  sendb.onclick=send;
+  msg.addEventListener('keydown',function(e){ if(e.key==='Enter'){e.preventDefault();send();} });
+  connect();
 })();
 </script>
 <script defer src="/assets/analytics.js"></script>
