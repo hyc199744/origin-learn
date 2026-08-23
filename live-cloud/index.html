@@ -345,13 +345,21 @@
     ws.onclose=function(){ clearTimeout(reconn); reconn=setTimeout(connect,3000); };
     ws.onerror=function(){ try{ws.close();}catch(e){} };
   }
+  function myName(){
+    var nm=(nick.value||'').trim();
+    if(!nm){ try{nm=localStorage.getItem('yeliao_nick')||'';}catch(e){} }  // 空了先用已存的
+    if(!nm){ nm=genName(); }                                               // 实在没有才新生成一个
+    nick.value=nm;
+    try{localStorage.setItem('yeliao_nick',nm);}catch(e){}                 // 固定下来,以后都用它
+    return nm;
+  }
   function send(){
     var t=(msg.value||'').trim(); if(!t) return;
     if(!ws||ws.readyState!==1){ sys('连接中，请稍候…'); return; }
-    var nm=(nick.value||'').trim()||genName();
-    try{localStorage.setItem('yeliao_nick',nm);}catch(e){}
-    ws.send(JSON.stringify({type:'msg',name:nm,text:t})); msg.value='';
+    ws.send(JSON.stringify({type:'msg',name:myName(),text:t})); msg.value='';
   }
+  // 用户改了昵称就即时保存
+  nick.addEventListener('change',function(){ var nm=(nick.value||'').trim(); if(nm){ try{localStorage.setItem('yeliao_nick',nm);}catch(e){} } });
   sendb.onclick=send;
   msg.addEventListener('keydown',function(e){ if(e.key==='Enter'){e.preventDefault();send();} });
   connect();
