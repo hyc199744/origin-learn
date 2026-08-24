@@ -217,8 +217,7 @@ button.go,.btn2{min-height:44px}
     <button class="go" id="heroUnlock" aria-label="支付 10 LGNS 解锁完整功能">🔓 10 LGNS 解锁完整功能</button>
   </div>
 
-  <div style="text-align:center;margin:12px 0 2px"><span style="display:inline-flex;align-items:center;gap:7px;color:#37e0a0;font-size:13.5px;font-weight:700"><span style="width:8px;height:8px;border-radius:50%;background:#37e0a0;box-shadow:0 0 0 0 rgba(55,224,160,.7);animation:paidPulse 1.4s infinite"></span>实时 · 已有 <b id="paidCount">11</b> 人付款解锁</span></div>
-  <style>@keyframes paidPulse{0%{box-shadow:0 0 0 0 rgba(55,224,160,.6)}70%{box-shadow:0 0 0 7px rgba(55,224,160,0)}100%{box-shadow:0 0 0 0 rgba(55,224,160,0)}}</style>
+  <div style="text-align:center;margin:12px 0 2px"><span style="display:inline-flex;align-items:center;gap:11px;border:1px solid var(--line);border-left:3px solid var(--green);background:rgba(255,255,255,.02);border-radius:11px;padding:11px 16px"><span style="width:24px;height:24px;border-radius:50%;background:var(--green);color:#05210f;font-weight:800;font-size:14px;display:inline-flex;align-items:center;justify-content:center;flex:none">✓</span><span style="color:var(--soft,#c3cbc4);font-size:13.5px;font-weight:600"><b id="paidCount" style="color:var(--gold2,#e8cf7e);font-weight:800">11</b> 位用户已付费解锁</span></span></div>
   <script>
   (function(){
     var el=document.getElementById('paidCount'); if(!el) return;
