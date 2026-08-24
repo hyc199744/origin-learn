@@ -1,0 +1,492 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#08090a">
+<title>起源</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap">
+<style>
+:root{
+  --bg:#08090a;--ink:#e9efea;--dim:#8a9088;--soft:#c3cbc4;
+  --gold:#d4af37;--gold2:#e8cf7e;--green:#25C96F;--red:#ff5e57;
+  --panel:#14160f;--panel2:#1b1e15;--line:rgba(212,175,55,.16);
+  --sans:"Manrope",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  --disp:"Sora",var(--sans);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(900px 500px at 50% -5%,#171a10,#08090a 60%);min-height:100vh;
+  font-family:var(--sans);color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:16px;padding:22px 12px 50px}
+.demo-cap{color:var(--dim);font-size:13px;text-align:center;max-width:400px;line-height:1.6}
+.demo-cap b{color:var(--gold2)}
+
+/* ---- 手机外壳 ---- */
+.phone{width:390px;max-width:96vw;height:min(820px,88vh);background:#000;border-radius:44px;padding:11px;
+  box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 2px #23261c,inset 0 0 0 2px #000;position:relative;flex:none}
+.screen{position:relative;width:100%;height:100%;background:var(--bg);border-radius:34px;overflow:hidden;display:flex;flex-direction:column}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:130px;height:26px;background:#000;
+  border-radius:0 0 16px 16px;z-index:60}
+.statusbar{height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 24px;
+  font-size:13px;font-weight:700;color:var(--ink);z-index:55}
+.statusbar .r{display:flex;gap:6px;align-items:center;font-size:12px}
+
+/* ---- 顶部栏 ---- */
+.appbar{flex:none;height:52px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--line);
+  background:rgba(8,9,10,.85);backdrop-filter:blur(8px);z-index:40}
+.appbar .brand{display:flex;align-items:center;gap:8px;font-family:var(--disp);font-weight:800;font-size:17px;letter-spacing:.5px}
+.appbar .brand .mark{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#e8cf7e,#b7892e);
+  color:#1a1206;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.appbar .brand span{color:var(--gold2)}
+.appbar .title{font-family:var(--disp);font-weight:700;font-size:17px;color:var(--ink)}
+.appbar .sp{flex:1}
+.appbar .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:17px;color:var(--soft);position:relative}
+.appbar .ic:active{background:rgba(255,255,255,.05)}
+.appbar .ic .badge{position:absolute;top:5px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg)}
+.appbar .back{font-size:22px;color:var(--gold2);width:30px}
+
+/* ---- 内容区 ---- */
+.body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.body::-webkit-scrollbar{display:none}
+.pad{padding:14px 16px 20px}
+.sec-t{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--ink);margin:18px 2px 10px;display:flex;align-items:center;gap:7px}
+.sec-t .more{margin-left:auto;font-family:var(--sans);font-size:12px;color:var(--dim);font-weight:600}
+
+/* 价格卡 */
+.pcard{border-radius:18px;padding:16px 16px 14px;background:linear-gradient(145deg,#1c1e14,#111309);
+  border:1px solid var(--line);position:relative;overflow:hidden}
+.pcard .lbl{color:var(--dim);font-size:12px;font-weight:600;letter-spacing:.5px}
+.pcard .row{display:flex;align-items:flex-end;gap:10px;margin-top:4px}
+.pcard .price{font-family:var(--disp);font-weight:800;font-size:34px;color:var(--gold2);line-height:1;font-variant-numeric:tabular-nums}
+.pcard .chg{font-size:13px;font-weight:800;color:var(--green);padding-bottom:4px}
+.pcard .chg.dn{color:var(--red)}
+.pcard .spark{position:absolute;right:12px;bottom:10px;width:120px;height:46px;opacity:.9}
+.pcard .meta{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.pcard .meta div{font-size:11px;color:var(--dim)}
+.pcard .meta b{display:block;color:var(--soft);font-size:13px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+
+/* 直播横幅 */
+.livebar{margin-top:14px;border-radius:16px;padding:13px 14px;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,rgba(122,11,18,.35),rgba(20,22,15,.6));border:1px solid rgba(255,94,87,.3)}
+.livebar .dot{width:9px;height:9px;border-radius:50%;background:var(--red);animation:pulse 1.4s infinite;flex:none}
+.livebar .t{font-weight:700;font-size:14px}
+.livebar .s{font-size:11.5px;color:var(--dim);margin-top:2px}
+.livebar .go{margin-left:auto;background:var(--gold);color:#1a1206;font-weight:800;font-size:12px;padding:7px 13px;border-radius:20px;flex:none}
+@keyframes pulse{50%{opacity:.35}}
+
+/* 快捷工具格子 */
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
+.quick a{display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 4px;border-radius:14px;
+  background:var(--panel);border:1px solid var(--line)}
+.quick a:active{background:var(--panel2)}
+.quick .qi{font-size:22px}
+.quick .ql{font-size:11px;color:var(--soft);font-weight:600}
+
+/* 资讯列表 */
+.news{display:flex;flex-direction:column;gap:9px}
+.nitem{display:flex;gap:11px;padding:11px 12px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.nitem:active{background:var(--panel2)}
+.nitem .tag{flex:none;width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,#2a2410,#171308);
+  display:flex;align-items:center;justify-content:center;font-size:20px}
+.nitem .nc{flex:1;min-width:0}
+.nitem .nt{font-size:13.5px;font-weight:700;line-height:1.4;color:var(--ink);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nitem .nm{font-size:11px;color:var(--dim);margin-top:5px;display:flex;gap:8px}
+.nitem .nm .zh{color:var(--green)}
+
+/* 直播页 */
+.stage{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/9;background:#000}
+.stage img{width:100%;height:100%;object-fit:cover;display:block}
+.stage .lv{position:absolute;top:10px;left:10px;background:var(--red);color:#fff;font-size:11px;font-weight:800;
+  padding:4px 9px;border-radius:6px;display:flex;align-items:center;gap:5px}
+.stage .lv i{width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.3s infinite}
+.stage .on{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);color:#eafff2;font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px}
+.stage .playc{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.stage .playc button{width:60px;height:60px;border-radius:50%;background:rgba(214,175,55,.92);color:#1a1206;
+  border:none;font-size:24px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.relaynote{font-size:11.5px;color:var(--dim);text-align:center;margin-top:10px;line-height:1.5;
+  border:1px solid var(--line);border-radius:11px;padding:9px 12px;background:rgba(212,175,55,.05)}
+.chatbox{margin-top:14px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+.chatbox .ch{padding:9px 12px;font-size:12.5px;font-weight:700;color:var(--gold2);border-bottom:1px solid var(--line);display:flex}
+.chatbox .ch .n{margin-left:auto;color:var(--green)}
+.chatbox .cm{padding:8px 12px;font-size:12.5px;border-bottom:1px solid rgba(255,255,255,.03)}
+.chatbox .cm b{color:var(--gold2)}
+.chatbox .ci{display:flex;gap:8px;padding:9px 10px}
+.chatbox .ci input{flex:1;background:#0f110b;border:1px solid var(--line);border-radius:9px;padding:8px 11px;color:var(--ink);font:inherit;font-size:12.5px;outline:none}
+.chatbox .ci button{background:var(--gold);color:#1a1206;border:none;border-radius:9px;padding:0 14px;font-weight:800;font-size:12.5px}
+
+/* 视频网格 */
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vcard{border-radius:13px;overflow:hidden;background:var(--panel);border:1px solid var(--line)}
+.vcard:active{background:var(--panel2)}
+.vthumb{aspect-ratio:16/10;background:linear-gradient(135deg,#241f10,#12100a);position:relative;display:flex;align-items:center;justify-content:center;font-size:26px}
+.vthumb .dur{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.7);color:#fff;font-size:10px;padding:2px 5px;border-radius:4px}
+.vcard .vt{padding:8px 9px 10px;font-size:12px;font-weight:600;line-height:1.35;color:var(--soft);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;font-size:12px;font-weight:600;padding:6px 13px;border-radius:20px;border:1px solid var(--line);color:var(--dim);background:var(--panel)}
+.chip.on{background:var(--gold);color:#1a1206;border-color:var(--gold)}
+
+/* 工具列表 */
+.tools{display:flex;flex-direction:column;gap:9px}
+.tool{display:flex;align-items:center;gap:13px;padding:14px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.tool:active{background:var(--panel2)}
+.tool .ti{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;
+  background:linear-gradient(135deg,#2a2410,#171308)}
+.tool .tc{flex:1}
+.tool .tn{font-size:14px;font-weight:700}
+.tool .td{font-size:11.5px;color:var(--dim);margin-top:2px}
+.tool .ar{color:var(--dim);font-size:18px}
+
+/* 我的 */
+.profile{display:flex;align-items:center;gap:14px;padding:18px 16px;border-radius:18px;
+  background:linear-gradient(145deg,#1c1e14,#111309);border:1px solid var(--line)}
+.profile .av{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#e8cf7e,#b7892e);
+  display:flex;align-items:center;justify-content:center;font-size:24px;flex:none}
+.profile .pn{font-family:var(--disp);font-weight:700;font-size:17px}
+.profile .pd{font-size:12px;color:var(--dim);margin-top:3px}
+.profile .loginbtn{margin-left:auto;background:var(--gold);color:#1a1206;font-weight:800;font-size:13px;padding:9px 16px;border-radius:22px;border:none;flex:none}
+.list{margin-top:16px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--panel)}
+.li{display:flex;align-items:center;gap:12px;padding:14px 15px;border-bottom:1px solid rgba(255,255,255,.04)}
+.li:last-child{border-bottom:none}
+.li:active{background:var(--panel2)}
+.li .lic{font-size:18px;width:24px;text-align:center}
+.li .lt{flex:1;font-size:14px;font-weight:600}
+.li .lr{color:var(--dim);font-size:13px}
+.li .ar{color:var(--dim);font-size:17px}
+/* 开关 */
+.sw{width:44px;height:26px;border-radius:20px;background:#33372a;position:relative;transition:.2s;flex:none}
+.sw.on{background:var(--green)}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on::after{left:21px}
+
+/* 底部导航 */
+.tabbar{flex:none;height:60px;display:flex;border-top:1px solid var(--line);background:rgba(10,11,9,.95);backdrop-filter:blur(10px);padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--dim);font-size:10.5px;font-weight:600}
+.tab .ti{font-size:20px;line-height:1}
+.tab.on{color:var(--gold2)}
+.tab.on .ti{transform:translateY(-1px)}
+
+/* 覆盖全屏页(登录/隐私/协议) */
+.overlay{position:absolute;inset:0;background:var(--bg);z-index:80;display:none;flex-direction:column}
+.overlay.show{display:flex}
+.readdoc{padding:16px 18px 30px;font-size:13px;line-height:1.85;color:var(--soft)}
+.readdoc h3{font-family:var(--disp);color:var(--gold2);font-size:15px;margin:18px 0 8px}
+.readdoc p{margin-bottom:10px}
+.readdoc .upd{color:var(--dim);font-size:12px;margin-bottom:6px}
+
+/* 登录 */
+.login{padding:30px 24px;display:flex;flex-direction:column;height:100%}
+.login .logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#e8cf7e,#b7892e);
+  color:#1a1206;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:30px;margin:10px auto 14px}
+.login h2{font-family:var(--disp);text-align:center;font-size:22px;color:var(--gold2)}
+.login .sub{text-align:center;color:var(--dim);font-size:13px;margin:6px 0 26px}
+.field{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:0 14px;margin-bottom:12px;height:50px}
+.field .pre{color:var(--soft);font-weight:700;font-size:14px;border-right:1px solid var(--line);padding-right:11px}
+.field input{flex:1;background:none;border:none;color:var(--ink);font:inherit;font-size:15px;outline:none}
+.field .code{background:none;border:none;color:var(--gold2);font-weight:700;font-size:13px;white-space:nowrap}
+.bigbtn{height:50px;border-radius:13px;background:var(--gold);color:#1a1206;font-weight:800;font-size:16px;border:none;margin-top:6px}
+.bigbtn:active{filter:brightness(1.08)}
+.finger{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:26px;color:var(--dim)}
+.finger .fp{width:56px;height:56px;border-radius:50%;border:1px solid var(--gold);color:var(--gold2);
+  display:flex;align-items:center;justify-content:center;font-size:28px}
+.finger .fp:active{background:rgba(212,175,55,.12)}
+.finger span{font-size:12px}
+.agree{display:flex;gap:8px;align-items:flex-start;margin-top:auto;font-size:11.5px;color:var(--dim);line-height:1.6}
+.agree .ck{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--gold);flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--gold)}
+.agree .ck.on{background:var(--gold);color:#1a1206}
+.agree a{color:var(--gold2)}
+
+/* toast */
+.toast{position:absolute;bottom:78px;left:50%;transform:translateX(-50%) translateY(10px);background:rgba(20,22,15,.97);
+  border:1px solid var(--line);color:var(--ink);font-size:13px;padding:10px 18px;border-radius:12px;z-index:90;opacity:0;
+  transition:.25s;pointer-events:none;white-space:nowrap;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* —— 打包成手机App:满屏,去掉演示外壳 —— */
+html,body{height:100%;margin:0;padding:0;background:var(--bg);overflow:hidden}
+body{display:block!important;padding:0!important;gap:0!important}
+.demo-cap{display:none!important}
+.phone{width:100%!important;max-width:none!important;height:100vh!important;height:100dvh!important;border-radius:0!important;padding:0!important;box-shadow:none!important;background:var(--bg)!important;flex:1!important}
+.screen{border-radius:0!important;height:100vh!important;height:100dvh!important}
+.notch{display:none!important}
+.statusbar{display:none!important}
+.appbar{height:auto!important;min-height:52px;padding-top:calc(8px + env(safe-area-inset-top))!important;padding-bottom:6px}
+.overlay .appbar{padding-top:calc(8px + env(safe-area-inset-top))!important}
+.tabbar{padding-bottom:calc(4px + env(safe-area-inset-bottom))!important;height:auto!important;min-height:60px}
+
+/* V1-V6 等级人数 */
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lvl{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:11px 8px;text-align:center;position:relative;overflow:hidden}
+.lvl .lk{font-family:var(--disp);font-weight:800;font-size:13px;color:var(--gold2);letter-spacing:.5px}
+.lvl .ln{font-family:var(--disp);font-weight:800;font-size:19px;color:var(--ink);margin-top:3px;font-variant-numeric:tabular-nums}
+.lvl .ls{font-size:10px;color:var(--dim);margin-top:1px}
+.lvl::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e8cf7e,#b7892e)}
+
+/* 大额交易 */
+.trade{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:13px;background:var(--panel);border:1px solid var(--line);margin-bottom:9px}
+.trade .side{font-weight:800;font-size:12px;padding:5px 10px;border-radius:8px;flex:none}
+.trade .side.buy{background:rgba(37,201,111,.15);color:var(--green)}
+.trade .side.sell{background:rgba(255,94,87,.15);color:var(--red)}
+.trade .amt{font-weight:800;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.trade .sub{font-size:11px;color:var(--dim);margin-top:3px}
+.mon-h{display:flex;align-items:center;gap:10px;padding:2px 2px 14px}
+.mon-h .mt{flex:1;font-size:12px;color:var(--dim);line-height:1.5}
+
+/* 观察钱包 */
+.wadd{display:flex;gap:8px;margin-bottom:14px}
+.wadd input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 13px;color:var(--ink);font:inherit;font-size:13px;outline:none}
+.wadd button{background:var(--gold);color:#1a1206;border:none;border-radius:11px;padding:0 16px;font-weight:800;font-size:13px}
+.wallet{display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:13px;background:var(--panel);border:1px solid var(--line);margin-bottom:9px}
+.wallet .wa{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#2a2410,#171308);display:flex;align-items:center;justify-content:center;font-size:17px;flex:none}
+.wallet .wn{font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.wallet .ws{font-size:11px;color:var(--dim);margin-top:3px}
+.wallet .wb{color:var(--gold2);font-size:16px}
+</style>
+
+<div class="demo-cap">👇 这是<b>起源 App</b> 的可点击原型。点<b>底部导航</b>切换直播/视频/工具/资讯；首页有 <b>V1–V6 等级人数</b>；<b>工具</b>里点"大额交易监控"和"观察钱包"能看内页；"<b>我的→登录</b>"是<b>邮箱+指纹</b>登录，能看隐私政策/用户协议。<br>（demo 演示，数据为示意）</div>
+
+<div class="phone">
+ <div class="screen">
+  <div class="notch"></div>
+  <div class="statusbar"><span id="clock">23:14</span><span class="r">📶 🔋 100%</span></div>
+
+  <!-- 顶部栏 -->
+  <div class="appbar">
+    <div class="brand" id="abBrand"><span class="mark">起</span><span>ORIGIN 起源</span></div>
+    <div class="title" id="abTitle" style="display:none"></div>
+    <div class="sp"></div>
+    <div class="ic" onclick="toast('暂无新通知')">🔔<span class="badge"></span></div>
+    <div class="ic" onclick="go('me')">👤</div>
+  </div>
+
+  <!-- 内容 -->
+  <div class="body" id="body"></div>
+
+  <!-- 覆盖页 -->
+  <div class="overlay" id="ov"></div>
+
+  <!-- 底部导航 -->
+  <div class="tabbar" id="tabbar"></div>
+
+  <div class="toast" id="toast"></div>
+ </div>
+</div>
+
+<div class="demo-cap" style="margin-top:4px">看完觉得方向对，我就照这个打成真正的安卓 <b>apk</b>；哪儿想改（配色、栏目、加东西）直接说。</div>
+
+<script>
+var LIVE=true; // demo:夜聊在播
+var notifyOn=true, fingerOn=false, logged=false;
+
+var TABS=[
+  {k:'home',ic:'🏠',t:'首页'},
+  {k:'live',ic:'📺',t:'直播'},
+  {k:'video',ic:'🎬',t:'视频'},
+  {k:'tools',ic:'🛠️',t:'工具'},
+  {k:'me',ic:'👤',t:'我的'},
+];
+var NEWS=[
+  ['🔥','Awake 战略升级：极致通缩时代正式开启，销毁债券上线','SaluteOrigin'],
+  ['⚔️','100 万 LGNS 共铸完成，Fun Longinus 距主网又近一步','hyc199844'],
+  ['🚀','Anubis Chain 从隐私 L1 进化为智能经济网络','ANUBISCHAIN_'],
+  ['💰','AnubisChain × AstraCore 百万 DAI 联合空投进行中','Anubis_Labs'],
+  ['📢','关于设立 gLGNS NFT 激励池的公告','官方公告'],
+];
+var VIDEOS=[
+  ['🎓','畅游老师 · 起源底层逻辑讲解','68:00'],
+  ['📈','为什么跌不破一美金 · 底池逻辑','28:12'],
+  ['₿','比特币经济模型 · 小白完全图解','21:40'],
+  ['🧩','三分钟看懂：起源到底是什么','03:05'],
+  ['🔑','新手：如何创建钱包','06:30'],
+  ['🛡️','如何取消授权，防止被盗','05:12'],
+];
+var TOOLS=[
+  ['🔎','链上尽调助手','输地址查双链资产/等级/团队/风险','toast'],
+  ['👛','钱包资产查询','Polygon+Anubis 全部 LGNS 资产','toast'],
+  ['🐋','大额交易监控','主池买卖 ≥20万 实时预警推送','openMonitor'],
+  ['👁️','观察钱包','添加地址，资产变动自动通知你','openWatch'],
+  ['🔍','链上搜索','地址/交易哈希一键查真实链上数据','toast'],
+  ['💸','链上提币','官方 DApp 打不开时直接调合约领取','toast'],
+];
+
+function el(h){var d=document.createElement('div');d.innerHTML=h;return d.firstElementChild;}
+function toast(t){var e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(window._tt);window._tt=setTimeout(function(){e.classList.remove('show');},1600);}
+
+function renderTabs(active){
+  var tb=document.getElementById('tabbar');tb.innerHTML='';
+  TABS.forEach(function(t){
+    var a=el('<div class="tab'+(t.k===active?' on':'')+'"><span class="ti">'+t.ic+'</span>'+t.t+'</div>');
+    a.onclick=function(){go(t.k);};tb.appendChild(a);
+  });
+}
+function setBar(mode,title){
+  document.getElementById('abBrand').style.display=mode==='brand'?'flex':'none';
+  var tt=document.getElementById('abTitle');tt.style.display=mode==='brand'?'none':'block';tt.textContent=title||'';
+}
+
+var SCREENS={
+  home:function(){return '<div class="pad">'
+    +'<div class="pcard"><div class="lbl">LGNS 实时价格</div>'
+    +'<div class="row"><div class="price">1.083</div><div class="chg">▲ 2.14%</div><div style="flex:1"></div></div>'
+    +sparkSVG()
+    +'<div class="meta"><div>24h 最高<b>1.096</b></div><div>24h 最低<b>1.058</b></div><div>国库储备<b>$1,191万</b></div></div></div>'
+    +(LIVE?'<div class="livebar" onclick="go(\'live\')"><span class="dot"></span><div><div class="t">木火夜聊 · 正在直播</div><div class="s">会议音频转播 · 👥 128 在线</div></div><span class="go">进入</span></div>':'')
+    +'<div class="sec-t">🏅 生态等级人数 <span class="more" onclick="toast(\'V1–V6 链上实时统计（demo）\')">实时 ›</span></div>'
+    +'<div class="levels">'+[['V1','12,480'],['V2','5,820'],['V3','2,140'],['V4','760'],['V5','182'],['V6','43']].map(function(l){return '<div class="lvl"><div class="lk">'+l[0]+'</div><div class="ln">'+l[1]+'</div><div class="ls">人</div></div>';}).join('')+'</div>'
+    +'<div class="quick">'
+      +'<a onclick="go(\'tools\')"><span class="qi">🔎</span><span class="ql">尽调</span></a>'
+      +'<a onclick="go(\'tools\')"><span class="qi">👛</span><span class="ql">查钱包</span></a>'
+      +'<a onclick="go(\'video\')"><span class="qi">🎬</span><span class="ql">视频课</span></a>'
+      +'<a onclick="toast(\'搜索 demo\')"><span class="qi">🔍</span><span class="ql">搜索</span></a>'
+    +'</div>'
+    +'<div class="sec-t">📰 最新资讯 <span class="more" onclick="toast(\'查看全部\')">全部 ›</span></div>'
+    +'<div class="news">'+NEWS.map(function(n){return '<div class="nitem" onclick="toast(\'打开资讯详情\')"><div class="tag">'+n[0]+'</div><div class="nc"><div class="nt">'+n[1]+'</div><div class="nm"><span>官方</span><span class="zh">✓ 已译中文</span><span>·</span><span>'+n[2]+'</span></div></div></div>';}).join('')+'</div>'
+    +'</div>';},
+
+  live:function(){return '<div class="pad">'
+    +'<div class="stage"><img src="https://live.web3origin.com/cover.png" alt="木火夜聊">'
+      +(LIVE?'<span class="lv"><i></i> LIVE</span><span class="on">👥 128 在线</span>':'')
+      +'<div class="playc"><button onclick="toast(\'▶ 开始播放（demo）\')">▶</button></div></div>'
+    +'<div class="relaynote">📻 本场为<b style="color:var(--gold2)">会议音频转播</b>，仅同步声音；画面为固定封面，不同步会议画面。</div>'
+    +'<div class="chatbox"><div class="ch">💬 公屏互动 <span class="n">👥 128 在线</span></div>'
+      +'<div class="cm"><b>深夜的锦鲤：</b>今晚讲销毁债券吗</div>'
+      +'<div class="cm"><b>抄底的大佬：</b>声音很清楚 👍</div>'
+      +'<div class="cm"><b>起源的喵星人：</b>回放能听吗</div>'
+      +'<div class="ci"><input placeholder="说点什么…文明发言"><button onclick="toast(\'已发送（demo）\')">发送</button></div></div>'
+    +'<div class="sec-t">🎧 往期回放</div>'
+    +'<div class="news">'
+      +'<div class="nitem" onclick="toast(\'播放回放\')"><div class="tag">🎧</div><div class="nc"><div class="nt">木火夜聊 · 08-24 04:47</div><div class="nm"><span>26 分钟</span><span>·</span><span class="zh">🎧 39 次</span></div></div></div>'
+      +'<div class="nitem" onclick="toast(\'播放回放\')"><div class="tag">🎧</div><div class="nc"><div class="nt">木火夜聊 · 08-23 16:37</div><div class="nm"><span>64 分钟</span><span>·</span><span class="zh">🎧 27 次</span></div></div></div>'
+    +'</div></div>';},
+
+  video:function(){return '<div class="pad">'
+    +'<div class="chips"><span class="chip on">全部</span><span class="chip">LGNS 基础</span><span class="chip">欧易实操</span><span class="chip">Anubis</span><span class="chip">课程</span></div>'
+    +'<div class="vgrid">'+VIDEOS.map(function(v){return '<div class="vcard" onclick="toast(\'播放视频\')"><div class="vthumb">'+v[0]+'<span class="dur">'+v[2]+'</span></div><div class="vt">'+v[1]+'</div></div>';}).join('')+'</div>'
+    +'</div>';},
+
+  tools:function(){return '<div class="pad"><div class="sec-t" style="margin-top:6px">🛠️ 链上工具</div>'
+    +'<div class="tools">'+TOOLS.map(function(t){var act=t[3]==='toast'?"toast('打开："+t[1]+"（demo）')":t[3]+"()";return '<div class="tool" onclick="'+act+'"><div class="ti">'+t[0]+'</div><div class="tc"><div class="tn">'+t[1]+'</div><div class="td">'+t[2]+'</div></div><div class="ar">›</div></div>';}).join('')+'</div></div>';},
+
+  me:function(){return '<div class="pad">'
+    +'<div class="profile">'+(logged
+      ?'<div class="av">起</div><div><div class="pn">起源用户_8823</div><div class="pd">hey***@gmail.com · 已登录</div></div>'
+      :'<div class="av">👤</div><div><div class="pn">未登录</div><div class="pd">登录后同步收藏与观看记录</div></div><button class="loginbtn" onclick="openLogin()">登录</button>')
+    +'</div>'
+    +'<div class="list">'
+      +row('🔔','消息通知','<div class="sw '+(notifyOn?'on':'')+'" id="swNotify"></div>','toggleNotify')
+      +row('👆','指纹登录','<div class="sw '+(fingerOn?'on':'')+'" id="swFinger"></div>','toggleFinger')
+      +row('🌙','深色模式','<span class="lr">已开启</span>','')
+    +'</div>'
+    +'<div class="list">'
+      +row('⭐','我的收藏','<span class="ar">›</span>','toastFav')
+      +row('🕒','观看记录','<span class="ar">›</span>','toastFav')
+      +row('🎁','邀请好友','<span class="ar">›</span>','toastFav')
+    +'</div>'
+    +'<div class="list">'
+      +row('📄','用户协议','<span class="ar">›</span>','openTerms')
+      +row('🔒','隐私政策','<span class="ar">›</span>','openPrivacy')
+      +row('💬','联系客服 / 进群','<span class="ar">›</span>','toastFav')
+      +row('ℹ️','关于起源','<span class="lr">v2.0.0</span>','toastFav')
+    +'</div>'
+    +(logged?'<div class="list"><div class="li" style="justify-content:center;color:var(--red);font-weight:700" onclick="doLogout()">退出登录</div></div>':'')
+    +'</div>';},
+};
+function row(ic,t,right,act){return '<div class="li" '+(act?'onclick="'+act+'()"':'')+'><span class="lic">'+ic+'</span><span class="lt">'+t+'</span>'+right+'</div>';}
+function sparkSVG(){return '<svg class="spark" viewBox="0 0 120 46" preserveAspectRatio="none"><polyline points="0,34 14,30 28,33 42,22 56,26 70,15 84,19 98,9 120,6" fill="none" stroke="#25C96F" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="0,34 14,30 28,33 42,22 56,26 70,15 84,19 98,9 120,6 120,46 0,46" fill="rgba(37,201,111,.12)" stroke="none"/></svg>';}
+
+function go(k){
+  renderTabs(k);
+  setBar(k==='home'?'brand':'title', {live:'木火夜聊',video:'视频学院',tools:'链上工具',me:'我的'}[k]||'');
+  document.getElementById('body').innerHTML=SCREENS[k]();
+  document.getElementById('body').scrollTop=0;
+  closeOv();
+}
+function toggleNotify(){notifyOn=!notifyOn;document.getElementById('swNotify').classList.toggle('on',notifyOn);toast(notifyOn?'已开启消息通知（开播/公告会推送）':'已关闭消息通知');}
+function toggleFinger(){if(!logged&&!fingerOn){toast('请先登录再开启指纹');return;}fingerOn=!fingerOn;document.getElementById('swFinger').classList.toggle('on',fingerOn);toast(fingerOn?'指纹登录已开启':'指纹登录已关闭');}
+function toastFav(){toast('demo 演示');}
+function doLogout(){logged=false;fingerOn=false;toast('已退出登录');go('me');}
+
+/* 覆盖页 */
+function closeOv(){document.getElementById('ov').classList.remove('show');}
+function ovShow(html){var o=document.getElementById('ov');o.innerHTML=html;o.classList.add('show');}
+
+function openLogin(){
+  ovShow('<div class="statusbar"><span>23:14</span><span class="r">📶 🔋 100%</span></div>'
+   +'<div class="appbar"><div class="back" onclick="closeOv()">‹</div><div class="title">登录</div></div>'
+   +'<div class="login">'
+   +'<div class="logo">起</div><h2>登录起源</h2><div class="sub">邮箱登录，安全便捷</div>'
+   +'<div class="field"><span class="pre">📧</span><input id="email" type="email" inputmode="email" placeholder="请输入邮箱" autocomplete="off"></div>'
+   +'<div class="field"><span class="pre">🔑</span><input id="pwd" type="password" placeholder="请输入密码"></div>'
+   +'<div style="display:flex;justify-content:space-between;font-size:12px;margin:-2px 2px 12px"><a style="color:var(--dim)" onclick="toast(\'注册新账号（demo）\')">注册新账号</a><a style="color:var(--gold2)" onclick="toast(\'找回密码（demo）\')">忘记密码？</a></div>'
+   +'<button class="bigbtn" onclick="doLogin()">登 录</button>'
+   +'<div class="finger"><div class="fp" onclick="fingerLogin()">👆</div><span>指纹快捷登录</span></div>'
+   +'<div class="agree"><div class="ck on" id="agreeCk" onclick="this.classList.toggle(\'on\')">✓</div><div>我已阅读并同意 <a onclick="openTerms()">《用户协议》</a> 和 <a onclick="openPrivacy()">《隐私政策》</a>，理解本工具仅提供链上信息查询，不构成投资建议。</div></div>'
+   +'</div>');
+}
+function sendCode(b){b.textContent='已发送 60s';b.style.color='var(--dim)';toast('验证码已发送（demo：随便填）');}
+function doLogin(){
+  if(!document.getElementById('agreeCk').classList.contains('on')){toast('请先勾选同意协议');return;}
+  logged=true;closeOv();toast('登录成功');go('me');
+}
+function fingerLogin(){
+  if(!document.getElementById('agreeCk').classList.contains('on')){toast('请先勾选同意协议');return;}
+  toast('👆 指纹识别中…');setTimeout(function(){logged=true;fingerOn=true;closeOv();toast('指纹登录成功');go('me');},900);
+}
+
+function docPage(title,html){return '<div class="statusbar"><span>23:14</span><span class="r">📶 🔋 100%</span></div>'
+   +'<div class="appbar"><div class="back" onclick="closeOv()">‹</div><div class="title">'+title+'</div></div>'
+   +'<div class="body"><div class="readdoc">'+html+'</div></div>';}
+function openPrivacy(){ovShow(docPage('隐私政策',
+   '<div class="upd">更新日期：2026-08-24 · 生效日期：2026-08-24</div>'
+   +'<p>欢迎使用「起源 Origin」App（下称"本应用"）。我们非常重视你的个人信息与隐私保护。本政策说明我们如何收集、使用、存储和保护你的信息。</p>'
+   +'<h3>一、我们收集的信息</h3><p>1. 邮箱：用于登录与账号身份识别、找回密码；<br>2. 设备信息：用于消息推送、崩溃诊断与安全风控；<br>3. 你主动输入或观察的钱包地址：仅用于发起链上只读查询与资产变动提醒，我们<b>不会上传或保存你的私钥、助记词</b>。</p>'
+   +'<h3>二、信息的使用</h3><p>用于提供直播、视频、资讯、行情与链上查询服务，以及在你开启时发送开播/公告等通知。我们不会将你的个人信息用于与上述无关的用途。</p>'
+   +'<h3>三、指纹与本地数据</h3><p>指纹信息由你的手机系统本地保管与校验，本应用<b>不会读取或上传你的指纹</b>。收藏、观看记录等默认存储在本机。</p>'
+   +'<h3>四、信息共享</h3><p>除法律要求或你明确同意外，我们不会向第三方出售或提供你的个人信息。链上查询会调用公开区块链节点，这类数据本身即为公开数据。</p>'
+   +'<h3>五、你的权利</h3><p>你可随时在"我的"中关闭通知、退出登录或注销账号。注销后我们将删除与你账号绑定的邮箱信息。</p>'
+   +'<h3>六、风险提示</h3><p>本应用提供的行情、链上数据与资讯仅供参考，<b>不构成任何投资建议</b>。数字资产价格波动剧烈，请谨慎决策，注意保管好自己的私钥与助记词。</p>'
+   +'<h3>七、联系我们</h3><p>如对本政策有疑问，可通过应用内"联系客服"与我们联系。</p>'));}
+function openTerms(){ovShow(docPage('用户协议',
+   '<div class="upd">更新日期：2026-08-24</div>'
+   +'<p>在使用「起源 Origin」App 前，请你仔细阅读并同意以下条款。当你注册、登录或使用本应用，即视为已接受本协议。</p>'
+   +'<h3>一、服务内容</h3><p>本应用为起源社区提供直播观看、视频教程、链上工具、资讯与行情展示等服务。部分功能（如链上查询）需你主动操作。</p>'
+   +'<h3>二、账号规则</h3><p>你应使用本人邮箱注册，妥善保管账号与密码。你须对账号下的一切行为负责，不得利用本应用从事违法违规活动。</p>'
+   +'<h3>三、用户行为规范</h3><p>公屏互动等社区功能中，禁止发布辱骂、诈骗、索要助记词/私钥、拉人加微、外部联系方式等内容，违规内容将被自动屏蔽或封禁。</p>'
+   +'<h3>四、免责声明</h3><p>本应用展示的价格、链上数据、第三方资讯仅供参考，<b>不构成投资建议</b>，据此操作风险自负。因区块链网络、第三方数据源导致的延迟或误差，本应用不承担由此产生的损失。</p>'
+   +'<h3>五、知识产权</h3><p>本应用的界面、文案、课程等内容归起源社区及相应权利人所有，未经许可不得转载或商用。</p>'
+   +'<h3>六、协议变更</h3><p>我们可能适时更新本协议，更新后将在应用内公示。继续使用即视为接受变更。</p>'));}
+
+function screenPage(title,html){return '<div class="statusbar"><span>23:14</span><span class="r">📶 🔋 100%</span></div>'
+   +'<div class="appbar"><div class="back" onclick="closeOv()">‹</div><div class="title">'+title+'</div></div>'
+   +'<div class="body"><div class="pad">'+html+'</div></div>';}
+
+var TRADES=[
+  ['buy','买入','52.3 万 DAI','≈ 48.4 万 LGNS · 0x7b9b…7d · 2 分钟前'],
+  ['sell','卖出','31.0 万 DAI','≈ 28.7 万 LGNS · 0x882d…B0 · 12 分钟前'],
+  ['buy','买入','25.6 万 DAI','≈ 23.7 万 LGNS · 0x0dfd…3c · 34 分钟前'],
+  ['buy','买入','21.4 万 DAI','≈ 19.8 万 LGNS · 0x97f8…a2 · 1 小时前'],
+  ['sell','卖出','20.8 万 DAI','≈ 19.2 万 LGNS · 0x5e4e…7c · 2 小时前'],
+];
+function openMonitor(){ovShow(screenPage('大额交易监控',
+  '<div class="mon-h"><div class="mt">盯 Polygon 主池，买卖 ≥ <b style="color:var(--gold2)">20 万 DAI</b> 实时预警</div><div class="sw on" onclick="this.classList.toggle(\'on\');toast(this.classList.contains(\'on\')?\'已开启大额预警推送\':\'已关闭大额预警\')"></div></div>'
+  +'<div class="sec-t" style="margin-top:0">🐋 最近大额成交</div>'
+  +TRADES.map(function(t){return '<div class="trade"><span class="side '+t[0]+'">'+t[1]+'</span><div style="flex:1"><div class="amt">'+t[2]+'</div><div class="sub">'+t[3]+'</div></div></div>';}).join('')
+  +'<div class="relaynote" style="margin-top:6px">数据来自 Polygon 主池链上实时监测（demo 示意）。开启预警后，达到阈值的大单会推送到你手机。</div>'
+));}
+
+var WATCH=[
+  ['🐋','0x7b9b…7d（国库）','储备 1,192 万 DAI · 231 万 USDT'],
+  ['👤','0x0DfD…3c','持有 12,340 LGNS · 质押 8,200'],
+  ['👤','0x5e4e…7c（部署者）','持有 38.6 万 LGNS'],
+];
+function openWatch(){ovShow(screenPage('观察钱包',
+  '<div class="wadd"><input placeholder="粘贴要观察的钱包地址 0x…"><button onclick="toast(\'已添加到观察列表（demo）\')">添加</button></div>'
+  +'<div class="mon-h" style="padding-top:0"><div class="mt">添加地址后，该钱包的<b style="color:var(--gold2)">资产变动、大额转入转出</b>会自动通知你。纯链上只读，不碰私钥。</div></div>'
+  +'<div class="sec-t" style="margin-top:2px">👁️ 我的观察列表</div>'
+  +WATCH.map(function(w){return '<div class="wallet"><div class="wa">'+w[0]+'</div><div style="flex:1"><div class="wn">'+w[1]+'</div><div class="ws">'+w[2]+'</div></div><div class="wb" onclick="toast(\'提醒开关（demo）\')">🔔</div></div>';}).join('')
+));}
+
+document.getElementById('abBrand').onclick=function(){go('home');};
+go('home');
+</script>

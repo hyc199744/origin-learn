@@ -1,0 +1,13 @@
+{
+  "name": "origin-app",
+  "version": "2.0.0",
+  "private": true,
+  "description": "起源 Origin Android App",
+  "devDependencies": {
+    "@capacitor/cli": "6.1.2"
+  },
+  "dependencies": {
+    "@capacitor/core": "6.1.2",
+    "@capacitor/android": "6.1.2"
+  }
+}

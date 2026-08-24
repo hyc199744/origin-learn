@@ -1,0 +1,11 @@
+{
+  "appId": "com.web3origin.app",
+  "appName": "起源",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
