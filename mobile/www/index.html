@@ -96,6 +96,7 @@ body{background:radial-gradient(900px 500px at 50% -5%,#171a10,#08090a 60%);min-
 /* 直播页 */
 .stage{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/9;background:#000}
 .stage img{width:100%;height:100%;object-fit:cover;display:block}
+.stage video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
 .stage .lv{position:absolute;top:10px;left:10px;background:var(--red);color:#fff;font-size:11px;font-weight:800;
   padding:4px 9px;border-radius:6px;display:flex;align-items:center;gap:5px}
 .stage .lv i{width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.3s infinite}
@@ -285,6 +286,8 @@ body{display:block!important;padding:0!important;gap:0!important}
 
 <div class="demo-cap" style="margin-top:4px">看完觉得方向对，我就照这个打成真正的安卓 <b>apk</b>；哪儿想改（配色、栏目、加东西）直接说。</div>
 
+<script src="flv.min.js"></script>
+<script src="hls.min.js"></script>
 <script>
 var LIVE=true; // demo:夜聊在播
 var notifyOn=true, fingerOn=false, logged=false;
@@ -354,7 +357,22 @@ var SCREENS={
     +'<div class="news">'+NEWS.map(function(n){return '<div class="nitem" onclick="toast(\'打开资讯详情\')"><div class="tag">'+n[0]+'</div><div class="nc"><div class="nt">'+n[1]+'</div><div class="nm"><span>官方</span><span class="zh">✓ 已译中文</span><span>·</span><span>'+n[2]+'</span></div></div></div>';}).join('')+'</div>'
     +'</div>';},
 
-  live:function(){return '<iframe class="webframe" src="https://web3origin.com/live-cloud/?embed=1&app=1" allow="autoplay; fullscreen; encrypted-media; clipboard-write" allowfullscreen></iframe>';},
+  live:function(){ setTimeout(initLive,40); return '<div class="pad">'
+    +'<div class="stage" id="lstage">'
+      +'<video id="lv" playsinline webkit-playsinline poster="https://live.web3origin.com/cover.png"></video>'
+      +'<span class="lv" id="llv" style="display:none"><i></i> LIVE</span>'
+      +'<span class="on" id="lon" style="display:none">👥 0</span>'
+      +'<div class="playc" id="lplay"><button onclick="startLive()">▶</button></div>'
+    +'</div>'
+    +'<div id="lstatus" style="text-align:center;color:var(--dim);font-size:12.5px;margin-top:9px">正在检测直播状态…</div>'
+    +'<div class="relaynote">📻 本场为<b style="color:var(--gold2)">会议音频转播</b>，仅同步声音；画面为固定封面，不同步会议画面。</div>'
+    +'<div class="chatbox"><div class="ch">💬 公屏互动 <span class="n" id="lcnt">👥 -- 在线</span></div>'
+      +'<div id="lclist" style="max-height:210px;overflow-y:auto"></div>'
+      +'<div class="ci"><input id="lcmsg" maxlength="200" placeholder="说点什么…文明发言"><button onclick="liveSend()">发送</button></div></div>'
+    +'<div class="sec-t">🎧 往期回放</div>'
+    +'<div class="news" id="lreplays"><div style="color:var(--dim);font-size:12px;padding:8px">加载中…</div></div>'
+    +'<audio id="lrep" controls style="width:100%;margin-top:10px;display:none"></audio>'
+    +'</div>';},
 
   video:function(){return '<div class="pad">'
     +'<div class="chips"><span class="chip on">全部</span><span class="chip">LGNS 基础</span><span class="chip">欧易实操</span><span class="chip">Anubis</span><span class="chip">课程</span></div>'
@@ -391,7 +409,9 @@ var SCREENS={
 function row(ic,t,right,act){return '<div class="li" '+(act?'onclick="'+act+'()"':'')+'><span class="lic">'+ic+'</span><span class="lt">'+t+'</span>'+right+'</div>';}
 function sparkSVG(){return '<svg class="spark" viewBox="0 0 120 46" preserveAspectRatio="none"><polyline points="0,34 14,30 28,33 42,22 56,26 70,15 84,19 98,9 120,6" fill="none" stroke="#25C96F" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="0,34 14,30 28,33 42,22 56,26 70,15 84,19 98,9 120,6 120,46 0,46" fill="rgba(37,201,111,.12)" stroke="none"/></svg>';}
 
+function cleanupLive(){ try{if(lplayer){lplayer.destroy();lplayer=null;}}catch(e){} try{if(lhls){lhls.destroy();lhls=null;}}catch(e){} try{if(lws){lws.onclose=null;lws.close();lws=null;}}catch(e){} }
 function go(k){
+  cleanupLive();
   renderTabs(k);
   setBar(k==='home'?'brand':'title', {live:'木火夜聊',video:'视频学院',tools:'链上工具',me:'我的'}[k]||'');
   document.getElementById('body').innerHTML=SCREENS[k]();
@@ -516,6 +536,57 @@ function openUrl(u){try{window.open(u,'_blank');}catch(e){location.href=u;}}
 /* 内嵌网页工具(全屏,带返回) */
 function openWebTool(url,title){ovShow('<div class="appbar"><div class="back" onclick="closeOv()">‹</div><div class="title">'+title+'</div></div><iframe class="webframe" src="'+url+'" allow="clipboard-write; autoplay"></iframe>');}
 function searchTool(){openWebTool('https://web3origin.com/tools/onchain-search/?embed=1','链上搜索');}
+
+/* ==== 直播:App内原生播放器 + 真实公屏/在线/回放 ==== */
+var LSTREAM='https://live.web3origin.com';
+var lplayer=null, lhls=null, lws=null;
+function initLive(){
+  fetch(LSTREAM+'/live/yeliao.m3u8?_='+Date.now(),{cache:'no-store'}).then(function(r){ r.ok?liveOnline():liveOffline(); }).catch(liveOffline);
+  loadReplays(); connectLiveChat();
+}
+function liveOnline(){var e=document.getElementById('llv');if(e)e.style.display='inline-flex';var s=document.getElementById('lstatus');if(s)s.textContent='● 直播中 · 点画面上的播放键开始收听';}
+function liveOffline(){var s=document.getElementById('lstatus');if(s)s.textContent='主播暂未开播，开播后回到本页即可收听';var p=document.getElementById('lplay');if(p){var b=p.querySelector('button');if(b)b.textContent='↻';p.onclick=function(){initLive();};}}
+function startLive(){
+  var v=document.getElementById('lv'); if(!v)return;
+  var p=document.getElementById('lplay'); if(p)p.style.display='none';
+  var FLV=LSTREAM+'/live/yeliao.flv', HLS=LSTREAM+'/live/yeliao.m3u8';
+  var s=document.getElementById('lstatus'); if(s)s.textContent='● 直播中 · 连接中…';
+  if(window.flvjs && flvjs.isSupported()){
+    try{ lplayer=flvjs.createPlayer({type:'flv',isLive:true,url:FLV},{enableStashBuffer:false,stashInitialSize:128,liveBufferLatencyChasing:true,liveBufferLatencyMaxLatency:3.0});
+      lplayer.attachMediaElement(v); lplayer.load(); v.play().catch(function(){});
+      lplayer.on(flvjs.Events.ERROR,function(){try{lplayer.destroy();}catch(e){} lplayer=null; startLiveHls(v,HLS);});
+    }catch(e){ startLiveHls(v,HLS); }
+  } else { startLiveHls(v,HLS); }
+}
+function startLiveHls(v,HLS){
+  if(window.Hls && Hls.isSupported()){ lhls=new Hls({liveSyncDurationCount:3,maxBufferLength:20}); lhls.loadSource(HLS); lhls.attachMedia(v); lhls.on(Hls.Events.MANIFEST_PARSED,function(){v.play().catch(function(){});}); }
+  else { v.src=HLS; v.play().catch(function(){}); }
+}
+function loadReplays(){
+  fetch(LSTREAM+'/replays/yeliao/index.json?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():[];}).then(function(arr){
+    var box=document.getElementById('lreplays'); if(!box)return;
+    if(!arr||!arr.length){box.innerHTML='<div style="color:var(--dim);font-size:12px;padding:8px">暂无回放</div>';return;}
+    box.innerHTML=arr.map(function(it){var m=Math.round((it.duration||0)/60);return '<div class="nitem" onclick="playReplay(\''+it.url+'\')"><div class="tag">🎧</div><div class="nc"><div class="nt">'+escH(it.title||'回放')+'</div><div class="nm"><span>'+m+' 分钟</span></div></div></div>';}).join('');
+  }).catch(function(){});
+}
+function playReplay(url){var a=document.getElementById('lrep');if(!a)return;a.src=url;a.style.display='block';a.play().catch(function(){});toast('播放回放');}
+function connectLiveChat(){
+  try{ lws=new WebSocket('wss://live.web3origin.com/chat'); }catch(e){return;}
+  lws.onmessage=function(ev){var m;try{m=JSON.parse(ev.data);}catch(e){return;}
+    if(m.type==='hello'){renderLiveChat(m.history||[]);setLcnt(m.n||0);}
+    else if(m.type==='msg'){addLiveMsg(m);}
+    else if(m.type==='count'){setLcnt(m.n);}
+    else if(m.type==='blocked'){toast('含违规内容，已被屏蔽');}
+  };
+  lws.onclose=function(){setTimeout(function(){if(document.getElementById('lclist'))connectLiveChat();},3000);};
+  lws.onerror=function(){try{lws.close();}catch(e){}};
+}
+function setLcnt(n){var a=document.getElementById('lcnt');if(a)a.textContent='👥 '+n+' 在线';var b=document.getElementById('lon');if(b){b.style.display='inline-block';b.textContent='👥 '+n;}}
+function escH(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function addLiveMsg(m){var box=document.getElementById('lclist');if(!box)return;var at=box.scrollHeight-box.scrollTop-box.clientHeight<40;var d=document.createElement('div');d.className='cm';d.innerHTML='<b>'+escH(m.name)+'：</b>'+escH(m.text);box.appendChild(d);if(at)box.scrollTop=box.scrollHeight;}
+function renderLiveChat(h){var box=document.getElementById('lclist');if(!box)return;box.innerHTML='';h.forEach(addLiveMsg);box.scrollTop=box.scrollHeight;}
+function liveNick(){var n='';try{n=localStorage.getItem('yeliao_nick')||'';}catch(e){} if(!n){var A=['深夜','抄底','摸鱼','佛系','冲浪','吃瓜','躺赢','元气','硬核','月光'],B=['锦鲤','大佬','夜猫子','汤圆','喵星人','柠檬','阿源','剑客','布丁','小可爱'];n=A[Math.floor(Math.random()*A.length)]+'的'+B[Math.floor(Math.random()*B.length)]+(Math.floor(Math.random()*90)+10);try{localStorage.setItem('yeliao_nick',n);}catch(e){}} return n;}
+function liveSend(){var i=document.getElementById('lcmsg');if(!i)return;var t=(i.value||'').trim();if(!t)return;if(!lws||lws.readyState!==1){toast('连接中，请稍候…');return;}lws.send(JSON.stringify({type:'msg',name:liveNick(),text:t}));i.value='';}
 
 var WATCH=[
   ['🐋','0x7b9b…7d（国库）','储备 1,192 万 DAI · 231 万 USDT'],
