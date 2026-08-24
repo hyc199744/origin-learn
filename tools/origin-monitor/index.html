@@ -217,11 +217,11 @@ button.go,.btn2{min-height:44px}
     <button class="go" id="heroUnlock" aria-label="支付 10 LGNS 解锁完整功能">🔓 10 LGNS 解锁完整功能</button>
   </div>
 
-  <div style="text-align:center;color:var(--gold2,#e8c268);font-size:13.5px;margin:12px 0 2px;font-weight:600">🔥 已有 <b id="paidCount">91</b> 人付款解锁</div>
+  <div style="text-align:center;color:var(--gold2,#e8c268);font-size:13.5px;margin:12px 0 2px;font-weight:600">🔥 已有 <b id="paidCount">11</b> 人付款解锁</div>
   <script>
   (function(){
     var el=document.getElementById('paidCount'); if(!el) return;
-    var base=91, baseTs=Date.UTC(2026,7,24,0,0,0), day=86400000, now=Date.now();
+    var base=11, baseTs=Date.UTC(2026,7,24,0,0,0), day=86400000, now=Date.now();
     if(now<=baseTs){ el.textContent=base; return; }
     function rnd(n){ var x=Math.sin(n*99.13+17.7)*10000; return x-Math.floor(x); }
     var fullDays=Math.floor((now-baseTs)/day), total=base, d;
