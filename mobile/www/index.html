@@ -214,6 +214,8 @@ body{display:block!important;padding:0!important;gap:0!important}
 .appbar{height:auto!important;min-height:52px;padding-top:calc(8px + env(safe-area-inset-top))!important;padding-bottom:6px}
 .overlay .appbar{padding-top:calc(8px + env(safe-area-inset-top))!important}
 .tabbar{padding-bottom:calc(4px + env(safe-area-inset-bottom))!important;height:auto!important;min-height:60px}
+.webframe{width:100%;height:100%;border:0;display:block;background:var(--bg)}
+.overlay .webframe{flex:1}
 
 /* V1-V6 等级人数 */
 .levels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
@@ -312,7 +314,7 @@ var TOOLS=[
   ['👛','钱包资产查询','Polygon+Anubis 全部 LGNS 资产','toast'],
   ['🐋','大额交易监控','主池买卖 ≥20万 实时预警推送','openMonitor'],
   ['👁️','观察钱包','添加地址，资产变动自动通知你','openWatch'],
-  ['🔍','链上搜索','地址/交易哈希一键查真实链上数据','toast'],
+  ['🔍','链上搜索','地址/交易哈希一键查真实链上数据','searchTool'],
   ['💸','链上提币','官方 DApp 打不开时直接调合约领取','toast'],
 ];
 
@@ -350,21 +352,7 @@ var SCREENS={
     +'<div class="news">'+NEWS.map(function(n){return '<div class="nitem" onclick="toast(\'打开资讯详情\')"><div class="tag">'+n[0]+'</div><div class="nc"><div class="nt">'+n[1]+'</div><div class="nm"><span>官方</span><span class="zh">✓ 已译中文</span><span>·</span><span>'+n[2]+'</span></div></div></div>';}).join('')+'</div>'
     +'</div>';},
 
-  live:function(){return '<div class="pad">'
-    +'<div class="stage"><img src="https://live.web3origin.com/cover.png" alt="木火夜聊">'
-      +(LIVE?'<span class="lv"><i></i> LIVE</span><span class="on">👥 128 在线</span>':'')
-      +'<div class="playc"><button onclick="toast(\'▶ 开始播放（demo）\')">▶</button></div></div>'
-    +'<div class="relaynote">📻 本场为<b style="color:var(--gold2)">会议音频转播</b>，仅同步声音；画面为固定封面，不同步会议画面。</div>'
-    +'<div class="chatbox"><div class="ch">💬 公屏互动 <span class="n">👥 128 在线</span></div>'
-      +'<div class="cm"><b>深夜的锦鲤：</b>今晚讲销毁债券吗</div>'
-      +'<div class="cm"><b>抄底的大佬：</b>声音很清楚 👍</div>'
-      +'<div class="cm"><b>起源的喵星人：</b>回放能听吗</div>'
-      +'<div class="ci"><input placeholder="说点什么…文明发言"><button onclick="toast(\'已发送（demo）\')">发送</button></div></div>'
-    +'<div class="sec-t">🎧 往期回放</div>'
-    +'<div class="news">'
-      +'<div class="nitem" onclick="toast(\'播放回放\')"><div class="tag">🎧</div><div class="nc"><div class="nt">木火夜聊 · 08-24 04:47</div><div class="nm"><span>26 分钟</span><span>·</span><span class="zh">🎧 39 次</span></div></div></div>'
-      +'<div class="nitem" onclick="toast(\'播放回放\')"><div class="tag">🎧</div><div class="nc"><div class="nt">木火夜聊 · 08-23 16:37</div><div class="nm"><span>64 分钟</span><span>·</span><span class="zh">🎧 27 次</span></div></div></div>'
-    +'</div></div>';},
+  live:function(){return '<iframe class="webframe" src="https://web3origin.com/live-cloud/?embed=1&app=1" allow="autoplay; fullscreen; encrypted-media; clipboard-write" allowfullscreen></iframe>';},
 
   video:function(){return '<div class="pad">'
     +'<div class="chips"><span class="chip on">全部</span><span class="chip">LGNS 基础</span><span class="chip">欧易实操</span><span class="chip">Anubis</span><span class="chip">课程</span></div>'
@@ -500,6 +488,10 @@ function detRow(label,val,copy){
 }
 function copyText(t){try{navigator.clipboard.writeText(t);toast('已复制');}catch(e){toast('已复制');}}
 function openUrl(u){try{window.open(u,'_blank');}catch(e){location.href=u;}}
+
+/* 内嵌网页工具(全屏,带返回) */
+function openWebTool(url,title){ovShow('<div class="appbar"><div class="back" onclick="closeOv()">‹</div><div class="title">'+title+'</div></div><iframe class="webframe" src="'+url+'" allow="clipboard-write; autoplay"></iframe>');}
+function searchTool(){openWebTool('https://web3origin.com/tools/onchain-search/?embed=1','链上搜索');}
 
 var WATCH=[
   ['🐋','0x7b9b…7d（国库）','储备 1,192 万 DAI · 231 万 USDT'],
