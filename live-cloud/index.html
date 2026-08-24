@@ -102,6 +102,19 @@
   .wxsub{color:var(--soft);font-size:13px;margin-top:12px}
 
   .online{color:var(--green);font-size:13px;font-weight:700;white-space:nowrap}
+  .replays{margin:18px auto 0;max-width:900px;border:1px solid var(--line);border-radius:14px;background:#0b0705;overflow:hidden}
+  .rep-h{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--gold-lt);font-weight:700;font-size:14px}
+  .rep-list{max-height:300px;overflow-y:auto}
+  .rep-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid #17100a;cursor:pointer}
+  .rep-item:last-child{border-bottom:none}
+  .rep-item:hover{background:rgba(214,168,75,.07)}
+  .rep-item .ic{width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--gold);color:var(--gold-lt);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .rep-item.playing .ic{background:var(--gold);color:#241505}
+  .rep-item .info{flex:1;min-width:0}
+  .rep-item .tt{color:var(--ink);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rep-item .mt{color:var(--muted);font-size:12px;margin-top:2px}
+  #repAudio{width:calc(100% - 28px);margin:12px 14px 14px;display:none}
+  #repAudio.on{display:block}
   .chat{margin:18px auto 0;max-width:900px;border:1px solid var(--line);border-radius:14px;background:#0b0705;overflow:hidden}
   .chat-h{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);color:var(--gold-lt);font-weight:700;font-size:14px}
   .chat-h .cnt{margin-left:auto;color:var(--green);font-weight:700;font-size:13px}
@@ -178,6 +191,12 @@
       <input id="cmsg" maxlength="200" placeholder="说点什么…文明发言">
       <button class="send" id="csend">发送</button>
     </div>
+  </div>
+
+  <div class="replays" id="replays" hidden>
+    <div class="rep-h">🎧 往期回放</div>
+    <div class="rep-list" id="repList"></div>
+    <audio id="repAudio" controls></audio>
   </div>
 
   <div class="wxmask" id="wxmask" hidden>
@@ -362,6 +381,31 @@
   sendb.onclick=send;
   msg.addEventListener('keydown',function(e){ if(e.key==='Enter'){e.preventDefault();send();} });
   connect();
+})();
+</script>
+<script>
+/* 往期回放:从夜聊VPS读清单(带CORS),mp3从R2播 */
+(function(){
+  var IDX="https://live.web3origin.com/replays/yeliao/index.json";
+  var box=document.getElementById('replays'), list=document.getElementById('repList'), au=document.getElementById('repAudio');
+  if(!box) return;
+  function fmt(s){ s=s|0; var m=(s/60)|0, ss=s%60; return m+':'+(ss<10?'0':'')+ss; }
+  fetch(IDX+'?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():[];}).then(function(arr){
+    if(!arr||!arr.length) return;
+    box.hidden=false;
+    arr.forEach(function(it){
+      var d=document.createElement('div'); d.className='rep-item';
+      d.innerHTML='<div class="ic">▶</div><div class="info"><div class="tt"></div><div class="mt"></div></div>';
+      d.querySelector('.tt').textContent=it.title||'木火夜聊回放';
+      d.querySelector('.mt').textContent=fmt(it.duration||0)+' · 点击收听';
+      d.onclick=function(){
+        var cur=list.querySelector('.rep-item.playing'); if(cur){cur.classList.remove('playing');cur.querySelector('.ic').textContent='▶';}
+        d.classList.add('playing'); d.querySelector('.ic').textContent='♪';
+        au.src=it.url; au.classList.add('on'); au.play().catch(function(){});
+      };
+      list.appendChild(d);
+    });
+  }).catch(function(){});
 })();
 </script>
 <script defer src="/assets/analytics.js"></script>
