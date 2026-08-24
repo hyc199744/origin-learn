@@ -56,6 +56,15 @@
   .stage{position:relative;background:#0b0705;border:1px solid var(--line);border-radius:16px;overflow:hidden;
     box-shadow:0 24px 70px rgba(0,0,0,.6)}
   video{width:100%;display:block;background:#000;aspect-ratio:16/9}
+  /* 全屏观看:视频铺满整屏(等比不拉伸),控件浮在底部 */
+  .stage:fullscreen{background:#000;width:100vw;height:100vh}
+  .stage:fullscreen video{aspect-ratio:auto;width:100vw;height:100vh;object-fit:contain}
+  .stage:fullscreen .bar{display:none}
+  .stage:fullscreen .ctrl{position:absolute;left:0;right:0;bottom:0;border:none;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent)}
+  .stage:-webkit-full-screen{background:#000;width:100vw;height:100vh}
+  .stage:-webkit-full-screen video{aspect-ratio:auto;width:100vw;height:100vh;object-fit:contain}
+  .stage:-webkit-full-screen .bar{display:none}
+  .stage:-webkit-full-screen .ctrl{position:absolute;left:0;right:0;bottom:0;border:none;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent)}
   .badge{position:absolute;top:12px;left:12px;display:none;align-items:center;gap:6px;background:var(--blood);
     color:#fff;font-size:12px;font-weight:800;letter-spacing:1px;padding:5px 11px;border-radius:6px}
   .badge.on{display:inline-flex}
