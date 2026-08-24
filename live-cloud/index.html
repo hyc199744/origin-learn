@@ -76,6 +76,11 @@
     font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(214,168,75,.35)}
   .bigplay:hover{background:var(--gold-lt)}
   .cover-tip .st{color:var(--bone);font-size:14px}
+  .unmute{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:6;background:var(--gold);
+    color:#241505;border:none;border-radius:22px;padding:10px 20px;font-size:14px;font-weight:800;cursor:pointer;
+    box-shadow:0 8px 22px rgba(0,0,0,.5);animation:unpulse 1.6s infinite}
+  .unmute[hidden]{display:none}
+  @keyframes unpulse{50%{transform:translateX(-50%) scale(1.06)}}
 
   /* 直播:去掉原生进度条,用自定义控件 */
   video::-webkit-media-controls-timeline,
@@ -174,6 +179,7 @@
       <div class="st" id="tipst">正在检测直播状态…</div>
       <button class="bigplay" id="play">▶ 收听直播</button>
     </div>
+    <button class="unmute" id="unmute" hidden>🔊 点击开启声音</button>
     <div class="ctrl">
       <button class="cbtn" id="pp" aria-label="播放/暂停" title="播放/暂停">▶</button>
       <button class="cbtn" id="mute" aria-label="静音" title="静音">🔊</button>
@@ -253,6 +259,18 @@
   vol.oninput=function(){ v.volume=parseFloat(vol.value); v.muted=(v.volume===0); mute.textContent=v.muted?'🔇':'🔊'; };
   full.onclick=function(){ var el=document.querySelector('.stage'); if(document.fullscreenElement){document.exitFullscreen();} else if(el.requestFullscreen){el.requestFullscreen();} else if(v.webkitEnterFullscreen){v.webkitEnterFullscreen();} };
 
+  // ==== 自动播放 + 一键开声(浏览器禁止带声自动播,先静音播再提示开声) ====
+  var unmute=document.getElementById('unmute');
+  function showUnmute(){ if(unmute) unmute.hidden=false; }
+  function doUnmute(){ v.muted=false; mute.textContent='🔊'; if(v.volume===0){v.volume=1;vol.value=1;} if(unmute)unmute.hidden=true; v.play().catch(function(){}); }
+  if(unmute) unmute.onclick=function(e){ e.stopPropagation(); doUnmute(); };
+  document.querySelector('.stage').addEventListener('click',function(){ if(unmute && !unmute.hidden) doUnmute(); });
+  function tryPlay(){
+    v.muted=false;
+    var p=v.play();
+    if(p && p.catch){ p.catch(function(){ v.muted=true; mute.textContent='🔇'; v.play().then(showUnmute,showUnmute); }); }
+  }
+
   function probe(cb){
     fetch(SRC+'?p='+Date.now(),{cache:'no-store'}).then(function(r){cb(r.ok);}).catch(function(){cb(false);});
   }
@@ -262,7 +280,7 @@
     var pc=new RTCPeerConnection({bundlePolicy:'max-bundle'}), done=false;
     rtcpc=pc;
     try{pc.addTransceiver('audio',{direction:'recvonly'});pc.addTransceiver('video',{direction:'recvonly'});}catch(_){}
-    pc.ontrack=function(e){ if(e.streams&&e.streams[0]){v.srcObject=e.streams[0];online();v.play().catch(function(){});} };
+    pc.ontrack=function(e){ if(e.streams&&e.streams[0]){v.srcObject=e.streams[0];online();tryPlay();} };
     var fb=setTimeout(function(){ if(!done){done=true;fail();} },6000); // 6秒连不上→退FLV
     function fail(){ try{pc.close();}catch(_){} rtcpc=null; startFlv(); }
     pc.oniceconnectionstatechange=function(){
@@ -290,7 +308,7 @@
     flvp.attachMediaElement(v);
     flvp.load();
     online();
-    v.play().catch(function(){});
+    tryPlay();
     flvp.on(flvjs.Events.ERROR,function(){ // FLV失败→退回HLS
       try{flvp.destroy();}catch(_){} flvp=null; startHls(true);
     });
@@ -299,7 +317,7 @@
     if(window.Hls && Hls.isSupported()){
       hls=new Hls({liveSyncDurationCount:3,maxBufferLength:20});
       hls.loadSource(SRC); hls.attachMedia(v);
-      hls.on(Hls.Events.MANIFEST_PARSED,function(){online();v.play().catch(function(){});});
+      hls.on(Hls.Events.MANIFEST_PARSED,function(){online();tryPlay();});
       hls.on(Hls.Events.ERROR,function(e,d){
         if(d && d.fatal){
           if(d.type==='networkError'){offline('信号中断，10 秒后自动重连…');setTimeout(function(){try{hls.startLoad();}catch(_){}},10000);}
@@ -307,7 +325,7 @@
         }
       });
     } else if(v.canPlayType('application/vnd.apple.mpegurl')){
-      v.src=SRC; v.addEventListener('loadedmetadata',function(){online();v.play();});
+      v.src=SRC; v.addEventListener('loadedmetadata',function(){online();tryPlay();});
     } else if(!fallback){ tip.style.display='flex'; tipst.textContent='此浏览器不支持直播，请用 Chrome 或 Safari。'; started=false; }
   }
   function start(){
@@ -330,10 +348,10 @@
     document.addEventListener('keydown',function(e){if(e.key==='Escape')wxmask.hidden=true;});
   }
 
-  // 初始探测
+  // 初始探测:在播就自动开播,不用点收听
   probe(function(ok){
-    if(ok){online();tipst.textContent='直播进行中，点下方按钮开始收听';}
-    else{offline();tipst.textContent='主播暂未开播，开播后刷新即可收听';play.textContent='🔄 刷新看看';play.onclick=function(){location.reload();};}
+    if(ok){ online(); tip.style.display='none'; start(); }
+    else{ offline(); tipst.textContent='主播暂未开播，开播后自动播放'; play.textContent='🔄 刷新看看'; play.onclick=function(){location.reload();}; }
   });
 })();
 </script>
