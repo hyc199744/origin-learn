@@ -116,6 +116,9 @@
   .wxsub{color:var(--soft);font-size:13px;margin-top:12px}
 
   .online{color:var(--green);font-size:13px;font-weight:700;white-space:nowrap}
+  .relaynote{max-width:900px;margin:12px auto 0;text-align:center;color:var(--soft);font-size:13px;line-height:1.6;
+    border:1px solid var(--line);border-radius:12px;padding:11px 16px;background:rgba(214,168,75,.06)}
+  .relaynote b{color:var(--gold-lt)}
   .replays{margin:18px auto 0;max-width:900px;border:1px solid var(--line);border-radius:14px;background:#0b0705;overflow:hidden}
   .rep-h{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--gold-lt);font-weight:700;font-size:14px}
   .rep-list{max-height:300px;overflow-y:auto}
@@ -170,7 +173,7 @@
 <div class="wrap">
   <div class="eyebrow">ORIGIN LIVE · 木火夜聊</div>
   <h1 class="title">木火夜聊</h1>
-  <div class="subline" id="subline">起源社区 · 线上语音直播</div>
+  <div class="subline" id="subline">起源社区 · 会议音频转播</div>
 
   <div class="stage">
     <div class="badge" id="badge"><i></i> LIVE</div>
@@ -198,6 +201,8 @@
       <button class="tg" id="wxbtn" type="button">💬 进群互动</button>
     </div>
   </div>
+
+  <div class="relaynote">📻 本场为<b>会议音频转播</b>，仅同步声音；画面为固定封面，<b>不同步会议画面</b>。</div>
 
   <div class="chat">
     <div class="chat-h">💬 公屏互动 <span class="cnt" id="cnt">👥 -- 在线</span></div>
