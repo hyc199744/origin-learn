@@ -113,6 +113,7 @@
   .rep-item .info{flex:1;min-width:0}
   .rep-item .tt{color:var(--ink);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rep-item .mt{color:var(--muted);font-size:12px;margin-top:2px}
+  .rep-item .pc{flex:none;color:var(--green);font-size:12px;font-weight:700;white-space:nowrap}
   #repAudio{width:calc(100% - 28px);margin:12px 14px 14px;display:none}
   #repAudio.on{display:block}
   .chat{margin:18px auto 0;max-width:900px;border:1px solid var(--line);border-radius:14px;background:#0b0705;overflow:hidden}
@@ -387,24 +388,36 @@
 /* 往期回放:从夜聊VPS读清单(带CORS),mp3从R2播 */
 (function(){
   var IDX="https://live.web3origin.com/replays/yeliao/index.json";
+  var PLAYS="https://live.web3origin.com/chat/plays";
+  var HIT="https://live.web3origin.com/chat/play?f=";
   var box=document.getElementById('replays'), list=document.getElementById('repList'), au=document.getElementById('repAudio');
   if(!box) return;
+  var counted={}, pcEls={};
   function fmt(s){ s=s|0; var m=(s/60)|0, ss=s%60; return m+':'+(ss<10?'0':'')+ss; }
+  function setPc(file,n){ if(pcEls[file]) pcEls[file].textContent='🎧 '+(n||0)+' 次'; }
   fetch(IDX+'?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():[];}).then(function(arr){
     if(!arr||!arr.length) return;
     box.hidden=false;
     arr.forEach(function(it){
       var d=document.createElement('div'); d.className='rep-item';
-      d.innerHTML='<div class="ic">▶</div><div class="info"><div class="tt"></div><div class="mt"></div></div>';
+      d.innerHTML='<div class="ic">▶</div><div class="info"><div class="tt"></div><div class="mt"></div></div><div class="pc">🎧 -- 次</div>';
       d.querySelector('.tt').textContent=it.title||'木火夜聊回放';
-      d.querySelector('.mt').textContent=fmt(it.duration||0)+' · 点击收听';
+      d.querySelector('.mt').textContent=fmt(it.duration||0);
+      pcEls[it.file]=d.querySelector('.pc');
       d.onclick=function(){
         var cur=list.querySelector('.rep-item.playing'); if(cur){cur.classList.remove('playing');cur.querySelector('.ic').textContent='▶';}
         d.classList.add('playing'); d.querySelector('.ic').textContent='♪';
         au.src=it.url; au.classList.add('on'); au.play().catch(function(){});
+        if(!counted[it.file]){ counted[it.file]=1;   // 每次访问同一回放只计一次
+          fetch(HIT+encodeURIComponent(it.file)).then(function(r){return r.json();}).then(function(x){ setPc(it.file,x.n); }).catch(function(){});
+        }
       };
       list.appendChild(d);
     });
+    // 拉取各回放已有播放次数
+    fetch(PLAYS+'?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():{};}).then(function(pm){
+      for(var f in pcEls){ setPc(f, (pm&&pm[f])||0); }
+    }).catch(function(){ for(var f in pcEls){ setPc(f,0);} });
   }).catch(function(){});
 })();
 </script>
