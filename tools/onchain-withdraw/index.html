@@ -136,6 +136,8 @@ html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
 <link rel="alternate" hreflang="x-default" href="https://web3origin.com/tools/onchain-withdraw/">
 </head>
 <body>
+<script>if(/[?&]embed=1/.test(location.search))document.body.classList.add('embed');</script>
+<style>body.embed header.top{display:none!important}</style>
 <header class="top"><div class="wrap">
   <img src="/assets/logo.png" alt="Web3Origin"><span class="nm"><span data-lang="zh">链上<b>提币</b></span><span data-lang="en">On-chain <b>Withdrawal</b></span></span>
   <a class="back" href="/"><span data-lang="zh">← 返回首页</span><span data-lang="en">← Home</span></a>
