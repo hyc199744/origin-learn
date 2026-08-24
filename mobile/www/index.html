@@ -340,10 +340,11 @@ function setBar(mode,title){
 
 var SCREENS={
   home:function(){return '<div class="pad">'
-    +'<div class="pcard"><div class="lbl">LGNS 实时价格</div>'
+    +'<div class="pcard"><div class="lbl">LGNS · 起源主币（Polygon）</div>'
     +'<div class="row"><div class="price">1.083</div><div class="chg">▲ 2.14%</div><div style="flex:1"></div></div>'
     +sparkSVG()
     +'<div class="meta"><div>24h 最高<b>1.096</b></div><div>24h 最低<b>1.058</b></div><div>国库储备<b>$1,191万</b></div></div></div>'
+    +'<div class="pcard" style="margin-top:12px;padding:14px 16px"><div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="lbl">ANB · Anubis 链原生币</div><div style="display:flex;align-items:flex-end;gap:8px;margin-top:4px"><div style="font-family:var(--disp);font-weight:800;font-size:26px;color:var(--gold2);line-height:1;font-variant-numeric:tabular-nums">0.862</div><div class="chg" style="font-size:12px;padding-bottom:3px">▲ 1.36%</div></div></div><div style="text-align:right;color:var(--dim);font-size:11px;line-height:1.5">DAI 计价<br>Anubis 链</div></div></div>'
     +(LIVE?'<div class="livebar" onclick="go(\'live\')"><span class="dot"></span><div><div class="t">木火夜聊 · 正在直播</div><div class="s">会议音频转播 · 👥 128 在线</div></div><span class="go">进入</span></div>':'')
     +'<div class="sec-t">🏅 生态等级人数 <span class="more" onclick="toast(\'V1–V6 链上实时统计（demo）\')">实时 ›</span></div>'
     +'<div class="levels">'+[['V1','12,480'],['V2','5,820'],['V3','2,140'],['V4','760'],['V5','182'],['V6','43']].map(function(l){return '<div class="lvl"><div class="lk">'+l[0]+'</div><div class="ln">'+l[1]+'</div><div class="ls">人</div></div>';}).join('')+'</div>'
@@ -546,9 +547,21 @@ function initLive(){
 }
 function liveOnline(){var e=document.getElementById('llv');if(e)e.style.display='inline-flex';var s=document.getElementById('lstatus');if(s)s.textContent='● 直播中 · 点画面上的播放键开始收听';}
 function liveOffline(){var s=document.getElementById('lstatus');if(s)s.textContent='主播暂未开播，开播后回到本页即可收听';var p=document.getElementById('lplay');if(p){var b=p.querySelector('button');if(b)b.textContent='↻';p.onclick=function(){initLive();};}}
+function setupMediaSession(v){
+  if(!('mediaSession' in navigator))return;
+  try{
+    navigator.mediaSession.metadata=new MediaMetadata({title:'木火夜聊 · 直播中',artist:'起源 Origin',album:'会议音频转播',artwork:[{src:'https://live.web3origin.com/cover.png',sizes:'512x512',type:'image/png'}]});
+    navigator.mediaSession.setActionHandler('play',function(){v.play().catch(function(){});});
+    navigator.mediaSession.setActionHandler('pause',function(){v.pause();});
+    navigator.mediaSession.setActionHandler('stop',function(){cleanupLive();});
+    v.addEventListener('play',function(){try{navigator.mediaSession.playbackState='playing';}catch(e){}});
+    v.addEventListener('pause',function(){try{navigator.mediaSession.playbackState='paused';}catch(e){}});
+  }catch(e){}
+}
 function startLive(){
   var v=document.getElementById('lv'); if(!v)return;
   var p=document.getElementById('lplay'); if(p)p.style.display='none';
+  setupMediaSession(v);
   var FLV=LSTREAM+'/live/yeliao.flv', HLS=LSTREAM+'/live/yeliao.m3u8';
   var s=document.getElementById('lstatus'); if(s)s.textContent='● 直播中 · 连接中…';
   if(window.flvjs && flvjs.isSupported()){
