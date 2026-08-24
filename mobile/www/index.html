@@ -234,6 +234,8 @@ body{display:block!important;padding:0!important;gap:0!important}
 .trade .sub{font-size:11px;color:var(--dim);margin-top:3px}
 .mon-h{display:flex;align-items:center;gap:10px;padding:2px 2px 14px}
 .mon-h .mt{flex:1;font-size:12px;color:var(--dim);line-height:1.5}
+.explain{border:1px solid rgba(212,175,55,.28);border-radius:14px;background:rgba(212,175,55,.06);padding:13px 15px;font-size:13.5px;line-height:1.75;color:var(--soft)}
+.explain b{color:var(--gold2);font-weight:700}
 .detbox{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
 .det{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
 .det:last-child{border-bottom:none}
@@ -455,32 +457,54 @@ function screenPage(title,html){return '<div class="statusbar"><span>23:14</span
    +'<div class="appbar"><div class="back" onclick="closeOv()">‹</div><div class="title">'+title+'</div></div>'
    +'<div class="body"><div class="pad">'+html+'</div></div>';}
 
+var POOL='0x882df4b0e8c9a1b2c3d4e5f60718293a4b5c6d0b';
+var POOLNAME='LGNS/DAI 主池 · QuickSwap V2';
+var ROUTER='0xa5e0829c2b3c4d5e6f708192a3b4c5d6e7f80910';
 var TRADES=[
-  {side:'buy', t:'买入', amt:'52.3 万 DAI', lgns:'≈ 48.4 万 LGNS', addr:'0x7b9b7d0c9d5e3f8a2b1c4d6e8f0a2b4c6d8e0f7d', hash:'0x9f2ae7c1b34d5e6f70819a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e71', ago:'2 分钟前'},
-  {side:'sell',t:'卖出', amt:'31.0 万 DAI', lgns:'≈ 28.7 万 LGNS', addr:'0x882df4b0e8c9a1b2c3d4e5f60718293a4b5c6d0b', hash:'0x1c8b4d9e0f2a3c5d7e9b1a4c6d8f0a2b4c6d8e0f7d9c2ae71b34d5e6f7081930', ago:'12 分钟前'},
-  {side:'buy', t:'买入', amt:'25.6 万 DAI', lgns:'≈ 23.7 万 LGNS', addr:'0x0dfd3c1a2b3c4d5e6f708192a3b4c5d6e7f8093c', hash:'0x3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70819f2ae71c8b4d9e0f2a30', ago:'34 分钟前'},
-  {side:'buy', t:'买入', amt:'21.4 万 DAI', lgns:'≈ 19.8 万 LGNS', addr:'0x97f8a2b3c4d5e6f708192a3b4c5d6e7f8091a0a2', hash:'0x5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70819f2ae71c8b4d9e0f2a3c5d70', ago:'1 小时前'},
-  {side:'sell',t:'卖出', amt:'20.8 万 DAI', lgns:'≈ 19.2 万 LGNS', addr:'0x5e4e7c0a1b2c3d4e5f60718293a4b5c6d7e8f97c', hash:'0x708192a3b4c5d6e7f8091a2b3c4d5e6f70819f2ae71c8b4d9e0f2a3c5d7e9b10', ago:'2 小时前'},
+  {side:'buy', t:'买入', dai:'52.3 万 DAI', lgns:'48.4 万 LGNS', price:'1.081', from:'0x7b9b7d0c9d5e3f8a2b1c4d6e8f0a2b4c6d8e0f7d', hash:'0x9f2ae7c1b34d5e6f70819a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e71', block:'64,182,507', gas:'0.019 POL', time:'2026-08-25 00:41:12', ago:'2 分钟前'},
+  {side:'sell',t:'卖出', dai:'31.0 万 DAI', lgns:'28.7 万 LGNS', price:'1.080', from:'0x1a3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d0b', hash:'0x1c8b4d9e0f2a3c5d7e9b1a4c6d8f0a2b4c6d8e0f7d9c2ae71b34d5e6f7081930', block:'64,182,391', gas:'0.021 POL', time:'2026-08-25 00:31:05', ago:'12 分钟前'},
+  {side:'buy', t:'买入', dai:'25.6 万 DAI', lgns:'23.7 万 LGNS', price:'1.080', from:'0x0dfd3c1a2b3c4d5e6f708192a3b4c5d6e7f8093c', hash:'0x3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70819f2ae71c8b4d9e0f2a30', block:'64,182,010', gas:'0.018 POL', time:'2026-08-25 00:09:48', ago:'34 分钟前'},
+  {side:'buy', t:'买入', dai:'21.4 万 DAI', lgns:'19.8 万 LGNS', price:'1.081', from:'0x97f8a2b3c4d5e6f708192a3b4c5d6e7f8091a0a2', hash:'0x5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70819f2ae71c8b4d9e0f2a3c5d70', block:'64,181,204', gas:'0.020 POL', time:'2026-08-24 23:44:33', ago:'1 小时前'},
+  {side:'sell',t:'卖出', dai:'20.8 万 DAI', lgns:'19.2 万 LGNS', price:'1.083', from:'0x5e4e7c0a1b2c3d4e5f60718293a4b5c6d7e8f97c', hash:'0x708192a3b4c5d6e7f8091a2b3c4d5e6f70819f2ae71c8b4d9e0f2a3c5d7e9b10', block:'64,179,880', gas:'0.022 POL', time:'2026-08-24 22:47:19', ago:'2 小时前'},
 ];
 function shortA(a){return a.slice(0,6)+'…'+a.slice(-4);}
 function openMonitor(){ovShow(screenPage('大额交易监控',
   '<div class="mon-h"><div class="mt">盯 Polygon 主池，买卖 ≥ <b style="color:var(--gold2)">20 万 DAI</b> 实时预警</div><div class="sw on" onclick="this.classList.toggle(\'on\');toast(this.classList.contains(\'on\')?\'已开启大额预警推送\':\'已关闭大额预警\')"></div></div>'
   +'<div class="sec-t" style="margin-top:0">🐋 最近大额成交 <span class="more" style="color:var(--dim)">点击看详情 ›</span></div>'
-  +TRADES.map(function(t,i){return '<div class="trade" onclick="openTrade('+i+')"><span class="side '+t.side+'">'+t.t+'</span><div style="flex:1"><div class="amt">'+t.amt+'</div><div class="sub">'+t.lgns+' · '+shortA(t.addr)+' · '+t.ago+'</div></div><div class="ar" style="color:var(--dim);font-size:18px">›</div></div>';}).join('')
+  +TRADES.map(function(t,i){return '<div class="trade" onclick="openTrade('+i+')"><span class="side '+t.side+'">'+t.t+'</span><div style="flex:1"><div class="amt">'+t.dai+'</div><div class="sub">≈ '+t.lgns+' · '+shortA(t.from)+' · '+t.ago+'</div></div><div class="ar" style="color:var(--dim);font-size:18px">›</div></div>';}).join('')
   +'<div class="relaynote" style="margin-top:6px">数据来自 Polygon 主池链上实时监测（demo 示意）。开启预警后，达到阈值的大单会推送到你手机。</div>'
 ));}
 function openTrade(i){
   var t=TRADES[i]; if(!t)return;
+  var buy=t.side==='buy';
+  var explain= buy
+    ? '这是一笔<b style="color:var(--green)">大额买入</b>。地址 <b>'+shortA(t.from)+'</b> 在 '+t.time+'，花了 <b>'+t.dai+'</b>，通过 QuickSwap 主池买入了约 <b>'+t.lgns+'</b>，成交均价约 <b>'+t.price+' DAI/枚</b>。单笔 ≥20 万 DAI 的买单，通常意味着有人在<b>较大规模建仓或补仓</b>，对价格是短期支撑。'
+    : '这是一笔<b style="color:var(--red)">大额卖出</b>。地址 <b>'+shortA(t.from)+'</b> 在 '+t.time+'，把约 <b>'+t.lgns+'</b> 通过 QuickSwap 主池卖出，换得 <b>'+t.dai+'</b>，成交均价约 <b>'+t.price+' DAI/枚</b>。单笔 ≥20 万 DAI 的卖单，通常代表有人在<b>较大规模减仓或套现</b>，需留意对价格的短期压力。';
   ovShow(screenPage('交易详情',
-    '<div class="trade" style="margin-bottom:16px"><span class="side '+t.side+'">'+t.t+'</span><div style="flex:1"><div class="amt">'+t.amt+'</div><div class="sub">'+t.lgns+' · '+t.ago+'</div></div></div>'
+    '<div class="trade" style="margin-bottom:14px"><span class="side '+t.side+'">'+t.t+'</span><div style="flex:1"><div class="amt">'+t.dai+'</div><div class="sub">≈ '+t.lgns+' · 均价 '+t.price+' · '+t.ago+'</div></div></div>'
+    +'<div class="explain">💡 <b>大白话解读</b><br>'+explain+'</div>'
+    +'<div class="sec-t" style="margin-top:16px">🧾 交易明细</div>'
     +'<div class="detbox">'
-      +detRow('交易地址（发起方）', t.addr, true)
-      +detRow('交易哈希', t.hash, true)
-      +detRow('交易对', 'LGNS / DAI 主池 (QuickSwap V2)', false)
-      +detRow('所在链', 'Polygon', false)
+      +detRow('交易时间', t.time, false)
+      +detRow('交易方向', (buy?'买入 LGNS':'卖出 LGNS'), false)
+      +detRow(buy?'支付':'卖出', (buy?t.dai:t.lgns), false)
+      +detRow(buy?'获得':'换得', (buy?'≈ '+t.lgns:t.dai), false)
+      +detRow('成交均价', t.price+' DAI / LGNS', false)
+      +detRow('所在链', 'Polygon（Polygon PoS）', false)
+      +detRow('区块高度', t.block, false)
+      +detRow('Gas 费', t.gas, false)
     +'</div>'
-    +'<button class="bigbtn" style="margin-top:16px" onclick="openUrl(\'https://polygonscan.com/address/'+t.addr+'\')">🔗 在 Polygonscan 查看该地址</button>'
-    +'<button class="bigbtn" style="margin-top:10px;background:transparent;color:var(--gold2);border:1px solid var(--gold)" onclick="openUrl(\'https://polygonscan.com/tx/'+t.hash+'\')">查看这笔交易</button>'
+    +'<div class="sec-t" style="margin-top:16px">👤 地址与合约</div>'
+    +'<div class="detbox">'
+      +detRow('发起地址（谁做的）', t.from, true)
+      +detRow('交互合约（在哪成交）', POOL, true)
+      +detRow('合约名称', POOLNAME, false)
+      +detRow('路由合约（下单入口）', ROUTER, true)
+      +detRow('交易哈希（这笔的唯一编号）', t.hash, true)
+    +'</div>'
+    +'<button class="bigbtn" style="margin-top:16px" onclick="openUrl(\'https://polygonscan.com/tx/'+t.hash+'\')">🔗 在 Polygonscan 查看这笔交易</button>'
+    +'<button class="bigbtn" style="margin-top:10px;background:transparent;color:var(--gold2);border:1px solid var(--gold)" onclick="openUrl(\'https://polygonscan.com/address/'+t.from+'\')">查看发起地址的全部记录</button>'
+    +'<div class="relaynote" style="margin-top:12px">以上为 demo 示意数据。接入真实源后，这里会是主池的真实成交，金额/地址/哈希/时间都可在 Polygonscan 核验。</div>'
   ));
 }
 function detRow(label,val,copy){
