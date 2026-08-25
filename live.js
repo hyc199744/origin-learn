@@ -442,8 +442,22 @@
     if(near)list.scrollTop=list.scrollHeight;
   }
   function pollChat(){var list=document.getElementById("lv-chat-list");if(!list)return;fetchJSON(EPchat+(_chat.lastId?("?after="+_chat.lastId):""),8000).then(function(r){if(r&&r.ok&&r.msgs&&r.msgs.length)appendMsgs(r.msgs);}).catch(function(){});}
+  // 公屏过滤:禁止负面(辱骂/诈骗) + 禁止加好友(拉人加微/留联系方式)
+  var LV_BANNED=["助记词","私钥","seed","keystore","带你回本","包赚","稳赚","内幕","杀猪","老师带","带单","喊单","回血","日入","躺赚","一对一","必赚","翻倍带","免费领","解冻","官方客服",
+    "加我微信","加个微信","加微信","加我v","加v","＋v","加威","威信","薇信","溦信","徽信","vx","vvx","企鹅号","扣扣","私聊我","私信我","单独聊","联系我","找我","加好友","加个好友","我的联系方式","电报群","纸飞机","tg群","weixin",
+    "傻逼","傻b","煞笔","沙比","沙雕","脑残","智障","弱智","操你","草你","草泥马","cnm","尼玛","你妈","妈的","狗东西","狗屎","废物","滚蛋","贱货","婊子","死全家"];
+  function lvNorm(s){return (s||"").toString().toLowerCase().replace(/[\s\.\-_\*·・,，。!！?？~、:：;；'"“”‘’()（）\[\]【】]/g,"");}
+  function lvBadText(t){
+    var n=lvNorm(t);
+    for(var i=0;i<LV_BANNED.length;i++){var w=lvNorm(LV_BANNED[i]);if(w&&n.indexOf(w)>=0)return true;}
+    if(/(https?:\/\/|www\.|\.com|\.cn|\.net|\.io|\.xyz|\.top|\.vip|t\.me|telegram)/i.test(t))return true; // 外链
+    if(/\d{8,}/.test(t.replace(/\s/g,"")))return true; // 长数字(QQ/手机/微信号)
+    if(/[a-zA-Z][-_a-zA-Z0-9]{5,}/.test(t)&&/(微|威|薇|v|vx|扣|企鹅|q)/i.test(t))return true; // 微信/QQ号形式
+    return false;
+  }
   function sendChat(){
     var inp=document.getElementById("lv-chat-text");if(!inp)return;var text=inp.value.replace(/\s+/g," ").trim();if(!text)return;
+    if(lvBadText(text)){lvToast(ZH?"含违规内容(诈骗/拉人加好友/辱骂)，已拦截":"Blocked: violation");return;}
     var btn=document.getElementById("lv-chat-send");if(btn)btn.disabled=true;
     postJSON(EPsend,{text:text,nick:_chat.nick},10000).then(function(r){
       if(btn)btn.disabled=false;
