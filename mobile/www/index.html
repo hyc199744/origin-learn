@@ -344,7 +344,7 @@ var SCREENS={
     +'<div class="row"><div class="price" id="hLgns">--</div><div class="chg" id="hLgnsChg">--</div><div style="flex:1"></div></div>'
     +'<div id="hSpark">'+sparkSVG()+'</div>'
     +'<div class="meta"><div>市值<b id="hMcap">--</b></div><div>流通量<b id="hSupply">--</b></div><div>国库储备<b id="hTreasury">--</b></div></div></div>'
-    +'<div class="pcard" style="margin-top:12px;padding:14px 16px"><div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="lbl">ANB · Anubis 链原生币</div><div style="display:flex;align-items:flex-end;gap:8px;margin-top:4px"><div style="font-family:var(--disp);font-weight:800;font-size:26px;color:var(--gold2);line-height:1;font-variant-numeric:tabular-nums" id="hAnb">--</div><div class="chg" style="font-size:12px;padding-bottom:3px" id="hAnbChg"></div></div></div><div style="text-align:right;color:var(--dim);font-size:11px;line-height:1.5" id="hAnbSub">Anubis 链<br>DAI 计价</div></div></div>'
+    +'<div class="pcard" style="margin-top:12px;padding:14px 16px"><div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="lbl">LGNS · Anubis 链价格</div><div style="display:flex;align-items:flex-end;gap:8px;margin-top:4px"><div style="font-family:var(--disp);font-weight:800;font-size:26px;color:var(--gold2);line-height:1;font-variant-numeric:tabular-nums" id="hAnb">--</div><div style="font-size:12px;padding-bottom:3px;color:var(--dim)">DAI</div></div></div><div style="text-align:right;color:var(--dim);font-size:11px;line-height:1.5" id="hAnbSub">Anubis 链<br>DAI 计价</div></div></div>'
     +'<div id="hLive"></div>'
     +'<div class="sec-t">🏅 生态等级人数 <span class="more" onclick="toast(\'V1–V6 链上实时统计\')">实时 ›</span></div>'
     +'<div class="levels">'+[['V1','12,480'],['V2','5,820'],['V3','2,140'],['V4','760'],['V5','182'],['V6','43']].map(function(l){return '<div class="lvl"><div class="lk">'+l[0]+'</div><div class="ln">'+l[1]+'</div><div class="ls">人</div></div>';}).join('')+'</div>'
@@ -567,7 +567,20 @@ function sparkFromData(arr){
   var up=arr[arr.length-1]>=arr[0];var col=up?'#25C96F':'#ff5e57';var fill=up?'rgba(37,201,111,.12)':'rgba(255,94,87,.12)';
   return '<svg class="spark" viewBox="0 0 120 46" preserveAspectRatio="none"><polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="'+pts.join(' ')+' 120,46 0,46" fill="'+fill+'" stroke="none"/></svg>';
 }
-function initHome(){ loadRadar(); loadNews(); probeHomeLive(); }
+function initHome(){ loadRadar(); loadAnbLgnsPrice(); loadNews(); probeHomeLive(); }
+// ANB链上LGNS价格:直查Anubis池子getReserves实时算(radar无此数据)
+function loadAnbLgnsPrice(){
+  var POOL='0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0'; // token0=LGNS(9dp) token1=DAI(18dp)
+  fetch('https://rpc.anubispace.org',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:POOL,data:'0x0902f1ac'},'latest']})})
+    .then(function(r){return r.json();}).then(function(j){
+      if(!j||!j.result)return; var h=j.result.replace(/^0x/,'');
+      var r0=BigInt('0x'+h.slice(0,64)); // LGNS reserve
+      var r1=BigInt('0x'+h.slice(64,128)); // DAI reserve
+      if(r0===0n)return;
+      var price=(Number(r1)/1e18)/(Number(r0)/1e9);
+      setTxt('hAnb', price.toFixed(4));
+    }).catch(function(){});
+}
 function loadRadar(){
   fetch(RADAR+'?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
     if(!d||!d.ok)return;
@@ -578,8 +591,7 @@ function loadRadar(){
     if(m.supply!=null)setTxt('hSupply',fmtNum(m.supply));
     if(t.marketValue!=null)setTxt('hTreasury',fmtUsd(t.marketValue));
     var sp=document.getElementById('hSpark');if(sp&&m.spark&&m.spark.length)sp.innerHTML=sparkFromData(m.spark);
-    if(a.coinPrice!=null)setTxt('hAnb',(+a.coinPrice).toFixed(4));
-    var sub=document.getElementById('hAnbSub');if(sub)sub.innerHTML='高度 '+fmtNum(a.height||0)+'<br>TPS '+((+a.tps||0).toFixed(1))+' · Gas '+((+a.gasGwei||0).toFixed(0));
+    var sub=document.getElementById('hAnbSub');if(sub)sub.innerHTML='Anubis 链 · 高度 '+fmtNum(a.height||0)+'<br>DAI 计价';
   }).catch(function(){});
 }
 function probeHomeLive(){
