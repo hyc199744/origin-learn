@@ -222,6 +222,8 @@ body{display:block!important;padding:0!important;gap:0!important}
 .kbar{display:flex;align-items:center;gap:7px;margin-top:12px}
 .kchip{font-size:12px;font-weight:600;padding:4px 11px;border-radius:14px;border:1px solid var(--line);color:var(--dim);background:var(--panel)}
 .kchip.on{background:var(--gold);color:#1a1206;border-color:var(--gold)}
+.lppool{font-size:12px;color:var(--soft);margin-top:12px;padding:9px 12px;border-radius:11px;background:rgba(37,201,111,.06);border:1px solid var(--line)}
+.lppool b{color:var(--gold2);font-weight:700;font-variant-numeric:tabular-nums}
 .tw{display:flex;gap:11px;padding:11px 12px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
 .tw:active{background:var(--panel2)}
 .tw .av{flex:none;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2a2410,#171308);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--gold2)}
@@ -352,18 +354,11 @@ var SCREENS={
   home:function(){ setTimeout(initHome,30); return '<div class="pad">'
     +'<div class="pcard"><div class="lbl">LGNS · 起源主币（Polygon）</div>'
     +'<div class="row"><div class="price" id="hLgns">--</div><div class="chg" id="hLgnsChg">--</div><div style="flex:1"></div></div>'
-    +'<div class="kbar"><span class="kchip" onclick="setKtf(this,\'minute\',15)">15分</span><span class="kchip on" onclick="setKtf(this,\'hour\',1)">1时</span><span class="kchip" onclick="setKtf(this,\'day\',1)">1日</span><span style="flex:1"></span><span id="kloading" style="color:var(--dim);font-size:11px"></span></div>'
-    +'<canvas id="lgnsK" style="width:100%;height:172px;display:block;margin-top:4px"></canvas>'
+    +'<div class="lppool" id="hLpPoly">💧 LP 底池 · 加载中…</div>'
     +'<div class="meta"><div>市值<b id="hMcap">--</b></div><div>流通量<b id="hSupply">--</b></div><div>国库储备<b id="hTreasury">--</b></div></div></div>'
-    +'<div class="pcard" style="margin-top:12px;padding:14px 16px"><div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="lbl">LGNS · Anubis 链价格</div><div style="display:flex;align-items:flex-end;gap:8px;margin-top:4px"><div style="font-family:var(--disp);font-weight:800;font-size:26px;color:var(--gold2);line-height:1;font-variant-numeric:tabular-nums" id="hAnb">--</div><div style="font-size:12px;padding-bottom:3px;color:var(--dim)">DAI</div></div></div><div style="text-align:right;color:var(--dim);font-size:11px;line-height:1.5" id="hAnbSub">Anubis 链<br>DAI 计价</div></div></div>'
+    +'<div class="pcard" style="margin-top:12px;padding:14px 16px"><div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="lbl">LGNS · Anubis 链价格</div><div style="display:flex;align-items:flex-end;gap:8px;margin-top:4px"><div style="font-family:var(--disp);font-weight:800;font-size:26px;color:var(--gold2);line-height:1;font-variant-numeric:tabular-nums" id="hAnb">--</div><div style="font-size:12px;padding-bottom:3px;color:var(--dim)">DAI</div></div></div><div style="text-align:right;color:var(--dim);font-size:11px;line-height:1.5" id="hAnbSub">Anubis 链<br>DAI 计价</div></div><div class="lppool" id="hLpAnb" style="margin-top:11px">💧 LP 底池 · 加载中…</div></div>'
     +'<div id="hLive"></div>'
     +'<div id="hCourse"></div>'
-        +'<div class="quick">'
-      +'<a onclick="dueTool()"><span class="qi">🔎</span><span class="ql">尽调</span></a>'
-      +'<a onclick="walletTool()"><span class="qi">👛</span><span class="ql">查钱包</span></a>'
-      +'<a onclick="go(\'video\')"><span class="qi">🎬</span><span class="ql">视频课</span></a>'
-      +'<a onclick="searchTool()"><span class="qi">🔍</span><span class="ql">搜索</span></a>'
-    +'</div>'
     +'<div class="sec-t">📰 最新资讯 <span class="more" onclick="openNews()">全部 ›</span></div>'
     +'<div class="news" id="hNews"><div style="color:var(--dim);font-size:12px;padding:8px">加载中…</div></div>'
     +'</div>';},
@@ -577,49 +572,18 @@ function sparkFromData(arr){
   var up=arr[arr.length-1]>=arr[0];var col=up?'#25C96F':'#ff5e57';var fill=up?'rgba(37,201,111,.12)':'rgba(255,94,87,.12)';
   return '<svg class="spark" viewBox="0 0 120 46" preserveAspectRatio="none"><polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="'+pts.join(' ')+' 120,46 0,46" fill="'+fill+'" stroke="none"/></svg>';
 }
-function initHome(){ loadRadar(); loadAnbLgnsPrice(); loadKline('hour',1); loadNews(); probeHomeLive(); probeCourseLive(); }
+function initHome(){ loadRadar(); loadAnbLgnsPrice(); loadLpPoly(); loadNews(); probeHomeLive(); probeCourseLive(); }
 
-/* ==== LGNS 实时K线(GeckoTerminal OHLCV, Polygon主池) ==== */
-var K_POOL='0x882df4B0fb50a229C3B4124EB18c759911485bFb';
-var KDATA=[], KTF={tf:'hour',agg:1};
-function setKtf(el,tf,agg){
-  var bar=el.parentNode; bar.querySelectorAll('.kchip').forEach(function(c){c.classList.remove('on');}); el.classList.add('on');
-  KTF={tf:tf,agg:agg}; loadKline(tf,agg);
-}
-function loadKline(tf,agg){
-  var ld=document.getElementById('kloading'); if(ld)ld.textContent='加载中…';
-  var url='https://api.geckoterminal.com/api/v2/networks/polygon_pos/pools/'+K_POOL+'/ohlcv/'+tf+'?aggregate='+agg+'&limit=48&currency=usd';
-  fetch(url,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-    var list=(j&&j.data&&j.data.attributes&&j.data.attributes.ohlcv_list)||[];
-    KDATA=list.slice().reverse(); // 变旧→新
-    if(ld)ld.textContent='';
-    drawKline();
-  }).catch(function(){ if(ld)ld.textContent='加载失败'; });
-}
-function drawKline(){
-  var cv=document.getElementById('lgnsK'); if(!cv||!KDATA.length)return;
-  var dpr=window.devicePixelRatio||1;
-  var W=cv.clientWidth||340, H=172;
-  cv.width=Math.floor(W*dpr); cv.height=Math.floor(H*dpr);
-  var g=cv.getContext('2d'); g.scale(dpr,dpr); g.clearRect(0,0,W,H);
-  var pad={l:6,r:52,t:8,b:16};
-  var iw=W-pad.l-pad.r, ih=H-pad.t-pad.b;
-  var hi=-1e18,lo=1e18;
-  KDATA.forEach(function(c){ hi=Math.max(hi,+c[2]); lo=Math.min(lo,+c[3]); });
-  if(hi<=lo){hi=lo+1;}
-  var rng=hi-lo; var y=function(v){return pad.t+ih-((v-lo)/rng)*ih;};
-  // 网格 + 右侧价格刻度
-  g.strokeStyle='rgba(212,175,55,.10)'; g.fillStyle='#8a9088'; g.font='10px sans-serif'; g.textAlign='left';
-  for(var k=0;k<=3;k++){ var vv=lo+rng*k/3, yy=y(vv); g.beginPath(); g.moveTo(pad.l,yy); g.lineTo(pad.l+iw,yy); g.stroke(); g.fillText(vv.toFixed(3), pad.l+iw+4, yy+3); }
-  var n=KDATA.length, cw=iw/n, bw=Math.max(1.5,Math.min(9,cw*0.62));
-  KDATA.forEach(function(c,i){
-    var o=+c[1],h=+c[2],l=+c[3],cl=+c[4];
-    var x=pad.l+cw*i+cw/2; var up=cl>=o; var col=up?'#25C96F':'#ff5e57';
-    g.strokeStyle=col; g.fillStyle=col; g.lineWidth=1;
-    g.beginPath(); g.moveTo(x,y(h)); g.lineTo(x,y(l)); g.stroke();
-    var yo=y(o),yc=y(cl); var top=Math.min(yo,yc), bh=Math.max(1,Math.abs(yc-yo));
-    g.fillRect(x-bw/2, top, bw, bh);
-  });
+/* ==== Polygon LGNS/DAI 主池 LP 底池(实时储备) ==== */
+function loadLpPoly(){
+  var POOL='0x882df4B0fb50a229C3B4124EB18c759911485bFb'; // token0=DAI(18dp) token1=LGNS(9dp)
+  fetch('https://polygon-bor-rpc.publicnode.com',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:POOL,data:'0x0902f1ac'},'latest']})})
+    .then(function(r){return r.json();}).then(function(j){
+      if(!j||!j.result)return; var h=j.result.replace(/^0x/,'');
+      var dai=Number(BigInt('0x'+h.slice(0,64)))/1e18;
+      var lgns=Number(BigInt('0x'+h.slice(64,128)))/1e9;
+      var e=document.getElementById('hLpPoly'); if(e)e.innerHTML='💧 LP 底池 · <b>'+fmtNum(lgns)+'</b> LGNS ＋ <b>'+fmtNum(dai)+'</b> DAI';
+    }).catch(function(){var e=document.getElementById('hLpPoly');if(e)e.textContent='';});
 }
 // ANB链上LGNS价格:直查Anubis池子getReserves实时算(radar无此数据)
 function loadAnbLgnsPrice(){
@@ -630,8 +594,10 @@ function loadAnbLgnsPrice(){
       var r0=BigInt('0x'+h.slice(0,64)); // LGNS reserve
       var r1=BigInt('0x'+h.slice(64,128)); // DAI reserve
       if(r0===0n)return;
-      var price=(Number(r1)/1e18)/(Number(r0)/1e9);
+      var lgns=Number(r0)/1e9, dai=Number(r1)/1e18;
+      var price=dai/lgns;
       setTxt('hAnb', price.toFixed(4));
+      var e=document.getElementById('hLpAnb'); if(e)e.innerHTML='💧 LP 底池 · <b>'+fmtNum(lgns)+'</b> LGNS ＋ <b>'+fmtNum(dai)+'</b> DAI';
     }).catch(function(){});
 }
 function loadRadar(){
