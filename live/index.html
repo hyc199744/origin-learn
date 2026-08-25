@@ -31,6 +31,8 @@
 </style>
 </head>
 <body>
+<script>if(/[?&]embed=1/.test(location.search))document.body.classList.add('embed');</script>
+<style>body.embed nav.nav,body.embed #langBtn{display:none!important}</style>
 <button id="langBtn" aria-label="Language / 切换语言">🌐</button>
 <div id="live-root">
   <noscript><div style="padding:48px 20px;text-align:center;color:#b79c74;font-family:system-ui">线上直播需要开启 JavaScript 才能使用。<br>Live Stream requires JavaScript enabled.</div></noscript>

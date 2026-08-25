@@ -219,6 +219,16 @@ body{display:block!important;padding:0!important;gap:0!important}
 .overlay .webframe{flex:1}
 
 /* V1-V6 等级人数 */
+.kbar{display:flex;align-items:center;gap:7px;margin-top:12px}
+.kchip{font-size:12px;font-weight:600;padding:4px 11px;border-radius:14px;border:1px solid var(--line);color:var(--dim);background:var(--panel)}
+.kchip.on{background:var(--gold);color:#1a1206;border-color:var(--gold)}
+.tw{display:flex;gap:11px;padding:11px 12px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.tw:active{background:var(--panel2)}
+.tw .av{flex:none;width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2a2410,#171308);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--gold2)}
+.tw .tc{flex:1;min-width:0}
+.tw .th{font-size:12.5px;color:var(--gold2);font-weight:700}
+.tw .th .hd{color:var(--dim);font-weight:400;margin-left:5px}
+.tw .tt{font-size:13.5px;color:var(--ink);line-height:1.5;margin-top:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .levels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .lvl{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:11px 8px;text-align:center;position:relative;overflow:hidden}
 .lvl .lk{font-family:var(--disp);font-weight:800;font-size:13px;color:var(--gold2);letter-spacing:.5px}
@@ -342,13 +352,13 @@ var SCREENS={
   home:function(){ setTimeout(initHome,30); return '<div class="pad">'
     +'<div class="pcard"><div class="lbl">LGNS · 起源主币（Polygon）</div>'
     +'<div class="row"><div class="price" id="hLgns">--</div><div class="chg" id="hLgnsChg">--</div><div style="flex:1"></div></div>'
-    +'<div id="hSpark">'+sparkSVG()+'</div>'
+    +'<div class="kbar"><span class="kchip" onclick="setKtf(this,\'minute\',15)">15分</span><span class="kchip on" onclick="setKtf(this,\'hour\',1)">1时</span><span class="kchip" onclick="setKtf(this,\'day\',1)">1日</span><span style="flex:1"></span><span id="kloading" style="color:var(--dim);font-size:11px"></span></div>'
+    +'<canvas id="lgnsK" style="width:100%;height:172px;display:block;margin-top:4px"></canvas>'
     +'<div class="meta"><div>市值<b id="hMcap">--</b></div><div>流通量<b id="hSupply">--</b></div><div>国库储备<b id="hTreasury">--</b></div></div></div>'
     +'<div class="pcard" style="margin-top:12px;padding:14px 16px"><div style="display:flex;align-items:center;gap:12px"><div style="flex:1"><div class="lbl">LGNS · Anubis 链价格</div><div style="display:flex;align-items:flex-end;gap:8px;margin-top:4px"><div style="font-family:var(--disp);font-weight:800;font-size:26px;color:var(--gold2);line-height:1;font-variant-numeric:tabular-nums" id="hAnb">--</div><div style="font-size:12px;padding-bottom:3px;color:var(--dim)">DAI</div></div></div><div style="text-align:right;color:var(--dim);font-size:11px;line-height:1.5" id="hAnbSub">Anubis 链<br>DAI 计价</div></div></div>'
     +'<div id="hLive"></div>'
-    +'<div class="sec-t">🏅 生态等级人数 <span class="more" onclick="toast(\'V1–V6 链上实时统计\')">实时 ›</span></div>'
-    +'<div class="levels">'+[['V1','12,480'],['V2','5,820'],['V3','2,140'],['V4','760'],['V5','182'],['V6','43']].map(function(l){return '<div class="lvl"><div class="lk">'+l[0]+'</div><div class="ln">'+l[1]+'</div><div class="ls">人</div></div>';}).join('')+'</div>'
-    +'<div class="quick">'
+    +'<div id="hCourse"></div>'
+        +'<div class="quick">'
       +'<a onclick="dueTool()"><span class="qi">🔎</span><span class="ql">尽调</span></a>'
       +'<a onclick="walletTool()"><span class="qi">👛</span><span class="ql">查钱包</span></a>'
       +'<a onclick="go(\'video\')"><span class="qi">🎬</span><span class="ql">视频课</span></a>'
@@ -567,7 +577,50 @@ function sparkFromData(arr){
   var up=arr[arr.length-1]>=arr[0];var col=up?'#25C96F':'#ff5e57';var fill=up?'rgba(37,201,111,.12)':'rgba(255,94,87,.12)';
   return '<svg class="spark" viewBox="0 0 120 46" preserveAspectRatio="none"><polyline points="'+pts.join(' ')+'" fill="none" stroke="'+col+'" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="'+pts.join(' ')+' 120,46 0,46" fill="'+fill+'" stroke="none"/></svg>';
 }
-function initHome(){ loadRadar(); loadAnbLgnsPrice(); loadNews(); probeHomeLive(); }
+function initHome(){ loadRadar(); loadAnbLgnsPrice(); loadKline('hour',1); loadNews(); probeHomeLive(); probeCourseLive(); }
+
+/* ==== LGNS 实时K线(GeckoTerminal OHLCV, Polygon主池) ==== */
+var K_POOL='0x882df4B0fb50a229C3B4124EB18c759911485bFb';
+var KDATA=[], KTF={tf:'hour',agg:1};
+function setKtf(el,tf,agg){
+  var bar=el.parentNode; bar.querySelectorAll('.kchip').forEach(function(c){c.classList.remove('on');}); el.classList.add('on');
+  KTF={tf:tf,agg:agg}; loadKline(tf,agg);
+}
+function loadKline(tf,agg){
+  var ld=document.getElementById('kloading'); if(ld)ld.textContent='加载中…';
+  var url='https://api.geckoterminal.com/api/v2/networks/polygon_pos/pools/'+K_POOL+'/ohlcv/'+tf+'?aggregate='+agg+'&limit=48&currency=usd';
+  fetch(url,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+    var list=(j&&j.data&&j.data.attributes&&j.data.attributes.ohlcv_list)||[];
+    KDATA=list.slice().reverse(); // 变旧→新
+    if(ld)ld.textContent='';
+    drawKline();
+  }).catch(function(){ if(ld)ld.textContent='加载失败'; });
+}
+function drawKline(){
+  var cv=document.getElementById('lgnsK'); if(!cv||!KDATA.length)return;
+  var dpr=window.devicePixelRatio||1;
+  var W=cv.clientWidth||340, H=172;
+  cv.width=Math.floor(W*dpr); cv.height=Math.floor(H*dpr);
+  var g=cv.getContext('2d'); g.scale(dpr,dpr); g.clearRect(0,0,W,H);
+  var pad={l:6,r:52,t:8,b:16};
+  var iw=W-pad.l-pad.r, ih=H-pad.t-pad.b;
+  var hi=-1e18,lo=1e18;
+  KDATA.forEach(function(c){ hi=Math.max(hi,+c[2]); lo=Math.min(lo,+c[3]); });
+  if(hi<=lo){hi=lo+1;}
+  var rng=hi-lo; var y=function(v){return pad.t+ih-((v-lo)/rng)*ih;};
+  // 网格 + 右侧价格刻度
+  g.strokeStyle='rgba(212,175,55,.10)'; g.fillStyle='#8a9088'; g.font='10px sans-serif'; g.textAlign='left';
+  for(var k=0;k<=3;k++){ var vv=lo+rng*k/3, yy=y(vv); g.beginPath(); g.moveTo(pad.l,yy); g.lineTo(pad.l+iw,yy); g.stroke(); g.fillText(vv.toFixed(3), pad.l+iw+4, yy+3); }
+  var n=KDATA.length, cw=iw/n, bw=Math.max(1.5,Math.min(9,cw*0.62));
+  KDATA.forEach(function(c,i){
+    var o=+c[1],h=+c[2],l=+c[3],cl=+c[4];
+    var x=pad.l+cw*i+cw/2; var up=cl>=o; var col=up?'#25C96F':'#ff5e57';
+    g.strokeStyle=col; g.fillStyle=col; g.lineWidth=1;
+    g.beginPath(); g.moveTo(x,y(h)); g.lineTo(x,y(l)); g.stroke();
+    var yo=y(o),yc=y(cl); var top=Math.min(yo,yc), bh=Math.max(1,Math.abs(yc-yo));
+    g.fillRect(x-bw/2, top, bw, bh);
+  });
+}
 // ANB链上LGNS价格:直查Anubis池子getReserves实时算(radar无此数据)
 function loadAnbLgnsPrice(){
   var POOL='0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0'; // token0=LGNS(9dp) token1=DAI(18dp)
@@ -590,9 +643,16 @@ function loadRadar(){
     if(m.mcap!=null)setTxt('hMcap',fmtUsd(m.mcap));
     if(m.supply!=null)setTxt('hSupply',fmtNum(m.supply));
     if(t.marketValue!=null)setTxt('hTreasury',fmtUsd(t.marketValue));
-    var sp=document.getElementById('hSpark');if(sp&&m.spark&&m.spark.length)sp.innerHTML=sparkFromData(m.spark);
     var sub=document.getElementById('hAnbSub');if(sub)sub.innerHTML='Anubis 链 · 高度 '+fmtNum(a.height||0)+'<br>DAI 计价';
   }).catch(function(){});
+}
+function probeCourseLive(){
+  var box=document.getElementById('hCourse'); if(!box)return;
+  fetch('https://count.web3origin.com/live/today?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+    var c=d&&d.course; if(!c){box.innerHTML='';return;}
+    var live=(c.status==='live'); var online=d.online||0;
+    box.innerHTML='<div class="livebar" style="'+(live?'':'border-color:var(--line);background:var(--panel)')+'" onclick="openWebTool(\'https://web3origin.com/live/?embed=1\',\'线上直播\')"><span class="dot" style="'+(live?'':'background:var(--dim);animation:none')+'"></span><div><div class="t">📺 '+escH(c.title||'线上直播')+'</div><div class="s">'+(live?'正在直播 · ':'觉醒课堂 · ')+'👥 '+online+' 在线</div></div><span class="go" style="'+(live?'':'background:transparent;color:var(--gold2);border:1px solid var(--gold)')+'">进入</span></div>';
+  }).catch(function(){box.innerHTML='';});
 }
 function probeHomeLive(){
   var box=document.getElementById('hLive');if(!box)return;
@@ -602,22 +662,43 @@ function probeHomeLive(){
      : '<div class="livebar" style="border-color:var(--line);background:var(--panel)" onclick="go(\'live\')"><span class="dot" style="background:var(--dim);animation:none"></span><div><div class="t">木火夜聊</div><div class="s">暂未开播 · 点击查看回放</div></div><span class="go" style="background:transparent;color:var(--gold2);border:1px solid var(--gold)">查看</span></div>';
   }).catch(function(){box.innerHTML='';});
 }
+var TWEETDATA=[];
 function loadNews(){
   fetch(FEED+'?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
     NEWSDATA=(d&&d.items)||[];
+    TWEETDATA=(d&&d.tweets)||[];
     var box=document.getElementById('hNews');if(!box)return;
-    if(!NEWSDATA.length){box.innerHTML='<div style="color:var(--dim);font-size:12px;padding:8px">暂无资讯</div>';return;}
-    box.innerHTML=NEWSDATA.slice(0,6).map(function(n,i){return newsItemHtml(n,i);}).join('');
+    var html=NEWSDATA.slice(0,4).map(function(n,i){return newsItemHtml(n,i);}).join('')
+            +TWEETDATA.slice(0,4).map(function(t,i){return tweetItemHtml(t,i);}).join('');
+    box.innerHTML=html||'<div style="color:var(--dim);font-size:12px;padding:8px">暂无资讯</div>';
   }).catch(function(){});
 }
 function newsItemHtml(n,i){return '<div class="nitem" onclick="openArticle('+i+')"><div class="tag">📢</div><div class="nc"><div class="nt">'+escH(n.title)+'</div><div class="nm"><span>官方公告</span><span>·</span><span>'+(n.createtime?fmtDate(n.createtime):'')+'</span></div></div></div>';}
+function tweetName(t){return t.name||('@'+(t.handle||'官方'));}
+function tweetItemHtml(t,i){var tx=(t.text_zh&&t.text_zh.trim())||t.text||'';return '<div class="tw" onclick="openTweet('+i+')"><div class="av">𝕏</div><div class="tc"><div class="th">'+escH(tweetName(t))+'<span class="hd">@'+escH(t.handle||'')+'</span></div><div class="tt">'+escH(tx)+'</div></div></div>';}
+function openTweet(i){var t=TWEETDATA[i];if(!t)return;var zh=(t.text_zh&&t.text_zh.trim());
+  var orig=zh&&t.text?'<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);color:var(--dim);font-size:13px;line-height:1.7">原文：<br>'+escH(t.text)+'</div>':'';
+  var dt=t.created_at?String(t.created_at).slice(0,10):'';
+  ovShow(screenPage('官方推特',
+    '<div class="tw" style="border:none;padding:0;margin-bottom:6px"><div class="av">𝕏</div><div class="tc"><div class="th">'+escH(tweetName(t))+(t.verified?' <span style="color:var(--gold2)">✓</span>':'')+'<span class="hd">@'+escH(t.handle||'')+'</span></div><div style="color:var(--dim);font-size:11px;margin-top:2px">'+dt+' · 官方推文</div></div></div>'
+    +'<div style="font-size:14.5px;line-height:1.8;color:var(--ink);margin-top:10px">'+escH(zh||t.text||'')+'</div>'
+    +orig
+    +(zh?'<div style="color:var(--dim);font-size:11px;margin-top:10px">🌐 AI 辅助翻译，以原文为准</div>':'')
+    +(t.url?'<button class="bigbtn" style="margin-top:16px" onclick="openUrl(\''+t.url+'\')">在 X(推特) 查看原文</button>':'')
+  ));
+}
 function openArticle(i){var n=NEWSDATA[i];if(!n)return;
   var paras=(n.paras||[]).map(function(p){return '<p style="margin-bottom:10px">'+escH(p)+'</p>';}).join('')||'<p>'+escH(n.summary||'')+'</p>';
   ovShow(screenPage('公告详情','<h2 style="font-family:var(--disp);font-size:18px;color:var(--bone);line-height:1.45;margin-bottom:8px">'+escH(n.title)+'</h2><div style="color:var(--dim);font-size:12px;margin-bottom:14px">官方公告 · '+(n.createtime?fmtDate(n.createtime):'')+'</div><div style="font-size:14px;line-height:1.85;color:var(--soft)">'+paras+'</div>'+(n.fullurl?'<button class="bigbtn" style="margin-top:16px" onclick="openUrl(\''+n.fullurl+'\')">查看官方原文</button>':'')));
 }
 function openNews(){
-  var list=NEWSDATA.length?NEWSDATA.map(function(n,i){return newsItemHtml(n,i);}).join(''):'<div style="color:var(--dim);font-size:12px;padding:8px">加载中…</div>';
-  ovShow(screenPage('最新资讯','<div class="news">'+list+'</div>'));
+  var ann=NEWSDATA.map(function(n,i){return newsItemHtml(n,i);}).join('');
+  var tw=TWEETDATA.map(function(t,i){return tweetItemHtml(t,i);}).join('');
+  var html='';
+  if(ann)html+='<div class="sec-t" style="margin-top:2px">📢 官方公告</div><div class="news">'+ann+'</div>';
+  if(tw)html+='<div class="sec-t">𝕏 官方推特</div><div class="news">'+tw+'</div>';
+  if(!html)html='<div style="color:var(--dim);font-size:12px;padding:8px">加载中…</div>';
+  ovShow(screenPage('最新资讯',html));
 }
 
 /* ==== 直播:App内原生播放器 + 真实公屏/在线/回放 ==== */
