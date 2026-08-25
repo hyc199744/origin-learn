@@ -40,6 +40,18 @@ jobs:
         working-directory: mobile
         run: npx cap sync android
 
+      - name: Use fixed debug keystore (可覆盖升级，不用卸载)
+        run: |
+          mkdir -p ~/.android
+          cp mobile/debug.keystore ~/.android/debug.keystore
+
+      - name: Bump versionCode/Name (每次构建版本号递增)
+        working-directory: mobile/android
+        run: |
+          sed -i "s/versionCode 1/versionCode ${GITHUB_RUN_NUMBER}/" app/build.gradle
+          sed -i "s/versionName \"1.0\"/versionName \"1.0.${GITHUB_RUN_NUMBER}\"/" app/build.gradle
+          grep -E "versionCode|versionName" app/build.gradle || true
+
       - name: Accept licenses
         run: yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
