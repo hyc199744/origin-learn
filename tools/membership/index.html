@@ -141,7 +141,13 @@ a{color:var(--violet)}
 /* ---- modal ---- */
 .mask{position:fixed;inset:0;background:rgba(3,5,12,.78);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:80;padding:18px}
 .mask.on{display:flex}
-.modal{background:linear-gradient(165deg,rgba(169,123,255,.08),transparent),var(--panel);border:1px solid var(--line2);border-radius:16px;max-width:440px;width:100%;padding:24px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.modal{background:linear-gradient(165deg,rgba(169,123,255,.08),transparent),var(--panel);border:1px solid var(--line2);border-radius:16px;max-width:440px;width:100%;padding:24px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.6);max-height:88vh;overflow-y:auto}
+.mono{font-family:ui-monospace,Consolas,"Courier New",monospace}
+.mb-nt{flex:1;padding:9px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);font-size:13px;font-weight:700;cursor:pointer}
+.mb-nt.on{color:#04122a;background:linear-gradient(135deg,var(--violet),var(--blue));border-color:var(--violet)}
+.mb-pf{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--dim);align-items:center}
+.mb-cp{background:var(--panel2);border:1px solid var(--line);color:var(--violet);border-radius:7px;padding:5px 10px;font-size:11.5px;cursor:pointer;white-space:nowrap;font-weight:700}
+.mb-qr img,.mb-qr canvas{max-width:100%;height:auto;border-radius:6px}
 .modal .x{position:absolute;top:12px;right:14px;font-size:22px;color:var(--dim);cursor:pointer;line-height:1;background:none;border:none}
 .modal .mic{font-size:34px;margin-bottom:8px}
 .modal .mno{font-size:12px;color:var(--dim);font-weight:700}
@@ -283,6 +289,7 @@ a{color:var(--violet)}
   <div class="modal" id="modal"></div>
 </div>
 
+<script src="/assets/qrcode.min.js"></script>
 <script src="./tools-config.js"></script>
 <script>
 (function(){
@@ -398,19 +405,125 @@ a{color:var(--violet)}
     mask.classList.add('on');
   }
 
-  /* CTA：不接入真实收款，仅提示开通方式确认中 */
-  document.getElementById('ctaBtn').addEventListener('click', function(){
-    modal.innerHTML =
-      '<button class="x" aria-label="关闭">×</button>'+
-      '<div class="mic">🔓</div>'+
-      '<h4>开通会员 · '+esc(P.priceText)+'</h4>'+
-      '<p class="mde"><b style="color:#f0c48c">'+esc(P.priceText)+' · '+esc(P.period)+' · '+esc(P.quotaText)+'</b>。付款方式沿用现有链上 LGNS 手动转账（Polygon / Anubis 皆可）。开通通道即将开放，敬请稍候。</p>'+
-      '<div class="meta">当前已上线 <b style="color:#f0c48c">'+live+'</b> 项工具，开通后即可使用；其余按「即将上线 / 开发中」标注逐步开放，不会把未完成工具伪装成已上线。</div>'+
-      '<button class="mbtn wait" id="mClose2">我知道了</button>';
+  /* =====================================================================
+   *  会员付款解锁（复用链上尽调页现有的 /mon/* 收款流程，一次付款两处通用）
+   *  - 不新增收款服务、不改后台：直接调用已上线的 count.web3origin.com/mon/*
+   *  - 解锁令牌存 localStorage 'mon_access_v1'，与尽调页共用
+   * ===================================================================== */
+  var WK = 'https://count.web3origin.com';
+  var MLS = 'mon_access_v1';        // 与尽调页共用的解锁令牌
+  var PLS = 'mon_pending_v1';       // 未完成订单
+  var MONTOKEN = null;
+  var PAYNETS = {
+    poly:{ name:'Polygon', chainId:137,  lgns:'0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01' },
+    anb: { name:'Anubis',  chainId:6714, lgns:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8' }
+  };
+  var copyText = function(s){ try{ navigator.clipboard.writeText(s); }catch(e){} };
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
+
+  async function validToken(t){
+    try{ var r=await fetch(WK+'/mon/access?token='+encodeURIComponent(t)); var j=await r.json(); return j&&j.ok; }
+    catch(e){ return false; }
+  }
+
+  // 已解锁状态：把「立即解锁」变为「进入工具」，并显示提示
+  function showUnlocked(){
+    var btn=document.getElementById('ctaBtn');
+    if(btn){
+      btn.textContent='✓ 已解锁 · 进入链上尽调工具';
+      btn.onclick=function(){ location.href='/tools/origin-monitor/'+(MONTOKEN?('?t='+encodeURIComponent(MONTOKEN)):''); };
+    }
+    var pend=document.getElementById('planPending');
+    if(pend){
+      pend.innerHTML='<b style="color:#7bffb0">✓ 本设备已解锁会员</b> · 一次性 '+esc(P.priceText)+' · '+esc(P.period)+'。点上方按钮进入工具；已上线的 <b style="color:#f0c48c">'+live+'</b> 项可直接使用。'+
+        (MONTOKEN?'<br><span style="font-size:11.5px;color:var(--dim)">换设备可用专属链接恢复：</span><br><code style="word-break:break-all;font-size:11px;color:var(--soft)">'+esc(location.origin)+'/tools/origin-monitor/?t='+esc(MONTOKEN)+'</code>':'');
+      pend.style.background='rgba(37,201,111,.08)';
+      pend.style.borderColor='rgba(37,201,111,.4)';
+      pend.style.color='#a9e6c6';
+    }
+  }
+  function grant(token){ MONTOKEN=token; lsSet(MLS,token); lsDel(PLS); closeM(); showUnlocked();
+    try{ window.scrollTo({top:document.querySelector('.planbox').offsetTop-20,behavior:'smooth'}); }catch(e){} }
+
+  // 页面加载时：优先看 URL ?t= 访问链接，再看本设备已存令牌
+  (async function initAccess(){
+    try{ var qt=new URLSearchParams(location.search).get('t');
+      if(qt && await validToken(qt)){ MONTOKEN=qt; lsSet(MLS,qt); showUnlocked(); return; } }catch(e){}
+    var t=lsGet(MLS);
+    if(t && await validToken(t)){ MONTOKEN=t; showUnlocked(); }
+  })();
+
+  function toBase9(amtStr){var p=String(amtStr).split('.');var i=p[0]||'0',f=p[1]||'';var frac=(f+'000000000').slice(0,9);try{return(BigInt(i)*1000000000n+BigInt(frac)).toString();}catch(e){return'0';}}
+
+  // 打开付款窗口
+  async function startPay(){
+    modal.innerHTML='<button class="x" aria-label="关闭">×</button><div class="mde" style="text-align:center;padding:20px 0">正在生成订单…</div>';
     modal.querySelector('.x').addEventListener('click', closeM);
-    modal.querySelector('#mClose2').addEventListener('click', closeM);
     mask.classList.add('on');
-  });
+    var o;
+    try{ o=await fetch(WK+'/mon/order').then(function(r){return r.json();}); }catch(e){ o=null; }
+    if(!o||!o.ok){ modal.innerHTML='<button class="x" aria-label="关闭">×</button><div class="mde" style="color:#ff6b5e;text-align:center;padding:16px 0">生成订单失败，请稍后再试。</div>'; modal.querySelector('.x').addEventListener('click', closeM); return; }
+    lsSet(PLS, JSON.stringify({orderId:o.orderId,amount:o.amount,receive:o.receive,created:Date.now()}));
+    renderPay(o);
+  }
+
+  function renderPay(o){
+    var cur='poly';
+    var raw=o.amountRaw||toBase9(o.amount);
+    var timer=null, closed=false;
+    function panel(){
+      var nt=PAYNETS[cur];
+      var uri='ethereum:'+nt.lgns+'@'+nt.chainId+'/transfer?address='+o.receive+'&uint256='+raw;
+      modal.innerHTML=
+        '<button class="x" aria-label="关闭">×</button>'+
+        '<h4 style="margin-top:2px">开通会员 · 一次性 '+esc(P.priceText)+'</h4>'+
+        '<p class="mde" style="margin-bottom:10px">'+esc(P.period)+' · '+esc(P.quotaText)+'。用支持 <b style="color:var(--gold2)">Polygon 或 Anubis</b> 的钱包，向下方地址转<b style="color:var(--gold2)">精确金额</b>的 LGNS，到账后自动解锁。</p>'+
+        '<div style="display:flex;gap:8px;margin-bottom:12px">'+
+          '<button class="mb-nt'+(cur==='poly'?' on':'')+'" data-net="poly">Polygon</button>'+
+          '<button class="mb-nt'+(cur==='anb'?' on':'')+'" data-net="anb">Anubis</button>'+
+        '</div>'+
+        '<div class="mb-pf"><span>网络</span><b style="color:var(--gold2)">'+nt.name+' · Chain '+nt.chainId+'</b></div>'+
+        '<div class="mb-pf" style="margin-top:8px"><span>精确金额（务必一分不差）</span><b style="color:var(--gold);font-size:17px" class="mono">'+esc(o.amount)+' LGNS</b></div>'+
+        '<div style="text-align:right;margin:2px 0 6px"><button class="mb-cp" data-c="'+esc(o.amount)+'">复制金额</button></div>'+
+        '<div class="mb-pf"><span>收款地址</span></div>'+
+        '<div style="display:flex;gap:8px;align-items:center;margin-top:4px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1;font-size:12px">'+esc(o.receive)+'</code><button class="mb-cp" data-c="'+esc(o.receive)+'">复制</button></div>'+
+        '<div class="mb-pf" style="margin-top:8px"><span>LGNS 合约（'+nt.name+'）</span></div>'+
+        '<div style="display:flex;gap:8px;align-items:center;margin-top:4px"><code class="mono" style="word-break:break-all;color:var(--soft);flex:1;font-size:11px">'+nt.lgns+'</code><button class="mb-cp" data-c="'+nt.lgns+'">复制</button></div>'+
+        '<div class="mb-qr" style="text-align:center;margin:12px auto 4px"></div>'+
+        '<div style="font-size:11.5px;color:var(--dim);text-align:center">扫码后请在钱包内确认为 <b style="color:var(--gold2)">'+nt.name+' 上的 LGNS</b>、金额 <b style="color:var(--gold2)">'+esc(o.amount)+'</b></div>'+
+        '<div style="font-size:12px;color:var(--soft);margin-top:10px;line-height:1.7">检测到精确金额且区块确认 ≥2 后约 20–60 秒<b style="color:var(--gold2)">自动解锁</b>。<span id="mbPayStatus" style="color:var(--gold2)">● 等待付款中…</span></div>'+
+        '<div style="font-size:11px;color:var(--dim);margin-top:10px;border-top:1px solid var(--line);padding-top:9px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>订单号 <code class="mono">'+esc(o.orderId)+'</code> <button class="mb-cp" data-c="'+esc(o.orderId)+'">复制</button></span></div>'+
+        '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'+
+          '<button class="mbtn" id="mbPayClose" style="flex:1;padding:11px">关闭窗口</button>'+
+          '<button class="mbtn" id="mbPayCancel" style="flex:1;padding:11px;border-color:rgba(255,107,94,.5);color:#ff9a8f">取消订单</button>'+
+        '</div>';
+      // copy buttons
+      modal.querySelectorAll('.mb-cp').forEach(function(b){var t0=b.textContent;b.onclick=function(){copyText(b.dataset.c);b.textContent='已复制';setTimeout(function(){b.textContent=t0;},1200);};});
+      // net switch
+      modal.querySelectorAll('[data-net]').forEach(function(t){t.onclick=function(){cur=t.dataset.net;panel();};});
+      // qr
+      try{ var q=modal.querySelector('.mb-qr'); if(q&&window.QRCode){ q.innerHTML=''; new QRCode(q,{text:uri,width:160,height:160,colorDark:'#000',colorLight:'#fff',correctLevel:window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:undefined}); } }catch(e){}
+      modal.querySelector('.x').addEventListener('click', function(){ closed=true; if(timer)clearInterval(timer); closeM(); });
+      var cb=modal.querySelector('#mbPayClose'); if(cb)cb.onclick=function(){ closed=true; if(timer)clearInterval(timer); closeM(); };
+      var cc=modal.querySelector('#mbPayCancel'); var armed=false;
+      if(cc)cc.onclick=async function(){ if(!armed){armed=true;cc.textContent='确认取消？再点一次';setTimeout(function(){armed=false;cc.textContent='取消订单';},4000);return;} closed=true; if(timer)clearInterval(timer); try{await fetch(WK+'/mon/cancel?order='+o.orderId);}catch(e){} lsDel(PLS); modal.innerHTML='<button class="x" aria-label="关闭">×</button><div class="mde" style="text-align:center;padding:16px 0">订单已取消，可重新开通。</div>'; modal.querySelector('.x').addEventListener('click', closeM); };
+    }
+    function poll(){
+      var start=Date.now();
+      timer=setInterval(async function(){
+        if(closed || !mask.classList.contains('on')){ clearInterval(timer); return; }
+        if(Date.now()-start>15*60*1000){ clearInterval(timer); var s=document.getElementById('mbPayStatus'); if(s)s.innerHTML='<span style="color:#ff9a8f">● 等待较久；若已付款，稍后刷新本页会自动识别。</span>'; return; }
+        var c; try{ c=await fetch(WK+'/mon/check?order='+o.orderId).then(function(r){return r.json();}); }catch(e){ return; }
+        if(c&&c.status==='canceled'){ clearInterval(timer); return; }
+        if(c&&c.status==='paid'&&c.access){ clearInterval(timer); var s=document.getElementById('mbPayStatus'); if(s)s.innerHTML='<b style="color:#7bffb0">✓ 支付成功 · 正在解锁…</b>'; grant(c.access); }
+      },5000);
+    }
+    panel(); poll();
+  }
+
+  document.getElementById('ctaBtn').addEventListener('click', function(){ if(MONTOKEN){ location.href='/tools/origin-monitor/?t='+encodeURIComponent(MONTOKEN); } else { startPay(); } });
 
   function hexA(hex,a){
     var h=hex.replace('#',''); if(h.length===3) h=h.replace(/(.)/g,'$1$1');
