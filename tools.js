@@ -286,6 +286,15 @@
   window.openReferrer=function(){
     const API="https://count.web3origin.com";
     const OKEY="origin_ref_orders_v1";
+    // ===== 会员令牌(与尽调页/会员页共用 mon_access_v1)：会员查推荐人免单独付费 =====
+    const MLS="mon_access_v1"; let MTOKEN=null, MEMBER_CHECKED=false;
+    async function ensureMember(){
+      if(MEMBER_CHECKED) return !!MTOKEN;
+      MEMBER_CHECKED=true;
+      try{ const t=localStorage.getItem(MLS);
+        if(t){ const r=await fetch(API+"/mon/access?token="+encodeURIComponent(t)).then(x=>x.json()); if(r&&r.ok) MTOKEN=t; } }catch(e){}
+      return !!MTOKEN;
+    }
     function loadOrders(){ try{return JSON.parse(localStorage.getItem(OKEY)||"[]");}catch(e){return[];} }
     function saveOrder(o,addr){
       const arr=loadOrders().filter(x=>x.orderId!==o.orderId);
@@ -305,7 +314,7 @@
           </div>
           <button class="claim2" id="rGo">查 询</button>
           <div class="calc-out" id="rOut" style="margin-top:14px;display:none"></div>
-          <p class="calc-note">读社区合约的绑定关系（members），返回推荐人钱包和绑定时间——链上真实数据。<b style="color:var(--gold-lt)">完整推荐人地址</b>需支付 2 LGNS 解锁。付款后若没等到自动解锁，点上方<b>"我的订单"</b>随时回来查看付款状态、拿完整地址。</p>
+          <p class="calc-note">读社区合约的绑定关系（members），返回推荐人钱包和绑定时间——链上真实数据。<b style="color:var(--gold-lt)">完整推荐人地址</b>为会员权益，开通 10 LGNS 会员后全站工具一次通用。已开通会员的用户在本站查询会自动显示完整地址，无需再次付费。</p>
         </div>
       </div>`);
     const out=b.querySelector("#rOut");
@@ -351,11 +360,21 @@
       if(!isAddr(a)){out.style.display="block";out.innerHTML='<div class="cstat"><span style="color:#e0705f">地址格式不对，应是 0x 开头 42 位</span></div>';return;}
       curAddr=a;
       out.style.display="block";out.innerHTML='<div class="cstat"><span>正在查链上绑定关系…</span></div>';
+      const mem=await ensureMember();
       let d;
-      try{ d=await fetch(API+"/referrer?addr="+a).then(r=>r.json()); }
+      try{ d=await fetch(API+"/referrer?addr="+a+(mem&&MTOKEN?("&token="+encodeURIComponent(MTOKEN)):"")).then(r=>r.json()); }
       catch(e){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">查询失败，稍后再试</span></div>'; return; }
       if(!d||!d.ok){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">查询失败，稍后再试</span></div>'; return; }
       if(!d.hasRef){ out.innerHTML='<div class="cstat"><span>这个地址<b style="color:var(--gold-lt)">还没有绑定推荐人</b>（或还没加入社区）</span></div>'; return; }
+      // 会员：后台已返回完整地址，直接显示，无需单独付费
+      if(d.unlocked&&d.referrer){
+        out.innerHTML=PAYCSS+
+          `<div class="cstat"><span style="color:#8fbf78">✓ 会员已解锁 · 完整推荐人</span></div>`+
+          `<div style="display:flex;align-items:center;gap:8px;margin:6px 0 6px"><code style="font-family:var(--mono);color:var(--bone);word-break:break-all;flex:1;font-size:13px">${d.referrer}</code><button class="rcopy" data-c="${d.referrer}">复制完整地址</button></div>`+
+          `<div class="cstat"><span>绑定时间</span><b style="font-size:13px">${fmtTime(d.bindTime)}</b></div>`;
+        const cp=out.querySelector(".rcopy"); if(cp)cp.onclick=(ev)=>{copyText(d.referrer);ev.target.textContent="已复制 ✓";setTimeout(()=>ev.target.textContent="复制完整地址",1200);};
+        return;
+      }
       out.innerHTML=
         `<div class="cstat"><span>推荐人（上级）</span><b class="up" id="rRef" style="font-family:var(--mono);font-size:14px">${d.masked}</b></div>`+
         `<div id="rUnlock" style="margin-top:14px"></div>`;
@@ -363,22 +382,9 @@
     }
     function renderUnlock(){
       const el=out.querySelector("#rUnlock"); if(!el) return;
-      el.innerHTML=`<div style="font-size:12.5px;color:var(--soft);background:rgba(214,168,75,.06);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:11px;line-height:1.85">支付 <b style="color:var(--gold-lt)">2 LGNS</b> 后可查看：<br>· <b style="color:var(--bone)">完整推荐人地址</b> —— 这个地址的上级钱包全地址<br>· <b style="color:var(--bone)">绑定时间</b> —— 什么时候绑定的这个上级</div>`+
-        `<button class="claim2" id="rBuy" style="background:linear-gradient(180deg,#c9313a,#8f0c11);border-color:#7a0b12">🔓 支付 2 LGNS 解锁</button>`+
-        `<style>
-        .rbuyproof{position:relative;display:flex;align-items:center;justify-content:center;gap:13px;margin-top:15px;background:linear-gradient(135deg,rgba(123,255,69,.15),rgba(123,255,69,.04));border:1px solid rgba(123,255,69,.55);border-radius:15px;padding:12px 20px;box-shadow:0 8px 30px rgba(123,255,69,.22);overflow:hidden}
-        .rbuyproof::after{content:"";position:absolute;top:0;left:-60%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);transform:skewX(-20deg);animation:rbShine 3.2s ease-in-out infinite}
-        .rb-ava{display:flex;flex:0 0 auto}
-        .rb-ava span{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;background:#0d130f;border:2px solid #5fd82f;margin-left:-10px}
-        .rb-ava span:first-child{margin-left:0}
-        .rb-txt{font-size:15.5px;font-weight:700;color:#E9EFEA;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-        .rb-txt b{font-size:23px;color:#7BFF45;margin:0 2px;font-weight:900}
-        .rb-tag{font-size:11.5px;font-weight:800;color:#04210a;background:#7BFF45;border-radius:999px;padding:3px 10px;animation:rbPulse 1.6s ease-in-out infinite}
-        @keyframes rbShine{0%{left:-60%}55%,100%{left:130%}}
-        @keyframes rbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
-        </style>`+
-        `<div class="rbuyproof"><div class="rb-ava"><span>🧑</span><span>👨</span><span>👩</span><span>🧑‍💼</span></div><div class="rb-txt">已有 <b>310</b> 人支付购买<span class="rb-tag">🔥 热销中</span></div></div>`;
-      el.querySelector("#rBuy").onclick=startPay;
+      el.innerHTML=`<div style="font-size:12.5px;color:var(--soft);background:rgba(214,168,75,.06);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:11px;line-height:1.85"><b style="color:var(--gold-lt)">完整推荐人地址</b>与<b style="color:var(--bone)">绑定时间</b>是会员权益。开通 <b style="color:var(--gold-lt)">10 LGNS 会员</b>后，全站工具一次通用——查推荐人、双链质押、大额监控、链上提币等都不再单独收费。</div>`+
+        `<a class="claim2" href="/tools/membership/" style="display:block;text-align:center;text-decoration:none;background:linear-gradient(180deg,#c9313a,#8f0c11);border:1px solid #7a0b12">🔓 开通会员 · 10 LGNS 解锁全部工具</a>`+
+        `<div style="font-size:11.5px;color:var(--soft);text-align:center;margin-top:9px;line-height:1.7">一次性 10 LGNS · 永久使用 · 无限查询 · 已解锁请<a href="/tools/membership/" style="color:var(--gold-lt)">刷新本页</a></div>`;
     }
     async function startPay(){
       const el=out.querySelector("#rUnlock"); if(!el) return;
