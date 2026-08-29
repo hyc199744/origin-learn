@@ -383,8 +383,8 @@
     function renderUnlock(){
       const el=out.querySelector("#rUnlock"); if(!el) return;
       el.innerHTML=`<div style="font-size:12.5px;color:var(--soft);background:rgba(214,168,75,.06);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:11px;line-height:1.85"><b style="color:var(--gold-lt)">完整推荐人地址</b>与<b style="color:var(--bone)">绑定时间</b>是会员权益。开通 <b style="color:var(--gold-lt)">10 LGNS 会员</b>后，全站工具一次通用——查推荐人、双链质押、大额监控、链上提币等都不再单独收费。</div>`+
-        `<a class="claim2" href="/tools/membership/" style="display:block;text-align:center;text-decoration:none;background:linear-gradient(180deg,#c9313a,#8f0c11);border:1px solid #7a0b12">🔓 开通会员 · 10 LGNS 解锁全部工具</a>`+
-        `<div style="font-size:11.5px;color:var(--soft);text-align:center;margin-top:9px;line-height:1.7">一次性 10 LGNS · 永久使用 · 无限查询 · 已解锁请<a href="/tools/membership/" style="color:var(--gold-lt)">刷新本页</a></div>`;
+        `<a class="claim2" href="/tools/origin-monitor/" style="display:block;text-align:center;text-decoration:none;background:linear-gradient(180deg,#c9313a,#8f0c11);border:1px solid #7a0b12">🔓 开通会员 · 10 LGNS 解锁全部工具</a>`+
+        `<div style="font-size:11.5px;color:var(--soft);text-align:center;margin-top:9px;line-height:1.7">一次性 10 LGNS · 永久使用 · 无限查询 · 已解锁请<a href="/tools/origin-monitor/" style="color:var(--gold-lt)">刷新本页</a></div>`;
     }
     async function startPay(){
       const el=out.querySelector("#rUnlock"); if(!el) return;

@@ -350,7 +350,7 @@ public smart contracts, wallet signatures, and on-chain transactions.</span></p>
     if(s&&s.access){showLink(s);return;}            // 老的提币解锁记录→直接给链接
     var mt=await memberToken();
     if(mt){ enterTool(mt); return; }                 // 已是会员→直接进提币工具
-    location.href="/tools/membership/";              // 非会员→去开通 10 LGNS 会员(全站通用)
+    location.href="/tools/origin-monitor/";              // 非会员→去开通 10 LGNS 会员(全站通用)
   };
   document.getElementById("restoreLink").onclick=restore;
   mask.addEventListener("click",function(e){if(e.target===mask)closeM();});

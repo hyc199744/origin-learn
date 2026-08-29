@@ -283,7 +283,7 @@ button.go,.btn2{min-height:44px}
   })();
   </script>
 
-  <!-- ===== 会员 30 项工具权益展示（付款前完整查看，数据读 ../membership/tools-config.js）===== -->
+  <!-- ===== 会员 30 项工具权益展示（付款前完整查看，数据读 ./tools-config.js）===== -->
   <div class="mb-wrap" id="mbShowcase">
     <h3 class="mb-h"><span class="mb-num">30 项</span>解锁后可用的链上工具</h3>
     <div class="mb-grid" id="mbGrid"></div>
@@ -1016,7 +1016,7 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
 })();
 </script>
 <!-- ===== 会员 30 项工具权益渲染（读统一配置，独立作用域）===== -->
-<script src="../membership/tools-config.js"></script>
+<script src="./tools-config.js"></script>
 <script>
 (function(){
   var M = window.MEMBERSHIP; var host = document.getElementById('mbGrid');
