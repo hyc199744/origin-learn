@@ -286,13 +286,6 @@ button.go,.btn2{min-height:44px}
   <!-- ===== 会员 30 项工具权益展示（付款前完整查看，数据读 ../membership/tools-config.js）===== -->
   <div class="mb-wrap" id="mbShowcase">
     <h3 class="mb-h"><span class="mb-num">30 项</span>解锁后可用的链上工具</h3>
-    <p class="mb-sub">一次性 <b style="color:var(--gold2)">10 LGNS · 永久使用 · 无限查询</b>，解锁下列<b style="color:var(--gold2)">已上线</b>工具，其余按状态标注逐步开放。<span style="color:var(--green)">绿=已上线</span> · <span style="color:#6fb6ff">蓝=即将上线</span> · <span style="color:#e8a45c">橙=开发中</span> · <span style="color:var(--gold2)">🔒 金锁=会员专属</span>。</p>
-    <div class="mb-stat">
-      <div class="b g"><div class="n" id="mbTotal">30</div><div class="l">项工具</div></div>
-      <div class="b lv"><div class="n" id="mbLive">–</div><div class="l">🟢 已上线</div></div>
-      <div class="b so"><div class="n" id="mbSoon">–</div><div class="l">🔵 即将上线</div></div>
-      <div class="b dv"><div class="n" id="mbDev">–</div><div class="l">🟠 开发中</div></div>
-    </div>
     <div class="mb-grid" id="mbGrid"></div>
     <h3 class="mb-h" style="margin-top:24px"><span class="mb-num">分类</span>六大链上能力</h3>
     <div class="mb-cats" id="mbCats"></div>
@@ -1032,10 +1025,8 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function hexA(hex,a){var h=hex.replace('#','');if(h.length===3)h=h.replace(/(.)/g,'$1$1');return 'rgba('+parseInt(h.substr(0,2),16)+','+parseInt(h.substr(2,2),16)+','+parseInt(h.substr(4,2),16)+','+a+')';}
   var cnt = M.countByStatus();
-  document.getElementById('mbTotal').textContent = M.TOOLS.length;
-  document.getElementById('mbLive').textContent = cnt.live;
-  document.getElementById('mbSoon').textContent = cnt.soon;
-  document.getElementById('mbDev').textContent  = cnt.dev;
+  var _set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  _set('mbTotal', M.TOOLS.length); _set('mbLive', cnt.live); _set('mbSoon', cnt.soon); _set('mbDev', cnt.dev);
 
   M.TOOLS.slice().sort(function(a,b){return a.number-b.number;}).forEach(function(t){
     var sm = SM[t.status] || SM.dev;
