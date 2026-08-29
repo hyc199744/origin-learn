@@ -184,12 +184,6 @@ a{color:var(--violet)}
     <p class="lead">从推荐关系、钱包等级、双链质押，到大户动向、资金流向、合约安全和链上证据，一套工具帮助你更方便地看懂起源链上数据。</p>
     <p class="note">不用到处问人，不用在多个页面反复查找。输入钱包地址，即可通过工具查询对应数据，并查看区块、交易哈希、合约地址和更新时间等链上依据。</p>
     <div class="rights">一次解锁 30 项链上工具<small>覆盖钱包、质押、等级、交易、资金、安全、价格与证据查询</small></div>
-    <div class="statrow">
-      <div class="statbox g"><div class="n" id="stTotal">30</div><div class="l">项链上工具</div></div>
-      <div class="statbox lv"><div class="n" id="stLive">–</div><div class="l">🟢 已上线</div></div>
-      <div class="statbox so"><div class="n" id="stSoon">–</div><div class="l">🔵 即将上线</div></div>
-      <div class="statbox dv"><div class="n" id="stDev">–</div><div class="l">🟠 开发中</div></div>
-    </div>
   </section>
 
   <!-- ② 30 项工具完整列表 -->
@@ -300,14 +294,14 @@ a{color:var(--violet)}
 
   /* ---- 状态计数 ---- */
   var cnt = M.countByStatus();
-  document.getElementById('stTotal').textContent = M.TOOLS.length;
-  document.getElementById('stLive').textContent = cnt.live;
-  document.getElementById('stSoon').textContent = cnt.soon;
-  document.getElementById('stDev').textContent  = cnt.dev;
+  var _set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  _set('stTotal', M.TOOLS.length); _set('stLive', cnt.live); _set('stSoon', cnt.soon); _set('stDev', cnt.dev);
 
   /* ---- 30 项工具卡片 ---- */
   var g = document.getElementById('grid30');
-  M.TOOLS.slice().sort(function(a,b){return a.number-b.number;}).forEach(function(t){
+  var _RANK={live:0,soon:1,dev:2};
+  M.TOOLS.slice().sort(function(a,b){var r=(_RANK[a.status]!=null?_RANK[a.status]:9)-(_RANK[b.status]!=null?_RANK[b.status]:9);return r!==0?r:(a.number-b.number);}).forEach(function(t,_i){
+    t._dn=_i+1;
     var sm = SM[t.status] || SM.dev;
     var actTxt = t.status==='live' ? '进入工具 →' : '查看介绍 →';
     var el = document.createElement('div');
@@ -316,7 +310,7 @@ a{color:var(--violet)}
     el.setAttribute('tabindex','0');
     el.innerHTML =
       '<div class="hd">'+
-        '<span class="no">'+t.number+'</span>'+
+        '<span class="no">'+t._dn+'</span>'+
         '<span class="ic">'+t.icon+'</span>'+
         (t.isPremium?'<span class="lock" title="会员专属">🔒</span>':'')+
       '</div>'+
@@ -394,7 +388,7 @@ a{color:var(--violet)}
     modal.innerHTML =
       '<button class="x" aria-label="关闭">×</button>'+
       '<div class="mic">'+t.icon+'</div>'+
-      '<div class="mno">工具 '+t.number+' / 30 · 会员专属 🔒</div>'+
+      '<div class="mno">工具 '+(t._dn||t.number)+' / 30 · 会员专属 🔒</div>'+
       '<h4>'+esc(t.name)+'</h4>'+
       '<span class="mstat" style="color:'+sm.color+';background:'+hexA(sm.color,0.12)+';border:1px solid '+hexA(sm.color,0.4)+'">'+sm.dot+' '+sm.label+'</span>'+
       '<p class="mde">'+esc(t.description)+'</p>'+

@@ -1028,12 +1028,14 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
   var _set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
   _set('mbTotal', M.TOOLS.length); _set('mbLive', cnt.live); _set('mbSoon', cnt.soon); _set('mbDev', cnt.dev);
 
-  M.TOOLS.slice().sort(function(a,b){return a.number-b.number;}).forEach(function(t){
+  var _RANK={live:0,soon:1,dev:2};
+  M.TOOLS.slice().sort(function(a,b){var r=(_RANK[a.status]!=null?_RANK[a.status]:9)-(_RANK[b.status]!=null?_RANK[b.status]:9);return r!==0?r:(a.number-b.number);}).forEach(function(t,_i){
+    t._dn=_i+1;
     var sm = SM[t.status] || SM.dev;
     var el = document.createElement('div');
     el.className='mb-c'; el.setAttribute('role','button'); el.setAttribute('tabindex','0');
     el.innerHTML =
-      '<div class="hd"><span class="no">'+t.number+'</span><span class="ic">'+t.icon+'</span>'+
+      '<div class="hd"><span class="no">'+t._dn+'</span><span class="ic">'+t.icon+'</span>'+
       (t.isPremium?'<span class="lk" title="会员专属">🔒</span>':'')+'</div>'+
       '<div class="nm">'+esc(t.name)+'</div>'+
       '<div class="de">'+esc(t.description)+'</div>'+
@@ -1070,7 +1072,7 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
     modal.innerHTML =
       '<button class="x" aria-label="关闭">×</button>'+
       '<div class="mic">'+t.icon+'</div>'+
-      '<div class="mno">工具 '+t.number+' / 30 · 会员专属 🔒</div>'+
+      '<div class="mno">工具 '+(t._dn||t.number)+' / 30 · 会员专属 🔒</div>'+
       '<h4>'+esc(t.name)+'</h4>'+
       '<span class="mst" style="color:'+sm.color+';background:'+hexA(sm.color,.12)+';border:1px solid '+hexA(sm.color,.4)+'">'+sm.dot+' '+sm.label+'</span>'+
       '<p class="mde">'+esc(t.description)+'</p>'+
