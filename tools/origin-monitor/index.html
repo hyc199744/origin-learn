@@ -601,7 +601,7 @@ function monShowPay(el,o){
      <div class="ntab ${cur==='poly'?'on':''}" data-net="poly" role="button" tabindex="0" aria-label="用 Polygon 网络付款">Polygon</div>
      <div class="ntab ${cur==='anb'?'on':''}" data-net="anb" role="button" tabindex="0" aria-label="用 Anubis 网络付款">Anubis</div>
    </div>
-   <div class="det" style="justify-content:space-between"><span>网络</span><span style="color:var(--gold2)">${nt.name} · Chain ID ${nt.chainId}</span></div>
+   <div class="det" style="justify-content:space-between"><span>网络</span><span style="color:var(--gold2)">${nt.name}</span></div>
    <div class="det" style="margin-top:6px"><span>LGNS 合约（该网络）</span></div>
    <div class="det"><code class="mono" style="word-break:break-all;color:var(--soft);font-size:11.5px">${nt.lgns}</code><button class="verify" data-c="${nt.lgns}" aria-label="复制LGNS合约地址">复制</button></div>
    <div class="det" style="justify-content:space-between;margin-top:8px"><span>精确金额（务必一分不差）</span><b class="mono" style="color:var(--gold);font-size:17px">${o.amount} LGNS</b></div>
