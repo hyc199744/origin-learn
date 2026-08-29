@@ -203,6 +203,55 @@ button.go,.btn2{min-height:44px}
  .grid{grid-template-columns:1fr 1fr}
  h1{font-size:21px}
 }
+/* ===== 会员 30 项工具权益展示（mb- 前缀，独立不影响现有样式）===== */
+.mb-wrap{margin:26px 0 4px}
+.mb-h{font-size:18px;color:var(--gold);margin:0 0 4px;font-weight:800;display:flex;align-items:center;gap:9px;background:linear-gradient(90deg,rgba(212,175,55,.09),transparent 70%);border-radius:0 8px 8px 0;padding:7px 11px;border-left:3px solid var(--gold)}
+.mb-h .mb-num{font-size:12px;color:#1a1205;background:linear-gradient(135deg,var(--poly),#6fb6ff);border-radius:20px;padding:3px 10px;font-weight:800}
+.mb-sub{color:var(--dim);font-size:12.5px;margin:0 0 14px;line-height:1.7}
+.mb-stat{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+.mb-stat .b{flex:1;min-width:96px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;text-align:center}
+.mb-stat .b .n{font-size:21px;font-weight:800}
+.mb-stat .b .l{font-size:11.5px;color:var(--dim);margin-top:2px}
+.mb-stat .b.g .n{color:var(--gold2)}.mb-stat .b.lv .n{color:var(--green)}.mb-stat .b.so .n{color:#6fb6ff}.mb-stat .b.dv .n{color:#e8a45c}
+.mb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mb-c{position:relative;background:linear-gradient(162deg,rgba(212,175,55,.05),var(--panel2));border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:flex;flex-direction:column;min-height:128px;transition:transform .15s,border-color .15s,box-shadow .15s}
+.mb-c:hover{transform:translateY(-2px);border-color:rgba(212,175,55,.45);box-shadow:0 10px 26px rgba(0,0,0,.3)}
+.mb-c .hd{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.mb-c .no{font-size:12px;font-weight:800;color:#1a1205;background:linear-gradient(135deg,var(--poly),#6fb6ff);min-width:25px;height:25px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none}
+.mb-c .ic{font-size:21px;line-height:1}
+.mb-c .lk{margin-left:auto;font-size:13px;color:var(--gold);filter:drop-shadow(0 0 6px rgba(212,175,55,.5))}
+.mb-c .nm{font-size:14.5px;font-weight:700;color:var(--txt);margin:0 0 5px}
+.mb-c .de{font-size:12px;color:var(--soft);line-height:1.55;flex:1}
+.mb-c .ft{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.mb-t{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.mb-t.live{color:var(--green);background:rgba(37,201,111,.12);border:1px solid rgba(37,201,111,.4)}
+.mb-t.soon{color:#6fb6ff;background:rgba(111,182,255,.12);border:1px solid rgba(111,182,255,.4)}
+.mb-t.dev{color:#e8a45c;background:rgba(232,164,92,.12);border:1px solid rgba(232,164,92,.4)}
+.mb-c .act{font-size:11.5px;color:var(--gold2);font-weight:700}
+.mb-cats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+.mb-cat{background:linear-gradient(162deg,rgba(169,123,255,.06),transparent),var(--panel2);border:1px solid var(--line);border-radius:12px;padding:15px}
+.mb-cat .ci{font-size:23px}.mb-cat .ct{font-size:15px;font-weight:800;color:var(--txt);margin:7px 0 4px}
+.mb-cat .cd{font-size:12.5px;color:var(--soft);line-height:1.6}.mb-cat .cn{font-size:11.5px;color:var(--poly);margin-top:7px;font-weight:700}
+.mb-note{background:rgba(232,164,92,.08);border:1px dashed rgba(232,164,92,.4);color:#f0c48c;border-radius:10px;padding:10px 13px;font-size:12px;line-height:1.7;margin-top:14px}
+.mb-mask{position:fixed;inset:0;background:rgba(4,5,6,.8);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:90;padding:18px}
+.mb-mask.on{display:flex}
+.mb-modal{background:linear-gradient(165deg,rgba(212,175,55,.07),transparent),var(--panel);border:1px solid rgba(212,175,55,.3);border-radius:15px;max-width:430px;width:100%;padding:22px;position:relative;box-shadow:0 22px 56px rgba(0,0,0,.6)}
+.mb-modal .x{position:absolute;top:11px;right:13px;font-size:21px;color:var(--dim);cursor:pointer;background:none;border:none;line-height:1}
+.mb-modal .mic{font-size:32px;margin-bottom:6px}
+.mb-modal .mno{font-size:11.5px;color:var(--dim);font-weight:700}
+.mb-modal h4{margin:2px 0 8px;font-size:18px;color:var(--txt)}
+.mb-modal .mde{font-size:13.5px;color:var(--soft);line-height:1.7;margin:0 0 12px}
+.mb-modal .mst{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:20px;margin-bottom:12px}
+.mb-modal .meta{background:rgba(212,175,55,.05);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:12px;color:var(--soft);line-height:1.65;margin-bottom:14px}
+.mb-modal .mbtn{display:block;width:100%;text-align:center;padding:13px;border-radius:11px;font-size:14.5px;font-weight:800;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--soft)}
+@media(max-width:900px){.mb-grid{grid-template-columns:1fr 1fr}.mb-cats{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.mb-grid{grid-template-columns:1fr}.mb-cats{grid-template-columns:1fr}.mb-stat .b{min-width:0}}
+.mb-payglow{animation:mbBreath 2.4s ease-in-out infinite}
+@keyframes mbBreath{
+  0%,100%{box-shadow:0 0 10px rgba(255,64,54,.14);border-color:rgba(255,80,70,.4)}
+  50%{box-shadow:0 0 26px rgba(255,64,54,.42);border-color:rgba(255,110,100,.85)}
+}
+@media(prefers-reduced-motion:reduce){.mb-payglow{animation:none}}
 </style>
 </head>
 <body>
@@ -219,7 +268,7 @@ button.go,.btn2{min-height:44px}
     <button class="go" id="heroUnlock" aria-label="支付 10 LGNS 解锁完整功能">🔓 10 LGNS 解锁完整功能</button>
   </div>
 
-  <div style="text-align:center;margin:12px 0 2px"><span style="display:inline-flex;align-items:center;gap:11px;border:1px solid var(--line);border-left:3px solid var(--green);background:rgba(255,255,255,.02);border-radius:11px;padding:11px 16px"><span style="width:24px;height:24px;border-radius:50%;background:var(--green);color:#05210f;font-weight:800;font-size:14px;display:inline-flex;align-items:center;justify-content:center;flex:none">✓</span><span style="color:var(--soft,#c3cbc4);font-size:13.5px;font-weight:600"><b id="paidCount" style="color:var(--gold2,#e8cf7e);font-weight:800">11</b> 位用户已付费解锁</span></span></div>
+  <div style="display:flex;justify-content:center;margin:12px 0 2px"><span class="mb-payglow" style="display:flex;align-items:center;gap:14px;max-width:440px;width:100%;background:linear-gradient(100deg,rgba(255,64,54,.34),rgba(224,40,32,.14) 60%,transparent);border:1px solid rgba(255,80,70,.5);border-left:3px solid #ff4136;border-radius:11px;padding:12px 18px"><span style="font-size:22px;flex:none">🎉</span><span style="flex:1"><span style="display:block;font-size:14px;color:#fff;font-weight:700">已有 <b id="paidCount" style="color:var(--gold2,#e8cf7e);font-weight:800">11</b> 位用户付费解锁</span><span style="display:block;font-size:11.5px;color:#e6b8b4;margin-top:1px">解锁后永久使用当前全部查询功能</span></span><span style="font-size:11px;color:#fff;background:rgba(255,64,54,.25);border:1px solid rgba(255,100,90,.6);border-radius:20px;padding:3px 10px;white-space:nowrap;flex:none">真实付费</span></span></div>
   <script>
   (function(){
     var el=document.getElementById('paidCount'); if(!el) return;
@@ -234,18 +283,20 @@ button.go,.btn2{min-height:44px}
   })();
   </script>
 
-  <div class="trust2">
-    <div class="tcard read"><h4>🔒 查询与监控 · 纯只读</h4>读取公开链上数据，<b>不连接钱包、不签名、不授权</b>，全程不保存你的私钥或助记词。</div>
-    <div class="tcard sign"><h4>✍ 链上提币 · 需你确认</h4>仅在你<b>主动操作时</b>连接钱包，由你本人确认交易签名。工具不托管资产，只调用页面配置的目标合约。</div>
-  </div>
-
-  <div class="feat">
-    <div class="fcard"><div class="ic">🪙</div><div class="ti">双链资产</div><div class="de">钱包余额、活期、360/600 质押、债券和奖励明细。</div></div>
-    <div class="fcard"><div class="ic">🏅</div><div class="ti">DAO 身份</div><div class="de">DAO 等级、三条主线业绩、上线和晋级情况。</div></div>
-    <div class="fcard"><div class="ic">🧭</div><div class="ti">地址画像</div><div class="de">地址行为画像与可信度分析：活跃度、交互规律、资金轨迹（附判断依据，不作身份认定）。</div></div>
-    <div class="fcard"><div class="ic">👥</div><div class="ti">推荐关系</div><div class="de">查询完整上线、绑定时间和主要团队关系。</div></div>
-    <div class="fcard"><div class="ic">💸</div><div class="ti">链上提币</div><div class="de">官方 DApp 无法打开时，直接调用对应合约领取或赎回资产。</div></div>
-    <div class="fcard"><div class="ic">📡</div><div class="ti">全生态监控</div><div class="de">V1–V6 等级、晋级记录、国库、销毁、供应量和流动持仓。</div></div>
+  <!-- ===== 会员 30 项工具权益展示（付款前完整查看，数据读 ../membership/tools-config.js）===== -->
+  <div class="mb-wrap" id="mbShowcase">
+    <h3 class="mb-h"><span class="mb-num">30 项</span>解锁后可用的链上工具</h3>
+    <p class="mb-sub">一次性 <b style="color:var(--gold2)">10 LGNS · 永久使用 · 无限查询</b>，解锁下列<b style="color:var(--gold2)">已上线</b>工具，其余按状态标注逐步开放。<span style="color:var(--green)">绿=已上线</span> · <span style="color:#6fb6ff">蓝=即将上线</span> · <span style="color:#e8a45c">橙=开发中</span> · <span style="color:var(--gold2)">🔒 金锁=会员专属</span>。</p>
+    <div class="mb-stat">
+      <div class="b g"><div class="n" id="mbTotal">30</div><div class="l">项工具</div></div>
+      <div class="b lv"><div class="n" id="mbLive">–</div><div class="l">🟢 已上线</div></div>
+      <div class="b so"><div class="n" id="mbSoon">–</div><div class="l">🔵 即将上线</div></div>
+      <div class="b dv"><div class="n" id="mbDev">–</div><div class="l">🟠 开发中</div></div>
+    </div>
+    <div class="mb-grid" id="mbGrid"></div>
+    <h3 class="mb-h" style="margin-top:24px"><span class="mb-num">分类</span>六大链上能力</h3>
+    <div class="mb-cats" id="mbCats"></div>
+    <div class="mb-note">会员可使用<b style="color:#f0c48c">已经上线</b>的工具，并按页面标注查看后续工具开放进度。不代表付款后立即使用全部 30 项。</div>
   </div>
 
   <div id="sampleReport"></div>
@@ -969,6 +1020,75 @@ async function loadStats(){
 }
 try{ renderSnap('snap'); $('mst').innerHTML='正在加载最新数据…'; try{$('mrf').onclick=loadStats;}catch(e){} loadStats(); }
 catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="background:#e06a6a;color:#111;padding:10px">监控脚本出错: '+err.message+'</div>'); }
+})();
+</script>
+<!-- ===== 会员 30 项工具权益渲染（读统一配置，独立作用域）===== -->
+<script src="../membership/tools-config.js"></script>
+<script>
+(function(){
+  var M = window.MEMBERSHIP; var host = document.getElementById('mbGrid');
+  if(!M || !host){ return; }
+  var SM = M.STATUS_META;
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function hexA(hex,a){var h=hex.replace('#','');if(h.length===3)h=h.replace(/(.)/g,'$1$1');return 'rgba('+parseInt(h.substr(0,2),16)+','+parseInt(h.substr(2,2),16)+','+parseInt(h.substr(4,2),16)+','+a+')';}
+  var cnt = M.countByStatus();
+  document.getElementById('mbTotal').textContent = M.TOOLS.length;
+  document.getElementById('mbLive').textContent = cnt.live;
+  document.getElementById('mbSoon').textContent = cnt.soon;
+  document.getElementById('mbDev').textContent  = cnt.dev;
+
+  M.TOOLS.slice().sort(function(a,b){return a.number-b.number;}).forEach(function(t){
+    var sm = SM[t.status] || SM.dev;
+    var el = document.createElement('div');
+    el.className='mb-c'; el.setAttribute('role','button'); el.setAttribute('tabindex','0');
+    el.innerHTML =
+      '<div class="hd"><span class="no">'+t.number+'</span><span class="ic">'+t.icon+'</span>'+
+      (t.isPremium?'<span class="lk" title="会员专属">🔒</span>':'')+'</div>'+
+      '<div class="nm">'+esc(t.name)+'</div>'+
+      '<div class="de">'+esc(t.description)+'</div>'+
+      '<div class="ft"><span class="mb-t '+sm.cls+'">'+sm.dot+' '+sm.label+'</span>'+
+      '<span class="act">'+(t.status==='live'?'进入工具 →':'查看介绍 →')+'</span></div>';
+    el.addEventListener('click', function(){ onTool(t); });
+    el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onTool(t); } });
+    host.appendChild(el);
+  });
+
+  var cats = document.getElementById('mbCats');
+  if(cats){ M.CATEGORIES.forEach(function(c){
+    var list = M.byCategory(c.id), live = list.filter(function(t){return t.status==='live';}).length;
+    var el=document.createElement('div'); el.className='mb-cat';
+    el.innerHTML='<div class="ci">'+c.icon+'</div><div class="ct">'+esc(c.name)+'</div>'+
+      '<div class="cd">'+esc(c.desc)+'</div><div class="cn">'+list.length+' 项 · 已上线 '+live+' 项</div>';
+    cats.appendChild(el);
+  }); }
+
+  // 弹窗（未上线工具只显示介绍，不进空白页）
+  var mask=document.createElement('div'); mask.className='mb-mask'; mask.id='mbMask';
+  mask.innerHTML='<div class="mb-modal" id="mbModal"></div>'; document.body.appendChild(mask);
+  var modal=mask.querySelector('#mbModal');
+  function closeM(){ mask.classList.remove('on'); }
+  mask.addEventListener('click', function(e){ if(e.target===mask) closeM(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeM(); });
+
+  function onTool(t){
+    var sm = SM[t.status] || SM.dev;
+    if(t.status==='live' && t.enabled && t.route){ location.href = t.route; return; }
+    var msg = t.status==='soon'
+      ? '该工具即将上线，敬请期待。上线后会员即可直接进入使用。'
+      : '该工具正在开发中，尚未开放。完成并通过测试后会更新为「已上线」。';
+    modal.innerHTML =
+      '<button class="x" aria-label="关闭">×</button>'+
+      '<div class="mic">'+t.icon+'</div>'+
+      '<div class="mno">工具 '+t.number+' / 30 · 会员专属 🔒</div>'+
+      '<h4>'+esc(t.name)+'</h4>'+
+      '<span class="mst" style="color:'+sm.color+';background:'+hexA(sm.color,.12)+';border:1px solid '+hexA(sm.color,.4)+'">'+sm.dot+' '+sm.label+'</span>'+
+      '<p class="mde">'+esc(t.description)+'</p>'+
+      '<div class="meta">📌 '+msg+'</div>'+
+      '<button class="mbtn" id="mbClose">我知道了</button>';
+    modal.querySelector('.x').addEventListener('click', closeM);
+    modal.querySelector('#mbClose').addEventListener('click', closeM);
+    mask.classList.add('on');
+  }
 })();
 </script>
 </body>
