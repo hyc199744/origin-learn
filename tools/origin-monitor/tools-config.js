@@ -88,8 +88,8 @@
 
     { id: 'contracts', number: 9, name: '双链合约地址库', category: 'data-evidence', icon: '📇',
       description: '汇总并核验起源生态相关合约地址、用途和所属链。',
-      status: 'live', isPremium: true, route: '/contracts/', enabled: true,
-      note: '独立页 /contracts/（另有首页 openContractCenter），已上线。' },
+      status: 'live', isPremium: false, route: '/contracts/', enabled: true,
+      note: '独立页 /contracts/，公开免费(SEO引流页,不上锁)。' },
 
     { id: 'history', number: 10, name: '起源前世今生', category: 'data-evidence', icon: '🕰️',
       description: '通过时间轴查看起源的重要公告、合约变化、迁移和发展记录。',
@@ -178,8 +178,8 @@
 
     { id: 'tx-translate', number: 27, name: '合约交互翻译器', category: 'security-dd', icon: '🗣️',
       description: '把复杂的交易方法、输入参数和事件日志翻译成大白话。',
-      status: 'live', isPremium: true, route: '/tools/onchain-search/', enabled: true,
-      note: '链上搜索工具对交易做大白话解读，已上线。' },
+      status: 'live', isPremium: false, route: '/tools/onchain-search/', enabled: true,
+      note: '链上搜索工具，公开免费(SEO引流页,不上锁)。' },
 
     { id: 'bill', number: 28, name: '个人链上账单', category: 'trade-whale', icon: '🧾',
       description: '按日、周、月统计买入、卖出、转账、质押、赎回和奖励记录。',

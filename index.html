@@ -1129,5 +1129,36 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
   inp.addEventListener("keydown",function(e){if(e.key==="Enter")run();});
 })();
 </script>
+<!-- ===== 会员门禁:5个便利工具需 10 LGNS 会员(mon_access_v1);合约地址库/交互翻译等公开页仍免费 ===== -->
+<script>
+(function(){
+  var API="https://count.web3origin.com";
+  var GATED={openWhale:"大额成交监测",openStaking:"质押助手",openWalletMonitor:"钱包监控·链上体检",openCalc:"收益计算器",openSecurity:"代币安全自查"};
+  function tok(){try{return localStorage.getItem("mon_access_v1")||"";}catch(e){return"";}}
+  function isMember(){var t=tok();if(!t)return Promise.resolve(false);
+    return fetch(API+"/mon/access?token="+encodeURIComponent(t)).then(function(r){return r.json();}).then(function(j){return !!(j&&j.ok);}).catch(function(){return false;});}
+  function memberPrompt(title){
+    var mask=document.getElementById("modal"),body=document.getElementById("modalBody"),ttl=document.getElementById("modalTitle");
+    if(!mask||!body||!ttl)return;
+    ttl.textContent=title||"会员工具";
+    body.innerHTML='<div class="calc" style="text-align:center;padding:6px 0">'
+      +'<div style="font-size:38px">🔒</div>'
+      +'<div style="font-size:17px;font-weight:800;color:var(--gold-lt,#e8cf7e);margin:10px 0 8px">该工具为会员专属</div>'
+      +'<div style="font-size:13.5px;color:var(--soft,#c3cbc4);line-height:1.85;max-width:360px;margin:0 auto 16px">开通 <b style="color:var(--gold-lt,#e8cf7e)">10 LGNS 会员</b>后，全站工具一次通用——推荐人、双链质押、大额监控、链上提币等都不再单独收费。</div>'
+      +'<a href="/tools/origin-monitor/" style="display:inline-block;text-decoration:none;padding:13px 26px;border-radius:12px;font-weight:800;color:#fff;background:linear-gradient(180deg,#c9313a,#8f0c11);border:1px solid #7a0b12">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
+      +'<div style="font-size:12px;color:var(--soft,#c3cbc4);margin-top:10px">一次性 · 永久使用 · 无限查询 · 已解锁请刷新本页</div>'
+      +'</div>';
+    mask.classList.add("show");
+  }
+  Object.keys(GATED).forEach(function(name){
+    var orig=window[name];
+    if(typeof orig!=="function")return;
+    window[name]=function(){
+      var self=this,args=arguments;
+      isMember().then(function(ok){ if(ok){orig.apply(self,args);} else {memberPrompt(GATED[name]);} });
+    };
+  });
+})();
+</script>
 </body>
 </html>
