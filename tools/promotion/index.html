@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<title>今日晋升查询 · V1–V6 实时晋升 · Web3Origin</title>
+<meta name="description" content="实时查询 Anubis 链上今日新晋升 V1–V6 的钱包：读取 daoLevel 链上事件，显示钱包、达成等级、时间与交易哈希，每条可在区块浏览器独立核实。">
+<link rel="canonical" href="https://web3origin.com/tools/promotion/">
+<link rel="icon" href="/assets/favicon.png">
+<style>
+:root{--bg:#070806;--panel:#0e100e;--panel2:#141712;--line:rgba(212,175,55,.2);--gold:#d4af37;--gold2:#e8cf7e;--txt:#e9efea;--dim:#7a857c;--soft:#c3cbc4;--green:#25C96F;--red:#ff6b5e;--anb:#e8cf7e;--poly:#a97bff}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -12%,rgba(212,175,55,.10),transparent),radial-gradient(800px 500px at 100% 108%,rgba(169,123,255,.06),transparent),var(--bg);color:var(--txt);font:15px/1.6 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+.wrap{max-width:940px;margin:0 auto;padding:24px 16px 60px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.top a.home{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--gold2);text-decoration:none}
+.top img{height:26px}
+h1{font-size:24px;margin:0 0 4px;color:var(--gold2)}
+h1 span{color:var(--txt)}
+.sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.7}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:9px;padding:9px 15px;font-size:13.5px;font-weight:700;cursor:pointer;min-height:40px}
+.btn.on{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1205;border-color:var(--gold)}
+.btn.go{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1205;border:none}
+.status{color:var(--dim);font-size:13px;min-height:20px;margin:6px 0 12px}
+.status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;vertical-align:middle}
+.prog{height:6px;background:#0a0d0a;border-radius:4px;overflow:hidden;margin:6px 0 12px;display:none}
+.prog.on{display:block}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .2s}
+.levels{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:16px}
+.lv{background:linear-gradient(165deg,rgba(212,175,55,.06),var(--panel2));border:1px solid var(--line);border-radius:11px;padding:12px 6px;text-align:center}
+.lv .n{font-size:12px;color:var(--dim)}
+.lv .c{font-size:24px;font-weight:800;color:var(--gold);margin-top:2px;text-shadow:0 0 14px rgba(212,175,55,.25)}
+.total-card{background:linear-gradient(135deg,rgba(212,175,55,.08),var(--panel2));border:1px solid var(--line);border-radius:13px;padding:16px 18px;margin-bottom:16px;text-align:center}
+.total-card .big{font-size:32px;font-weight:800;color:var(--gold2)}
+.total-card .l{font-size:12.5px;color:var(--dim);margin-top:2px}
+.scroll{overflow-x:auto}
+table.pt{width:100%;border-collapse:collapse;font-size:13px}
+table.pt th,table.pt td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.pt th{color:var(--dim);font-weight:600;position:sticky;top:0;background:var(--bg)}
+table.pt tbody tr:hover{background:rgba(212,175,55,.05)}
+.mono{font-family:ui-monospace,Consolas,monospace}
+.vtag{font-weight:800;color:#1a1205;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:6px;padding:2px 9px;font-size:12px}
+a.lnk{color:var(--gold2);text-decoration:none;border:1px solid var(--line);border-radius:5px;padding:2px 8px;font-size:11.5px}
+a.lnk:hover{border-color:var(--gold)}
+.note{color:var(--dim);font-size:12px;background:var(--panel);border:1px dashed var(--line);border-radius:9px;padding:11px 13px;margin-top:14px;line-height:1.75}
+.foot{color:var(--dim);font-size:12px;text-align:center;margin-top:22px;line-height:1.8}
+.empty{color:var(--dim);text-align:center;padding:26px 10px;font-size:13.5px}
+details.rules{background:var(--panel);border:1px solid var(--line);border-radius:11px;margin-bottom:14px;overflow:hidden}
+details.rules summary{cursor:pointer;padding:12px 15px;font-size:13.5px;color:var(--gold2);font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details.rules summary::-webkit-details-marker{display:none}
+details.rules summary::after{content:"＋";color:var(--gold)}
+details.rules[open] summary::after{content:"－"}
+details.rules .rb{padding:2px 15px 15px;font-size:13px;color:var(--soft);line-height:1.8}
+details.rules table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0}
+details.rules th,details.rules td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+details.rules th{color:var(--dim);font-weight:600}
+details.rules td b{color:var(--gold2)}
+details.rules .cav{color:var(--dim);font-size:12px;margin-top:8px;line-height:1.7}
+@media(max-width:560px){.levels{grid-template-columns:repeat(3,1fr)}h1{font-size:21px}}
+/* 门禁 */
+#gate{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(900px 500px at 50% 0%,rgba(212,175,55,.14),transparent),rgba(7,8,6,.97);backdrop-filter:blur(6px)}
+#gate.on{display:flex}
+#gate .gb{max-width:440px;width:100%;text-align:center;background:linear-gradient(165deg,rgba(212,175,55,.08),transparent),#141712;border:1px solid rgba(212,175,55,.4);border-radius:18px;padding:32px 24px;box-shadow:0 24px 70px rgba(0,0,0,.7)}
+#gate .gic{font-size:44px}
+#gate h3{font-size:21px;color:var(--gold2);margin:12px 0 6px}
+#gate .gs{font-size:14px;color:var(--soft);line-height:1.8;margin:0 0 18px}
+#gate .gc{display:inline-block;text-decoration:none;padding:14px 28px;border-radius:12px;font-weight:800;font-size:16px;color:#1a1205;background:linear-gradient(135deg,var(--gold),var(--gold2))}
+#gate .gback{display:block;margin-top:14px;color:var(--soft);font-size:13px;text-decoration:none}
+body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
+</style>
+</head>
+<body class="locked">
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+
+<div class="wrap">
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
+  <h1>今日<span>晋升查询</span></h1>
+  <div class="sub">实时读取 Anubis 链上 <b style="color:var(--gold2)">daoLevel 事件</b>，列出选定时段内真实晋升（升级）的钱包。每条都带交易哈希，可在区块浏览器独立核实。<b>Polygon 无此等级系统</b>，本页只统计 Anubis。</div>
+
+  <details class="rules">
+    <summary>📖 V1–V6 晋升条件是什么？（点开看等级怎么来的）</summary>
+    <div class="rb">
+      等级由<b>官方按"三条推荐线的团队业绩"规则算好后写入链上</b>，本页只读链上最终等级并判断真升级，不自行计算门槛。
+      <div class="scroll"><table><thead><tr><th>等级</th><th>称号</th><th>晋升条件（团队业绩）</th><th>团队日收益</th></tr></thead><tbody>
+        <tr><td><b>V1</b></td><td>传道士</td><td>3 条线各 <b>5 万</b></td><td>1%–5%</td></tr>
+        <tr><td><b>V2</b></td><td>武士</td><td>3 条线各 <b>15 万</b></td><td>2%–10%</td></tr>
+        <tr><td><b>V3</b></td><td>骑士</td><td>3 条线各 <b>30 万</b></td><td>4%–15%</td></tr>
+        <tr><td><b>V4</b></td><td>信使</td><td>3 条线各 <b>50 万</b></td><td>6%–20%</td></tr>
+        <tr><td><b>V5</b></td><td>尊者</td><td>3 条线各 <b>100 万</b></td><td>8%–25%</td></tr>
+        <tr><td><b>V6</b></td><td>大师</td><td>3 条线各带出 <b>1 个 V5（尊者）</b></td><td>最高档</td></tr>
+      </tbody></table></div>
+      <div class="cav">⚠️ 说明：以上门槛为<b>官方/社区公开口径</b>，团队业绩数据在官方后台（链下）、本页无法独立核验是否达标；页面呈现的是<b>官方写在链上的最终等级</b>与其升降变化，可用交易哈希核实。此为团队计酬式等级体系，最终以官方口径为准，不构成任何投资建议。</div>
+    </div>
+  </details>
+
+  <div class="bar">
+    <span style="font-size:12.5px;color:var(--dim)">时段：</span>
+    <button class="btn win" data-h="6">近 6 小时</button>
+    <button class="btn win on" data-h="24">近 24 小时</button>
+    <button class="btn win" data-h="48">近 48 小时</button>
+    <button class="btn go" id="refresh">↻ 刷新</button>
+  </div>
+  <div class="prog" id="prog"><i></i></div>
+  <div class="status" id="status"></div>
+
+  <div class="total-card"><div class="big" id="total">—</div><div class="l" id="totalLab">该时段真实晋升人次</div></div>
+  <div class="levels" id="levels"></div>
+
+  <div class="scroll"><table class="pt"><thead><tr><th>钱包</th><th>晋升</th><th>时间（约）</th><th>区块</th><th>交易</th></tr></thead><tbody id="rows"></tbody></table></div>
+  <div class="empty" id="empty" style="display:none">该时段暂无真实晋升（升级）。换个更长的时段试试。</div>
+
+  <div class="note">
+    <b style="color:var(--soft)">口径与核实</b>：本页直接从 Anubis 公共节点读取 daoLevel 合约 <span class="mono">0x579a71…3b49</span> 的等级事件（topic <span class="mono">0x25150e…</span>）。对每条事件，<b style="color:var(--soft)">回读该钱包在事件前一区块的等级</b>作对比，<b style="color:var(--soft)">仅保留新等级 &gt; 旧等级的真实晋升</b>（重算、降级、同级重写均已排除）。时间按"约 1 秒/块"由区块高度换算，误差数秒；等级由官方按规则写入链上，本站只读、可用交易哈希独立复核。
+  </div>
+  <div class="foot">数据源：Anubis 链上 daoLevel 事件 · 纯只读 · 不连钱包不签名</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var RPC='https://rpc.anubispace.org';
+  var DAO='0x579a71890ae0e99806f75cd2e006bb07559c3b49';
+  var TOPIC='0x25150e221c9b5825c32306485837090665fff7091d38d12f09fe09b6697a8b1a';
+  var WK='https://count.web3origin.com', MLS='mon_access_v1', MONTOKEN=null;
+  var hours=24, scanning=false;
+
+  /* ---- 会员门禁 ---- */
+  var gate=document.getElementById('gate');
+  function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
+  function showGate(){
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>今日晋升查询 · 会员专属</h3>'
+      +'<div class="gs">开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可实时查看全网晋升动态，全站工具一次通用。</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
+      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.classList.add('on');
+  }
+  function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
+  (async function(){
+    var t=tok();
+    if(!t){ showGate(); return; }
+    try{ var r=await fetch(WK+'/mon/access?token='+encodeURIComponent(t)).then(function(x){return x.json();});
+      if(r&&r.ok){ MONTOKEN=t; unlock(); } else showGate(); }catch(e){ showGate(); }
+  })();
+
+  /* ---- RPC ---- */
+  function rpc(method,params){
+    return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method:method,params:params,id:1})})
+      .then(function(r){return r.json();}).then(function(j){ if(j.error) throw new Error(j.error.message||'rpc'); return j.result; });
+  }
+  var short=function(a){return a?a.slice(0,8)+'…'+a.slice(-4):'';};
+  function fmtTime(ts){ try{ var d=new Date(ts*1000); return d.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return '—'; } }
+
+  /* ---- 扫描 ---- */
+  async function scan(){
+    if(scanning) return; scanning=true;
+    var st=document.getElementById('status'), pr=document.getElementById('prog'), pi=pr.querySelector('i');
+    st.innerHTML='<span class="dot"></span>正在读取 Anubis 链上晋升事件…';
+    pr.classList.add('on'); pi.style.width='4%';
+    document.getElementById('refresh').disabled=true;
+    try{
+      var head=parseInt(await rpc('eth_blockNumber',[]),16);
+      // 取 head 区块真实时间戳做基准(其余按~1块/秒换算)
+      var hb=await rpc('eth_getBlockByNumber',['0x'+head.toString(16),false]);
+      var headTs=parseInt(hb.timestamp,16);
+      var span=Math.round(hours*3600); // ~1 block/sec
+      var start=Math.max(0,head-span), CHUNK=4900, all=[], done=0, totalChunks=Math.ceil((head-start+1)/(CHUNK+1));
+      for(var f=start; f<=head; f+=CHUNK+1){
+        var t=Math.min(head,f+CHUNK);
+        var logs=await rpc('eth_getLogs',[{address:DAO,topics:[TOPIC],fromBlock:'0x'+f.toString(16),toBlock:'0x'+t.toString(16)}]);
+        logs.forEach(function(lg){
+          var blk=parseInt(lg.blockNumber,16);
+          all.push({ wallet:'0x'+lg.topics[1].slice(-40), level:parseInt(lg.data,16), block:blk, tx:lg.transactionHash, ts:headTs-(head-blk) });
+        });
+        done++; pi.style.width=Math.min(96,Math.round(done/totalChunks*100))+'%';
+        st.innerHTML='<span class="dot"></span>扫描中… '+done+'/'+totalChunks+' 段 · 已找到 '+all.length+' 条';
+      }
+      // ---- 计算真实晋升：回读每个钱包首个事件前一区块的等级，再链式比对，仅留 new>old ----
+      all.sort(function(a,b){return a.block-b.block;});
+      var firstBlk={}, wallets=[];
+      all.forEach(function(e){ if(firstBlk[e.wallet]==null){ firstBlk[e.wallet]=e.block; wallets.push(e.wallet); } });
+      st.innerHTML='<span class="dot"></span>回读 '+wallets.length+' 个钱包的前置等级（判定真晋升）…';
+      var LEVELSEL='0xfd92166a', BATCH=25, baseline={};
+      for(var wi=0; wi<wallets.length; wi+=BATCH){
+        var grp=wallets.slice(wi,wi+BATCH);
+        var body=grp.map(function(w,i){ return {jsonrpc:'2.0',method:'eth_call',params:[{to:DAO,data:LEVELSEL+'000000000000000000000000'+w.slice(2)},'0x'+(firstBlk[w]-1).toString(16)],id:i}; });
+        var res=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();});
+        (Array.isArray(res)?res:[res]).forEach(function(x){ var w=grp[x.id]; var v=x.result; baseline[w]=(v&&v!=='0x')?parseInt(v,16):0; });
+        pi.style.width=Math.min(98,Math.round((wi+BATCH)/wallets.length*100))+'%';
+      }
+      var cur={}; wallets.forEach(function(w){ cur[w]=baseline[w]||0; });
+      var promos=[];
+      all.forEach(function(e){ var from=cur[e.wallet], to=e.level; if(to>from){ promos.push({wallet:e.wallet,from:from,to:to,block:e.block,tx:e.tx,ts:e.ts}); } cur[e.wallet]=to; });
+      pi.style.width='100%';
+      render(promos);
+      st.innerHTML='<span class="dot"></span>✓ 完成 · 近 '+hours+' 小时真实晋升 <b style="color:var(--gold2)">'+promos.length+'</b> 人次（已从 '+all.length+' 条等级事件中剔除重算/降级）· '+new Date().toLocaleTimeString('zh-CN');
+    }catch(e){
+      st.innerHTML='<span style="color:var(--red)">读取失败：'+(e.message||'网络波动')+'，请点刷新重试</span>';
+    }finally{
+      setTimeout(function(){pr.classList.remove('on');pi.style.width='0';},600);
+      document.getElementById('refresh').disabled=false; scanning=false;
+    }
+  }
+
+  function render(arr){
+    arr.sort(function(a,b){return b.block-a.block;});
+    document.getElementById('total').textContent=arr.length.toLocaleString();
+    var cnt={1:0,2:0,3:0,4:0,5:0,6:0};
+    arr.forEach(function(x){ if(cnt[x.to]!=null) cnt[x.to]++; });
+    var lv=document.getElementById('levels');
+    lv.innerHTML=[1,2,3,4,5,6].map(function(l){return '<div class="lv"><div class="n">升到 V'+l+'</div><div class="c">'+cnt[l]+'</div></div>';}).join('');
+    var rows=document.getElementById('rows'), empty=document.getElementById('empty');
+    if(!arr.length){ rows.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+    var EX='https://browser.anubispace.org/';
+    rows.innerHTML=arr.slice(0,300).map(function(x){
+      var fromTxt=x.from>0?('V'+x.from):'新号';
+      return '<tr><td><a class="mono" style="color:var(--gold2);text-decoration:none" href="'+EX+'address/'+x.wallet+'" target="_blank" rel="noopener">'+short(x.wallet)+'</a></td>'
+        +'<td><span style="color:var(--dim)">'+fromTxt+'</span> <span style="color:var(--gold2)">→</span> <span class="vtag">V'+x.to+'</span></td>'
+        +'<td class="mono" style="color:var(--soft)">'+fmtTime(x.ts)+'</td>'
+        +'<td class="mono" style="color:var(--dim)">'+x.block.toLocaleString()+'</td>'
+        +'<td><a class="lnk" href="'+EX+'tx/'+x.tx+'" target="_blank" rel="noopener">🔗 查</a></td></tr>';
+    }).join('');
+    if(arr.length>300){ rows.innerHTML+='<tr><td colspan="5" style="text-align:center;color:var(--dim);font-size:12px">仅显示最新 300 条（共 '+arr.length+' 条）</td></tr>'; }
+  }
+
+  function start(){
+    document.querySelectorAll('.btn.win').forEach(function(b){
+      b.onclick=function(){ document.querySelectorAll('.btn.win').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); hours=parseInt(b.dataset.h,10); document.getElementById('totalLab').textContent='近 '+hours+' 小时真实晋升人次'; scan(); };
+    });
+    document.getElementById('refresh').onclick=scan;
+    scan();
+  }
+})();
+</script>
+</body>
+</html>

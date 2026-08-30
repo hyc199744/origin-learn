@@ -337,7 +337,7 @@ button.go,.btn2{min-height:44px}
   <div style="font-size:13px;color:var(--gold2);margin:14px 0 8px">最新晋级记录</div>
   <div class="scroll"><table class="mt" id="mpromos"><thead><tr><th>钱包</th><th>变化</th><th>区块</th><th>交易</th></tr></thead><tbody></tbody></table></div>
 
-  <div class="msec-h">可见流动持仓榜 <span class="stag scan" id="whStatus">后台扫描</span></div>
+  <div class="msec-h" id="mtopsec">可见流动持仓榜 <span class="stag scan" id="whStatus">后台扫描</span></div>
   <div class="mnote">统计钱包<b style="color:var(--soft)">直接持有</b>的 LGNS 与 sLGNS，并排除已知合约、池子、国库和销毁地址；当前<b style="color:var(--soft)">不包含</b> 360/600 锁仓、债券和未领取奖励，因此不代表完整资产排名。</div>
   <div class="toolbar">
     <select id="whChain" aria-label="按链筛选"><option value="all">全部链</option><option value="poly">Polygon</option><option value="anb">Anubis</option></select>
@@ -1073,10 +1073,16 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
   function onTool(t){
     var sm = SM[t.status] || SM.dev;
     if(t.status==='live' && t.enabled && t.route){
-      // 指向本页(综合尽调/监控中心类)的工具：若查询区已显示(已解锁),滚过去而不是重载本页
-      if(/\/tools\/origin-monitor\/?$/.test(t.route)){
+      // 指向本页(综合尽调/监控中心类)的工具：已解锁时滚到对应板块(路由带#锚点),而不是重载本页
+      if(/\/tools\/origin-monitor\/?(#|$)/.test(t.route)){
         var qt=document.getElementById('queryTool');
-        if(qt && qt.style.display!=='none'){ try{qt.scrollIntoView({behavior:'smooth'});}catch(e){qt.scrollIntoView();} return; }
+        if(qt && qt.style.display!=='none'){
+          var hash=(t.route.split('#')[1]||'');
+          var target=hash?document.getElementById(hash):qt;
+          if(!target) target=qt;
+          try{target.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){target.scrollIntoView();}
+          return;
+        }
       }
       location.href = t.route; return;
     }

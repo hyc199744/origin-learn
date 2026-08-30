@@ -63,12 +63,12 @@
 
     { id: 'staking-top', number: 4, name: '活期质押大户榜', category: 'asset-staking', icon: '🏆',
       description: '查询双链活期质押排名及大户资产变化。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/', enabled: true,
+      status: 'live', isPremium: true, route: '/tools/origin-monitor/#mtopsec', enabled: true,
       note: '链上尽调助手·监控中心「持仓榜」，已上线（后台定时扫描，页面标注更新时间）。' },
 
     { id: 'v-count', number: 5, name: '全网 V1–V6 数量', category: 'wallet-id', icon: '📊',
       description: '统计各等级钱包数量，并提供双链分别统计和跨链去重数据。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/', enabled: true,
+      status: 'live', isPremium: true, route: '/tools/origin-monitor/#mlevels', enabled: true,
       note: '链上尽调助手·监控中心「等级分布」，已上线（后台定时扫描）。' },
 
     { id: 'staking-query', number: 6, name: '双链质押查询', category: 'asset-staking', icon: '🔒',
@@ -83,8 +83,8 @@
 
     { id: 'promotion-today', number: 8, name: '今日晋升查询', category: 'wallet-id', icon: '📈',
       description: '查看当天新晋升 V1–V6 的钱包、晋升时间和链上依据。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/', enabled: true,
-      note: '链上尽调助手·监控中心「近24小时新增晋升」明细表（读 Anubis daoLevel 事件，含 V 级变化与交易哈希），老板确认已上线。' },
+      status: 'live', isPremium: true, route: '/tools/promotion/', enabled: true,
+      note: '独立页 /tools/promotion/(会员专属),前端实时扫 Anubis daoLevel 事件0x579a71(topic 0x25150e),按时段列出V1-V6晋升,交易可核实。已上线。' },
 
     { id: 'contracts', number: 9, name: '双链合约地址库', category: 'data-evidence', icon: '📇',
       description: '汇总并核验起源生态相关合约地址、用途和所属链。',
@@ -98,7 +98,7 @@
 
     { id: 'treasury', number: 11, name: '国库资产查询', category: 'data-evidence', icon: '🏛️',
       description: '查看公开国库地址的资产构成、余额和资金流动。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/', enabled: true,
+      status: 'live', isPremium: true, route: '/tools/origin-monitor/#massets', enabled: true,
       note: '链上尽调助手·监控中心「国库」，链上实时，已上线。' },
 
     { id: 'peg-logic', number: 12, name: '1美元托底逻辑', category: 'data-evidence', icon: '⚖️',
@@ -108,12 +108,12 @@
 
     { id: 'staking-total', number: 13, name: '全网质押总量看板', category: 'asset-staking', icon: '📟',
       description: '统计双链各类质押总量、参与钱包数量及每日变化。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/', enabled: true,
+      status: 'live', isPremium: true, route: '/tools/origin-monitor/#massets', enabled: true,
       note: '链上尽调助手·监控中心含质押率/总量，已上线（每日变化为部分覆盖）。' },
 
     { id: 'full-dd', number: 14, name: '钱包综合尽调报告', category: 'security-dd', icon: '🔍',
       description: '一次查询钱包持仓、质押、等级、推荐关系、交易和授权等信息。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/', enabled: true,
+      status: 'live', isPremium: true, route: '/tools/origin-monitor/#queryTool', enabled: true,
       note: '链上尽调助手（origin-monitor）核心功能，已上线。' },
 
     { id: 'roi-calc', number: 15, name: '收益与成本计算器', category: 'price-calc', icon: '🧮',
@@ -188,7 +188,7 @@
 
     { id: 'dual-compare', number: 29, name: '双链资产对比', category: 'asset-staking', icon: '⚖️',
       description: '对比同一钱包在 Polygon 和 AnubisChain 上的资产、质押和等级。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/', enabled: true,
+      status: 'live', isPremium: true, route: '/tools/origin-monitor/#queryTool', enabled: true,
       note: '链上尽调助手一次查全双链资产，已上线。' },
 
     { id: 'evidence-pdf', number: 30, name: '链上证据报告导出', category: 'data-evidence', icon: '📄',
