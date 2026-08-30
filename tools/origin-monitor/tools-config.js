@@ -58,8 +58,8 @@
 
     { id: 'whale', number: 3, name: '大额交易监控', category: 'trade-whale', icon: '🐋',
       description: '监控大额买入、卖出、转账、质押和赎回动态。',
-      status: 'live', isPremium: true, route: '/?tool=openWhale', enabled: true,
-      note: '首页 openWhale 弹窗，已上线。' },
+      status: 'live', isPremium: true, route: '/tools/whale/', enabled: true,
+      note: '独立页 /tools/whale/(会员专属),TG卡片式今日大额成交,读/daily的events(源自VPS whale.py→daily:bigtrades KV)。已上线。' },
 
     { id: 'staking-top', number: 4, name: '活期质押大户榜', category: 'asset-staking', icon: '🏆',
       description: '查询双链活期质押排名及大户资产变化。',
