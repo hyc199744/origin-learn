@@ -283,16 +283,16 @@ button.go,.btn2{min-height:44px}
   })();
   </script>
 
-  <!-- ===== 会员 30 项工具权益展示（付款前完整查看，数据读 ./tools-config.js）===== -->
+  <div id="sampleReport"></div>
+  </div>
+
+  <!-- ===== 会员 30 项工具（付款前=权益预览 / 付款后=会员工具台，移出 introBlock 使其解锁后仍在）===== -->
   <div class="mb-wrap" id="mbShowcase">
-    <h3 class="mb-h"><span class="mb-num">30 项</span>解锁后可用的链上工具</h3>
+    <h3 class="mb-h"><span class="mb-num" id="mbNum">30 项</span><span id="mbTitle">解锁后可用的链上工具</span></h3>
     <div class="mb-grid" id="mbGrid"></div>
     <h3 class="mb-h" style="margin-top:24px"><span class="mb-num">分类</span>六大链上能力</h3>
     <div class="mb-cats" id="mbCats"></div>
-    <div class="mb-note">会员可使用<b style="color:#f0c48c">已经上线</b>的工具，并按页面标注查看后续工具开放进度。不代表付款后立即使用全部 30 项。</div>
-  </div>
-
-  <div id="sampleReport"></div>
+    <div class="mb-note" id="mbNote">会员可使用<b style="color:#f0c48c">已经上线</b>的工具，并按页面标注查看后续工具开放进度。不代表付款后立即使用全部 30 项。</div>
   </div>
 
   <div id="gate"></div>
@@ -513,6 +513,13 @@ function unlockUI(){
  var cl=document.getElementById('copyLink');if(cl)cl.onclick=function(){copyText(link);cl.textContent='已复制✓';setTimeout(function(){cl.textContent='复制链接';},1200);};
  const q=document.getElementById('queryTool');if(q)q.style.display='block';
  var ib=document.getElementById('introBlock');if(ib)ib.style.display='none';
+ // 解锁后：30 项工具面板变「会员工具台」，留在页面供点击进入
+ try{
+   var mt=document.getElementById('mbTitle');if(mt)mt.textContent='你的会员工具 · 点击进入';
+   var mnum=document.getElementById('mbNum');if(mnum)mnum.textContent='✓ 已解锁';
+   var mn=document.getElementById('mbNote');if(mn)mn.innerHTML='<b style="color:#7bffb0">已解锁</b>：绿色「已上线」点击即可进入使用；蓝色「即将上线」/橙色「开发中」会按进度陆续开放。';
+   var ms=document.getElementById('mbShowcase');if(ms){ms.style.borderTop='1px solid rgba(37,201,111,.3)';ms.style.paddingTop='6px';}
+ }catch(e){}
  try{renderRecent();}catch(e){}
  var mc=document.getElementById('monitorContent');if(mc)mc.style.display='block';
  var we=document.getElementById('wdEnter');if(we)we.onclick=function(){if(MONTOKEN)window.open('/w/?t='+encodeURIComponent(MONTOKEN),'_blank');};
@@ -1065,7 +1072,14 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
 
   function onTool(t){
     var sm = SM[t.status] || SM.dev;
-    if(t.status==='live' && t.enabled && t.route){ location.href = t.route; return; }
+    if(t.status==='live' && t.enabled && t.route){
+      // 指向本页(综合尽调/监控中心类)的工具：若查询区已显示(已解锁),滚过去而不是重载本页
+      if(/\/tools\/origin-monitor\/?$/.test(t.route)){
+        var qt=document.getElementById('queryTool');
+        if(qt && qt.style.display!=='none'){ try{qt.scrollIntoView({behavior:'smooth'});}catch(e){qt.scrollIntoView();} return; }
+      }
+      location.href = t.route; return;
+    }
     var msg = t.status==='soon'
       ? '该工具即将上线，敬请期待。上线后会员即可直接进入使用。'
       : '该工具正在开发中，尚未开放。完成并通过测试后会更新为「已上线」。';

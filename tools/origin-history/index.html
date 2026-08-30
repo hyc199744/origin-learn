@@ -1,0 +1,1655 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>起源前世今生 · 链上编年史｜Web3Origin</title>
+<meta name="description" content="从第一份合约、第一枚 LGNS、第一座流动性池，到 AWAKE 时代——起源的完整链上编年史，每一条都挂着可核验的区块与交易。">
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://web3origin.com/tools/origin-history/">
+<link rel="icon" href="/assets/favicon.png">
+<style>
+:root{--obsidian:#050303;--temple:#210507;--blood:#7A0B12;--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--ink:#e8d9be;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--green:#25C96F;--green-lt:#76FF36;--mono:'SFMono-Regular',ui-monospace,Consolas,monospace;--serif:"STZhongsong","Songti SC",Georgia,serif;--sans:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -8%,#12271b,#050303 62%) fixed,#050303;color:var(--ink);font-family:var(--sans);line-height:1.85;-webkit-font-smoothing:antialiased}
+a{color:var(--gold-lt);text-decoration:none}a:hover{text-decoration:underline}
+b,strong{color:var(--bone)}
+.gold{color:var(--gold-lt)}.grn{color:var(--green-lt)}
+
+/* nav */
+.nav{display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap;position:sticky;top:0;background:rgba(5,3,3,.92);backdrop-filter:blur(8px);z-index:20}
+.nav .brand{display:flex;align-items:center;gap:9px;font-family:var(--serif);color:var(--bone);font-size:16px}
+.nav .brand .logo{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#2a1608,#0a0807);border:1px solid var(--gold);color:var(--gold-lt);font-size:14px}
+.nav .brand b{color:var(--green)}
+.nav a{font-size:13.5px;color:var(--soft)}.nav a:hover{color:var(--bone);text-decoration:none}.nav .sp{margin-left:auto}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit}
+
+/* hero */
+.hero{max-width:1000px;margin:0 auto;padding:60px 20px 24px;text-align:center}
+.hero .en{font-size:13px;letter-spacing:.34em;color:var(--green);text-transform:uppercase}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(34px,7vw,60px);margin:14px 0 6px;line-height:1.14;
+  background:linear-gradient(92deg,#f7ecc9,#8fe6a8 60%,#25C96F);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{color:var(--soft);font-size:clamp(15px,2.3vw,18px);max-width:30em;margin:14px auto 0;font-family:var(--serif)}
+.hero .meta{margin-top:22px;font-size:13.5px;color:var(--muted);font-family:var(--mono)}
+.hero .meta b{color:var(--gold-lt)}
+
+/* stat panel like site */
+.panel{max-width:940px;margin:26px auto 0;background:linear-gradient(160deg,#0f1712,#0a0908);border:1px solid var(--line);border-radius:15px;padding:20px 22px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;text-align:center}
+.stats .n{font-family:var(--serif);font-size:clamp(20px,3vw,27px);color:var(--gold-lt);line-height:1.1}
+.stats .l{font-size:12px;color:var(--muted);margin-top:5px}
+
+/* section nav chips */
+.jump{max-width:1000px;margin:22px auto 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:0 20px}
+.jump a{font-size:12.5px;color:var(--soft);border:1px solid var(--line);border-radius:30px;padding:5px 13px}
+.jump a:hover{border-color:var(--green);color:var(--green-lt);text-decoration:none}
+
+.wrap{max-width:900px;margin:0 auto;padding:20px 20px 40px}
+
+/* volume header (like ac-lvl-head) */
+.vol{margin:56px auto 0;max-width:900px;padding:0 20px}
+.vol-head{display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.vol-ic{font-size:28px}
+.vol-h2{font-family:var(--serif);color:var(--gold-lt);font-size:clamp(21px,3.4vw,27px);margin:0}
+.vol-h2 .tag{font-size:12px;color:#0a0807;background:var(--green);border-radius:5px;padding:1px 9px;margin-right:10px;font-family:var(--sans);vertical-align:middle}
+.vol-desc{color:var(--muted);font-size:13px;margin:6px 0 0}
+
+/* timeline cards */
+.tl{position:relative;margin-top:22px;padding-left:26px}
+.tl::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:1px;background:linear-gradient(var(--gold),var(--line))}
+.node{position:relative;margin-bottom:16px}
+.node::before{content:"";position:absolute;left:-23px;top:22px;width:9px;height:9px;border-radius:50%;background:var(--obsidian);border:2px solid var(--gold)}
+.node.g::before{border-color:var(--green)}
+.card{background:linear-gradient(160deg,#100e0b,#0a0807);border:1px solid var(--line);border-radius:13px;padding:16px 18px;transition:.16s}
+.card:hover{border-color:var(--green)}
+.card .date{font-family:var(--mono);font-size:12px;color:var(--gold)}
+.card h3{font-family:var(--serif);color:var(--bone);font-weight:400;font-size:clamp(18px,2.8vw,22px);margin:6px 0 8px;line-height:1.35}
+.card p{margin:8px 0;font-size:15px;color:var(--ink)}
+.card p.plain{color:var(--soft);font-size:14.5px}
+
+/* evidence */
+.evi{margin-top:12px;background:rgba(37,201,111,.05);border:1px solid rgba(37,201,111,.22);border-radius:10px;padding:11px 14px}
+.evi .h{font-size:11px;letter-spacing:.12em;color:var(--green-lt);text-transform:uppercase;font-weight:700}
+.evi dl{margin:8px 0 0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:12.5px}
+.evi dt{color:var(--muted)}
+.evi dd{margin:0;font-family:var(--mono);color:var(--soft);word-break:break-all}
+.evi dd b{color:var(--ink)}
+.copy{cursor:pointer;border:1px solid var(--line);background:#12100c;color:var(--gold-lt);border-radius:5px;font-size:10.5px;padding:1px 7px;margin-left:6px;font-family:var(--sans)}
+.copy:hover{border-color:var(--green)}
+.pend{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:13.5px;margin-top:8px}
+
+/* crown */
+.crown{max-width:900px;margin:26px auto 0;padding:0 20px;text-align:center}
+.crown .big{font-family:var(--serif);font-size:clamp(26px,6vw,46px);line-height:1.25;
+  background:linear-gradient(92deg,#f7ecc9,#8fe6a8 55%,#25C96F);-webkit-background-clip:text;background-clip:text;color:transparent}
+.crown .cap{color:var(--soft);font-family:var(--serif);font-style:italic;margin-top:10px;font-size:16px}
+blockquote{font-family:var(--serif);font-style:italic;font-size:18px;color:var(--bone);margin:24px 0;padding-left:18px;border-left:2px solid var(--gold)}
+
+/* snapshot rows */
+.snap{max-width:900px;margin:16px auto 0;padding:0 20px}
+.snap .r{display:flex;justify-content:space-between;gap:14px;padding:12px 4px;border-bottom:1px solid var(--line);align-items:baseline}
+.snap .r .k{font-family:var(--serif);color:var(--ink);font-size:15.5px}
+.snap .r .v{font-family:var(--mono);color:var(--gold-lt);font-weight:700;white-space:nowrap}
+
+/* table */
+.tblwrap{max-width:900px;margin:14px auto 0;padding:0 20px}
+.srch{width:100%;background:#08110c;border:1px solid var(--line);border-radius:9px;color:var(--bone);padding:10px 13px;font:inherit;font-size:14px;margin-bottom:8px}
+.srch:focus{outline:none;border-color:var(--green)}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:640px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+td{font-family:var(--mono);color:var(--soft);word-break:break-word}
+td.nm{font-family:var(--serif);color:var(--bone);font-size:14px}
+tr:hover td{background:rgba(37,201,111,.04)}
+.ok{color:var(--green-lt);font-size:10.5px;border:1px solid rgba(37,201,111,.4);border-radius:4px;padding:0 6px;margin-left:6px;font-family:var(--sans)}
+
+/* closing + footer */
+.closing{max-width:760px;margin:60px auto 0;padding:0 20px;text-align:center}
+.closing p{font-family:var(--serif);font-size:17px;color:var(--ink);margin:1em auto;max-width:28em}
+.closing .rule{width:44px;height:1px;background:var(--gold);margin:0 auto 26px}
+footer{border-top:1px solid var(--line);margin-top:48px;padding:22px;color:var(--muted);font-size:12.5px;text-align:center;line-height:2}
+footer a{margin:0 7px;color:var(--soft)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--temple);border:1px solid var(--gold);color:var(--bone);padding:9px 18px;border-radius:8px;font-size:13px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ===== 复核指南框 + 交易跳转链接 ===== */
+.verify-box{background:linear-gradient(165deg,rgba(37,201,111,.06),transparent),#0d1510;border:1px solid rgba(37,201,111,.28);border-radius:14px;padding:18px 20px;margin:6px 0 4px}
+.verify-box .vb-h{font-family:var(--serif);font-size:18px;color:var(--green-lt);margin:0 0 8px}
+.verify-box .vb-p{font-size:14px;color:var(--ink);margin:0 0 8px;line-height:1.8}
+.verify-box .vb-ul{margin:0;padding-left:20px}
+.verify-box .vb-ul li{font-size:13.5px;color:var(--soft);line-height:1.85;margin:4px 0}
+.verify-box .vb-ul li b{color:var(--bone)}
+.exlink{margin-left:8px;font-size:11px;color:var(--green-lt);border:1px solid rgba(37,201,111,.4);border-radius:5px;padding:2px 8px;text-decoration:none;white-space:nowrap;vertical-align:middle}
+.exlink:hover{background:rgba(37,201,111,.12);text-decoration:none}
+/* ===== 会员门禁遮罩 ===== */
+#histGate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:radial-gradient(900px 500px at 50% 0%,rgba(122,11,18,.35),transparent),rgba(5,3,3,.97);backdrop-filter:blur(6px)}
+#histGate .hgbox{max-width:460px;width:100%;text-align:center;background:linear-gradient(165deg,rgba(214,168,75,.08),transparent),#160406;
+  border:1px solid rgba(214,168,75,.4);border-radius:18px;padding:34px 26px;box-shadow:0 24px 70px rgba(0,0,0,.7)}
+#histGate .hgic{font-size:46px;line-height:1}
+#histGate h3{font-family:var(--serif);font-size:23px;color:var(--gold-lt);margin:14px 0 6px}
+#histGate .hgsub{font-size:14px;color:var(--soft);line-height:1.85;margin:0 0 20px}
+#histGate .hgcta{display:inline-block;text-decoration:none;padding:15px 30px;border-radius:13px;font-weight:800;font-size:16px;color:#fff;
+  background:linear-gradient(180deg,#c9313a,#8f0c11);border:1px solid #7a0b12;box-shadow:0 10px 30px rgba(122,11,18,.5)}
+#histGate .hgcta:hover{filter:brightness(1.08)}
+#histGate .hgnote{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.7}
+#histGate .hgback{display:inline-block;margin-top:16px;color:var(--soft);font-size:13px;text-decoration:none}
+#histGate .hgspin{width:30px;height:30px;border:3px solid rgba(214,168,75,.25);border-top-color:var(--gold-lt);border-radius:50%;animation:hgsp .8s linear infinite;margin:6px auto}
+@keyframes hgsp{to{transform:rotate(360deg)}}
+body.hg-locked{overflow:hidden;height:100vh}
+body.hg-locked .nav,body.hg-locked header,body.hg-locked .jump,body.hg-locked .wrap,body.hg-locked .vol{filter:blur(7px);pointer-events:none;user-select:none}
+</style></head><body class="hg-locked">
+<div id="histGate"><div class="hgbox"><div class="hgspin"></div><div class="hgsub" style="margin:12px 0 0">正在验证会员…</div></div></div>
+
+<nav class="nav">
+  <span class="brand"><span class="logo">𓂀</span><span>起源 · <b>链上编年史</b></span></span>
+  <a href="#v1">创世</a><a href="#v2">立业</a><a href="#v3">远征</a><a href="#v4">创世时刻</a><a href="#v5">今日</a><a href="#zhuanti">专题长文</a><a href="#zt-glossary">术语表</a>
+  <span class="sp"></span>
+  <a href="https://web3origin.com/">← 返回主站</a>
+  <button id="langBtn" aria-label="Language">🌐</button>
+</nav>
+
+<header class="hero">
+  <div class="en">The Origin Chronicle</div>
+  <h1>起源前世今生</h1>
+  <p class="sub">从第一份合约、第一枚 LGNS、第一座流动性池，到 AWAKE 时代——起源走过的每一步，都写在链上。</p>
+  <div class="meta">起于 <b>2024·03·06</b> Polygon　·　创世于 <b>2026·05·13</b> Anubis</div>
+  <div class="panel"><div class="stats">
+    <div><div class="n" id="stNodes">—</div><div class="l">历史节点</div></div>
+    <div><div class="n" id="stTx">—</div><div class="l">链上已核凭证</div></div>
+    <div><div class="n">23</div><div class="l">深度专题</div></div>
+    <div><div class="n">46</div><div class="l">合约地址</div></div>
+    <div><div class="n">2026·08·30</div><div class="l">数据更新</div></div>
+  </div></div>
+</header>
+
+<div class="jump">
+  <a href="#v1">卷一 · 创世</a><a href="#v2">卷二 · 立业</a><a href="#gov">治理编年 · 提案史</a><a href="#v3">卷三 · 远征</a>
+  <a href="#v4">卷四 · 创世时刻</a><a href="#v5">卷五 · 今日</a><a href="#v6">卷六 · 八月</a>
+  <a href="#firstlgns">速览 · 第一枚</a><a href="#dualchain">速览 · 双链对账</a><a href="#matrix">速览 · 链上印证</a>
+  <a href="#zhuanti">▼ 深度专题 23 篇</a><a href="#zt-1">第一枚</a><a href="#zt-4">国库</a><a href="#zt-5">质押Rebase</a><a href="#zt-7">创世时刻</a><a href="#zt-16">开盘逐笔</a><a href="#zt-17">DAI 11笔</a><a href="#zt-18">销毁通缩</a><a href="#zt-19">A稳定币</a><a href="#zt-20">债券体系</a><a href="#zt-21">蛛网DAO</a><a href="#zt-22">价格供应史</a><a href="#zt-23">里程碑</a><a href="#zt-13">合约大全</a><a href="#zt-15">证据库</a><a href="#zt-glossary">术语表</a>
+</div>
+
+<div class="wrap">
+  <p style="font-family:var(--serif);font-size:18px;color:var(--ink)">这是一部写在区块链上的编年史。里面记下的每个日子、每枚代币、每座池子，背后都是一笔至今仍保存在链上、任何人都能亲手复核的交易。它不是传说，而是可以被验证的历史。起源走过三段路：在 <b>Polygon</b> 破土创世，用两年多长成一整套通证经济；随后启动双链远征，在自建的 <b>Anubis 链</b>上迎来 AWAKE 时代。三段路，一条链上的证据，串成下面各卷。</p>
+</div>
+
+<div class="wrap">
+  <div class="verify-box">
+    <div class="vb-h">🔍 本页数据怎么自己复核</div>
+    <p class="vb-p">这部编年史不要你"相信"，只要你"验证"。每条链上凭证都能自己查：</p>
+    <ul class="vb-ul">
+      <li><b>看某笔交易</b>：点凭证里交易旁的 <b>🔗</b>，直接跳区块浏览器（Polygon → polygonscan.com；Anubis → browser.anubispace.org）看原始记录。</li>
+      <li><b>查某个提案</b>：在 Polygon 上对 DAO 投票合约 <span class="mono" style="font-size:11.5px">0xCBae1509…6126eBCA</span> 调 <b>getVote(voteId)</b>，就能读到提案标题、赞成/反对票和结果。</li>
+      <li><b>查合约持仓</b>：对代币合约调 <b>balanceOf(地址)</b>，就能查任意地址此刻真实余额（本页涉及金额均可这样核对）。</li>
+      <li><b>查区块时间</b>：把凭证里的区块号丢进区块浏览器，就能看到那一刻的精确时间戳。</li>
+    </ul>
+    <p class="vb-p" style="margin:8px 0 0;color:var(--muted)">原则：能上链核实的标「链上凭证 / 链上直证」，官方公开但未上链的标「官方公开」，两者分清、绝不混充。</p>
+  </div>
+</div>
+
+<!-- 卷一 -->
+<div class="vol" id="v1"><div class="vol-head"><span class="vol-ic">🌱</span><div>
+  <h2 class="vol-h2"><span class="tag">卷一</span>创世 · Polygon 2024</h2>
+  <p class="vol-desc">一份合约，让「起源」从概念变成链上的运行。2024 年 3 月 6 日，几分钟内连续发生。</p>
+</div></div></div>
+<div class="wrap"><div class="tl">
+
+  <div class="node g"><div class="card">
+    <div class="date">2024·03·06　16:34 UTC ／ 03-07 00:34 新加坡</div>
+    <h3>第一份合约落地</h3>
+    <p class="plain">LGNS 代币合约在 Polygon 部署完成。构造函数里没有预铸——供应从 <b>零</b>开始，往后一枚枚由机制铸出。合约上链的那一刻，起源才真正有了一个能被验证的链上载体。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>网络</dt><dd>Polygon（Chain ID 137）</dd>
+      <dt>区块</dt><dd>54339832</dd>
+      <dt>合约</dt><dd>0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01</dd>
+      <dt>交易</dt><dd>0x1074b9…8365da<button class="copy" data-c="0x1074b961d4f3b1fb9519f91e18c10d769600a61258affdaeffb5d504168365da">复制</button></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2024·03·06　16:35 UTC ／ 03-07 00:35 新加坡</div>
+    <h3>国库随之而立</h3>
+    <p class="plain">部署后约七十秒，国库合约落成——这是整套经济模型的中枢：储备在此保管，LGNS 依储备价值而生。日后债券收进来的资产汇入这里，再由它铸币、发奖，循环不息。国库收到的<b>第一笔资产</b>，就是部署方自投的那 <b>100,001 DAI</b>，当天傍晚又收到第一笔 LP Token。国库最高管理权由一组 <b>4/5 多签</b>持有。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>区块</dt><dd>54339865</dd>
+      <dt>合约</dt><dd>0x7B9B7d4F870A38e92c9a181B00f9b33cc8Ef5321</dd>
+      <dt>部署交易</dt><dd>0x7366b7…bd9185<button class="copy" data-c="0x7366b7fc964af8c0ef54dbb785ef21d4096df571f81226e307cd3707b0bd9185">复制</button></dd>
+      <dt>第一笔资产</dt><dd>100,001 DAI（部署方自投）+ 首笔 LP Token</dd>
+      <dt>当前储备</dt><dd>约 11,920,837 DAI + 2,307,888 USDT</dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2024·03·06　16:39 UTC ／ 03-07 00:39 新加坡</div>
+    <h3>第一枚 LGNS 诞生</h3>
+    <p class="plain">部署方向国库存入 <b>100,001 DAI</b>，国库据此铸出头一批 <b>70,001 枚 LGNS</b>。严格意义上的「第一枚 LGNS」由此而来——不是空投、不是预售，而是用真金白银的稳定币、以约 1.43 的储备托底铸出。创世的第一笔钱，是项目方自己投的。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>区块</dt><dd>54339972</dd>
+      <dt>数量</dt><dd><b>铸 70,001 LGNS</b>（存入 100,001 DAI）</dd>
+      <dt>交易</dt><dd>0x9df450…fe6a831<button class="copy" data-c="0x9df4503580ae182a25580cd89704cd7070fba2a9a1e1da71544b609a5fe6a831">复制</button></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2024·03·06　16:58 UTC ／ 03-07 00:58 新加坡</div>
+    <h3>第一座流动性池 · 开盘 4.00</h3>
+    <p class="plain">部署方在 QuickSwap 建起第一座 LGNS/DAI 池，注入 <b>70,000 LGNS + 280,000 DAI</b>。价格由池内两种资产的比例自动生成：<b>280,000 ÷ 70,000 = 4.00 DAI/LGNS</b>。LP 池不是人手报价的牌子，而是由资产比例形成的自动化市场——从这一刻起，LGNS 有了公开、连续、可交易的价格。</p>
+    <p class="plain">建池拿到的初始 LP Token（约 4.43 个），部署方在<b>约一个多小时后就全部转进了国库</b>，自己一枚不留。这是「协议自持流动性」的开端——直到今天，创世池的 LP <b>约 99.997% 由国库持有</b>，底池牢牢握在协议自己手里。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>区块</dt><dd>54340471</dd>
+      <dt>池地址</dt><dd>0x882df4B0fB50a229C3B4124EB18c759911485bFb</dd>
+      <dt>初始价</dt><dd><b>4.00 DAI / LGNS</b></dd>
+      <dt>加池交易</dt><dd>0x84443c…1098330<button class="copy" data-c="0x84443c8387ab6488d6aff80faf990743ba364f3d73167771bcdd0c93b1098330">复制</button></dd>
+      <dt>LP 转入国库</dt><dd>2024-03-06 18:09 · 全部 4.43 LP → 国库 · tx 0x65ee29…d92d944f</dd>
+      <dt>LP 现状</dt><dd>国库持约 99.997%（协议自持流动性）</dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2024·03·06　16:39:16 UTC ／ 03-07 00:39:16 新加坡</div>
+    <h3>第一笔授权：为建池铺路</h3>
+    <p class="plain">就在首铸前的那几十秒，部署钱包做了 LGNS 的<b>第一笔 Approve 授权</b>——把币授权给 QuickSwap 的 Router，好把流动性加进池子。授权额度接近无上限（1×10²³）。授权是链上一切「让合约替你动币」的前提，这一笔，是建池动作的第一步。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>区块</dt><dd>54339960</dd>
+      <dt>授权方</dt><dd>0x5e4e7c…4351（部署钱包）</dd>
+      <dt>被授权</dt><dd>0xa5e0829c…（QuickSwap Router）</dd>
+      <dt>交易</dt><dd>0x5fd98c…9b9b0c<button class="copy" data-c="0x5fd98c7c3341f790293cf236de3ff3309da3d4142c6619195889b966f59b9b0c">复制</button></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2024·03·06　16:58:16 UTC ／ 开盘约 8 秒后</div>
+    <h3>第一位外部参与者</h3>
+    <p class="plain">建池后仅四个区块、约八秒，一个外部地址用 <b>1,313 DAI</b> 下了第一单。这一笔把 <b>325.74 枚 LGNS</b> 从池子里换出，其中约 <b>130.30 枚</b>作为手续费分给了手续费钱包（它成了第一个非部署方的持币地址），买家自己净得约 <b>195.45 枚</b>。起源从「自建的池」，迎来了它的第一位真实市场参与者。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>区块</dt><dd>54340475</dd>
+      <dt>买家</dt><dd>0xcb099561…addf2（净得 195.45 LGNS）</dd>
+      <dt>首个非部署持币</dt><dd>0x465ea4cd…（手续费钱包，130.30 LGNS）</dd>
+      <dt>交易</dt><dd>0xbf5e0b…e2f3ee<button class="copy" data-c="0xbf5e0ba3681e9343243bbf12083ee52d3205ad144d592239020422dff5e2f3ee">复制</button></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2024·03·06　17:32 UTC ／ 03-07 01:32 新加坡</div>
+    <h3>第一笔真实质押</h3>
+    <p class="plain">当天傍晚，一位用户质押 <b>129.35 枚 LGNS</b>，成为第一位真实质押者。质押是起源经济模型的核心入口——从此，Rebase 会周期性为质押者增加余额，「复利产币」的故事就此开篇。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>质押者</dt><dd>0xf2d3b5…9094</dd>
+      <dt>方式</dt><dd>StakingHelper.stake()</dd>
+      <dt>数量</dt><dd>129.35 LGNS</dd>
+    </dl></div>
+  </div></div>
+
+</div></div>
+
+<!-- 卷二 -->
+<div class="vol" id="v2"><div class="vol-head"><span class="vol-ic">🏛️</span><div>
+  <h2 class="vol-h2"><span class="tag">卷二</span>立业 · 2024 → 2026</h2>
+  <p class="vol-desc">债券、质押、Rebase、销毁、审计——一套通证经济在两年多里长成参天。</p>
+</div></div></div>
+<div class="wrap"><div class="tl">
+
+  <div class="node"><div class="card">
+    <div class="date">2024·03·08 起</div>
+    <h3>债券造血，用户入场</h3>
+    <p class="plain">创世两天后的 2024 年 3 月 8 日，债券系统启用。第一笔用户债券出现在当天 <b>21:33（新加坡）</b>——有人先存 <b>1 DAI 试水</b>，紧接着有人存 <b>2,000 DAI</b> 正式认购。每一笔的套路都一样：用户的 DAI 全额进主国库，国库据此新铸 LGNS，一半发给购债者（分五天解锁）、一半作为收益给质押者。这是起源的「造血」机制，也是 LGNS 供应稳步成长的主引擎。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>首笔用户债券</dt><dd>2024-03-08 13:33:52 UTC · 区块 54414132 · 存 1 DAI</dd>
+      <dt>交易</dt><dd>0xa337c3…de1837<button class="copy" data-c="0xa337c3fd350088f6679018c44f67691bc5f8ba346ac82659e5f3045548de1837">复制</button></dd>
+      <dt>DAI 债券</dt><dd>0x59A6693CaA6305b1E4F16176D5228C32E24717E5</dd>
+      <dt>资金流</dt><dd>用户 DAI → 债券 → 国库；国库铸 LGNS 半给购债者、半给质押者</dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node"><div class="card">
+    <div class="date">2024 → 2026</div>
+    <h3>质押、sLGNS 与 Rebase</h3>
+    <p class="plain">用户把 LGNS 质押进质押池，1:1 得到质押凭证 <b>sLGNS</b>；协议按固定周期做 Rebase，把新铸的 LGNS 分给质押者，于是每个人的 sLGNS 余额会自动增长。这套源自 OlympusDAO 的 (3,3) 玩法，鼓励大家长期质押、少频繁买卖。</p>
+    <p class="plain">Rebase 的节奏一路优化，从早期较长的周期逐步加密到如今每 <b>6 小时</b>一次（Anubis 上 8h→7h→6h 的逐段演变见卷三）。围绕它，活期质押与 360 天、600 天等长期产品陆续成形，构成起源「赚数量」的复利体系。要提醒的是——Rebase 增加的是 LGNS 的<b>数量</b>，一枚 LGNS 值多少钱由市场与底池另行决定，数量增长和美元收益是两回事。</p>
+    <p class="pend">各周期调整的公告与链上首个新周期区块的逐一对齐，将在后续版本补入。</p>
+  </div></div>
+
+  <div class="node"><div class="card">
+    <div class="date">2024·03 — 2025</div>
+    <h3>独立审计背书</h3>
+    <p class="plain">起源先后接受两家机构的独立审计：<b>Armors Labs</b> 对国库合约做专项审计并通过；<b>CertiK Skynet</b> 对 LGNS 主币合约持续监控，综合评级 <b>A 级</b>。审计为社区提供了一份可查的安全参考。</p>
+    <div class="evi"><div class="h">官方可核验</div><dl>
+      <dt>Armors</dt><dd>Treasury 专项审计 · 编号 0X202403040006</dd>
+      <dt>CertiK</dt><dd>Skynet 持续评级 · 综合约 82 分（A 级）</dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node"><div class="card">
+    <div class="date">2026 起</div>
+    <h3>「A」稳定币：以销毁铸就</h3>
+    <p class="plain">生态稳定币「A」采用别具一格的机制：按枚数<b>销毁 LGNS</b>、等量铸出 A。一笔实证显示，销毁 210,803 枚 LGNS 铸出了 210,803 枚 A。它把 LGNS 的价值沉淀为一枚软锚定资产，也对 LGNS 形成通缩。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>A 合约</dt><dd>0x6631eE651DA438Db2BE611B5A44dFE2Ca04590C5</dd>
+      <dt>实证</dt><dd>0x2d53a3…fc526<button class="copy" data-c="0x2d53a35bdd00ce8c9ebcb6873be83486d2d46447c9c91a691dcfbc14fd7fc526">复制</button></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2024·05·21 起 · 两链持续</div>
+    <h3>销毁与回购：通缩的另一面</h3>
+    <p class="plain">铸造之外，起源也一直在销毁。第一笔协议销毁发生在 <b>2024 年 5 月 21 日</b>，由一个协议合约把 LGNS 定时烧向零地址。此后销毁成了常态：Polygon 上通过「抽底池销毁」和「A 稳定币销毁」两条线，累计烧掉约 <b>1.03 亿枚</b>；Anubis 上则在每一笔卖出时按税直接烧向黑洞地址，三个月累计约 <b>2.65 亿枚</b>。两条链合计，已销毁约 <b>3.68 亿枚 LGNS</b>。</p>
+    <p class="plain">其中，光是「A」稳定币这条线，就累计销毁了约 <b>6,210 万枚 LGNS</b> 铸出稳定币。此外，Anubis 上的涡轮（Turbine）作为回购蓄水池，目前蓄有约 <b>3,879 万枚 LGNS</b>，用于生态的回购与抄底。销毁与回购，是起源在增发之外为代币价值托底的另一只手。</p>
+    <div class="evi"><div class="h">链上凭证 ✓ · 逐段累加</div><dl>
+      <dt>首笔销毁</dt><dd>2024-05-21 07:28 UTC · 419.80 LGNS 烧向 0x0</dd>
+      <dt>Polygon 累计销毁</dt><dd>约 102,949,528 LGNS（底池销毁 + A 转换 + 黑洞）</dd>
+      <dt>Anubis 累计销毁</dt><dd>约 265,385,826 LGNS（卖出税直接烧）</dd>
+      <dt>A 稳定币销毁</dt><dd>约 62,104,911 LGNS → 约 1.25 亿枚 A</dd>
+      <dt>涡轮回购池</dt><dd>现蓄约 38,786,267 LGNS</dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">截至 2026·08·03</div>
+    <h3>从零到四十一亿</h3>
+    <p class="plain">两年多的持续建设，让 LGNS 从创世那一枚，成长为 Polygon 上总量约 <b>41.29 亿枚</b>、持币地址超 <b>200 万</b>的生态。这条增长曲线在链上清晰可读：首铸 <b>7 万</b> → 开盘半天 <b>8.3 万</b> → 三天破 <b>10 万</b> → 首月约 <b>20 万</b> → 2024 年末约 <b>743 万</b> → 今天约 <b>41.29 亿</b>。理解起源的关键，是理解它「赚数量」的本质：质押产出的是新增的 LGNS，价格则由市场与底池共同决定。</p>
+    <div class="evi"><div class="h">链上凭证 ✓ · 历史总供应（归档节点实读）</div><dl>
+      <dt>2024-03-06 首铸</dt><dd>70,001</dd>
+      <dt>2024-03-06 日末</dt><dd>83,142</dd>
+      <dt>2024-03-08 日末</dt><dd>104,831（债券开卖）</dd>
+      <dt>2024-03-31 月末</dt><dd>196,644</dd>
+      <dt>2024-12-31 年末</dt><dd>7,428,657</dd>
+      <dt>2026-08-03 今天</dt><dd><b>约 4,129,201,708</b>（持币约 203.8 万）</dd>
+    </dl></div>
+  </div></div>
+
+</div></div>
+
+<!-- 治理编年 · DAO 提案史 -->
+<div class="vol" id="gov"><div class="vol-head"><span class="vol-ic">🗳️</span><div>
+  <h2 class="vol-h2"><span class="tag">治理</span>治理编年 · Awake DAO 提案史</h2>
+  <p class="vol-desc">从 2024 年底到 2025 年底，社区用链上投票决定生态每一步。全部提案与每一张票都记在 DAO 投票合约里，可 <b>getVote</b> 逐条复核。</p>
+</div></div></div>
+<div class="wrap">
+  <p style="font-family:var(--serif);font-size:16.5px;color:var(--ink)">这一卷把 <b>rocket.origindefi.io</b> 上的历史提案，一条条翻成大白话。它们不是空话——每个提案的投票结果都存在 Polygon 的 DAO 投票合约 <span class="mono" style="font-size:12px;color:var(--soft)">0xCBae1509597A71a304FA12d4aD9c7F5c6126eBCA</span><button class="copy" data-c="0xCBae1509597A71a304FA12d4aD9c7F5c6126eBCA">复制</button> 里，任何人都能用 <b>getVote(voteId)</b> 亲手查到赞成、反对和结果。以下按事实陈述"投了什么、结果如何"，不预测、不评判。</p>
+</div>
+<div class="wrap"><div class="tl">
+
+  <div class="node g"><div class="card">
+    <div class="date">2024·12·26　·　提案 Origin-003</div>
+    <h3>启动稳定币 A 的铸造发行</h3>
+    <p class="plain">社区第一次就"生态稳定币 <b>A</b>"投票：核心是<b>销毁一部分 LGNS、按规则铸造出 A 币</b>，作为生态内的稳定币。提案分两轮上链投票，第二轮正式通过。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>投票合约</dt><dd>DAO 投票 0xCBae1509…6126eBCA（Polygon）</dd>
+      <dt>复核</dt><dd>getVote(voteId = 2)</dd>
+      <dt>投票结果</dt><dd>赞成 <b>797</b> · 反对 1 · <span class="grn">通过</span></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2025·07·15　·　提案 Origin-004</div>
+    <h3>销毁缓冲合约里的 LGNS，铸造 A 稳定币</h3>
+    <p class="plain">把长期质押合约里"闲置没在用"的 LGNS <b>销毁</b>掉，同时 <b>1:1 铸出 A 稳定币</b>，用来加强 A Pay 支付生态和锚定储备机制。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>复核</dt><dd>getVote(voteId = 3)</dd>
+      <dt>投票结果</dt><dd>赞成 <b>1,365</b> · 反对 0 · <span class="grn">通过</span></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2025·07·19　·　提案 No.005</div>
+    <h3>建立 A / DAI 储备池</h3>
+    <p class="plain">从协议<b>手续费地址取出 500 万 DAI</b>，和已有的 A 币配对，注入一个储备池——给 A 稳定币做 <b>1:1 锚定</b>和链上流动性支撑。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>复核</dt><dd>getVote(voteId = 4)</dd>
+      <dt>投票结果</dt><dd>赞成 <b>710</b> · 反对 1 · <span class="grn">通过</span></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2025·07·22　·　提案 No.006</div>
+    <h3>销毁长期锁仓产生的缓冲记账币</h3>
+    <p class="plain">长期锁仓（30–360 天债券等 10 个合约）运行时会临时产生一批"缓冲记账币"，任务完成后已经没用——这次投票把它们<b>销毁</b>。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>复核</dt><dd>getVote(voteId = 5)</dd>
+      <dt>投票结果</dt><dd>赞成 <b>864</b> · 反对 2 · <span class="grn">通过</span></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2025·08·03　·　提案 No.007（草案）</div>
+    <h3>编号提案 007</h3>
+    <p class="plain">链上只留下了<b>编号与投票记录</b>，提案以草案形式讨论、未公开完整文本。我们只记录能核实的部分：它确实上链投过票、并通过。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>复核</dt><dd>getVote(voteId = 6)</dd>
+      <dt>投票结果</dt><dd>赞成 <b>584</b> · 反对 2 · <span class="grn">通过</span></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2025·08·04　·　提案 No.008（草案）</div>
+    <h3>编号提案 008</h3>
+    <p class="plain">同为草案阶段的编号提案，链上留有投票记录，详情未公开。如实记录：上链投票、通过。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>复核</dt><dd>getVote(voteId = 7)</dd>
+      <dt>投票结果</dt><dd>赞成 <b>344</b> · 反对 2 · <span class="grn">通过</span></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2025·11·04　·　提案 Origin-009</div>
+    <h3>每日抽奖激励 + 600 天质押合约</h3>
+    <p class="plain">一次上线两样：一个<b>"每日抽奖"激励机制</b>，和一种把 LGNS <b>锁 600 天</b>的质押合约。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>复核</dt><dd>getVote(voteId = 8)</dd>
+      <dt>投票结果</dt><dd>赞成 <b>1,898</b> · 反对 2 · <span class="grn">通过</span></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2025·11·21　·　提案 Origin-010</div>
+    <h3>上线 600 天长期债券合约</h3>
+    <p class="plain">上线一种<b>锁定 600 天的长期债券</b>合约，参与者用资产换取到期收益。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>复核</dt><dd>getVote(voteId = 9)</dd>
+      <dt>投票结果</dt><dd>赞成 <b>745</b> · 反对 0 · <span class="grn">通过</span></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2025·12·12　·　提案 Origin-011</div>
+    <h3>优化国库与生态基金的资产配置</h3>
+    <p class="plain">社区投票通过对<b>国库与生态基金</b>的资产配置进行优化，让金库资产的安排更稳健、更合理。这次提案参与度是全程最高的一次，最终以约 <b>86%</b> 的高赞成率（10,110 赞 / 1,645 反）通过，整个决策过程<b>链上公开、人人可查</b>——这正是去中心化治理该有的样子。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>复核</dt><dd>getVote(voteId = 10)</dd>
+      <dt>投票结果</dt><dd>赞成 <b>10,110</b> · 反对 <b>1,645</b> · <span class="grn">通过</span></dd>
+    </dl></div>
+  </div></div>
+
+</div></div>
+
+<!-- 卷三 -->
+<div class="vol" id="v3"><div class="vol-head"><span class="vol-ic">🌍</span><div>
+  <h2 class="vol-h2"><span class="tag">卷三</span>远征 · 双链战略 · Anubis</h2>
+  <p class="vol-desc">从在别人的链上运行，到拥有自己的链。2026 年，起源启程远征。</p>
+</div></div></div>
+<div class="wrap"><div class="tl">
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·03 — 04</div>
+    <h3>1.63 亿 DAI 的共建与背书</h3>
+    <p class="plain">双链远征从资金地基开始。Polygon 上的 ILO 记录募集 <b>163,000,000 DAI</b>，参与地址约 <b>14,439 个</b>。这些真金白银跨回以太坊，最终有 <b>1.55 亿真 DAI</b> 锁进一座以太坊金库，为即将诞生的 Anubis 链上的 DAI 提供真实背书——链上的价值，有链上可查的储备撑着。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>ILO</dt><dd>0x13ac027C…50A5（Polygon）</dd>
+      <dt>ETH 金库</dt><dd>0x250ba4…d64f3 · 锁约 <b>1.55 亿 DAI</b></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node"><div class="card">
+    <div class="date">2026·04·08</div>
+    <h3>Anubis 主网上线</h3>
+    <p class="plain">起源自建的 Anubis 公链主网启动：EVM 兼容，出块以秒计，并以 DAI 作为链上的原生 Gas 资产。RocketSwap 等配套设施随之就位，AWAKE 生态有了自己的家。</p>
+    <div class="evi"><div class="h">链上参数</div><dl>
+      <dt>Chain ID</dt><dd>6714</dd>
+      <dt>浏览器</dt><dd>browser.anubispace.org</dd>
+      <dt>Gas</dt><dd>DAI</dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·04·14　21:53 UTC ／ 04-15 05:53 新加坡</div>
+    <h3>治理代币 gLGNS 铸就</h3>
+    <p class="plain">远征还在筹备阶段，治理层就先立了起来。gLGNS（治理 LGNS）一次性铸出 <b>固定的 210,000 枚</b>，供应写死、不再增发。它是 AWAKE 双层治理结构的顶层凭证，与 sLGNS、Awake NFT 一道，构成起源的治理与激励体系。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>合约</dt><dd>0xf140a92C…330F8F4c（gLGNS）</dd>
+      <dt>铸造</dt><dd>2026-04-14 21:53:22 UTC · 固定 210,000 枚</dd>
+      <dt>交易</dt><dd>0x761c75…65b0a6<button class="copy" data-c="0x761c7571d94446db44ef86719176237d6e42ecec6df8b25975117cb1d465b0a6">复制</button></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node"><div class="card">
+    <div class="date">2026·04·20 — 23</div>
+    <h3>亮相香港 Web3 嘉年华</h3>
+    <p class="plain">Anubis 在 2026 香港 Web3 Festival 上亮相，把起源的双链故事带到了全球 Web3 舞台的中央。</p>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·04·28　00:14 UTC ／ 08:14 新加坡</div>
+    <h3>Anubis 上的新 LGNS</h3>
+    <p class="plain">在 Anubis 链上，一套全新的 LGNS 合约部署上线。它与 Polygon 上的本体各自独立、各自记账——这不是简单的搬运，而是在新链上重新扎根。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>区块</dt><dd>1808950</dd>
+      <dt>合约</dt><dd>0x4D1D808a081FdAc440703b3765FC61f8028C06B8</dd>
+      <dt>交易</dt><dd>0xf5e7f5…8b021c<button class="copy" data-c="0xf5e7f5848346e69ac543aa377f5d14d63f27ca0b02071d33b9ca829e798b021c">复制</button></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·05·01 起</div>
+    <h3>质押与 Rebase 先行上线</h3>
+    <p class="plain">早在公开开盘之前，Anubis 上的质押与 Rebase 就已经运转。链上可见 5 月 1 日起 LGNS 陆续质押入池，Rebase 奖励从零地址按节奏铸出——当天 07:31、15:31、23:31 三次分毫不差地相隔八小时。生态在开盘前，机制先跑通了。</p>
+    <p class="plain">Rebase 的节奏在链上一路加密：<b>8 小时</b>维持到 5 月 6 日，随后切到 <b>7 小时</b>，再于 6 月 4 日起进入现行的 <b>6 小时</b>一次。质押凭证 sLGNS 会随每次 Rebase 增长，链上「质押指数」已从创世时的 1 滚到约 <b>946.75</b>——这是质押<b>数量</b>的复利增长，一枚 LGNS 值多少钱仍由市场与底池另行决定。</p>
+    <div class="evi"><div class="h">链上凭证 ✓ · 355 笔 Rebase 铸币逐笔实扫</div><dl>
+      <dt>质押合约</dt><dd>0x7a2E3fA6eA60437F0441b8eb5e60674B80339228</dd>
+      <dt>最早质押</dt><dd>2026-05-01 01:12:29 UTC · tx 0xd34c97…5f68</dd>
+      <dt>Rebase 节奏</dt><dd>8h（05-01→05-06）→ 7h（→06-03）→ 6h（06-04 至今）</dd>
+      <dt>质押指数 index</dt><dd>约 946.75（三处合约读数一致）</dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·05·05　00:44 UTC ／ 08:44 新加坡</div>
+    <h3>创世池的容器就位</h3>
+    <p class="plain">RocketSwap 上建起 DAI/LGNS 交易对——AWAKE 创世池的容器。此时它还空着，静待八天后的注水与开盘。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>区块</dt><dd>2415424</dd>
+      <dt>池地址</dt><dd>0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0</dd>
+      <dt>交易</dt><dd>0xd009f3…1b204d<button class="copy" data-c="0xd009f343f04e8906647f596deaef985a0eaeea587d5400a8a9d82b01821b204d">复制</button></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·05·07 — 05·09</div>
+    <h3>创世前：筹码发到社区手里</h3>
+    <p class="plain">开盘前的几天，创世筹码开始分发到社区。链上可见 5 月 7 日起、到 5 月 9 日达到高峰，新铸的 LGNS 陆续发到参与者钱包——单是 5 月 8、9 两天，每天都有上万个地址领到（5 月 9 日当天达 <b>20,803 个</b>），最常见的一笔是 2,000 枚。正是这些参与者，随后把手里的 LGNS 经发行合约按 5:1 配上 DAI，一起注进创世池。</p>
+    <div class="evi"><div class="h">链上凭证 ✓ · 从 0x0 铸造事件全扫</div><dl>
+      <dt>05-07 领取地址</dt><dd>753 个</dd>
+      <dt>05-08 领取地址</dt><dd>12,031 个</dd>
+      <dt>05-09 领取地址</dt><dd>20,803 个</dd>
+      <dt>常见单笔</dt><dd>2,000 LGNS（另有 100 / 200 / 1000 / 4000 等档）</dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·05·09　20:35 — 05-10 01:25 新加坡</div>
+    <h3>流动性共建：一天灌满的 5 : 1</h3>
+    <p class="plain">创世池的注水，是在 <b>5 月 9 日一天之内、约五个小时</b>里完成的。一个发行合约把 DAI 与 LGNS 按严格 <b>5 : 1</b> 的比例、分成 <b>14,187 笔</b>逐笔注入——从第一笔 2,000 LGNS + 10,000 DAI 起，笔笔对齐，累计恰好灌满 <b>32,600,000 LGNS + 163,000,000 DAI</b>，一枚不多、一枚不少。灌满之后，池子静置了近四天，只进不动，静静等待开盘。</p>
+    <p class="plain">这 1.63 亿 DAI 由一个中枢地址分 <b>11 笔</b>精确输送给发行合约（100,000 → 一千万 → 三千二百万……累计正好 1.63 亿），发行合约再逐笔配上 LGNS 打进池子。这些 DAI 是 Anubis 链上的 DAI，与以太坊金库锁定的真 DAI 相对应（见「今日 · 关于双链」）。</p>
+    <div class="evi"><div class="h">链上凭证 ✓ · 14,187 笔逐条累加</div><dl>
+      <dt>Mint 总笔数</dt><dd>14,187 笔（严格 5:1）</dd>
+      <dt>累计注入</dt><dd><b>32,600,000 LGNS + 163,000,000 DAI</b></dd>
+      <dt>时间窗</dt><dd>2026-05-09 12:35 — 17:25 UTC（一天内）</dd>
+      <dt>DAI 输送</dt><dd>中枢 0x43f5399d → 发行合约，11 笔 = 1.63 亿</dd>
+      <dt>执行合约</dt><dd>ILO 0x4fF8e905…8d90</dd>
+    </dl></div>
+  </div></div>
+
+</div></div>
+
+<!-- 卷四 -->
+<div class="vol" id="v4"><div class="vol-head"><span class="vol-ic">🔥</span><div>
+  <h2 class="vol-h2"><span class="tag">卷四</span>创世时刻 · 2026·05·13</h2>
+  <p class="vol-desc">新加坡时间 20:00，AWAKE 作为 Anubis 首个创世生态，就此点亮。</p>
+</div></div></div>
+<div class="wrap">
+  <p style="font-family:var(--serif);font-size:18px;color:var(--ink)">当指针指向新加坡时间 <b>2026 年 5 月 13 日 19:58:53</b>，链上第一笔真实成交落定。就在这一区块，池中储备恰好是——</p>
+</div>
+<div class="crown">
+  <div class="big">32,600,010 LGNS<br>＋ 162,999,950 DAI</div>
+  <div class="cap">＝ 价格 <span class="grn">5.0000</span> DAI / LGNS，分毫不差</div>
+</div>
+<div class="wrap">
+  <p style="font-family:var(--serif);font-size:17px;color:var(--ink)">「32,600,000 枚 LGNS 配 163,000,000 枚 DAI，开盘 5 DAI」——这句被无数次讲述的话，在这一区块被链上储备<b>一分不差地印证</b>。而链上第一笔成交的时间，与官方宣布的 20:00 几乎完全重合。</p>
+  <blockquote>今天回看这个区块，它记录的不是一句口号，而是 AWAKE 从共建走向公开交易的那一个真实节点。</blockquote>
+  <div class="tl"><div class="node g"><div class="card">
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>网络</dt><dd>Anubis（6714）</dd>
+      <dt>区块</dt><dd>3146958</dd>
+      <dt>时间</dt><dd>2026-05-13 11:58:53 UTC ／ <b>19:58:53 新加坡</b></dd>
+      <dt>开盘储备</dt><dd><b>32,600,010 LGNS ｜ 162,999,950 DAI ｜ 价 5.0000</b></dd>
+      <dt>首笔成交</dt><dd>0x8be9e2…39f1f5<button class="copy" data-c="0x8be9e28bb6c7af06435f31e8ea9081390a3210931430aaee9f34b3b84139f1f5">复制</button></dd>
+      <dt>路由</dt><dd>RocketSwap Router 0x3E412E02…9019</dd>
+    </dl></div>
+    <p class="pend">说明：「1.63 亿」是按 DAI 面值计的单边规模；池子总价值、DAI 单边量与 LGNS 单边估值是三个不同概念，本文分别陈述、不作混算。</p>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·05·13　19:58 — 20:58 新加坡（开盘第一小时）</div>
+    <h3>开盘第一小时：链上实况</h3>
+    <p class="plain">开盘后的第一个小时，池子迎来一波真实的买盘热潮。逐笔扫下来：这一小时共 <b>2,992 笔成交</b>，来自 <b>2,329 个独立地址</b>——其中 1,923 个地址在买、516 个在卖。买入总额约 <b>317 万 DAI</b>，卖出约 <b>58 万 DAI</b>，净买入约 259 万。买盘远大于卖盘，价格<b>不跌反涨</b>：从开盘的 5.0000 一路走到这一小时结束时的约 <b>5.16</b>。第一小时里，池子的真实储备价从未跌破 5.0。</p>
+    <p class="plain">开盘那一秒（第一笔成交）先是几笔零点几枚的小额卖出，紧接着买单如潮涌入——150、1,020、3,000 DAI 一笔接一笔。这一小时里最大的一笔买入出现在 <b>20:29（新加坡）</b>：有人一口气用 <b>200,000 DAI 换走 39,027 枚 LGNS</b>。</p>
+    <div class="evi"><div class="h">链上凭证 ✓ · 逐笔实扫（RPC getLogs）</div><dl>
+      <dt>成交笔数</dt><dd>2,992 笔（买 2,073 / 卖 919）</dd>
+      <dt>独立地址</dt><dd>2,329 个（买 1,923 / 卖 516）</dd>
+      <dt>买入 / 卖出额</dt><dd>约 3,173,153 DAI / 约 583,145 DAI</dd>
+      <dt>价格走势</dt><dd>5.0000 → 约 5.16（第一小时收）</dd>
+      <dt>最大买入</dt><dd>200,000 DAI → 39,027 LGNS · tx 0x4aea52…d97e25<button class="copy" data-c="0x4aea529bed189ebec8d29afc407491ea48ae329f2618b5b9afe5452b7dd97e25">复制</button></dd>
+    </dl></div>
+    <p class="pend">卖单显示价约 4.985 是含约 5% 卖出税后的到手价，池子真实储备价始终 ≥ 5.0；两者不是一回事。</p>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·05·14　00:27 UTC ／ 08:27 新加坡</div>
+    <h3>Awake 治理 NFT 上线</h3>
+    <p class="plain">开盘次日，Awake 治理 NFT（AWAKE NFT）开始铸造，成为生态治理与激励的一环。到今天，它已铸出 <b>82,981 张</b>，分布在 <b>52,080 个</b>持有地址手里——这是 AWAKE 社区规模的一个直观注脚。</p>
+    <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+      <dt>合约</dt><dd>0x58839f46…208615（ERC-721）</dd>
+      <dt>首铸</dt><dd>2026-05-14 00:27:49 UTC · tokenID 1</dd>
+      <dt>当前</dt><dd>82,981 张 · 52,080 持有地址</dd>
+    </dl></div>
+  </div></div></div>
+</div>
+
+<!-- 卷五 -->
+<div class="vol" id="v5"><div class="vol-head"><span class="vol-ic">📊</span><div>
+  <h2 class="vol-h2"><span class="tag">卷五</span>今日的起源 · 2026·08·03</h2>
+  <p class="vol-desc">双链并行，生态持续运行。以下为特定区块时点的链上快照。</p>
+</div></div></div>
+<div class="snap">
+  <div class="r"><span class="k">Polygon LGNS 总供应</span><span class="v">4,129,201,708</span></div>
+  <div class="r"><span class="k">Polygon 持币地址</span><span class="v">2,038,307</span></div>
+  <div class="r"><span class="k">Anubis LGNS 总供应</span><span class="v">2,018,423,619</span></div>
+  <div class="r"><span class="k">Anubis 持币地址</span><span class="v">2,263,543</span></div>
+  <div class="r"><span class="k">Anubis sLGNS 供应（= 质押中的 LGNS）</span><span class="v">1,574,458,661</span></div>
+  <div class="r"><span class="k">Anubis 质押率（sLGNS ÷ 总供应）</span><span class="v">≈ 78 %</span></div>
+  <div class="r"><span class="k">Anubis 质押指数 index（创世=1）</span><span class="v">≈ 946.75</span></div>
+  <div class="r"><span class="k">Anubis Rebase 周期</span><span class="v">每 6 小时（8h→7h→6h 演进）</span></div>
+  <div class="r"><span class="k">Anubis gLGNS 治理代币（固定供应）</span><span class="v">210,000</span></div>
+  <div class="r"><span class="k">Anubis DAI 供应</span><span class="v">211,049,000</span></div>
+  <div class="r"><span class="k">Awake NFT 铸造总量 / 持有地址</span><span class="v">82,981 / 52,080</span></div>
+  <div class="r"><span class="k">Anubis 创世池 · LGNS 储备</span><span class="v">49,385,617</span></div>
+  <div class="r"><span class="k">Anubis 创世池 · DAI 储备</span><span class="v">113,828,466</span></div>
+  <div class="r"><span class="k">Anubis 创世池 · 现价</span><span class="v">≈ 2.305 DAI/LGNS</span></div>
+  <div class="r"><span class="k">Polygon 创世池 · LGNS / DAI 储备</span><span class="v">58,052,400 / 82,973,802</span></div>
+  <div class="r"><span class="k">Polygon 创世池 · 现价</span><span class="v">≈ 1.429 DAI/LGNS</span></div>
+  <div class="r"><span class="k">Polygon 创世池 LP · 国库自持</span><span class="v">≈ 99.997 %</span></div>
+  <div class="r"><span class="k">以太坊金库背书 DAI</span><span class="v">≈ 155,000,200</span></div>
+</div>
+<div class="wrap">
+  <p style="font-family:var(--serif);font-size:16.5px;color:var(--ink);margin-top:24px"><b>关于双链</b>　两条链上的 LGNS 各自独立部署、独立记账，总量互不相同（Polygon 约 41.29 亿、Anubis 约 20.18 亿）。真正跨链承接的是价值一侧：以太坊上锁定的 1.55 亿真 DAI，为 Anubis 生态提供背书。这是「重新扎根 + 真实背书」的双链格局。</p>
+</div>
+
+<!-- 卷六 · 八月 · 游戏与 AI -->
+<div class="vol" id="v6"><div class="vol-head"><span class="vol-ic">⚔️</span><div>
+  <h2 class="vol-h2"><span class="tag">卷六</span>八月 · 游戏与 AI · 2026·08</h2>
+  <p class="vol-desc">从基础设施走向真正跑起来的应用：Anubis 上的原生链上游戏公测、百万 LGNS 链上共铸，以及生态迈向 AI。</p>
+</div></div></div>
+<div class="wrap"><div class="tl">
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·08·18　06:36:09 UTC　·　Anubis</div>
+    <h3>Fun Longinus · 100 万 LGNS 链上共铸完成</h3>
+    <p class="plain">Anubis 原生链上游戏 <b>Fun Longinus</b> 的"共铸"正式完成——一个专门的共铸合约里，<b>精确汇集了 1,000,000 枚 LGNS</b>，全程在链上进行，向主网又近一步。这不是口号，是链上可以一枚枚数出来的事实。</p>
+    <div class="evi"><div class="h">链上直证 ✓</div><dl>
+      <dt>网络</dt><dd>Anubis（Chain ID 6714）</dd>
+      <dt>区块</dt><dd>11,506,762</dd>
+      <dt>共铸合约</dt><dd>0x6cc0c45f…36c63e<button class="copy" data-c="0x6cc0c45f7420622d2c847e6ab4a58be96c36c63e">复制</button></dd>
+      <dt>合约余额</dt><dd>精确 <b>1,000,000</b> LGNS（balanceOf 实测）</dd>
+      <dt>交易</dt><dd>0xcb63c9…084b82<button class="copy" data-c="0xcb63c9b15d4db56f73c0fd66ae379266ec9f6f2a4843d7813886641258084b82">复制</button></dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·08·18　·　Anubis</div>
+    <h3>FUN LONGINUS 原生链上游戏公测上线</h3>
+    <p class="plain">一款<b>建在 Anubis 链上的原生游戏</b>开启公测：24 名战士进入一个竞技场，<b>对战、结果、结算全部在链上执行</b>。从"链上基础设施"走向"真实可玩的链上应用"。</p>
+    <div class="evi"><div class="h">官方公开 ✓</div><dl>
+      <dt>来源</dt><dd>Funverse 官方（funverse.gg）</dd>
+      <dt>形式</dt><dd>生态官方发布 · 非链上直证</dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·08·23</div>
+    <h3>AnubisChain × GoPlay 合作</h3>
+    <p class="plain">AnubisChain 与 <b>GoPlay</b> 达成合作，把游戏生态往链上带——不只是"把游戏上链"，而是让玩家的资产与玩法真正落到链上。</p>
+    <div class="evi"><div class="h">官方公开 ✓</div><dl>
+      <dt>来源</dt><dd>官方生态动态（@ANUBISCHAIN_ / @hyc199844 转报）</dd>
+      <dt>形式</dt><dd>合作公告 · 非链上直证</dd>
+    </dl></div>
+  </div></div>
+
+  <div class="node g"><div class="card">
+    <div class="date">2026·08·24</div>
+    <h3>AiLGNS · 一体化 AI 服务平台预告</h3>
+    <p class="plain">官方预告 <b>AiLGNS</b>——一体化人工智能服务平台即将上线，计划逐步接入领先的 AI 模型与智能代理，标志 Awake 生态迈入 AI 时代。</p>
+    <div class="evi"><div class="h">官方公开 ✓</div><dl>
+      <dt>来源</dt><dd>官方号 @SaluteOrigin（2026-08-24）</dd>
+      <dt>形式</dt><dd>官方预告 · 尚未上链，属"即将"</dd>
+    </dl></div>
+  </div></div>
+
+</div></div>
+
+<!-- 专题一 -->
+<div class="vol" id="firstlgns"><div class="vol-head"><span class="vol-ic">✦</span><div>
+  <h2 class="vol-h2"><span class="tag">专题</span>「第一枚 LGNS」的多重口径</h2>
+  <p class="vol-desc">「第一枚」不是一句话能答完的——载体、铸造、流通、质押各有各的「第一次」。逐一列在下面。</p>
+</div></div></div>
+<div class="tblwrap"><div class="scroll"><table>
+  <thead><tr><th>口径</th><th>时间（新加坡）</th><th>区块</th><th>关键</th></tr></thead><tbody>
+    <tr><td class="nm">① 载体诞生 · 合约部署 <span class="ok">✓</span></td><td>2024-03-07 00:34</td><td>54339832</td><td>构造函数无预铸，供应从 0 起</td></tr>
+    <tr><td class="nm">② 第一次铸造 · 第一枚币 <span class="ok">✓</span></td><td>2024-03-07 00:39</td><td>54339972</td><td>存 100,001 DAI，铸 70,001 LGNS</td></tr>
+    <tr><td class="nm">③ 第一次进入流动性池 <span class="ok">✓</span></td><td>2024-03-07 00:58</td><td>54340471</td><td>70,000 LGNS 入池，开盘 4.00</td></tr>
+    <tr><td class="nm">④ 第一笔授权 Approve <span class="ok">✓</span></td><td>2024-03-07 00:39:16</td><td>54339960</td><td>部署方授权 QuickSwap Router（为建池）</td></tr>
+    <tr><td class="nm">⑤ 第一个非部署持币地址 <span class="ok">✓</span></td><td>2024-03-07 00:58:16</td><td>54340475</td><td>手续费钱包 0x465ea4cd 收 130.30 LGNS</td></tr>
+    <tr><td class="nm">⑥ 第一枚自由流通 · 首笔外部买入 <span class="ok">✓</span></td><td>2024-03-07 00:58:16</td><td>54340475</td><td>买家净得 195.45 LGNS（入池换出 325.74）</td></tr>
+    <tr><td class="nm">⑦ 第一笔进入质押 <span class="ok">✓</span></td><td>2024-03-07 01:32</td><td>—</td><td>首位用户质押 129.35 LGNS</td></tr>
+    <tr><td class="nm">⑧ 第一笔债券兑付 · 用户资金入场 <span class="ok">✓</span></td><td>2024-03-08 21:33:52</td><td>54414132</td><td>首笔存 1 DAI 试水，随后 2,000 DAI</td></tr>
+    <tr><td class="nm">⑨ Anubis 上的「第一枚」 <span class="ok">✓</span></td><td>2026-04-28 起</td><td>1808950</td><td>全新独立铸造，非从 Polygon 桥接</td></tr>
+  </tbody></table></div>
+  <p class="pend" style="padding:0 4px">仍在补取：Polygon 第一笔销毁、第一笔进入国库的 LGNS 完整哈希；Anubis 32.6M 铸造的分发明细（并行深挖中）。</p>
+</div>
+
+<!-- 专题二 -->
+<div class="vol" id="dualchain"><div class="vol-head"><span class="vol-ic">⛓️</span><div>
+  <h2 class="vol-h2"><span class="tag">专题</span>双链资产 · 逐项对账</h2>
+  <p class="vol-desc">Polygon 与 Anubis 上的 LGNS 是两套独立部署、独立记账；真正跨链承接的是价值一侧。</p>
+</div></div></div>
+<div class="tblwrap"><div class="scroll"><table>
+  <thead><tr><th>项目</th><th>Polygon</th><th>Anubis</th></tr></thead><tbody>
+    <tr><td class="nm">LGNS 合约</td><td>0xeB51…0F01</td><td>0x4D1D…06B8</td></tr>
+    <tr><td class="nm">部署时间</td><td>2024-03-06</td><td>2026-04-28</td></tr>
+    <tr><td class="nm">合约架构</td><td>不可升级本体</td><td>可升级代理</td></tr>
+    <tr><td class="nm">LGNS 总供应</td><td>约 41.29 亿</td><td>约 20.18 亿</td></tr>
+    <tr><td class="nm">持币地址</td><td>约 203.8 万</td><td>约 226.4 万</td></tr>
+    <tr><td class="nm">质押中（sLGNS）</td><td>约 27 亿</td><td>约 15.74 亿（≈78%）</td></tr>
+    <tr><td class="nm">创世开盘价</td><td>4.00 DAI（2024-03-06）</td><td>5.00 DAI（2026-05-13）</td></tr>
+    <tr><td class="nm">DAI 属性</td><td>Polygon 官方 DAI</td><td>Hyperlane 桥 DAI，兼作 Gas</td></tr>
+    <tr><td class="nm">跨链关系</td><td colspan="2">代币各自独立部署（非 1:1 桥接映射）；价值侧以以太坊锁定的 1.55 亿真 DAI 为 Anubis 背书</td></tr>
+  </tbody></table></div></div>
+
+<!-- 专题三 -->
+<div class="vol" id="matrix"><div class="vol-head"><span class="vol-ic">🔎</span><div>
+  <h2 class="vol-h2"><span class="tag">专题</span>链上印证了什么</h2>
+  <p class="vol-desc">把关于起源的关键说法，逐条拿到链上去对——大多经得起复核。</p>
+</div></div></div>
+<div class="tblwrap"><div class="scroll"><table>
+  <thead><tr><th>对外说法</th><th>链上 / 官方证据</th><th>结论</th></tr></thead><tbody>
+    <tr><td class="nm">2024-03 在 Polygon 创世</td><td>部署 tx 0x1074b9…，区块 54339832</td><td><span class="grn">✓ 已印证</span></td></tr>
+    <tr><td class="nm">Polygon 开盘价 4.00</td><td>首池 70,000 LGNS + 280,000 DAI</td><td><span class="grn">✓ 已印证</span></td></tr>
+    <tr><td class="nm">Anubis 5 DAI 开盘（05-13 20:00）</td><td>开盘前储备 32,600,010 / 162,999,950 = 5.0000；首笔成交 19:58:53</td><td><span class="grn">✓ 已印证</span></td></tr>
+    <tr><td class="nm">32.6M LGNS + 163M DAI 初始配置</td><td>开盘池内正好如此；由 ILO 按 5:1 分批共建凑满</td><td><span class="grn">✓ 已印证</span></td></tr>
+    <tr><td class="nm">以太坊真 DAI 背书 Anubis</td><td>Hyperlane 金库锁约 1.55 亿真 DAI</td><td><span class="grn">✓ 已印证</span></td></tr>
+    <tr><td class="nm">gLGNS 固定供应 21 万</td><td>链上 totalSupply = 210,000</td><td><span class="grn">✓ 已印证</span></td></tr>
+    <tr><td class="nm">创世 LP 由协议 / 国库持有</td><td>创世 LP 建池后转入国库，国库持约 99.997%</td><td><span class="grn">✓ 已印证</span></td></tr>
+    <tr><td class="nm">起源有销毁 / 通缩机制</td><td>两链累计销毁约 3.68 亿 LGNS（首笔 2024-05-21）</td><td><span class="grn">✓ 已印证</span></td></tr>
+    <tr><td class="nm">CertiK / Armors 双审</td><td>CertiK 评 LGNS 代币 A 级；Armors 审 Treasury 合约</td><td>属实（覆盖范围以报告为准）</td></tr>
+    <tr><td class="nm">AWAKE-012 千万保护基金</td><td>见提案，链上执行记录待补</td><td class="pend">以官方公告为准</td></tr>
+    <tr><td class="nm">NFT 空投「人均 26.81 / 第一名 3619」</td><td>Awake NFT 共 82,981 张、持有 52,080 人；链上暂未找到与之对应的集中空投原始记录</td><td class="pend">待核实 · 以官方公告为准</td></tr>
+  </tbody></table></div></div>
+
+<!-- ===== 专题长文（深度） ===== -->
+<div class="vol" id="zhuanti"><div class="vol-head"><span class="vol-ic">📚</span><div><h2 class="vol-h2"><span class="tag">深度</span>专题长文</h2><p class="vol-desc">十五篇把每个关键环节掰开揉碎讲透，配术语大白话表</p></div></div></div>
+
+<!-- ===== 专题1 ===== -->
+<div class="vol" id="zt-1"><div class="vol-head"><span class="vol-ic">✦</span><div><h2 class="vol-h2"><span class="tag">专题</span>第一枚 LGNS 到底怎么来的</h2><p class="vol-desc">不是空投，不是预售——是团队先掏真金白银，才换来的第一枚</p></div></div></div>
+<div class="wrap">
+  <p class="plain">很多人以为一个币的第一枚，是项目方"点几下鼠标凭空印出来的"。LGNS 不是这样。它的诞生，是先有 <b>100,001 DAI</b>（一种和美元 1:1 挂钩的稳定币）真金白银进了国库，国库才据此铸出了第一批币。这一点，链上写得清清楚楚，谁都改不了、抹不掉。</p>
+  <p class="plain">故事从合约出生那一刻算起。<b>2024-03-06 16:34:26（UTC）</b>，也就是<b>新加坡时间 03-07 00:34</b>，LGNS 的合约在 Polygon 上被部署，合约名叫 <b>OriginWithLottery</b>，精度 <b>9 位</b>。最关键的一点：它的构造函数里<b>没有任何预铸</b>——就好比一个刚开张的粮仓，柜子里一粒米都没有，供应量从 <b>0</b> 起步。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>合约诞生</dt><dd>2024-03-06 16:34:26 UTC / 新加坡 03-07 00:34</dd><dt>区块</dt><dd>54339832</dd><dt>合约</dt><dd>0xeB51D9…4A0F01</dd><dt>初始供应</dt><dd>0（构造函数无预铸）</dd><dt>交易</dt><dd>0x1074b9…8365da<button class="copy" data-c="0x1074b961d4f3b1fb9519f91e18c10d769600a61258affdaeffb5d504168365da">复制</button></dd></dl></div>
+  <p class="plain">五分半钟后，<b>16:39:56（UTC）／新加坡 00:39</b>，第一枚币真正被铸出来了。做法很朴素：部署方先往国库里<b>存入 100,001 DAI</b>，国库按储备价值给它铸出 <b>70,001 枚 LGNS</b>。算一下托底率，100,001 ÷ 70,001 ≈ <b>1.43</b>——意思是每 1 枚币背后，都压着约 1.43 个稳定币在垫底。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>首次铸造</dt><dd>2024-03-06 16:39:56 UTC / 新加坡 00:39</dd><dt>数量</dt><dd>70,001 LGNS</dd><dt>入库</dt><dd>100,001 DAI（托底率 ≈ 1.43）</dd><dt>区块</dt><dd>54339972</dd><dt>交易</dt><dd>0x9df450…e6a831<button class="copy" data-c="0x9df4503580ae182a25580cd89704cd7070fba2a9a1e1da71544b609a5fe6a831">复制</button></dd></dl></div>
+  <p class="plain">这里要讲个关键区别：<b>凭空铸</b>和<b>有储备铸</b>。凭空铸，就好比印钞机随手印，背后没有任何东西撑着；有储备铸，是你得先往仓库里放够抵押物，才能对应换出等值的票据。LGNS 走的是后一条路——它是 <b>OlympusDAO（OHM）的分叉</b>，机制照搬 OHM：用户把 DAI、USDT 或 WBTC 存进"债券"，国库按储备价值铸币。所以第一枚不是天上掉的，是<b>团队自己先投了稳定币</b>换来的。</p>
+  <p style="font-family:var(--serif);font-size:17px;color:var(--ink)">第一枚 LGNS，不是一句口号，而是 100,001 个稳定币压在秤盘另一端换来的重量。</p>
+  <p class="plain">值得一提的是，"第一枚"其实有好几种读法，看你从哪个角度看这段历史：</p>
+  <div class="tblwrap"><div class="scroll"><table><thead><tr><th>口径</th><th>时间（UTC / 新加坡+8）</th><th>发生了什么</th></tr></thead><tbody>
+  <tr><td class="nm">载体诞生</td><td>16:34 / 00:34</td><td>合约部署，供应从 0 起</td></tr>
+  <tr><td class="nm">第一次铸造</td><td>16:39 / 00:39</td><td>自投 100,001 DAI，铸出 70,001 枚</td></tr>
+  <tr><td class="nm">第一次进池</td><td>16:58 / 00:58</td><td>建 LGNS/DAI 流动性池（见专题3）</td></tr>
+  <tr><td class="nm">第一枚自由流通</td><td>16:58:16 / 00:58</td><td>首笔外部买入成交</td></tr>
+  <tr><td class="nm">第一笔质押</td><td>17:32 / 01:32</td><td>129.35 枚进入质押</td></tr>
+  <tr><td class="nm">第一笔债券</td><td>2024-03-08</td><td>首个用户债券认购</td></tr>
+  </tbody></table></div></div>
+  <p class="plain">所以下次有人问"LGNS 第一枚怎么来的"，你可以底气十足地回答：不是空投、不是预售，是<b>团队先掏了 10 万稳定币垫底、按储备铸出来的</b>。这份出生证明，就刻在 Polygon 第 54339972 号区块里，永远可查。</p>
+  <p class="pend">本文时间、数量、区块、交易哈希均取自 Polygon 链上记录；如与官方公告细节存在口径差异，以官方公告为准。</p>
+</div>
+
+<!-- ===== 专题2 ===== -->
+<div class="vol" id="zt-2"><div class="vol-head"><span class="vol-ic">📜</span><div><h2 class="vol-h2"><span class="tag">专题</span>LGNS 合约部署全过程</h2><p class="vol-desc">2024-03-06 那几分钟，四步棋一气呵成</p></div></div></div>
+<div class="wrap">
+  <p class="plain">如果把 LGNS 的开局拍成纪录片，最精彩的镜头全挤在 <b>2024-03-06</b> 傍晚的短短几分钟里。四个动作接连落子，环环相扣——先造币、再造仓库、再签授权、最后铸出第一批。我们一步步看。</p>
+  <p class="plain"><b>第一步 · 16:34:26（UTC）／新加坡 00:34：部署 LGNS。</b>"部署合约"就好比在链上开了一家永久营业、条款写死的自动售货公司——代码一旦上链，规则就摆在明面上，任何人都能查。这一刻，LGNS 载体诞生，供应从 0 起步。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>动作</dt><dd>部署 LGNS 主合约</dd><dt>时间</dt><dd>16:34:26 UTC / 00:34 新加坡</dd><dt>区块</dt><dd>54339832</dd><dt>交易</dt><dd>0x1074b9…8365da<button class="copy" data-c="0x1074b961d4f3b1fb9519f91e18c10d769600a61258affdaeffb5d504168365da">复制</button></dd></dl></div>
+  <p class="plain"><b>第二步 · 16:35:36／新加坡 00:35：部署主国库。</b>紧接着一分钟，团队部署了主国库合约 <b>0x7B9B7d…F5321</b>。国库就是"压舱底的金库"，用户存进来的稳定币都归它保管。它采用 <b>OlympusDAO 式</b>设计、<b>不可升级</b>（代码写死不能改），最高管理权由 <b>4/5 多签</b>持有。</p>
+  <p class="plain">"多签"是个好东西，就好比一个保险柜要 <b>5 把钥匙里凑齐 4 把</b>才能打开，任何一个人单独都动不了里面的钱，得多方一起点头。这比"一个人说了算"要稳妥得多。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>动作</dt><dd>部署主国库（不可升级 · 4/5 多签）</dd><dt>时间</dt><dd>16:35:36 UTC / 00:35 新加坡</dd><dt>国库</dt><dd>0x7B9B7d…F5321</dd><dt>区块</dt><dd>54339865</dd><dt>交易</dt><dd>0x7366b7…bd9185<button class="copy" data-c="0x7366b7fc964af8c0ef54dbb785ef21d4096df571f81226e307cd3707b0bd9185">复制</button></dd></dl></div>
+  <p class="plain"><b>第三步 · 16:39:16／新加坡 00:39：第一笔 Approve。</b>部署方 <b>0x5e4e7c…b4351</b> 授权了 QuickSwap Router <b>0xa5e082…a678ff</b>。"Approve（授权）"就好比你告诉银行柜台"允许某个窗口在额度内动我的钱"——这一步是为下一步<b>建流动性池</b>铺路，给的是近乎无限的额度。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>动作</dt><dd>首笔 Approve（授权 QuickSwap Router）</dd><dt>时间</dt><dd>16:39:16 UTC / 00:39 新加坡</dd><dt>授权方</dt><dd>0x5e4e7c…b4351</dd><dt>被授权</dt><dd>Router 0xa5e082…a678ff</dd><dt>区块</dt><dd>54339960</dd><dt>交易</dt><dd>0x5fd98c…9b9b0c<button class="copy" data-c="0x5fd98c7c3341f790293cf236de3ff3309da3d4142c6619195889b966f59b9b0c">复制</button></dd></dl></div>
+  <p class="plain"><b>第四步 · 16:39:56／新加坡 00:39：首铸 70,001 枚。</b>授权完成 40 秒后，团队自投 <b>100,001 DAI</b> 进国库，铸出第一批 <b>70,001 枚 LGNS</b>，托底率约 <b>1.43</b>（详见专题1）。至此，四步落定，LGNS 正式上线。</p>
+  <p style="font-family:var(--serif);font-size:17px;color:var(--ink)">造币、建仓、签授权、铸首批——五分半钟走完的这四步，就是一条链上项目最干净的开局。</p>
+  <p class="plain">从这里开始，供应量像一棵树一样长开来。我们把几个关键节点摆在一起看：</p>
+  <div class="tblwrap"><div class="scroll"><table><thead><tr><th>时间节点</th><th>总供应量（LGNS）</th></tr></thead><tbody>
+  <tr><td class="nm">首铸时刻</td><td>70,001</td></tr>
+  <tr><td class="nm">当日末</td><td>83,142</td></tr>
+  <tr><td class="nm">2024-03-08</td><td>104,831</td></tr>
+  <tr><td class="nm">2024-03-31</td><td>196,644</td></tr>
+  <tr><td class="nm">2024 年末</td><td>7,428,657</td></tr>
+  <tr><td class="nm">2026-08-03</td><td>约 41.29 亿（持币约 203.8 万）</td></tr>
+  </tbody></table></div></div>
+  <p class="plain">一句话总结：LGNS 不是"憋大招偷偷预挖"，而是<b>从 7 万枚起步、公开可查地一步步长大</b>。每一次扩张，链上都留着底稿。</p>
+  <p class="pend">本文时间、地址、区块、交易哈希均取自 Polygon 链上记录；供应量为对应时点的链上口径，如与官方公告存在细节差异，以官方公告为准。</p>
+</div>
+
+<!-- ===== 专题3 ===== -->
+<div class="vol" id="zt-3"><div class="vol-head"><span class="vol-ic">💧</span><div><h2 class="vol-h2"><span class="tag">专题</span>第一座 LGNS/DAI 流动性池</h2><p class="vol-desc">4.00 的开盘价，从这 28 万稳定币开始</p></div></div></div>
+<div class="wrap">
+  <p class="plain">币铸出来了，可要想让别人能买卖，还差最后一步——建一个<b>流动性池</b>。<b>2024-03-06 16:58:08（UTC）／新加坡 00:58</b>，部署方在 QuickSwap 上建起了第一座 <b>LGNS/DAI 池</b>，一次性注入 <b>70,000 枚 LGNS</b> 加 <b>280,000 DAI</b>。</p>
+  <p class="plain">流动性池就好比一台<b>自动兑换机</b>（专业叫 AMM，自动做市商）：里面同时装着两种资产，价格不由人喊，而是<b>由池内两边的比例自动算出来</b>。开盘价就这么定了：280,000 ÷ 70,000 = <b>4.00 DAI/LGNS</b>。</p>
+  <p class="plain">要特别说清一件事：建池用的这 <b>28 万 DAI 是部署方自有的钱</b>，和专题1里国库那 10 万 DAI 是<b>两笔完全不同的钱</b>——一笔进国库垫底铸币，一笔进池子做买卖的水。别把它俩混为一谈。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>建池时间</dt><dd>16:58:08 UTC / 00:58 新加坡</dd><dt>注入</dt><dd>70,000 LGNS + 280,000 DAI</dd><dt>开盘价</dt><dd>4.00 DAI/LGNS</dd><dt>池地址</dt><dd>0x882df4…85bFb</dd><dt>区块</dt><dd>54340471</dd><dt>交易</dt><dd>0x84443c…098330<button class="copy" data-c="0x84443c8387ab6488d6aff80faf990743ba364f3d73167771bcdd0c93b1098330">复制</button></dd></dl></div>
+  <p class="plain">池子刚建好 <b>约 8 秒</b>，第一笔外部买入就来了。<b>16:58:16／新加坡 00:58</b>，地址 <b>0xcb0995…3addf2</b> 用 <b>1,313 DAI</b> 下单，从池里换出 <b>325.74 枚 LGNS</b>。其中手续费钱包 <b>0x465ea4…313edc</b> 分得 <b>130.30 枚</b>（这是历史上第一个非部署方的持币地址），买家净得 <b>195.45 枚</b>。这一刻，LGNS 完成了第一次自由流通。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>首笔外部买入</dt><dd>16:58:16 UTC / 00:58 新加坡</dd><dt>买家</dt><dd>0xcb0995…3addf2 花 1,313 DAI</dd><dt>换出</dt><dd>325.74 LGNS（手续费 130.30 / 净得 195.45）</dd><dt>区块</dt><dd>54340475</dd><dt>交易</dt><dd>0xbf5e0b…5e2f3ee<button class="copy" data-c="0xbf5e0ba3681e9343243bbf12083ee52d3205ad144d592239020422dff5e2f3ee">复制</button></dd></dl></div>
+  <p class="plain">建池之后，部署方会拿到一张"份额凭证"——<b>LP Token</b>。它就好比你往合伙水池里出了资，池子发给你的<b>股份存根</b>，凭它随时能按比例取回自己那份本+息。这次建池，部署方拿到约 <b>4.4272 个 LP</b>。</p>
+  <p class="plain">有意思的是这些 LP 的去向。<b>约 1 小时 11 分钟后（2024-03-06 18:09）</b>，部署方把 LP <b>全部转进了国库</b>。这就是所谓的<b>"协议自持流动性"</b>——池子的股份不揣在个人兜里，而是归协议金库统一持有。如今国库持有约 <b>1354 个 LP，占 99.997%</b>。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>LP 归库</dt><dd>2024-03-06 18:09（建池后约 1 小时 11 分）</dd><dt>转入</dt><dd>约 4.4272 LP → 国库</dd><dt>现状</dt><dd>国库持约 1354 LP = 99.997%（协议自持流动性）</dd><dt>交易</dt><dd>0x65ee29…d944f6<button class="copy" data-c="0x65ee294494995b334643cbb53a7e6073dd37c2b0c7f39b66d7bec432d92d944f">复制</button></dd></dl></div>
+  <p style="font-family:var(--serif);font-size:17px;color:var(--ink)">从 4.00 的开盘价，到今天亿级规模的深水池——这座池子记录了 LGNS 从第一秒起就有真实的水。</p>
+  <p class="plain">时间快进到今天。这座创世池早已从当初的 7 万/28 万，长成了 Polygon 上的深水区：<b>58,052,400 枚 LGNS</b> 对 <b>82,973,802 DAI</b>，现价约 <b>1.429 DAI/LGNS</b>。当年那 8 秒之内成交的第一笔买单，如今回望，正是这条长河的第一滴水。</p>
+  <p class="pend">本文时间、地址、区块、交易哈希、池内数量均取自 Polygon 链上记录；LP 占比与现价为对应时点的链上读数，如与官方公告存在细节差异，以官方公告为准。</p>
+</div>
+
+<div class="vol" id="zt-4"><div class="vol-head"><span class="vol-ic">🏛️</span><div><h2 class="vol-h2"><span class="tag">专题</span>起源国库的诞生与资产路径</h2><p class="vol-desc">一个金库怎样出生、第一笔钱从哪来、每一块钱又流去了哪里</p></div></div></div>
+<div class="wrap">
+<p class="plain">先说个大白话。<b>国库</b>就是整个协议的"总金库"——所有人买债券交进来的真金白银都存在这里，由它来给 LGNS 做<b>储备</b>（相当于纸币背后的黄金）。金库不是某个人的钱包，而是一份写死的合约。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">起源的这个金库，出生时间精确到秒：<b>2024-03-06 16:35:36 UTC</b>（新加坡时间 <b>3 月 7 日 00:35</b>）。</p>
+
+<p class="plain">它被部署在 Polygon 上，采用 <b>OlympusDAO</b>（业内著名的"链上央行"玩法）那套国库设计，<b>不可升级</b>——合约一旦上链，规则就固定了，谁也不能偷偷改逻辑。日常动用金库的最高权限是一把 <b>4/5 多签</b>钥匙。</p>
+
+<p class="plain">大白话解释<b>多签</b>：一把需要 5 个人里凑够 4 个人同时签字才能拧动的锁，一个人说了不算，用来防止单点失误。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>主国库地址</dt><dd>0x7B9B7d4F870A38e92c9a181B00f9b33cc8Ef5321</dd>
+<dt>部署时间</dt><dd>2024-03-06 16:35:36 UTC（新加坡 03-07 00:35）</dd>
+<dt>部署区块</dt><dd>54339865</dd>
+<dt>部署交易</dt><dd>0x7366b7…d9185<button class="copy" data-c="0x7366b7fc964af8c0ef54dbb785ef21d4096df571f81226e307cd3707b0bd9185">复制</button></dd>
+<dt>合约类型</dt><dd>OlympusDAO 式国库 · 不可升级 · 4/5 多签</dd>
+</dl></div>
+
+<p class="plain">金库出生后收到的<b>第一笔资产</b>，不是外面用户交的，而是<b>部署方自己投进去的 100,001 DAI</b>（区块 <b>54339972</b>，和首次铸币是同一笔操作）。相当于开金库前，团队先往里垫了第一桶底。当天 <b>18:09</b>（区块 <b>54342460</b>），金库又收到了<b>第一笔 LP Token</b>（做市份额凭证）。</p>
+
+<p class="plain">大白话解释 <b>LP Token</b>：你把两种币按比例存进交易池做市，池子发给你的一张"存款收据"，凭它能取回你那份池子资产，还能分手续费。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">那么用户交的钱，是怎么一步步流进金库、又变成 LGNS 的？路径其实很清晰：</p>
+
+<p class="plain"><b>用户的 DAI / USDT / WBTC → 债券合约 → 全额进国库 → 国库按储备铸出 LGNS</b>。铸出来的新币，<b>一半给买债券的人</b>、<b>一半分给质押的人</b>。也就是说，你交进来的稳定币不会中途被截留，它是完整地沉淀进金库、成为储备的一部分。</p>
+
+<p class="plain">大白话解释<b>债券</b>：不是股市里的债券，而是"打折买币券"——你把稳定币交给协议，过一小段归属期后，按略优惠的价格拿到 LGNS，交进去的钱同时变成金库储备。</p>
+
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>债券类型</th><th>你交什么</th><th>债券合约地址</th></tr></thead><tbody>
+<tr><td class="nm">DAI 债券</td><td>DAI 稳定币</td><td>0x59A6693CaA6305b1E4F16176D5228C32E24717E5</td></tr>
+<tr><td class="nm">USDT 债券</td><td>USDT 稳定币</td><td>0xbE741d070c6d26109b95ddcD7B6da47395272f45</td></tr>
+<tr><td class="nm">WBTC 债券</td><td>WBTC（包装比特币）</td><td>0x4337E95f99d28bE9a013a17306542F835f7e6373</td></tr>
+</tbody></table></div></div>
+
+<p class="plain">金库开门后，<b>第一笔真正来自用户的债券</b>发生在 <b>2024-03-08 13:33:52 UTC</b>（新加坡 <b>3 月 8 日 21:33</b>）。这位用户很谨慎：<b>先用 1 DAI 试水</b>，确认流程没问题后，<b>随即投入 2,000 DAI</b>。这种"先试再上"的动作，本身就是一份鲜活的链上记录。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>首笔用户债券</dt><dd>2024-03-08 13:33:52 UTC（新加坡 03-08 21:33）</dd>
+<dt>金额</dt><dd>先 1 DAI 试水，随后 2,000 DAI</dd>
+<dt>交易</dt><dd>0xa337c3…e1837<button class="copy" data-c="0xa337c3fd350088f6679018c44f67691bc5f8ba346ac82659e5f3045548de1837">复制</button></dd>
+</dl></div>
+
+<p class="plain">这个金库有个值得注意的设计：它<b>几乎不裸持 LGNS 自己</b>——储备实体是<b>稳定币和 LP 份额</b>，而不是自家发的币。这符合"储备要用外部硬资产、不用自家币自己给自己背书"的常识。</p>
+
+<p class="plain">除了主国库，起源还有一个独立的<b>基金会</b>金库 <b>0x91F1D2c2165B17a1eD2dC3B73Ae77224E6e1410E</b>，采用 <b>2/3 多签</b>，与主国库分开存放、各管各的用途。</p>
+
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>金库</th><th>地址</th><th>权限</th></tr></thead><tbody>
+<tr><td class="nm">主国库</td><td>0x7B9B7d…5321</td><td>4/5 多签</td></tr>
+<tr><td class="nm">基金会</td><td>0x91F1D2…410E</td><td>2/3 多签</td></tr>
+</tbody></table></div></div>
+
+<p class="plain">大白话总结一下这套设计的用意：用户交进来的钱变成金库里的硬资产，硬资产给 LGNS 做<b>托底</b>（相当于给币价定一个"资产支撑线"）；金库不可升级、要多签才能动，就是为了让这条资金路径公开、可查、不被单方面随意改动。</p>
+
+<p class="pend">核验边界：本文地址、时间、区块与交易哈希均来自公开链上记录；各金库的实时余额可在区块浏览器直接查询，会随债券申购、Rebase 发放与做市操作实时变动。</p>
+</div>
+
+<div class="vol" id="zt-5"><div class="vol-head"><span class="vol-ic">🔄</span><div><h2 class="vol-h2"><span class="tag">专题</span>sLGNS 与 Rebase 机制演进</h2><p class="vol-desc">质押凭证怎样自动变多、节奏如何三次提速，以及"数量"和"价值"的区别</p></div></div></div>
+<div class="wrap">
+<p class="plain">先把三个词讲明白。<b>质押</b>：把你的 LGNS 锁进协议合约里，换一张凭证、然后开始"产币"。你拿到的这张凭证叫 <b>sLGNS</b>，<b>存 1 枚 LGNS，得 1 枚 sLGNS</b>，一比一对应。</p>
+
+<p class="plain">第三个词是主角——<b>Rebase</b>。大白话讲：协议每隔固定一段时间，就把新铸出来的 LGNS 分给所有质押者，方式不是给你转账，而是<b>让你钱包里 sLGNS 的余额数字自动往上涨</b>。你什么都不用点，数量就变多了。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">这套玩法来自 <b>OlympusDAO</b> 著名的 <b>(3,3)</b> 设计：鼓励大家长期质押、别频繁买卖，因为持有并质押对协议和自己都最有利。</p>
+
+<p class="plain">大白话解释 <b>(3,3)</b>：一张"博弈收益表"，如果每个人都选择质押（而不是抛售），整体收益最大，用图钉般的 3,3 记号表示"双方都合作"这个最优格。</p>
+
+<p class="plain">Polygon 上<b>第一笔真实用户质押</b>发生得非常早——就在国库出生当天。<b>2024-03-06 17:32:51 UTC</b>（新加坡 <b>3 月 7 日 01:32</b>），一位用户质押了 <b>129.35 LGNS</b>，走的是质押助手合约 <b>StakingHelper</b>（帮你把"授权 + 质押"两步合成一步的便民合约）。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>Polygon 首笔用户质押</dt><dd>2024-03-06 17:32:51 UTC（新加坡 03-07 01:32）· 129.35 LGNS</dd>
+<dt>StakingHelper</dt><dd>0x78654ed080c1d1c87907646fdb2ae48db3635341</dd>
+<dt>Polygon sLGNS</dt><dd>0x99a57E6C8558BC6689f894e068733ADf83C19725</dd>
+</dl></div>
+
+<p class="plain">后来起源自建的 <b>Anubis 链</b>也上线了同一套机制，而且顺序很有意思：<b>质押在 05-01 就先开了</b>，比 <b>05-13</b> 的正式开盘还早了十来天——先让愿意长期持有的人把币锁进去。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>Anubis 质押上线</dt><dd>2026-05-01（早于 05-13 开盘）</dd>
+<dt>Anubis 质押合约</dt><dd>0x7a2E3fA6eA60437F0441b8eb5e60674B80339228</dd>
+<dt>Anubis sLGNS</dt><dd>0x2243aE29F73137d678197b61B0621AE942845B8C</dd>
+<dt>sLGNS 供应量</dt><dd>约 15.74 亿（=质押总量，约占供应 78%）</dd>
+</dl></div>
+
+<p class="plain">这里有个亮眼的数字：Anubis 上 sLGNS 的供应量约 <b>15.74 亿</b>，等于全部质押量，<b>约占总供应的 78%</b>。换句话说，绝大部分币都被锁在质押里、而不是在市场上流通——这正是 (3,3) 想要的效果。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">Rebase 的"发币节奏"，链上记录显示经历了三次提速：</p>
+
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>阶段</th><th>时间区间</th><th>每次 Rebase 间隔</th></tr></thead><tbody>
+<tr><td class="nm">第一段</td><td>2026-05-01 → 05-06</td><td>8 小时一次</td></tr>
+<tr><td class="nm">第二段</td><td>05-06 → 06-03</td><td>7 小时一次</td></tr>
+<tr><td class="nm">第三段</td><td>06-04 至今</td><td>6 小时一次</td></tr>
+</tbody></table></div></div>
+
+<p class="plain">间隔越短，等于发币越勤。伴随这个节奏，链上的<b>质押指数 index</b>（记录"1 枚初始质押到今天累计滚成了多少"的计数器）已经从创世时的 <b>1</b> 一路滚到约 <b>946.75</b>。这个读数在<b>三处相关合约里彼此一致</b>，可以交叉印证。</p>
+
+<p class="plain">大白话解释<b>复利产币</b>：Rebase 发给你的新币会立刻并入你的质押本金，下一次 Rebase 又按更大的本金来算——利滚利，所以 sLGNS 的余额是加速往上走的。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>质押指数 index</dt><dd>创世 1 → 约 946.75</dd>
+<dt>交叉印证</dt><dd>三处相关合约读数一致</dd>
+<dt>长期质押产品</dt><dd>活期 · 360 天 · 600 天</dd>
+</dl></div>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">最后是一句最要紧、也最实在的提醒：<b>Rebase 增加的是 LGNS 的"数量"，不是"价值"。</b></p>
+
+<p class="plain">你钱包里的 LGNS 枚数变多了，这是链上实打实的。但<b>一枚 LGNS 值多少钱，是由市场行情和底池另行决定的</b>。<b>数量增长</b>和<b>美元收益</b>是两回事——币变多、单价怎么走，要分开看。理解这一点，才算真正读懂了这套机制。</p>
+
+<p class="plain">起源也据此提供了不同期限的产品：<b>活期质押</b>（随时可动）、<b>360 天</b>、<b>600 天</b>，适合不同持有节奏的人各取所需。</p>
+
+<p class="pend">核验边界：本文的质押指数、供应量、Rebase 间隔均为读取时的链上快照，会随时间继续变动，请以你查询当下的合约读数为准。Rebase 内部的 epoch（周期结构）细节在链上无法直接读取，此处只按官方口径与可读参数描述，未做逐字段还原。</p>
+</div>
+
+<div class="vol" id="zt-6"><div class="vol-head"><span class="vol-ic">🌍</span><div><h2 class="vol-h2"><span class="tag">专题</span>从 Polygon 到 Anubis Chain</h2><p class="vol-desc">一条自己的公链落地，价值在新链重新扎根</p></div></div></div>
+
+<div class="wrap">
+<p class="plain">起源最初的一切都跑在 <b>Polygon</b>（一条以太坊的侧链）。到 <b>2026-04-08</b>，属于起源自己的公链 <b>Anubis Chain</b> 主网上线，故事翻开新的一页。所谓"自建链"，就是不再借别人的地基，自己搭一条独立的区块链来记账、出块。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">这不是简单地把老币搬个家，而是"在新链重新扎根、并用真实资产背书"。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>链名</dt><dd>Anubis Chain</dd>
+<dt>Chain ID</dt><dd>6714</dd>
+<dt>RPC</dt><dd>rpc.anubispace.org</dd>
+<dt>浏览器</dt><dd>browser.anubispace.org</dd>
+<dt>主网上线</dt><dd>2026-04-08</dd>
+<dt>出块</dt><dd>约 1 秒 / 块，EVM 兼容</dd>
+</dl></div>
+
+<p class="plain">Anubis 有个很少见的设计：<b>Gas 费直接用 DAI 结算</b>。平常我们在别的链上转账，得先备一点这条链的"原生币"（相当于过路费专用币）才能动手；在 Anubis 上不用另持原生币，手里的 <b>DAI</b> 就能当油钱花。对普通用户来说，这一步省掉了"先换 Gas 币"的门槛。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">EVM 兼容，意味着以太坊上那套钱包、工具、合约写法可以平滑迁移过来，开发者几乎零学习成本。</p>
+
+<p class="plain">最关键的是<b>两条链上 LGNS 的关系</b>，这里用中性口径说清楚。Polygon 上的 LGNS 是<b>不可升级的本体合约</b>，总量约 <b>41.29 亿</b>；Anubis 上的 LGNS 是<b>可升级的代理合约</b>，总量约 <b>20.18 亿</b>。两边各自独立部署、独立记账，总量本就不同。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>Polygon LGNS</dt><dd>约 41.29 亿（不可升级本体）</dd>
+<dt>合约</dt><dd>0xeB51…0F01<button class="copy" data-c="0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01">复制</button></dd>
+<dt>Anubis LGNS</dt><dd>约 20.18 亿（可升级代理）</dd>
+<dt>合约</dt><dd>0x4D1D…06B8<button class="copy" data-c="0x4D1D808a081FdAc440703b3765FC61f8028C06B8">复制</button></dd>
+</dl></div>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">所以要记住：它不是"同一枚币按 1:1 桥接映射"，而是"在新链重新发行、独立成长"。</p>
+
+<p class="plain">用大白话打个比方。<b>桥接映射</b>好比同一张存单在两个柜台各留一份复印件，你在这边取一份、那边就锁一份，两边加起来永远是一份原件。而 Anubis 上的 LGNS 是<b>重新扎根</b>——像同一家老店在新城市重新开了一家分号，自成一套账本，规模按新链的节奏生长。两边总量不同，正是"独立部署"而非"1:1 复印"的直接证据。</p>
+
+<p class="plain">那"真实背书"体现在哪？答案在<b>价值侧的承接</b>。当年 Polygon 上 ILO（首次流动性发行）募到的真金白银 DAI，被跨回以太坊，其中 <b>1.55 亿真 DAI</b> 锁进了以太坊上的 <b>Hyperlane 金库</b>。这笔真 DAI，正是 Anubis 链上那份 DAI 的价值来源。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>以太坊金库</dt><dd>0x250ba4e73a365cefdd170a2b1ff9fc03097d64f3<button class="copy" data-c="0x250ba4e73a365cefdd170a2b1ff9fc03097d64f3">复制</button></dd>
+<dt>锁仓数量</dt><dd>155,000,200 DAI</dd>
+<dt>Anubis DAI</dt><dd>0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14<button class="copy" data-c="0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14">复制</button></dd>
+</dl></div>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">一句话：以太坊金库里锁着真 DAI，Anubis 链上的 DAI 是这份真 DAI 的链上映射——你在新链上用的每一块钱，背后对应着以太坊上真实锁定的那一块。</p>
+
+<p class="plain">再解释一下"<b>映射与背书</b>"。<b>映射</b>是指链之间用桥把资产的"影子"投到目的链上使用；<b>背书</b>是指这个影子背后必须有真资产托底，不是凭空印的。LGNS 的跨链同理——用桥在目的链上按需铸出对应数量，让持有者能在新链继续使用。</p>
+
+<p class="pend">核验边界：两条链的合约地址、总量为公开链上可查口径；跨链桥的具体铸造与锁定明细、金库背书比例的实时状态，以官方公告及各自区块浏览器实时数据为准。本篇只做中性事实梳理，不含任何风险评断。</p>
+</div>
+
+<div class="vol" id="zt-7"><div class="vol-head"><span class="vol-ic">🔥</span><div><h2 class="vol-h2"><span class="tag">专题</span>AWAKE：2026 年 5 月 13 日创世时刻</h2><p class="vol-desc">开盘前一刻，池子里的比例分毫不差印证 5.0000</p></div></div></div>
+
+<div class="wrap">
+<p class="plain">先把时间线摆清楚。<b>2026-05-05 00:44:15 UTC（新加坡 08:44）</b>，创世池在 <b>区块 2415424</b> 被创建，交易对是 <b>LGNS / DAI</b>，跑在 <b>RocketSwap</b> 上（token0=LGNS，token1=DAI）。更早几天，<b>05-01</b> 质押与 Rebase（把利息按周期自动打进余额的机制）就已先行上线，为开盘预热。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>建池时间</dt><dd>2026-05-05 00:44:15 UTC / 新 08:44</dd>
+<dt>区块</dt><dd>2415424</dd>
+<dt>池地址</dt><dd>0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0<button class="copy" data-c="0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0">复制</button></dd>
+<dt>交易</dt><dd>0xd009…204b<button class="copy" data-c="0xd009f343f04e8906647f596deaef985a0eaeea587d5400a8a9d82b01821b204d">复制</button></dd>
+</dl></div>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">真正的高光在 8 天后。开盘那一刻，池子里的储备比例，正好把官方那句"32.6M + 163M = 5 DAI"验成了分毫不差。</p>
+
+<div class="crown"><div class="big">32,600,010 LGNS<br>＋ 162,999,950 DAI</div><div class="cap">＝ 价 <span class="grn">5.0000</span></div></div>
+
+<p class="plain">开盘定格在 <b>2026-05-13 11:58:53 UTC = 新加坡 19:58:53</b>，<b>区块 3146958</b>。官方宣布的时间是 <b>20:00</b>，链上实际早了约 <b>1 分钟</b>。首笔成交由 <b>0x1C9E…AAa9</b> 打出，走的是 RocketSwap 的路由合约。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>开盘时间</dt><dd>2026-05-13 11:58:53 UTC / 新 19:58:53</dd>
+<dt>区块</dt><dd>3146958</dd>
+<dt>首笔成交</dt><dd>0x8be9…f1f5<button class="copy" data-c="0x8be9e28bb6c7af06435f31e8ea9081390a3210931430aaee9f34b3b84139f1f5">复制</button></dd>
+<dt>首位交易者</dt><dd>0x1C9E40d44C78154Cd1A991a2768a96ee9251AAa9<button class="copy" data-c="0x1C9E40d44C78154Cd1A991a2768a96ee9251AAa9">复制</button></dd>
+<dt>Router</dt><dd>0x3E412E02B6157fBE80b6C6697f3Ce1142E629019<button class="copy" data-c="0x3E412E02B6157fBE80b6C6697f3Ce1142E629019">复制</button></dd>
+</dl></div>
+
+<p class="plain">开盘价怎么来的？这就要讲 <b>AMM（自动做市商）</b>的大白话原理。池子里放着两样东西——LGNS 和 DAI，价格不是谁拍板定的，而是<b>两边数量的比例</b>算出来的：<b>163,000,000 ÷ 32,600,000 = 5.0000</b>。谁来买，就往池里加 DAI、取走 LGNS，比例一变，价格顺势波动。开盘价 5.0000，正是这份初始比例的自然结果。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">这背后是"两阶段"打法：先由社区共建把池子按 5:1 灌满（注水阶段），静置几天，再在指定时刻放开交易——价格因此从第一秒起就稳稳站在 5.0000。</p>
+
+<p class="plain">开盘<b>第一个小时</b>（到区块 3150555）的链上数据很有画面感：共 <b>2,992 笔</b>成交、<b>2,329 个</b>独立地址参与（买 <b>1,923</b>、卖 <b>516</b>）；买入合计约 <b>3,173,153 DAI</b>，卖出约 <b>583,145 DAI</b>；价格从 <b>5.0000</b> 一路走到约 <b>5.16</b>，<b>第一小时没跌破 5</b>。其中最大单笔买入砸下 <b>200,000 DAI</b>，换回 <b>39,027 LGNS</b>，发生在 12:29:36 UTC。</p>
+
+<div class="tblwrap"><div class="scroll"><table>
+<tr><th>开盘首小时</th><th>数值</th></tr>
+<tr><td>成交笔数</td><td>2,992 笔</td></tr>
+<tr><td>独立地址</td><td>2,329 个（买 1,923 / 卖 516）</td></tr>
+<tr><td>买入总额</td><td>约 3,173,153 DAI</td></tr>
+<tr><td>卖出总额</td><td>约 583,145 DAI</td></tr>
+<tr><td>价格区间</td><td>5.0000 → 约 5.16</td></tr>
+<tr><td>最大单笔买入</td><td>200,000 DAI → 39,027 LGNS</td></tr>
+</table></div></div>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>最大买单时间</dt><dd>2026-05-13 12:29:36 UTC</dd>
+<dt>交易</dt><dd>0x4aea…d97e25<button class="copy" data-c="0x4aea529bed189ebec8d29afc407491ea48ae329f2618b5b9afe5452b7dd97e25">复制</button></dd>
+</dl></div>
+
+<p class="pend">核验边界：链上曾出现卖单显示价约 <b>4.985</b>，这不是池子跌破了 5，而是<b>卖出税约 5% 之后到手的净价</b>——池内真实储备价始终 ≥ 5.0。首小时的笔数、地址、买卖额为按区块区间统计口径，可能因统计边界与去重方式略有出入，以区块浏览器实时数据为准。</p>
+</div>
+
+<div class="vol" id="zt-8"><div class="vol-head"><span class="vol-ic">💠</span><div><h2 class="vol-h2"><span class="tag">专题</span>1.63 亿初始流动性如何形成</h2><p class="vol-desc">一天 14,187 笔精确 5:1，灌满一座池子</p></div></div></div>
+
+<div class="wrap">
+<p class="plain">先看源头。Polygon 上的 <b>ILO 合约</b>记录了募集总额 <b>163,000,000 DAI</b>，参与地址约 <b>14,439 个</b>——这是一场真实的社区众筹。募到的真 DAI 跨回以太坊，其中 <b>1.55 亿</b> 锁进 Hyperlane 金库做背书。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>Polygon ILO 合约</dt><dd>0x13ac027C0336e80A09EB09328d1c401Ab08950A5<button class="copy" data-c="0x13ac027C0336e80A09EB09328d1c401Ab08950A5">复制</button></dd>
+<dt>募集总额</dt><dd>163,000,000 DAI</dd>
+<dt>参与地址</dt><dd>约 14,439 个</dd>
+<dt>以太坊金库</dt><dd>0x250ba4…d64f3<button class="copy" data-c="0x250ba4e73a365cefdd170a2b1ff9fc03097d64f3">复制</button></dd>
+</dl></div>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">到了 Anubis 这一侧，社区共建的动作被链上完整记录下来——一天之内，把一座 1.63 亿规模的池子按严丝合缝的 5:1 灌满。</p>
+
+<p class="plain">时间是 <b>2026-05-09</b>，从 <b>12:35 到 17:25 UTC</b>，约 <b>5 个小时</b>，由发行合约（Anubis 侧 ILO）分 <b>14,187 笔</b> Mint（铸造）严格按 <b>5:1</b> 一点点灌入。首笔在 <b>区块 2803625</b>，就是标准的 <b>2,000 LGNS + 10,000 DAI = 价 5.000</b>。所有笔数累加起来，正好是——</p>
+
+<div class="crown"><div class="big">32,600,000 LGNS<br>＋ 163,000,000 DAI</div><div class="cap">＝ 价 <span class="grn">5.000</span></div></div>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>共建日期</dt><dd>2026-05-09　12:35–17:25 UTC（约 5 小时）</dd>
+<dt>Anubis ILO 合约</dt><dd>0x4fF8e905Ab40Ed18355b0b2C0DfAe8213d5D8d90<button class="copy" data-c="0x4fF8e905Ab40Ed18355b0b2C0DfAe8213d5D8d90">复制</button></dd>
+<dt>Mint 笔数</dt><dd>14,187 笔（严格 5:1）</dd>
+<dt>首笔区块</dt><dd>2803625（2,000 LGNS + 10,000 DAI）</dd>
+</dl></div>
+
+<p class="plain">灌满之后，池子<b>静置了近 4 天</b>，一直等到 <b>05-13</b> 才放开交易——这正好接上了专题7里"共建注水 → 放开交易"的两阶段节奏。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">那么支撑这 1.63 亿 DAI 的钱，是怎么进场的？链上给出了一条干净利落的线。</p>
+
+<p class="plain">这 <b>1.63 亿 DAI</b> 由一个<b>中枢地址</b>分 <b>11 笔</b>精确输送给发行合约：从 <b>10 万</b>起步，一千万、三千二百万……逐笔叠加，最终累计正好 <b>1.63 亿</b>，不多不少。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>中枢地址</dt><dd>0x43f5399d87730bdedfec202c9be1e02bc98b6be8<button class="copy" data-c="0x43f5399d87730bdedfec202c9be1e02bc98b6be8">复制</button></dd>
+<dt>输送笔数</dt><dd>11 笔（10 万 → 一千万 → 三千二百万 … 累计 1.63 亿）</dd>
+<dt>接收方</dt><dd>Anubis 发行合约 0x4fF8e905…8d90</dd>
+</dl></div>
+
+<p class="plain">用大白话讲讲什么叫"<b>共建 / 流动性众筹</b>"。传统做市是一两家出钱把池子建起来；这里换了个玩法——由社区众筹的资金汇成一股，通过发行合约按固定 5:1 的比例，一笔一笔灌进池子。<b>为什么一天能灌 14,187 笔</b>？因为每一笔都是合约自动执行的标准化 Mint，不用人工逐单操作，5 小时里高频连续跑，笔数自然堆得很密。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">最后必须把一个容易混淆的概念掰开：单边规模、单边量、总价值，是三件不同的事。</p>
+
+<p class="plain">口径提醒：这里说的「<b>1.63 亿</b>」，指的是按 <b>DAI 面值</b>计的<b>单边规模</b>——也就是池子一侧放了多少 DAI。它跟"<b>池子总价值</b>"（两边加总）、"<b>LGNS 单边估值</b>"（那 3,260 万枚 LGNS 按 5 元折算的市值）是三个不同的数，<b>千万别混算成一个</b>。</p>
+
+<div class="tblwrap"><div class="scroll"><table>
+<tr><th>概念</th><th>含义</th><th>数值口径</th></tr>
+<tr><td>DAI 单边量</td><td>池子里 DAI 那一侧</td><td>163,000,000 DAI</td></tr>
+<tr><td>LGNS 单边量</td><td>池子里 LGNS 那一侧</td><td>32,600,000 LGNS</td></tr>
+<tr><td>「1.63 亿」单边规模</td><td>按 DAI 面值计的一侧规模</td><td>= DAI 单边量</td></tr>
+</table></div></div>
+
+<p class="pend">核验边界：14,187 笔 Mint、11 笔输送的具体逐笔明细，可在 Anubis 区块浏览器按上述合约地址与时间区间自行核对；跨链背书的实时状态以以太坊金库与官方公告为准。本篇只做中性事实梳理。</p>
+</div>
+
+<div class="vol" id="zt-9"><div class="vol-head"><span class="vol-ic">🪙</span><div><h2 class="vol-h2"><span class="tag">专题</span>32,600,000 枚 LGNS 的链上来源</h2><p class="vol-desc">创世注池的精确口径：一天之内，与 1.63 亿 DAI 严丝合缝地按 5:1 灌进池子</p></div></div></div>
+<div class="wrap"><p class="plain">先把一个容易混的数说清楚。<b>32,600,000</b> 枚 LGNS，指的是注入 Anubis 创世池的数量，<b>不是</b>发给某一个人的量。整批注入发生在 <b>2026-05-09</b> 一天之内，经发行合约（ILO）灌进创世池，与 <b>163,000,000</b> DAI 严格保持 <b>5:1</b> 的比例。</p>
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">一枚配五块钱，一分不多、一分不少——这就是创世池开盘时，LGNS 与 DAI 之间被写死在链上的那把标尺。</p>
+<div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>注入总量</dt><dd>32,600,000 LGNS</dd><dt>配对 DAI</dt><dd>163,000,000（5:1）</dd><dt>注入日期</dt><dd>2026-05-09（UTC / 新加坡同日）</dd><dt>发行合约 ILO</dt><dd>0x4fF8e905…5D8d90<button class="copy" data-c="0x4fF8e905Ab40Ed18355b0b2C0DfAe8213d5D8d90">复制</button></dd><dt>创世池</dt><dd>0x32A458…4f3dC0<button class="copy" data-c="0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0">复制</button></dd></dl></div>
+<p class="plain"><b>发生了什么。</b>创世前的几天里，LGNS 先经过铸造，从“零地址”发到一个个参与者的钱包里。所谓从零地址发出，就是<b>凭空新造</b>的币第一次落到某个地址上，链上会留下清清楚楚的记录。</p>
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>日期</th><th>领到 LGNS 的地址数</th><th>最常见单笔档位</th></tr></thead><tbody><tr><td>2026-05-07</td><td>753 个</td><td rowspan="3">2,000 枚最常见<br>另有 100 / 200 / 1,000 / 4,000 等档</td></tr><tr><td>2026-05-08</td><td>12,031 个</td></tr><tr><td>2026-05-09</td><td>20,803 个</td></tr></tbody></table></div></div>
+<p class="plain"><b>为什么重要。</b>参与者把手里领到的 LGNS，再经发行合约按 5:1 补上 DAI，一起打进池子。所以你在池子里看到的 32.6M，是<b>上万个地址</b>汇聚而成的结果，而不是某个大户一次性搬进去的。几天之内、上万地址参与，这个规模本身就写在链上。</p>
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">“发给参与者的量”和“注入池子的量”，是两笔账。前者是散落到千万钱包的筹码，后者是这些筹码按规则重新汇集进池子的那一部分。</p>
+<p class="plain"><b>大白话原理。</b>可以这样想：发币像给一万个人各发了一叠筹码；注池像大家把筹码拿到同一张桌子上、每枚再压五块钱本金进去，凑成开盘的底池。两个动作发生在不同环节，数字自然不是一回事。<b>LGNS 在 Anubis 链上的合约地址是 0x4D1D80…8C06B8，9 位精度，2026-04-28 部署。</b>9 位精度的意思是，这枚币最小可以拆到小数点后第 9 位来记账。</p>
+<div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>Anubis LGNS 合约</dt><dd>0x4D1D80…8C06B8<button class="copy" data-c="0x4D1D808a081FdAc440703b3765FC61f8028C06B8">复制</button></dd><dt>精度</dt><dd>9 位</dd><dt>部署日期</dt><dd>2026-04-28</dd></dl></div>
+<p class="pend">核验边界：LGNS 的铸造总量会随时间增长，本篇只锁定“创世注池”这一个精确口径下的 32.6M，不代表全链任意时点的流通或总量。逐日领取地址数、单笔档位以创世期链上记录为准。</p></div>
+
+<div class="vol" id="zt-10"><div class="vol-head"><span class="vol-ic">💵</span><div><h2 class="vol-h2"><span class="tag">专题</span>163,000,000 DAI 的链上来源</h2><p class="vol-desc">11 笔精确输送、逐批到位，背后是以太坊金库锁着的真 DAI</p></div></div></div>
+<div class="wrap"><p class="plain">和 LGNS 配对的那 <b>163,000,000</b> DAI，来路在链上同样清楚。它由一个中枢地址分 <b>11 笔</b>精确送给发行合约，累计正好 <b>1.63 亿</b>，一分不差。</p>
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">从 10 万试水，到千万、三千万逐批压上——这不是一次性砸进去，而是一笔笔对着数、稳稳到位的过程。</p>
+<div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>中枢地址</dt><dd>0x43f539…8b6be8<button class="copy" data-c="0x43f5399d87730bdedfec202c9be1e02bc98b6be8">复制</button></dd><dt>输送笔数</dt><dd>11 笔，累计 163,000,000 DAI</dd><dt>首笔</dt><dd>100,000（随后 1,000 万、3,200 万…逐批）</dd><dt>接收方 ILO</dt><dd>0x4fF8e905…5D8d90<button class="copy" data-c="0x4fF8e905Ab40Ed18355b0b2C0DfAe8213d5D8d90">复制</button></dd></dl></div>
+<p class="plain"><b>发生了什么。</b>中枢地址把 DAI 分 11 批送进发行合约后，发行合约再逐笔——总共 <b>14,187 笔</b>——给每一份 DAI 配上对应的 LGNS，一起打进创世池。于是 5:1 的比例，从上万笔小额动作里一点点累积成型。</p>
+<p class="plain"><b>大白话原理：什么是“映射币 / 桥接背书”。</b>创世池里的这些 DAI，是 <b>Anubis 链上的 DAI</b>（合约 0x83fd06…1cDe14）。它不是凭空印的，而是和<b>以太坊金库里锁着的真 DAI</b>一一对应。你可以理解成：真钱存在以太坊那边的保险柜里不动，Anubis 链上发一张“等额的提货凭证”来用——凭证在这条链上流转，真钱在那条链上被锁住做背书。</p>
+<div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>Anubis DAI 合约</dt><dd>0x83fd06…1cDe14<button class="copy" data-c="0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14">复制</button></dd><dt>以太坊金库（Hyperlane）</dt><dd>0x250ba4…d64f3<button class="copy" data-c="0x250ba4e73a365cefdd170a2b1ff9fc03097d64f3">复制</button></dd><dt>金库锁定真 DAI</dt><dd>155,000,200</dd><dt>Anubis DAI 当前供应</dt><dd>约 2.11 亿</dd></dl></div>
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">以太坊锁真 DAI、Anubis 用映射 DAI——一把锁、一张凭证，构成了这套背书结构的两端。</p>
+<p class="plain"><b>为什么重要。</b>对使用者来说，这意味着 Anubis 链上流转的 DAI，背后能对应到以太坊金库里被锁定的那笔真 DAI（<b>155,000,200</b>）。“链上 DAI 和真 DAI 的对应关系”因此不是一句口号，而是两条链上都能各自查到的地址与数字。中枢地址的 11 笔、发行合约的 14,187 笔，都留在 Anubis 这一侧；金库锁定量留在以太坊那一侧。</p>
+<p class="pend">核验边界：跨链“严格数量守恒”的逐笔对账仍可进一步细化——两侧地址与总额均可查，但把每一笔映射与每一笔锁定精确一一勾稽，需要更细的跨链核对。具体锁定与供应数字以两条链各自的实时链上状态为准。</p></div>
+
+<div class="vol" id="zt-12"><div class="vol-head"><span class="vol-ic">🎴</span><div><h2 class="vol-h2"><span class="tag">专题</span>AWAKE NFT 与 gLGNS 激励池</h2><p class="vol-desc">八万多张治理 NFT、二十一万枚固定供应的顶层治理币，构成双层治理</p></div></div></div>
+<div class="wrap"><p class="plain">起源的治理，落在链上是两样东西：一张<b>治理 NFT</b>（AWAKE NFT），和一枚<b>固定供应的治理代币</b> gLGNS。它们上下叠成一套<b>双层治理结构</b>。</p>
+<p class="plain"><b>先看 NFT。</b>AWAKE NFT 是一种 <b>ERC-721</b> 代币——ERC-721 的意思是“每一张都独一无二、可单独编号”的链上凭证，和 QQ 里那种一张张不同的卡差不多，跟“一堆一模一样、可以拆分”的普通代币不同。首张（编号 tokenID 1）铸造于 <b>2026-05-14 00:27:49 UTC</b>（新加坡时间 08:27:49）。</p>
+<div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>AWAKE NFT 合约</dt><dd>0x58839f…208615（ERC-721）<button class="copy" data-c="0x58839f46bd0E3F4494E2BEB8ca93Da9352208615">复制</button></dd><dt>首铸</dt><dd>2026-05-14 00:27:49 UTC / 08:27:49（+8），tokenID 1</dd><dt>当前总量</dt><dd>82,981 张</dd><dt>持有地址</dt><dd>52,080 个</dd><dt>铸造器</dt><dd>0xa3007b…02Fc42<button class="copy" data-c="0xa3007b26B64F0f43b56c8C67A12917FaAb02Fc42">复制</button></dd></dl></div>
+<p class="plain">当前共 <b>82,981</b> 张、分散在 <b>52,080</b> 个持有地址手里。用户通过铸造器合约 claim（领取）来铸出自己那张——所谓 claim，就是用户主动发起一笔交易把 NFT 领到自己名下，链上才会真正生成这张 NFT。</p>
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">治理 NFT 是“入场券”：持有它，就有了参与治理这套体系的凭证。</p>
+<p class="plain"><b>再看顶层：gLGNS。</b>gLGNS 是双层治理的<b>顶层凭证</b>，合约 0xf140a9…0F8F4c。它的关键特征是<b>固定供应 210,000</b> 枚、<b>不再增发</b>，在 <b>2026-04-14 21:53:22 UTC</b>（新加坡 04-15 05:53:22）<b>一次性铸出</b>，之后总量就定死了。</p>
+<div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>gLGNS 合约</dt><dd>0xf140a9…0F8F4c<button class="copy" data-c="0xf140a92C156e76F5A1d3D6f96284b250330F8F4c">复制</button></dd><dt>固定供应</dt><dd>210,000（一次性铸出、不再增发）</dd><dt>铸出时间</dt><dd>2026-04-14 21:53:22 UTC / 04-15 05:53:22（+8）</dd><dt>铸造交易</dt><dd>0x761c75…5b0a6<button class="copy" data-c="0x761c7571d94446db44ef86719176237d6e42ecec6df8b25975117cb1d465b0a6">复制</button></dd></dl></div>
+<p class="plain"><b>大白话原理：挂账 vs 已上链。</b>社区里有几种说法——比如“NFT 第一期 LGNS 空投，每张平均 <b>26.81</b> 枚、第一名 <b>3619</b> 枚”“gLGNS 激励池首期注入 <b>100</b> 枚”。这里要讲一个关键区别：DAO 的奖励在你去 <b>claim（领取）之前，链上是不会生成交易的</b>——它先“挂账”记在系统里，等你主动领，才真正上链。所以“挂在账上的数字”和“已经上链的交易”是两回事。</p>
+<p class="pend">核验边界：上述“每张 26.81 枚 / 第一名 3619 枚 / 激励池首期 100 枚”等集中空投与精确注入的说法，链上暂未找到能独立确认的原始交易，以官方公告为准。NFT 总量 82,981、持有 52,080、gLGNS 固定供应 210,000 及其一次性铸造交易，均为可在链上查到的口径。</p></div>
+
+<div class="vol" id="zt-11"><div class="vol-head"><span class="vol-ic">🗳️</span><div><h2 class="vol-h2"><span class="tag">专题</span>AWAKE DAO 治理提案执行记录</h2><p class="vol-desc">从提案到上链，一步步看清哪些已执行、哪些还在提案</p></div></div></div>
+<div class="wrap"><p class="plain">AWAKE 走的是 <b>DAO 治理</b> 路线：一件事要落地，通常经过「提案 → 社区讨论 → 投票 → 合约执行」四步。手里握着治理凭证 <b>gLGNS</b>（总量固定 <b>21 万</b>）的人，就是这套治理的投票人。gLGNS 越多，说话的分量越重。</p></div>
+<div class="wrap"><p class="plain">这里有两个词要先说清楚。<b>投票快照</b>：投票开始的那一刻，系统给所有人的持仓「拍张照」，之后你转不转币都不影响这次投票权，防止临时借票刷结果。<b>挂账</b>：账面上算给你了，但还没真正写进区块链——只有等你亲手去「领取(claim)」，链上才会生成那笔交易。没领之前，它只是台账上的一个数字。</p></div>
+<div class="wrap"><p class="plain">DAO 的等级奖励，由分发合约统一管理。要提醒的是：<b>奖励在领取前，链上不产生任何交易</b>——所以「看到有奖励」和「奖励已上链」是两回事，前者是挂账，后者才是到账。</p></div>
+<div class="evi"><div class="h">链上凭证 ✓</div><dl><dt>DAO 奖励分发合约（Anubis）</dt><dd>0x579a71890aE0E99806f75cD2e006bB07559C3b49<button class="copy" data-c="0x579a71890aE0E99806f75cD2e006bB07559C3b49">复制</button></dd></dl></div>
+<div class="wrap"><p class="plain">已知的社区提案里，最受关注的是 <b>AWAKE-012「1000 万 DAI LGNS 价格保护基金」</b>。它明确区分五个阶段：<b>提出 ≠ 通过 ≠ 执行 ≠ 到账 ≠ 使用</b>。截至目前，我们只见到这份提案本身。</p></div>
+<p class="pend">AWAKE-012 目前暂未找到能独立确认的投票快照、拨款或到账的原始链上记录，是否进入后续阶段以官方公告为准。</p>
+
+<div class="vol" id="zt-13"><div class="vol-head"><span class="vol-ic">📇</span><div><h2 class="vol-h2"><span class="tag">专题</span>ORIGIN 核心合约地址大全</h2><p class="vol-desc">按 Polygon / Anubis / 以太坊三网分类，一张表查全</p></div></div></div>
+<div class="wrap"><p class="plain">下面把起源生态在三条网络上的核心合约、金库与关键钱包汇总成一张可搜索的大表。带 <b>✓</b> 的地址，均已由链上创建交易或状态读取确认；其余为已登记地址，可自行到对应链浏览器复核。</p></div>
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>名称</th><th>网络</th><th>地址</th><th>说明</th></tr></thead><tbody>
+<tr><td class="nm">LGNS 主代币 <span class="ok">✓</span></td><td>Polygon</td><td>0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01</td><td>主代币，9 位小数</td></tr>
+<tr><td class="nm">主国库 <span class="ok">✓</span></td><td>Polygon</td><td>0x7B9B7d4F870A38e92c9a181B00f9b33cc8Ef5321</td><td>4/5 多签</td></tr>
+<tr><td class="nm">基金会 <span class="ok">✓</span></td><td>Polygon</td><td>0x91F1D2c2165B17a1eD2dC3B73Ae77224E6e1410E</td><td>2/3 多签，持 1.36 亿 DAI</td></tr>
+<tr><td class="nm">创世 LP 池 <span class="ok">✓</span></td><td>Polygon</td><td>0x882df4B0fB50a229C3B4124EB18c759911485bFb</td><td>QuickSwap</td></tr>
+<tr><td class="nm">主质押池 <span class="ok">✓</span></td><td>Polygon</td><td>0x1964Ca90474b11FFD08af387b110ba6C96251Bfc</td><td>质押 Rebase</td></tr>
+<tr><td class="nm">sLGNS</td><td>Polygon</td><td>0x99a57E6C8558BC6689f894e068733ADf83C19725</td><td>质押凭证</td></tr>
+<tr><td class="nm">StakingHelper</td><td>Polygon</td><td>0x78654ed080c1d1c87907646fdb2ae48db3635341</td><td>质押助手</td></tr>
+<tr><td class="nm">DAI 债券</td><td>Polygon</td><td>0x59A6693CaA6305b1E4F16176D5228C32E24717E5</td><td>债券铸造</td></tr>
+<tr><td class="nm">USDT 债券</td><td>Polygon</td><td>0xbE741d070c6d26109b95ddcD7B6da47395272f45</td><td>债券铸造</td></tr>
+<tr><td class="nm">WBTC 债券</td><td>Polygon</td><td>0x4337E95f99d28bE9a013a17306542F835f7e6373</td><td>债券铸造</td></tr>
+<tr><td class="nm">A 稳定币</td><td>Polygon</td><td>0x6631eE651DA438Db2BE611B5A44dFE2Ca04590C5</td><td>稳定币代币</td></tr>
+<tr><td class="nm">A 转换合约</td><td>Polygon</td><td>0xc7ad85a57181b9783b1284d97aac37c447803382</td><td>A 兑换</td></tr>
+<tr><td class="nm">销毁合约</td><td>Polygon</td><td>0xeeeabf5304a7ed876e7a28ec016bb57ae6e89f26</td><td>代币销毁</td></tr>
+<tr><td class="nm">底池销毁</td><td>Polygon</td><td>0x1D6A7F2cB262aFbb1204bbFCBb3db642662b15c3</td><td>底池销毁</td></tr>
+<tr><td class="nm">阿奴比 ILO <span class="ok">✓</span></td><td>Polygon</td><td>0x13ac027C0336e80A09EB09328d1c401Ab08950A5</td><td>募 1.63 亿 DAI</td></tr>
+<tr><td class="nm">部署钱包 <span class="ok">✓</span></td><td>Polygon</td><td>0x5e4e7cadb7c3d10e3bc96fb830a724448d9b4351</td><td>部署 / 首铸 / 首池</td></tr>
+<tr><td class="nm">DAI</td><td>Polygon</td><td>0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063</td><td>储备稳定币</td></tr>
+<tr><td class="nm">LGNS <span class="ok">✓</span></td><td>Anubis</td><td>0x4D1D808a081FdAc440703b3765FC61f8028C06B8</td><td>可升级代理，9 位小数</td></tr>
+<tr><td class="nm">sLGNS</td><td>Anubis</td><td>0x2243aE29F73137d678197b61B0621AE942845B8C</td><td>质押凭证</td></tr>
+<tr><td class="nm">gLGNS <span class="ok">✓</span></td><td>Anubis</td><td>0xf140a92C156e76F5A1d3D6f96284b250330F8F4c</td><td>治理凭证，固定 21 万</td></tr>
+<tr><td class="nm">主质押</td><td>Anubis</td><td>0x7a2E3fA6eA60437F0441b8eb5e60674B80339228</td><td>质押池</td></tr>
+<tr><td class="nm">DAI</td><td>Anubis</td><td>0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14</td><td>Gas 资产</td></tr>
+<tr><td class="nm">创世交易对 <span class="ok">✓</span></td><td>Anubis</td><td>0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0</td><td>RocketSwap，2026-05-05 建</td></tr>
+<tr><td class="nm">Swap Router <span class="ok">✓</span></td><td>Anubis</td><td>0x3E412E02B6157fBE80b6C6697f3Ce1142E629019</td><td>兑换路由</td></tr>
+<tr><td class="nm">Factory</td><td>Anubis</td><td>0xaf6F4e641C86A25518509BC840051A8652Af598A</td><td>交易对工厂</td></tr>
+<tr><td class="nm">ILO 发行 <span class="ok">✓</span></td><td>Anubis</td><td>0x4fF8e905Ab40Ed18355b0b2C0DfAe8213d5D8d90</td><td>创世共建</td></tr>
+<tr><td class="nm">DAI 供给中枢 <span class="ok">✓</span></td><td>Anubis</td><td>0x43f5399d87730bdedfec202c9be1e02bc98b6be8</td><td>DAI 供给</td></tr>
+<tr><td class="nm">360 天质押</td><td>Anubis</td><td>0x88ea98af226Cd4402A3873400308a4D78784eCE6</td><td>定期质押</td></tr>
+<tr><td class="nm">600 天质押</td><td>Anubis</td><td>0x04eD22c6d1D020A9B5e032E93D79ab28293EF72f</td><td>定期质押</td></tr>
+<tr><td class="nm">Bond 质押</td><td>Anubis</td><td>0xF190Ab12B73BFE1B626379aF96e8f1859ec91F20</td><td>债券质押</td></tr>
+<tr><td class="nm">涡轮 Turbine</td><td>Anubis</td><td>0x92B53785090F6FE0717Ca3cF5dB8f8040d3B070b</td><td>回购池</td></tr>
+<tr><td class="nm">DAO 奖励分发</td><td>Anubis</td><td>0x579a71890aE0E99806f75cD2e006bB07559C3b49</td><td>等级奖励</td></tr>
+<tr><td class="nm">社区金库</td><td>Anubis</td><td>0xc9f9a8a2dBf8188AD6610e0239105CAbE67c4993</td><td>社区资金</td></tr>
+<tr><td class="nm">指数预言机</td><td>Anubis</td><td>0xb4E5b7665186229d8A5B0ba3706c5C119dD1B47b</td><td>指数喂价</td></tr>
+<tr><td class="nm">治理 NFT 铸造器</td><td>Anubis</td><td>0xa3007b26B64F0f43b56c8C67A12917FaAb02Fc42</td><td>NFT 铸造</td></tr>
+<tr><td class="nm">Awake NFT <span class="ok">✓</span></td><td>Anubis</td><td>0x58839f46bd0E3F4494E2BEB8ca93Da9352208615</td><td>82,981 张</td></tr>
+<tr><td class="nm">DAI-gLGNS 对</td><td>Anubis</td><td>0x8c4Ea5dAC01E2E8Fb67F50201Aa2e10A6949C58D</td><td>交易对</td></tr>
+<tr><td class="nm">Hyperlane 金库 <span class="ok">✓</span></td><td>以太坊</td><td>0x250ba4e73a365cefdd170a2b1ff9fc03097d64f3</td><td>锁约 1.55 亿真 DAI 背书</td></tr>
+</tbody></table></div></div>
+
+<div class="vol" id="zt-14"><div class="vol-head"><span class="vol-ic">🧭</span><div><h2 class="vol-h2"><span class="tag">专题</span>起源关键钱包与合约的关系</h2><p class="vol-desc">钱怎么流、币怎么生、池怎么成——一条链讲清楚</p></div></div></div>
+<div class="wrap"><p class="plain">起源这盘棋，起点是 Polygon 上的 <b>部署钱包 0x5e4e7c…4351</b>。它做了四件开局的事：部署合约、首次铸币、建立首个流动性池、自投第一笔资产。整条链条，从这里发第一张牌。</p></div>
+<div class="wrap"><p class="plain">紧接着是 <b>主国库 0x7B9B7d4F…5321</b>（4/5 多签）。它是资金的蓄水池：接收储备、承接铸币，并持有 <b>99.997%</b> 的创世 LP。可以理解为——币从这里生，池的绝大部分归它管。</p></div>
+<div class="wrap"><p class="plain">用户这一侧靠 <b>债券</b> 进场。债券合约收下用户的 DAI，把这些真金白银汇入国库，用户则拿到折价的 LGNS。国库越充实，背书越厚。拿到手的 LGNS 再进 <b>质押池 / sLGNS</b>，通过 Rebase 自动复利滚存——这就是「币生币」的循环。</p></div>
+<div class="wrap"><p class="plain">Anubis 这一侧是另一条起势线。<b>DAI 供给中枢 0x43f5399d…6be8</b> 供出约 <b>1.63 亿 DAI</b>，输向 <b>ILO 发行合约 0x4fF8e905…8d90</b>（创世共建），由它把 DAI 与 LGNS 一起注入建池；<b>创世池 0x32A45867…3dC0</b>（RocketSwap，2026-05-05 建）随后开盘，二级市场从这一刻启动。</p></div>
+<div class="wrap"><p class="plain">最外圈是以太坊上的 <b>Hyperlane 金库 0x250ba4…64f3</b>，锁着约 <b>1.55 亿真 DAI</b> 作为背书，为跨链资产托底。</p></div>
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>角色</th><th>网络</th><th>地址</th><th>在链条里的位置</th></tr></thead><tbody>
+<tr><td class="nm">部署钱包 <span class="ok">✓</span></td><td>Polygon</td><td>0x5e4e7cadb7c3d10e3bc96fb830a724448d9b4351</td><td>开局：部署 / 首铸 / 首池 / 自投</td></tr>
+<tr><td class="nm">主国库 <span class="ok">✓</span></td><td>Polygon</td><td>0x7B9B7d4F870A38e92c9a181B00f9b33cc8Ef5321</td><td>蓄水池：收储备 / 铸币 / 持 99.997% LP</td></tr>
+<tr><td class="nm">DAI 供给中枢 <span class="ok">✓</span></td><td>Anubis</td><td>0x43f5399d87730bdedfec202c9be1e02bc98b6be8</td><td>供出约 1.63 亿 DAI</td></tr>
+<tr><td class="nm">ILO 发行 <span class="ok">✓</span></td><td>Anubis</td><td>0x4fF8e905Ab40Ed18355b0b2C0DfAe8213d5D8d90</td><td>共建注池</td></tr>
+<tr><td class="nm">创世池 <span class="ok">✓</span></td><td>Anubis</td><td>0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0</td><td>开盘：二级市场启动</td></tr>
+<tr><td class="nm">Hyperlane 金库 <span class="ok">✓</span></td><td>以太坊</td><td>0x250ba4e73a365cefdd170a2b1ff9fc03097d64f3</td><td>锁真 DAI 背书托底</td></tr>
+</tbody></table></div></div>
+<div class="wrap"><p class="plain">一句话串起来：<b>部署钱包点火 → 债券把用户 DAI 汇进国库 → 国库铸币、持 LP、给质押发息 → Anubis 侧中枢供 DAI、ILO 注池、创世池开盘 → 以太坊金库锁真 DAI 背书</b>。钱、币、池，就是这样连成一条链的。</p></div>
+
+<div class="vol" id="zt-15"><div class="vol-head"><span class="vol-ic">🔗</span><div><h2 class="vol-h2"><span class="tag">专题</span>起源链上证据库</h2><p class="vol-desc">15 笔关键交易，完整哈希在此，均可到对应链浏览器逐笔复核</p></div></div></div>
+<div class="wrap"><p class="plain">下面是起源从创世到 Anubis 开盘的 <b>15 笔 A 级关键交易</b>，全部给出完整交易哈希。Polygon 的可在 Polygonscan 复核，Anubis 的可在 Anubis 链浏览器复核，眼见为实。</p></div>
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>事件</th><th>网络 / 时间</th><th>区块</th><th>交易哈希</th></tr></thead><tbody>
+<tr><td class="nm">LGNS 部署 <span class="ok">✓</span></td><td>Polygon 2024-03-07 00:34 SGT</td><td>54339832</td><td>0x1074b961d4f3b1fb9519f91e18c10d769600a61258affdaeffb5d504168365da</td></tr>
+<tr><td class="nm">国库部署 <span class="ok">✓</span></td><td>Polygon 2024-03-07 00:35</td><td>54339865</td><td>0x7366b7fc964af8c0ef54dbb785ef21d4096df571f81226e307cd3707b0bd9185</td></tr>
+<tr><td class="nm">第一笔 Approve <span class="ok">✓</span></td><td>Polygon 2024-03-07 00:39:16</td><td>54339960</td><td>0x5fd98c7c3341f790293cf236de3ff3309da3d4142c6619195889b966f59b9b0c</td></tr>
+<tr><td class="nm">首铸 70,001 <span class="ok">✓</span></td><td>Polygon 2024-03-07 00:39:56</td><td>54339972</td><td>0x9df4503580ae182a25580cd89704cd7070fba2a9a1e1da71544b609a5fe6a831</td></tr>
+<tr><td class="nm">首池开盘 4.00 <span class="ok">✓</span></td><td>Polygon 2024-03-07 00:58:08</td><td>54340471</td><td>0x84443c8387ab6488d6aff80faf990743ba364f3d73167771bcdd0c93b1098330</td></tr>
+<tr><td class="nm">首笔外部买入 <span class="ok">✓</span></td><td>Polygon 2024-03-07 00:58:16</td><td>54340475</td><td>0xbf5e0ba3681e9343243bbf12083ee52d3205ad144d592239020422dff5e2f3ee</td></tr>
+<tr><td class="nm">LP 转入国库 <span class="ok">✓</span></td><td>Polygon 2024-03-07 02:09</td><td>54342460</td><td>0x65ee294494995b334643cbb53a7e6073dd37c2b0c7f39b66d7bec432d92d944f</td></tr>
+<tr><td class="nm">首笔用户债券 <span class="ok">✓</span></td><td>Polygon 2024-03-08 21:33:52</td><td>54414132</td><td>0xa337c3fd350088f6679018c44f67691bc5f8ba346ac82659e5f3045548de1837</td></tr>
+<tr><td class="nm">首笔销毁 <span class="ok">✓</span></td><td>Polygon 2024-05-21 15:28 SGT</td><td>—</td><td>0x6b0170535562fbaa01644dd62a3d2c3dd075a520897e1f46f214cf32f45bc3a7</td></tr>
+<tr><td class="nm">gLGNS 铸造 <span class="ok">✓</span></td><td>Anubis 2026-04-15 05:53 SGT</td><td>—</td><td>0x761c7571d94446db44ef86719176237d6e42ecec6df8b25975117cb1d465b0a6</td></tr>
+<tr><td class="nm">Anubis LGNS 部署 <span class="ok">✓</span></td><td>Anubis 2026-04-28 08:14</td><td>1808950</td><td>0xf5e7f5848346e69ac543aa377f5d14d63f27ca0b02071d33b9ca829e798b021c</td></tr>
+<tr><td class="nm">创世池创建 <span class="ok">✓</span></td><td>Anubis 2026-05-05 08:44</td><td>2415424</td><td>0xd009f343f04e8906647f596deaef985a0eaeea587d5400a8a9d82b01821b204d</td></tr>
+<tr><td class="nm">共建首笔 Mint <span class="ok">✓</span></td><td>Anubis 2026-05-09 20:35</td><td>2803625</td><td>0xcb2f7d42e48ed4dfcd3387fe6f9ae3974ac1f63cd6ef014321676e88bd0bfcac</td></tr>
+<tr><td class="nm">创世开盘首笔成交 <span class="ok">✓</span></td><td>Anubis 2026-05-13 19:58:53</td><td>3146958</td><td>0x8be9e28bb6c7af06435f31e8ea9081390a3210931430aaee9f34b3b84139f1f5</td></tr>
+<tr><td class="nm">开盘最大买入 20 万 DAI <span class="ok">✓</span></td><td>Anubis 2026-05-13 20:29:36</td><td>—</td><td>0x4aea529bed189ebec8d29afc407491ea48ae329f2618b5b9afe5452b7dd97e25</td></tr>
+</tbody></table></div></div>
+
+<!-- ===== 专题16 ===== -->
+<div class="vol" id="zt-16"><div class="vol-head"><span class="vol-ic">⏱️</span><div><h2 class="vol-h2"><span class="tag">深度</span>开盘逐笔：头二十几笔成交</h2><p class="vol-desc">2026-05-13 创世那一分钟，链上一笔一笔发生了什么</p></div></div></div>
+<div class="wrap">
+  <p class="plain">前面讲了开盘第一小时的总账，这里把镜头推到<b>最开头的那一分钟</b>——逐笔看。开盘定格在 <b>2026-05-13 11:58:53 UTC（新加坡 19:58:53）</b>，头三笔是几毫、几枚的小额卖出，紧接着买单就像开闸的水一样涌进来：150、1,020、3,000 DAI 一笔压一笔。</p>
+  <p class="plain">下面这张表是开盘头二十几笔的真实成交（买=拿 DAI 换走 LGNS，卖=拿 LGNS 换回 DAI；卖单显示价约 4.985 是扣了约 5% 卖出税后的到手价，池子真实价始终 ≥ 5.0）。</p>
+  <div class="tblwrap"><div class="scroll"><table><thead><tr><th>#</th><th>时间 UTC</th><th>方向</th><th>DAI</th><th>LGNS</th><th>价</th></tr></thead><tbody>
+    <tr><td>1</td><td>11:58:53</td><td>卖</td><td>1.994</td><td>0.40</td><td>4.985</td></tr>
+    <tr><td>2</td><td>11:58:53</td><td>卖</td><td>0.499</td><td>0.10</td><td>4.985</td></tr>
+    <tr><td>3</td><td>11:58:53</td><td>卖</td><td>47.358</td><td>9.50</td><td>4.985</td></tr>
+    <tr><td>4</td><td>11:58:57</td><td class="nm">买</td><td>150.00</td><td>29.910</td><td>5.015</td></tr>
+    <tr><td>5</td><td>11:59:01</td><td class="nm">买</td><td>3,000.00</td><td>598.188</td><td>5.015</td></tr>
+    <tr><td>6</td><td>11:59:12</td><td class="nm">买</td><td>1,020.00</td><td>203.379</td><td>5.015</td></tr>
+    <tr><td>7</td><td>11:59:13</td><td class="nm">买</td><td>3,000.00</td><td>598.159</td><td>5.015</td></tr>
+    <tr><td>8</td><td>11:59:16</td><td class="nm">买</td><td>3,000.00</td><td>598.137</td><td>5.016</td></tr>
+    <tr><td>9</td><td>11:59:22</td><td class="nm">买</td><td>3,000.00</td><td>598.115</td><td>5.016</td></tr>
+    <tr><td>10</td><td>11:59:24</td><td class="nm">买</td><td>1,690.00</td><td>336.929</td><td>5.016</td></tr>
+    <tr><td>11</td><td>11:59:25</td><td class="nm">买</td><td>1,000.00</td><td>199.363</td><td>5.016</td></tr>
+    <tr><td>12</td><td>11:59:26</td><td class="nm">买</td><td>3,000.00</td><td>598.074</td><td>5.016</td></tr>
+    <tr><td>13</td><td>11:59:31</td><td class="nm">买</td><td>3,000.00</td><td>598.045</td><td>5.016</td></tr>
+    <tr><td>14</td><td>11:59:34</td><td class="nm">买</td><td>1,300.00</td><td>259.146</td><td>5.017</td></tr>
+    <tr><td>15</td><td>11:59:35</td><td>卖</td><td>958.784</td><td>192.278</td><td>4.986</td></tr>
+    <tr><td>16</td><td>11:59:39</td><td>卖（大单）</td><td>22,730.017</td><td>4,559.097</td><td>4.986</td></tr>
+    <tr><td>17</td><td>11:59:43</td><td class="nm">买</td><td>1,030.00</td><td>205.383</td><td>5.015</td></tr>
+    <tr><td>18</td><td>11:59:57</td><td class="nm">买</td><td>9,000.00</td><td>1,794.461</td><td>5.015</td></tr>
+    <tr><td>19</td><td>11:59:58</td><td class="nm">买</td><td>9,300.00</td><td>1,854.046</td><td>5.016</td></tr>
+    <tr><td>20</td><td>12:00:04</td><td class="nm">买</td><td>6,000.00</td><td>1,195.966</td><td>5.017</td></tr>
+  </tbody></table></div></div>
+  <p class="plain">从这二十笔就能看出开盘的气质：<b>买单密集、金额远大于卖单</b>，即便中间夹了一笔 22,730 DAI 的大卖出，价格也稳稳站在 5.0 上方，很快被买盘接回。这也解释了为什么第一小时价格是从 5.00 往上走到约 5.16，而不是下跌。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+    <dt>开盘首笔成交</dt><dd>区块 3146958 · tx 0x8be9e2…39f1f5<button class="copy" data-c="0x8be9e28bb6c7af06435f31e8ea9081390a3210931430aaee9f34b3b84139f1f5">复制</button></dd>
+    <dt>数据口径</dt><dd>RPC getLogs 逐笔实扫（Swap 事件）</dd>
+  </dl></div>
+  <p class="pend">核验边界：卖单在 RocketSwap 上会拆成手续费腿+主腿多条 Swap，本表按"到手主腿"归并展示；完整逐笔可在 Anubis 浏览器按创世池地址复核。</p>
+</div>
+
+<!-- ===== 专题17 ===== -->
+<div class="vol" id="zt-17"><div class="vol-head"><span class="vol-ic">💵</span><div><h2 class="vol-h2"><span class="tag">深度</span>1.63 亿 DAI 的 11 笔精确输送</h2><p class="vol-desc">每一笔的区块、时间、金额、哈希，全表在此</p></div></div></div>
+<div class="wrap">
+  <p class="plain">创世池里的 <b>163,000,000 DAI</b>，是由一个中枢地址在 2026-05-09 当天分 <b>11 笔</b>精确送进发行合约的——从 10 万试水起步，逐批加码到千万、三千万级，最后累计正好 1.63 亿，一分不差。下面是这 11 笔的完整链上明细。</p>
+  <div class="tblwrap"><div class="scroll"><table><thead><tr><th>#</th><th>区块</th><th>时间 UTC（新加坡+8）</th><th>DAI</th><th>交易哈希</th></tr></thead><tbody>
+    <tr><td>1</td><td>2803623</td><td>05-09 12:35:38（20:35）</td><td>100,000</td><td>0x812e3f…98e1d<button class="copy" data-c="0x812e3f06b1e20b6a69bca2402f9d7b9af750ab8d429e85d336e6152cb8f98e1d">复制</button></td></tr>
+    <tr><td>2</td><td>2803896</td><td>12:40:11（20:40）</td><td>10,000,000</td><td>0xa2fcd9…40509<button class="copy" data-c="0xa2fcd925749bb1874fa4da1c93ebd66584e2b920785c82645e6dd7518f640509">复制</button></td></tr>
+    <tr><td>3</td><td>2804109</td><td>12:43:44（20:43）</td><td>32,000,000</td><td>0xd1e510…eebb7<button class="copy" data-c="0xd1e5107b7109f22ac764c31e43ca23ac0cf561bfc21e0b2776010a29b96eebb7">复制</button></td></tr>
+    <tr><td>4</td><td>2804263</td><td>12:46:18（20:46）</td><td>900,000</td><td>0x248b43…63505<button class="copy" data-c="0x248b43b81ecb27ae8d4bd1cf09765e67c33597d0897e7d78086096c5da763505">复制</button></td></tr>
+    <tr><td>5</td><td>2813907</td><td>15:27:05（23:27）</td><td>14,000,000</td><td>0x1f1b3c…21ff6<button class="copy" data-c="0x1f1b3cc6712e785cd6e3753f99f511adf813e798ea0a90515576cb81bc721ff6">复制</button></td></tr>
+    <tr><td>6</td><td>2814330</td><td>15:34:08（23:34）</td><td>12,500,000</td><td>0x3afe78…df779<button class="copy" data-c="0x3afe782e7dc126f7dc7e7bc75b69b32b4863ef6d42a98c660176006a1f9df779">复制</button></td></tr>
+    <tr><td>7</td><td>2815284</td><td>15:50:03（23:50）</td><td>13,500,000</td><td>0xd4adcb…ae6bd<button class="copy" data-c="0xd4adcb5c060979bfead5402e13d1cfc4007c256e93be42da1e19eca72dfae6bd">复制</button></td></tr>
+    <tr><td>8</td><td>2816845</td><td>16:16:05（00:16）</td><td>20,000,000</td><td>0x9cc8bc…74f07<button class="copy" data-c="0x9cc8bc433936e0936cefd767c1dd4ca18ab49994a58304770ffb2f0860274f07">复制</button></td></tr>
+    <tr><td>9</td><td>2820093</td><td>17:10:13（01:10）</td><td>40,500,000</td><td>0x928a5d…324eff<button class="copy" data-c="0x928a5de08db4b208d0fa511e1fbdaf851973e4f10efdfaecea926f0f25324eff">复制</button></td></tr>
+    <tr><td>10</td><td>2820484</td><td>17:16:44（01:16）</td><td>15,000,000</td><td>0x757a8a…485a775<button class="copy" data-c="0x757a8a7a3ddc2250a986f7370b5badfe13babf7b8149172d7d438f895485a775">复制</button></td></tr>
+    <tr><td>11</td><td>2820884</td><td>17:23:24（01:23）</td><td>4,500,000</td><td>0x3de408…309e669<button class="copy" data-c="0x3de408069fed75e918a5c82a2505af82dd028e435294fa46db6006097309e669">复制</button></td></tr>
+    <tr><td class="nm">合计</td><td>—</td><td>约 5 小时内</td><td class="nm">163,000,000</td><td>11 笔</td></tr>
+  </tbody></table></div></div>
+  <p class="plain">中枢把 DAI 逐批送到位后，发行合约再逐笔（共 <b>14,187 笔</b>）给每一份 DAI 配上 5 分之 1 的 LGNS，一起打进创世池。于是 5:1 的开盘比例，就是从这两组精确的数字里累积成型的。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+    <dt>中枢地址</dt><dd>0x43f5399d87730bdedfec202c9be1e02bc98b6be8</dd>
+    <dt>发行合约</dt><dd>0x4fF8e905Ab40Ed18355b0b2C0DfAe8213d5D8d90</dd>
+    <dt>合计</dt><dd>11 笔 = 163,000,000 DAI</dd>
+  </dl></div>
+</div>
+
+<!-- ===== 专题18 ===== -->
+<div class="vol" id="zt-18"><div class="vol-head"><span class="vol-ic">♨️</span><div><h2 class="vol-h2"><span class="tag">深度</span>起源的销毁与通缩</h2><p class="vol-desc">两链累计烧掉约 3.68 亿枚，逐项拆解</p></div></div></div>
+<div class="wrap">
+  <p class="plain">铸造之外，起源一直在做另一件事——<b>销毁</b>。把币转到永远取不回的黑洞地址，总量就实打实少一分。这是给代币价值托底的另一只手，也叫<b>通缩</b>。</p>
+  <p class="plain">第一笔协议销毁发生在 <b>2024 年 5 月 21 日</b>，由一个协议合约把 419.80 枚 LGNS 烧向零地址；此后销毁成了常态。到今天，两条链累计销毁约 <b>3.68 亿枚 LGNS</b>，逐项拆开看：</p>
+  <div class="tblwrap"><div class="scroll"><table><thead><tr><th>链</th><th>销毁去向</th><th>累计 LGNS</th><th>说明</th></tr></thead><tbody>
+    <tr><td>Polygon</td><td class="nm">底池销毁 0x1D6A7F</td><td>约 32,502,877</td><td>从主池抽出后烧向零地址</td></tr>
+    <tr><td>Polygon</td><td class="nm">A 稳定币转换烧</td><td>约 62,104,911</td><td>销毁 LGNS 铸出稳定币 A（见专题19）</td></tr>
+    <tr><td>Polygon</td><td class="nm">黑洞 0xdead</td><td>约 8,102,358</td><td>直接烧向死亡地址</td></tr>
+    <tr><td>Polygon</td><td>销毁合约 0xeeeabf53</td><td>约 239,382</td><td>协议定时销毁（含首笔）</td></tr>
+    <tr><td class="nm">Polygon 小计</td><td>—</td><td class="nm">约 102,949,528</td><td>—</td></tr>
+    <tr><td>Anubis</td><td class="nm">黑洞 0xdead</td><td>约 265,385,826</td><td>每一笔卖出按税直接烧向死亡地址</td></tr>
+    <tr><td class="nm">两链合计</td><td>—</td><td class="nm">约 368,335,354</td><td>—</td></tr>
+  </tbody></table></div></div>
+  <p class="plain">除了烧，起源还有一个<b>回购蓄水池</b>——Anubis 上的<b>涡轮（Turbine）</b>，目前蓄有约 <b>3,879 万枚 LGNS</b>，只进多、出少，用于生态的回购与抄底。烧一部分、囤一部分，共同构成"增发之外"的托底机制。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+    <dt>首笔销毁</dt><dd>2024-05-21 15:28 SGT · 419.80 LGNS · tx 0x6b0170…5bc3a7<button class="copy" data-c="0x6b0170535562fbaa01644dd62a3d2c3dd075a520897e1f46f214cf32f45bc3a7">复制</button></dd>
+    <dt>涡轮回购池</dt><dd>0x92B53785…B070b · 现蓄约 38,786,267 LGNS</dd>
+    <dt>数据口径</dt><dd>按去向地址逐段累加（getLogs / 余额读取）</dd>
+  </dl></div>
+  <p class="pend">核验边界：销毁量为"已识别去向"的累加口径，可能还有零星地址直接烧向零地址未被枚举；涡轮为当前净持仓快照，会随回购与派发变动。</p>
+</div>
+
+<!-- ===== 专题19 ===== -->
+<div class="vol" id="zt-19"><div class="vol-head"><span class="vol-ic">🅰️</span><div><h2 class="vol-h2"><span class="tag">深度</span>「A」稳定币：以销毁铸就</h2><p class="vol-desc">不是靠美元抵押，而是靠销毁 LGNS 换出来的软锚定币</p></div></div></div>
+<div class="wrap">
+  <p class="plain">起源生态里还有一枚特别的币，就叫「<b>A</b>」。它是稳定币，但机制和常见的美元抵押型不同——它是<b>靠销毁 LGNS 铸出来的</b>。</p>
+  <p class="plain">玩法很直接：你把 LGNS 打进转换合约，合约把这些 LGNS <b>全额烧向零地址</b>，再按规则铸出等量的 A 给你。也就是说，每多一枚 A，就有对应的 LGNS 被永久销毁——A 的诞生，本身就是 LGNS 的通缩。</p>
+  <p style="font-family:var(--serif);font-size:17px;color:var(--ink)">用大白话讲：A 不是拿美元换来的，而是"烧掉命运之矛、换来一枚稳定筹码"。</p>
+  <div class="evi"><div class="h">链上凭证 ✓</div><dl>
+    <dt>A 稳定币合约</dt><dd>0x6631eE651DA438Db2BE611B5A44dFE2Ca04590C5</dd>
+    <dt>转换合约</dt><dd>0xc7ad85a57181b9783b1284d97aac37c447803382</dd>
+    <dt>累计销毁 LGNS</dt><dd>约 62,104,911 枚（100% 烧向零地址）</dd>
+    <dt>A 当前供应</dt><dd>约 1.25 亿枚</dd>
+    <dt>实证交易</dt><dd>0x5c5793…301b4<button class="copy" data-c="0x5c5793aa7f9f8b3d8126f3bb90a643204f2981d4cd08b085bd4aaa93c82301b4">复制</button></dd>
+  </dl></div>
+  <p class="plain">到目前为止，A 这条线累计烧掉了约 <b>6,210 万枚 LGNS</b>，铸出约 <b>1.25 亿枚 A</b>。它给持有者提供了一个相对稳定的记账单位，也让 LGNS 的流通盘持续变薄。</p>
+  <p class="pend">核验边界：A 为可升级合约，其"1 A ≈ 1 美元"是机制目标，实际锚定强度取决于 LGNS 市值与池子深度；本文只陈述"销毁铸造"这一可核验的机制与累计数量，不构成对锚定的保证。</p>
+</div>
+
+<div class="vol" id="zt-20"><div class="vol-head"><span class="vol-ic">🎟️</span><div><h2 class="vol-h2"><span class="tag">深度</span>起源债券体系全解</h2><p class="vol-desc">从 Polygon 到 Anubis，一张“打折买币券”如何为国库造血——11 张券、三代演进，路径与金额全部上链可查</p></div></div></div>
+
+<div class="wrap">
+<p class="plain">先把名词一次说白。<b>债券</b>，本质是一张<b>“打折买币券”</b>：你把稳定币（DAI／USDT）交给国库，国库按低于市价的<b>折扣价</b>把 LGNS 卖给你。但币不当场全给——它分批解锁，这段等待叫<b>归属期（vesting）</b>。你让渡了即时流动性，换来的是折价空间。</p>
+<p class="plain">一笔债券里藏着三个数：<b>折扣</b>（比市价便宜多少）、<b>归属期</b>（多久拿全）、以及由这两者推出的<b>年化收益</b>。折扣越大、锁得越久，等待期里的价格波动就越归你承担——这正是折扣要补偿你的东西。</p>
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">对协议而言，债券是国库真正的“造血管”。它把散在市场里的真金白银换成锁进国库的长期储备（业内叫协议自有价值 PCV）；相比在二级市场直接卖币，债券把抛压拉平到整个归属期里，国库拿到的是稳定、可预期的现金流。</p>
+</div>
+
+<div class="wrap">
+<p class="plain">这套机制不是起源发明的，而是 OHM 系协议的经典打法。起源把它<b>搬上 Polygon</b>，跑通后又延伸到自建的 <b>Anubis 链</b>。链上看，恰好是清晰的三代：</p>
+<p class="plain"><b>第一代·储备债券（2024-03）</b>：DAI、USDT、WBTC 三张券同一天部署，直接收硬通货。这是国库的第一桶“外部真金”。</p>
+<p class="plain"><b>第二代·期限债券（2024-12）</b>：30／60／120／240／360 天五档一次上齐，用<b>锁定时长换折扣</b>，锁得越久越优；其中 240、360 天两档更进一步，收的是 <b>LGNS-DAI 流动性凭证（LP）</b>，让协议把交易对的流动性也收归自有。</p>
+<p class="plain"><b>第三代·Anubis 长锁债券（2026）</b>：随生态迁到自建链，玩法转为交 LGNS、发 <b>sLGNS</b>，把长期持有者留在链内复利，锁期拉长到 360、600 天。</p>
+</div>
+
+<div class="wrap">
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>储备债券首发</dt><dd>DAI／USDT／WBTC 三合约同批部署，均为 2024-03-08 13:00–13:03 UTC（新加坡 21:00–21:03，UTC+8）</dd>
+<dt>DAI 债券</dt><dd>0x59A6…17E5：累计流入 <b>≈2,769,338 DAI</b>，链上出现 <b>1,393 个</b>独立买家地址</dd>
+<dt>USDT 债券</dt><dd>0xbE74…72f45：累计流入 <b>≈2,300,318 USDT</b>，<b>1,033 个</b>独立买家地址</dd>
+<dt>储备债券交付</dt><dd>两券已向买家陆续发出 LGNS（DAI 侧 ≈3.9 万＋、USDT 侧 ≈5.2 万＋，均为归属期内分批解锁的近似下限）</dd>
+<dt>期限债券首发</dt><dd>30 天档 2024-12-04 18:33 UTC 起，60/120/240/360 天档于 2024-12-07 陆续部署（新加坡当日 13:18–13:53）</dd>
+<dt>期限债券吸纳 DAI（已核）</dt><dd>30 天 ≈211,609 · 60 天 ≈396,273 · 120 天 ≈325,465 DAI；240／360 天为 <b>LP 债券</b>，抵押物是流动性凭证</dd>
+<dt>Anubis 长锁债券</dt><dd>360 天 0x88ea…ECE6（2026-04-30 14:21 UTC）收 LGNS ≈2,373,551、发 sLGNS ≈2,373,451；600 天 0x04eD…F72f（2026-05-03 00:32 UTC）收 LGNS ≈3,380,641；Bond 0xF190…1F20（2026-06-02 03:47 UTC）收 LGNS ≈1,584,683</dd>
+</dl></div>
+</div>
+
+<div class="tblwrap"><div class="scroll"><table>
+<thead><tr><th>债券</th><th>抵押物</th><th>期限 / 合约地址</th><th>链上首发(UTC / SG)</th><th>累计经手（近似）</th><th>参与规模</th></tr></thead>
+<tbody>
+<tr><td class="nm">DAI 储备债券</td><td>DAI</td><td>0x59A6693CaA6305b1E4F16176D5228C32E24717E5</td><td>2024-03-08 13:00 / 21:00</td><td>≈2,769,338 DAI</td><td>1,393 买家</td></tr>
+<tr><td class="nm">USDT 储备债券</td><td>USDT</td><td>0xbE741d070c6d26109b95ddcD7B6da47395272f45</td><td>2024-03-08 13:00 / 21:00</td><td>≈2,300,318 USDT</td><td>1,033 买家</td></tr>
+<tr><td class="nm">WBTC 储备债券</td><td>WBTC</td><td>0x4337E95f99d28bE9a013a17306542F835f7e6373</td><td>2024-03-08 13:03 / 21:03</td><td>未查到 WBTC 抵押流入</td><td>9 地址(少量)</td></tr>
+<tr><td class="nm">30 天期限债券</td><td>DAI</td><td>0x152Ed4367ae89FBB37055780dB228dc178cB4330</td><td>2024-12-04 18:33 / 12-05 02:33</td><td>≈211,609 DAI</td><td>—</td></tr>
+<tr><td class="nm">60 天期限债券</td><td>DAI</td><td>0x5f0c7F5a6f9C31A28b59B51FceE090E1b3f1e160</td><td>2024-12-07 05:18 / 13:18</td><td>≈396,273 DAI</td><td>—</td></tr>
+<tr><td class="nm">120 天期限债券</td><td>DAI</td><td>0x4116262358c9DcCEDBA558B1BC6Fd01d09C79F9D</td><td>2024-12-07 05:23 / 13:23</td><td>≈325,465 DAI</td><td>—</td></tr>
+<tr><td class="nm">240 天期限债券</td><td>LGNS-DAI LP</td><td>0x468c0ee3069Fbb8BC9A50f2cFf7004A5d6384026</td><td>2024-12-07 05:52 / 13:52</td><td>LP 债券（流动性凭证）</td><td>—</td></tr>
+<tr><td class="nm">360 天期限债券</td><td>LGNS-DAI LP</td><td>0x6c0Ac888b075c6b5141cbC1Da6170B6686aFd07D</td><td>2024-12-07 05:53 / 13:53</td><td>LP 债券（流动性凭证）</td><td>—</td></tr>
+<tr><td class="nm">Anubis 360 天</td><td>LGNS→sLGNS</td><td>0x88ea98af226Cd4402A3873400308a4D78784eCE6</td><td>2026-04-30 14:21 / 22:21</td><td>≈2,373,551 LGNS</td><td>—</td></tr>
+<tr><td class="nm">Anubis 600 天</td><td>LGNS→sLGNS</td><td>0x04eD22c6d1D020A9B5e032E93D79ab28293EF72f</td><td>2026-05-03 00:32 / 08:32</td><td>≈3,380,641 LGNS</td><td>—</td></tr>
+<tr><td class="nm">Anubis Bond</td><td>LGNS→sLGNS</td><td>0xF190Ab12B73BFE1B626379aF96e8f1859ec91F20</td><td>2026-06-02 03:47 / 11:47</td><td>≈1,584,683 LGNS</td><td>—</td></tr>
+</tbody>
+</table></div></div>
+
+<div class="wrap">
+<p class="plain">把表读透，有四条脉络。<b>其一，债券合约是“过路管道”。</b>储备债券收进稳定币后近乎全额转给国库，链上进、出金额几乎相等——钱不停在债券里，而是沉淀进国库当储备。</p>
+<p class="plain"><b>其二，参与真实而广泛。</b>光 DAI 一张券就有 <b>1,393 个</b>独立地址真金白银买入，USDT 券另有 <b>1,033 个</b>——不是几个大户刷量，而是上千地址的分散参与。</p>
+<p class="plain"><b>其三，期限债券是“越锁越优”的阶梯。</b>30 天到 360 天，锁定时长换折扣；240／360 天更收 LP 凭证，把交易对流动性也变成协议自有资产，池子越深、价格越稳。</p>
+<p class="plain"><b>其四，Anubis 换了打法。</b>交 LGNS、发 <b>sLGNS</b>，本质是把长期信仰者<b>留在链内复利</b>；三张券合计收进 <b>700 万＋ LGNS</b>，长锁到 360、600 天。</p>
+</div>
+
+<div class="wrap">
+<p class="plain">这一版我们把机制又<b>往合约里挖了一层</b>：本轮由两套工具（Claude 与 Codex）<b>各自独立跑同一批合约、交叉复核</b>，读出的地址与数值一致。先说最关键的一条——<b>钱到底去了哪</b>。</p>
+<p class="plain">直接问合约本身：DAI 债券的 <b>treasury()</b> 方法链上返回 <b>0x7b9b…5321</b>；这个地址在区块浏览器上被标注为 <b>“Treasury”（国库合约）</b>，具备存入、取出、管理、审计储备等标准 OHM 国库接口。USDT 债券、30／60 天债券的稳定币出口，经核也全部指向<b>同一个</b>国库。买券的钱，链上一路可追到国库门口。</p>
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">而这座国库此刻装着多少真金？链上余额快照：<b>≈11,920,824 DAI</b> 与 <b>≈2,307,888 USDT</b>——两项真实稳定币储备合计 <b>1,400 万美元级</b>。DAI 余额由 Claude 与 Codex 两侧分别读取，结果一致到个位。</p>
+<p class="plain">再看债券的“说明书”是否透明。DAI 债券的 <b>terms()</b> 一次性吐出全部参数：控制变量、归属期 <b>vestingTerm=216,000 秒（约 2.5 天）</b>、最大单笔发行、以及债务上限 <b>maxDebt</b>；当前 <b>totalDebt≈2,324 LGNS</b>，远在上限之内。折扣、价格、债务，全部<b>上链实时可读</b>，谁都能自己复核。</p>
+<p class="plain">再补一层合约“实锤”。挨个问每张券的 <b>principle()</b>（抵押物）：30／60／120 天返回 <b>DAI</b>，240／360 天返回 <b>0x882d…5bfb</b>（LGNS-DAI 交易对 LP）——五档期限债券“三张收稳定币、两张收流动性”的分工，被合约逐一坐实。Anubis 360 天债券转账里，<b>3,644 笔 LGNS 流入</b>与 <b>2,420 笔 sLGNS 发出</b>在<b>同一笔交易内成对出现</b>，把“收 LGNS、发 sLGNS”的复利路径钉在链上；sLGNS 全名 <b>Staked Longinus</b>，9 位精度。</p>
+</div>
+
+<div class="wrap">
+<p class="plain">这套体系不是“上线即封存”的历史遗迹，而是<b>至今仍在跑</b>。链上最近活动：360 天债券 <b>2026-08-03</b> 仍有交互、30 天档 <b>2026-08-01</b>、DAI 储备券 <b>2026-07-27</b>、USDT 储备券 <b>2026-07-05</b>——买券、领币的动作一直没停。</p>
+<p class="plain">这些债券收进来的钱，落点是同一个地方——<b>主国库合约</b>。链上直接调债券的 treasury()，返回的是 <b>0x7b9b7d…5321</b>，浏览器标注为 “Treasury”。也就是说，你买券交的 DAI／USDT，一路都能追到这个已验证的国库门口，不是进了某个私人钱包。</p>
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">国库的储备实体是<b>外部硬资产</b>——稳定币与 LP 份额，而不是自家发的 LGNS。用外部资产做储备，是 OHM 系国库的常规做法。</p>
+</div>
+
+<div class="wrap">
+<p class="plain">再往深里问一层：债券凭什么能从国库里“提走”LGNS？答案在国库的<b>白名单</b>里。链上直接查询国库合约：DAI、USDT 债券的 <b>isReserveDepositor</b> 都返回 <b>1</b>，LP 债券的 <b>isLiquidityDepositor</b> 返回 <b>1</b>；DAI 是登记在册的 <b>储备资产</b>、LP 是登记在册的 <b>流动性资产</b>。</p>
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">这几个 <b>1</b> 很关键——它意味着债券不是随便一个合约就能碰国库，而是被国库<b>正式授权登记</b>的存款人。用户交钱、债券按储备规则铸出 LGNS，这条“造血”管线在合约层是<b>白名单闭环</b>，谁被授权、收什么资产，全部一目了然。</p>
+<p class="plain">活跃度也印证了它在真跑。近一万笔交互样本里：<b>redeem（领币）约 7,752 笔</b>、<b>deposit（存券）约 1,121 笔</b>、还有约 <b>86 笔 setAdjustment</b>——后者正是协议按节奏微调控制变量（进而调折扣/价格）的动作。买家不只在买，更在<b>持续把归属到期的 LGNS 领走</b>。</p>
+<p class="plain">Anubis 一侧则长出了完整的<b>代币阶梯</b>：<b>LGNS →（质押/债券）→ sLGNS（质押凭证，9 位精度）→ gLGNS（封装治理，18 位精度）</b>。其中面向用户的 <b>gLGNS 持有地址达 136,127 个</b>；Anubis 链上 LGNS 供应 <b>≈20.2 亿</b>、持有地址约 <b>226 万</b>。折扣型（Polygon 收稳定币）与质押型（Anubis 锁 LGNS）两套打法，一外一内，互为补充。</p>
+</div>
+
+<div class="wrap">
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">把规模一句话说完：五张<b>稳定币类债券</b>累计经手 <b>≈600 万美元</b>（DAI＋USDT＋30/60/120 天），两张 <b>LP 债券</b>另收流动性凭证，三张 <b>Anubis 长锁券</b>合计吸纳 <b>700 万＋ LGNS</b>。</p>
+<p class="plain">最后给想看懂债券的人一把“尺子”，买券前只需看<b>三个数</b>：一看<b>折扣</b>（比市价便宜多少，便宜才有买的理由）；二看<b>归属期</b>（多久拿全，这段时间价格波动你自己扛）；三看<b>年化</b>（折扣÷归属期折出来的收益，用来和活期质押比一比）。</p>
+<p class="plain">而这三个数背后的<b>底气</b>，正是本文一路查下来的东西：钱进哪个国库、国库储备是不是外部硬资产、债券有没有被正式授权、参数能不能公开复核——<b>全部上链、人人可查</b>。看得懂机制，才拿得稳收益。</p>
+</div>
+
+<div class="wrap">
+<div class="evi"><div class="h">链上凭证 ✓（合约层 · 双工具复核）</div><dl>
+<dt>DAI 债券 · treasury()</dt><dd>链上返回 <b>0x7b9b7d4f870a38e92c9a181b00f9b33cc8ef5321</b>，浏览器标注 “Treasury” 国库合约；USDT／30／60 天债券出口同址</dd>
+<dt>国库当前余额（快照）</dt><dd><b>≈11,920,824 DAI</b> ＋ <b>≈2,307,888 USDT</b>（含少量 WBTC 0.79）；DAI 由两套工具分别读取、结果一致</dd>
+<dt>DAI 债券 · terms()</dt><dd>controlVariable、vestingTerm=<b>216,000 秒(≈2.5 天)</b>、minimumPrice=0、maxPayout、maxDebt=1e26（内部单位）；当前 totalDebt=<b>2,324,129,483,245</b>（÷1e9 ≈ 2,324 LGNS）</dd>
+<dt>国库白名单授权</dt><dd>DAI／USDT 债券 <b>isReserveDepositor=1</b>、LP 债券 <b>isLiquidityDepositor=1</b>；DAI=<b>isReserveToken=1</b>、LP=<b>isLiquidityToken=1</b>（国库正式登记的存款人与资产）</dd>
+<dt>DAI 债券活跃度（近 1 万笔样本）</dt><dd>redeem(领币) <b>≈7,752</b>、deposit(存券) <b>≈1,121</b>、setAdjustment(调参) <b>≈86</b></dd>
+<dt>Anubis 代币阶梯</dt><dd>LGNS→sLGNS(9dp)→gLGNS(18dp)；<b>gLGNS 持有 136,127 地址</b>；Anubis LGNS 供应≈<b>20.2 亿</b>、持有≈<b>226 万</b>；sLGNS 供应≈15.78 亿（多由合约持有）</dd>
+<dt>期限债券 · principle()</dt><dd>30／60／120 天=<b>DAI</b>；240／360 天=<b>0x882d…5bfb（LGNS-DAI LP）</b>，五档抵押物逐一合约层确认</dd>
+<dt>体系仍在运行（最近活动）</dt><dd>360 天 <b>2026-08-03</b>、30 天 2026-08-01、DAI 储备 2026-07-27、USDT 储备 2026-07-05</dd>
+<dt>Anubis 360 天 · 机制</dt><dd>3,644 笔 LGNS 流入、2,420 笔 sLGNS 流出，2,420 笔<b>同哈希成对</b>；sLGNS=Staked Longinus（0x2243…5b8c，9 位精度）</dd>
+</dl></div>
+<p class="pend">核验边界：<b>数据快照截至 2026-08-03（UTC；新加坡时间 8 月 4 日）</b>，链上数值会随后续交易变动，引用请以查询当时为准。金额分两类——债券“累计经手（流入）”为近似值、非当前余额（进账后多已转入国库）；国库余额为<b>当前快照</b>，会随每笔交易变动。储备债券因垃圾空投代币刷屏，已按真实抵押币种（DAI／USDT／WBTC 合约地址）单独过滤统计；买家数按抵押币发送地址去重；对外发出的 LGNS 与部分收币地址数因单币种转账超 1 万条上限，所列为<b>近似下限</b>。terms() 中控制变量、maxPayout 等参数会随合约运行动态调整，此处为某一时点读数；vestingTerm 按 OHM 系惯例以秒计（≈2.5 天），单位口径以合约为准。债券合约源码在本浏览器未验证，故以其<b>链上接口行为</b>判定为 OHM 系 BondDepository，源码级完全同源“未查到”。terms() 各档另含 vestingTerm 等线性归属参数、均可链上读取，具体天数口径以合约为准。Anubis 600 天／Bond 两券的 terms()／principle() 在公共 RPC 调用回退，<b>未查到</b>，仅其 LGNS→sLGNS 转账方向可核。WBTC 债券已部署但未查到 WBTC 抵押流入。Anubis 侧数据（含 sLGNS／gLGNS 供应与持有地址数）取自该链浏览器代币接口。<b>活跃度为“最近约 1 万笔交互”的抽样，非全历史统计</b>；样本中另有一类方法（0xb6904c41）未能解析，未计入分类。凡未列出者一律以“未查到”为准，不作推测。本轮由 Claude 与 Codex 双工具独立核对，关键地址与数值一致。</p>
+</div>
+
+<div class="vol" id="zt-21"><div class="vol-head"><span class="vol-ic">🕸️</span><div><h2 class="vol-h2"><span class="tag">深度</span>蛛网推荐与 DAO 等级</h2><p class="vol-desc">15 代蛛网计酬怎么算、DAO 等级怎么升、奖励为什么要"领"才上链——一次讲明白</p></div></div></div>
+
+<div class="wrap"><p class="plain">很多人第一次看起源的推荐结构会被"<b>15 代</b>""<b>V1–V6</b>"这些词绕晕。其实拆开看并不复杂：一部分是按<b>推荐关系</b>逐代分润的"蛛网推荐"，另一部分是按<b>团队规模</b>升级的"DAO 等级"。这篇用大白话把两套机制讲清楚。</p></div>
+
+<div class="wrap"><p class="plain">先说"<b>代</b>"是什么。你直接拉进来的人是你的"<b>1 代</b>"；你的 1 代再拉进来的人，就是你的"<b>2 代</b>"；以此类推，像蛛网一样一圈圈往外扩，最多算到<b>第 15 代</b>。每一代按不同系数给你分一份收益，越靠近你的代系数越高，越远越低。</p></div>
+
+<div class="wrap"><p class="plain">再说"<b>质押门槛</b>"。想拿到对应代的分润，通常要满足两个条件：一是该层级要求的<b>直推人数</b>，二是自己达到相应的<b>质押金额（U）</b>。比如想吃到 1 代收益，机制口径是<b>直推 1 人、质押 100U</b>；层级越深，要求的直推人数和质押门槛越高。下面这张表把 1 代到 15 代的系数完整列出来。</p></div>
+
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>代数</th><th>直推人数</th><th>质押门槛</th><th>收益系数</th></tr></thead><tbody>
+<tr><td class="nm">1代</td><td>1人</td><td>100U</td><td>3.38%</td></tr>
+<tr><td class="nm">2代</td><td>2人</td><td>300U</td><td>2.11%</td></tr>
+<tr><td class="nm">3代</td><td>3人</td><td>500U</td><td>1.69%</td></tr>
+<tr><td class="nm">4代</td><td>4人</td><td>800U</td><td>1.48%</td></tr>
+<tr><td class="nm">5–8代</td><td>5–8人</td><td>1200–3000U</td><td>各1.27%</td></tr>
+<tr><td class="nm">9–15代</td><td>9–15人</td><td>3700–10000U</td><td>各1.06%</td></tr>
+</tbody></table></div></div>
+
+<div class="wrap"><p class="plain">把这 15 代的系数加起来，浮动系数合计约<b>21.11%</b>。要注意，这是一套"<b>越深越薄</b>"的分层设计：前 4 代系数较高，从<b>3.38%</b>递减到<b>1.48%</b>；<b>5–8 代</b>统一为各 <b>1.27%</b>；<b>9–15 代</b>统一为各 <b>1.06%</b>。这样的结构鼓励你既关注自己直推的人，也关注整条团队线的活跃度。</p></div>
+
+<div class="wrap"><p class="plain">第二套机制是"<b>DAO 等级</b>"，分为 <b>V1 到 V6</b> 六个等级，是对团队建设的进阶认可。机制口径下，<b>每升一级需要直推 3 个团队</b>——也就是说等级不是靠单纯堆金额，而是靠你名下能带起多少条独立的团队线。等级越高，对应的团队激励权益也越大。</p></div>
+
+<div class="wrap"><p class="plain">这里有个非常关键、也最容易被误解的点：<b>DAO 等级奖励在你"领取（claim）"之前，链上是不会生成交易的</b>。也就是说，系统里显示的等级奖励处于"<b>挂账</b>"状态——它先记在账上，等你主动点"领取"那一刻，才会真正发起一笔链上交易、把奖励打到你钱包。所以"账面数字"和"已上链到账"是两回事，看到挂账金额不等于已经进钱包。</p></div>
+
+<div class="wrap"><p class="plain">用一句话总结这套协作机制：<b>蛛网推荐</b>按推荐关系逐代计酬、鼓励拉新与团队活跃；<b>DAO 等级</b>按团队数量升级、体现社区贡献；两者的奖励都遵循"<b>先挂账、领取后上链</b>"的规则。搞懂"代""质押门槛""挂账"这三个词，基本就能看懂自己在这张蛛网里的位置了。</p></div>
+
+<div class="evi"><div class="h">机制口径 · 官方公告为准</div><dl>
+<dt>DAO奖励分发（Anubis 链）</dt><dd>0x579a71890aE0E99806f75cD2e006bB07559C3b49<button class="copy" data-c="0x579a71890aE0E99806f75cD2e006bB07559C3b49">复制</button></dd>
+<dt>蛛网推荐</dt><dd>15 代分层计酬，浮动系数合计约 21.11%</dd>
+<dt>DAO 等级</dt><dd>V1–V6，每升一级需直推 3 个团队</dd>
+</dl></div>
+
+<p class="pend">核验边界：以上系数与等级规则为项目机制口径，具体以官方最新公告为准；奖励领取前为挂账、链上不生成交易。</p>
+
+<div class="vol" id="zt-22"><div class="vol-head"><span class="vol-ic">📈</span><div><h2 class="vol-h2"><span class="tag">深度</span>LGNS 价格与供应历史</h2><p class="vol-desc">从 2024 年的首铸一枚，到今天双链并行——一份看得见链上凭证的完整档案</p></div></div></div>
+
+<div class="wrap">
+
+<p class="plain">很多人第一次看 LGNS 的数据会有个疑问：<b>供应量怎么从 7 万涨到 41 亿</b>？这不是通胀失控，而是 OHM 类机制里的 <b>Rebase（重定基）</b>。它的意思是：系统按周期给持币地址增发币，你手里的 <b>币数量在变多</b>，但这本身<b>不等于</b>单价上涨。看懂这一点，后面的数据就都顺了。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">先立一条中性口径：币的"数量"和币的"单价"是两回事。数量由机制决定，单价由市场买卖和底池深度决定。这篇专题把两者分开讲清楚，只摆链上查到的真实数据。</p>
+
+<h3 style="font-family:var(--serif);color:var(--ink);margin:22px 0 8px">一、Polygon：从第一枚说起</h3>
+
+<p class="plain">LGNS 的起点在 Polygon。<b>2024-03-06</b> 首次铸造，当天从 <b>70,001</b> 枚起步，到当日收盘变成 <b>83,142</b> 枚。此后随着 Rebase 周期滚动，数量像滚雪球一样稳步累积——这是机制设计里预期之中的增长曲线。</p>
+
+<p class="plain">开盘那天，创世池给 LGNS 定了个<b>开盘价 4.00 DAI</b>。要分清"开盘价"和"市场价"：开盘价是上线时人为设定的初始参考，之后每一秒的价格，都由池子里 <b>DAI 和 LGNS 的比例</b>实时决定，谁也没法凭空写死。</p>
+
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>时点</th><th>Polygon LGNS 供应</th><th>说明</th></tr></thead><tbody>
+<tr><td class="nm">2024-03-06 首铸</td><td>70,001</td><td>创世第一批</td></tr>
+<tr><td class="nm">2024-03-06 收盘</td><td>83,142</td><td>上线当日</td></tr>
+<tr><td class="nm">2024-03-08</td><td>104,831</td><td>两日后</td></tr>
+<tr><td class="nm">2024-03-31</td><td>196,644</td><td>首月末</td></tr>
+<tr><td class="nm">2024 年末</td><td>7,428,657</td><td>约 742 万</td></tr>
+<tr><td class="nm">今（链上实测）</td><td>4,136,199,447</td><td>约 41.36 亿</td></tr>
+</tbody></table></div></div>
+
+<p class="plain">这条曲线的关键理解是：<b>Rebase 让币数变多，是把"份额"摊得更细</b>，不是无中生有的价值。真正决定这些币值多少钱的，始终是底池和市场。所以看 LGNS，别只盯供应量，要同时看单价和池子深度。</p>
+
+<h3 style="font-family:var(--serif);color:var(--ink);margin:22px 0 8px">二、Anubis：2026 年开的第二条链</h3>
+
+<p class="plain">Anubis 是 LGNS 的<b>第二条独立链</b>，<b>2026-05-13</b> 上线，开盘价定在 <b>5.00 DAI</b>。要特别记住：<b>两条链的供应各自独立</b>，Anubis 的币不是从 Polygon 搬过去的，两边的数量、价格、底池都是分开的两套账。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">换句话说，你在看 LGNS 时其实在看两张独立的资产负债表：一张在 Polygon，一张在 Anubis。把它们混着加起来看，反而会算错。</p>
+
+<h3 style="font-family:var(--serif);color:var(--ink);margin:22px 0 8px">三、今天的链上快照</h3>
+
+<p class="plain">下面是刚刚从两条链拉到的<b>实时数据</b>。价格算法很直白：拿池子里的 <b>DAI 数量除以 LGNS 数量</b>，就是当前每枚 LGNS 值多少 DAI。这也是"价格由底池决定"最朴素的体现。</p>
+
+<div class="evi"><div class="h">链上凭证 ✓</div><dl>
+<dt>Polygon LGNS 总供应</dt><dd>4,136,199,447.55（totalSupply 实读）</dd>
+<dt>Polygon 创世池</dt><dd>82,799,410 DAI ＋ 58,176,036 LGNS</dd>
+<dt>Polygon 现价</dt><dd>≈ 1.4233 DAI / LGNS</dd>
+<dt>Polygon LP 代币总量</dt><dd>1,354.14（底池份额凭证）</dd>
+<dt>Anubis LGNS 总供应</dt><dd>2,022,542,655.68（totalSupply 实读）</dd>
+<dt>Anubis 创世池</dt><dd>49,483,239 LGNS ＋ 113,611,113 DAI</dd>
+<dt>Anubis 现价</dt><dd>≈ 2.2960 DAI / LGNS</dd>
+</dl></div>
+
+<p class="plain">看底池深度：Polygon 池里躺着约 <b>8,280 万 DAI</b>，Anubis 池里约 <b>1.136 亿 DAI</b>。底池越深，意味着买卖时的价格冲击越小、成交越平稳——这是衡量一个交易对"扛不扛得住量"的直观指标。</p>
+
+<h3 style="font-family:var(--serif);color:var(--ink);margin:22px 0 8px">四、开盘价 vs 市场价，怎么读</h3>
+
+<p class="plain">最后把最容易混淆的三个词一次讲透。<b>开盘价</b>是上线那一刻的初始设定（Polygon 4.00、Anubis 5.00）；<b>市场价</b>是此后每笔成交由底池比例算出的实时数（现在 Polygon ≈1.42、Anubis ≈2.30）；<b>市值</b>则是"价格 × 流通量"，是把单价和数量乘在一起的规模概念。</p>
+
+<p style="font-family:var(--serif);font-size:17px;color:var(--ink)">三者各有各的含义，不能互相替代。看懂了这套语言，再回头看那张从 7 万到 41 亿的供应表，就不会被数字的量级吓到——它记录的是机制的运转，而价值几何，永远回到底池和市场这两把尺子上。</p>
+
+<p class="pend">核验边界：本文供应/价格/底池的"今值"均为发稿时链上实测（totalSupply、getReserves 直读）；历史供应锚点（70,001 至 742 万）与开盘价（4.00 / 5.00 DAI）为既有确认数据。2024 年至今的逐日历史价格未做逐点回溯，链上无法一次性取全的部分，本文不做推算、不填补空缺。两条链数据各自独立，未做合并折算。</p>
+
+</div>
+
+<div class="vol" id="zt-23"><div class="vol-head"><span class="vol-ic">🏁</span><div><h2 class="vol-h2"><span class="tag">深度</span>起源里程碑与官方阵地</h2><p class="vol-desc">从 Polygon 发行到 Anubis 主网上线，一条时间线看懂起源走过的每一步</p></div></div></div>
+
+<div class="wrap"><p class="plain">起源（Origin）从 <b>2024</b> 年一路走到今天，脚印踩得很清楚。这篇专题把公开可查的里程碑串成一条线，再把官方阵地列全，方便你随时对得上号。文中会明确区分<b>链上 A 级</b>、<b>官方口径</b>和<b>项目/社区口径</b>三种说法，是链上能直接验证的，还是官方公布的，一看便知。</p></div>
+
+<div class="wrap"><p class="plain">先说起点。<b>2024-03-04</b>，第三方安全机构 <b>Armors Labs</b> 完成了对起源国库（Treasury）的专项审计，编号 <b>0X202403040006</b>，<b>17</b> 项检测全部 PASSED。两天后的 <b>2024-03-06</b>，主代币 <b>LGNS</b> 在 <b>Polygon</b> 链上正式发行，这一笔是链上可查的，属<b>链上 A 级</b>事实。项目在开局阶段就把审计和发行两件事做在了一起。</p></div>
+
+<div class="wrap"><p class="plain">紧接着 <b>2024-04-22</b>，<b>CertiK</b> 完成对 LGNS 代币的评估，并纳入 <b>Skynet</b> 持续监控，长期维持 <b>A 级</b>（约 <b>82</b> 分）。这里要如实讲清楚覆盖范围：CertiK 评的是 <b>LGNS 代币合约</b>，Armors 审的是 <b>Treasury 国库合约</b>，两家分工不同、各审各的。所以起源对外说的"双重独立审计"，指的正是这两条独立的审计线，不是"全生态一次性扫完"。这样说才对得上事实。</p></div>
+
+<div class="wrap"><p class="plain">进入 <b>2025</b> 年，生态进入成长期。按项目与社区口径，起源的 <b>LP 底池</b>、市值与成交量在这一阶段显著扩大，LP 一度突破 <b>1.94 亿</b>，并走过市值高峰阶段。这组数字属<b>项目/社区口径</b>，反映的是生态在那段时间的活跃度，看的时候记得和链上实时数据一起对。</p></div>
+
+<div class="wrap"><p class="plain">真正的大动作在 <b>2026</b> 年。<b>2026-04-08</b>，起源自研的隐私公链 <b>Anubis</b> 主网上线，<b>Chain ID 6714</b>，从一条链上的项目升级成拥有自己底层公链的生态。<b>4 月 20 至 23 日</b>，Anubis 亮相 <b>2026 香港 Web3 Festival</b>，把项目摆到了行业的公开舞台上（官方口径）。这两步意味着起源开始有了自己的主场。</p></div>
+
+<div class="wrap"><p class="plain">到 <b>2026-05-13</b>，<b>LGNS</b> 在 Anubis 链上开盘，<b>开盘价 5 DAI</b>，同样是链上可查的<b>链上 A 级</b>事实。至此，LGNS 完成了从 Polygon 到 Anubis 的双链布局，起源的资产与自研公链正式接上。</p></div>
+
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>时间</th><th>里程碑</th><th>口径</th></tr></thead><tbody>
+<tr><td class="nm">2024-03-04</td><td>Armors Labs 完成 Treasury 审计（编号 0X202403040006，17 项 PASSED）</td><td>官方口径</td></tr>
+<tr><td class="nm">2024-03-06</td><td>LGNS 在 Polygon 发行</td><td>链上 A 级</td></tr>
+<tr><td class="nm">2024-04-22</td><td>CertiK 完成评估，Skynet 持续评级 A 级（约 82 分）</td><td>官方口径</td></tr>
+<tr><td class="nm">2025-06</td><td>生态成长：LP 底池一度破 1.94 亿、市值高峰、成交量显著扩大</td><td>项目/社区口径</td></tr>
+<tr><td class="nm">2026-04-08</td><td>Anubis 隐私公链主网上线（Chain ID 6714）</td><td>官方口径</td></tr>
+<tr><td class="nm">2026-04-20~23</td><td>Anubis 亮相 2026 香港 Web3 Festival</td><td>官方口径</td></tr>
+<tr><td class="nm">2026-05-13</td><td>LGNS 在 Anubis 开盘，开盘价 5 DAI</td><td>链上 A 级</td></tr>
+</tbody></table></div></div>
+
+<div class="wrap"><p class="plain">说完时间线，再把<b>官方阵地</b>认全，这一点特别重要。链上项目最怕认错门，钓鱼站、假客服、山寨号都爱蹭名头。下面这张表是起源对外公开的官方渠道，建议直接收藏，遇到没在表里的地址、群或账号，先打个问号，别急着信、别急着连钱包。</p></div>
+
+<div class="tblwrap"><div class="scroll"><table><thead><tr><th>性质</th><th>地址</th></tr></thead><tbody>
+<tr><td class="nm">主官网</td><td>origindefi.io</td></tr>
+<tr><td class="nm">品牌副站</td><td>originworld.org</td></tr>
+<tr><td class="nm">GitBook 白皮书</td><td>origin-3.gitbook.io</td></tr>
+<tr><td class="nm">X 官方号</td><td>@SaluteOrigin</td></tr>
+<tr><td class="nm">中文资讯站</td><td>web3origin.com</td></tr>
+</tbody></table></div></div>
+
+<div class="wrap"><p class="plain">把这两张表放一起看，起源的脉络就清楚了：<b>2024</b> 年在 Polygon 上带着审计发行，<b>2025</b> 年生态成长，<b>2026</b> 年自研 Anubis 公链上线、亮相香港、LGNS 双链开盘。审计如实说是<b>CertiK 评 LGNS 代币、Armors 审 Treasury 国库</b>，各管一段；里程碑数字则按链上、官方、项目三种口径分好类。认准官方阵地、对准链上数据，是每一位参与者最实在的功课。</p></div>
+
+<!-- ===== 专题·术语大白话 ===== -->
+<div class="vol" id="zt-glossary"><div class="vol-head"><span class="vol-ic">📖</span><div><h2 class="vol-h2"><span class="tag">附录</span>术语大白话表</h2><p class="vol-desc">读这部编年史会遇到的名词，一句人话讲明白，可搜索</p></div></div></div>
+<div class="tblwrap">
+  <input class="srch" id="glsearch" placeholder="搜术语：Rebase / 债券 / 国库 / 多签 / 背书…">
+  <div class="scroll"><table id="gltable"><thead><tr><th>术语</th><th>大白话解释</th></tr></thead><tbody>
+    <tr><td class="nm">LGNS</td><td>起源生态的核心代币（不是稳定币），朗基努斯之矛。精度 9 位，靠国库储备铸出，鼓励长期质押而非频繁买卖。</td></tr>
+    <tr><td class="nm">sLGNS</td><td>你把 LGNS 质押后拿到的「存款收据」，1 枚换 1 枚。它会随每次 Rebase 自动变多，代表你质押中的那份 LGNS。</td></tr>
+    <tr><td class="nm">gLGNS</td><td>治理代币，固定供应 21 万、不再增发，是双层治理的顶层凭证——持有它就有更重的投票分量。</td></tr>
+    <tr><td class="nm">DAI</td><td>一种和美元 1:1 挂钩的稳定币。起源用它做储备、做交易对、在 Anubis 上还直接当 Gas（油钱）用。</td></tr>
+    <tr><td class="nm">Rebase</td><td>协议每隔固定时间（现在每 6 小时）把新铸的 LGNS 分给质押者，方式是让你钱包里 sLGNS 的余额数字自动往上涨，你什么都不用点。</td></tr>
+    <tr><td class="nm">(3,3)</td><td>OlympusDAO 那套博弈玩法：如果大家都选择质押持有、不互相抛售，整体收益最大，用 3,3 记号表示「双方都合作」的最优结果。</td></tr>
+    <tr><td class="nm">债券 Bond</td><td>不是股市的债券，而是「打折买币券」：你把 DAI/USDT/WBTC 交给协议，过一小段归属期后按略优惠的价格拿到 LGNS，交的钱同时变成国库储备。</td></tr>
+    <tr><td class="nm">国库 Treasury</td><td>协议的「总金库」，用户交进来的真金白银都存这儿，用来给 LGNS 做储备。它是一份写死的合约、不是某个人的钱包。</td></tr>
+    <tr><td class="nm">储备 / 托底</td><td>金库里存的硬资产（稳定币、LP），相当于纸币背后的黄金，给币价撑起一条「资产支撑线」。</td></tr>
+    <tr><td class="nm">AMM 自动做市商</td><td>一台没有柜台店员的自助兑换机，价格不由人喊，而是由「池子里两种货各剩多少」按公式算出来——货越少、价越贵。</td></tr>
+    <tr><td class="nm">LP / LP Token</td><td>你往交易池里同时放进两种币做市，池子发给你的一张「份额存根」，凭它能取回你那份资产、还能分手续费。</td></tr>
+    <tr><td class="nm">流动性</td><td>池子里的「水」多不多。水多，你舀一大瓢价格几乎不动；水少，随便一舀价格就哗哗变。</td></tr>
+    <tr><td class="nm">滑点</td><td>你一次买得越多，成交价就越偏离你看到的挂牌价——就像把整个菜摊一次买光，摊主当场就得涨价。</td></tr>
+    <tr><td class="nm">质押 Stake</td><td>把 LGNS 锁进协议合约、换一张凭证并开始「产币」。注意分清：产出的是数量，一枚值多少钱由市场另算。</td></tr>
+    <tr><td class="nm">多签</td><td>一把要好几个人一起签字才能拧动的锁（如 5 个人里凑够 4 个），一个人说了不算，用来防单点失误。</td></tr>
+    <tr><td class="nm">代理合约 / 可升级</td><td>把「门面」和「后台逻辑」分开：门面地址不变，后台逻辑可被替换升级。不可升级则是代码一旦上链就固定、谁也改不了。</td></tr>
+    <tr><td class="nm">OHM 分叉</td><td>照搬 OlympusDAO（业内著名的「链上央行」）那套国库+债券+质押+Rebase 玩法，起源就是它的一个分叉。</td></tr>
+    <tr><td class="nm">ILO / 流动性共建</td><td>由社区众筹的资金汇成一股，通过发行合约按固定比例一笔笔灌进池子，共同把底池建起来。</td></tr>
+    <tr><td class="nm">映射 / 背书</td><td>真钱锁在一条链上不动，另一条链上发一张「等额提货凭证」来用（映射）；凭证背后必须有真资产托底（背书），不是凭空印。</td></tr>
+    <tr><td class="nm">Gas</td><td>你在链上做事要交的手续费，好比寄快递的邮费。Anubis 上直接用 DAI 付，不用另持原生币。</td></tr>
+    <tr><td class="nm">销毁 / 通缩</td><td>把币转到黑洞地址永久扣减总量。销毁越多，流通盘越少，是给币价托底的另一只手。</td></tr>
+    <tr><td class="nm">涡轮 / 回购池</td><td>一个只进多、出少的蓄水池，攒着 LGNS 用于生态的回购与抄底。</td></tr>
+    <tr><td class="nm">挂账 vs 已上链</td><td>账面上算给你了、但链上还没那笔交易（挂账）；只有你亲手去「领取 claim」，链上才真正生成到账交易。</td></tr>
+    <tr><td class="nm">精度 9 位</td><td>这枚币最小能拆到小数点后第 9 位来记账（很多以太坊代币是 18 位，LGNS 是 9 位）。</td></tr>
+  </tbody></table></div>
+</div>
+<script>(function(){var q=document.getElementById('glsearch');if(!q)return;var rows=[].slice.call(document.querySelectorAll('#gltable tbody tr'));q.addEventListener('input',function(){var s=q.value.toLowerCase();rows.forEach(function(r){r.style.display=r.textContent.toLowerCase().indexOf(s)>=0?'':'none';});});})();</script>
+
+<div class="closing">
+  <div class="rule"></div>
+  <p>从 2024 年那份从零起步的合约，到 2026 年那一区块里分毫不差的 5.0000，起源的每一步都写在了链上。</p>
+  <p>这部编年史仍在续写。随着更多链上取证与官方资料补入，它会一章章地更完整。</p>
+</div>
+
+<footer>
+  Web3Origin · 起源链上编年史 &nbsp;|&nbsp; <a href="https://web3origin.com/">起源学习站首页</a> · <a href="#v1">从头读起</a><br>
+  本文只把链上交易、合约状态与可核验的官方资料作为已确认事实；项目公告、社区口径及暂未核实的信息单独标注。链上余额为特定区块时点快照，不代表永久锁定、价格承诺或收益保证。仅用于学习与研究，不构成投资建议 · 一切链上数据请自己核实（DYOR）
+</footer>
+
+<div class="toast" id="toast">已复制</div>
+<script>
+(function(){
+  var toast=document.getElementById('toast');
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.copy'); if(!b)return; e.preventDefault();
+    var t=b.getAttribute('data-c');
+    function ok(){toast.textContent='已复制 '+t.slice(0,10)+'…';toast.classList.add('show');setTimeout(function(){toast.classList.remove('show')},1100);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,ok);}else{ok();}
+  });
+  var q=document.getElementById('q'),rows=[].slice.call(document.querySelectorAll('#at tbody tr'));
+  if(q)q.addEventListener('input',function(){var s=q.value.toLowerCase();rows.forEach(function(r){r.style.display=r.textContent.toLowerCase().indexOf(s)>=0?'':'none';});});
+})();
+</script>
+<!-- 顶部统计自动数(永远与正文对齐) -->
+<script>
+(function(){
+  var nodes=document.querySelectorAll('.card').length;
+  var onchain=0;
+  document.querySelectorAll('.evi .h').forEach(function(h){ if(/链上/.test(h.textContent)) onchain++; });
+  var a=document.getElementById('stNodes'); if(a) a.textContent=nodes;
+  var b=document.getElementById('stTx'); if(b) b.textContent=onchain;
+})();
+</script>
+<!-- 交易哈希一键跳区块浏览器(仅在链能确定时加,不确定保留复制) -->
+<script>
+(function(){
+  document.querySelectorAll('.evi').forEach(function(evi){
+    var txt=evi.textContent;
+    var isAnb=/Anubis|6714|anubispace/i.test(txt);
+    var isPoly=/Polygon|Chain ID 137|polygonscan/i.test(txt);
+    if(!isAnb && !isPoly){ // 没明确写链:用区块号范围推断(Polygon≈54M-70M / Anubis<13M,无重叠)
+      var m=txt.match(/区块[^0-9]*([0-9][0-9,]{5,})/);
+      if(m){ var blk=parseInt(m[1].replace(/,/g,''),10);
+        if(blk>=40000000) isPoly=true; else if(blk>0 && blk<20000000) isAnb=true; }
+    }
+    var base=isAnb?'https://browser.anubispace.org/tx/':(isPoly?'https://polygonscan.com/tx/':null);
+    if(!base) return; // 链仍不明确:保留复制,不加错链接
+    evi.querySelectorAll('button.copy').forEach(function(btn){
+      var h=btn.getAttribute('data-c')||'';
+      if(!/^0x[0-9a-fA-F]{64}$/.test(h)) return; // 只对交易哈希(0x+64位)加跳转,地址不加
+      if(btn.nextSibling && btn.nextSibling.className==='exlink') return;
+      var a=document.createElement('a');
+      a.href=base+h; a.target='_blank'; a.rel='noopener'; a.className='exlink'; a.textContent='🔗 查';
+      btn.parentNode.insertBefore(a, btn.nextSibling);
+    });
+  });
+})();
+</script>
+<!-- ===== 会员门禁:前世今生为会员专属(mon_access_v1,全站通用) ===== -->
+<script>
+(function(){
+  var API="https://count.web3origin.com", MLS="mon_access_v1";
+  var gate=document.getElementById("histGate");
+  function unlock(){ document.body.classList.remove("hg-locked"); if(gate) gate.style.display="none"; }
+  function showGate(){
+    if(!gate) return;
+    gate.innerHTML='<div class="hgbox">'
+      +'<div class="hgic">🔒</div>'
+      +'<h3>起源前世今生 · 会员专属</h3>'
+      +'<div class="hgsub">一部写在链上、可逐条核验的起源编年史——从第一份合约、第一枚 LGNS，到 AWAKE 时代。开通 <b style="color:var(--gold-lt)">10 LGNS 会员</b>后即可阅读，全站工具一次通用。</div>'
+      +'<a class="hgcta" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
+      +'<div class="hgnote">一次性 · 永久使用 · 无限查询 · 已解锁请刷新本页</div>'
+      +'<a class="hgback" href="https://web3origin.com/">← 返回主站</a>'
+      +'</div>';
+  }
+  function tok(){ try{ return localStorage.getItem(MLS)||""; }catch(e){ return ""; } }
+  var t=tok();
+  if(!t){ showGate(); return; }
+  fetch(API+"/mon/access?token="+encodeURIComponent(t)).then(function(r){return r.json();})
+    .then(function(j){ if(j&&j.ok){ unlock(); } else { showGate(); } })
+    .catch(function(){ showGate(); });
+})();
+</script>
+</body></html>

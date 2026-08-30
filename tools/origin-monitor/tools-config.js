@@ -93,8 +93,8 @@
 
     { id: 'history', number: 10, name: '起源前世今生', category: 'data-evidence', icon: '🕰️',
       description: '通过时间轴查看起源的重要公告、合约变化、迁移和发展记录。',
-      status: 'soon', isPremium: true, route: '', enabled: false,
-      note: '前世今生内容已有素材，但本站尚无独立时间轴工具页，标即将上线。' },
+      status: 'live', isPremium: true, route: '/tools/origin-history/', enabled: true,
+      note: '独立编年史工具页 /tools/origin-history/(会员专属),5卷时间轴+23专题,交易哈希可核实,已上线。' },
 
     { id: 'treasury', number: 11, name: '国库资产查询', category: 'data-evidence', icon: '🏛️',
       description: '查看公开国库地址的资产构成、余额和资金流动。',
