@@ -63,13 +63,13 @@
 
     { id: 'staking-top', number: 4, name: '活期质押大户榜', category: 'asset-staking', icon: '🏆',
       description: '查询双链活期质押排名及大户资产变化。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/#mtopsec', enabled: true,
-      note: '链上尽调助手·监控中心「持仓榜」，已上线（后台定时扫描，页面标注更新时间）。' },
+      status: 'live', isPremium: true, route: '/tools/holders/', enabled: true,
+      note: '独立页 /tools/holders/(会员专属),读后台/mon/stats的双链持仓大户(Polygon Moralis+Anubis区块浏览器,排除合约/项目钱包)。已上线。' },
 
     { id: 'v-count', number: 5, name: '全网 V1–V6 数量', category: 'wallet-id', icon: '📊',
       description: '统计各等级钱包数量，并提供双链分别统计和跨链去重数据。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/#mlevels', enabled: true,
-      note: '链上尽调助手·监控中心「等级分布」，已上线（后台定时扫描）。' },
+      status: 'live', isPremium: true, route: '/tools/levels/', enabled: true,
+      note: '独立页 /tools/levels/(会员专属),读后台/mon/stats的daoLevel全量扫描等级分布(已修复VPS扫描器分段+令牌,每30min更新)。已上线。' },
 
     { id: 'staking-query', number: 6, name: '双链质押查询', category: 'asset-staking', icon: '🔒',
       description: '查询活期、360、600 及钱包名下的总质押记录。',
@@ -98,8 +98,8 @@
 
     { id: 'treasury', number: 11, name: '国库资产查询', category: 'data-evidence', icon: '🏛️',
       description: '查看公开国库地址的资产构成、余额和资金流动。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/#massets', enabled: true,
-      note: '链上尽调助手·监控中心「国库」，链上实时，已上线。' },
+      status: 'live', isPremium: true, route: '/tools/treasury/', enabled: true,
+      note: '独立页 /tools/treasury/(会员专属),前端实时读主国库+基金会 balanceOf(DAI/USDT)+LP自持%,可核实。已上线。' },
 
     { id: 'peg-logic', number: 12, name: '1美元托底逻辑', category: 'data-evidence', icon: '⚖️',
       description: '解释托底机制、触发条件、资金来源和目前可以验证的数据。',
@@ -108,8 +108,8 @@
 
     { id: 'staking-total', number: 13, name: '全网质押总量看板', category: 'asset-staking', icon: '📟',
       description: '统计双链各类质押总量、参与钱包数量及每日变化。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/#massets', enabled: true,
-      note: '链上尽调助手·监控中心含质押率/总量，已上线（每日变化为部分覆盖）。' },
+      status: 'live', isPremium: true, route: '/tools/staking/', enabled: true,
+      note: '独立页 /tools/staking/(会员专属),前端实时读双链LGNS总供应+质押合约锁仓量算质押率(对官方验证吻合),可核实。已上线。' },
 
     { id: 'full-dd', number: 14, name: '钱包综合尽调报告', category: 'security-dd', icon: '🔍',
       description: '一次查询钱包持仓、质押、等级、推荐关系、交易和授权等信息。',

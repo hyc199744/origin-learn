@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<title>全网 V1–V6 数量 · 等级分布 · Web3Origin</title>
+<meta name="description" content="统计 Anubis 链上全网 DAO 等级 V1–V6 的钱包数量与分布，数据来自链上 daoLevel 事件的后台定时扫描，可交叉核实。">
+<link rel="canonical" href="https://web3origin.com/tools/levels/">
+<link rel="icon" href="/assets/favicon.png">
+<style>
+:root{--bg:#070806;--panel:#0e100e;--panel2:#141712;--line:rgba(212,175,55,.2);--gold:#d4af37;--gold2:#e8cf7e;--txt:#e9efea;--dim:#7a857c;--soft:#c3cbc4;--green:#25C96F;--red:#ff6b5e}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -12%,rgba(212,175,55,.10),transparent),var(--bg);color:var(--txt);font:15px/1.6 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.top a.home{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--gold2);text-decoration:none}
+.top img{height:26px}
+h1{font-size:24px;margin:0 0 4px;color:var(--gold2)}
+h1 span{color:var(--txt)}
+.sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.7}
+.status{color:var(--dim);font-size:13px;min-height:20px;margin:4px 0 14px}
+.status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;vertical-align:middle}
+.total{background:linear-gradient(135deg,rgba(212,175,55,.10),var(--panel2));border:1px solid var(--line);border-radius:15px;padding:18px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.total::before{content:"";position:absolute;top:-40%;right:-8%;width:200px;height:200px;background:radial-gradient(circle,rgba(212,175,55,.14),transparent 70%);pointer-events:none}
+.total .lab{color:var(--dim);font-size:13px}
+.total .big{font-size:34px;font-weight:800;color:var(--gold);margin:3px 0;text-shadow:0 0 18px rgba(212,175,55,.22)}
+.total .sm{color:var(--soft);font-size:13px}
+.total .sm a{color:var(--gold2);text-decoration:none}
+.bars{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:16px 18px;margin-bottom:14px}
+.lvrow{display:flex;align-items:center;gap:12px;margin:10px 0}
+.lvrow .tag{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#1a1205;background:linear-gradient(135deg,var(--gold),var(--gold2));flex:none;font-size:13px}
+.lvrow .track{flex:1;height:14px;background:#0a0d0a;border-radius:7px;overflow:hidden}
+.lvrow .track i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));box-shadow:0 0 8px rgba(212,175,55,.4)}
+.lvrow .num{width:120px;text-align:right;font-weight:700;color:var(--gold2);flex:none;font-size:14px}
+.lvrow .num small{color:var(--dim);font-weight:400;font-size:11.5px;margin-left:4px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.mcard{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;text-align:center}
+.mcard .n{font-size:24px;font-weight:800;color:var(--gold2)}
+.mcard .l{font-size:12px;color:var(--dim);margin-top:2px}
+.mcard .l a{color:var(--gold2);text-decoration:none}
+.note{color:var(--dim);font-size:12px;background:var(--panel);border:1px dashed var(--line);border-radius:9px;padding:11px 13px;margin-top:14px;line-height:1.75}
+.foot{color:var(--dim);font-size:12px;text-align:center;margin-top:22px;line-height:1.8}
+.refresh{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:9px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;min-height:38px}
+@media(max-width:560px){h1{font-size:21px}.total .big{font-size:28px}.lvrow .num{width:96px}}
+#gate{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(900px 500px at 50% 0%,rgba(212,175,55,.14),transparent),rgba(7,8,6,.97);backdrop-filter:blur(6px)}
+#gate.on{display:flex}
+#gate .gb{max-width:440px;width:100%;text-align:center;background:linear-gradient(165deg,rgba(212,175,55,.08),transparent),#141712;border:1px solid rgba(212,175,55,.4);border-radius:18px;padding:32px 24px;box-shadow:0 24px 70px rgba(0,0,0,.7)}
+#gate .gic{font-size:44px}#gate h3{font-size:21px;color:var(--gold2);margin:12px 0 6px}
+#gate .gs{font-size:14px;color:var(--soft);line-height:1.8;margin:0 0 18px}
+#gate .gc{display:inline-block;text-decoration:none;padding:14px 28px;border-radius:12px;font-weight:800;font-size:16px;color:#1a1205;background:linear-gradient(135deg,var(--gold),var(--gold2))}
+#gate .gback{display:block;margin-top:14px;color:var(--soft);font-size:13px;text-decoration:none}
+body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
+</style>
+</head>
+<body class="locked">
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+
+<div class="wrap">
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
+  <h1>全网 <span>V1–V6 数量</span></h1>
+  <div class="sub">统计 Anubis 链上全网 DAO 等级 <b style="color:var(--gold2)">V1–V6</b> 的钱包数量与分布。数据来自链上 <b>daoLevel 事件</b>的后台定时扫描（每 30 分钟更新），等级由官方按规则写入链上、可交叉核实。<b>Polygon 无此等级系统</b>。</div>
+
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><button class="refresh" id="refresh">↻ 刷新</button></div>
+  <div class="status" id="status"></div>
+
+  <div class="total">
+    <div class="lab">V1+ 有等级钱包总数（Anubis）</div>
+    <div class="big" id="v1plus">—</div>
+    <div class="sm" id="sub2"></div>
+  </div>
+
+  <div class="bars" id="bars"></div>
+
+  <div class="mini">
+    <div class="mcard"><div class="n" id="events">—</div><div class="l">累计 daoLevel 链上事件</div></div>
+    <div class="mcard"><div class="n" id="promo24">—</div><div class="l">近 24h 晋升 · <a href="/tools/promotion/">看明细 →</a></div></div>
+  </div>
+
+  <div class="note">
+    <b style="color:var(--soft)">口径与核实</b>：等级由官方按"三条线团队业绩"规则算好后写入 Anubis 链（daoLevel 事件，合约 0x579a71…3b49）。本页数字来自后台对全量事件的扫描去重：取每个钱包<b>最新一次</b>的等级归入 V1–V6 计数（每 30 分钟增量更新一次）。你可用「今日晋升查询」逐条核对交易哈希。团队业绩本身在官方后台（链下），本页只呈现链上最终等级的统计。
+  </div>
+  <div class="foot">数据源：Anubis 链上 daoLevel 事件 · 后台定时扫描 · 纯只读</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var WK='https://count.web3origin.com', MLS='mon_access_v1', MONTOKEN=null;
+  var gate=document.getElementById('gate');
+  function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
+  function showGate(){
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>全网 V1–V6 数量 · 会员专属</h3>'
+      +'<div class="gs">开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可查看全网等级分布，全站工具一次通用。</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
+      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.classList.add('on');
+  }
+  function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
+  (async function(){
+    var t=tok(); if(!t){ showGate(); return; }
+    try{ var r=await fetch(WK+'/mon/access?token='+encodeURIComponent(t)).then(function(x){return x.json();});
+      if(r&&r.ok){ MONTOKEN=t; unlock(); } else showGate(); }catch(e){ showGate(); }
+  })();
+  var comma=function(n){ return Number(n||0).toLocaleString(); };
+  var NAMES={1:'传道士',2:'武士',3:'骑士',4:'信使',5:'尊者',6:'大师'};
+
+  async function load(){
+    var st=document.getElementById('status');
+    st.innerHTML='<span class="dot"></span>正在读取全网等级分布…';
+    document.getElementById('refresh').disabled=true;
+    try{
+      var d=await fetch(WK+'/mon/stats').then(function(r){return r.json();});
+      var lv=d.levels||{};
+      if(!lv.dist) throw new Error('后台数据暂不可用');
+      var dist=lv.dist, v1=lv.v1plus||0;
+      document.getElementById('v1plus').textContent=comma(v1);
+      document.getElementById('sub2').textContent='V6 大师 '+comma(dist['6']||0)+' 人 · V5 尊者 '+comma(dist['5']||0)+' 人';
+      var mx=Math.max(1,dist['1']||0);
+      var bars=document.getElementById('bars');
+      bars.innerHTML=[1,2,3,4,5,6].map(function(l){
+        var c=dist[String(l)]||0, pct=v1>0?(c/v1*100):0, w=Math.max(1.5,c/mx*100);
+        return '<div class="lvrow"><div class="tag">V'+l+'</div><div class="track"><i style="width:'+w+'%"></i></div>'
+          +'<div class="num">'+comma(c)+' <small>'+NAMES[l]+' · '+pct.toFixed(1)+'%</small></div></div>';
+      }).join('');
+      document.getElementById('events').textContent=comma(lv.events||0);
+      document.getElementById('promo24').textContent=comma(lv.promo24h||0);
+      var upd=d.updatedAt?new Date(d.updatedAt).toLocaleString('zh-CN'):'—';
+      st.innerHTML='<span class="dot"></span>✓ 后台扫描更新于 '+upd+'（每 30 分钟更新一次）';
+    }catch(e){
+      st.innerHTML='<span style="color:var(--red)">读取失败：'+(e.message||'网络波动')+'，请点刷新重试</span>';
+    }finally{ document.getElementById('refresh').disabled=false; }
+  }
+  function start(){ document.getElementById('refresh').onclick=load; load(); }
+})();
+</script>
+</body>
+</html>

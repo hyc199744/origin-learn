@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<title>全网质押总量看板 · 双链实时 · Web3Origin</title>
+<meta name="description" content="实时读取 LGNS 在 Polygon 与 Anubis 双链的活期质押总量与质押率：以质押合约实际锁仓的 LGNS 为准，可在区块浏览器独立核实。">
+<link rel="canonical" href="https://web3origin.com/tools/staking/">
+<link rel="icon" href="/assets/favicon.png">
+<style>
+:root{--bg:#070806;--panel:#0e100e;--panel2:#141712;--line:rgba(212,175,55,.2);--gold:#d4af37;--gold2:#e8cf7e;--txt:#e9efea;--dim:#7a857c;--soft:#c3cbc4;--green:#25C96F;--red:#ff6b5e;--poly:#a97bff;--anb:#e8cf7e}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -12%,rgba(212,175,55,.10),transparent),radial-gradient(800px 500px at 100% 108%,rgba(169,123,255,.06),transparent),var(--bg);color:var(--txt);font:15px/1.6 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.top a.home{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;color:var(--gold2);text-decoration:none}
+.top img{height:26px}
+h1{font-size:24px;margin:0 0 4px;color:var(--gold2)}
+h1 span{color:var(--txt)}
+.sub{color:var(--dim);font-size:13px;margin-bottom:16px;line-height:1.7}
+.status{color:var(--dim);font-size:13px;min-height:20px;margin:4px 0 14px}
+.status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;vertical-align:middle}
+.total{background:linear-gradient(135deg,rgba(212,175,55,.10),var(--panel2));border:1px solid var(--line);border-radius:15px;padding:20px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.total::before{content:"";position:absolute;top:-40%;right:-8%;width:200px;height:200px;background:radial-gradient(circle,rgba(212,175,55,.14),transparent 70%);pointer-events:none}
+.total .lab{color:var(--dim);font-size:13px}
+.total .big{font-size:34px;font-weight:800;color:var(--gold);margin:3px 0;text-shadow:0 0 18px rgba(212,175,55,.22)}
+.total .sm{color:var(--soft);font-size:13px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.card{background:linear-gradient(162deg,rgba(212,175,55,.04),var(--panel2));border:1px solid var(--line);border-radius:13px;padding:16px 17px}
+.card h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px}
+.pill{font-size:10px;padding:1px 8px;border-radius:20px;border:1px solid var(--line)}
+.pill.poly{color:#a97bff;border-color:rgba(169,123,255,.4)}
+.pill.anb{color:var(--gold);border-color:rgba(232,192,105,.4)}
+.rate{text-align:center;margin-bottom:12px}
+.rate .p{font-size:30px;font-weight:800;color:var(--gold)}
+.rate .l{font-size:12px;color:var(--dim)}
+.bar{height:8px;background:#0a0d0a;border-radius:5px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));box-shadow:0 0 8px rgba(212,175,55,.5)}
+.kv{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--dim)}
+.kv .v{color:var(--txt);font-weight:700}
+.kv .v a{color:var(--gold2);text-decoration:none;font-size:11px;border:1px solid var(--line);border-radius:5px;padding:1px 7px;margin-left:6px;font-weight:400}
+.note{color:var(--dim);font-size:12px;background:var(--panel);border:1px dashed var(--line);border-radius:9px;padding:11px 13px;margin-top:14px;line-height:1.75}
+.foot{color:var(--dim);font-size:12px;text-align:center;margin-top:22px;line-height:1.8}
+.refresh{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:9px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;min-height:38px}
+@media(max-width:560px){.two{grid-template-columns:1fr}h1{font-size:21px}.total .big{font-size:28px}}
+#gate{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(900px 500px at 50% 0%,rgba(212,175,55,.14),transparent),rgba(7,8,6,.97);backdrop-filter:blur(6px)}
+#gate.on{display:flex}
+#gate .gb{max-width:440px;width:100%;text-align:center;background:linear-gradient(165deg,rgba(212,175,55,.08),transparent),#141712;border:1px solid rgba(212,175,55,.4);border-radius:18px;padding:32px 24px;box-shadow:0 24px 70px rgba(0,0,0,.7)}
+#gate .gic{font-size:44px}#gate h3{font-size:21px;color:var(--gold2);margin:12px 0 6px}
+#gate .gs{font-size:14px;color:var(--soft);line-height:1.8;margin:0 0 18px}
+#gate .gc{display:inline-block;text-decoration:none;padding:14px 28px;border-radius:12px;font-weight:800;font-size:16px;color:#1a1205;background:linear-gradient(135deg,var(--gold),var(--gold2))}
+#gate .gback{display:block;margin-top:14px;color:var(--soft);font-size:13px;text-decoration:none}
+body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
+</style>
+</head>
+<body class="locked">
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+
+<div class="wrap">
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
+  <h1>全网<span>质押总量看板</span></h1>
+  <div class="sub">实时读取 LGNS 在 <b style="color:var(--gold2)">Polygon</b> 与 <b style="color:var(--gold2)">Anubis</b> 双链的活期质押总量与质押率。质押量以<b>质押合约实际锁仓的 LGNS</b>为准（不用会因 rebase 失真的 sLGNS 数），可在区块浏览器独立核实。</div>
+
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><button class="refresh" id="refresh">↻ 刷新链上数据</button></div>
+  <div class="status" id="status"></div>
+
+  <div class="total">
+    <div class="lab">双链活期质押合计（链上实时）</div>
+    <div class="big" id="totalStake">—</div>
+    <div class="sm" id="totalBreak"></div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h2>Polygon <span class="pill poly">链</span></h2>
+      <div class="rate"><div class="p" id="pRate">—</div><div class="l">质押率</div></div>
+      <div class="bar"><i id="pBar" style="width:0"></i></div>
+      <div class="kv"><span class="k">活期质押</span><span class="v" id="pStake">—</span></div>
+      <div class="kv"><span class="k">LGNS 总供应</span><span class="v" id="pSupply">—</span></div>
+      <div class="kv"><span class="k">质押合约</span><span class="v"><a href="https://polygonscan.com/address/0x1964Ca90474b11FFD08af387b110ba6C96251Bfc" target="_blank" rel="noopener">🔗 查</a></span></div>
+    </div>
+    <div class="card">
+      <h2>Anubis <span class="pill anb">链</span></h2>
+      <div class="rate"><div class="p" id="aRate">—</div><div class="l">质押率</div></div>
+      <div class="bar"><i id="aBar" style="width:0"></i></div>
+      <div class="kv"><span class="k">活期质押</span><span class="v" id="aStake">—</span></div>
+      <div class="kv"><span class="k">LGNS 总供应</span><span class="v" id="aSupply">—</span></div>
+      <div class="kv"><span class="k">质押合约</span><span class="v"><a href="https://browser.anubispace.org/address/0x7a2E3fA6eA60437F0441b8eb5e60674B80339228" target="_blank" rel="noopener">🔗 查</a></span></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b style="color:var(--soft)">口径与核实</b>：质押率 = <b>质押合约实际持有的 LGNS ÷ 该链 LGNS 总供应</b>，均由本页从公共节点实时读取（Polygon 质押合约 0x1964Ca90、Anubis 质押合约 0x7a2E3fA6）。此法与官方口径高度吻合（Polygon 实测 ≈ 官方公布值）。<b>本页统计的是"活期质押"</b>；360/600 天锁仓、债券、以及参与钱包数量与每日变化需后台定时扫描，暂未含在本表内。金额随质押/赎回与 rebase 实时变动，请以你查询当下的链上数据为准。
+  </div>
+  <div class="foot">数据源：Polygon / Anubis 链上实时读取 · 纯只读 · 不连钱包不签名</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var PRPC='https://polygon-bor-rpc.publicnode.com', ARPC='https://rpc.anubispace.org';
+  var WK='https://count.web3origin.com', MLS='mon_access_v1', MONTOKEN=null;
+  var LGNS_P='0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01', STAKE_P='0x1964Ca90474b11FFD08af387b110ba6C96251Bfc';
+  var LGNS_A='0x4D1D808a081FdAc440703b3765FC61f8028C06B8', STAKE_A='0x7a2E3fA6eA60437F0441b8eb5e60674B80339228';
+
+  var gate=document.getElementById('gate');
+  function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
+  function showGate(){
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>全网质押总量看板 · 会员专属</h3>'
+      +'<div class="gs">开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可实时查看双链质押数据，全站工具一次通用。</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
+      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.classList.add('on');
+  }
+  function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
+  (async function(){
+    var t=tok(); if(!t){ showGate(); return; }
+    try{ var r=await fetch(WK+'/mon/access?token='+encodeURIComponent(t)).then(function(x){return x.json();});
+      if(r&&r.ok){ MONTOKEN=t; unlock(); } else showGate(); }catch(e){ showGate(); }
+  })();
+
+  function call(rpc,to,data){
+    return fetch(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method:'eth_call',params:[{to:to,data:data},'latest'],id:1})})
+      .then(function(r){return r.json();}).then(function(j){ if(j.error) throw new Error(j.error.message||'rpc'); return j.result; });
+  }
+  function big(r){ return (r&&r!=='0x')?BigInt(r):0n; }
+  function toNum9(bi){ var d=1000000000n, i=bi/d, f=bi%d; return Number(i)+Number(f)/1e9; }
+  function comma(n){ return n.toLocaleString(undefined,{maximumFractionDigits:0}); }
+
+  async function load(){
+    var st=document.getElementById('status');
+    st.innerHTML='<span class="dot"></span>正在读取双链质押数据…';
+    document.getElementById('refresh').disabled=true;
+    try{
+      var r=await Promise.all([
+        call(PRPC,LGNS_P,'0x18160ddd'),                                  // Poly LGNS supply
+        call(PRPC,LGNS_P,'0x70a08231000000000000000000000000'+STAKE_P.slice(2)), // Poly staked
+        call(ARPC,LGNS_A,'0x18160ddd'),                                  // Anb LGNS supply
+        call(ARPC,LGNS_A,'0x70a08231000000000000000000000000'+STAKE_A.slice(2))  // Anb staked
+      ]);
+      var pSup=toNum9(big(r[0])), pStk=toNum9(big(r[1])), aSup=toNum9(big(r[2])), aStk=toNum9(big(r[3]));
+      var pRate=pSup>0?pStk/pSup*100:0, aRate=aSup>0?aStk/aSup*100:0;
+      document.getElementById('pRate').textContent=pRate.toFixed(2)+'%';
+      document.getElementById('aRate').textContent=aRate.toFixed(2)+'%';
+      document.getElementById('pBar').style.width=Math.min(100,pRate)+'%';
+      document.getElementById('aBar').style.width=Math.min(100,aRate)+'%';
+      document.getElementById('pStake').textContent=comma(pStk)+' LGNS';
+      document.getElementById('pSupply').textContent=comma(pSup)+' LGNS';
+      document.getElementById('aStake').textContent=comma(aStk)+' LGNS';
+      document.getElementById('aSupply').textContent=comma(aSup)+' LGNS';
+      var tot=pStk+aStk;
+      document.getElementById('totalStake').textContent='≈ '+comma(tot)+' LGNS';
+      document.getElementById('totalBreak').textContent='Polygon '+comma(pStk)+'　·　Anubis '+comma(aStk)+'（活期质押锁仓量）';
+      st.innerHTML='<span class="dot"></span>✓ 链上实时 · '+new Date().toLocaleString('zh-CN');
+    }catch(e){
+      st.innerHTML='<span style="color:var(--red)">读取失败：'+(e.message||'网络波动')+'，请点刷新重试</span>';
+    }finally{ document.getElementById('refresh').disabled=false; }
+  }
+  function start(){ document.getElementById('refresh').onclick=load; load(); }
+})();
+</script>
+</body>
+</html>
