@@ -113,7 +113,7 @@
 
     { id: 'full-dd', number: 14, name: '钱包综合尽调报告', category: 'security-dd', icon: '🔍',
       description: '一次查询钱包持仓、质押、等级、推荐关系、交易和授权等信息。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/#queryTool', enabled: true,
+      status: 'live', isPremium: true, route: '/tools/wallet-dd/', enabled: true,
       note: '链上尽调助手（origin-monitor）核心功能，已上线。' },
 
     { id: 'roi-calc', number: 15, name: '收益与成本计算器', category: 'price-calc', icon: '🧮',
@@ -188,7 +188,7 @@
 
     { id: 'dual-compare', number: 29, name: '双链资产对比', category: 'asset-staking', icon: '⚖️',
       description: '对比同一钱包在 Polygon 和 AnubisChain 上的资产、质押和等级。',
-      status: 'live', isPremium: true, route: '/tools/origin-monitor/#queryTool', enabled: true,
+      status: 'live', isPremium: true, route: '/tools/wallet-dd/', enabled: true,
       note: '链上尽调助手一次查全双链资产，已上线。' },
 
     { id: 'evidence-pdf', number: 30, name: '链上证据报告导出', category: 'data-evidence', icon: '📄',

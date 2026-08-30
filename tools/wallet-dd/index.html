@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="index,follow">
-<title>链上尽调助手 · 一个地址查全起源 · Web3Origin</title>
+<meta name="robots" content="noindex,follow">
+<title>钱包综合尽调报告 · 一个地址查全起源 · Web3Origin</title>
 <meta property="og:site_name" content="Web3Origin">
 <meta name="description" content="链上尽调助手：输入一个钱包地址，一次查全 Polygon / Anubis 双链 LGNS 资产、360/600明细、DAO 等级与团队业绩、通用链上体检、推荐人，还能链上提币，外加全网 V1-V6/大户/国库监控。只查公开数据，不需连钱包、不需签名。">
-<link rel="canonical" href="https://web3origin.com/tools/origin-monitor/">
+<link rel="canonical" href="https://web3origin.com/tools/wallet-dd/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="链上尽调助手 · 一个地址查全起源双链资产">
 <meta property="og:description" content="输入任意起源钱包地址，一次看清 Polygon 与 Anubis 双链资产、质押明细、DAO 等级、团队业绩和绑定关系。纯只读查询，不连钱包、不签名。">
@@ -238,14 +238,25 @@ button.go,.btn2{min-height:44px}
   50%{box-shadow:0 0 26px rgba(255,64,54,.42);border-color:rgba(255,110,100,.85)}
 }
 @media(prefers-reduced-motion:reduce){.mb-payglow{animation:none}}
+/* ===== 会员门禁遮罩 ===== */
+#wddGate{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(900px 500px at 50% 0%,rgba(212,175,55,.14),transparent),rgba(7,8,6,.97);backdrop-filter:blur(6px)}
+#wddGate.on{display:flex}
+#wddGate .gb{max-width:440px;width:100%;text-align:center;background:linear-gradient(165deg,rgba(212,175,55,.08),transparent),#141712;border:1px solid rgba(212,175,55,.4);border-radius:18px;padding:32px 24px;box-shadow:0 24px 70px rgba(0,0,0,.7)}
+#wddGate .gic{font-size:44px}
+#wddGate h3{font-size:21px;color:var(--gold2);margin:12px 0 6px}
+#wddGate .gs{font-size:14px;color:var(--soft);line-height:1.8;margin:0 0 18px}
+#wddGate .gc{display:inline-block;text-decoration:none;padding:14px 28px;border-radius:12px;font-weight:800;font-size:16px;color:#1a1205;background:linear-gradient(135deg,var(--gold),var(--gold2))}
+#wddGate .gback{display:block;margin-top:14px;color:var(--soft);font-size:13px;text-decoration:none}
 </style>
 </head>
 <body>
 <script>if(/[?&]embed=1/.test(location.search))document.body.classList.add('embed');</script>
 <style>body.embed .top{display:none!important}</style>
+<div id="wddGate"><div class="gb"><div class="gic">🔒</div><h3>钱包综合尽调 · 会员专属</h3><div class="gs">输入一个地址，一次查全双链资产、质押明细、DAO 等级与推荐关系。开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可使用，全站工具一次通用。</div><a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a><a class="gback" href="/">← 返回主站</a></div></div>
 <div class="wrap">
   <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
-  <h1>链上<span>尽调助手</span></h1>
+  <h1>钱包<span>综合尽调</span></h1>
+  <div class="hero-sub" style="margin-bottom:14px">输入任意起源钱包地址，一次看清 <b style="color:var(--gold2)">Polygon 与 Anubis 双链资产</b>、质押明细、DAO 等级、团队业绩和绑定关系。纯只读，不连钱包、不签名。</div>
   <div id="introBlock">
   <div class="hero-sub">输入任意起源钱包地址，一次看清 <b style="color:var(--gold2)">Polygon 与 Anubis 双链资产</b>、质押明细、DAO 等级、团队业绩和绑定关系。</div>
 
@@ -284,10 +295,6 @@ button.go,.btn2{min-height:44px}
   <div id="gate"></div>
 
   <div id="queryTool" style="display:none">
-  <div class="chain" style="margin-bottom:14px"><h2>💸 链上提币工具 <span class="tag" style="color:#7bffb0">已随本页解锁·免额外付费</span></h2>
-  <div class="meta">官方 DApp 打不开也能提。连钱包直接和合约交互：赎回 sLGNS、领取 360/600天质押与蛛网/DAO/涡轮奖励，Polygon + Anubis 双链，只花 gas，工具不保管你的任何资产。提交前会显示网络、目标合约、操作类型与预计 Gas。</div>
-  <div class="riskbar">⚠ 请确认当前网络、钱包地址和交易内容。<b>任何人索要私钥或助记词都属于高风险行为</b>，本工具永远不会向你索取。</div>
-  <button class="go" id="wdEnter" aria-label="进入链上提币工具">进入链上提币 →</button></div>
   <div class="box">
     <label for="addr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">钱包地址</label>
     <input id="addr" placeholder="0x 开头的钱包地址" spellcheck="false" autocomplete="off" aria-label="输入要查询的钱包地址">
@@ -470,14 +477,19 @@ function unlockUI(){
    +'<div style="margin-top:9px;font-size:12px;color:var(--dim);line-height:1.6">换手机 / 清缓存后，用这个<b style="color:var(--gold2)">专属访问链接</b>打开即可一键恢复（请收藏或截图保存）：</div>'
    +'<div class="det" style="margin-top:6px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1;font-size:11.5px">'+link+'</code><button class="verify" id="copyLink">复制链接</button></div></div>';
  var cl=document.getElementById('copyLink');if(cl)cl.onclick=function(){copyText(link);cl.textContent='已复制✓';setTimeout(function(){cl.textContent='复制链接';},1200);};
+ const q=document.getElementById('queryTool');if(q)q.style.display='block';
  var ib=document.getElementById('introBlock');if(ib)ib.style.display='none';
- // 解锁后：只显示「会员工具台」(30项)。查询/监控等已各自拆成独立页,不再在本页内展示。
+ // 解锁后：30 项工具面板变「会员工具台」，留在页面供点击进入
  try{
    var mt=document.getElementById('mbTitle');if(mt)mt.textContent='你的会员工具 · 点击进入';
    var mnum=document.getElementById('mbNum');if(mnum)mnum.textContent='✓ 已解锁';
-   var mn=document.getElementById('mbNote');if(mn)mn.innerHTML='<b style="color:#7bffb0">已解锁</b>：绿色「已上线」点击即可进入对应独立工具；蓝色「即将上线」/橙色「开发中」会按进度陆续开放。';
+   var mn=document.getElementById('mbNote');if(mn)mn.innerHTML='<b style="color:#7bffb0">已解锁</b>：绿色「已上线」点击即可进入使用；蓝色「即将上线」/橙色「开发中」会按进度陆续开放。';
    var ms=document.getElementById('mbShowcase');if(ms){ms.style.borderTop='1px solid rgba(37,201,111,.3)';ms.style.paddingTop='6px';}
  }catch(e){}
+ try{renderRecent();}catch(e){}
+ var mc=document.getElementById('monitorContent');if(mc)mc.style.display='block';
+ var we=document.getElementById('wdEnter');if(we)we.onclick=function(){if(MONTOKEN)window.open('/w/?t='+encodeURIComponent(MONTOKEN),'_blank');};
+ try{var _q=new URLSearchParams(location.search).get('q');if(_q&&/^0x[0-9a-fA-F]{40}$/.test(_q.trim())){document.getElementById('addr').value=_q.trim();run();}}catch(e){}
 }
 async function checkAccess(){
  let t=null;
@@ -817,8 +829,26 @@ async function run(){
 document.getElementById('btn').onclick=run;
 document.getElementById('addr').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
 document.querySelectorAll('.ex').forEach(el=>el.onclick=e=>{e.preventDefault();document.getElementById('addr').value=el.dataset.a;run();});
-(function(){var hs=document.getElementById('heroSample');if(hs)hs.onclick=sampleReport;var hu=document.getElementById('heroUnlock');if(hu)hu.onclick=openPay;})();
-checkAccess();
+// ===== 会员门禁:钱包综合尽调为会员专属(mon_access_v1,全站通用),替换原付款流程 =====
+(function(){
+  var WK='https://count.web3origin.com', MLS='mon_access_v1';
+  function hide(id){var e=document.getElementById(id);if(e)e.style.display='none';}
+  function showQuery(){
+    hide('introBlock');hide('mbShowcase');hide('gate');hide('monitorContent');hide('sampleReport');
+    var q=document.getElementById('queryTool');if(q)q.style.display='block';
+    try{renderRecent();}catch(e){}
+    try{var _q=new URLSearchParams(location.search).get('q');if(_q&&/^0x[0-9a-fA-F]{40}$/.test(_q.trim())){document.getElementById('addr').value=_q.trim();run();}}catch(e){}
+  }
+  function showGate(){
+    hide('introBlock');hide('mbShowcase');hide('gate');hide('monitorContent');hide('sampleReport');hide('queryTool');
+    var g=document.getElementById('wddGate');if(g)g.classList.add('on');
+  }
+  var tok=''; try{tok=localStorage.getItem(MLS)||'';}catch(e){}
+  if(!tok){ showGate(); return; }
+  fetch(WK+'/mon/access?token='+encodeURIComponent(tok)).then(function(r){return r.json();})
+    .then(function(j){ if(j&&j.ok){ showQuery(); } else showGate(); })
+    .catch(function(){ showGate(); });
+})();
 </script>
 <script>
 // ==== 全生态监控中心(独立作用域) 数据为 2026-08-20 链上实测快照 ====
