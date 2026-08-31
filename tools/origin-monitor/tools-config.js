@@ -57,7 +57,7 @@
       note: '独立工具页 /tools/onchain-withdraw/，已上线（需连钱包签名，能否执行以合约与权限为准）。' },
 
     { id: 'whale', number: 3, name: '大额交易监控', category: 'trade-whale', icon: '🐋',
-      description: '监控大额买入、卖出、转账、质押和赎回动态。',
+      description: '监控大额买入、卖出成交动态。',
       status: 'live', isPremium: true, route: '/tools/whale/', enabled: true,
       note: '独立页 /tools/whale/(会员专属),TG卡片式今日大额成交,读/daily的events(源自VPS whale.py→daily:bigtrades KV)。已上线。' },
 
