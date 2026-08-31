@@ -134,7 +134,6 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
     <div id="lbBody"></div>
   </div>
 
-  <div class="foot">数据源：Anubis 链 Awake Governance NFT 合约（eth_call · balanceOf / tokenOfOwnerByIndex）· 纯只读 · 不连钱包不签名</div>
 </div>
 
 <script>
@@ -251,8 +250,7 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       h+='<div class="nftart">'
         +'<div class="art"><img src="awake-nft.png" alt="'+esc(NFT_NAME)+'" loading="lazy"></div>'
         +'<div class="meta"><div class="nm">'+esc(NFT_NAME)+'</div>'
-        +'<div class="id">共持有 '+comma(bal)+' 枚</div>'
-        +'<div class="cap">官方 Awake Governance NFT 铂金款美术图（取自官方 claim-nft 页）。该集合所有 NFT 款式一致。</div></div>'
+        +'<div class="id">共持有 '+comma(bal)+' 枚</div></div>'
         +'</div>';
     }
     h+='<div class="bento">'
@@ -270,7 +268,6 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
     }
     h+='<div class="panel"><div class="chainsum"><span>合约 <b style="color:var(--soft)">'+esc(shortA(NFT))+'</b> · Anubis 链</span>'
       +'<a href="'+EXPLORER+'token/'+NFT+'?a='+addr+'" target="_blank" rel="noopener">在区块浏览器核实 →</a></div></div>';
-    h+='<div class="note">数据为 Anubis 链实时读取：<b>balanceOf</b> 得持有数量，<b>tokenOfOwnerByIndex</b> 枚举具体 token ID（合约支持时）。目前起源生态链上仅此一个 NFT 合约（Awake Governance NFT）。</div>';
     res.innerHTML=h;
   }
 
