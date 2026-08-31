@@ -78,8 +78,8 @@
 
     { id: 'v-level', number: 7, name: '钱包 V 等级查询', category: 'wallet-id', icon: '🎖️',
       description: '查看钱包当前等级、所属链及相关链上依据。',
-      status: 'live', isPremium: true, route: '/?tool=openWalletMonitor', enabled: true,
-      note: '首页 openWalletMonitor（钱包监控·链上体检）含等级，已上线。' },
+      status: 'live', isPremium: true, route: '/tools/v-level/', enabled: true,
+      note: '独立页 /tools/v-level/(会员专属),输地址查DAO等级V1-V6+本人质押+团队业绩+双线业绩+推荐上线,数据源官方生态接口apiv2.ocros.io(后台口径)。已上线。' },
 
     { id: 'promotion-today', number: 8, name: '今日晋升查询', category: 'wallet-id', icon: '📈',
       description: '查看当天新晋升 V1–V6 的钱包、晋升时间和链上依据。',

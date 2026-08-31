@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<title>钱包 V 等级查询 · DAO 等级/团队业绩 · Web3Origin</title>
+<meta name="description" content="输入钱包地址，查询该地址在起源生态的 DAO 等级（V1-V6）、本人质押、团队业绩、Polygon/Anubis 双线业绩与推荐上线。">
+<link rel="canonical" href="https://web3origin.com/tools/v-level/">
+<link rel="icon" href="/assets/favicon.png">
+<style>
+:root{--bg:#08090c;--tile:#12151b;--tile2:#181d25;--line:#222833;--acc:#8fe36a;--acc2:#b6f36a;--txt:#e8edf2;--white:#fff;--dim:#8a94a1;--soft:#c2cad4;--red:#ff8b63;--blue:#8fd4ff;--poly:#b79bf0}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(700px 420px at 88% -6%,rgba(143,227,106,.09),transparent),var(--bg);color:var(--txt);font:14.5px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,"Segoe UI",sans-serif;min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:22px 15px 60px}
+.top{margin-bottom:14px}
+.top a.home{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:var(--acc);text-decoration:none}
+.top img{height:22px}
+h1{font-size:23px;margin:0 0 3px;color:var(--white);font-weight:800}
+.sub{color:var(--dim);font-size:12.5px;margin-bottom:16px;line-height:1.6}
+.qbox{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:8px}
+.qin{flex:1;min-width:200px;background:var(--tile);border:1px solid var(--line);color:var(--soft);border-radius:14px;padding:13px 15px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace;min-height:46px}
+.qbtn{background:linear-gradient(180deg,var(--acc2),var(--acc));border:none;color:#0c2405;border-radius:14px;padding:11px 24px;font-size:14.5px;font-weight:800;cursor:pointer;min-height:46px}
+.qbtn:disabled{opacity:.55;cursor:default}
+.qhint{color:var(--dim);font-size:12px;margin-bottom:14px}
+.status{color:var(--dim);font-size:13px;min-height:20px;margin:6px 0 14px}
+.status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);margin-right:6px;vertical-align:middle}
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.tile{background:var(--tile);border:1px solid var(--line);border-radius:20px;padding:18px}
+.tile.big{grid-column:1/3;background:radial-gradient(120% 130% at 90% -10%,rgba(143,227,106,.18),transparent 60%),var(--tile);display:flex;align-items:center;gap:18px}
+.lvbadge{flex:none;width:92px;height:92px;border-radius:24px;background:linear-gradient(160deg,rgba(143,227,106,.25),rgba(143,227,106,.06));border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-direction:column}
+.lvbadge .lv{font-size:34px;font-weight:900;color:var(--acc);line-height:1}
+.lvbadge .lvk{font-size:10.5px;color:var(--soft);margin-top:3px}
+.big-r .k{color:var(--dim);font-size:12.5px}
+.big-r .nm{font-size:22px;font-weight:800;color:var(--white);margin:3px 0}
+.big-r .chip{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.big-r .chip span{background:var(--tile2);border:1px solid var(--line);border-radius:10px;padding:6px 11px;font-size:11.5px;color:var(--soft)}.big-r .chip b{color:var(--white)}
+.tile .ic{font-size:19px;opacity:.9}
+.tile .k{color:var(--dim);font-size:12px;margin:9px 0 5px}
+.tile .v{font-size:20px;font-weight:800;color:var(--white);word-break:break-all}
+.tile .v.g{color:var(--acc)}
+.tile .subd{color:var(--dim);font-size:11.5px;margin-top:6px}
+.panel{grid-column:1/3;background:var(--tile);border:1px solid var(--line);border-radius:20px;padding:18px}
+.panel-h{font-size:15px;font-weight:800;color:var(--white);margin-bottom:12px}
+.bar-row{margin:11px 0}
+.bar-row .lab{display:flex;justify-content:space-between;font-size:13px;color:var(--soft);margin-bottom:6px}
+.bar-row .lab b{color:var(--white)}
+.bar{height:10px;border-radius:6px;background:var(--tile2);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.bar.poly i{background:linear-gradient(90deg,#7d5bd6,#b79bf0)}
+.rw{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 13px;background:var(--tile2);border:1px solid var(--line);border-radius:12px;margin-top:8px;font-size:13.5px}
+.rw .k{color:var(--soft)}.rw .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--white);word-break:break-all}
+.rw a{color:var(--acc);text-decoration:none;font-weight:700;font-size:12.5px}
+.big-r .qa{margin:8px 0 2px;font-size:11.5px;color:var(--soft);word-break:break-all}
+.big-r .qa .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.big-r .qa a{color:var(--acc);text-decoration:none}
+.rw.node{align-items:center}
+.rw.node .nl{display:flex;align-items:center;gap:8px;min-width:0}
+.rw.node .idx{flex:none;width:20px;height:20px;border-radius:6px;background:var(--tile);border:1px solid var(--line);color:var(--dim);font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.rw.node .nl .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:var(--white)}
+.rw.node .nl a{color:var(--acc);text-decoration:none}
+.rw.node .nr{text-align:right;flex:none}
+.rw.node .nr b{color:var(--acc);font-weight:800;font-size:15px}
+.rw.node .nr .sub2{display:block;color:var(--dim);font-size:11px;margin-top:1px}
+.dstat{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.ds{background:var(--tile2);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+.ds .dk{color:var(--dim);font-size:11.5px;margin-bottom:4px}
+.ds .dv{font-size:20px;font-weight:800;color:var(--white)}.ds .dv.g{color:var(--acc)}
+.ds .du{color:var(--dim);font-size:11px;margin-top:2px}
+.dhh{color:var(--soft);font-size:12.5px;font-weight:700;margin:6px 0 7px}
+.pnote{color:var(--dim);font-size:11.5px;line-height:1.6;margin:-4px 0 10px;padding:8px 10px;background:var(--tile2);border:1px solid var(--line);border-radius:10px}
+.pnote b{color:var(--acc)}
+.rw.drow{padding:9px 12px}
+.mono{font-variant-numeric:tabular-nums}
+.empty{color:var(--dim);text-align:center;padding:26px 12px;font-size:13.5px;line-height:1.8}
+.note{color:var(--dim);font-size:12px;background:var(--tile);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-top:16px;line-height:1.75}
+.foot{color:var(--dim);font-size:12px;text-align:center;margin-top:22px;line-height:1.8}
+#gate{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(900px 500px at 50% 0%,rgba(143,227,106,.12),transparent),rgba(8,9,12,.97);backdrop-filter:blur(6px)}
+#gate.on{display:flex}
+#gate .gb{max-width:440px;width:100%;text-align:center;background:radial-gradient(120% 130% at 85% -10%,rgba(143,227,106,.12),transparent 60%),var(--tile);border:1px solid var(--line);border-radius:22px;padding:32px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+#gate .gic{font-size:44px}#gate h3{font-size:21px;color:var(--white);margin:12px 0 6px}
+#gate .gs{font-size:14px;color:var(--soft);line-height:1.8;margin:0 0 18px}
+#gate .gc{display:inline-block;text-decoration:none;padding:14px 28px;border-radius:14px;font-weight:800;font-size:16px;color:#0c2405;background:linear-gradient(180deg,var(--acc2),var(--acc))}
+#gate .gback{display:block;margin-top:14px;color:var(--soft);font-size:13px;text-decoration:none}
+body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
+@media(max-width:520px){h1{font-size:21px}.tile.big{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body class="locked">
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+
+<div class="wrap">
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
+  <h1>钱包等级查询</h1>
+  <div class="sub">输入任意起源钱包地址，查看其 <b style="color:var(--acc)">DAO 等级（V1-V6）</b>、本人质押、团队业绩与 Polygon / Anubis 双线业绩。纯只读，不连钱包、不签名。</div>
+
+  <div class="qbox">
+    <input class="qin" id="addr" placeholder="0x… 粘贴要查询的钱包地址" spellcheck="false" autocomplete="off">
+    <button class="qbtn" id="qbtn">查询</button>
+  </div>
+  <div class="qhint">支持任意公开地址（不限本人）。等级与业绩为官方生态口径。</div>
+
+  <div class="status" id="status"></div>
+  <div id="result"></div>
+  <div class="empty" id="empty" style="display:none">输入一个钱包地址开始查询。</div>
+
+  <div class="note">
+    <b style="color:var(--soft)">口径说明</b>：DAO 等级、本人质押、团队业绩、双线业绩与推荐上线来自起源官方生态接口（apiv2.ocros.io），为<b>项目方后台口径</b>，其中 Anubis 链上有 daoLevel 可交叉核对，团队业绩/上线为后台统计、非链上独立可验证。纯只读查询，不连钱包、不签名。
+  </div>
+  <div class="foot">数据源：起源官方生态接口 · 纯只读 · 不连钱包不签名</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var WK='https://count.web3origin.com', MLS='mon_access_v1', MONTOKEN=null, busy=false;
+  var API='https://apiv2.ocros.io/api/v1/community/';
+
+  /* ===== 会员门控 ===== */
+  var gate=document.getElementById('gate');
+  function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
+  function showGate(){
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>钱包等级查询 · 会员专属</h3>'
+      +'<div class="gs">开通 <b style="color:var(--acc)">10 LGNS 会员</b>后即可查询任意地址的 DAO 等级与业绩，全站工具一次通用。</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
+      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.classList.add('on');
+  }
+  function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
+  (async function(){
+    var t=tok(); if(!t){ showGate(); return; }
+    try{ var r=await fetch(WK+'/mon/access?token='+encodeURIComponent(t)).then(function(x){return x.json();});
+      if(r&&r.ok){ MONTOKEN=t; unlock(); } else showGate(); }catch(e){ showGate(); }
+  })();
+
+  var esc=function(s){return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});};
+  function num(x){ var n=Number(x); return isFinite(n)?n:0; }
+  function comma(n,dp){ return num(n).toLocaleString('en-US',{minimumFractionDigits:dp||0,maximumFractionDigits:dp||0}); }
+  function shortAddr(a){ return (typeof a==='string'&&/^0x[0-9a-fA-F]{40}$/.test(a))?(a.slice(0,6)+'…'+a.slice(-4)):''; }
+
+  var addrEl=document.getElementById('addr'), btn=document.getElementById('qbtn'),
+      st=document.getElementById('status'), res=document.getElementById('result'), empty=document.getElementById('empty');
+
+  function render(d,nodes,rewards,addr){
+    var lvl=parseInt(d.level||'0',10)||0;
+    var amount=num(d.amount), stake=num(d.stake), poly=num(d.polygonStake), anb=num(d.anubisStake);
+    var ratio=num(d.ratio), rbase=num(d.community_reward_base);
+    var mx=Math.max(poly,anb,1);
+    var up=null; try{ (d.rewardPath||[]).forEach(function(x){ if(x&&/Peer/i.test(x.type||'')&&x.source) up=x.source; }); }catch(e){}
+    var qaddr=d.address||addr;
+    var h='<div class="bento">';
+    // 大格:等级 + 钱包地址
+    h+='<div class="tile big"><div class="lvbadge"><div class="lv">'+(lvl>0?('V'+lvl):'—')+'</div><div class="lvk">'+(lvl>0?'DAO 等级':'未定级')+'</div></div>'
+      +'<div class="big-r"><div class="k">当前 DAO 等级</div><div class="nm">'+(lvl>0?('V'+lvl+' 级'):'暂无等级')+'</div>'
+      +'<div class="qa">👛 <span class="mono">'+esc(qaddr)+'</span> <a href="https://browser.anubispace.org/address/'+esc(qaddr)+'" target="_blank" rel="noopener">↗</a></div>'
+      +'<div class="chip"><span>本人质押 <b class="mono">'+comma(amount,2)+'</b></span><span>团队业绩 <b class="mono">'+comma(stake,0)+'</b></span></div></div></div>';
+    // 指标格
+    h+='<div class="tile"><div class="ic">🪙</div><div class="k">本人质押合计</div><div class="v g mono">'+comma(amount,2)+'</div><div class="subd">LGNS</div></div>';
+    h+='<div class="tile"><div class="ic">👥</div><div class="k">团队业绩合计</div><div class="v mono">'+comma(stake,0)+'</div><div class="subd">LGNS</div></div>';
+    h+='<div class="tile"><div class="ic">📈</div><div class="k">奖励比率</div><div class="v g mono">'+(ratio*100).toFixed(2)+'%</div><div class="subd">当前等级</div></div>';
+    h+='<div class="tile"><div class="ic">🎁</div><div class="k">等级奖励基数</div><div class="v mono">'+comma(rbase,0)+'</div><div class="subd">LGNS</div></div>';
+    // 团队业绩(按链)面板
+    h+='<div class="panel"><div class="panel-h">📊 团队业绩（按链）</div>';
+    h+='<div class="bar-row"><div class="lab"><span>Anubis 线</span><b class="mono">'+comma(anb,0)+' LGNS</b></div><div class="bar"><i style="width:'+Math.round(anb/mx*100)+'%"></i></div></div>';
+    h+='<div class="bar-row"><div class="lab"><span>Polygon 线</span><b class="mono">'+comma(poly,0)+' LGNS</b></div><div class="bar poly"><i style="width:'+Math.round(poly/mx*100)+'%"></i></div></div>';
+    if(up){ h+='<div class="rw"><span class="k">🔗 推荐上线</span><span class="mono">'+esc(shortAddr(up)||up)+'</span><a href="https://browser.anubispace.org/address/'+esc(up)+'" target="_blank" rel="noopener">查看 ↗</a></div>'; }
+    else { h+='<div class="rw"><span class="k">🔗 推荐上线</span><span style="color:var(--dim)">暂无 / 未提供</span></div>'; }
+    h+='</div>';
+    // 各直推线业绩面板(每条线=一个直推节点)
+    var ns=(Array.isArray(nodes)?nodes:[]).filter(function(x){return x&&/^0x[0-9a-fA-F]{40}$/.test(x.path||'');}).sort(function(a,b){return num(b.stake)-num(a.stake);});
+    h+='<div class="panel"><div class="panel-h">🌿 各直推线业绩 <span style="color:var(--dim);font-size:12px;font-weight:400">共 '+ns.length+' 条线</span></div>';
+    h+='<div class="pnote">团队业绩 = 整条线业绩（<b>已含</b>该节点本人质押 + 其全部下级）；本人质押 = 该节点自己质押的 LGNS。</div>';
+    if(!ns.length){ h+='<div style="color:var(--dim);font-size:12.5px">该地址暂无直推线（或接口未提供）。</div>'; }
+    ns.forEach(function(n,i){
+      h+='<div class="rw node"><div class="nl"><span class="idx">'+(i+1)+'</span><span class="mono">'+esc(shortAddr(n.path))+'</span> <a href="https://browser.anubispace.org/address/'+esc(n.path)+'" target="_blank" rel="noopener">↗</a></div>'
+        +'<div class="nr"><b class="mono">'+comma(num(n.stake),0)+'</b> 团队业绩<span class="sub2">本人质押 '+comma(num(n.amount),2)+'</span></div></div>';
+    });
+    h+='</div>';
+    // DAO 奖励发放面板(每期到账,每次多少/一天几次)
+    var rw=(Array.isArray(rewards)?rewards:[]).filter(function(x){return x&&(+x.epoch)>0&&(+x.reward)>=0;}).sort(function(a,b){return (+b.epoch)-(+a.epoch);});
+    if(rw.length){
+      var latest=num(rw[0].reward);
+      var perDay=0, hrs=0, diffs=[];
+      for(var i=0;i<Math.min(6,rw.length-1);i++){
+        var ta=Date.parse(rw[i].updatedAt||rw[i].createdAt), tb=Date.parse(rw[i+1].updatedAt||rw[i+1].createdAt);
+        if(ta&&tb&&ta>tb) diffs.push((ta-tb)/3600000);
+      }
+      if(diffs.length){ hrs=diffs.reduce(function(s,x){return s+x;},0)/diffs.length; perDay=24/hrs; }
+      var perDayN=perDay?Math.round(perDay):0;
+      h+='<div class="panel"><div class="panel-h">🎁 DAO 奖励发放 <span style="color:var(--dim);font-size:12px;font-weight:400">每期自动到账</span></div>';
+      h+='<div class="dstat">'
+        +'<div class="ds"><div class="dk">每次（每期）</div><div class="dv g mono">'+latest.toFixed(4)+'</div><div class="du">LGNS</div></div>'
+        +'<div class="ds"><div class="dk">一天次数</div><div class="dv mono">'+(perDayN||'—')+'</div><div class="du">'+(hrs?('每约 '+hrs.toFixed(0)+'h 一期'):'次/天')+'</div></div>'
+        +'<div class="ds"><div class="dk">约合每天</div><div class="dv g mono">'+(perDay?(latest*perDay).toFixed(2):'—')+'</div><div class="du">LGNS</div></div>'
+        +'<div class="ds"><div class="dk">当前区块</div><div class="dv mono">'+esc(String(d.epoch||rw[0].epoch||'—'))+'</div><div class="du">epoch</div></div>'
+        +'</div>';
+      h+='<div class="dhh">最近发放</div>';
+      rw.slice(0,6).forEach(function(x){
+        h+='<div class="rw drow"><span class="k">区块 <b class="mono" style="color:var(--soft)">'+esc(String(x.epoch))+'</b></span><span class="mono" style="color:var(--white);font-weight:700">'+num(x.reward).toFixed(4)+' LGNS</span></div>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+    res.innerHTML=h;
+  }
+
+  async function doQuery(){
+    if(busy) return;
+    var addr=(addrEl.value||'').trim();
+    if(!/^0x[0-9a-fA-F]{40}$/.test(addr)){ st.innerHTML='<span style="color:#ff9a8f">请输入正确的钱包地址（0x 开头 42 位）。</span>'; return; }
+    busy=true; btn.disabled=true; btn.textContent='查询中…'; empty.style.display='none';
+    st.innerHTML='<span class="dot"></span>正在读取等级与业绩…';
+    res.innerHTML='';
+    try{
+      var c=new AbortController(); var tm=setTimeout(function(){c.abort();},13000);
+      var got=await Promise.all([
+        fetch(API+addr,{signal:c.signal}).then(function(r){return r.json();}),
+        fetch(API+addr+'/nodes',{signal:c.signal}).then(function(r){return r.json();}).catch(function(){return [];}),
+        fetch(API+addr+'/rewards',{signal:c.signal}).then(function(r){return r.json();}).catch(function(){return [];})
+      ]);
+      clearTimeout(tm);
+      var d=got[0], nodes=got[1], rewards=got[2];
+      if(!d||!d.address){ st.innerHTML='<span style="color:#ff9a8f">该地址在官方生态体系中暂无记录（未参与 DAO 或接口暂不可用）。</span>'; res.innerHTML=''; return; }
+      render(d,nodes,rewards,addr);
+      st.innerHTML='<span class="dot"></span>✓ 查询完成 · '+new Date().toLocaleString('zh-CN');
+    }catch(e){
+      st.innerHTML='<span style="color:#ff9a8f">查询失败：'+esc(e&&e.message||'网络波动')+'，请重试（海外节点可能需开 VPN）。</span>';
+    }finally{ busy=false; btn.disabled=false; btn.textContent='查询'; }
+  }
+
+  function start(){
+    empty.style.display='block';
+    btn.onclick=doQuery;
+    addrEl.addEventListener('keydown',function(e){ if(e.key==='Enter') doQuery(); });
+    try{ var q=new URLSearchParams(location.search).get('addr'); if(q&&/^0x[0-9a-fA-F]{40}$/.test(q.trim())){ addrEl.value=q.trim(); doQuery(); } }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
