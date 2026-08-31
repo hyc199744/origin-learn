@@ -103,17 +103,17 @@ function build(lang) {
   pages.forEach((p, i) => push({ id: "page-" + i, type: "page", title: p[0], description: p[2], content: p[2], url: p[1], language: lang, category: en ? "Page" : "页面", tags: [], aliases: [], updated_at: "", network: "", address: "", verified: true }));
 
   const tools = en ? [
-    ["Wallet Monitor · Checkup", "/?tool=openWalletMonitor", "onchain"], ["Referrer Lookup", "/?tool=openReferrer", "onchain"],
+    ["Referrer Lookup", "/?tool=openReferrer", "onchain"],
     ["On-chain Withdraw", "/tools/onchain-withdraw/", "onchain"], ["Token Safety Check", "/?tool=openSecurity", "onchain"],
     ["Contract Verify Center", "/?tool=openContractCenter", "onchain"], ["Yield Calculator", "/?tool=openCalc", "onchain"],
     ["Staking Panel", "/?tool=openStaking", "onchain"], ["Whale Trade Monitor", "/?tool=openWhale", "onchain"],
-    ["On-chain Address Lookup", "/?tool=openBrowser", "onchain"], ["Daily Report", "/?tool=openDailyNews", "onchain"]
+    ["On-chain Address Lookup", "/?tool=openBrowser", "onchain"]
   ] : [
-    ["钱包监控 · 链上体检", "/?tool=openWalletMonitor", "钱包"], ["查推荐人", "/?tool=openReferrer", "钱包"],
+    ["查推荐人", "/?tool=openReferrer", "钱包"],
     ["链上提币", "/tools/onchain-withdraw/", "钱包"], ["代币安全自查", "/?tool=openSecurity", "安全"],
     ["合约验证中心", "/?tool=openContractCenter", "安全"], ["收益计算器", "/?tool=openCalc", "数据"],
     ["质押数据面板", "/?tool=openStaking", "数据"], ["大额成交监测", "/?tool=openWhale", "数据"],
-    ["链上地址查询", "/?tool=openBrowser", "数据"], ["链上日报", "/?tool=openDailyNews", "数据"]
+    ["链上地址查询", "/?tool=openBrowser", "数据"]
   ];
   tools.forEach((t, i) => push({ id: "tool-" + i, type: "tool", title: t[0], description: t[2], content: t[0] + " " + t[2], url: t[1], language: lang, category: en ? "Tool" : "工具", tags: [t[2]], aliases: [], updated_at: "", network: "", address: "", verified: true }));
 
