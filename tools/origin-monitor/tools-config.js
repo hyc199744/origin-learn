@@ -194,7 +194,12 @@
     { id: 'evidence-pdf', number: 30, name: '链上证据报告导出', category: 'data-evidence', icon: '📄',
       description: '将查询结果生成包含地址、时间、区块高度和交易哈希的 PDF 报告。',
       status: 'soon', isPremium: true, route: '', enabled: false,
-      note: '已有链上证据库，但一键 PDF 导出尚未接入，标即将上线。' }
+      note: '已有链上证据库，但一键 PDF 导出尚未接入，标即将上线。' },
+
+    { id: 'nft-holdings', number: 31, name: 'NFT 持有查询', category: 'wallet-id', icon: '🖼️',
+      description: '查询钱包持有的 Awake Governance NFT 数量、token ID 和占全集合比例。',
+      status: 'live', isPremium: true, route: '/tools/nft-holdings/', enabled: true,
+      note: '独立页 /tools/nft-holdings/(会员专属),输地址查Anubis链Awake Governance NFT(0x58839f)持有量,前端eth_call balanceOf+tokenOfOwnerByIndex枚举token ID+占全集合比例,纯只读可核实。已上线(生态目前仅此一个NFT合约)。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----

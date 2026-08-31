@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<title>NFT 持有查询 · Awake Governance NFT · Web3Origin</title>
+<meta name="description" content="输入钱包地址，查询该地址在 Anubis 链上持有的 Awake Governance NFT 数量、持有的 token ID 与占全集合比例。纯链上只读，可在区块浏览器独立核实。">
+<link rel="canonical" href="https://web3origin.com/tools/nft-holdings/">
+<link rel="icon" href="/assets/favicon.png">
+<style>
+:root{--bg:#08090c;--tile:#12151b;--tile2:#181d25;--line:#222833;--acc:#8fe36a;--acc2:#b6f36a;--gold2:#8fe36a;--txt:#e8edf2;--white:#fff;--dim:#8a94a1;--soft:#c2cad4;--green:#8fe36a;--red:#ff8b63;--blue:#8fd4ff}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(700px 420px at 88% -6%,rgba(143,227,106,.09),transparent),var(--bg);color:var(--txt);font:14.5px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,"Segoe UI",sans-serif;min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:22px 15px 60px}
+.top{margin-bottom:14px}
+.top a.home{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px;color:var(--acc);text-decoration:none}
+.top img{height:22px}
+h1{font-size:23px;margin:0 0 3px;color:var(--white);font-weight:800}
+.sub{color:var(--dim);font-size:12.5px;margin-bottom:16px;line-height:1.6}
+.sub b{color:var(--gold2)}
+.qbox{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:8px}
+.qin{flex:1;min-width:200px;background:var(--tile);border:1px solid var(--line);color:var(--soft);border-radius:14px;padding:13px 15px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace;min-height:46px}
+.qbtn{background:linear-gradient(180deg,var(--acc2),var(--acc));border:none;color:#0c2405;border-radius:14px;padding:11px 24px;font-size:14.5px;font-weight:800;cursor:pointer;min-height:46px}
+.qbtn:disabled{opacity:.55;cursor:default}
+.qhint{color:var(--dim);font-size:12px;margin-bottom:12px}
+.recent{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.recent .rl{color:var(--dim);font-size:12px;margin-right:1px}
+.recent .rc{background:var(--tile);border:1px solid var(--line);color:var(--soft);border-radius:11px;padding:6px 9px 6px 11px;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.recent .rc:hover{border-color:var(--acc);color:var(--white)}
+.recent .rx{color:var(--dim);font-size:13px;line-height:1;cursor:pointer;padding:0 1px}
+.recent .rx:hover{color:var(--red)}
+.recent .rclr{color:var(--dim);font-size:11.5px;cursor:pointer;text-decoration:underline;margin-left:2px}
+.recent .rclr:hover{color:var(--soft)}
+.status{color:var(--dim);font-size:13px;min-height:20px;margin:6px 0 14px}
+.status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;vertical-align:middle}
+/* 结果 */
+.hero{background:radial-gradient(120% 130% at 90% -10%,rgba(143,227,106,.16),transparent 60%),var(--tile);border:1px solid var(--line);border-radius:20px;padding:22px 20px;margin-bottom:12px}
+.hero .k{color:var(--dim);font-size:12.5px}
+.hero .v{font-size:52px;font-weight:800;color:var(--white);letter-spacing:-1px;line-height:1.1;margin:6px 0 2px}
+.hero .v .u{font-size:18px;color:var(--acc);margin-left:6px}
+.hero .sd{color:var(--soft);font-size:12.5px;margin-top:4px}
+.hero .sd b{color:var(--white)}
+/* NFT 展示图 */
+.nftart{background:var(--tile);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.nftart .art{width:220px;max-width:100%;flex:none;border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(143,227,106,.14);margin:0 auto}
+.nftart .art img{display:block;width:100%;height:auto}
+.nftart .meta{flex:1;min-width:180px}
+.nftart .meta .nm{font-size:16px;font-weight:800;color:var(--white)}
+.nftart .meta .id{font-size:13px;color:var(--acc);font-weight:700;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.nftart .meta .cap{font-size:11px;color:var(--dim);margin-top:10px;line-height:1.6}
+.nftart .meta .pick{font-size:11.5px;color:var(--dim);margin-top:8px}
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:12px}
+.tile{background:var(--tile);border:1px solid var(--line);border-radius:16px;padding:16px}
+.tile .k{color:var(--dim);font-size:12px}
+.tile .v{font-size:19px;font-weight:800;color:var(--white);margin-top:5px;word-break:break-all}
+.tile .v.g{color:var(--acc)}
+.panel{background:var(--tile);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:12px}
+.panel-h{font-size:14px;font-weight:800;color:var(--white);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.panel-h small{color:var(--dim);font-weight:400;font-size:12px}
+.ids{display:flex;gap:8px;flex-wrap:wrap}
+.ids span{background:var(--tile2);border:1px solid var(--line);border-radius:10px;padding:6px 11px;font-size:12.5px;color:var(--soft);font-family:ui-monospace,Menlo,Consolas,monospace}
+.ids span b{color:var(--acc);font-weight:700}
+.lbrow{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:11px;margin-bottom:5px;background:var(--tile2);border:1px solid var(--line)}
+.lbrow .rk{width:28px;text-align:center;font-weight:800;color:var(--dim);flex:none;font-size:13px}
+.lbrow .ad{flex:1;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:var(--soft);word-break:break-all}
+.lbrow .ad a{color:var(--soft);text-decoration:none}.lbrow .ad a:hover{color:var(--acc)}
+.lbrow .ct{flex:none;text-align:right}.lbrow .ct b{color:var(--white);font-weight:800;font-size:14px}.lbrow .ct small{display:block;color:var(--dim);font-size:11px}
+.lbrow.me{border-color:var(--acc);box-shadow:0 0 0 1px rgba(143,227,106,.35) inset}
+.lbrow.me .ad a{color:var(--acc)}
+.lbtag{flex:none;font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;background:rgba(143,227,106,.16);color:var(--acc)}
+.chainsum{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:12.5px;color:var(--soft)}
+.chainsum a{color:var(--acc);text-decoration:none;font-weight:700}
+.err{color:#ff9a8f;font-size:12.5px}
+.empty{color:var(--dim);text-align:center;padding:26px 12px;font-size:13.5px;line-height:1.8}
+.note{color:var(--dim);font-size:12px;background:var(--tile);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-top:16px;line-height:1.75}
+.note b{color:var(--soft)}
+.foot{color:var(--dim);font-size:12px;text-align:center;margin-top:22px;line-height:1.8}
+#gate{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(900px 500px at 50% 0%,rgba(143,227,106,.12),transparent),rgba(8,9,12,.97);backdrop-filter:blur(6px)}
+#gate.on{display:flex}
+#gate .gb{max-width:440px;width:100%;text-align:center;background:radial-gradient(120% 130% at 85% -10%,rgba(143,227,106,.12),transparent 60%),var(--tile);border:1px solid var(--line);border-radius:22px;padding:32px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+#gate .gic{font-size:44px}#gate h3{font-size:21px;color:var(--white);margin:12px 0 6px}
+#gate .gs{font-size:14px;color:var(--soft);line-height:1.8;margin:0 0 18px}
+#gate .gc{display:inline-block;text-decoration:none;padding:14px 28px;border-radius:14px;font-weight:800;font-size:16px;color:#0c2405;background:linear-gradient(180deg,var(--acc2),var(--acc))}
+#gate .gback{display:block;margin-top:14px;color:var(--soft);font-size:13px;text-decoration:none}
+body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
+@media(max-width:520px){h1{font-size:21px}.hero .v{font-size:42px}.bento{gap:9px}}
+</style>
+</head>
+<body class="locked">
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+
+<div class="wrap">
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
+  <h1>NFT 持有查询</h1>
+  <div class="sub">输入任意钱包地址，查询该地址持有的 <b>Awake Governance NFT</b>（Anubis 链）数量、持有的 token ID 与占全集合比例。纯链上只读，不连钱包、不签名。</div>
+
+  <div class="qbox">
+    <input class="qin" id="addr" placeholder="0x… 粘贴要查询的钱包地址" spellcheck="false" autocomplete="off">
+    <button class="qbtn" id="qbtn">查询</button>
+  </div>
+  <div class="qhint">支持任意公开地址（不限本人）。数据实时读取 Anubis 链 NFT 合约。</div>
+  <div class="recent" id="recent" style="display:none"></div>
+
+  <div class="status" id="status"></div>
+  <div id="result"></div>
+  <div class="empty" id="empty" style="display:none">输入一个钱包地址开始查询。</div>
+
+  <div class="panel" id="lbPanel" style="margin-top:18px">
+    <div class="panel-h">🏆 持有排行 · 前 10 名 <small id="lbSub">加载中…</small></div>
+    <div id="lbBody"></div>
+  </div>
+
+  <div class="foot">数据源：Anubis 链 Awake Governance NFT 合约（eth_call · balanceOf / tokenOfOwnerByIndex）· 纯只读 · 不连钱包不签名</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var WK='https://count.web3origin.com', MLS='mon_access_v1', busy=false;
+
+  /* ===== 会员门控 ===== */
+  var gate=document.getElementById('gate');
+  function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
+  function showGate(){
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>NFT 持有查询 · 会员专属</h3>'
+      +'<div class="gs">开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可查询任意地址的 Awake Governance NFT 持有情况，全站工具一次通用。</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
+      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.classList.add('on');
+  }
+  function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
+  (async function(){
+    var t=tok(); if(!t){ showGate(); return; }
+    try{ var r=await fetch(WK+'/mon/access?token='+encodeURIComponent(t)).then(function(x){return x.json();});
+      if(r&&r.ok){ unlock(); } else showGate(); }catch(e){ showGate(); }
+  })();
+
+  /* ===== 链上配置 ===== */
+  var RPCS=['https://rpc.anubispace.org'];
+  var NFT='0x58839f46bd0E3F4494E2BEB8ca93Da9352208615';
+  var NFT_NAME='Awake Governance NFT';
+  var EXPLORER='https://browser.anubispace.org/';
+  var SEL={ balanceOf:'0x70a08231', totalSupply:'0x18160ddd', tokenOfOwnerByIndex:'0x2f745c59' };
+  var MAX_IDS=80; // 最多列出的 token ID 数,避免超大持仓卡死
+  function encAddr(a){ return a.toLowerCase().replace(/^0x/,'').padStart(64,'0'); }
+  function encU(n){ return BigInt(n).toString(16).padStart(64,'0'); }
+  function toBig(h){ try{ return (h&&h!=='0x')?BigInt(h):0n; }catch(e){ return 0n; } }
+  function comma(n){ try{ return Number(n).toLocaleString('en-US'); }catch(e){ return String(n); } }
+  function shortA(a){ return /^0x[0-9a-fA-F]{40}$/.test(a)?(a.slice(0,6)+'…'+a.slice(-4)):a; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function rpc(method,params){
+    return (async function(){ var e; for(var k=0;k<RPCS.length;k++){ try{ var c=new AbortController(); var t=setTimeout(function(){c.abort();},9000);
+      var r=await fetch(RPCS[k],{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:method,params:params}),signal:c.signal});
+      clearTimeout(t); var j=await r.json(); if(j.error)throw new Error(j.error.message); return j.result; }catch(x){e=x;} } throw e; })();
+  }
+  var call=function(data){ return rpc('eth_call',[{to:NFT,data:data},'latest']); };
+
+  /* ===== 最近查询历史(本地存储,不上传) ===== */
+  var RKEY='nft_recent_v1', recentEl=document.getElementById('recent');
+  function loadRecent(){ try{ var a=JSON.parse(localStorage.getItem(RKEY)||'[]'); return Array.isArray(a)?a.filter(function(x){return typeof x==='string'&&/^0x[0-9a-fA-F]{40}$/.test(x);}):[]; }catch(e){ return []; } }
+  function saveRecent(list){ try{ localStorage.setItem(RKEY,JSON.stringify(list.slice(0,8))); }catch(e){} }
+  function addRecent(addr){ if(!/^0x[0-9a-fA-F]{40}$/.test(addr||'')) return; var low=addr.toLowerCase();
+    var list=loadRecent().filter(function(x){return x.toLowerCase()!==low;}); list.unshift(addr); saveRecent(list); renderRecent(); }
+  function renderRecent(){
+    var list=loadRecent();
+    if(!list.length){ recentEl.style.display='none'; recentEl.innerHTML=''; return; }
+    var h='<span class="rl">最近查询</span>';
+    list.forEach(function(a,i){ h+='<span class="rc" data-a="'+esc(a)+'" title="'+esc(a)+'">'+esc(shortA(a))+'<span class="rx" data-x="'+i+'" title="移除">✕</span></span>'; });
+    h+='<span class="rclr" data-clr="1">清空</span>';
+    recentEl.innerHTML=h; recentEl.style.display='flex';
+  }
+  recentEl.addEventListener('click',function(e){
+    var t=e.target;
+    if(t.getAttribute){
+      var xi=t.getAttribute('data-x');
+      if(xi!==null&&xi!==''){ var list=loadRecent(); list.splice(+xi,1); saveRecent(list); renderRecent(); return; }
+      if(t.getAttribute('data-clr')){ saveRecent([]); renderRecent(); return; }
+    }
+    var chip=t; while(chip&&chip!==recentEl&&!(chip.className&&typeof chip.className==='string'&&/\brc\b/.test(chip.className))) chip=chip.parentNode;
+    if(chip&&chip.getAttribute){ var a=chip.getAttribute('data-a'); if(a){ document.getElementById('addr').value=a; doQuery(); } }
+  });
+
+  /* ===== 查询 ===== */
+  var addrEl=document.getElementById('addr'), btn=document.getElementById('qbtn'),
+      st=document.getElementById('status'), res=document.getElementById('result'), empty=document.getElementById('empty');
+
+  async function doQuery(){
+    if(busy) return;
+    var addr=(addrEl.value||'').trim();
+    if(!/^0x[0-9a-fA-F]{40}$/.test(addr)){ st.innerHTML='<span class="err">请输入正确的钱包地址（0x 开头 42 位）。</span>'; return; }
+    busy=true; btn.disabled=true; btn.textContent='查询中…'; empty.style.display='none';
+    st.innerHTML='<span class="dot"></span>正在读取 Anubis 链 NFT 合约…'; res.innerHTML='';
+    try{
+      var balHex=await call(SEL.balanceOf+encAddr(addr));
+      var bal=Number(toBig(balHex));
+      var totalHex; try{ totalHex=await call(SEL.totalSupply); }catch(e){ totalHex='0x0'; }
+      var total=Number(toBig(totalHex));
+      // 尝试枚举 token ID
+      var ids=[], enumOk=true;
+      if(bal>0){
+        var n=Math.min(bal,MAX_IDS);
+        try{
+          var reqs=[]; for(var i=0;i<n;i++) reqs.push(call(SEL.tokenOfOwnerByIndex+encAddr(addr)+encU(i)));
+          var out=await Promise.all(reqs);
+          ids=out.map(function(h){ return toBig(h).toString(); });
+        }catch(e){ enumOk=false; ids=[]; }
+      }
+      render(addr,bal,total,ids,enumOk);
+      addRecent(addr);
+      renderLb();
+      st.innerHTML='<span class="dot"></span>✓ 查询完成 · '+new Date().toLocaleString('zh-CN');
+    }catch(e){
+      st.innerHTML='<span class="err">查询失败：'+esc(e&&e.message||'网络波动')+'，请重试（海外节点可能需开 VPN）。</span>';
+      res.innerHTML='';
+    }
+    busy=false; btn.disabled=false; btn.textContent='查询';
+  }
+
+  function render(addr,bal,total,ids,enumOk){
+    var pct=(total>0&&bal>0)?(bal/total*100):0;
+    var pctStr=pct>0?(pct<0.01?'<0.01%':pct.toFixed(pct<1?3:2)+'%'):'—';
+    var h='';
+    h+='<div class="hero"><div class="k">该地址持有 '+esc(NFT_NAME)+'</div>'
+      +'<div class="v">'+comma(bal)+'<span class="u">枚</span></div>'
+      +'<div class="sd">占全集合 <b>'+pctStr+'</b>（全集合共 '+comma(total)+' 枚已铸）</div></div>';
+    if(bal>0){
+      h+='<div class="nftart">'
+        +'<div class="art"><img src="awake-nft.png" alt="'+esc(NFT_NAME)+'" loading="lazy"></div>'
+        +'<div class="meta"><div class="nm">'+esc(NFT_NAME)+'</div>'
+        +'<div class="id">共持有 '+comma(bal)+' 枚</div>'
+        +'<div class="cap">官方 Awake Governance NFT 铂金款美术图（取自官方 claim-nft 页）。该集合所有 NFT 款式一致。</div></div>'
+        +'</div>';
+    }
+    h+='<div class="bento">'
+      +'<div class="tile"><div class="k">持有数量</div><div class="v g">'+comma(bal)+' 枚</div></div>'
+      +'<div class="tile"><div class="k">占全集合比例</div><div class="v">'+pctStr+'</div></div>'
+      +'</div>';
+    if(bal>0){
+      if(enumOk&&ids.length){
+        var more=(bal>ids.length)?(' <small>（持有 '+comma(bal)+' 枚，显示前 '+ids.length+' 个）</small>'):'';
+        h+='<div class="panel"><div class="panel-h">持有的 Token ID'+more+'</div><div class="ids">'
+          +ids.map(function(id){ return '<span>#<b>'+esc(id)+'</b></span>'; }).join('')+'</div></div>';
+      }else{
+        h+='<div class="panel"><div class="panel-h">持有的 Token ID</div><div class="err" style="color:var(--dim);font-size:12.5px">该 NFT 合约未提供按持有人枚举的接口，只能读出持有数量，无法列出具体 token ID。</div></div>';
+      }
+    }
+    h+='<div class="panel"><div class="chainsum"><span>合约 <b style="color:var(--soft)">'+esc(shortA(NFT))+'</b> · Anubis 链</span>'
+      +'<a href="'+EXPLORER+'token/'+NFT+'?a='+addr+'" target="_blank" rel="noopener">在区块浏览器核实 →</a></div></div>';
+    h+='<div class="note">数据为 Anubis 链实时读取：<b>balanceOf</b> 得持有数量，<b>tokenOfOwnerByIndex</b> 枚举具体 token ID（合约支持时）。目前起源生态链上仅此一个 NFT 合约（Awake Governance NFT）。</div>';
+    res.innerHTML=h;
+  }
+
+  /* ===== 持有排行(前10名,读Anubis浏览器持有人接口) ===== */
+  var lbList=[], lbTotal=0;
+  async function loadLeaderboard(){
+    var sub=document.getElementById('lbSub'), body=document.getElementById('lbBody');
+    try{
+      var url='https://browser.anubispace.org/api?module=token&action=getTokenHolders&contractaddress='+NFT+'&page=1&offset=10';
+      var c=new AbortController(); var t=setTimeout(function(){c.abort();},12000);
+      var r=await fetch(url,{signal:c.signal}); clearTimeout(t); var j=await r.json();
+      lbList=(j&&j.result)||[];
+      try{ lbTotal=Number(toBig(await call(SEL.totalSupply))); }catch(e){ lbTotal=0; }
+      if(!lbList.length){ sub.textContent='暂无持有人数据'; return; }
+      sub.textContent='全集合共 '+comma(lbTotal)+' 枚已铸';
+      renderLb();
+    }catch(e){ sub.textContent='加载失败'; body.innerHTML='<div style="color:var(--dim);font-size:12.5px">排行榜暂时读取失败，可稍后刷新页面重试。</div>'; }
+  }
+  function renderLb(){
+    var body=document.getElementById('lbBody'); if(!lbList.length) return;
+    var me=(addrEl.value||'').trim().toLowerCase();
+    var medal=['🥇','🥈','🥉'];
+    var h='';
+    lbList.forEach(function(x,i){
+      var cnt=Number(x.value)||0, pct=lbTotal>0?(cnt/lbTotal*100):0;
+      var isMe=x.address.toLowerCase()===me;
+      h+='<div class="lbrow'+(isMe?' me':'')+'"><div class="rk">'+(i<3?medal[i]:(i+1))+'</div>'
+        +'<div class="ad"><a href="'+EXPLORER+'address/'+x.address+'" target="_blank" rel="noopener">'+esc(shortA(x.address))+'</a></div>'
+        +(isMe?'<span class="lbtag">本次查询</span>':'')
+        +'<div class="ct"><b>'+comma(cnt)+'</b> 枚<small>'+(pct>0?(pct<0.01?'<0.01%':pct.toFixed(2)+'%'):'')+'</small></div></div>';
+    });
+    body.innerHTML=h;
+  }
+
+  function start(){
+    empty.style.display='block';
+    renderRecent();
+    loadLeaderboard();
+    btn.onclick=doQuery;
+    addrEl.addEventListener('keydown',function(e){ if(e.key==='Enter') doQuery(); });
+    try{ var q=new URLSearchParams(location.search).get('addr'); if(q&&/^0x[0-9a-fA-F]{40}$/.test(q.trim())){ addrEl.value=q.trim(); doQuery(); } }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
