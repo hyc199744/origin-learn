@@ -934,7 +934,7 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
   .md-sub a:hover{background:rgba(118,255,54,.05);color:var(--ink)}
   .md-foot{border-top:1px solid rgba(214,168,75,.18);padding:12px 14px calc(14px + env(safe-area-inset-bottom))}
   .md-foot .qb{display:flex;gap:9px}
-  .md-foot .qb button{flex:1;min-height:44px;border-radius:10px;font:inherit;font-size:13.5px;cursor:pointer}
+  .md-foot .qb button,.qb a{flex:1;min-height:44px;border-radius:10px;font:inherit;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}
   .md-foot .qb .p{background:linear-gradient(180deg,#76FF36,#25C96F);color:#08110a;border:0;font-weight:600}
   .md-foot .qb .s{background:transparent;border:1px solid rgba(118,255,54,.4);color:#76FF36}
   .md-warn{margin-top:11px;font-size:11px;color:var(--muted);line-height:1.6;text-align:center}
@@ -1017,7 +1017,7 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
   <div class="md-foot">
     <div class="qb">
       <button class="p" data-fn="openWalletMonitor" data-i18n="md_qb1">钱包查询</button>
-      <button class="s" data-fn="openCalc" data-i18n="md_qb2">收益计算器</button>
+      <a class="s" href="tools/calculators/" data-i18n="md_qb2">收益计算器</a>
     </div>
     <div class="md-warn" data-i18n="md_warn">⚠️ 请勿在任何网页输入助记词、私钥或钱包密码。</div>
   </div>
