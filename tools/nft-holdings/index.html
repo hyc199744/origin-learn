@@ -50,6 +50,16 @@ h1{font-size:23px;margin:0 0 3px;color:var(--white);font-weight:800}
 .nftart .meta .id{font-size:13px;color:var(--acc);font-weight:700;margin-top:2px;font-family:ui-monospace,Menlo,Consolas,monospace}
 .nftart .meta .cap{font-size:11px;color:var(--dim);margin-top:10px;line-height:1.6}
 .nftart .meta .pick{font-size:11.5px;color:var(--dim);margin-top:8px}
+/* 款式展示轮播 */
+.showcase{display:flex;flex-direction:column;align-items:center;gap:12px}
+.scard{position:relative;width:210px;max-width:70%;aspect-ratio:640/985;filter:drop-shadow(0 10px 34px rgba(143,227,106,.16))}
+.scard img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .6s ease;border-radius:10px}
+.scard img.on{opacity:1}
+.slabel{font-size:13px;font-weight:700;color:var(--white)}
+.slabel small{color:var(--dim);font-weight:400;margin-left:5px}
+.sdots{display:flex;gap:8px}
+.sdots span{width:8px;height:8px;border-radius:50%;background:var(--line);cursor:pointer;transition:background .2s}
+.sdots span.on{background:var(--acc)}
 .bento{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:12px}
 .tile{background:var(--tile);border:1px solid var(--line);border-radius:16px;padding:16px}
 .tile .k{color:var(--dim);font-size:12px}
@@ -105,6 +115,19 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   <div class="status" id="status"></div>
   <div id="result"></div>
   <div class="empty" id="empty" style="display:none">输入一个钱包地址开始查询。</div>
+
+  <div class="panel" id="scPanel" style="margin-top:18px">
+    <div class="panel-h">🎴 NFT 款式 <small>官方 3 款 · Awake Governance NFT</small></div>
+    <div class="showcase">
+      <div class="scard" id="scCard">
+        <img class="on" src="awake-nft.png" data-label="铂金 Platinum" alt="Platinum Awake Governance NFT" loading="lazy">
+        <img src="awake-red-gold.png" data-label="红金 Red &amp; Gold" alt="Red &amp; Gold Awake Governance NFT" loading="lazy">
+        <img src="awake-red-silver.png" data-label="红银 Red &amp; Silver" alt="Red &amp; Silver Awake Governance NFT" loading="lazy">
+      </div>
+      <div class="slabel" id="scLabel">铂金 Platinum</div>
+      <div class="sdots" id="scDots"><span class="on"></span><span></span><span></span></div>
+    </div>
+  </div>
 
   <div class="panel" id="lbPanel" style="margin-top:18px">
     <div class="panel-h">🏆 持有排行 · 前 10 名 <small id="lbSub">加载中…</small></div>
@@ -282,10 +305,27 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
     body.innerHTML=h;
   }
 
+  /* ===== 款式展示轮播(官方3款) ===== */
+  function initShowcase(){
+    var card=document.getElementById('scCard'), lbl=document.getElementById('scLabel'), dots=document.getElementById('scDots');
+    if(!card) return;
+    var imgs=card.querySelectorAll('img'), ds=dots.querySelectorAll('span'), cur=0, timer=null;
+    function show(i){ cur=(i+imgs.length)%imgs.length;
+      imgs.forEach(function(im,k){ im.classList.toggle('on',k===cur); });
+      ds.forEach(function(d,k){ d.classList.toggle('on',k===cur); });
+      lbl.innerHTML=imgs[cur].dataset.label;
+    }
+    function next(){ show(cur+1); }
+    function restart(){ if(timer)clearInterval(timer); timer=setInterval(next,3500); }
+    ds.forEach(function(d,k){ d.onclick=function(){ show(k); restart(); }; });
+    restart();
+  }
+
   function start(){
     empty.style.display='block';
     renderRecent();
     loadLeaderboard();
+    initShowcase();
     btn.onclick=doQuery;
     addrEl.addEventListener('keydown',function(e){ if(e.key==='Enter') doQuery(); });
     try{ var q=new URLSearchParams(location.search).get('addr'); if(q&&/^0x[0-9a-fA-F]{40}$/.test(q.trim())){ addrEl.value=q.trim(); doQuery(); } }catch(e){}
