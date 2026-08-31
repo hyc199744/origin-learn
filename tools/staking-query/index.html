@@ -81,7 +81,7 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
 <div class="wrap">
   <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
   <h1>双链<span>质押查询</span></h1>
-  <div class="sub">输入任意起源钱包地址，一次查全 <b style="color:var(--gold2)">Polygon 与 Anubis 双链</b>的活期质押、360/600 天锁仓逐笔明细与名下总质押。纯链上只读，不连钱包、不签名，每笔可在区块浏览器独立核实。</div>
+  <div class="sub">输入任意起源钱包地址，一次查全 <b style="color:var(--gold2)">Polygon 与 Anubis 双链</b>的活期质押、360/600 天锁仓逐笔明细与名下总质押。纯链上只读，不连钱包、不签名。</div>
 
   <div class="qbox">
     <input class="qin" id="addr" placeholder="0x… 粘贴要查询的钱包地址" spellcheck="false" autocomplete="off">
@@ -220,7 +220,7 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   // 单条链的 Bento 明细面板
   function chainHTML(o,addr){
     var c=o.cfg, sL=o.sLGNS?o.sLGNS.raw:null, total=chainStakeTotal(o);
-    var h='<div class="panel"><div class="panel-h"><span class="pill '+c.cls+'">'+c.name+'</span> 质押明细 <span class="blk">chainId '+c.chainId+' · 区块 '+comma(o.block)+'</span></div>';
+    var h='<div class="panel"><div class="panel-h"><span class="pill '+c.cls+'">'+c.name+'</span> 质押明细</div>';
     // 活期
     h+='<div class="gt">💧 活期质押 sLGNS</div>';
     h+='<div class="rw"><span class="l">直接持有 sLGNS</span><span class="r"><b>'+(sL==null?'读取失败':pretty(sL,o.sLGNS.dec)+' LGNS')+'</b></span></div>';
