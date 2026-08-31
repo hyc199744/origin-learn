@@ -93,9 +93,6 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   <div id="result"></div>
   <div class="empty" id="empty" style="display:none">输入一个钱包地址开始查询。</div>
 
-  <div class="note">
-    <b style="color:var(--soft)">口径与核实</b>：活期质押 = 钱包直接持有的 sLGNS；360/600（及 Anubis 能量值）= 各锁仓合约中该地址的逐笔本金与状态，读链上 <code>getDepositorBalance / stakes</code>。<b>销毁债券</b>（Anubis）逐笔读 <code>getUserDeposit / getClaimable</code>：<b>本金按 DAI</b>、可领取/已领取按 LGNS，与官方"我的债券"一致；因本金是 DAI，单独展示、不并入 LGNS 总质押。名下总质押（LGNS）= 活期 sLGNS + 各锁仓本金（按链、再汇总）。<b>待领奖励</b>（蜘蛛网/涡轮/社区DAO，Anubis）：蜘蛛网与社区奖励读 <code>rewardOf</code>（待领=总额−已领）、涡轮读 <code>getTurbineBal</code>，均为待领 LGNS、需在官方 App 领取，单独展示不并入质押合计。<b>不含</b>蛛网/DAO/涡轮等未领奖励与项目方后台挂账（链上不可独立验证，本站不显示）。数据实时读链，海外节点连不上时可能部分失败（可开 VPN 重试）。<br><span style="color:var(--dim)">注：官方 App 中的「长期流动性债券 360/600」「铸造 360/600/空投A 质押」「ILO 创世 360 质押」为未验证的旧版合约，链上暂无法准确读取，待接入合约 ABI 后补充；本页只显示可链上核实的项目，绝不显示估算或错误数据。</span>
-  </div>
   <div class="foot">数据源：Polygon / Anubis 链上合约（eth_call）· 纯只读 · 不连钱包不签名</div>
 </div>
 
