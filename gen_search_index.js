@@ -91,7 +91,6 @@ function build(lang) {
     ["About Web3Origin", "/about/", "Who we are, what data we provide"],
     ["All Contracts", "/contracts/", "Origin contract addresses on Polygon and Anubis"],
     ["Video Academy", "/video/", "Video tutorials and courses"],
-    ["My Dashboard", "/dashboard/", "Personal on-chain center"],
     ["Feedback", "/feedback/", "Community feedback"]
   ] : [
     ["研究文章", "/articles/", "研究文章与证据中心"],
@@ -99,7 +98,6 @@ function build(lang) {
     ["关于 Web3Origin", "/about/", "我们是谁、提供什么数据"],
     ["合约地址大全", "/contracts/", "起源在 Polygon 与 Anubis 的合约地址"],
     ["视频学院", "/video/", "视频教程与课程"],
-    ["个人中心", "/dashboard/", "我的链上中心"],
     ["留言区", "/feedback/", "社区反馈"]
   ];
   pages.forEach((p, i) => push({ id: "page-" + i, type: "page", title: p[0], description: p[2], content: p[2], url: p[1], language: lang, category: en ? "Page" : "页面", tags: [], aliases: [], updated_at: "", network: "", address: "", verified: true }));
