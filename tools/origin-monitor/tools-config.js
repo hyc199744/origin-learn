@@ -118,8 +118,8 @@
 
     { id: 'roi-calc', number: 15, name: '收益与成本计算器', category: 'price-calc', icon: '🧮',
       description: '计算持币成本、费用、模拟收益、浮盈亏和回本价格。',
-      status: 'live', isPremium: true, route: '/?tool=openCalc', enabled: true,
-      note: '首页 openCalc 弹窗，已上线（收益为模拟结果，非承诺）。' },
+      status: 'live', isPremium: true, route: '/tools/calculators/', enabled: true,
+      note: '独立页 /tools/calculators/(会员专属),6合1计算器:卖币/买币/活期收益/长期锁仓/产品对比/销毁债券,币价链上实时读(getReserves双链),费率爆块参数可改,纯计算不连钱包。收益为模拟测算非承诺。已上线。' },
 
     { id: 'whale-track', number: 16, name: '大户增减仓追踪', category: 'trade-whale', icon: '📉',
       description: '追踪重点地址的增持、减持、卖出、赎回和资产转移。',
@@ -168,8 +168,8 @@
 
     { id: 'buy-calc', number: 25, name: '买入到账计算器', category: 'price-calc', icon: '🛒',
       description: '输入投入金额，估算可以买到的币量、滑点、费用和实际到账。',
-      status: 'soon', isPremium: true, route: '', enabled: false,
-      note: '收益计算器偏成本/收益，买入到账估算尚未独立，标即将上线。' },
+      status: 'live', isPremium: true, route: '/tools/calculators/', enabled: true,
+      note: '并入收益与成本计算器「买币」标签(/tools/calculators/),输入投入DAI对比Polygon/Anubis双链买入到账LGNS(买入0税,链上实时价)。已上线(未计DEX滑点)。' },
 
     { id: 'anomaly', number: 26, name: '钱包异常行为识别', category: 'security-dd', icon: '🚨',
       description: '识别短时间批量转账、集中赎回、高频交互等异常特征。',
