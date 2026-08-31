@@ -312,6 +312,7 @@
             <label>输入地址，查它绑定的推荐人（上级）
               <input id="rAddr" type="text" placeholder="0x… 粘贴一个钱包地址" spellcheck="false"></label>
           </div>
+          <div id="rRecent" style="display:none;flex-wrap:wrap;gap:7px;align-items:center;margin:0 0 12px"></div>
           <button class="claim2" id="rGo">查 询</button>
           <div class="calc-out" id="rOut" style="margin-top:14px;display:none"></div>
           <p class="calc-note">读社区合约的绑定关系（members），返回推荐人钱包和绑定时间——链上真实数据。<b style="color:var(--gold-lt)">完整推荐人地址</b>为会员权益，开通 10 LGNS 会员后全站工具一次通用。已开通会员的用户在本站查询会自动显示完整地址，无需再次付费。</p>
@@ -319,6 +320,23 @@
       </div>`);
     const out=b.querySelector("#rOut");
     let curAddr="";
+    // ===== 最近查询地址(本地存储,不上传) =====
+    const RKEY_R="referrer_recent_v1";
+    function loadRRecent(){ try{ const a=JSON.parse(localStorage.getItem(RKEY_R)||"[]"); return Array.isArray(a)?a.filter(x=>typeof x==="string"&&isAddr(x)):[]; }catch(e){ return []; } }
+    function saveRRecent(list){ try{ localStorage.setItem(RKEY_R,JSON.stringify(list.slice(0,8))); }catch(e){} }
+    function addRRecent(addr){ if(!isAddr(addr))return; const low=addr.toLowerCase(); const list=loadRRecent().filter(x=>x.toLowerCase()!==low); list.unshift(addr); saveRRecent(list); renderRRecent(); }
+    function renderRRecent(){
+      const el=b.querySelector("#rRecent"); if(!el) return;
+      const list=loadRRecent();
+      if(!list.length){ el.style.display="none"; el.innerHTML=""; return; }
+      el.innerHTML='<span style="color:var(--muted);font-size:12px;margin-right:1px">最近查询</span>'+
+        list.map((a,i)=>'<span class="rrc" data-a="'+a+'" title="'+a+'" style="cursor:pointer;background:rgba(0,0,0,.25);border:1px solid var(--line);color:var(--soft);border-radius:9px;padding:5px 8px 5px 10px;font-family:var(--mono);font-size:11.5px;display:inline-flex;align-items:center;gap:6px">'+short(a)+'<span class="rrx" data-x="'+i+'" title="移除" style="color:var(--muted);cursor:pointer;font-size:12px">✕</span></span>').join("")+
+        '<span class="rrclr" style="color:var(--muted);font-size:11px;cursor:pointer;text-decoration:underline;margin-left:1px">清空</span>';
+      el.style.display="flex";
+      el.querySelectorAll(".rrx").forEach(x=>x.onclick=(ev)=>{ ev.stopPropagation(); const list=loadRRecent(); list.splice(+x.dataset.x,1); saveRRecent(list); renderRRecent(); });
+      el.querySelector(".rrclr").onclick=()=>{ saveRRecent([]); renderRRecent(); };
+      el.querySelectorAll(".rrc").forEach(c=>c.onclick=()=>{ const inp=b.querySelector("#rAddr"); if(inp){ inp.value=c.dataset.a; go(); } });
+    }
     // ===== 可复用支付面板：新订单 / 继续付款 都走这里 =====
     function showPay(el,o){
       el.innerHTML=PAYCSS+`
@@ -365,6 +383,7 @@
       try{ d=await fetch(API+"/referrer?addr="+a+(mem&&MTOKEN?("&token="+encodeURIComponent(MTOKEN)):"")).then(r=>r.json()); }
       catch(e){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">查询失败，稍后再试</span></div>'; return; }
       if(!d||!d.ok){ out.innerHTML='<div class="cstat"><span style="color:#e0705f">查询失败，稍后再试</span></div>'; return; }
+      addRRecent(a);
       if(!d.hasRef){ out.innerHTML='<div class="cstat"><span>这个地址<b style="color:var(--gold-lt)">还没有绑定推荐人</b>（或还没加入社区）</span></div>'; return; }
       // 会员：后台已返回完整地址，直接显示，无需单独付费
       if(d.unlocked&&d.referrer){
@@ -464,6 +483,7 @@
     }
     b.querySelector("#rGo").onclick=go;
     b.querySelector("#rAddr").addEventListener("keydown",e=>{if(e.key==="Enter")go();});
+    renderRRecent();
   };
 
   /* ========== 10) 起源官方合约验证中心 ========== */
