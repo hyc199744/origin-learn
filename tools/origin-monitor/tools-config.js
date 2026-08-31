@@ -73,8 +73,8 @@
 
     { id: 'staking-query', number: 6, name: '双链质押查询', category: 'asset-staking', icon: '🔒',
       description: '查询活期、360、600 及钱包名下的总质押记录。',
-      status: 'live', isPremium: true, route: '/?tool=openStaking', enabled: true,
-      note: '首页 openStaking 弹窗，已上线。' },
+      status: 'live', isPremium: true, route: '/tools/staking-query/', enabled: true,
+      note: '独立页 /tools/staking-query/(会员专属),输地址查双链活期/360/600逐笔明细+名下总质押,前端直连合约eth_call(getDepositorBalance/stakes),纯只读可核实。已上线。' },
 
     { id: 'v-level', number: 7, name: '钱包 V 等级查询', category: 'wallet-id', icon: '🎖️',
       description: '查看钱包当前等级、所属链及相关链上依据。',
