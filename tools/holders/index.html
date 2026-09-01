@@ -4,12 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,follow">
-<title>活期质押大户榜 · 双链持仓排名 · Web3Origin</title>
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<title>活期质押大户榜 · Top Holders · Web3Origin</title>
 <meta name="description" content="按钱包直接持有的 LGNS 与 sLGNS 合并统计双链持仓大户排名，已排除合约、池子、国库、销毁与项目钱包，仅 EOA。数据来自后台定时扫描，可交叉核实。">
 <link rel="canonical" href="https://web3origin.com/tools/holders/">
 <link rel="icon" href="/assets/favicon.png">
 <style>
 :root{--bg:#070806;--panel:#0e100e;--panel2:#141712;--line:rgba(212,175,55,.2);--gold:#d4af37;--gold2:#e8cf7e;--txt:#e9efea;--dim:#7a857c;--soft:#c3cbc4;--green:#25C96F;--red:#ff6b5e;--poly:#a97bff}
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4;margin-left:auto}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(1100px 560px at 50% -12%,rgba(212,175,55,.10),transparent),var(--bg);color:var(--txt);font:15px/1.6 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
 .wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
@@ -51,27 +55,27 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
 </style>
 </head>
 <body class="locked">
-<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0"><span data-lang="zh">正在验证会员…</span><span data-lang="en">Verifying membership…</span></div></div></div>
 
 <div class="wrap">
-  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
-  <h1>活期质押<span>大户榜</span></h1>
-  <div class="sub">按钱包<b>直接持有</b>的 LGNS 与 sLGNS(活期)合并去重排名。已排除合约、池子、国库、销毁与已知项目钱包，仅统计普通钱包(EOA)。数据来自后台定时扫描（每 30 分钟更新）。</div>
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a><button id="langBtn" aria-label="Language">🌐</button></div>
+  <h1><span data-lang="zh">活期质押<span>大户榜</span></span><span data-lang="en">Flexible-staking <span>Top Holders</span></span></h1>
+  <div class="sub"><span data-lang="zh">按钱包<b>直接持有</b>的 LGNS 与 sLGNS(活期)合并去重排名。已排除合约、池子、国库、销毁与已知项目钱包，仅统计普通钱包(EOA)。数据来自后台定时扫描（每 30 分钟更新）。</span><span data-lang="en">Ranking by <b>directly held</b> LGNS + sLGNS (flexible), merged and de-duped. Contracts, pools, treasury, burn and known project wallets are excluded — EOAs only. Data from a scheduled back-office scan (updated every 30 min).</span></div>
 
   <div class="tabs">
     <div class="tab on" data-c="poly">Polygon <small id="polyN">—</small></div>
     <div class="tab" data-c="anb">Anubis <small id="anbN">—</small></div>
   </div>
-  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><button class="refresh" id="refresh">↻ 刷新</button></div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><button class="refresh" id="refresh"><span data-lang="zh">↻ 刷新</span><span data-lang="en">↻ Refresh</span></button></div>
   <div class="status" id="status"></div>
 
-  <div class="scroll"><table class="ht"><thead><tr><th>#</th><th>钱包</th><th style="text-align:right">持仓（LGNS+sLGNS）</th><th>链上</th></tr></thead><tbody id="rows"></tbody></table></div>
+  <div class="scroll"><table class="ht"><thead><tr><th>#</th><th><span data-lang="zh">钱包</span><span data-lang="en">Wallet</span></th><th style="text-align:right"><span data-lang="zh">持仓（LGNS+sLGNS）</span><span data-lang="en">Holdings (LGNS+sLGNS)</span></th><th><span data-lang="zh">链上</span><span data-lang="en">Chain</span></th></tr></thead><tbody id="rows"></tbody></table></div>
   <div class="empty" id="empty" style="display:none"></div>
 
   <div class="note">
-    <b style="color:var(--soft)">口径与核实</b>：持仓 = 钱包直接持有的 <b>LGNS + sLGNS(活期)</b> 合并，<b>不含</b> 360/600 锁仓、债券和未领奖励，因此不代表完整资产排名。已排除合约、创世池、国库、基金会、销毁地址与已知项目钱包，仅列普通钱包。<b>Anubis 上大额 LGNS 多沉淀在质押合约与协议合约里</b>，直接持有≥门槛的个人钱包很少，故该链榜单可能为空，属正常。点每行「🔗查」可在区块浏览器核对余额。
+    <span data-lang="zh"><b style="color:var(--soft)">口径与核实</b>：持仓 = 钱包直接持有的 <b>LGNS + sLGNS(活期)</b> 合并，<b>不含</b> 360/600 锁仓、债券和未领奖励，因此不代表完整资产排名。已排除合约、创世池、国库、基金会、销毁地址与已知项目钱包，仅列普通钱包。<b>Anubis 上大额 LGNS 多沉淀在质押合约与协议合约里</b>，直接持有≥门槛的个人钱包很少，故该链榜单可能为空，属正常。点每行「🔗查」可在区块浏览器核对余额。</span><span data-lang="en"><b style="color:var(--soft)">Scope &amp; verification</b>: holdings = directly held <b>LGNS + sLGNS (flexible)</b>, <b>excluding</b> 360/600 locks, bonds and unclaimed rewards — so this is not a full-asset ranking. Contracts, genesis pools, treasury, foundation, burn addresses and known project wallets are removed; only ordinary wallets are listed. <b>On Anubis most large LGNS sits inside staking/protocol contracts</b>, so few personal wallets hold above the threshold and this chain’s board may be empty — that’s normal. Click "🔗" on any row to verify the balance in a block explorer.</span>
   </div>
-  <div class="foot">数据源：Polygon(Moralis)/Anubis(区块浏览器) 持币扫描 · 后台定时更新 · 纯只读</div>
+  <div class="foot"><span data-lang="zh">数据源：Polygon(Moralis)/Anubis(区块浏览器) 持币扫描 · 后台定时更新 · 纯只读</span><span data-lang="en">Source: Polygon (Moralis) / Anubis (explorer) holder scan · scheduled back-office update · read-only</span></div>
 </div>
 
 <script>
@@ -80,14 +84,17 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   var WK='https://count.web3origin.com', MLS='mon_access_v1', MONTOKEN=null;
   var DATA={poly:[],anb:[]}, cur='poly';
   var EX={poly:'https://polygonscan.com/address/', anb:'https://browser.anubispace.org/address/'};
+  function isZh(){ return (document.documentElement.lang||'zh').toLowerCase().indexOf('zh')===0; }
+  function L(zh,en){ return isZh()?zh:en; }
+  function SP(zh,en){ return '<span data-lang="zh">'+zh+'</span><span data-lang="en">'+en+'</span>'; }
 
   var gate=document.getElementById('gate');
   function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
   function showGate(){
-    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>活期质押大户榜 · 会员专属</h3>'
-      +'<div class="gs">开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可查看双链持仓大户，全站工具一次通用。</div>'
-      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
-      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>'+SP('活期质押大户榜 · 会员专属','Top Holders · Members only')+'</h3>'
+      +'<div class="gs">'+SP('开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可查看双链持仓大户，全站工具一次通用。','Unlock with a <b style="color:var(--gold2)">10 LGNS membership</b> to see dual-chain top holders — one pass unlocks every tool.')+'</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">'+SP('🔓 开通会员 · 10 LGNS 解锁全部工具','🔓 Get membership · 10 LGNS unlocks all tools')+'</a>'
+      +'<a class="gback" href="/">'+SP('← 返回主站','← Back to site')+'</a></div>';
     gate.classList.add('on');
   }
   function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
@@ -105,8 +112,8 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       rows.innerHTML='';
       empty.style.display='block';
       empty.innerHTML=cur==='anb'
-        ? 'Anubis 上大额 LGNS 多沉淀在质押合约/协议合约里，暂无直接持有达门槛的个人钱包 —— 属正常结构。'
-        : '暂无数据，请点刷新。';
+        ? L('Anubis 上大额 LGNS 多沉淀在质押合约/协议合约里，暂无直接持有达门槛的个人钱包 —— 属正常结构。','On Anubis most large LGNS sits in staking/protocol contracts; no personal wallet currently holds above the threshold — a normal structure.')
+        : L('暂无数据，请点刷新。','No data — click refresh.');
       return;
     }
     empty.style.display='none';
@@ -115,25 +122,25 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       return '<tr><td class="rank">'+(i+1)+'</td>'
         +'<td><span class="mono" style="color:var(--soft)">'+short(addr)+'</span></td>'
         +'<td class="amt">'+comma(amt)+' LGNS</td>'
-        +'<td><a class="lnk" href="'+EX[cur]+addr+'" target="_blank" rel="noopener">🔗 查</a></td></tr>';
+        +'<td><a class="lnk" href="'+EX[cur]+addr+'" target="_blank" rel="noopener">'+L('🔗 查','🔗')+'</a></td></tr>';
     }).join('');
   }
 
   async function load(){
     var st=document.getElementById('status');
-    st.innerHTML='<span class="dot"></span>正在读取持仓大户…';
+    st.innerHTML='<span class="dot"></span>'+SP('正在读取持仓大户…','Loading top holders…');
     document.getElementById('refresh').disabled=true;
     try{
       var d=await fetch(WK+'/mon/stats').then(function(r){return r.json();});
       var pw=(d.polyWhales&&d.polyWhales.list)||[], aw=(d.anbWhales&&d.anbWhales.list)||[];
       DATA.poly=pw; DATA.anb=aw;
-      document.getElementById('polyN').textContent=pw.length+' 位';
-      document.getElementById('anbN').textContent=aw.length+' 位';
+      document.getElementById('polyN').innerHTML=pw.length+L(' 位','');
+      document.getElementById('anbN').innerHTML=aw.length+L(' 位','');
       render();
-      var upd=d.updatedAt?new Date(d.updatedAt).toLocaleString('zh-CN'):'—';
-      st.innerHTML='<span class="dot"></span>✓ 后台扫描更新于 '+upd+'（每 30 分钟更新）· 门槛 ≥10 万 LGNS';
+      var upd=d.updatedAt?new Date(d.updatedAt).toLocaleString(isZh()?'zh-CN':'en-US'):'—';
+      st.innerHTML='<span class="dot"></span>'+L('✓ 后台扫描更新于 ','✓ Back-office scan updated ')+upd+L('（每 30 分钟更新）· 门槛 ≥10 万 LGNS',' (every 30 min) · threshold ≥100k LGNS');
     }catch(e){
-      st.innerHTML='<span style="color:var(--red)">读取失败：'+(e.message||'网络波动')+'，请点刷新重试</span>';
+      st.innerHTML='<span style="color:var(--red)">'+L('读取失败：','Load failed: ')+(e.message||L('网络波动','network error'))+L('，请点刷新重试',' — click refresh to retry')+'</span>';
     }finally{ document.getElementById('refresh').disabled=false; }
   }
   function start(){
@@ -143,5 +150,6 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   }
 })();
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>
