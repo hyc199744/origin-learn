@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,follow">
-<title>今日晋升查询 · V1–V6 实时晋升 · Web3Origin</title>
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<title>今日晋升查询 · Promotions Today · Web3Origin</title>
 <meta name="description" content="实时查询 Anubis 链上今日新晋升 V1–V6 的钱包：读取 daoLevel 链上事件，显示钱包、达成等级、时间与交易哈希，每条可在区块浏览器独立核实。">
 <link rel="canonical" href="https://web3origin.com/tools/promotion/">
 <link rel="icon" href="/assets/favicon.png">
@@ -69,52 +70,56 @@ details.rules .cav{color:var(--dim);font-size:12px;margin-top:8px;line-height:1.
 #gate .gc{display:inline-block;text-decoration:none;padding:14px 28px;border-radius:12px;font-weight:800;font-size:16px;color:#1a1205;background:linear-gradient(135deg,var(--gold),var(--gold2))}
 #gate .gback{display:block;margin-top:14px;color:var(--soft);font-size:13px;text-decoration:none}
 body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
+
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4;margin-left:auto}
 </style>
 </head>
 <body class="locked">
-<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0"><span data-lang="zh">正在验证会员…</span><span data-lang="en">Verifying membership…</span></div></div></div>
 
 <div class="wrap">
-  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
-  <h1>今日<span>晋升查询</span></h1>
-  <div class="sub">实时读取 Anubis 链上 <b style="color:var(--gold2)">daoLevel 事件</b>，列出选定时段内真实晋升（升级）的钱包。每条都带交易哈希，可在区块浏览器独立核实。<b>Polygon 无此等级系统</b>，本页只统计 Anubis。</div>
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a><button id="langBtn" aria-label="Language">🌐</button></div>
+  <h1><span data-lang="zh">今日<span>晋升查询</span></span><span data-lang="en">Promotions <span>Today</span></span></h1>
+  <div class="sub"><span data-lang="zh">实时读取 Anubis 链上 <b style="color:var(--gold2)">daoLevel 事件</b>，列出选定时段内真实晋升（升级）的钱包。每条都带交易哈希，可在区块浏览器独立核实。<b>Polygon 无此等级系统</b>，本页只统计 Anubis。</span><span data-lang="en">Live reads of Anubis <b style="color:var(--gold2)">daoLevel events</b> to list wallets that genuinely leveled up within the chosen window. Each row carries a tx hash, independently verifiable in a block explorer. <b>Polygon has no such level system</b>, so this page covers Anubis only.</span></div>
 
   <details class="rules">
-    <summary>📖 V1–V6 晋升条件是什么？（点开看等级怎么来的）</summary>
+    <summary><span data-lang="zh">📖 V1–V6 晋升条件是什么？（点开看等级怎么来的）</span><span data-lang="en">📖 What are the V1–V6 promotion rules? (tap to see how levels are earned)</span></summary>
     <div class="rb">
-      等级由<b>官方按"三条推荐线的团队业绩"规则算好后写入链上</b>，本页只读链上最终等级并判断真升级，不自行计算门槛。
-      <div class="scroll"><table><thead><tr><th>等级</th><th>称号</th><th>晋升条件（团队业绩）</th><th>团队日收益</th></tr></thead><tbody>
-        <tr><td><b>V1</b></td><td>传道士</td><td>3 条线各 <b>5 万</b></td><td>1%–5%</td></tr>
-        <tr><td><b>V2</b></td><td>武士</td><td>3 条线各 <b>15 万</b></td><td>2%–10%</td></tr>
-        <tr><td><b>V3</b></td><td>骑士</td><td>3 条线各 <b>30 万</b></td><td>4%–15%</td></tr>
-        <tr><td><b>V4</b></td><td>信使</td><td>3 条线各 <b>50 万</b></td><td>6%–20%</td></tr>
-        <tr><td><b>V5</b></td><td>尊者</td><td>3 条线各 <b>100 万</b></td><td>8%–25%</td></tr>
-        <tr><td><b>V6</b></td><td>大师</td><td>3 条线各带出 <b>1 个 V5（尊者）</b></td><td>最高档</td></tr>
+      <span data-lang="zh">等级由<b>官方按"三条推荐线的团队业绩"规则算好后写入链上</b>，本页只读链上最终等级并判断真升级，不自行计算门槛。</span><span data-lang="en">Levels are <b>computed by the project per its "team volume across three referral lines" rule and written on-chain</b>. This page only reads the on-chain final level and detects real level-ups — it does not compute thresholds itself.</span>
+      <div class="scroll"><table><thead><tr><th><span data-lang="zh">等级</span><span data-lang="en">Level</span></th><th><span data-lang="zh">称号</span><span data-lang="en">Title</span></th><th><span data-lang="zh">晋升条件（团队业绩）</span><span data-lang="en">Requirement (team volume)</span></th><th><span data-lang="zh">团队日收益</span><span data-lang="en">Team daily</span></th></tr></thead><tbody>
+        <tr><td><b>V1</b></td><td><span data-lang="zh">传道士</span><span data-lang="en">Apostle</span></td><td><span data-lang="zh">3 条线各 <b>5 万</b></span><span data-lang="en"><b>50k</b> on each of 3 lines</span></td><td>1%–5%</td></tr>
+        <tr><td><b>V2</b></td><td><span data-lang="zh">武士</span><span data-lang="en">Warrior</span></td><td><span data-lang="zh">3 条线各 <b>15 万</b></span><span data-lang="en"><b>150k</b> on each of 3 lines</span></td><td>2%–10%</td></tr>
+        <tr><td><b>V3</b></td><td><span data-lang="zh">骑士</span><span data-lang="en">Knight</span></td><td><span data-lang="zh">3 条线各 <b>30 万</b></span><span data-lang="en"><b>300k</b> on each of 3 lines</span></td><td>4%–15%</td></tr>
+        <tr><td><b>V4</b></td><td><span data-lang="zh">信使</span><span data-lang="en">Herald</span></td><td><span data-lang="zh">3 条线各 <b>50 万</b></span><span data-lang="en"><b>500k</b> on each of 3 lines</span></td><td>6%–20%</td></tr>
+        <tr><td><b>V5</b></td><td><span data-lang="zh">尊者</span><span data-lang="en">Noble</span></td><td><span data-lang="zh">3 条线各 <b>100 万</b></span><span data-lang="en"><b>1M</b> on each of 3 lines</span></td><td>8%–25%</td></tr>
+        <tr><td><b>V6</b></td><td><span data-lang="zh">大师</span><span data-lang="en">Master</span></td><td><span data-lang="zh">3 条线各带出 <b>1 个 V5（尊者）</b></span><span data-lang="en">one <b>V5 (Noble)</b> on each of 3 lines</span></td><td><span data-lang="zh">最高档</span><span data-lang="en">top tier</span></td></tr>
       </tbody></table></div>
-      <div class="cav">⚠️ 说明：以上门槛为<b>官方/社区公开口径</b>，团队业绩数据在官方后台（链下）、本页无法独立核验是否达标；页面呈现的是<b>官方写在链上的最终等级</b>与其升降变化，可用交易哈希核实。此为团队计酬式等级体系，最终以官方口径为准，不构成任何投资建议。</div>
+      <div class="cav"><span data-lang="zh">⚠️ 说明：以上门槛为<b>官方/社区公开口径</b>，团队业绩数据在官方后台（链下）、本页无法独立核验是否达标；页面呈现的是<b>官方写在链上的最终等级</b>与其升降变化，可用交易哈希核实。此为团队计酬式等级体系，最终以官方口径为准，不构成任何投资建议。</span><span data-lang="en">⚠️ Note: the thresholds above are the <b>official/community public figures</b>. Team-volume data lives in the project back-office (off-chain), so this page can’t independently verify whether they’re met; it shows the <b>final level the project wrote on-chain</b> and its changes, verifiable by tx hash. This is a team-comp level system — the official figures are authoritative, and nothing here is investment advice.</span></div>
     </div>
   </details>
 
   <div class="bar">
-    <span style="font-size:12.5px;color:var(--dim)">时段：</span>
-    <button class="btn win" data-h="6">近 6 小时</button>
-    <button class="btn win on" data-h="24">近 24 小时</button>
-    <button class="btn win" data-h="48">近 48 小时</button>
-    <button class="btn go" id="refresh">↻ 刷新</button>
+    <span style="font-size:12.5px;color:var(--dim)"><span data-lang="zh">时段：</span><span data-lang="en">Window:</span></span>
+    <button class="btn win" data-h="6"><span data-lang="zh">近 6 小时</span><span data-lang="en">6h</span></button>
+    <button class="btn win on" data-h="24"><span data-lang="zh">近 24 小时</span><span data-lang="en">24h</span></button>
+    <button class="btn win" data-h="48"><span data-lang="zh">近 48 小时</span><span data-lang="en">48h</span></button>
+    <button class="btn go" id="refresh"><span data-lang="zh">↻ 刷新</span><span data-lang="en">↻ Refresh</span></button>
   </div>
   <div class="prog" id="prog"><i></i></div>
   <div class="status" id="status"></div>
 
-  <div class="total-card"><div class="big" id="total">—</div><div class="l" id="totalLab">该时段真实晋升人次</div></div>
+  <div class="total-card"><div class="big" id="total">—</div><div class="l" id="totalLab"><span data-lang="zh">该时段真实晋升人次</span><span data-lang="en">real promotions in this window</span></div></div>
   <div class="levels" id="levels"></div>
 
-  <div class="scroll"><table class="pt"><thead><tr><th>钱包</th><th>晋升</th><th>时间（约）</th><th>区块</th><th>交易</th></tr></thead><tbody id="rows"></tbody></table></div>
-  <div class="empty" id="empty" style="display:none">该时段暂无真实晋升（升级）。换个更长的时段试试。</div>
+  <div class="scroll"><table class="pt"><thead><tr><th><span data-lang="zh">钱包</span><span data-lang="en">Wallet</span></th><th><span data-lang="zh">晋升</span><span data-lang="en">Promotion</span></th><th><span data-lang="zh">时间（约）</span><span data-lang="en">Time (approx)</span></th><th><span data-lang="zh">区块</span><span data-lang="en">Block</span></th><th><span data-lang="zh">交易</span><span data-lang="en">Tx</span></th></tr></thead><tbody id="rows"></tbody></table></div>
+  <div class="empty" id="empty" style="display:none"><span data-lang="zh">该时段暂无真实晋升（升级）。换个更长的时段试试。</span><span data-lang="en">No real promotions in this window. Try a longer window.</span></div>
 
   <div class="note">
-    <b style="color:var(--soft)">口径与核实</b>：本页直接从 Anubis 公共节点读取 daoLevel 合约 <span class="mono">0x579a71…3b49</span> 的等级事件（topic <span class="mono">0x25150e…</span>）。对每条事件，<b style="color:var(--soft)">回读该钱包在事件前一区块的等级</b>作对比，<b style="color:var(--soft)">仅保留新等级 &gt; 旧等级的真实晋升</b>（重算、降级、同级重写均已排除）。时间按"约 1 秒/块"由区块高度换算，误差数秒；等级由官方按规则写入链上，本站只读、可用交易哈希独立复核。
+    <span data-lang="zh"><b style="color:var(--soft)">口径与核实</b>：本页直接从 Anubis 公共节点读取 daoLevel 合约 <span class="mono">0x579a71…3b49</span> 的等级事件（topic <span class="mono">0x25150e…</span>）。对每条事件，<b style="color:var(--soft)">回读该钱包在事件前一区块的等级</b>作对比，<b style="color:var(--soft)">仅保留新等级 &gt; 旧等级的真实晋升</b>（重算、降级、同级重写均已排除）。时间按"约 1 秒/块"由区块高度换算，误差数秒；等级由官方按规则写入链上，本站只读、可用交易哈希独立复核。</span><span data-lang="en"><b style="color:var(--soft)">Scope &amp; verification</b>: this page reads daoLevel contract <span class="mono">0x579a71…3b49</span> level events (topic <span class="mono">0x25150e…</span>) directly from Anubis public nodes. For each event it <b style="color:var(--soft)">reads back that wallet’s level at the block before the event</b> to compare, and <b style="color:var(--soft)">keeps only real promotions where new level &gt; old</b> (recomputes, downgrades and same-level rewrites are excluded). Times are derived from block height at ~1 sec/block (a few seconds’ error). Levels are written on-chain by the project; this site is read-only and each row is verifiable by tx hash.</span>
   </div>
-  <div class="foot">数据源：Anubis 链上 daoLevel 事件 · 纯只读 · 不连钱包不签名</div>
+  <div class="foot"><span data-lang="zh">数据源：Anubis 链上 daoLevel 事件 · 纯只读 · 不连钱包不签名</span><span data-lang="en">Source: Anubis on-chain daoLevel events · read-only · no wallet, no signature</span></div>
 </div>
 
 <script>
@@ -125,15 +130,18 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   var TOPIC='0x25150e221c9b5825c32306485837090665fff7091d38d12f09fe09b6697a8b1a';
   var WK='https://count.web3origin.com', MLS='mon_access_v1', MONTOKEN=null;
   var hours=24, scanning=false;
+  function isZh(){ return (document.documentElement.lang||'zh').toLowerCase().indexOf('zh')===0; }
+  function L(zh,en){ return isZh()?zh:en; }
+  function SP(zh,en){ return '<span data-lang="zh">'+zh+'</span><span data-lang="en">'+en+'</span>'; }
 
   /* ---- 会员门禁 ---- */
   var gate=document.getElementById('gate');
   function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
   function showGate(){
-    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>今日晋升查询 · 会员专属</h3>'
-      +'<div class="gs">开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可实时查看全网晋升动态，全站工具一次通用。</div>'
-      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
-      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>'+SP('今日晋升查询 · 会员专属','Promotions Today · Members only')+'</h3>'
+      +'<div class="gs">'+SP('开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可实时查看全网晋升动态，全站工具一次通用。','Unlock with a <b style="color:var(--gold2)">10 LGNS membership</b> to view network promotions live — one pass unlocks every tool.')+'</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">'+SP('🔓 开通会员 · 10 LGNS 解锁全部工具','🔓 Get membership · 10 LGNS unlocks all tools')+'</a>'
+      +'<a class="gback" href="/">'+SP('← 返回主站','← Back to site')+'</a></div>';
     gate.classList.add('on');
   }
   function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
@@ -150,13 +158,13 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       .then(function(r){return r.json();}).then(function(j){ if(j.error) throw new Error(j.error.message||'rpc'); return j.result; });
   }
   var short=function(a){return a?a.slice(0,8)+'…'+a.slice(-4):'';};
-  function fmtTime(ts){ try{ var d=new Date(ts*1000); return d.toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return '—'; } }
+  function fmtTime(ts){ try{ var d=new Date(ts*1000); return d.toLocaleString(isZh()?'zh-CN':'en-US',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return '—'; } }
 
   /* ---- 扫描 ---- */
   async function scan(){
     if(scanning) return; scanning=true;
     var st=document.getElementById('status'), pr=document.getElementById('prog'), pi=pr.querySelector('i');
-    st.innerHTML='<span class="dot"></span>正在读取 Anubis 链上晋升事件…';
+    st.innerHTML='<span class="dot"></span>'+SP('正在读取 Anubis 链上晋升事件…','Reading Anubis promotion events…');
     pr.classList.add('on'); pi.style.width='4%';
     document.getElementById('refresh').disabled=true;
     try{
@@ -174,13 +182,13 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
           all.push({ wallet:'0x'+lg.topics[1].slice(-40), level:parseInt(lg.data,16), block:blk, tx:lg.transactionHash, ts:headTs-(head-blk) });
         });
         done++; pi.style.width=Math.min(96,Math.round(done/totalChunks*100))+'%';
-        st.innerHTML='<span class="dot"></span>扫描中… '+done+'/'+totalChunks+' 段 · 已找到 '+all.length+' 条';
+        st.innerHTML='<span class="dot"></span>'+L('扫描中… ','Scanning… ')+done+'/'+totalChunks+L(' 段 · 已找到 ',' · found ')+all.length+L(' 条','');
       }
       // ---- 计算真实晋升：回读每个钱包首个事件前一区块的等级，再链式比对，仅留 new>old ----
       all.sort(function(a,b){return a.block-b.block;});
       var firstBlk={}, wallets=[];
       all.forEach(function(e){ if(firstBlk[e.wallet]==null){ firstBlk[e.wallet]=e.block; wallets.push(e.wallet); } });
-      st.innerHTML='<span class="dot"></span>回读 '+wallets.length+' 个钱包的前置等级（判定真晋升）…';
+      st.innerHTML='<span class="dot"></span>'+L('回读 ','Reading back ')+wallets.length+L(' 个钱包的前置等级（判定真晋升）…',' wallets’ prior level (to confirm real promotions)…');
       var LEVELSEL='0xfd92166a', BATCH=25, baseline={};
       for(var wi=0; wi<wallets.length; wi+=BATCH){
         var grp=wallets.slice(wi,wi+BATCH);
@@ -194,9 +202,9 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       all.forEach(function(e){ var from=cur[e.wallet], to=e.level; if(to>from){ promos.push({wallet:e.wallet,from:from,to:to,block:e.block,tx:e.tx,ts:e.ts}); } cur[e.wallet]=to; });
       pi.style.width='100%';
       render(promos);
-      st.innerHTML='<span class="dot"></span>✓ 完成 · 近 '+hours+' 小时真实晋升 <b style="color:var(--gold2)">'+promos.length+'</b> 人次（已从 '+all.length+' 条等级事件中剔除重算/降级）· '+new Date().toLocaleTimeString('zh-CN');
+      st.innerHTML='<span class="dot"></span>'+L('✓ 完成 · 近 ','✓ Done · last ')+hours+L(' 小时真实晋升 <b style="color:var(--gold2)">','h: <b style="color:var(--gold2)">')+promos.length+L('</b> 人次（已从 ','</b> real promotions (filtered from ')+all.length+L(' 条等级事件中剔除重算/降级）· ',' level events, excluding recomputes/downgrades) · ')+new Date().toLocaleTimeString(isZh()?'zh-CN':'en-US');
     }catch(e){
-      st.innerHTML='<span style="color:var(--red)">读取失败：'+(e.message||'网络波动')+'，请点刷新重试</span>';
+      st.innerHTML='<span style="color:var(--red)">'+L('读取失败：','Load failed: ')+(e.message||L('网络波动','network error'))+L('，请点刷新重试',' — click refresh to retry')+'</span>';
     }finally{
       setTimeout(function(){pr.classList.remove('on');pi.style.width='0';},600);
       document.getElementById('refresh').disabled=false; scanning=false;
@@ -209,30 +217,31 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
     var cnt={1:0,2:0,3:0,4:0,5:0,6:0};
     arr.forEach(function(x){ if(cnt[x.to]!=null) cnt[x.to]++; });
     var lv=document.getElementById('levels');
-    lv.innerHTML=[1,2,3,4,5,6].map(function(l){return '<div class="lv"><div class="n">升到 V'+l+'</div><div class="c">'+cnt[l]+'</div></div>';}).join('');
+    lv.innerHTML=[1,2,3,4,5,6].map(function(l){return '<div class="lv"><div class="n">'+L('升到 V','→ V')+l+'</div><div class="c">'+cnt[l]+'</div></div>';}).join('');
     var rows=document.getElementById('rows'), empty=document.getElementById('empty');
     if(!arr.length){ rows.innerHTML=''; empty.style.display='block'; return; }
     empty.style.display='none';
     var EX='https://browser.anubispace.org/';
     rows.innerHTML=arr.slice(0,300).map(function(x){
-      var fromTxt=x.from>0?('V'+x.from):'新号';
+      var fromTxt=x.from>0?('V'+x.from):L('新号','new');
       return '<tr><td><a class="mono" style="color:var(--gold2);text-decoration:none" href="'+EX+'address/'+x.wallet+'" target="_blank" rel="noopener">'+short(x.wallet)+'</a></td>'
         +'<td><span style="color:var(--dim)">'+fromTxt+'</span> <span style="color:var(--gold2)">→</span> <span class="vtag">V'+x.to+'</span></td>'
         +'<td class="mono" style="color:var(--soft)">'+fmtTime(x.ts)+'</td>'
         +'<td class="mono" style="color:var(--dim)">'+x.block.toLocaleString()+'</td>'
-        +'<td><a class="lnk" href="'+EX+'tx/'+x.tx+'" target="_blank" rel="noopener">🔗 查</a></td></tr>';
+        +'<td><a class="lnk" href="'+EX+'tx/'+x.tx+'" target="_blank" rel="noopener">'+L('🔗 查','🔗')+'</a></td></tr>';
     }).join('');
-    if(arr.length>300){ rows.innerHTML+='<tr><td colspan="5" style="text-align:center;color:var(--dim);font-size:12px">仅显示最新 300 条（共 '+arr.length+' 条）</td></tr>'; }
+    if(arr.length>300){ rows.innerHTML+='<tr><td colspan="5" style="text-align:center;color:var(--dim);font-size:12px">'+L('仅显示最新 300 条（共 ','Showing latest 300 of ')+arr.length+L(' 条）','')+'</td></tr>'; }
   }
 
   function start(){
     document.querySelectorAll('.btn.win').forEach(function(b){
-      b.onclick=function(){ document.querySelectorAll('.btn.win').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); hours=parseInt(b.dataset.h,10); document.getElementById('totalLab').textContent='近 '+hours+' 小时真实晋升人次'; scan(); };
+      b.onclick=function(){ document.querySelectorAll('.btn.win').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); hours=parseInt(b.dataset.h,10); document.getElementById('totalLab').innerHTML=L('近 ','last ')+hours+L(' 小时真实晋升人次','h real promotions'); scan(); };
     });
     document.getElementById('refresh').onclick=scan;
     scan();
   }
 })();
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>
