@@ -4,12 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,follow">
-<title>双链质押查询 · 活期/360/600 明细 · Web3Origin</title>
-<meta name="description" content="输入钱包地址，查询该地址在 Polygon 与 Anubis 双链上的活期质押、360/600 天锁仓逐笔明细与名下总质押，纯链上只读、可在区块浏览器独立核实。">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<title>双链质押查询 · Staking Lookup · Web3Origin</title>
+<meta name="description" content="输入钱包地址，查询 Polygon 与 Anubis 双链的活期/360/600 质押明细与名下总质押。Check a wallet's flexible & 360/600 locked staking across Polygon and Anubis.">
 <link rel="canonical" href="https://web3origin.com/tools/staking-query/">
 <link rel="icon" href="/assets/favicon.png">
 <style>
 :root{--bg:#08090c;--tile:#12151b;--tile2:#181d25;--line:#222833;--acc:#8fe36a;--acc2:#b6f36a;--gold2:#8fe36a;--txt:#e8edf2;--white:#fff;--dim:#8a94a1;--soft:#c2cad4;--green:#8fe36a;--red:#ff8b63;--blue:#8fd4ff;--poly:#b79bf0}
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:none;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4}
+#langBtn:hover{color:var(--txt);border-color:var(--acc)}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(700px 420px at 88% -6%,rgba(143,227,106,.09),transparent),var(--bg);color:var(--txt);font:14.5px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,"Segoe UI",sans-serif;min-height:100vh}
 .wrap{max-width:720px;margin:0 auto;padding:22px 15px 60px}
@@ -84,25 +89,28 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
 </style>
 </head>
 <body class="locked">
-<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0"><span data-lang="zh">正在验证会员…</span><span data-lang="en">Verifying membership…</span></div></div></div>
 
 <div class="wrap">
-  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
-  <h1>双链<span>质押查询</span></h1>
-  <div class="sub">输入任意起源钱包地址，一次查全 <b style="color:var(--gold2)">Polygon 与 Anubis 双链</b>的活期质押、360/600 天锁仓逐笔明细与名下总质押。纯链上只读，不连钱包、不签名。</div>
+  <div class="top" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a>
+    <button id="langBtn" aria-label="Language">🌐</button>
+  </div>
+  <h1><span data-lang="zh">双链<span>质押查询</span></span><span data-lang="en">Dual-chain <span>Staking Lookup</span></span></h1>
+  <div class="sub"><span data-lang="zh">输入任意起源钱包地址，一次查全 <b style="color:var(--gold2)">Polygon 与 Anubis 双链</b>的活期质押、360/600 天锁仓逐笔明细与名下总质押。纯链上只读，不连钱包、不签名。</span><span data-lang="en">Enter any Origin wallet address to see its flexible staking and per-entry 360/600 locked positions across <b style="color:var(--gold2)">Polygon and Anubis</b>, plus total staked. On-chain read-only — no wallet connection, no signature.</span></div>
 
   <div class="qbox">
-    <input class="qin" id="addr" placeholder="0x… 粘贴要查询的钱包地址" spellcheck="false" autocomplete="off">
-    <button class="qbtn" id="qbtn">查询</button>
+    <input class="qin" id="addr" spellcheck="false" autocomplete="off">
+    <button class="qbtn" id="qbtn"></button>
   </div>
-  <div class="qhint">支持任意公开地址（不限本人）。查询约需几秒，双链并行读取。</div>
+  <div class="qhint"><span data-lang="zh">支持任意公开地址（不限本人）。查询约需几秒，双链并行读取。</span><span data-lang="en">Any public address (not just your own). Takes a few seconds — both chains read in parallel.</span></div>
   <div class="recent" id="recent" style="display:none"></div>
 
   <div class="status" id="status"></div>
   <div id="result"></div>
-  <div class="empty" id="empty" style="display:none">输入一个钱包地址开始查询。</div>
+  <div class="empty" id="empty" style="display:none"><span data-lang="zh">输入一个钱包地址开始查询。</span><span data-lang="en">Enter a wallet address to start.</span></div>
 
-  <div class="foot">数据源：Polygon / Anubis 链上合约（eth_call）· 纯只读 · 不连钱包不签名</div>
+  <div class="foot"><span data-lang="zh">数据源：Polygon / Anubis 链上合约（eth_call）· 纯只读 · 不连钱包不签名</span><span data-lang="en">Source: Polygon / Anubis on-chain contracts (eth_call) · read-only · no wallet, no signature</span></div>
 </div>
 
 <script>
@@ -110,14 +118,19 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   "use strict";
   var WK='https://count.web3origin.com', MLS='mon_access_v1', MONTOKEN=null, busy=false;
 
+  /* ===== 语言助手 ===== */
+  function isZh(){ return (document.documentElement.lang||'zh').toLowerCase().indexOf('zh')===0; }
+  function L(zh,en){ return isZh()?zh:en; }
+  function SP(zh,en){ return '<span data-lang="zh">'+zh+'</span><span data-lang="en">'+en+'</span>'; }
+
   /* ===== 会员门控(与其它会员工具一致) ===== */
   var gate=document.getElementById('gate');
   function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
   function showGate(){
-    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>双链质押查询 · 会员专属</h3>'
-      +'<div class="gs">开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可查询任意地址的双链质押明细，全站工具一次通用。</div>'
-      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
-      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>'+SP('双链质押查询 · 会员专属','Staking Lookup · Members only')+'</h3>'
+      +'<div class="gs">'+SP('开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可查询任意地址的双链质押明细，全站工具一次通用。','Unlock with a <b style="color:var(--gold2)">10 LGNS membership</b> to check any address’s dual-chain staking — one pass unlocks every tool.')+'</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">'+SP('🔓 开通会员 · 10 LGNS 解锁全部工具','🔓 Get membership · 10 LGNS unlocks all tools')+'</a>'
+      +'<a class="gback" href="/">'+SP('← 返回主站','← Back to site')+'</a></div>';
     gate.classList.add('on');
   }
   function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
@@ -132,13 +145,13 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
     polygon:{name:'Polygon',cls:'poly',chainId:137,explorer:'https://polygonscan.com/address/',
       rpcs:['https://polygon-bor-rpc.publicnode.com','https://polygon.drpc.org','https://polygon-rpc.com'],
       sLGNS:'0x99a57E6C8558BC6689f894e068733ADf83C19725',
-      lockStakes:[{label:'铸造·360天质押',addr:'0x6652d0f0D7aEc5070804E55b7023d32B9Bbc4190'},{label:'铸造·能量值质押（销毁 LGNS）',addr:'0x25a4b842cB200E9148FF5a11BAbF80488c8d8b07'}],
+      lockStakes:[{label:'铸造·360天质押',en:'Mint · 360-day stake',addr:'0x6652d0f0D7aEc5070804E55b7023d32B9Bbc4190'},{label:'铸造·能量值质押（销毁 LGNS）',en:'Mint · Energy stake (burns LGNS)',addr:'0x25a4b842cB200E9148FF5a11BAbF80488c8d8b07'}],
       bonds:[]},
     anubis:{name:'Anubis',cls:'anb',chainId:6714,explorer:'https://browser.anubispace.org/address/',
       rpcs:['https://rpc.anubispace.org'],
       sLGNS:'0x2243aE29F73137d678197b61B0621AE942845B8C',
-      lockStakes:[{label:'360长期质押',addr:'0x88ea98af226Cd4402A3873400308a4D78784eCE6'},{label:'600天质押',addr:'0x04eD22c6d1D020A9B5e032E93D79ab28293EF72f'},{label:'能量值质押',addr:'0x1E5FeeC473F7F445FC7F5FeEC0beABB2270b0b4E'}],
-      bonds:[{label:'销毁债券',addr:'0x11b10c9827c5b7071e96fcaa143b4e6e86b17c69'}],
+      lockStakes:[{label:'360长期质押',en:'360-day stake',addr:'0x88ea98af226Cd4402A3873400308a4D78784eCE6'},{label:'600天质押',en:'600-day stake',addr:'0x04eD22c6d1D020A9B5e032E93D79ab28293EF72f'},{label:'能量值质押',en:'Energy stake',addr:'0x1E5FeeC473F7F445FC7F5FeEC0beABB2270b0b4E'}],
+      bonds:[{label:'销毁债券',en:'Burn bond',addr:'0x11b10c9827c5b7071e96fcaa143b4e6e86b17c69'}],
       rewards:{ cobweb:'0xF7a0cacDF0810609EE5618247C4121b799E41664', dao:'0x579a71890aE0E99806f75cD2e006bB07559C3b49', turbine:'0x92B53785090F6FE0717Ca3cF5dB8f8040d3B070b' }}
   };
   var SEL={balanceOf:'0x70a08231',decimals:'0x313ce567',getUserStakesCount:'0x98dc8dea',stakes:'0x584b62a1',getDepositorBalance:'0xb79215d6',
@@ -169,9 +182,9 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   async function queryChain(key,addr){
     var cfg=CHAINS[key]; var o={cfg:cfg,block:'—',sLGNS:null,positions:[],bonds:[],bt:null,errors:[]};
     var jobs=[];
-    jobs.push((async function(){try{o.block=Number(toBig(await rpc(cfg.rpcs,'eth_blockNumber',[]))).toString();}catch(e){o.errors.push('区块高度');}})());
+    jobs.push((async function(){try{o.block=Number(toBig(await rpc(cfg.rpcs,'eth_blockNumber',[]))).toString();}catch(e){o.errors.push(L('区块高度','block height'));}})());
     jobs.push((async function(){o.bt=await blockTime(cfg);})());
-    jobs.push((async function(){try{ var res=await Promise.all([call(cfg.rpcs,cfg.sLGNS,SEL.decimals),call(cfg.rpcs,cfg.sLGNS,SEL.balanceOf+encAddr(addr))]); o.sLGNS={raw:toBig(res[1]),dec:Number(toBig(res[0]))||9}; }catch(e){ o.sLGNS=null; o.errors.push('活期sLGNS'); }})());
+    jobs.push((async function(){try{ var res=await Promise.all([call(cfg.rpcs,cfg.sLGNS,SEL.decimals),call(cfg.rpcs,cfg.sLGNS,SEL.balanceOf+encAddr(addr))]); o.sLGNS={raw:toBig(res[1]),dec:Number(toBig(res[0]))||9}; }catch(e){ o.sLGNS=null; o.errors.push(L('活期 sLGNS','flexible sLGNS')); }})());
     var posR=new Array(cfg.lockStakes.length);
     cfg.lockStakes.forEach(function(ls,idx){ jobs.push((async function(){try{
       var res=await Promise.all([call(cfg.rpcs,ls.addr,SEL.getUserStakesCount+encAddr(addr)),call(cfg.rpcs,ls.addr,SEL.getDepositorBalance+encAddr(addr))]);
@@ -179,8 +192,8 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       if(cnt>0){ var n=Math.min(cnt,50);
         items=await Promise.all(Array.from({length:n},function(_,i){ return call(cfg.rpcs,ls.addr,SEL.stakes+encAddr(addr)+encU(i)).then(function(hx){var w=words(hx);return {principal:w[0],matBlk:w[3],startBlk:w[5],status:w[7],accrued:w[10]};}).catch(function(){return {principal:0n,matBlk:0n,startBlk:0n,status:0n,accrued:0n};}); }));
       }
-      if(cnt>0||total>0n) posR[idx]={label:ls.label,addr:ls.addr,count:cnt,total:total,items:items};
-    }catch(e){o.errors.push(ls.label);}})()); });
+      if(cnt>0||total>0n) posR[idx]={label:ls.label,en:ls.en,addr:ls.addr,count:cnt,total:total,items:items};
+    }catch(e){o.errors.push(L(ls.label,ls.en||ls.label));}})()); });
     var bondR=new Array((cfg.bonds||[]).length);
     (cfg.bonds||[]).forEach(function(bd,idx){ jobs.push((async function(){try{
       // 销毁债券:多笔存款,本金按DAI(18位),已领取/可领取按LGNS(9位)。读 getUserDepositCount + getUserDeposit(i) + getClaimable(i)
@@ -197,15 +210,15 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
         }).catch(function(){return null;});
       }));
       deps=deps.filter(Boolean);
-      if(deps.length) bondR[idx]={label:bd.label,addr:bd.addr,count:cnt,deps:deps};
-    }catch(e){o.errors.push(bd.label);}})()); });
+      if(deps.length) bondR[idx]={label:bd.label,en:bd.en,addr:bd.addr,count:cnt,deps:deps};
+    }catch(e){o.errors.push(L(bd.label,bd.en||bd.label));}})()); });
     // 待领奖励:蜘蛛网/DAO用 rewardOf→(总额,已领),待领=总额-已领;涡轮用 getTurbineBal
     o.rewards=null;
     if(cfg.rewards){
       o.rewards={cobweb:null,dao:null,turbine:null};
-      jobs.push((async function(){try{ var w=words(await call(cfg.rpcs,cfg.rewards.cobweb,SEL.rewardOf+encAddr(addr))); o.rewards.cobweb=(w[0]||0n)-(w[1]||0n); }catch(e){o.errors.push('蜘蛛网奖励');}})());
-      jobs.push((async function(){try{ var w=words(await call(cfg.rpcs,cfg.rewards.dao,SEL.rewardOf+encAddr(addr))); o.rewards.dao=(w[0]||0n)-(w[1]||0n); }catch(e){o.errors.push('社区奖励');}})());
-      jobs.push((async function(){try{ o.rewards.turbine=toBig(await call(cfg.rpcs,cfg.rewards.turbine,SEL.getTurbineBal+encAddr(addr))); }catch(e){o.errors.push('涡轮奖励');}})());
+      jobs.push((async function(){try{ var w=words(await call(cfg.rpcs,cfg.rewards.cobweb,SEL.rewardOf+encAddr(addr))); o.rewards.cobweb=(w[0]||0n)-(w[1]||0n); }catch(e){o.errors.push(L('蜘蛛网奖励','Cobweb reward'));}})());
+      jobs.push((async function(){try{ var w=words(await call(cfg.rpcs,cfg.rewards.dao,SEL.rewardOf+encAddr(addr))); o.rewards.dao=(w[0]||0n)-(w[1]||0n); }catch(e){o.errors.push(L('社区奖励','DAO reward'));}})());
+      jobs.push((async function(){try{ o.rewards.turbine=toBig(await call(cfg.rpcs,cfg.rewards.turbine,SEL.getTurbineBal+encAddr(addr))); }catch(e){o.errors.push(L('涡轮奖励','Turbine reward'));}})());
     }
     await Promise.all(jobs);
     o.positions=posR.filter(Boolean);
@@ -226,42 +239,38 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   // 单条链的 Bento 明细面板
   function chainHTML(o,addr){
     var c=o.cfg, sL=o.sLGNS?o.sLGNS.raw:null, total=chainStakeTotal(o);
-    var h='<div class="panel"><div class="panel-h"><span class="pill '+c.cls+'">'+c.name+'</span> 质押明细</div>';
-    // 活期
-    h+='<div class="gt">💧 活期质押 sLGNS</div>';
-    h+='<div class="rw"><span class="l">直接持有 sLGNS</span><span class="r"><b>'+(sL==null?'读取失败':pretty(sL,o.sLGNS.dec)+' LGNS')+'</b></span></div>';
-    // 锁仓逐笔
-    if(!o.positions.length){ h+='<div class="gt">🔒 锁仓质押</div><div class="emptyg">本链暂无 360/600 等锁仓记录。</div>'; }
+    var h='<div class="panel"><div class="panel-h"><span class="pill '+c.cls+'">'+c.name+'</span> '+SP('质押明细','staking detail')+'</div>';
+    h+='<div class="gt">'+SP('💧 活期质押 sLGNS','💧 Flexible staking · sLGNS')+'</div>';
+    h+='<div class="rw"><span class="l">'+SP('直接持有 sLGNS','Directly held sLGNS')+'</span><span class="r"><b>'+(sL==null?L('读取失败','read failed'):pretty(sL,o.sLGNS.dec)+' LGNS')+'</b></span></div>';
+    if(!o.positions.length){ h+='<div class="gt">'+SP('🔒 锁仓质押','🔒 Locked staking')+'</div><div class="emptyg">'+SP('本链暂无 360/600 等锁仓记录。','No 360/600 locked records on this chain.')+'</div>'; }
     o.positions.forEach(function(p){
-      h+='<div class="gt">🔒 '+esc(p.label)+' <b>合计 '+pretty(p.total,9)+''+(p.count>0?' · '+p.count+' 笔':'')+'</b></div>';
+      h+='<div class="gt">🔒 '+esc(L(p.label,p.en||p.label))+' <b>'+L('合计 ','Total ')+pretty(p.total,9)+''+(p.count>0?' · '+p.count+L(' 笔',''):'')+'</b></div>';
       p.items.forEach(function(it,i){
         var md=blkDate(it.matBlk,o.bt),rd=remainDays(it.matBlk,o.bt);
         var okDate=md!=='—'&&rd!=='—'&&Math.abs(rd)<3000&&(+md.slice(0,4))>=2023&&(+md.slice(0,4))<=2031;
         var staking=(it.status===1n);
-        h+='<div class="rw"><span class="l">#'+(i+1)+' <span class="mono">'+pretty(it.principal,9)+'</span> LGNS'+(okDate?'<small>到期 '+md+' · 剩 '+rd+' 天</small>':'')+'</span>'
-          +'<span class="r">'+(okDate?'待领 <b>'+pretty(it.accrued,9)+'</b>':'<span class="badge'+(staking?'':' off')+'">'+(staking?'质押中':'状态'+it.status)+'</span>')+'</span></div>';
+        h+='<div class="rw"><span class="l">#'+(i+1)+' <span class="mono">'+pretty(it.principal,9)+'</span> LGNS'+(okDate?'<small>'+L('到期 ','matures ')+md+L(' · 剩 ',' · ')+rd+L(' 天',' d left')+'</small>':'')+'</span>'
+          +'<span class="r">'+(okDate?L('待领 ','Claimable ')+'<b>'+pretty(it.accrued,9)+'</b>':'<span class="badge'+(staking?'':' off')+'">'+(staking?L('质押中','staking'):L('状态','status')+it.status)+'</span>')+'</span></div>';
       });
     });
-    // 销毁债券
     (o.bonds||[]).forEach(function(bd){
       var pSum=0n,cSum=0n; (bd.deps||[]).forEach(function(d){pSum+=d.principal;cSum+=d.claimable;});
-      h+='<div class="gt bond">🔥 '+esc(bd.label)+' <b>本金 '+dai2(pSum)+' DAI · '+bd.deps.length+' 笔'+(cSum>0n?' · 可领 '+pretty(cSum,9):'')+'</b></div>';
+      h+='<div class="gt bond">🔥 '+esc(L(bd.label,bd.en||bd.label))+' <b>'+L('本金 ','Principal ')+dai2(pSum)+' DAI · '+bd.deps.length+L(' 笔','')+(cSum>0n?' · '+L('可领 ','claimable ')+pretty(cSum,9):'')+'</b></div>';
       bd.deps.forEach(function(d,i){
-        h+='<div class="rw"><span class="l">#'+i+' <span class="mono">'+dai2(d.principal)+'</span> DAI<small>已释 '+dai2(d.released)+' · 已领 '+pretty(d.claimed,9)+(d.depositTs>0?' · '+bjTime(d.depositTs):'')+'</small></span>'
-          +'<span class="r">可领 <b>'+pretty(d.claimable,9)+'</b></span></div>';
+        h+='<div class="rw"><span class="l">#'+i+' <span class="mono">'+dai2(d.principal)+'</span> DAI<small>'+L('已释 ','released ')+dai2(d.released)+L(' · 已领 ',' · claimed ')+pretty(d.claimed,9)+(d.depositTs>0?' · '+bjTime(d.depositTs):'')+'</small></span>'
+          +'<span class="r">'+L('可领 ','Claimable ')+'<b>'+pretty(d.claimable,9)+'</b></span></div>';
       });
     });
-    // 待领奖励
     if(o.rewards){
       var rw=o.rewards;
-      h+='<div class="gt gift">🎁 待领奖励（LGNS）<b>需在官方 App 领取</b></div>';
-      h+='<div class="rw reward"><span class="l">🕸️ 蜘蛛网奖励</span><span class="r"><b>'+(rw.cobweb==null?'—':pretty(rw.cobweb,9))+'</b></span></div>';
-      h+='<div class="rw reward"><span class="l">🌀 涡轮增压器</span><span class="r"><b>'+(rw.turbine==null?'—':pretty(rw.turbine,9))+'</b></span></div>';
-      h+='<div class="rw reward"><span class="l">🏛️ 社区奖励(DAO)</span><span class="r"><b>'+(rw.dao==null?'—':pretty(rw.dao,9))+'</b></span></div>';
+      h+='<div class="gt gift">'+SP('🎁 待领奖励（LGNS）','🎁 Pending rewards (LGNS)')+' <b>'+SP('需在官方 App 领取','claim in the official app')+'</b></div>';
+      h+='<div class="rw reward"><span class="l">'+SP('🕸️ 蜘蛛网奖励','🕸️ Cobweb reward')+'</span><span class="r"><b>'+(rw.cobweb==null?'—':pretty(rw.cobweb,9))+'</b></span></div>';
+      h+='<div class="rw reward"><span class="l">'+SP('🌀 涡轮增压器','🌀 Turbine')+'</span><span class="r"><b>'+(rw.turbine==null?'—':pretty(rw.turbine,9))+'</b></span></div>';
+      h+='<div class="rw reward"><span class="l">'+SP('🏛️ 社区奖励(DAO)','🏛️ DAO community reward')+'</span><span class="r"><b>'+(rw.dao==null?'—':pretty(rw.dao,9))+'</b></span></div>';
     }
-    h+='<div class="chainsum"><span>本链名下总质押 <b>'+pretty(total,9)+' LGNS</b>'+((o.bonds||[]).length&&bondPrincipalDai(o)>0n?' · 债券 '+dai2(bondPrincipalDai(o))+' DAI':'')+'</span>'
-      +'<a href="'+c.explorer+addr+'" target="_blank" rel="noopener">🔗 链上验证 ↗</a></div>';
-    if(o.errors.length) h+='<div class="err">部分读取失败：'+esc(o.errors.join('、'))+'（可开 VPN 后重试）</div>';
+    h+='<div class="chainsum"><span>'+SP('本链名下总质押','Total staked on this chain')+' <b>'+pretty(total,9)+' LGNS</b>'+((o.bonds||[]).length&&bondPrincipalDai(o)>0n?' · '+L('债券 ','bond ')+dai2(bondPrincipalDai(o))+' DAI':'')+'</span>'
+      +'<a href="'+c.explorer+addr+'" target="_blank" rel="noopener">'+SP('🔗 链上验证 ↗','🔗 Verify on-chain ↗')+'</a></div>';
+    if(o.errors.length) h+='<div class="err">'+L('部分读取失败：','Some reads failed: ')+esc(o.errors.join(isZh()?'、':', '))+L('（可开 VPN 后重试）',' (retry with VPN)')+'</div>';
     h+='</div>';
     return h;
   }
@@ -279,11 +288,11 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   function renderRecent(){
     var list=loadRecent();
     if(!list.length){ recentEl.style.display='none'; recentEl.innerHTML=''; return; }
-    var h='<span class="rl">最近查询</span>';
+    var h='<span class="rl">'+SP('最近查询','Recent')+'</span>';
     list.forEach(function(a,i){
-      h+='<span class="rc" data-a="'+esc(a)+'" title="'+esc(a)+'">'+esc(shortA(a))+'<span class="rx" data-x="'+i+'" title="移除">✕</span></span>';
+      h+='<span class="rc" data-a="'+esc(a)+'" title="'+esc(a)+'">'+esc(shortA(a))+'<span class="rx" data-x="'+i+'" title="'+L('移除','Remove')+'">✕</span></span>';
     });
-    h+='<span class="rclr" data-clr="1">清空</span>';
+    h+='<span class="rclr" data-clr="1">'+SP('清空','Clear')+'</span>';
     recentEl.innerHTML=h; recentEl.style.display='flex';
   }
   recentEl.addEventListener('click',function(e){
@@ -300,9 +309,9 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   async function doQuery(){
     if(busy) return;
     var addr=(addrEl.value||'').trim();
-    if(!/^0x[0-9a-fA-F]{40}$/.test(addr)){ st.innerHTML='<span style="color:#ff9a8f">请输入正确的钱包地址（0x 开头 42 位）。</span>'; return; }
-    busy=true; btn.disabled=true; btn.textContent='查询中…'; empty.style.display='none';
-    st.innerHTML='<span class="dot"></span>正在读取双链质押数据…';
+    if(!/^0x[0-9a-fA-F]{40}$/.test(addr)){ st.innerHTML='<span style="color:#ff9a8f">'+SP('请输入正确的钱包地址（0x 开头 42 位）。','Please enter a valid wallet address (0x + 40 hex).')+'</span>'; return; }
+    busy=true; btn.disabled=true; btn.textContent=L('查询中…','Checking…'); empty.style.display='none';
+    st.innerHTML='<span class="dot"></span>'+SP('正在读取双链质押数据…','Reading dual-chain staking data…');
     res.innerHTML='';
     try{
       var out=await Promise.all([queryChain('polygon',addr),queryChain('anubis',addr)]);
@@ -314,25 +323,31 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       var bondAll=out.reduce(function(s,o){return s+bondPrincipalDai(o);},0n);
       var html='<div class="bento">';
       // 总额大格
-      html+='<div class="tile big"><div class="k">名下总质押（双链合计）</div><div class="v mono">'+pretty(grand,9)+'<span class="u">LGNS</span></div>'
+      html+='<div class="tile big"><div class="k">'+SP('名下总质押（双链合计）','Total staked (both chains)')+'</div><div class="v mono">'+pretty(grand,9)+'<span class="u">LGNS</span></div>'
         +'<div class="chip"><span>Polygon <b class="mono">'+pretty(chainStakeTotal(poly),9)+'</b></span><span>Anubis <b class="mono">'+pretty(chainStakeTotal(anb),9)+'</b></span></div></div>';
-      // 四指标格
-      html+='<div class="tile"><div class="ic">🔒</div><div class="k">锁仓合计</div><div class="v g mono">'+pretty(lockAll,9)+'</div><div class="subd">360/600/能量值</div></div>';
-      html+='<div class="tile"><div class="ic">🎁</div><div class="k">待领奖励</div><div class="v g mono">'+pretty(rwAll,9)+'</div><div class="subd">蜘蛛网+涡轮+DAO</div></div>';
-      html+='<div class="tile"><div class="ic">🔥</div><div class="k">销毁债券本金</div><div class="v o mono">'+(bondAll>0n?dai2(bondAll)+' DAI':'0')+'</div><div class="subd">另计，非 LGNS</div></div>';
-      html+='<div class="tile"><div class="ic">💧</div><div class="k">活期 sLGNS</div><div class="v mono">'+pretty(sLall,9)+'</div><div class="subd">直接持有</div></div>';
+      html+='<div class="tile"><div class="ic">🔒</div><div class="k">'+SP('锁仓合计','Locked total')+'</div><div class="v g mono">'+pretty(lockAll,9)+'</div><div class="subd">'+SP('360/600/能量值','360/600/energy')+'</div></div>';
+      html+='<div class="tile"><div class="ic">🎁</div><div class="k">'+SP('待领奖励','Pending rewards')+'</div><div class="v g mono">'+pretty(rwAll,9)+'</div><div class="subd">'+SP('蜘蛛网+涡轮+DAO','Cobweb+Turbine+DAO')+'</div></div>';
+      html+='<div class="tile"><div class="ic">🔥</div><div class="k">'+SP('销毁债券本金','Burn-bond principal')+'</div><div class="v o mono">'+(bondAll>0n?dai2(bondAll)+' DAI':'0')+'</div><div class="subd">'+SP('另计，非 LGNS','separate, not LGNS')+'</div></div>';
+      html+='<div class="tile"><div class="ic">💧</div><div class="k">'+SP('活期 sLGNS','Flexible sLGNS')+'</div><div class="v mono">'+pretty(sLall,9)+'</div><div class="subd">'+SP('直接持有','directly held')+'</div></div>';
       // 双链明细面板
       html+=out.map(function(o){return chainHTML(o,addr);}).join('');
       html+='</div>';
       res.innerHTML=html;
       addRecent(addr);
-      st.innerHTML='<span class="dot"></span>✓ 查询完成 · '+new Date().toLocaleString('zh-CN');
+      st.innerHTML='<span class="dot"></span>'+SP('✓ 查询完成','✓ Done')+' · '+new Date().toLocaleString(isZh()?'zh-CN':'en-US');
     }catch(e){
-      st.innerHTML='<span style="color:#ff9a8f">查询失败：'+esc(e&&e.message||'网络波动')+'，请重试（海外节点可能需开 VPN）。</span>';
-    }finally{ busy=false; btn.disabled=false; btn.textContent='查询'; }
+      st.innerHTML='<span style="color:#ff9a8f">'+L('查询失败：','Query failed: ')+esc(e&&e.message||L('网络波动','network error'))+L('，请重试（海外节点可能需开 VPN）。',' — please retry (a VPN may be needed outside mainland China).')+'</span>';
+    }finally{ busy=false; btn.disabled=false; applyLang(); }
   }
 
+  function applyLang(){
+    if(addrEl) addrEl.placeholder=L('0x… 粘贴要查询的钱包地址','0x… paste a wallet address to check');
+    if(btn && !busy) btn.textContent=L('查询','Check');
+  }
+  try{ new MutationObserver(applyLang).observe(document.documentElement,{attributes:true,attributeFilter:['lang']}); }catch(e){}
+
   function start(){
+    applyLang();
     empty.style.display='block';
     renderRecent();
     btn.onclick=doQuery;
@@ -342,5 +357,6 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   }
 })();
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>
