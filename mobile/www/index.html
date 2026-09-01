@@ -327,7 +327,7 @@ var VIDEOS=[
   ['🛡️','如何取消授权，防止被盗','05:12'],
 ];
 var TOOLS=[
-  ['🔎','链上尽调助手','输地址查双链资产/等级/团队/风险','dueTool'],
+  ['🔎','起源百宝箱','输地址查双链资产/等级/团队/风险','dueTool'],
   ['👛','钱包资产查询','Polygon+Anubis 全部 LGNS 资产','walletTool'],
   ['🐋','大额交易监控','主池最近成交 + 大额实时预警','openMonitor'],
   ['👁️','观察钱包','添加地址，资产变动自动通知你','openWatch'],
@@ -550,7 +550,7 @@ function openUrl(u){try{window.open(u,'_blank');}catch(e){location.href=u;}}
 /* 内嵌网页工具(全屏,带返回) */
 function openWebTool(url,title){ovShow('<div class="appbar"><div class="back" onclick="closeOv()">‹</div><div class="title">'+title+'</div></div><iframe class="webframe" src="'+url+'" allow="clipboard-write; autoplay"></iframe>');}
 function searchTool(){openWebTool('https://web3origin.com/tools/onchain-search/?embed=1','链上搜索');}
-function dueTool(){openWebTool('https://web3origin.com/tools/origin-monitor/?embed=1','链上尽调助手');}
+function dueTool(){openWebTool('https://web3origin.com/tools/origin-monitor/?embed=1','起源百宝箱');}
 function walletTool(){openWebTool('https://web3origin.com/tools/origin-monitor/?embed=1','钱包资产查询');}
 function withdrawTool(){openWebTool('https://web3origin.com/tools/onchain-withdraw/?embed=1','链上提币');}
 

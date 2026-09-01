@@ -330,7 +330,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
     <a href="#home" class="on" data-i18n="n1">圣殿入口</a>
     <a href="#radar" data-i18n="n_radar">链上雷达</a>
     <a href="news/" style="color:var(--gold-lt);font-weight:700">📰 最新资讯</a>
-    <a href="tools/origin-monitor/" style="color:var(--gold-lt);font-weight:700">🔍 链上尽调助手</a>
+    <a href="tools/origin-monitor/" style="color:var(--gold-lt);font-weight:700">🔍 起源百宝箱</a>
     <a href="live/" style="color:var(--gold-lt);font-weight:700">📺 线上直播</a>
     <a href="live-cloud/" style="color:var(--gold-lt);font-weight:700">🎬 木火夜聊</a>
     <a href="video/" data-i18n="n_video">视频学院</a>
@@ -706,7 +706,7 @@ window.renderFAQ=function(){var L=window.SITE_LANG||"zh";var pk=(L==="zh")?null:
 window.renderFAQ();
 
 /* ————— 工具（祭坛器物）————— */
-const TOOLS=[{"i":"&#128142;","t":"链上尽调助手","d":"输入一个钱包地址，一次看全：双链 LGNS 资产、360/600 锁仓明细、DAO 等级与团队业绩、通用链上体检、推荐人绑定关系，还能连钱包链上提币，外加全网 V1-V6/大户/国库监控。一次解锁，永久使用。","go":"打开助手","fn":"openMonitor","en":{"t":"On-chain DD Assistant","d":"Enter one wallet address to see it all: dual-chain LGNS assets, 360/600 lock details, DAO level & team volume, general on-chain checkup, referrer binding — plus on-chain withdrawal and full V1-V6 / whale / treasury monitoring. Unlock once, use forever.","go":"Open"}},{"i":"&#128178;","t":"交易教程","d":"第一次买卖生态代币怎么操作，图文步骤站内看。","go":"看教程","fn":"openTutorial","en":{"t":"Trading Tutorial","d":"How to buy/sell ecosystem tokens for the first time — step-by-step with pictures, in-site.","go":"View tutorial"}},{"i":"&#128038;","t":"官方账号","d":"4 个官方 X 账号站内展示、可复制，认准别认假冒号。","go":"查看账号","fn":"openOfficial","en":{"t":"Official Accounts","d":"The 4 official X accounts, shown and copyable in-site — verify, don't fall for fakes.","go":"View accounts"}}];
+const TOOLS=[{"i":"&#128142;","t":"起源百宝箱","d":"输入一个钱包地址，一次看全：双链 LGNS 资产、360/600 锁仓明细、DAO 等级与团队业绩、通用链上体检、推荐人绑定关系，还能连钱包链上提币，外加全网 V1-V6/大户/国库监控。一次解锁，永久使用。","go":"打开助手","fn":"openMonitor","en":{"t":"On-chain DD Assistant","d":"Enter one wallet address to see it all: dual-chain LGNS assets, 360/600 lock details, DAO level & team volume, general on-chain checkup, referrer binding — plus on-chain withdrawal and full V1-V6 / whale / treasury monitoring. Unlock once, use forever.","go":"Open"}},{"i":"&#128178;","t":"交易教程","d":"第一次买卖生态代币怎么操作，图文步骤站内看。","go":"看教程","fn":"openTutorial","en":{"t":"Trading Tutorial","d":"How to buy/sell ecosystem tokens for the first time — step-by-step with pictures, in-site.","go":"View tutorial"}},{"i":"&#128038;","t":"官方账号","d":"4 个官方 X 账号站内展示、可复制，认准别认假冒号。","go":"查看账号","fn":"openOfficial","en":{"t":"Official Accounts","d":"The 4 official X accounts, shown and copyable in-site — verify, don't fall for fakes.","go":"View accounts"}}];
 window.renderTools=function(){var L=window.SITE_LANG||"zh";var pk=(L==="zh")?null:(window.PACKS&&(window.PACKS[L]||window.PACKS.en));document.getElementById("altars").innerHTML=TOOLS.map(function(t,idx){var d=(L==="zh")?t:((pk&&pk.tools&&pk.tools[idx])?pk.tools[idx]:t.en);return "<div class=\"altar\" data-fn=\""+t.fn+"\"><div class=\"ic\">"+t.i+"</div><h3>"+d.t+"</h3><p>"+d.d+"</p><div class=\"go\">"+d.go+" &#10142;</div></div>";}).join("");};
 window.openWithdraw=function(){location.href='/tools/onchain-withdraw/';}
 window.openMonitor=function(){location.href='/tools/origin-monitor/';};
@@ -964,7 +964,7 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
     <button id="mClose" aria-label="关闭导航菜单">✕</button>
   </div>
   <div class="md-body">
-    <a class="md-item md-item-hl" href="tools/origin-monitor/"><span class="ic">🔍</span><span class="lbl">链上尽调助手</span></a>
+    <a class="md-item md-item-hl" href="tools/origin-monitor/"><span class="ic">🔍</span><span class="lbl">起源百宝箱</span></a>
     <a class="md-item" data-jump="home"><span class="ic">🏠</span><span class="lbl" data-i18n="md_home">首页</span></a>
     <a class="md-item" data-jump="radar"><span class="ic">📡</span><span class="lbl" data-i18n="md_radar">链上雷达</span></a>
     <a class="md-item md-item-hl" href="news/"><span class="ic">📰</span><span class="lbl">最新资讯</span></a>
