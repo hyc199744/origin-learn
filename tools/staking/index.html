@@ -4,12 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,follow">
-<title>全网质押总量看板 · 双链实时 · Web3Origin</title>
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<title>全网质押总量看板 · Staking Overview · Web3Origin</title>
 <meta name="description" content="实时读取 LGNS 在 Polygon 与 Anubis 双链的活期质押总量与质押率：以质押合约实际锁仓的 LGNS 为准，可在区块浏览器独立核实。">
 <link rel="canonical" href="https://web3origin.com/tools/staking/">
 <link rel="icon" href="/assets/favicon.png">
 <style>
 :root{--bg:#070806;--panel:#0e100e;--panel2:#141712;--line:rgba(212,175,55,.2);--gold:#d4af37;--gold2:#e8cf7e;--txt:#e9efea;--dim:#7a857c;--soft:#c3cbc4;--green:#25C96F;--red:#ff6b5e;--poly:#a97bff;--anb:#e8cf7e}
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4;margin-left:auto}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(1100px 560px at 50% -12%,rgba(212,175,55,.10),transparent),radial-gradient(800px 500px at 100% 108%,rgba(169,123,255,.06),transparent),var(--bg);color:var(--txt);font:15px/1.6 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
 .wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
@@ -57,45 +61,45 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
 </style>
 </head>
 <body class="locked">
-<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0"><span data-lang="zh">正在验证会员…</span><span data-lang="en">Verifying membership…</span></div></div></div>
 
 <div class="wrap">
-  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
-  <h1>全网<span>质押总量看板</span></h1>
-  <div class="sub">实时读取 LGNS 在 <b style="color:var(--gold2)">Polygon</b> 与 <b style="color:var(--gold2)">Anubis</b> 双链的活期质押总量与质押率。质押量以<b>质押合约实际锁仓的 LGNS</b>为准（不用会因 rebase 失真的 sLGNS 数），可在区块浏览器独立核实。</div>
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a><button id="langBtn" aria-label="Language">🌐</button></div>
+  <h1><span data-lang="zh">全网<span>质押总量看板</span></span><span data-lang="en">Network <span>Staking Overview</span></span></h1>
+  <div class="sub"><span data-lang="zh">实时读取 LGNS 在 <b style="color:var(--gold2)">Polygon</b> 与 <b style="color:var(--gold2)">Anubis</b> 双链的活期质押总量与质押率。质押量以<b>质押合约实际锁仓的 LGNS</b>为准（不用会因 rebase 失真的 sLGNS 数），可在区块浏览器独立核实。</span><span data-lang="en">Live reads of LGNS flexible-staking totals and staking ratio on <b style="color:var(--gold2)">Polygon</b> and <b style="color:var(--gold2)">Anubis</b>. Staked amount uses the <b>actual LGNS locked in the staking contract</b> (not sLGNS, which rebase distorts), independently verifiable in a block explorer.</span></div>
 
-  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><button class="refresh" id="refresh">↻ 刷新链上数据</button></div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><button class="refresh" id="refresh"><span data-lang="zh">↻ 刷新链上数据</span><span data-lang="en">↻ Refresh on-chain data</span></button></div>
   <div class="status" id="status"></div>
 
   <div class="total">
-    <div class="lab">双链活期质押合计（链上实时）</div>
+    <div class="lab"><span data-lang="zh">双链活期质押合计（链上实时）</span><span data-lang="en">Total flexible staking, both chains (live)</span></div>
     <div class="big" id="totalStake">—</div>
     <div class="sm" id="totalBreak"></div>
   </div>
 
   <div class="two">
     <div class="card">
-      <h2>Polygon <span class="pill poly">链</span></h2>
-      <div class="rate"><div class="p" id="pRate">—</div><div class="l">质押率</div></div>
+      <h2>Polygon <span class="pill poly"><span data-lang="zh">链</span><span data-lang="en">chain</span></span></h2>
+      <div class="rate"><div class="p" id="pRate">—</div><div class="l"><span data-lang="zh">质押率</span><span data-lang="en">Staking ratio</span></div></div>
       <div class="bar"><i id="pBar" style="width:0"></i></div>
-      <div class="kv"><span class="k">活期质押</span><span class="v" id="pStake">—</span></div>
-      <div class="kv"><span class="k">LGNS 总供应</span><span class="v" id="pSupply">—</span></div>
-      <div class="kv"><span class="k">质押合约</span><span class="v"><a href="https://polygonscan.com/address/0x1964Ca90474b11FFD08af387b110ba6C96251Bfc" target="_blank" rel="noopener">🔗 查</a></span></div>
+      <div class="kv"><span class="k"><span data-lang="zh">活期质押</span><span data-lang="en">Flexible staked</span></span><span class="v" id="pStake">—</span></div>
+      <div class="kv"><span class="k"><span data-lang="zh">LGNS 总供应</span><span data-lang="en">LGNS supply</span></span><span class="v" id="pSupply">—</span></div>
+      <div class="kv"><span class="k"><span data-lang="zh">质押合约</span><span data-lang="en">Staking contract</span></span><span class="v"><a href="https://polygonscan.com/address/0x1964Ca90474b11FFD08af387b110ba6C96251Bfc" target="_blank" rel="noopener"><span data-lang="zh">🔗 查</span><span data-lang="en">🔗</span></a></span></div>
     </div>
     <div class="card">
-      <h2>Anubis <span class="pill anb">链</span></h2>
-      <div class="rate"><div class="p" id="aRate">—</div><div class="l">质押率</div></div>
+      <h2>Anubis <span class="pill anb"><span data-lang="zh">链</span><span data-lang="en">chain</span></span></h2>
+      <div class="rate"><div class="p" id="aRate">—</div><div class="l"><span data-lang="zh">质押率</span><span data-lang="en">Staking ratio</span></div></div>
       <div class="bar"><i id="aBar" style="width:0"></i></div>
-      <div class="kv"><span class="k">活期质押</span><span class="v" id="aStake">—</span></div>
-      <div class="kv"><span class="k">LGNS 总供应</span><span class="v" id="aSupply">—</span></div>
-      <div class="kv"><span class="k">质押合约</span><span class="v"><a href="https://browser.anubispace.org/address/0x7a2E3fA6eA60437F0441b8eb5e60674B80339228" target="_blank" rel="noopener">🔗 查</a></span></div>
+      <div class="kv"><span class="k"><span data-lang="zh">活期质押</span><span data-lang="en">Flexible staked</span></span><span class="v" id="aStake">—</span></div>
+      <div class="kv"><span class="k"><span data-lang="zh">LGNS 总供应</span><span data-lang="en">LGNS supply</span></span><span class="v" id="aSupply">—</span></div>
+      <div class="kv"><span class="k"><span data-lang="zh">质押合约</span><span data-lang="en">Staking contract</span></span><span class="v"><a href="https://browser.anubispace.org/address/0x7a2E3fA6eA60437F0441b8eb5e60674B80339228" target="_blank" rel="noopener"><span data-lang="zh">🔗 查</span><span data-lang="en">🔗</span></a></span></div>
     </div>
   </div>
 
   <div class="note">
-    <b style="color:var(--soft)">口径与核实</b>：质押率 = <b>质押合约实际持有的 LGNS ÷ 该链 LGNS 总供应</b>，均由本页从公共节点实时读取（Polygon 质押合约 0x1964Ca90、Anubis 质押合约 0x7a2E3fA6）。此法与官方口径高度吻合（Polygon 实测 ≈ 官方公布值）。<b>本页统计的是"活期质押"</b>；360/600 天锁仓、债券、以及参与钱包数量与每日变化需后台定时扫描，暂未含在本表内。金额随质押/赎回与 rebase 实时变动，请以你查询当下的链上数据为准。
+    <span data-lang="zh"><b style="color:var(--soft)">口径与核实</b>：质押率 = <b>质押合约实际持有的 LGNS ÷ 该链 LGNS 总供应</b>，均由本页从公共节点实时读取（Polygon 质押合约 0x1964Ca90、Anubis 质押合约 0x7a2E3fA6）。此法与官方口径高度吻合（Polygon 实测 ≈ 官方公布值）。<b>本页统计的是"活期质押"</b>；360/600 天锁仓、债券、以及参与钱包数量与每日变化需后台定时扫描，暂未含在本表内。金额随质押/赎回与 rebase 实时变动，请以你查询当下的链上数据为准。</span><span data-lang="en"><b style="color:var(--soft)">Scope &amp; verification</b>: staking ratio = <b>LGNS actually held by the staking contract ÷ that chain’s LGNS supply</b>, all read live from public nodes (Polygon staking contract 0x1964Ca90, Anubis 0x7a2E3fA6). This closely matches the official figures (Polygon measured ≈ official). <b>This page counts "flexible staking"</b>; 360/600-day locks, bonds, and participant counts / daily changes need a scheduled back-office scan and are not included here. Amounts change in real time with stake/redeem and rebase — use the on-chain data at the moment you check.</span>
   </div>
-  <div class="foot">数据源：Polygon / Anubis 链上实时读取 · 纯只读 · 不连钱包不签名</div>
+  <div class="foot"><span data-lang="zh">数据源：Polygon / Anubis 链上实时读取 · 纯只读 · 不连钱包不签名</span><span data-lang="en">Source: live Polygon / Anubis on-chain reads · read-only · no wallet, no signature</span></div>
 </div>
 
 <script>
@@ -106,13 +110,16 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   var LGNS_P='0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01', STAKE_P='0x1964Ca90474b11FFD08af387b110ba6C96251Bfc';
   var LGNS_A='0x4D1D808a081FdAc440703b3765FC61f8028C06B8', STAKE_A='0x7a2E3fA6eA60437F0441b8eb5e60674B80339228';
 
+  function isZh(){ return (document.documentElement.lang||'zh').toLowerCase().indexOf('zh')===0; }
+  function L(zh,en){ return isZh()?zh:en; }
+  function SP(zh,en){ return '<span data-lang="zh">'+zh+'</span><span data-lang="en">'+en+'</span>'; }
   var gate=document.getElementById('gate');
   function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
   function showGate(){
-    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>全网质押总量看板 · 会员专属</h3>'
-      +'<div class="gs">开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可实时查看双链质押数据，全站工具一次通用。</div>'
-      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
-      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>'+SP('全网质押总量看板 · 会员专属','Staking Overview · Members only')+'</h3>'
+      +'<div class="gs">'+SP('开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可实时查看双链质押数据，全站工具一次通用。','Unlock with a <b style="color:var(--gold2)">10 LGNS membership</b> to view dual-chain staking data live — one pass unlocks every tool.')+'</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">'+SP('🔓 开通会员 · 10 LGNS 解锁全部工具','🔓 Get membership · 10 LGNS unlocks all tools')+'</a>'
+      +'<a class="gback" href="/">'+SP('← 返回主站','← Back to site')+'</a></div>';
     gate.classList.add('on');
   }
   function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
@@ -132,7 +139,7 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
 
   async function load(){
     var st=document.getElementById('status');
-    st.innerHTML='<span class="dot"></span>正在读取双链质押数据…';
+    st.innerHTML='<span class="dot"></span>'+SP('正在读取双链质押数据…','Reading dual-chain staking data…');
     document.getElementById('refresh').disabled=true;
     try{
       var r=await Promise.all([
@@ -153,14 +160,15 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       document.getElementById('aSupply').textContent=comma(aSup)+' LGNS';
       var tot=pStk+aStk;
       document.getElementById('totalStake').textContent='≈ '+comma(tot)+' LGNS';
-      document.getElementById('totalBreak').textContent='Polygon '+comma(pStk)+'　·　Anubis '+comma(aStk)+'（活期质押锁仓量）';
-      st.innerHTML='<span class="dot"></span>✓ 链上实时 · '+new Date().toLocaleString('zh-CN');
+      document.getElementById('totalBreak').innerHTML='Polygon '+comma(pStk)+' · Anubis '+comma(aStk)+L('（活期质押锁仓量）',' (flexible-staking locked)');
+      st.innerHTML='<span class="dot"></span>'+L('✓ 链上实时 · ','✓ Live · ')+new Date().toLocaleString(isZh()?'zh-CN':'en-US');
     }catch(e){
-      st.innerHTML='<span style="color:var(--red)">读取失败：'+(e.message||'网络波动')+'，请点刷新重试</span>';
+      st.innerHTML='<span style="color:var(--red)">'+L('读取失败：','Load failed: ')+(e.message||L('网络波动','network error'))+L('，请点刷新重试',' — click refresh to retry')+'</span>';
     }finally{ document.getElementById('refresh').disabled=false; }
   }
   function start(){ document.getElementById('refresh').onclick=load; load(); }
 })();
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>
