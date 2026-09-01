@@ -4,12 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,follow">
-<title>大额成交监测 · 今日大单 · Web3Origin</title>
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<title>大额成交监测 · Whale Trades · Web3Origin</title>
 <meta name="description" content="监测 LGNS 主池今日大额成交：大额买入与卖出、金额、价格与交易哈希，数据来自链上成交扫描，每笔可在区块浏览器独立核实。">
 <link rel="canonical" href="https://web3origin.com/tools/whale/">
 <link rel="icon" href="/assets/favicon.png">
 <style>
 :root{--bg:#070806;--panel:#0e100e;--panel2:#141712;--line:rgba(212,175,55,.2);--gold:#d4af37;--gold2:#e8cf7e;--txt:#e9efea;--dim:#7a857c;--soft:#c3cbc4;--green:#25C96F;--buy:#25C96F;--sell:#ff6b5e}
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4;margin-left:auto}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(1100px 560px at 50% -12%,rgba(212,175,55,.10),transparent),var(--bg);color:var(--txt);font:15px/1.6 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
 .wrap{max-width:760px;margin:0 auto;padding:24px 16px 60px}
@@ -72,45 +76,45 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
 </style>
 </head>
 <body class="locked">
-<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0"><span data-lang="zh">正在验证会员…</span><span data-lang="en">Verifying membership…</span></div></div></div>
 
 <div class="wrap">
-  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
-  <h1>大额<span>成交监测</span></h1>
-  <div class="sub">盯 LGNS 主池的<b style="color:var(--gold2)">大额买入 / 卖出</b>。数据来自链上成交扫描（与 TG 大单播报同源），每笔都带交易哈希、可在区块浏览器独立核实。</div>
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a><button id="langBtn" aria-label="Language">🌐</button></div>
+  <h1><span data-lang="zh">大额<span>成交监测</span></span><span data-lang="en">Whale <span>Trade Monitor</span></span></h1>
+  <div class="sub"><span data-lang="zh">盯 LGNS 主池的<b style="color:var(--gold2)">大额买入 / 卖出</b>。数据来自链上成交扫描（与 TG 大单播报同源），每笔都带交易哈希、可在区块浏览器独立核实。</span><span data-lang="en">Tracks <b style="color:var(--gold2)">large buys / sells</b> in the LGNS main pool. Data comes from an on-chain trade scan (same source as the TG whale alerts); each trade carries a tx hash, independently verifiable in a block explorer.</span></div>
 
   <div class="head">
-    <span class="chip">现价 <b id="price">—</b> DAI</span>
-    <span class="chip">门槛 <b id="th">—</b></span>
-    <button class="refresh" id="refresh">↻ 刷新</button>
+    <span class="chip"><span data-lang="zh">现价</span><span data-lang="en">Price</span> <b id="price">—</b> DAI</span>
+    <span class="chip"><span data-lang="zh">门槛</span><span data-lang="en">Threshold</span> <b id="th">—</b></span>
+    <button class="refresh" id="refresh"><span data-lang="zh">↻ 刷新</span><span data-lang="en">↻ Refresh</span></button>
   </div>
 
   <div id="summary"></div>
 
   <div class="tabs">
-    <div class="tab on" data-r="today">今天</div>
-    <div class="tab" data-r="7d">近 7 天</div>
-    <div class="tab" data-r="30d">近 30 天</div>
+    <div class="tab on" data-r="today"><span data-lang="zh">今天</span><span data-lang="en">Today</span></div>
+    <div class="tab" data-r="7d"><span data-lang="zh">近 7 天</span><span data-lang="en">7d</span></div>
+    <div class="tab" data-r="30d"><span data-lang="zh">近 30 天</span><span data-lang="en">30d</span></div>
   </div>
   <div class="datepick">
-    <span class="dpl">📅 按日期查</span>
+    <span class="dpl"><span data-lang="zh">📅 按日期查</span><span data-lang="en">📅 By date</span></span>
     <input type="date" id="dp" class="dpi">
-    <button id="dpClear" class="dpc" style="display:none">✕ 返回</button>
+    <button id="dpClear" class="dpc" style="display:none"><span data-lang="zh">✕ 返回</span><span data-lang="en">✕ Back</span></button>
   </div>
   <div class="tabs">
-    <div class="tab on" data-f="all">全部</div>
-    <div class="tab" data-f="buy">🟢 只看买入</div>
-    <div class="tab" data-f="sell">🔴 只看卖出</div>
+    <div class="tab on" data-f="all"><span data-lang="zh">全部</span><span data-lang="en">All</span></div>
+    <div class="tab" data-f="buy"><span data-lang="zh">🟢 只看买入</span><span data-lang="en">🟢 Buys</span></div>
+    <div class="tab" data-f="sell"><span data-lang="zh">🔴 只看卖出</span><span data-lang="en">🔴 Sells</span></div>
   </div>
   <div class="status" id="status"></div>
 
   <div id="list"></div>
-  <div class="empty" id="empty" style="display:none">该时段暂无大额成交（行情平淡时大单本就少）。</div>
+  <div class="empty" id="empty" style="display:none"><span data-lang="zh">该时段暂无大额成交（行情平淡时大单本就少）。</span><span data-lang="en">No large trades in this window (whale trades are rare when the market is quiet).</span></div>
 
   <div class="note">
-    <b style="color:var(--soft)">口径与核实</b>：本页展示 LGNS/DAI 主池折合金额较大的成交，来自 VPS 大额监控（GeckoTerminal 成交源，与 TG 大单播报同一来源），可按<b>今天 / 近7天 / 近30天</b>查看、也可<b>选具体某一天</b>（保留近30天），并切买/卖，列表按时间倒序、按天分组。<b>买入</b>=有人用 DAI 买 LGNS；<b>卖出</b>=有人把 LGNS 换回 DAI。每笔点「查看交易」可在 Polygonscan 看原始交易与钱包。数据随成交实时累积，最长保留近 30 天。
+    <span data-lang="zh"><b style="color:var(--soft)">口径与核实</b>：本页展示 LGNS/DAI 主池折合金额较大的成交，来自 VPS 大额监控（GeckoTerminal 成交源，与 TG 大单播报同一来源），可按<b>今天 / 近7天 / 近30天</b>查看、也可<b>选具体某一天</b>（保留近30天），并切买/卖，列表按时间倒序、按天分组。<b>买入</b>=有人用 DAI 买 LGNS；<b>卖出</b>=有人把 LGNS 换回 DAI。每笔点「查看交易」可在 Polygonscan 看原始交易与钱包。数据随成交实时累积，最长保留近 30 天。</span><span data-lang="en"><b style="color:var(--soft)">Scope &amp; verification</b>: this page shows LGNS/DAI main-pool trades with a large converted value, from the VPS whale monitor (GeckoTerminal trade feed, same source as the TG whale alerts). View by <b>Today / 7d / 30d</b> or pick <b>a specific day</b> (last 30 days kept), toggle buy/sell; the list is newest-first and grouped by day. <b>Buy</b> = someone bought LGNS with DAI; <b>Sell</b> = someone swapped LGNS back to DAI. Click "View tx" on any row to see the raw transaction and wallet on Polygonscan. Data accumulates in real time and is kept for up to 30 days.</span>
   </div>
-  <div class="foot">数据源：LGNS 主池链上成交（Polygon）· 纯只读 · 不连钱包不签名</div>
+  <div class="foot"><span data-lang="zh">数据源：LGNS 主池链上成交（Polygon）· 纯只读 · 不连钱包不签名</span><span data-lang="en">Source: LGNS main-pool on-chain trades (Polygon) · read-only · no wallet, no signature</span></div>
 </div>
 
 <script>
@@ -118,11 +122,15 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   "use strict";
   var WK='https://count.web3origin.com', MLS='mon_access_v1', MONTOKEN=null;
   var ALL=[], filter='all', range='today', pickedDate=null, PRICE=0, RES=null, shownCount=0, lastSrc='live', lastLoadClock='';
+  function isZh(){ return (document.documentElement.lang||'zh').toLowerCase().indexOf('zh')===0; }
+  function L(zh,en){ return isZh()?zh:en; }
+  function SP(zh,en){ return '<span data-lang="zh">'+zh+'</span><span data-lang="en">'+en+'</span>'; }
+  function md(k){ return isZh()?(k.slice(5).replace('-','月')+'日'):k.slice(5); }
   function clearPick(){ pickedDate=null; var dp=document.getElementById('dp'), c=document.getElementById('dpClear'); if(dp)dp.value=''; if(c)c.style.display='none'; }
   function refreshStatus(){
     var st=document.getElementById('status'); if(!st) return;
-    var rlab=pickedDate?(pickedDate.slice(5).replace('-','月')+'日'):(range==='7d'?'近7天':range==='30d'?'近30天':'今天');
-    st.innerHTML='<span class="dot"></span>✓ '+(lastSrc==='live'?'实时':'今日')+'大额成交 · '+rlab+' <b style="color:var(--gold2)">'+shownCount+'</b> 笔 · 自动刷新中 · '+lastLoadClock;
+    var rlab=pickedDate?md(pickedDate):(range==='7d'?L('近7天','7d'):range==='30d'?L('近30天','30d'):L('今天','today'));
+    st.innerHTML='<span class="dot"></span>'+L('✓ ','✓ ')+(lastSrc==='live'?L('实时','live'):L('今日','today'))+L('大额成交 · ',' whale trades · ')+rlab+' <b style="color:var(--gold2)">'+shownCount+'</b>'+L(' 笔 · 自动刷新中 · ',' · auto-refresh · ')+lastLoadClock;
   }
   var EX='https://polygonscan.com/tx/', EXA='https://polygonscan.com/address/';
   function shortAddr(a){ return (typeof a==='string'&&/^0x[0-9a-fA-F]{40}$/.test(a))?(a.slice(0,6)+'…'+a.slice(-4)):''; }
@@ -138,15 +146,15 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
     return todayStartBJ();                            // 今天
   }
   function bjDateKey(ts){ try{ return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(ts*1000)); }catch(e){ return ''; } } // YYYY-MM-DD(北京)
-  function dayLabel(ts){ var k=bjDateKey(ts); if(k===bjDateKey(Math.floor(Date.now()/1000))) return '今天'; if(k===bjDateKey(Math.floor(Date.now()/1000)-86400)) return '昨天'; return k.slice(5).replace('-','月')+'日'; }
+  function dayLabel(ts){ var k=bjDateKey(ts); if(k===bjDateKey(Math.floor(Date.now()/1000))) return L('今天','Today'); if(k===bjDateKey(Math.floor(Date.now()/1000)-86400)) return L('昨天','Yesterday'); return md(k); }
 
   var gate=document.getElementById('gate');
   function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
   function showGate(){
-    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>大额成交监测 · 会员专属</h3>'
-      +'<div class="gs">开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可查看大额买卖动向，全站工具一次通用。</div>'
-      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
-      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>'+SP('大额成交监测 · 会员专属','Whale Trades · Members only')+'</h3>'
+      +'<div class="gs">'+SP('开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可查看大额买卖动向，全站工具一次通用。','Unlock with a <b style="color:var(--gold2)">10 LGNS membership</b> to see large buy/sell activity — one pass unlocks every tool.')+'</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">'+SP('🔓 开通会员 · 10 LGNS 解锁全部工具','🔓 Get membership · 10 LGNS unlocks all tools')+'</a>'
+      +'<a class="gback" href="/">'+SP('← 返回主站','← Back to site')+'</a></div>';
     gate.classList.add('on');
   }
   function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
@@ -157,22 +165,22 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   })();
 
   function comma(n,dp){ return Number(n||0).toLocaleString(undefined,{maximumFractionDigits:dp==null?0:dp}); }
-  function fmtTime(ts){ try{ return new Date(ts*1000).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return '—'; } }
+  function fmtTime(ts){ try{ return new Date(ts*1000).toLocaleString(isZh()?'zh-CN':'en-US',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return '—'; } }
 
   function renderSummary(){
     var box=document.getElementById('summary'); var html='';
     // 📊 大额统计:选了某天=统计那天,否则=今日(北京0点起)
     var dayKey=pickedDate||bjDateKey(Math.floor(Date.now()/1000));
-    var dayTitle=pickedDate?(dayKey.slice(5).replace('-','月')+'日'):'今日';
+    var dayTitle=pickedDate?md(dayKey):L('今日','Today');
     var day=ALL.filter(function(x){ return bjDateKey(x.ts||0)===dayKey; });
     var buys=day.filter(function(x){return x.dir==='buy';}), sells=day.filter(function(x){return x.dir==='sell';});
     var bd=buys.reduce(function(s,x){return s+(x.dai||0);},0), sd=sells.reduce(function(s,x){return s+(x.dai||0);},0);
     var tot=bd+sd, bp=tot>0?(bd/tot*100):50, sp=100-bp;
-    html+='<div class="panel"><div class="pt">📊 '+dayTitle+'大额统计</div>'
-      +'<div class="pr buy"><span>🟢 买入</span><b>'+buys.length+' 笔 · '+fmtM(bd)+' DAI</b></div>'
-      +'<div class="pr sell"><span>🔴 卖出</span><b>'+sells.length+' 笔 · '+fmtM(sd)+' DAI</b></div>'
+    html+='<div class="panel"><div class="pt">📊 '+dayTitle+L('大额统计',' whale stats')+'</div>'
+      +'<div class="pr buy"><span>'+L('🟢 买入','🟢 Buys')+'</span><b>'+buys.length+L(' 笔 · ',' · ')+fmtM(bd)+' DAI</b></div>'
+      +'<div class="pr sell"><span>'+L('🔴 卖出','🔴 Sells')+'</span><b>'+sells.length+L(' 笔 · ',' · ')+fmtM(sd)+' DAI</b></div>'
       +'<div class="bar"><div class="b" style="width:'+bp.toFixed(1)+'%"></div></div>'
-      +'<div class="bratio"><span class="bb">买 '+bp.toFixed(1)+'%</span><span class="ss">'+sp.toFixed(1)+'% 卖</span></div>'
+      +'<div class="bratio"><span class="bb">'+L('买 ','Buy ')+bp.toFixed(1)+'%</span><span class="ss">'+sp.toFixed(1)+L('% 卖','% Sell')+'</span></div>'
       +'</div>';
     box.innerHTML=html;
   }
@@ -181,17 +189,17 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
     var px=t.lgns>0?(t.dai/t.lgns):PRICE;
     var addrRow='', lkWallet='';
     if(/^0x[0-9a-fA-F]{40}$/.test(t.wallet||'')){
-      addrRow='<div class="row"><span class="k">👤 地址</span><span class="mono">'+t.wallet+'</span></div>';
-      lkWallet=' <a href="'+EXA+t.wallet+'" target="_blank" rel="noopener">查看钱包 ↗</a>';
+      addrRow='<div class="row"><span class="k">'+L('👤 地址','👤 Wallet')+'</span><span class="mono">'+t.wallet+'</span></div>';
+      lkWallet=' <a href="'+EXA+t.wallet+'" target="_blank" rel="noopener">'+L('查看钱包 ↗','View wallet ↗')+'</a>';
     }
     return '<div class="trade '+(buy?'buy':'sell')+'">'
-      +'<div class="hd">'+(buy?'🟢 大额买入':'🔴 大额卖出')+'</div>'
-      +'<div class="row"><span class="k">💰 金额</span><b>'+comma(t.dai,2)+' DAI</b></div>'
-      +'<div class="row"><span class="k">🪙 数量</span><b>'+comma(t.lgns,2)+' LGNS</b></div>'
-      +'<div class="row"><span class="k">💵 单价</span><b>'+comma(px,4)+' DAI</b></div>'
-      +'<div class="row"><span class="k">🕒 时间</span>'+bjTime(t.ts)+' <span class="k">(北京)</span></div>'
+      +'<div class="hd">'+(buy?L('🟢 大额买入','🟢 Large buy'):L('🔴 大额卖出','🔴 Large sell'))+'</div>'
+      +'<div class="row"><span class="k">'+L('💰 金额','💰 Value')+'</span><b>'+comma(t.dai,2)+' DAI</b></div>'
+      +'<div class="row"><span class="k">'+L('🪙 数量','🪙 Amount')+'</span><b>'+comma(t.lgns,2)+' LGNS</b></div>'
+      +'<div class="row"><span class="k">'+L('💵 单价','💵 Price')+'</span><b>'+comma(px,4)+' DAI</b></div>'
+      +'<div class="row"><span class="k">'+L('🕒 时间','🕒 Time')+'</span>'+bjTime(t.ts)+' <span class="k">'+L('(北京)','(Beijing)')+'</span></div>'
       +addrRow
-      +'<div class="lk">🔗 <a href="'+EX+t.tx+'" target="_blank" rel="noopener">查看交易 ↗</a>'+lkWallet+'</div>'
+      +'<div class="lk">🔗 <a href="'+EX+t.tx+'" target="_blank" rel="noopener">'+L('查看交易 ↗','View tx ↗')+'</a>'+lkWallet+'</div>'
       +'</div>';
   }
   function render(){
@@ -203,11 +211,11 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
     });
     shownCount=arr.length;
     var list=document.getElementById('list'), empty=document.getElementById('empty');
-    if(!arr.length){ list.innerHTML=''; empty.textContent=pickedDate?'该日无大额成交记录（仅保留近 30 天）。':'该时段暂无大额成交（行情平淡时大单本就少）。'; empty.style.display='block'; return; }
+    if(!arr.length){ list.innerHTML=''; empty.textContent=pickedDate?L('该日无大额成交记录（仅保留近 30 天）。','No large trades on this day (only the last 30 days are kept).'):L('该时段暂无大额成交（行情平淡时大单本就少）。','No large trades in this window (whale trades are rare when the market is quiet).'); empty.style.display='block'; return; }
     empty.style.display='none';
     // 按天分组(北京),组内已按时间倒序(ALL 已排序)
     var html='', curKey=null, bucket=[];
-    function flush(){ if(!bucket.length) return; html+='<div class="dayhd">'+dayLabel(bucket[0].ts)+' <span class="cnt">'+bucket.length+' 笔</span></div>'+bucket.map(tradeCard).join(''); bucket=[]; }
+    function flush(){ if(!bucket.length) return; html+='<div class="dayhd">'+dayLabel(bucket[0].ts)+' <span class="cnt">'+bucket.length+L(' 笔','')+'</span></div>'+bucket.map(tradeCard).join(''); bucket=[]; }
     arr.forEach(function(t){ var k=bjDateKey(t.ts); if(k!==curKey){ flush(); curKey=k; } bucket.push(t); });
     flush();
     list.innerHTML=html;
@@ -229,7 +237,7 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   }
   async function load(silent){
     var st=document.getElementById('status');
-    if(!silent) st.innerHTML='<span class="dot"></span>正在读取大额成交…';
+    if(!silent) st.innerHTML='<span class="dot"></span>'+SP('正在读取大额成交…','Loading whale trades…');
     document.getElementById('refresh').disabled=true;
     try{
       var r=await fetchTrades();
@@ -239,12 +247,12 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       // 现价:取最近一笔成交价兜底
       if(!PRICE && ALL.length && ALL[0].lgns>0) PRICE=ALL[0].dai/ALL[0].lgns;
       document.getElementById('price').textContent=PRICE?comma(PRICE,3):'—';
-      document.getElementById('th').textContent=r.threshold?('≥ '+comma(r.threshold)+' DAI'):'大额';
-      lastSrc=r.src; lastLoadClock=new Date().toLocaleTimeString('zh-CN');
+      document.getElementById('th').innerHTML=r.threshold?('≥ '+comma(r.threshold)+' DAI'):L('大额','large');
+      lastSrc=r.src; lastLoadClock=new Date().toLocaleTimeString(isZh()?'zh-CN':'en-US');
       render();
       refreshStatus();
     }catch(e){
-      st.innerHTML='<span style="color:var(--sell)">读取失败：'+(e.message||'网络波动')+'，请点刷新重试</span>';
+      st.innerHTML='<span style="color:var(--sell)">'+L('读取失败：','Load failed: ')+(e.message||L('网络波动','network error'))+L('，请点刷新重试',' — click refresh to retry')+'</span>';
     }finally{ document.getElementById('refresh').disabled=false; }
   }
   function start(){
@@ -269,5 +277,6 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   }
 })();
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>
