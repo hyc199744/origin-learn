@@ -4,12 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,follow">
-<title>国库资产查询 · 链上实时储备 · Web3Origin</title>
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<title>国库资产查询 · Treasury Reserves · Web3Origin</title>
 <meta name="description" content="实时读取起源主国库与基金会在 Polygon 链上的真金白银储备（DAI / USDT），以及创世池 LP 的国库自持比例。纯只读、每项可在区块浏览器独立核实。">
 <link rel="canonical" href="https://web3origin.com/tools/treasury/">
 <link rel="icon" href="/assets/favicon.png">
 <style>
 :root{--bg:#070806;--panel:#0e100e;--panel2:#141712;--line:rgba(212,175,55,.2);--gold:#d4af37;--gold2:#e8cf7e;--txt:#e9efea;--dim:#7a857c;--soft:#c3cbc4;--green:#25C96F;--red:#ff6b5e;--poly:#a97bff}
+[data-lang]{display:none!important}
+html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+#langBtn{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4;margin-left:auto}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(1100px 560px at 50% -12%,rgba(212,175,55,.10),transparent),radial-gradient(800px 500px at 100% 108%,rgba(169,123,255,.06),transparent),var(--bg);color:var(--txt);font:15px/1.6 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
 .wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
@@ -53,44 +57,44 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
 </style>
 </head>
 <body class="locked">
-<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
+<div id="gate"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0"><span data-lang="zh">正在验证会员…</span><span data-lang="en">Verifying membership…</span></div></div></div>
 
 <div class="wrap">
-  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
-  <h1>国库<span>资产查询</span></h1>
-  <div class="sub">实时读取起源公开国库地址在 <b style="color:var(--gold2)">Polygon</b> 链上的真金白银储备（DAI / USDT）与创世池 LP 自持比例。数据直接来自链上、纯只读，每项都可在区块浏览器独立核实。</div>
+  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a><button id="langBtn" aria-label="Language">🌐</button></div>
+  <h1><span data-lang="zh">国库<span>资产查询</span></span><span data-lang="en">Treasury <span>Reserves</span></span></h1>
+  <div class="sub"><span data-lang="zh">实时读取起源公开国库地址在 <b style="color:var(--gold2)">Polygon</b> 链上的真金白银储备（DAI / USDT）与创世池 LP 自持比例。数据直接来自链上、纯只读，每项都可在区块浏览器独立核实。</span><span data-lang="en">Live reads of Origin’s public treasury addresses on <b style="color:var(--gold2)">Polygon</b>: hard stablecoin reserves (DAI / USDT) and the treasury’s own share of the genesis-pool LP. Data comes straight from chain, read-only, each item independently verifiable in a block explorer.</span></div>
 
-  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><button class="refresh" id="refresh">↻ 刷新链上数据</button></div>
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><button class="refresh" id="refresh"><span data-lang="zh">↻ 刷新链上数据</span><span data-lang="en">↻ Refresh on-chain data</span></button></div>
   <div class="status" id="status"></div>
 
   <div class="total">
-    <div class="lab">当前稳定币总储备（主国库 + 基金会 · 链上实时）</div>
+    <div class="lab"><span data-lang="zh">当前稳定币总储备（主国库 + 基金会 · 链上实时）</span><span data-lang="en">Total stablecoin reserves (main treasury + foundation · live)</span></div>
     <div class="big" id="totalDai">—</div>
     <div class="sm" id="totalBreak"></div>
   </div>
 
   <div class="card">
-    <h2>🏛️ 主国库 <span class="pill">Polygon</span></h2>
-    <div class="addr">0x7B9B7d4F870A38e92c9a181B00f9b33cc8Ef5321<a href="https://polygonscan.com/address/0x7B9B7d4F870A38e92c9a181B00f9b33cc8Ef5321" target="_blank" rel="noopener">🔗 查</a><span style="color:var(--dim)">· 4/5 多签 · 不可升级</span></div>
+    <h2><span data-lang="zh">🏛️ 主国库</span><span data-lang="en">🏛️ Main treasury</span> <span class="pill">Polygon</span></h2>
+    <div class="addr">0x7B9B7d4F870A38e92c9a181B00f9b33cc8Ef5321<a href="https://polygonscan.com/address/0x7B9B7d4F870A38e92c9a181B00f9b33cc8Ef5321" target="_blank" rel="noopener"><span data-lang="zh">🔗 查</span><span data-lang="en">🔗</span></a><span style="color:var(--dim)"><span data-lang="zh">· 4/5 多签 · 不可升级</span><span data-lang="en">· 4/5 multisig · non-upgradeable</span></span></div>
     <div class="rowg">
-      <div class="item"><div class="k">DAI 储备</div><div class="v" id="treDai">—</div></div>
-      <div class="item"><div class="k">USDT 储备</div><div class="v" id="treUsdt">—</div></div>
-      <div class="item"><div class="k">创世池 LP · 国库自持</div><div class="v small" id="lpPct">—</div></div>
+      <div class="item"><div class="k"><span data-lang="zh">DAI 储备</span><span data-lang="en">DAI reserve</span></div><div class="v" id="treDai">—</div></div>
+      <div class="item"><div class="k"><span data-lang="zh">USDT 储备</span><span data-lang="en">USDT reserve</span></div><div class="v" id="treUsdt">—</div></div>
+      <div class="item"><div class="k"><span data-lang="zh">创世池 LP · 国库自持</span><span data-lang="en">Genesis LP · treasury-held</span></div><div class="v small" id="lpPct">—</div></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>🏦 基金会金库 <span class="pill">Polygon</span></h2>
-    <div class="addr">0x91F1D2c2165B17a1eD2dC3B73Ae77224E6e1410E<a href="https://polygonscan.com/address/0x91F1D2c2165B17a1eD2dC3B73Ae77224E6e1410E" target="_blank" rel="noopener">🔗 查</a><span style="color:var(--dim)">· 2/3 多签 · 与主国库分开管理</span></div>
+    <h2><span data-lang="zh">🏦 基金会金库</span><span data-lang="en">🏦 Foundation vault</span> <span class="pill">Polygon</span></h2>
+    <div class="addr">0x91F1D2c2165B17a1eD2dC3B73Ae77224E6e1410E<a href="https://polygonscan.com/address/0x91F1D2c2165B17a1eD2dC3B73Ae77224E6e1410E" target="_blank" rel="noopener"><span data-lang="zh">🔗 查</span><span data-lang="en">🔗</span></a><span style="color:var(--dim)"><span data-lang="zh">· 2/3 多签 · 与主国库分开管理</span><span data-lang="en">· 2/3 multisig · managed separately from main treasury</span></span></div>
     <div class="rowg">
-      <div class="item"><div class="k">DAI 储备</div><div class="v" id="fundDai">—</div></div>
+      <div class="item"><div class="k"><span data-lang="zh">DAI 储备</span><span data-lang="en">DAI reserve</span></div><div class="v" id="fundDai">—</div></div>
     </div>
   </div>
 
   <div class="note">
-    <b style="color:var(--soft)">口径与核实</b>：以上余额由本页直接调用两个国库地址的 <b>balanceOf</b> 从 Polygon 公共节点实时读取（DAI 18 位小数、USDT 6 位小数），LP 自持比例 = 国库持有创世池 LP ÷ LP 总量。金额随债券申购、发奖与做市实时变动，请以你查询当下的链上余额为准，可点每处的「🔗查」在 Polygonscan 复核。<b>储备实体为外部稳定币与 LP</b>，几乎不裸持自家 LGNS。
+    <span data-lang="zh"><b style="color:var(--soft)">口径与核实</b>：以上余额由本页直接调用两个国库地址的 <b>balanceOf</b> 从 Polygon 公共节点实时读取（DAI 18 位小数、USDT 6 位小数），LP 自持比例 = 国库持有创世池 LP ÷ LP 总量。金额随债券申购、发奖与做市实时变动，请以你查询当下的链上余额为准，可点每处的「🔗查」在 Polygonscan 复核。<b>储备实体为外部稳定币与 LP</b>，几乎不裸持自家 LGNS。</span><span data-lang="en"><b style="color:var(--soft)">Scope &amp; verification</b>: balances above are read live via <b>balanceOf</b> on both treasury addresses from a Polygon public node (DAI 18 decimals, USDT 6 decimals); LP-held ratio = treasury genesis-pool LP ÷ total LP. Amounts change in real time with bond deposits, reward payouts and market-making — use the on-chain balance at the moment you check, and click "🔗" to re-verify on Polygonscan. <b>Reserves are external stablecoins and LP</b>; the treasury barely holds bare LGNS.</span>
   </div>
-  <div class="foot">数据源：Polygon 链上 balanceOf 实时读取 · 纯只读 · 不连钱包不签名</div>
+  <div class="foot"><span data-lang="zh">数据源：Polygon 链上 balanceOf 实时读取 · 纯只读 · 不连钱包不签名</span><span data-lang="en">Source: live Polygon on-chain balanceOf · read-only · no wallet, no signature</span></div>
 </div>
 
 <script>
@@ -105,13 +109,16 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   var LP='0x882df4B0fB50a229C3B4124EB18c759911485bFb';
 
   /* 门禁 */
+  function isZh(){ return (document.documentElement.lang||'zh').toLowerCase().indexOf('zh')===0; }
+  function L(zh,en){ return isZh()?zh:en; }
+  function SP(zh,en){ return '<span data-lang="zh">'+zh+'</span><span data-lang="en">'+en+'</span>'; }
   var gate=document.getElementById('gate');
   function unlock(){ document.body.classList.remove('locked'); gate.classList.remove('on'); start(); }
   function showGate(){
-    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>国库资产查询 · 会员专属</h3>'
-      +'<div class="gs">开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可实时查看国库储备，全站工具一次通用。</div>'
-      +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
-      +'<a class="gback" href="/">← 返回主站</a></div>';
+    gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>'+SP('国库资产查询 · 会员专属','Treasury Reserves · Members only')+'</h3>'
+      +'<div class="gs">'+SP('开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可实时查看国库储备，全站工具一次通用。','Unlock with a <b style="color:var(--gold2)">10 LGNS membership</b> to view treasury reserves live — one pass unlocks every tool.')+'</div>'
+      +'<a class="gc" href="/tools/origin-monitor/">'+SP('🔓 开通会员 · 10 LGNS 解锁全部工具','🔓 Get membership · 10 LGNS unlocks all tools')+'</a>'
+      +'<a class="gback" href="/">'+SP('← 返回主站','← Back to site')+'</a></div>';
     gate.classList.add('on');
   }
   function tok(){ try{return localStorage.getItem(MLS)||'';}catch(e){return '';} }
@@ -132,7 +139,7 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
 
   async function load(){
     var st=document.getElementById('status');
-    st.innerHTML='<span class="dot"></span>正在读取链上国库余额…';
+    st.innerHTML='<span class="dot"></span>'+SP('正在读取链上国库余额…','Reading on-chain treasury balances…');
     document.getElementById('refresh').disabled=true;
     try{
       var res=await Promise.all([
@@ -147,15 +154,16 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       document.getElementById('fundDai').textContent=comma(fundDai)+' DAI';
       document.getElementById('lpPct').textContent=lpPct.toFixed(3)+' %';
       var totalStable=treDai+treUsdt+fundDai;
-      document.getElementById('totalDai').textContent='≈ '+comma(totalStable)+' 稳定币';
-      document.getElementById('totalBreak').textContent='主国库 '+comma(treDai)+' DAI + '+comma(treUsdt)+' USDT　·　基金会 '+comma(fundDai)+' DAI';
-      st.innerHTML='<span class="dot"></span>✓ 链上实时 · '+new Date().toLocaleString('zh-CN');
+      document.getElementById('totalDai').innerHTML='≈ '+comma(totalStable)+L(' 稳定币',' stablecoins');
+      document.getElementById('totalBreak').innerHTML=L('主国库 ','Main ')+comma(treDai)+' DAI + '+comma(treUsdt)+L(' USDT　·　基金会 ',' USDT · Foundation ')+comma(fundDai)+' DAI';
+      st.innerHTML='<span class="dot"></span>'+L('✓ 链上实时 · ','✓ Live · ')+new Date().toLocaleString(isZh()?'zh-CN':'en-US');
     }catch(e){
-      st.innerHTML='<span style="color:var(--red)">读取失败：'+(e.message||'网络波动')+'，请点刷新重试</span>';
+      st.innerHTML='<span style="color:var(--red)">'+L('读取失败：','Load failed: ')+(e.message||L('网络波动','network error'))+L('，请点刷新重试',' — click refresh to retry')+'</span>';
     }finally{ document.getElementById('refresh').disabled=false; }
   }
   function start(){ document.getElementById('refresh').onclick=load; load(); }
 })();
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>
