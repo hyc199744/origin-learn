@@ -29,174 +29,174 @@
 
   /* ---- 六大能力分类 ---- */
   var CATEGORIES = [
-    { id: 'wallet-id',     icon: '🪪', name: '钱包与身份', desc: '推荐关系、钱包等级、晋升记录、地址关系。' },
-    { id: 'asset-staking', icon: '💰', name: '资产与质押', desc: '双链资产、活期质押、360、600 及全网质押数据。' },
-    { id: 'trade-whale',   icon: '🐋', name: '交易与大户', desc: '大额交易、大户增减仓、资金来源、资金去向和钱包预警。' },
-    { id: 'security-dd',   icon: '🛡️', name: '安全与尽调', desc: '钱包综合尽调、授权检查、异常行为识别和交易翻译。' },
-    { id: 'price-calc',    icon: '🧮', name: '价格与计算', desc: '实时价格、买入计算、卖出模拟、成本和收益计算。' },
-    { id: 'data-evidence', icon: '📜', name: '资料与证据', desc: '合约地址、发展时间轴、托底逻辑、国库资产和 PDF 报告。' }
+    { id: 'wallet-id',     icon: '🪪', name: '钱包与身份', en: {"name":"Wallet & Identity","desc":"Referrals, wallet level, promotions and address links."}, desc: '推荐关系、钱包等级、晋升记录、地址关系。' },
+    { id: 'asset-staking', icon: '💰', name: '资产与质押', en: {"name":"Assets & Staking","desc":"Dual-chain assets, flexible/360/600 staking and network staking data."}, desc: '双链资产、活期质押、360、600 及全网质押数据。' },
+    { id: 'trade-whale',   icon: '🐋', name: '交易与大户', en: {"name":"Trades & Whales","desc":"Large trades, whale changes, fund sources/destinations and wallet alerts."}, desc: '大额交易、大户增减仓、资金来源、资金去向和钱包预警。' },
+    { id: 'security-dd',   icon: '🛡️', name: '安全与尽调', en: {"name":"Security & DD","desc":"Full wallet DD, approval checks, anomaly detection and tx translation."}, desc: '钱包综合尽调、授权检查、异常行为识别和交易翻译。' },
+    { id: 'price-calc',    icon: '🧮', name: '价格与计算', en: {"name":"Price & Calc","desc":"Live prices, buy calc, sell simulation, cost and yield."}, desc: '实时价格、买入计算、卖出模拟、成本和收益计算。' },
+    { id: 'data-evidence', icon: '📜', name: '资料与证据', en: {"name":"Data & Evidence","desc":"Contract addresses, timeline, backstop logic, treasury and PDF reports."}, desc: '合约地址、发展时间轴、托底逻辑、国库资产和 PDF 报告。' }
   ];
 
   /* ---- 状态样式元信息 ---- */
   var STATUS_META = {
-    live: { label: '已上线', cls: 'live', color: '#25C96F', dot: '🟢' },
-    soon: { label: '即将上线', cls: 'soon', color: '#6fb6ff', dot: '🔵' },
-    dev:  { label: '开发中',  cls: 'dev',  color: '#e8a45c', dot: '🟠' }
+    live: { label: '已上线', en: 'Live', cls: 'live', color: '#25C96F', dot: '🟢' },
+    soon: { label: '即将上线', en: 'Soon', cls: 'soon', color: '#6fb6ff', dot: '🔵' },
+    dev:  { label: '开发中',  en: 'In dev', cls: 'dev',  color: '#e8a45c', dot: '🟠' }
   };
 
   /* ---- 30 项工具 ---- */
   var TOOLS = [
-    { id: 'referrer', number: 1, name: '推荐人查询', category: 'wallet-id', icon: '🔗',
+    { id: 'referrer', number: 1, name: '推荐人查询', en: {"name":"Referrer Lookup","description":"Check a wallet’s direct referrer, bind time, chain and on-chain proof."}, category: 'wallet-id', icon: '🔗',
       description: '查询钱包的直接推荐人、绑定时间、所属链和链上凭证。',
       status: 'live', isPremium: true, route: '/?tool=openReferrer', enabled: true,
       note: '首页 openReferrer 弹窗，已上线。' },
 
-    { id: 'withdraw', number: 2, name: '链上提币 DApp', category: 'asset-staking', icon: '💸',
+    { id: 'withdraw', number: 2, name: '链上提币 DApp', en: {"name":"On-chain Withdraw DApp","description":"Within contract rules, claim, redeem or withdraw via your own wallet."}, category: 'asset-staking', icon: '💸',
       description: '在符合合约规则的情况下，通过自己的钱包完成领取、赎回或提取。',
       status: 'live', isPremium: true, route: '/tools/onchain-withdraw/', enabled: true,
       note: '独立工具页 /tools/onchain-withdraw/，已上线（需连钱包签名，能否执行以合约与权限为准）。' },
 
-    { id: 'whale', number: 3, name: '大额交易监控', category: 'trade-whale', icon: '🐋',
+    { id: 'whale', number: 3, name: '大额交易监控', en: {"name":"Whale Trade Monitor","description":"Track large buy and sell fills."}, category: 'trade-whale', icon: '🐋',
       description: '监控大额买入、卖出成交动态。',
       status: 'live', isPremium: true, route: '/tools/whale/', enabled: true,
       note: '独立页 /tools/whale/(会员专属),TG卡片式今日大额成交,读/daily的events(源自VPS whale.py→daily:bigtrades KV)。已上线。' },
 
-    { id: 'staking-top', number: 4, name: '活期质押大户榜', category: 'asset-staking', icon: '🏆',
+    { id: 'staking-top', number: 4, name: '活期质押大户榜', en: {"name":"Flexible-staking Top Holders","description":"Dual-chain flexible-staking ranking and whale changes."}, category: 'asset-staking', icon: '🏆',
       description: '查询双链活期质押排名及大户资产变化。',
       status: 'live', isPremium: true, route: '/tools/holders/', enabled: true,
       note: '独立页 /tools/holders/(会员专属),读后台/mon/stats的双链持仓大户(Polygon Moralis+Anubis区块浏览器,排除合约/项目钱包)。已上线。' },
 
-    { id: 'v-count', number: 5, name: '全网 V1–V6 数量', category: 'wallet-id', icon: '📊',
+    { id: 'v-count', number: 5, name: '全网 V1–V6 数量', en: {"name":"Network V1–V6 Count","description":"Wallet counts per level, per chain and cross-chain de-duped."}, category: 'wallet-id', icon: '📊',
       description: '统计各等级钱包数量，并提供双链分别统计和跨链去重数据。',
       status: 'live', isPremium: true, route: '/tools/levels/', enabled: true,
       note: '独立页 /tools/levels/(会员专属),读后台/mon/stats的daoLevel全量扫描等级分布(已修复VPS扫描器分段+令牌,每30min更新)。已上线。' },
 
-    { id: 'staking-query', number: 6, name: '双链质押查询', category: 'asset-staking', icon: '🔒',
+    { id: 'staking-query', number: 6, name: '双链质押查询', en: {"name":"Dual-chain Staking Lookup","description":"Flexible, 360, 600 and total staking under an address."}, category: 'asset-staking', icon: '🔒',
       description: '查询活期、360、600 及钱包名下的总质押记录。',
       status: 'live', isPremium: true, route: '/tools/staking-query/', enabled: true,
       note: '独立页 /tools/staking-query/(会员专属),输地址查双链活期/360/600逐笔明细+名下总质押,前端直连合约eth_call(getDepositorBalance/stakes),纯只读可核实。已上线。' },
 
-    { id: 'v-level', number: 7, name: '钱包 V 等级查询', category: 'wallet-id', icon: '🎖️',
+    { id: 'v-level', number: 7, name: '钱包 V 等级查询', en: {"name":"Wallet V-Level Lookup","description":"A wallet’s current level, chain and related on-chain basis."}, category: 'wallet-id', icon: '🎖️',
       description: '查看钱包当前等级、所属链及相关链上依据。',
       status: 'live', isPremium: true, route: '/tools/v-level/', enabled: true,
       note: '独立页 /tools/v-level/(会员专属),输地址查DAO等级V1-V6+本人质押+团队业绩+双线业绩+推荐上线,数据源官方生态接口apiv2.ocros.io(后台口径)。已上线。' },
 
-    { id: 'promotion-today', number: 8, name: '今日晋升查询', category: 'wallet-id', icon: '📈',
+    { id: 'promotion-today', number: 8, name: '今日晋升查询', en: {"name":"Promotions Today","description":"Wallets newly promoted to V1–V6 today, with time and on-chain proof."}, category: 'wallet-id', icon: '📈',
       description: '查看当天新晋升 V1–V6 的钱包、晋升时间和链上依据。',
       status: 'live', isPremium: true, route: '/tools/promotion/', enabled: true,
       note: '独立页 /tools/promotion/(会员专属),前端实时扫 Anubis daoLevel 事件0x579a71(topic 0x25150e),按时段列出V1-V6晋升,交易可核实。已上线。' },
 
-    { id: 'contracts', number: 9, name: '双链合约地址库', category: 'data-evidence', icon: '📇',
+    { id: 'contracts', number: 9, name: '双链合约地址库', en: {"name":"Dual-chain Contract Directory","description":"Verified Origin ecosystem contract addresses, purpose and chain."}, category: 'data-evidence', icon: '📇',
       description: '汇总并核验起源生态相关合约地址、用途和所属链。',
       status: 'live', isPremium: false, route: '/contracts/', enabled: true,
       note: '独立页 /contracts/，公开免费(SEO引流页,不上锁)。' },
 
-    { id: 'history', number: 10, name: '起源前世今生', category: 'data-evidence', icon: '🕰️',
+    { id: 'history', number: 10, name: '起源前世今生', en: {"name":"Origin Chronicle","description":"A timeline of Origin’s key announcements, contract changes and milestones."}, category: 'data-evidence', icon: '🕰️',
       description: '通过时间轴查看起源的重要公告、合约变化、迁移和发展记录。',
       status: 'live', isPremium: true, route: '/tools/origin-history/', enabled: true,
       note: '独立编年史工具页 /tools/origin-history/(会员专属),5卷时间轴+23专题,交易哈希可核实,已上线。' },
 
-    { id: 'treasury', number: 11, name: '国库资产查询', category: 'data-evidence', icon: '🏛️',
+    { id: 'treasury', number: 11, name: '国库资产查询', en: {"name":"Treasury Reserves","description":"Public treasury balances, composition and fund movements."}, category: 'data-evidence', icon: '🏛️',
       description: '查看公开国库地址的资产构成、余额和资金流动。',
       status: 'live', isPremium: true, route: '/tools/treasury/', enabled: true,
       note: '独立页 /tools/treasury/(会员专属),前端实时读主国库+基金会 balanceOf(DAI/USDT)+LP自持%,可核实。已上线。' },
 
-    { id: 'peg-logic', number: 12, name: '1美元托底逻辑', category: 'data-evidence', icon: '⚖️',
+    { id: 'peg-logic', number: 12, name: '1美元托底逻辑', en: {"name":"$1 Backstop Logic","description":"The peg mechanism, triggers, funding and verifiable data so far."}, category: 'data-evidence', icon: '⚖️',
       description: '解释托底机制、触发条件、资金来源和目前可以验证的数据。',
       status: 'soon', isPremium: true, route: '', enabled: false,
       note: '相关说明散见资料页，尚无独立解读工具，标即将上线。' },
 
-    { id: 'staking-total', number: 13, name: '全网质押总量看板', category: 'asset-staking', icon: '📟',
+    { id: 'staking-total', number: 13, name: '全网质押总量看板', en: {"name":"Network Staking Overview","description":"Dual-chain staking totals, participants and daily change."}, category: 'asset-staking', icon: '📟',
       description: '统计双链各类质押总量、参与钱包数量及每日变化。',
       status: 'live', isPremium: true, route: '/tools/staking/', enabled: true,
       note: '独立页 /tools/staking/(会员专属),前端实时读双链LGNS总供应+质押合约锁仓量算质押率(对官方验证吻合),可核实。已上线。' },
 
-    { id: 'full-dd', number: 14, name: '钱包综合尽调报告', category: 'security-dd', icon: '🔍',
+    { id: 'full-dd', number: 14, name: '钱包综合尽调报告', en: {"name":"Wallet Due-Diligence Report","description":"Holdings, staking, level, referrals, activity and approvals in one query."}, category: 'security-dd', icon: '🔍',
       description: '一次查询钱包持仓、质押、等级、推荐关系、交易和授权等信息。',
       status: 'live', isPremium: true, route: '/tools/wallet-dd/', enabled: true,
       note: '起源百宝箱（origin-monitor）核心功能，已上线。' },
 
-    { id: 'roi-calc', number: 15, name: '收益与成本计算器', category: 'price-calc', icon: '🧮',
+    { id: 'roi-calc', number: 15, name: '收益与成本计算器', en: {"name":"Profit & Cost Calculator","description":"Cost, fees, simulated yield, unrealized P/L and break-even price."}, category: 'price-calc', icon: '🧮',
       description: '计算持币成本、费用、模拟收益、浮盈亏和回本价格。',
       status: 'live', isPremium: true, route: '/tools/calculators/', enabled: true,
       note: '独立页 /tools/calculators/(会员专属),6合1计算器:卖币/买币/活期收益/长期锁仓/产品对比/销毁债券,币价链上实时读(getReserves双链),费率爆块参数可改,纯计算不连钱包。收益为模拟测算非承诺。已上线。' },
 
-    { id: 'whale-track', number: 16, name: '大户增减仓追踪', category: 'trade-whale', icon: '📉',
+    { id: 'whale-track', number: 16, name: '大户增减仓追踪', en: {"name":"Whale Position Tracker","description":"Track key addresses’ adds, trims, sells, redeems and transfers."}, category: 'trade-whale', icon: '📉',
       description: '追踪重点地址的增持、减持、卖出、赎回和资产转移。',
       status: 'soon', isPremium: true, route: '', enabled: false,
       note: '大额交易监控已覆盖成交，但针对单地址的持仓增减追踪尚未独立，标即将上线。' },
 
-    { id: 'approval-check', number: 17, name: '合约授权安全检查', category: 'security-dd', icon: '🔐',
+    { id: 'approval-check', number: 17, name: '合约授权安全检查', en: {"name":"Approval Safety Check","description":"Approved contracts, assets, allowances and potential risk."}, category: 'security-dd', icon: '🔐',
       description: '查看钱包授权过的合约、授权资产、授权额度和潜在风险。',
       status: 'live', isPremium: true, route: '/?tool=openSecurity', enabled: true,
       note: '首页 openSecurity 弹窗，已上线。' },
 
-    { id: 'sell-sim', number: 18, name: '卖出冲击模拟器', category: 'price-calc', icon: '🌊',
+    { id: 'sell-sim', number: 18, name: '卖出冲击模拟器', en: {"name":"Sell Impact Simulator","description":"Estimate slippage, fees, proceeds and price impact for a sell."}, category: 'price-calc', icon: '🌊',
       description: '估算卖出数量对应的滑点、手续费、预计到账和价格影响。',
       status: 'dev', isPremium: true, route: '', enabled: false,
       note: '本仓库无独立卖出模拟工具页，标开发中。' },
 
-    { id: 'address-graph', number: 19, name: '地址关联关系图', category: 'wallet-id', icon: '🕸️',
+    { id: 'address-graph', number: 19, name: '地址关联关系图', en: {"name":"Address Relationship Graph","description":"Referral, transfer, funding and interaction links between wallets."}, category: 'wallet-id', icon: '🕸️',
       description: '展示钱包之间的推荐、转账、资金来源和交互关系。',
       status: 'dev', isPremium: true, route: '', enabled: false,
       note: '关系图可视化尚未实现，标开发中。' },
 
-    { id: 'wallet-alert', number: 20, name: '自选钱包预警', category: 'trade-whale', icon: '⭐',
+    { id: 'wallet-alert', number: 20, name: '自选钱包预警', en: {"name":"Watchlist Alerts","description":"Save wallets and get alerts on specified on-chain actions."}, category: 'trade-whale', icon: '⭐',
       description: '收藏关注的钱包，在出现指定链上行为时获得提醒。',
       status: 'soon', isPremium: true, route: '', enabled: false,
       note: '个人中心有收藏，但主动预警需常驻后端推送，尚未接入，标即将上线。' },
 
-    { id: 'fund-source', number: 21, name: '资金来源追踪', category: 'trade-whale', icon: '⤵️',
+    { id: 'fund-source', number: 21, name: '资金来源追踪', en: {"name":"Fund Source Tracing","description":"Trace a wallet’s first funds and where the main inflows came from."}, category: 'trade-whale', icon: '⤵️',
       description: '追查钱包第一笔资金及主要资金从哪里转入。',
       status: 'dev', isPremium: true, route: '', enabled: false,
       note: '资金来源溯源尚未实现，标开发中。' },
 
-    { id: 'fund-dest', number: 22, name: '资金去向追踪', category: 'trade-whale', icon: '⤴️',
+    { id: 'fund-dest', number: 22, name: '资金去向追踪', en: {"name":"Fund Destination Tracing","description":"See where assets flow after sells, redeems or transfers."}, category: 'trade-whale', icon: '⤴️',
       description: '查看卖出、赎回或转账后的资产流向。',
       status: 'dev', isPremium: true, route: '', enabled: false,
       note: '资金去向追踪尚未实现，标开发中。' },
 
-    { id: 'lp-pool', number: 23, name: 'LP底池监控', category: 'asset-staking', icon: '💧',
+    { id: 'lp-pool', number: 23, name: 'LP底池监控', en: {"name":"LP Pool Monitor","description":"Pool reserves, asset ratio, and liquidity add/remove records."}, category: 'asset-staking', icon: '💧',
       description: '查看流动性池储备、资产比例、添加和移除流动性记录。',
       status: 'soon', isPremium: true, route: '', enabled: false,
       note: '首页雷达展示 LP 储备，但无独立底池监控工具页，标即将上线。' },
 
-    { id: 'price-center', number: 24, name: 'LGNS实时价格中心', category: 'price-calc', icon: '💹',
+    { id: 'price-center', number: 24, name: 'LGNS实时价格中心', en: {"name":"LGNS Price Center","description":"Dual-chain price, liquidity, volume, spread and update time."}, category: 'price-calc', icon: '💹',
       description: '展示双链价格、流动性、成交量、价差和更新时间。',
       status: 'soon', isPremium: true, route: '', enabled: false,
       note: '首页雷达有实时价格，但无独立价格中心工具页，标即将上线。' },
 
-    { id: 'buy-calc', number: 25, name: '买入到账计算器', category: 'price-calc', icon: '🛒',
+    { id: 'buy-calc', number: 25, name: '买入到账计算器', en: {"name":"Buy Amount Calculator","description":"Estimate coins received, slippage, fees and net for a given spend."}, category: 'price-calc', icon: '🛒',
       description: '输入投入金额，估算可以买到的币量、滑点、费用和实际到账。',
       status: 'live', isPremium: true, route: '/tools/calculators/', enabled: true,
       note: '并入收益与成本计算器「买币」标签(/tools/calculators/),输入投入DAI对比Polygon/Anubis双链买入到账LGNS(买入0税,链上实时价)。已上线(未计DEX滑点)。' },
 
-    { id: 'anomaly', number: 26, name: '钱包异常行为识别', category: 'security-dd', icon: '🚨',
+    { id: 'anomaly', number: 26, name: '钱包异常行为识别', en: {"name":"Anomaly Detection","description":"Spot bursts of transfers, mass redeems and high-frequency activity."}, category: 'security-dd', icon: '🚨',
       description: '识别短时间批量转账、集中赎回、高频交互等异常特征。',
       status: 'dev', isPremium: true, route: '', enabled: false,
       note: '异常行为识别尚未实现，标开发中。' },
 
-    { id: 'tx-translate', number: 27, name: '合约交互翻译器', category: 'security-dd', icon: '🗣️',
+    { id: 'tx-translate', number: 27, name: '合约交互翻译器', en: {"name":"Contract Interaction Translator","description":"Turn complex tx methods, inputs and event logs into plain words."}, category: 'security-dd', icon: '🗣️',
       description: '把复杂的交易方法、输入参数和事件日志翻译成大白话。',
       status: 'live', isPremium: false, route: '/tools/onchain-search/', enabled: true,
       note: '链上搜索工具，公开免费(SEO引流页,不上锁)。' },
 
-    { id: 'bill', number: 28, name: '个人链上账单', category: 'trade-whale', icon: '🧾',
+    { id: 'bill', number: 28, name: '个人链上账单', en: {"name":"Personal On-chain Statement","description":"Buys, sells, transfers, staking, redeems and rewards by day/week/month."}, category: 'trade-whale', icon: '🧾',
       description: '按日、周、月统计买入、卖出、转账、质押、赎回和奖励记录。',
       status: 'dev', isPremium: true, route: '', enabled: false,
       note: '按周期汇总的账单尚未实现，标开发中。' },
 
-    { id: 'dual-compare', number: 29, name: '双链资产对比', category: 'asset-staking', icon: '⚖️',
+    { id: 'dual-compare', number: 29, name: '双链资产对比', en: {"name":"Dual-chain Asset Compare","description":"Compare one wallet’s assets, staking and level across Polygon and Anubis."}, category: 'asset-staking', icon: '⚖️',
       description: '对比同一钱包在 Polygon 和 AnubisChain 上的资产、质押和等级。',
       status: 'live', isPremium: true, route: '/tools/wallet-dd/', enabled: true,
       note: '起源百宝箱一次查全双链资产，已上线。' },
 
-    { id: 'evidence-pdf', number: 30, name: '链上证据报告导出', category: 'data-evidence', icon: '📄',
+    { id: 'evidence-pdf', number: 30, name: '链上证据报告导出', en: {"name":"On-chain Evidence Export","description":"Generate a PDF with addresses, time, block heights and tx hashes."}, category: 'data-evidence', icon: '📄',
       description: '将查询结果生成包含地址、时间、区块高度和交易哈希的 PDF 报告。',
       status: 'soon', isPremium: true, route: '', enabled: false,
       note: '已有链上证据库，但一键 PDF 导出尚未接入，标即将上线。' },
 
-    { id: 'nft-holdings', number: 31, name: 'NFT 持有查询', category: 'wallet-id', icon: '🖼️',
+    { id: 'nft-holdings', number: 31, name: 'NFT 持有查询', en: {"name":"NFT Holdings","description":"Check a wallet’s Awake Governance NFT count, token IDs and collection share."}, category: 'wallet-id', icon: '🖼️',
       description: '查询钱包持有的 Awake Governance NFT 数量、token ID 和占全集合比例。',
       status: 'live', isPremium: true, route: '/tools/nft-holdings/', enabled: true,
       note: '独立页 /tools/nft-holdings/(会员专属),输地址查Anubis链Awake Governance NFT(0x58839f)持有量,前端eth_call balanceOf+tokenOfOwnerByIndex枚举token ID+占全集合比例,纯只读可核实。已上线(生态目前仅此一个NFT合约)。' }
