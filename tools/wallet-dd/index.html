@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<script>window.isZh=function(){return (document.documentElement.lang||'zh').toLowerCase().indexOf('zh')===0;};window.L=function(z,e){return window.isZh()?z:e;};window.SP=function(z,e){return '<span data-lang="zh">'+z+'</span><span data-lang="en">'+e+'</span>';};</script>
 <meta name="robots" content="noindex,follow">
-<title>钱包综合尽调报告 · 一个地址查全起源 · Web3Origin</title>
+<title>钱包综合尽调报告 · Wallet DD Report · 一个地址查全起源 · Web3Origin</title>
 <meta property="og:site_name" content="Web3Origin">
 <meta name="description" content="起源百宝箱：输入一个钱包地址，一次查全 Polygon / Anubis 双链 LGNS 资产、360/600明细、DAO 等级与团队业绩、通用链上体检、推荐人，还能链上提币，外加全网 V1-V6/大户/国库监控。只查公开数据，不需连钱包、不需签名。">
 <link rel="canonical" href="https://web3origin.com/tools/wallet-dd/">
@@ -248,23 +250,24 @@ button.go,.btn2{min-height:44px}
 #wddGate .gc{display:inline-block;text-decoration:none;padding:14px 28px;border-radius:12px;font-weight:800;font-size:16px;color:#1a1205;background:linear-gradient(135deg,var(--gold),var(--gold2))}
 #wddGate .gback{display:block;margin-top:14px;color:var(--soft);font-size:13px;text-decoration:none}
 </style>
+<style>[data-lang]{display:none!important}html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}#langBtn{background:none;border:1px solid var(--line,#333);color:var(--dim,#8a94a1);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4;margin-left:auto}</style>
 </head>
 <body>
 <script>if(/[?&]embed=1/.test(location.search))document.body.classList.add('embed');</script>
 <style>body.embed .top{display:none!important}</style>
-<div id="wddGate"><div class="gb"><div class="gic">🔒</div><h3>钱包综合尽调 · 会员专属</h3><div class="gs">输入一个地址，一次查全双链资产、质押明细、DAO 等级与推荐关系。开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可使用，全站工具一次通用。</div><a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a><a class="gback" href="/">← 返回主站</a></div></div>
+<div id="wddGate"><div class="gb"><div class="gic">🔒</div><h3><span data-lang="zh">钱包综合尽调 · 会员专属</span><span data-lang="en">Wallet DD · Members only</span></h3><div class="gs"><span data-lang="zh">输入一个地址，一次查全双链资产、质押明细、DAO 等级与推荐关系。开通 <b style="color:var(--gold2)">10 LGNS 会员</b>后即可使用，全站工具一次通用。</span><span data-lang="en">Enter one address to see dual-chain assets, staking, DAO level and referrals. Unlock with a <b style="color:var(--gold2)">10 LGNS membership</b> — one pass unlocks every tool.</span></div><a class="gc" href="/tools/origin-monitor/"><span data-lang="zh">🔓 开通会员 · 10 LGNS 解锁全部工具</span><span data-lang="en">🔓 Get membership · 10 LGNS unlocks all tools</span></a><a class="gback" href="/"><span data-lang="zh">← 返回主站</span><span data-lang="en">← Back to site</span></a></div></div>
 <div class="wrap">
-  <div class="top"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a></div>
-  <h1>钱包<span>综合尽调</span></h1>
-  <div class="hero-sub" style="margin-bottom:14px">输入任意起源钱包地址，一次看清 <b style="color:var(--gold2)">Polygon 与 Anubis 双链资产</b>、质押明细、DAO 等级、团队业绩和绑定关系。纯只读，不连钱包、不签名。</div>
+  <div class="top" style="display:flex;align-items:center;gap:10px"><a class="home" href="/"><img src="/assets/logo.png" alt="Web3Origin">Web3Origin</a><button id="langBtn" aria-label="Language">🌐</button></div>
+  <h1><span data-lang="zh">钱包<span>综合尽调</span></span><span data-lang="en">Wallet <span>Due Diligence</span></span></h1>
+  <div class="hero-sub" style="margin-bottom:14px"><span data-lang="zh">输入任意起源钱包地址，一次看清 <b style="color:var(--gold2)">Polygon 与 Anubis 双链资产</b>、质押明细、DAO 等级、团队业绩和绑定关系。纯只读，不连钱包、不签名。</span><span data-lang="en">Enter any Origin wallet address to see, in one go, <b style="color:var(--gold2)">dual-chain assets on Polygon & Anubis</b>, staking detail, DAO level, team volume and bind relationships. Read-only — no wallet connection, no signing.</span></div>
   <div id="introBlock">
-  <div class="hero-sub">输入任意起源钱包地址，一次看清 <b style="color:var(--gold2)">Polygon 与 Anubis 双链资产</b>、质押明细、DAO 等级、团队业绩和绑定关系。</div>
+  <div class="hero-sub"><span data-lang="zh">输入任意起源钱包地址，一次看清 <b style="color:var(--gold2)">Polygon 与 Anubis 双链资产</b>、质押明细、DAO 等级、团队业绩和绑定关系。</span><span data-lang="en">Enter any Origin wallet address to see, in one go, <b style="color:var(--gold2)">dual-chain assets on Polygon & Anubis</b>, staking detail, DAO level, team volume and bind relationships.</span></div>
 
   <div class="hero-btns">
-    <button class="go" id="heroUnlock" aria-label="支付 10 LGNS 解锁完整功能">🔓 10 LGNS 解锁完整功能</button>
+    <button class="go" id="heroUnlock" aria-label="Pay 10 LGNS to unlock all features"><span data-lang="zh">🔓 10 LGNS 解锁完整功能</span><span data-lang="en">🔓 Unlock all features · 10 LGNS</span></button>
   </div>
 
-  <div style="display:flex;justify-content:center;margin:12px 0 2px"><span class="mb-payglow" style="display:flex;align-items:center;gap:14px;max-width:440px;width:100%;background:linear-gradient(100deg,rgba(255,64,54,.34),rgba(224,40,32,.14) 60%,transparent);border:1px solid rgba(255,80,70,.5);border-left:3px solid #ff4136;border-radius:11px;padding:12px 18px"><span style="font-size:22px;flex:none">🎉</span><span style="flex:1"><span style="display:block;font-size:14px;color:#fff;font-weight:700">已有 <b id="paidCount" style="color:var(--gold2,#e8cf7e);font-weight:800">11</b> 位用户付费解锁</span><span style="display:block;font-size:11.5px;color:#e6b8b4;margin-top:1px">解锁后永久使用当前全部查询功能</span></span><span style="font-size:11px;color:#fff;background:rgba(255,64,54,.25);border:1px solid rgba(255,100,90,.6);border-radius:20px;padding:3px 10px;white-space:nowrap;flex:none">真实付费</span></span></div>
+  <div style="display:flex;justify-content:center;margin:12px 0 2px"><span class="mb-payglow" style="display:flex;align-items:center;gap:14px;max-width:440px;width:100%;background:linear-gradient(100deg,rgba(255,64,54,.34),rgba(224,40,32,.14) 60%,transparent);border:1px solid rgba(255,80,70,.5);border-left:3px solid #ff4136;border-radius:11px;padding:12px 18px"><span style="font-size:22px;flex:none">🎉</span><span style="flex:1"><span style="display:block;font-size:14px;color:#fff;font-weight:700"><span data-lang="zh">已有 </span><span data-lang="en">Already </span><b id="paidCount" style="color:var(--gold2,#e8cf7e);font-weight:800">11</b><span data-lang="zh"> 位用户付费解锁</span><span data-lang="en"> users have paid to unlock</span></span><span style="display:block;font-size:11.5px;color:#e6b8b4;margin-top:1px"><span data-lang="zh">解锁后永久使用当前全部查询功能</span><span data-lang="en">Permanent access to all current features after unlocking</span></span></span><span style="font-size:11px;color:#fff;background:rgba(255,64,54,.25);border:1px solid rgba(255,100,90,.6);border-radius:20px;padding:3px 10px;white-space:nowrap;flex:none"><span data-lang="zh">真实付费</span><span data-lang="en">Real payments</span></span></span></div>
   <script>
   (function(){
     var el=document.getElementById('paidCount'); if(!el) return;
@@ -284,22 +287,22 @@ button.go,.btn2{min-height:44px}
 
   <!-- ===== 会员 30 项工具（付款前=权益预览 / 付款后=会员工具台，移出 introBlock 使其解锁后仍在）===== -->
   <div class="mb-wrap" id="mbShowcase">
-    <h3 class="mb-h"><span class="mb-num" id="mbNum">30 项</span><span id="mbTitle">解锁后可用的链上工具</span></h3>
+    <h3 class="mb-h"><span class="mb-num" id="mbNum"><span data-lang="zh">30 项</span><span data-lang="en">30 tools</span></span><span id="mbTitle"><span data-lang="zh">解锁后可用的链上工具</span><span data-lang="en">On-chain tools unlocked with membership</span></span></h3>
     <div class="mb-grid" id="mbGrid"></div>
-    <h3 class="mb-h" style="margin-top:24px"><span class="mb-num">分类</span>六大链上能力</h3>
+    <h3 class="mb-h" style="margin-top:24px"><span class="mb-num"><span data-lang="zh">分类</span><span data-lang="en">Categories</span></span><span data-lang="zh">六大链上能力</span><span data-lang="en">Six on-chain capability areas</span></h3>
     <div class="mb-cats" id="mbCats"></div>
-    <div class="mb-note" id="mbNote">会员可使用<b style="color:#f0c48c">已经上线</b>的工具，并按页面标注查看后续工具开放进度。不代表付款后立即使用全部 30 项。</div>
+    <div class="mb-note" id="mbNote"><span data-lang="zh">会员可使用<b style="color:#f0c48c">已经上线</b>的工具，并按页面标注查看后续工具开放进度。不代表付款后立即使用全部 30 项。</span><span data-lang="en">Members can use tools marked <b style="color:#f0c48c">Live</b>, and track upcoming tools by their status. It does not mean all tools are usable immediately after paying.</span></div>
   </div>
 
   <div id="gate"></div>
 
   <div id="queryTool" style="display:none">
   <div class="box">
-    <label for="addr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">钱包地址</label>
-    <input id="addr" placeholder="0x 开头的钱包地址" spellcheck="false" autocomplete="off" aria-label="输入要查询的钱包地址">
-    <button class="go" id="btn">查询资产</button>
+    <label for="addr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"><span data-lang="zh">钱包地址</span><span data-lang="en">Wallet address</span></label>
+    <input id="addr" placeholder="0x…" spellcheck="false" autocomplete="off" aria-label="Enter a wallet address to check">
+    <button class="go" id="btn"><span data-lang="zh">查询资产</span><span data-lang="en">Check assets</span></button>
   </div>
-  <div class="hint">试试：<a href="#" class="ex" data-a="0xd5b610963deec4fae7d17a5191e80bb7281aadc5">0xd5b6…adc5（两链都有持仓）</a></div>
+  <div class="hint"><span data-lang="zh">试试：</span><span data-lang="en">Try:</span><a href="#" class="ex" data-a="0xd5b610963deec4fae7d17a5191e80bb7281aadc5">0xd5b6…adc5<span data-lang="zh">（两链都有持仓）</span><span data-lang="en"> (holdings on both chains)</span></a></div>
   <div id="recentBox" style="margin:6px 0 2px"></div>
   <div class="status" id="status"></div>
   <div id="out"></div>
@@ -308,39 +311,39 @@ button.go,.btn2{min-height:44px}
 
   <hr class="mdiv">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-    <div><h2 class="mh">全生态 <span>监控</span></h2>
-    <div class="sub" style="margin:0">全网 DAO 等级 · 大户 · 供应 · 国库 · 销毁 — 链上实测</div></div>
-    <button class="go" id="mrf" style="padding:8px 16px">刷新实时</button>
+    <div><h2 class="mh"><span data-lang="zh">全生态 <span>监控</span></span><span data-lang="en">Ecosystem <span>Monitor</span></span></h2>
+    <div class="sub" style="margin:0"><span data-lang="zh">全网 DAO 等级 · 大户 · 供应 · 国库 · 销毁 — 链上实测</span><span data-lang="en">Network DAO levels · whales · supply · treasury · burn — measured on-chain</span></div></div>
+    <button class="go" id="mrf" style="padding:8px 16px"><span data-lang="zh">刷新实时</span><span data-lang="en">Refresh live</span></button>
   </div>
   <div class="status" style="margin-top:8px"><span class="mdot" id="mdot"></span><span id="mst"></span></div>
 
-  <div class="msec-h">核心链上指标</div>
+  <div class="msec-h"><span data-lang="zh">核心链上指标</span><span data-lang="en">Core on-chain metrics</span></div>
   <div class="grid" id="mcore"></div>
 
-  <div class="msec-h">官方核心指标</div>
+  <div class="msec-h"><span data-lang="zh">官方核心指标</span><span data-lang="en">Official core metrics</span></div>
   <div class="grid" id="mofficial"></div>
 
-  <div class="msec-h">DAO 等级 V1–V6 分布 <span class="pill anb">Anubis</span></div>
+  <div class="msec-h"><span data-lang="zh">DAO 等级 V1–V6 分布</span><span data-lang="en">DAO level V1–V6 distribution</span> <span class="pill anb">Anubis</span></div>
   <div class="levels" id="mlevels"></div>
   <div class="mnote" id="mlvnote"></div>
 
-  <div class="msec-h">晋级动态 <span class="pill anb">Anubis</span></div>
+  <div class="msec-h"><span data-lang="zh">晋级动态</span><span data-lang="en">Promotion activity</span> <span class="pill anb">Anubis</span></div>
   <div class="grid" id="mpromostat"></div>
-  <div style="font-size:13px;color:var(--gold2);margin:14px 0 8px">最新晋级记录</div>
-  <div class="scroll"><table class="mt" id="mpromos"><thead><tr><th>钱包</th><th>变化</th><th>区块</th><th>交易</th></tr></thead><tbody></tbody></table></div>
+  <div style="font-size:13px;color:var(--gold2);margin:14px 0 8px"><span data-lang="zh">最新晋级记录</span><span data-lang="en">Latest promotions</span></div>
+  <div class="scroll"><table class="mt" id="mpromos"><thead><tr><th><span data-lang="zh">钱包</span><span data-lang="en">Wallet</span></th><th><span data-lang="zh">变化</span><span data-lang="en">Change</span></th><th><span data-lang="zh">区块</span><span data-lang="en">Block</span></th><th><span data-lang="zh">交易</span><span data-lang="en">Tx</span></th></tr></thead><tbody></tbody></table></div>
 
-  <div class="msec-h" id="mtopsec">可见流动持仓榜 <span class="stag scan" id="whStatus">后台扫描</span></div>
-  <div class="mnote">统计钱包<b style="color:var(--soft)">直接持有</b>的 LGNS 与 sLGNS，并排除已知合约、池子、国库和销毁地址；当前<b style="color:var(--soft)">不包含</b> 360/600 锁仓、债券和未领取奖励，因此不代表完整资产排名。</div>
+  <div class="msec-h" id="mtopsec"><span data-lang="zh">可见流动持仓榜</span><span data-lang="en">Visible liquid holdings</span> <span class="stag scan" id="whStatus"><span data-lang="zh">后台扫描</span><span data-lang="en">back-office scan</span></span></div>
+  <div class="mnote"><span data-lang="zh">统计钱包<b style="color:var(--soft)">直接持有</b>的 LGNS 与 sLGNS，并排除已知合约、池子、国库和销毁地址；当前<b style="color:var(--soft)">不包含</b> 360/600 锁仓、债券和未领取奖励，因此不代表完整资产排名。</span><span data-lang="en">Counts LGNS + sLGNS <b style="color:var(--soft)">directly held</b>, excluding known contracts, pools, treasury and burn addresses; it currently <b style="color:var(--soft)">excludes</b> 360/600 locks, bonds and unclaimed rewards, so it is not a full-asset ranking.</span></div>
   <div class="toolbar">
     <select id="whChain" aria-label="按链筛选"><option value="all">全部链</option><option value="poly">Polygon</option><option value="anb">Anubis</option></select>
     <input id="whSearch" placeholder="搜索地址…" aria-label="搜索地址" spellcheck="false" style="flex:1;min-width:130px">
     <select id="whSort" aria-label="排序方式"><option value="desc">持仓从高到低</option><option value="asc">从低到高</option></select>
     <span id="whCount" style="color:var(--dim);font-size:12.5px;width:100%"></span>
   </div>
-  <div class="scroll"><table class="mt" id="whTable"><thead><tr><th>#</th><th>链</th><th>地址</th><th>持仓 (LGNS+sLGNS)</th><th>估算价值</th><th>核验</th></tr></thead><tbody></tbody></table></div>
+  <div class="scroll"><table class="mt" id="whTable"><thead><tr><th>#</th><th><span data-lang="zh">链</span><span data-lang="en">Chain</span></th><th><span data-lang="zh">地址</span><span data-lang="en">Address</span></th><th><span data-lang="zh">持仓 (LGNS+sLGNS)</span><span data-lang="en">Holdings (LGNS+sLGNS)</span></th><th><span data-lang="zh">估算价值</span><span data-lang="en">Est. value</span></th><th><span data-lang="zh">核验</span><span data-lang="en">Verify</span></th></tr></thead><tbody></tbody></table></div>
   <div class="pager" id="whPager"></div>
 
-  <div class="msec-h">供应 · 国库 · 销毁</div>
+  <div class="msec-h"><span data-lang="zh">供应 · 国库 · 销毁</span><span data-lang="en">Supply · Treasury · Burn</span></div>
   <div class="grid" id="massets"></div>
 
   <div class="foot" id="mfoot"></div>
@@ -354,14 +357,14 @@ const CHAINS={
   rpcs:['https://polygon-bor-rpc.publicnode.com','https://polygon.drpc.org','https://polygon-rpc.com'],
   tokens:{LGNS:'0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01',sLGNS:'0x99a57E6C8558BC6689f894e068733ADf83C19725'},
   pool:'0x882df4B0fB50a229C3B4124EB18c759911485bFb',
-  lockStakes:[{label:'600天长期质押',addr:'0x8cA97F41d2C81AF050656e8AD0Cf543820a24504'},{label:'长期流动性债券',addr:'0x25a4b842cB200E9148FF5a11BAbF80488c8d8b07'}],
+  lockStakes:[{label:'600天长期质押',en:'600-day long-term stake',addr:'0x8cA97F41d2C81AF050656e8AD0Cf543820a24504'},{label:'长期流动性债券',en:'Long-term liquidity bond',addr:'0x25a4b842cB200E9148FF5a11BAbF80488c8d8b07'}],
   bonds:[]},
  anubis:{name:'Anubis',chainId:6714,native:'DAI',explorer:'https://browser.anubispace.org/address/',
   rpcs:['https://rpc.anubispace.org'],
   tokens:{LGNS:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',sLGNS:'0x2243aE29F73137d678197b61B0621AE942845B8C',GLGNS:'0xf140a92C156e76F5A1d3D6f96284b250330F8F4c'},
   pool:'0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0',
-  lockStakes:[{label:'360长期质押',addr:'0x88ea98af226Cd4402A3873400308a4D78784eCE6'},{label:'600天质押',addr:'0x04eD22c6d1D020A9B5e032E93D79ab28293EF72f'},{label:'能量值质押',addr:'0x1E5FeeC473F7F445FC7F5FeEC0beABB2270b0b4E'}],
-  bonds:[{label:'销毁债券',addr:'0x11b10c9827c5b7071e96fcaa143b4e6e86b17c69'}]}
+  lockStakes:[{label:'360长期质押',en:'360-day stake',addr:'0x88ea98af226Cd4402A3873400308a4D78784eCE6'},{label:'600天质押',en:'600-day stake',addr:'0x04eD22c6d1D020A9B5e032E93D79ab28293EF72f'},{label:'能量值质押',en:'Energy stake',addr:'0x1E5FeeC473F7F445FC7F5FeEC0beABB2270b0b4E'}],
+  bonds:[{label:'销毁债券',en:'Burn bond',addr:'0x11b10c9827c5b7071e96fcaa143b4e6e86b17c69'}]}
 };
 const SEL={balanceOf:'0x70a08231',decimals:'0x313ce567',getReserves:'0x0902f1ac',token0:'0x0dfe1681',
  getUserStakesCount:'0x98dc8dea',stakes:'0x584b62a1',getDepositorBalance:'0xb79215d6',getStakedAmount:'0x4da6a556'};
@@ -411,27 +414,27 @@ function chainHTML(o){
  o.positions.forEach(p=>total+=p.total);
  o.bonds.forEach(bd=>total+=bd.dep);
  let h=`<div class="chain"><h2>${c.name} <span class="tag">chainId ${c.chainId}</span></h2>`;
- h+=`<div class="meta">区块高度 ${o.block} · 出块≈${o.bt?o.bt.spb.toFixed(2)+'s':'—'} · LGNS 现价 ${o.price!=null?fmt(o.price,6):'—'} DAI</div>`;
+ h+=`<div class="meta">${L('区块高度 ','Block ')}${o.block} · ${L('出块≈','block≈')}${o.bt?o.bt.spb.toFixed(2)+'s':'—'} · ${L('LGNS 现价 ','LGNS price ')}${o.price!=null?fmt(o.price,6):'—'} DAI</div>`;
  h+=`<div class="grid">`;
- h+=card('钱包 LGNS 余额',wL==null?'UNKNOWN':pretty(wL,b.LGNS.dec),true);
- h+=card('活期质押 sLGNS',sL==null?'UNKNOWN':pretty(sL,b.sLGNS.dec));
- if(b.GLGNS)h+=card('GLGNS 治理',pretty(b.GLGNS.raw,b.GLGNS.dec));
+ h+=card(L('钱包 LGNS 余额','Wallet LGNS balance'),wL==null?'UNKNOWN':pretty(wL,b.LGNS.dec),true);
+ h+=card(L('活期质押 sLGNS','Flexible staking sLGNS'),sL==null?'UNKNOWN':pretty(sL,b.sLGNS.dec));
+ if(b.GLGNS)h+=card(L('GLGNS 治理','GLGNS governance'),pretty(b.GLGNS.raw,b.GLGNS.dec));
  h+=`</div>`;
  for(const p of o.positions){
-  h+=`<div class="sec"><div class="t">${p.label} · 合计 ${pretty(p.total,9)} LGNS${p.count>0?' · '+p.count+'笔':''}</div>`;
+  h+=`<div class="sec"><div class="t">${L(p.label,p.en||p.label)} · ${L('合计 ','Total ')}${pretty(p.total,9)} LGNS${p.count>0?' · '+p.count+L('笔',''):''}</div>`;
   p.items.forEach((it,i)=>{
    const sd=blkDate(it.startBlk,o.bt),md=blkDate(it.matBlk,o.bt),rd=remainDays(it.matBlk,o.bt);
    const okDate=sd!=='—'&&md!=='—'&&rd!=='—'&&Math.abs(rd)<3000&&(+md.slice(0,4))>=2023&&(+md.slice(0,4))<=2031;
-   h+=`<div class="pos"><div class="top"><span class="amt">#${i+1} 本金 ${pretty(it.principal,9)} LGNS</span><span class="badge">${it.status==1n?'质押中':'状态'+it.status}</span></div>`;
-   if(okDate)h+=`<div class="det"><span>起 ${sd}</span><span>到期 ${md}</span><span>剩 ${rd} 天</span><span>待领≈${pretty(it.accrued,9)} LGNS</span></div>`;
+   h+=`<div class="pos"><div class="top"><span class="amt">#${i+1} ${L('本金 ','Principal ')}${pretty(it.principal,9)} LGNS</span><span class="badge">${it.status==1n?L('质押中','staking'):L('状态','status')+it.status}</span></div>`;
+   if(okDate)h+=`<div class="det"><span>${L('起 ','from ')}${sd}</span><span>${L('到期 ','matures ')}${md}</span><span>${L('剩 ','')}${rd} ${L('天','d left')}</span><span>${L('待领≈','claimable≈')}${pretty(it.accrued,9)} LGNS</span></div>`;
    h+=`</div>`;});
   h+=`</div>`;
  }
- for(const bd of o.bonds){h+=`<div class="sec"><div class="t">${bd.label} · 合计 ${pretty(bd.dep,9)} LGNS</div></div>`;}
- h+=`<div class="unknown">蛛网奖励 / DAO奖励 / DAO等级 / V1-V6 / 团队业绩 / 推荐关系 = <b>UNKNOWN</b>（项目方后台挂账，链上不可验证，本站不显示）</div>`;
- h+=`<div class="chainsum"><span>本链可验证 LGNS 资产：<b>${known?pretty(total,9):pretty(total,9)+'+'} LGNS</b> ≈ ${o.price!=null?toDai(total,o.price):'—'} DAI</span>
-   <a class="verify" href="${c.explorer}${document.getElementById('addr').value.trim()}" target="_blank">🔗 链上验证</a></div>`;
- if(o.errors.length)h+=`<div class="err">部分读取失败：${esc(o.errors.join('、'))}</div>`;
+ for(const bd of o.bonds){h+=`<div class="sec"><div class="t">${L(bd.label,bd.en||bd.label)} · ${L('合计 ','Total ')}${pretty(bd.dep,9)} LGNS</div></div>`;}
+ h+=`<div class="unknown">${L('蛛网奖励 / DAO奖励 / DAO等级 / V1-V6 / 团队业绩 / 推荐关系 = <b>UNKNOWN</b>（项目方后台挂账，链上不可验证，本站不显示）','Cobweb / DAO rewards / DAO level / V1-V6 / team volume / referrals = <b>UNKNOWN</b> (booked in the project back-office, not on-chain verifiable, not shown here)')}</div>`;
+ h+=`<div class="chainsum"><span>${L('本链可验证 LGNS 资产：','Verifiable LGNS on this chain: ')}<b>${known?pretty(total,9):pretty(total,9)+'+'} LGNS</b> ≈ ${o.price!=null?toDai(total,o.price):'—'} DAI</span>
+   <a class="verify" href="${c.explorer}${document.getElementById('addr').value.trim()}" target="_blank">${L('🔗 链上验证','🔗 Verify on-chain')}</a></div>`;
+ if(o.errors.length)h+=`<div class="err">${L('部分读取失败：','Some reads failed: ')}${esc(o.errors.join(isZh()?'、':', '))}</div>`;
  h+=`</div>`;
  return{html:h,total,known,price:o.price};
 }
@@ -442,25 +445,25 @@ async function fetchCommunity(addr){
   clearTimeout(t);if(!r.ok)return null;const d=await r.json();if(!d||!d.address)return null;return d;}catch(e){return null;}
 }
 function daoHTML(d){
- if(!d)return `<div class="chain"><h2>④ DAO 与团队 <span class="stag scan">官方后台口径</span></h2><div class="meta">该地址在官方社区体系中暂无记录，或接口暂不可用。</div></div>`;
+ if(!d)return `<div class="chain"><h2>④ ${L('DAO 与团队','DAO & Team')} <span class="stag scan">${L('官方后台口径','official back-office')}</span></h2><div class="meta">${L('该地址在官方社区体系中暂无记录，或接口暂不可用。','No record for this address in the official community system, or the API is unavailable.')}</div></div>`;
  const up=(d.rewardPath||[]).find(x=>/Peer/i.test(x.type||''));
  const upline=up&&up.source?up.source:null;
  const n=x=>x?Number(x).toLocaleString(undefined,{maximumFractionDigits:2}):'0';
- let h=`<div class="chain"><h2>④ DAO 与团队 <span class="stag scan">官方后台口径</span></h2>`;
+ let h=`<div class="chain"><h2>④ ${L('DAO 与团队','DAO & Team')} <span class="stag scan">${L('官方后台口径','official back-office')}</span></h2>`;
  h+=`<div class="grid">`;
- h+=card('当前 DAO 等级', d.level&&+d.level>0?('V'+d.level):'未定级', true);
- h+=card('距下一级', '<span class="stag snap">暂未接入</span>');
- h+=card('团队业绩合计', n(d.stake)+' LGNS');
- h+=card('本人质押合计', n(d.amount)+' LGNS');
+ h+=card(L('当前 DAO 等级','Current DAO level'), d.level&&+d.level>0?('V'+d.level):L('未定级','Unranked'), true);
+ h+=card(L('距下一级','To next level'), '<span class="stag snap">'+L('暂未接入','not connected')+'</span>');
+ h+=card(L('团队业绩合计','Team volume total'), n(d.stake)+' LGNS');
+ h+=card(L('本人质押合计','Own staking total'), n(d.amount)+' LGNS');
  h+=`</div>`;
  const ps=Number(d.polygonStake||0),as=Number(d.anubisStake||0),mx=Math.max(ps,as,1);
  const barRow=(nm,val,w)=>`<div style="margin:6px 0"><div class="det" style="justify-content:space-between"><span>${nm}</span><span style="color:var(--txt)">${n(val)} LGNS</span></div><div class="bar" style="height:7px"><i style="width:${Math.round(w*100)}%"></i></div></div>`;
- h+=`<div class="sec"><div class="t">三条主线业绩</div><div class="pos">`;
- h+=barRow('Polygon 线',ps,ps/mx);
- h+=barRow('Anubis 线',as,as/mx);
- h+=`<div style="font-size:11.5px;color:var(--dim);margin-top:4px">官方接口按链返回两条主线业绩；如有第三条线接口未提供，暂不展示。</div></div></div>`;
- if(upline)h+=`<div class="sec"><div class="t">推荐上线</div><div class="pos"><div class="det"><span class="mono">${upline}</span><a class="verify" href="https://browser.anubispace.org/address/${upline}" target="_blank" style="margin-left:8px">🔗</a></div></div></div>`;
- h+=`<div class="unknown">以上等级/团队/上线来自项目方后台接口(apiv2.ocros.io)，<b>非链上可独立验证</b>。其中「DAO 等级」在 Anubis 链上有 daoLevel 记录可交叉核对，团队业绩/上线仅后台口径。</div></div>`;
+ h+=`<div class="sec"><div class="t">${L('三条主线业绩','Line volume')}</div><div class="pos">`;
+ h+=barRow(L('Polygon 线','Polygon line'),ps,ps/mx);
+ h+=barRow(L('Anubis 线','Anubis line'),as,as/mx);
+ h+=`<div style="font-size:11.5px;color:var(--dim);margin-top:4px">${L('官方接口按链返回两条主线业绩；如有第三条线接口未提供，暂不展示。','The official API returns two lines by chain; a third line, if any, is not provided and not shown.')}</div></div></div>`;
+ if(upline)h+=`<div class="sec"><div class="t">${L('推荐上线','Upline')}</div><div class="pos"><div class="det"><span class="mono">${upline}</span><a class="verify" href="https://browser.anubispace.org/address/${upline}" target="_blank" style="margin-left:8px">🔗</a></div></div></div>`;
+ h+=`<div class="unknown">${L('以上等级/团队/上线来自项目方后台接口(apiv2.ocros.io)，<b>非链上可独立验证</b>。其中「DAO 等级」在 Anubis 链上有 daoLevel 记录可交叉核对，团队业绩/上线仅后台口径。','Level/team/upline above come from the project back-office API (apiv2.ocros.io) and are <b>not independently verifiable on-chain</b>. The DAO level has a daoLevel record on Anubis for cross-checking; team volume/upline are back-office figures only.')}</div></div>`;
  return h;
 }
 // ===== 通用链上体检 (Worker /wallet) =====
@@ -472,17 +475,17 @@ function accessLink(){return location.origin+location.pathname+'?t='+encodeURICo
 function unlockUI(){
  const link=accessLink();
  const g=document.getElementById('gate');
- if(g)g.innerHTML='<div class="chain" style="border-color:rgba(37,201,111,.4);margin-bottom:14px"><div style="padding:2px;color:#7bffb0;font-size:13.5px">✓ 已解锁 · 本设备永久访问</div>'
-   +'<div style="margin-top:9px;font-size:12px;color:var(--dim);line-height:1.6">换手机 / 清缓存后，用这个<b style="color:var(--gold2)">专属访问链接</b>打开即可一键恢复（请收藏或截图保存）：</div>'
-   +'<div class="det" style="margin-top:6px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1;font-size:11.5px">'+link+'</code><button class="verify" id="copyLink">复制链接</button></div></div>';
- var cl=document.getElementById('copyLink');if(cl)cl.onclick=function(){copyText(link);cl.textContent='已复制✓';setTimeout(function(){cl.textContent='复制链接';},1200);};
+ if(g)g.innerHTML='<div class="chain" style="border-color:rgba(37,201,111,.4);margin-bottom:14px"><div style="padding:2px;color:#7bffb0;font-size:13.5px">'+L('✓ 已解锁 · 本设备永久访问','✓ Unlocked · permanent on this device')+'</div>'
+   +'<div style="margin-top:9px;font-size:12px;color:var(--dim);line-height:1.6">'+L('换手机 / 清缓存后，用这个<b style="color:var(--gold2)">专属访问链接</b>打开即可一键恢复（请收藏或截图保存）：','After switching phones or clearing cache, open this <b style="color:var(--gold2)">personal access link</b> to restore in one tap (bookmark or screenshot it):')+'</div>'
+   +'<div class="det" style="margin-top:6px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1;font-size:11.5px">'+link+'</code><button class="verify" id="copyLink">'+L('复制链接','Copy link')+'</button></div></div>';
+ var cl=document.getElementById('copyLink');if(cl)cl.onclick=function(){copyText(link);cl.textContent=L(L('已复制✓','Copied ✓'),'Copied✓');setTimeout(function(){cl.textContent=L('复制链接','Copy link');},1200);};
  const q=document.getElementById('queryTool');if(q)q.style.display='block';
  var ib=document.getElementById('introBlock');if(ib)ib.style.display='none';
  // 解锁后：30 项工具面板变「会员工具台」，留在页面供点击进入
  try{
-   var mt=document.getElementById('mbTitle');if(mt)mt.textContent='你的会员工具 · 点击进入';
-   var mnum=document.getElementById('mbNum');if(mnum)mnum.textContent='✓ 已解锁';
-   var mn=document.getElementById('mbNote');if(mn)mn.innerHTML='<b style="color:#7bffb0">已解锁</b>：绿色「已上线」点击即可进入使用；蓝色「即将上线」/橙色「开发中」会按进度陆续开放。';
+   var mt=document.getElementById('mbTitle');if(mt)mt.textContent=L('你的会员工具 · 点击进入','Your member tools · tap to open');
+   var mnum=document.getElementById('mbNum');if(mnum)mnum.textContent=L('✓ 已解锁','✓ Unlocked');
+   var mn=document.getElementById('mbNote');if(mn)mn.innerHTML='<b style="color:#7bffb0">'+L('已解锁','Unlocked')+'</b>'+L('：绿色「已上线」点击即可进入使用；蓝色「即将上线」/橙色「开发中」会按进度陆续开放。',': green Live items open on click; blue Soon / orange In-dev unlock progressively.');
    var ms=document.getElementById('mbShowcase');if(ms){ms.style.borderTop='1px solid rgba(37,201,111,.3)';ms.style.paddingTop='6px';}
  }catch(e){}
  try{renderRecent();}catch(e){}
@@ -501,18 +504,18 @@ async function checkAccess(){
 function renderGate(){
  const g=document.getElementById('gate');if(!g)return;
  g.innerHTML=`<div class="total" id="gateCard" style="text-align:center;padding:24px">
-  <div class="big" style="font-size:27px">🔓 10 LGNS 解锁完整功能</div>
-  <div style="color:var(--soft);font-size:14px;margin:10px 0 2px;line-height:1.75">一次性付费，解锁<b style="color:var(--gold2)">当前全部查询功能</b>：双链资产 · 360/600 质押明细 · DAO 等级与团队业绩 · 地址行为画像 · <b style="color:var(--gold2)">完整推荐人 + 绑定时间</b> · 报告导出。</div>
+  <div class="big" style="font-size:27px">${L('🔓 10 LGNS 解锁完整功能','🔓 Unlock full access · 10 LGNS')}</div>
+  <div style="color:var(--soft);font-size:14px;margin:10px 0 2px;line-height:1.75">${L('一次性付费，解锁<b style="color:var(--gold2)">当前全部查询功能</b>：双链资产 · 360/600 质押明细 · DAO 等级与团队业绩 · 地址行为画像 · <b style="color:var(--gold2)">完整推荐人 + 绑定时间</b> · 报告导出。','One-time payment unlocks <b style="color:var(--gold2)">all current query features</b>: dual-chain assets · 360/600 staking detail · DAO level & team volume · address behavior · <b style="color:var(--gold2)">full referrer + bind time</b> · report export.')}</div>
   <div style="display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin:12px 0 2px;font-size:12.5px;color:var(--soft)">
-    <span>✓ 一次性付款</span><span>✓ Polygon 与 Anubis 双链通用</span><span>✓ 本设备自动识别</span><span>✓ 换设备可凭订单凭证恢复</span><span>✓ 链上提币工具无需再次付费</span>
+    <span>${L('✓ 一次性付款','✓ One-time payment')}</span><span>${L('✓ Polygon 与 Anubis 双链通用','✓ Works on Polygon & Anubis')}</span><span>${L('✓ 本设备自动识别','✓ Auto-recognized on this device')}</span><span>${L('✓ 换设备可凭订单凭证恢复','✓ Restore on new devices via order')}</span><span>${L('✓ 链上提币工具无需再次付费','✓ On-chain withdraw needs no extra pay')}</span>
   </div>
-  <div style="font-size:12.5px;color:var(--dim);margin:6px 0 0;line-height:1.7">10 LGNS 为基础解锁价格。创建订单后系统会生成带订单识别尾数的<b style="color:var(--gold2)">精确金额</b>（例如 10.71 LGNS）用于自动匹配付款，请严格按订单显示金额转账。<br><span style="color:#f0b878">🔑「永久使用」指本页服务持续运营期间，无需重复支付当前功能的解锁费用。</span></div>
-  <button class="go" id="monBuy" style="margin-top:14px;padding:12px 28px;font-size:15px" aria-label="支付 10 LGNS 解锁">🔓 支付 10 LGNS 解锁</button>
+  <div style="font-size:12.5px;color:var(--dim);margin:6px 0 0;line-height:1.7">${L('10 LGNS 为基础解锁价格。创建订单后系统会生成带订单识别尾数的<b style="color:var(--gold2)">精确金额</b>（例如 10.71 LGNS）用于自动匹配付款，请严格按订单显示金额转账。<br><span style="color:#f0b878">🔑「永久使用」指本页服务持续运营期间，无需重复支付当前功能的解锁费用。</span>','10 LGNS is the base unlock price. After creating an order the system generates an <b style="color:var(--gold2)">exact amount</b> with an order-identifying tail (e.g. 10.71 LGNS) for automatic matching — please transfer exactly the amount shown. <br><span style="color:#f0b878">🔑 Permanent use means: while this service keeps running, no repeat payment is needed for current features.</span>')}</div>
+  <button class="go" id="monBuy" style="margin-top:14px;padding:12px 28px;font-size:15px" aria-label="pay 10 LGNS to unlock">${L('🔓 支付 10 LGNS 解锁','🔓 Pay 10 LGNS to unlock')}</button>
   <div style="margin-top:12px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-    <button class="btn2" id="monMine" style="padding:6px 14px;font-size:12.5px;min-height:auto" aria-label="查看我的订单">📋 我的订单 / 查订单号</button>
-    <button class="btn2" id="monRestore" style="padding:6px 14px;font-size:12.5px;min-height:auto;color:var(--dim)" aria-label="凭订单号找回访问">🔎 凭订单号找回访问</button>
+    <button class="btn2" id="monMine" style="padding:6px 14px;font-size:12.5px;min-height:auto" aria-label="my orders">${L('📋 我的订单 / 查订单号','📋 My orders / order no.')}</button>
+    <button class="btn2" id="monRestore" style="padding:6px 14px;font-size:12.5px;min-height:auto;color:var(--dim)" aria-label="restore by order">${L('🔎 凭订单号找回访问','🔎 Restore by order no.')}</button>
   </div>
-  <div style="font-size:11.5px;color:var(--dim);margin-top:9px">🛡 订单号是访问恢复凭证，请勿公开发送或发布截图。</div>
+  <div style="font-size:11.5px;color:var(--dim);margin-top:9px">${L('🛡 订单号是访问恢复凭证，请勿公开发送或发布截图。','🛡 The order number is your recovery credential — do not share it or post screenshots.')}</div>
   <div id="monPay" style="margin-top:14px;text-align:left"></div></div>`;
  document.getElementById('monBuy').onclick=monStartPay;
  document.getElementById('monRestore').onclick=monRestoreUI;
@@ -524,24 +527,24 @@ function saveMonOrder(o){try{const a=loadMonOrders().filter(x=>x.orderId!==o.ord
 async function renderMyOrders(){
  const el=document.getElementById('monPay');if(!el)return;
  const arr=loadMonOrders();
- if(!arr.length){el.innerHTML='<div class="pos" style="padding:13px;text-align:center;color:var(--dim)">本设备还没有下单记录。点上面「支付 10 LGNS 解锁」生成订单后，订单号会自动记在这里。</div>';return;}
- el.innerHTML='<div class="pos" style="padding:13px"><div class="t" style="margin-bottom:8px">我的订单（本设备）</div><div id="monMineList"></div></div>';
+ if(!arr.length){el.innerHTML='<div class="pos" style="padding:13px;text-align:center;color:var(--dim)">'+L('本设备还没有下单记录。点上面「支付 10 LGNS 解锁」生成订单后，订单号会自动记在这里。','No orders on this device yet. Tap Pay 10 LGNS above to create one; the order number is saved here automatically.')+'</div>';return;}
+ el.innerHTML='<div class="pos" style="padding:13px"><div class="t" style="margin-bottom:8px">'+L('我的订单（本设备）','My orders (this device)')+'</div><div id="monMineList"></div></div>';
  const box=document.getElementById('monMineList');
  box.innerHTML=arr.map((o,i)=>`<div style="border:1px solid var(--line);border-radius:9px;padding:10px 11px;margin-bottom:8px">
-   <div class="det" style="justify-content:space-between"><span style="color:var(--dim);font-size:11px">${new Date(o.created).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${o.amount} LGNS</span><span class="mst-${i}" style="font-size:11.5px;color:var(--gold2)">查状态中…</span></div>
-   <div class="det" style="margin-top:5px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1;font-size:11.5px">${o.orderId}</code><button class="verify" data-c="${o.orderId}">复制订单号</button></div></div>`).join('');
- box.querySelectorAll('[data-c]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent='已复制✓';setTimeout(()=>b.textContent=t,1200);};});
+   <div class="det" style="justify-content:space-between"><span style="color:var(--dim);font-size:11px">${new Date(o.created).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${o.amount} LGNS</span><span class="mst-${i}" style="font-size:11.5px;color:var(--gold2)">${L('查状态中…','Checking…')}</span></div>
+   <div class="det" style="margin-top:5px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1;font-size:11.5px">${o.orderId}</code><button class="verify" data-c="${o.orderId}">${L('复制订单号','Copy order no.')}</button></div></div>`).join('');
+ box.querySelectorAll('[data-c]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent=L('已复制✓','Copied ✓');setTimeout(()=>b.textContent=t,1200);};});
  arr.forEach(async(o,i)=>{let c;try{c=await fetch(WK+'/mon/check?order='+o.orderId).then(r=>r.json());}catch(e){return;}
    const s=box.querySelector('.mst-'+i);if(!s)return;
-   if(c&&c.status==='paid'&&c.access){s.innerHTML='<b style="color:#7bffb0">✓ 已付款 · 点恢复</b>';s.style.cursor='pointer';s.onclick=()=>monGrant(c.access);}
-   else if(c&&c.status==='canceled')s.innerHTML='<span style="color:var(--dim)">已取消</span>';
-   else s.innerHTML='<span style="color:var(--gold2)">● 待付款</span>';
+   if(c&&c.status==='paid'&&c.access){s.innerHTML='<b style="color:#7bffb0">'+L('✓ 已付款 · 点恢复','✓ Paid · tap to restore')+'</b>';s.style.cursor='pointer';s.onclick=()=>monGrant(c.access);}
+   else if(c&&c.status==='canceled')s.innerHTML='<span style="color:var(--dim)">'+L('已取消','Canceled')+'</span>';
+   else s.innerHTML='<span style="color:var(--gold2)">'+L('● 待付款','● Awaiting payment')+'</span>';
  });
 }
 async function monStartPay(){
- const el=document.getElementById('monPay');el.innerHTML='<div class="meta" style="text-align:center">正在生成订单…</div>';
- let o;try{o=await fetch(WK+'/mon/order').then(r=>r.json());}catch(e){el.innerHTML='<div class="err">生成订单失败，稍后再试</div>';return;}
- if(!o||!o.ok){el.innerHTML='<div class="err">生成订单失败，稍后再试</div>';return;}
+ const el=document.getElementById('monPay');el.innerHTML='<div class="meta" style="text-align:center">'+L('正在生成订单…','Creating order…')+'</div>';
+ let o;try{o=await fetch(WK+'/mon/order').then(r=>r.json());}catch(e){el.innerHTML='<div class="err">'+L('生成订单失败，稍后再试','Failed to create order, try again later')+'</div>';return;}
+ if(!o||!o.ok){el.innerHTML='<div class="err">'+L('生成订单失败，稍后再试','Failed to create order, try again later')+'</div>';return;}
  saveMonOrder(o);
  monShowPay(el,o);
 }
@@ -552,7 +555,7 @@ const PAYNETS={
 };
 function payStepHTML(state){
  // state: 'wait' | 'paid' | 'err' — 只按后端真实返回点亮，中间步骤仅作说明
- const labels=['等待付款','到账确认(≥2块)','支付成功','自动解锁'];
+ const labels=[L('等待付款','Awaiting payment'),L('到账确认(≥2块)','Confirming (≥2 blocks)'),L('支付成功','Paid'),L('自动解锁','Auto-unlock')];
  let cls=[ '', '', '', '' ];
  if(state==='paid'){cls=['done','done','done','on'];}
  else if(state==='err'){cls=['on','','','']; }
@@ -568,60 +571,60 @@ function monShowPay(el,o){
   const nt=PAYNETS[cur];
   const uri='ethereum:'+nt.lgns+'@'+nt.chainId+'/transfer?address='+o.receive+'&uint256='+baseAmt;
   el.innerHTML=`<div class="pos" style="padding:15px">
-   <div class="t" style="margin-bottom:6px">支付解锁 · 一次性 10 LGNS · 永久访问</div>
+   <div class="t" style="margin-bottom:6px">${L('支付解锁 · 一次性 10 LGNS · 永久访问','Pay to unlock · one-time 10 LGNS · permanent access')}</div>
    <div class="ntabs">
-     <div class="ntab ${cur==='poly'?'on':''}" data-net="poly" role="button" tabindex="0" aria-label="用 Polygon 网络付款">Polygon</div>
-     <div class="ntab ${cur==='anb'?'on':''}" data-net="anb" role="button" tabindex="0" aria-label="用 Anubis 网络付款">Anubis</div>
+     <div class="ntab ${cur==='poly'?'on':''}" data-net="poly" role="button" tabindex="0" aria-label="pay via Polygon">Polygon</div>
+     <div class="ntab ${cur==='anb'?'on':''}" data-net="anb" role="button" tabindex="0" aria-label="pay via Anubis">Anubis</div>
    </div>
-   <div class="det" style="justify-content:space-between"><span>网络</span><span style="color:var(--gold2)">${nt.name}</span></div>
-   <div class="det" style="margin-top:6px"><span>LGNS 合约（该网络）</span></div>
-   <div class="det"><code class="mono" style="word-break:break-all;color:var(--soft);font-size:11.5px">${nt.lgns}</code><button class="verify" data-c="${nt.lgns}" aria-label="复制LGNS合约地址">复制</button></div>
-   <div class="det" style="justify-content:space-between;margin-top:8px"><span>精确金额（务必一分不差）</span><b class="mono" style="color:var(--gold);font-size:17px">${o.amount} LGNS</b></div>
-   <div style="text-align:right"><button class="verify" data-c="${o.amount}" aria-label="复制精确金额">复制金额</button></div>
-   <div class="det" style="margin-top:8px"><span>收款地址</span></div>
-   <div class="det"><code class="mono" style="word-break:break-all;color:var(--txt)">${o.receive}</code><button class="verify" data-c="${o.receive}" aria-label="复制收款地址">复制</button></div>
+   <div class="det" style="justify-content:space-between"><span>${L('网络','Network')}</span><span style="color:var(--gold2)">${nt.name}</span></div>
+   <div class="det" style="margin-top:6px"><span>${L('LGNS 合约（该网络）','LGNS contract (this network)')}</span></div>
+   <div class="det"><code class="mono" style="word-break:break-all;color:var(--soft);font-size:11.5px">${nt.lgns}</code><button class="verify" data-c="${nt.lgns}" aria-label="copy LGNS contract">${L('复制','Copy')}</button></div>
+   <div class="det" style="justify-content:space-between;margin-top:8px"><span>${L('精确金额（务必一分不差）','Exact amount (must match exactly)')}</span><b class="mono" style="color:var(--gold);font-size:17px">${o.amount} LGNS</b></div>
+   <div style="text-align:right"><button class="verify" data-c="${o.amount}" aria-label="copy exact amount">${L('复制金额','Copy amount')}</button></div>
+   <div class="det" style="margin-top:8px"><span>${L('收款地址','Receiving address')}</span></div>
+   <div class="det"><code class="mono" style="word-break:break-all;color:var(--txt)">${o.receive}</code><button class="verify" data-c="${o.receive}" aria-label="copy receiving address">${L('复制','Copy')}</button></div>
    <div class="monqr" style="text-align:center;margin:12px auto 4px;max-width:100%"></div>
-   <div style="font-size:12px;color:var(--dim);text-align:center">扫码后请在钱包内确认是 <b style="color:var(--gold2)">${nt.name} 上的 LGNS</b>、金额为 <b style="color:var(--gold2)">${o.amount}</b></div>
+   <div style="font-size:12px;color:var(--dim);text-align:center">${L('扫码后请在钱包内确认是 ','After scanning, confirm in your wallet that it is ')}<b style="color:var(--gold2)">${nt.name}${L(' 上的 LGNS</b>、金额为 ',' LGNS</b>, amount ')}<b style="color:var(--gold2)">${o.amount}</b></div>
    ${payStepHTML(state)}
-   <div style="font-size:12.5px;color:var(--dim);margin-top:2px;line-height:1.7">系统检测到<b style="color:var(--gold2)">精确金额</b>且区块确认 ≥2 后约 20–60 秒<b style="color:var(--gold2)">自动解锁</b>。<span id="monStatus" style="color:var(--gold2)">● 等待付款中…</span></div>
-   <div style="font-size:11px;color:var(--dim);margin-top:8px;border-top:1px solid var(--line);padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span>订单号 <code class="mono" style="word-break:break-all">${o.orderId}</code> <button class="verify" data-c="${o.orderId}" aria-label="复制订单号">复制</button></span><span style="color:var(--dim)">创建 ${createdStr} · 有效 24h</span></div>
+   <div style="font-size:12.5px;color:var(--dim);margin-top:2px;line-height:1.7">${L('系统检测到<b style="color:var(--gold2)">精确金额</b>且区块确认 ≥2 后约 20–60 秒<b style="color:var(--gold2)">自动解锁</b>。','Once the system detects the <b style="color:var(--gold2)">exact amount</b> with ≥2 block confirmations, it <b style="color:var(--gold2)">auto-unlocks</b> in ~20–60s.')}<span id="monStatus" style="color:var(--gold2)">${L('● 等待付款中…','● Awaiting payment…')}</span></div>
+   <div style="font-size:11px;color:var(--dim);margin-top:8px;border-top:1px solid var(--line);padding-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><span>${L('订单号','Order')} <code class="mono" style="word-break:break-all">${o.orderId}</code> <button class="verify" data-c="${o.orderId}" aria-label="copy order">${L('复制','Copy')}</button></span><span style="color:var(--dim)">${L('创建','created')} ${createdStr} · ${L('有效 24h','valid 24h')}</span></div>
    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-     <button class="btn2" id="monCloseBtn" style="padding:8px 14px;font-size:12.5px;flex:1" aria-label="关闭窗口稍后继续">关闭窗口，稍后继续</button>
-     <button class="btn2" id="monMineBtn" style="padding:8px 14px;font-size:12.5px;flex:1;min-width:110px" aria-label="查看我的订单">📋 我的订单</button>
-     <button class="btn2" id="monCancelBtn" style="padding:8px 14px;font-size:12.5px;flex:1;border-color:#e06a6a;color:#ff9a8f;min-width:90px" aria-label="取消订单">✕ 取消订单</button>
+     <button class="btn2" id="monCloseBtn" style="padding:8px 14px;font-size:12.5px;flex:1" aria-label="close and continue later">${L('关闭窗口，稍后继续','Close, continue later')}</button>
+     <button class="btn2" id="monMineBtn" style="padding:8px 14px;font-size:12.5px;flex:1;min-width:110px" aria-label="my orders">${L('📋 我的订单','📋 My orders')}</button>
+     <button class="btn2" id="monCancelBtn" style="padding:8px 14px;font-size:12.5px;flex:1;border-color:#e06a6a;color:#ff9a8f;min-width:90px" aria-label="cancel order">${L('✕ 取消订单','✕ Cancel order')}</button>
    </div>
-   <details style="margin-top:10px"><summary style="cursor:pointer;font-size:12px;color:var(--gold2)">付款遇到问题？点这里</summary>
+   <details style="margin-top:10px"><summary style="cursor:pointer;font-size:12px;color:var(--gold2)">${L('付款遇到问题？点这里','Payment issues? Tap here')}</summary>
      <div style="font-size:12px;color:var(--soft);line-height:1.8;padding-top:6px">
-       · <b>金额不一致：</b>系统按精确金额匹配，转错金额不会自动到账，请用订单号找回并联系客服核验。<br>
-       · <b>选错网络：</b>只要转的是 Polygon 或 Anubis 上的 LGNS 到收款地址、金额正确即可识别；转成原生币或其它代币无法识别。<br>
-       · <b>付款后没自动解锁：</b>稍等区块确认；较久未解锁用「凭订单号找回访问」重试，系统仍认款。<br>
-       · <b>订单过期后付款：</b>仍可用订单号找回匹配；如未识别请联系客服。<br>
-       · <b>人工核验：</b>本页暂不支持自助填交易哈希核验，如遇异常请 <a href="/#contact" style="color:var(--gold2)">联系客服</a> 凭付款记录处理。
+       · ${L('<b>金额不一致：</b>系统按精确金额匹配，转错金额不会自动到账，请用订单号找回并联系客服核验。','<b>Amount mismatch:</b> matching is by exact amount — a wrong amount will not auto-credit; recover by order number and contact support.')}<br>
+       · ${L('<b>选错网络：</b>只要转的是 Polygon 或 Anubis 上的 LGNS 到收款地址、金额正确即可识别；转成原生币或其它代币无法识别。','<b>Wrong network:</b> as long as it is LGNS on Polygon or Anubis to the receiving address with the correct amount, it is recognized; native coins or other tokens are not.')}<br>
+       · ${L('<b>付款后没自动解锁：</b>稍等区块确认；较久未解锁用「凭订单号找回访问」重试，系统仍认款。','<b>Paid but not unlocked:</b> wait for confirmations; if it takes long, use Restore by order number — the system still credits it.')}<br>
+       · ${L('<b>订单过期后付款：</b>仍可用订单号找回匹配；如未识别请联系客服。','<b>Paid after order expiry:</b> still matchable by order number; if not recognized, contact support.')}<br>
+       · ${L('<b>人工核验：</b>本页暂不支持自助填交易哈希核验，如遇异常请 ','<b>Manual check:</b> self-service tx-hash verification is not supported here; if anything is off, ')}<a href="/#contact" style="color:var(--gold2)">${L('联系客服','contact support')}</a>${L(' 凭付款记录处理。',' with your payment record.')}
      </div></details>
    </div>`;
-  el.querySelectorAll('[data-c]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent='已复制';b.classList.add('copied');setTimeout(()=>{b.textContent=t;b.classList.remove('copied');},1200);};});
+  el.querySelectorAll('[data-c]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent=L('已复制','Copied');b.classList.add('copied');setTimeout(()=>{b.textContent=t;b.classList.remove('copied');},1200);};});
   el.querySelectorAll('[data-net]').forEach(t=>{const sw=()=>{cur=t.dataset.net;panel('wait');};t.onclick=sw;t.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sw();}};});
   try{const q=el.querySelector('.monqr');if(q&&window.QRCode){q.innerHTML='';new QRCode(q,{text:uri,width:168,height:168,colorDark:'#000000',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel?window.QRCode.CorrectLevel.M:undefined});}}catch(e){}
   const closeB=el.querySelector('#monCloseBtn');
-  if(closeB)closeB.onclick=()=>{closed=true;if(timer)clearInterval(timer);el.innerHTML='<div class="pos" style="padding:13px;text-align:center"><div style="color:var(--soft);font-size:13px">订单已保留在「我的订单」，随时可继续。</div><button class="btn2" id="monResume" style="margin-top:10px;padding:8px 18px;font-size:13px">继续付款</button></div>';const rb=el.querySelector('#monResume');if(rb)rb.onclick=()=>{closed=false;startPoll();panel('wait');};};
+  if(closeB)closeB.onclick=()=>{closed=true;if(timer)clearInterval(timer);el.innerHTML='<div class="pos" style="padding:13px;text-align:center"><div style="color:var(--soft);font-size:13px">'+L('订单已保留在「我的订单」，随时可继续。','Order kept in My Orders — resume anytime.')+'</div><button class="btn2" id="monResume" style="margin-top:10px;padding:8px 18px;font-size:13px">'+L('继续付款','Resume payment')+'</button></div>';const rb=el.querySelector('#monResume');if(rb)rb.onclick=()=>{closed=false;startPoll();panel('wait');};};
   const mineB=el.querySelector('#monMineBtn');if(mineB)mineB.onclick=renderMyOrders;
   const cb=el.querySelector('#monCancelBtn');
   if(cb){let armed=false,rearm=null;
-   const doCancel=async()=>{closed=true;if(timer)clearInterval(timer);cb.disabled=true;cb.textContent='取消中…';try{await fetch(WK+'/mon/cancel?order='+o.orderId);}catch(e){}el.innerHTML='<div class="meta" style="text-align:center;padding:8px">订单已取消。可重新下单。</div>';};
+   const doCancel=async()=>{closed=true;if(timer)clearInterval(timer);cb.disabled=true;cb.textContent=L('取消中…','Canceling…');try{await fetch(WK+'/mon/cancel?order='+o.orderId);}catch(e){}el.innerHTML='<div class="meta" style="text-align:center;padding:8px">'+L('订单已取消。可重新下单。','Order canceled. You can create a new one.')+'</div>';};
    cb.onclick=()=>{
      if(armed){doCancel();return;}
-     armed=true;cb.textContent='确认取消？再点一次';cb.style.background='rgba(224,106,106,.15)';
-     rearm=setTimeout(()=>{armed=false;cb.textContent='✕ 取消订单';cb.style.background='';},4000);
+     armed=true;cb.textContent=L('确认取消？再点一次','Tap again to confirm cancel');cb.style.background='rgba(224,106,106,.15)';
+     rearm=setTimeout(()=>{armed=false;cb.textContent=L('✕ 取消订单','✕ Cancel order');cb.style.background='';},4000);
    };}
  }
  function startPoll(){
   const start=Date.now();
   timer=setInterval(async()=>{
    if(closed||!document.body.contains(el)){clearInterval(timer);return;}
-   if(Date.now()-start>15*60*1000){clearInterval(timer);const s=document.getElementById('monStatus');if(s)s.innerHTML='<span style="color:#ff9a8f">● 等待较久。若已付款，用订单号找回即可，系统仍认款。</span>';return;}
-   let c;try{c=await fetch(WK+'/mon/check?order='+o.orderId).then(r=>r.json());}catch(e){const s=document.getElementById('monStatus');if(s)s.innerHTML='<span style="color:#ff9a8f">● 网络波动，重试中…</span>';return;}
+   if(Date.now()-start>15*60*1000){clearInterval(timer);const s=document.getElementById('monStatus');if(s)s.innerHTML='<span style="color:#ff9a8f">'+L('● 等待较久。若已付款，用订单号找回即可，系统仍认款。','● Taking a while. If you paid, restore by order number — the system still credits it.')+'</span>';return;}
+   let c;try{c=await fetch(WK+'/mon/check?order='+o.orderId).then(r=>r.json());}catch(e){const s=document.getElementById('monStatus');if(s)s.innerHTML='<span style="color:#ff9a8f">'+L('● 网络波动，重试中…','● Network hiccup, retrying…')+'</span>';return;}
    if(c&&c.status==='canceled'){clearInterval(timer);return;}
-   if(c&&c.status==='paid'&&c.access){clearInterval(timer);const s=document.getElementById('monStatus');if(s)s.innerHTML='<b style="color:#7bffb0">✓ 支付成功 · 正在解锁…</b>';monGrant(c.access);}
+   if(c&&c.status==='paid'&&c.access){clearInterval(timer);const s=document.getElementById('monStatus');if(s)s.innerHTML='<b style="color:#7bffb0">'+L('✓ 支付成功 · 正在解锁…','✓ Paid · unlocking…')+'</b>';monGrant(c.access);}
   },5000);
  }
  panel('wait');
@@ -630,14 +633,14 @@ function monShowPay(el,o){
 function monGrant(token){MONTOKEN=token;try{localStorage.setItem(MLS,token);}catch(e){}unlockUI();try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}}
 function monRestoreUI(){
  const el=document.getElementById('monPay');if(!el)return;
- el.innerHTML=`<div class="pos" style="padding:13px"><div class="det"><input id="monFind" placeholder="粘贴订单号找回…" spellcheck="false" style="flex:1;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:8px 10px;font-size:12px"><button class="verify" id="monFindGo">找回</button></div><div id="monFindOut" style="margin-top:8px"></div></div>`;
+ el.innerHTML=`<div class="pos" style="padding:13px"><div class="det"><input id="monFind" placeholder="${L('粘贴订单号找回…','Paste order number to restore…')}" spellcheck="false" style="flex:1;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:8px 10px;font-size:12px"><button class="verify" id="monFindGo">${L('找回','Restore')}</button></div><div id="monFindOut" style="margin-top:8px"></div></div>`;
  document.getElementById('monFindGo').onclick=async()=>{
   const id=document.getElementById('monFind').value.trim();if(!id)return;
-  const fo=document.getElementById('monFindOut');fo.innerHTML='<div class="meta">查询中…</div>';
-  let c;try{c=await fetch(WK+'/mon/check?order='+encodeURIComponent(id)).then(r=>r.json());}catch(e){fo.innerHTML='<div class="err">查询失败</div>';return;}
-  if(!c||c.ok===false){fo.innerHTML='<div class="err">没找到这个订单号</div>';return;}
-  if(c.status==='paid'&&c.access){fo.innerHTML='<div class="meta" style="color:#7bffb0">✓ 已付款，正在解锁…</div>';monGrant(c.access);}
-  else fo.innerHTML='<div class="meta" style="color:var(--gold2)">● 该订单还没到账（待付款）</div>';
+  const fo=document.getElementById('monFindOut');fo.innerHTML='<div class="meta">'+L('查询中…','Checking…')+'</div>';
+  let c;try{c=await fetch(WK+'/mon/check?order='+encodeURIComponent(id)).then(r=>r.json());}catch(e){fo.innerHTML='<div class="err">'+L('查询失败','Query failed')+'</div>';return;}
+  if(!c||c.ok===false){fo.innerHTML='<div class="err">'+L('没找到这个订单号','Order number not found')+'</div>';return;}
+  if(c.status==='paid'&&c.access){fo.innerHTML='<div class="meta" style="color:#7bffb0">'+L('✓ 已付款，正在解锁…','✓ Paid, unlocking…')+'</div>';monGrant(c.access);}
+  else fo.innerHTML='<div class="meta" style="color:var(--gold2)">'+L('● 该订单还没到账（待付款）','● This order has not been paid yet')+'</div>';
  };
 }
 async function fetchWallet(chain,addr){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),13000);
@@ -647,18 +650,18 @@ const tsD=ts=>ts?new Date(ts*1000).toLocaleDateString('zh-CN'):'—';
 const sh=a=>a?a.slice(0,6)+'…'+a.slice(-4):'—';
 const copyText=s=>{try{navigator.clipboard.writeText(s);}catch(e){}};
 function walletOne(d,label,explorer,addr){
- if(!d)return `<div class="sec"><div class="t">${label}</div><div class="pos"><div class="det"><span style="color:#e0a06a">该链数据源暂不可用</span></div></div></div>`;
- let h=`<div class="sec"><div class="t">${label} · ${d.isContract?'📄 合约地址':'👤 外部账户 EOA'}${d.firstTs?' · 首次活跃 '+tsD(d.firstTs):''}</div>`;
+ if(!d)return `<div class="sec"><div class="t">${label}</div><div class="pos"><div class="det"><span style="color:#e0a06a">${L('该链数据源暂不可用','data source unavailable for this chain')}</span></div></div></div>`;
+ let h=`<div class="sec"><div class="t">${label} · ${d.isContract?L('📄 合约地址','📄 Contract'):L('👤 外部账户 EOA','👤 EOA')}${d.firstTs?L(' · 首次活跃 ',' · first active ')+tsD(d.firstTs):''}</div>`;
  let assets=[];
  if(d.native&&+d.native.amount>0)assets.push(d.native.sym+' '+num(d.native.amount));
  (d.tokens||[]).filter(t=>+t.amount>0).forEach(t=>assets.push(t.sym+' '+num(t.amount)));
- h+=`<div class="pos"><div class="det">${assets.length?assets.map(a=>'<span>'+a+'</span>').join(''):'<span style="color:var(--dim)">无代币余额</span>'}</div></div>`;
+ h+=`<div class="pos"><div class="det">${assets.length?assets.map(a=>'<span>'+a+'</span>').join(''):'<span style="color:var(--dim)">'+L('无代币余额','no token balance')+'</span>'}</div></div>`;
  const tr=(d.transfers||[]).slice(0,6);
- if(tr.length){h+=`<div class="pos" style="margin-top:6px"><div style="font-size:12px;color:var(--dim);margin-bottom:4px">最近转账</div>`;
+ if(tr.length){h+=`<div class="pos" style="margin-top:6px"><div style="font-size:12px;color:var(--dim);margin-bottom:4px">${L('最近转账','Recent transfers')}</div>`;
   tr.forEach(x=>{const inc=x.to&&addr&&x.to.toLowerCase()===addr.toLowerCase();
-   h+=`<div class="det" style="justify-content:space-between"><span>${tsD(x.ts)} <b style="color:${inc?'#7bffb0':'#ff9a8f'}">${inc?'+':'−'}${num(x.amount)} ${x.token}</b></span><span class="mono" style="color:var(--dim)">${inc?'来自 '+sh(x.from):'转给 '+sh(x.to)}</span></div>`;});
+   h+=`<div class="det" style="justify-content:space-between"><span>${tsD(x.ts)} <b style="color:${inc?'#7bffb0':'#ff9a8f'}">${inc?'+':'−'}${num(x.amount)} ${x.token}</b></span><span class="mono" style="color:var(--dim)">${inc?L('来自 ','from ')+sh(x.from):L('转给 ','to ')+sh(x.to)}</span></div>`;});
   h+=`</div>`;}
- h+=`<div style="text-align:right;margin-top:4px"><a class="verify" href="${explorer}${addr}" target="_blank">🔗 完整记录</a></div></div>`;
+ h+=`<div style="text-align:right;margin-top:4px"><a class="verify" href="${explorer}${addr}" target="_blank">${L('🔗 完整记录','🔗 Full history')}</a></div></div>`;
  return h;
 }
 const SAMPLE_ADDR='0xd5b610963deec4fae7d17a5191e80bb7281aadc5';
@@ -668,55 +671,55 @@ function lastActiveTs(w){if(!w)return null;let m=0;(w.transfers||[]).forEach(t=>
 function firstActiveTs(w){if(!w)return null;if(w.firstTs)return w.firstTs;let m=Infinity;(w.transfers||[]).forEach(t=>{if(t.ts&&t.ts<m)m=t.ts;});(w.txs||[]).forEach(t=>{if(t.ts&&t.ts<m)m=t.ts;});return m===Infinity?null:m;}
 function addressOverviewHTML(wp,wa,addr){
  const pAct=walActive(wp),aAct=walActive(wa);
- const typeStr=w=>!w?'<span style="color:#e0a06a">数据源暂不可用</span>':(w.isContract?'📄 合约地址':'👤 外部账户 EOA');
+ const typeStr=w=>!w?'<span style="color:#e0a06a">'+L('数据源暂不可用','data source unavailable')+'</span>':(w.isContract?L('📄 合约地址','📄 Contract'):L('👤 外部账户 EOA','👤 EOA'));
  const la=[lastActiveTs(wp),lastActiveTs(wa)].filter(Boolean);const last=la.length?Math.max.apply(null,la):null;
  const fa=[firstActiveTs(wp),firstActiveTs(wa)].filter(Boolean);const first=fa.length?Math.min.apply(null,fa):null;
- let h='<div class="chain"><h2>① 地址总览 <span class="stag rt">链上实时</span></h2>';
+ let h='<div class="chain"><h2>① '+L('地址总览','Address overview')+' <span class="stag rt">'+L('链上实时','live')+'</span></h2>';
  h+='<div class="det" style="margin-bottom:10px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1">'+esc(addr)+'</code><button class="verify" data-copy="'+esc(addr)+'" aria-label="复制地址">复制</button></div>';
  h+='<div class="grid">';
- h+=card('Polygon 类型',typeStr(wp));
- h+=card('Anubis 类型',typeStr(wa));
- h+=card('Polygon 活动',pAct?'<span style="color:#7bffb0">有</span>':'<span style="color:var(--dim)">无</span>');
- h+=card('Anubis 活动',aAct?'<span style="color:#7bffb0">有</span>':'<span style="color:var(--dim)">无</span>');
+ h+=card(L('Polygon 类型','Polygon type'),typeStr(wp));
+ h+=card(L('Anubis 类型','Anubis type'),typeStr(wa));
+ h+=card(L('Polygon 活动','Polygon activity'),pAct?'<span style="color:#7bffb0">'+L('有','Yes')+'</span>':'<span style="color:var(--dim)">'+L('无','No')+'</span>');
+ h+=card(L('Anubis 活动','Anubis activity'),aAct?'<span style="color:#7bffb0">'+L('有','Yes')+'</span>':'<span style="color:var(--dim)">'+L('无','No')+'</span>');
  h+=card('Gas · POL',wp&&wp.native?num(wp.native.amount):'—');
  h+=card('Gas · DAI(Anubis)',wa&&wa.native?num(wa.native.amount):'—');
- h+=card('首次活动',first?tsD(first):'采样内未知');
- h+=card('最后活动(采样)',last?tsD(last):'—');
+ h+=card(L('首次活动','First activity'),first?tsD(first):L('采样内未知','unknown in sample'));
+ h+=card(L('最后活动(采样)','Last activity (sample)'),last?tsD(last):'—');
  h+='</div>';
- h+='<div class="meta" style="margin-top:8px">查询时间 '+new Date().toLocaleString('zh-CN')+' · 首次/最后活动基于链上记录采样（Anubis 首次活动以采样最早记录估算）</div></div>';
+ h+='<div class="meta" style="margin-top:8px">'+L('查询时间 ','Queried ')+new Date().toLocaleString(isZh()?'zh-CN':'en-US')+L(' · 首次/最后活动基于链上记录采样（Anubis 首次活动以采样最早记录估算）',' · first/last activity sampled from on-chain records (Anubis first activity estimated from earliest sample)')+'</div></div>';
  return h;
 }
 function behaviorHTML(wp,wa,addr){
  const all=[];
  [['Polygon',wp],['Anubis',wa]].forEach(function(pair){var cn=pair[0],w=pair[1];if(w){(w.txs||[]).forEach(function(t){all.push({ts:t.ts,to:t.to,from:t.from,isError:t.isError,cn:cn,kind:'tx'});});(w.transfers||[]).forEach(function(t){all.push({ts:t.ts,to:t.to,from:t.from,dir:t.dir,cn:cn,kind:'tf'});});}});
- let h='<div class="chain"><h2>⑥ 地址行为画像 <span class="stag rt">链上行为分析</span></h2>';
- h+='<div class="meta">基于公开链上记录的<b style="color:var(--soft)">采样</b>分析（每条链最近约 18 笔交易 / 转账），用于辅助判断，<b style="color:#f0b878">不代表真实身份认定</b>。</div>';
- if(!all.length){h+='<div class="pos"><span style="color:var(--dim)">采样区间内暂无可分析的交易记录，或数据源暂不可用。</span></div></div>';return h;}
+ let h='<div class="chain"><h2>⑥ '+L('地址行为画像','Address behavior')+' <span class="stag rt">'+L('链上行为分析','on-chain analysis')+'</span></h2>';
+ h+='<div class="meta">'+L('基于公开链上记录的<b style="color:var(--soft)">采样</b>分析（每条链最近约 18 笔交易 / 转账），用于辅助判断，<b style="color:#f0b878">不代表真实身份认定</b>。','A <b style="color:var(--soft)">sampled</b> analysis of public on-chain records (~18 recent txs/transfers per chain), for reference only — <b style="color:#f0b878">not an identity determination</b>.')+'</div>';
+ if(!all.length){h+='<div class="pos"><span style="color:var(--dim)">'+L('采样区间内暂无可分析的交易记录，或数据源暂不可用。','No analyzable transactions in the sample window, or data source unavailable.')+'</span></div></div>';return h;}
  const txs=all.filter(x=>x.kind==='tx');const errs=txs.filter(x=>x.isError).length;
  const times=all.map(x=>x.ts).filter(Boolean).sort((a,b)=>a-b);
  const spanDays=times.length>1?Math.max(1,Math.round((times[times.length-1]-times[0])/86400)):'<1';
  const hours=all.map(x=>x.ts?new Date(x.ts*1000).getUTCHours():null).filter(x=>x!=null);
- let hourNote='—';if(hours.length){const cnt={};hours.forEach(hh=>cnt[hh]=(cnt[hh]||0)+1);hourNote='UTC '+Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]+'时').join('/');}
+ let hourNote='—';if(hours.length){const cnt={};hours.forEach(hh=>cnt[hh]=(cnt[hh]||0)+1);hourNote='UTC '+Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]+L('时',':00')).join('/');}
  const cp={};txs.forEach(t=>{if(t.to){const k=t.to.toLowerCase();cp[k]=(cp[k]||0)+1;}});
  const topCp=Object.entries(cp).sort((a,b)=>b[1]-a[1]).slice(0,3);
  const src={},sink={};all.filter(x=>x.kind==='tf').forEach(t=>{if(t.dir==='in'&&t.from)src[t.from.toLowerCase()]=(src[t.from.toLowerCase()]||0)+1;if(t.dir==='out'&&t.to)sink[t.to.toLowerCase()]=(sink[t.to.toLowerCase()]||0)+1;});
  const topSrc=Object.entries(src).sort((a,b)=>b[1]-a[1]).slice(0,2);
  const topSink=Object.entries(sink).sort((a,b)=>b[1]-a[1]).slice(0,2);
  h+='<div class="grid">';
- h+=card('采样交易数',txs.length+' 笔');
- h+=card('采样活跃跨度',spanDays+' 天');
- h+=card('采样失败率',txs.length?Math.round(errs/txs.length*100)+'%':'—');
- h+=card('高频时段(采样)',hourNote);
+ h+=card(L('采样交易数','Sampled txs'),txs.length+L(' 笔',''));
+ h+=card(L('采样活跃跨度','Active span (sample)'),spanDays+L(' 天','d'));
+ h+=card(L('采样失败率','Failure rate (sample)'),txs.length?Math.round(errs/txs.length*100)+'%':'—');
+ h+=card(L('高频时段(采样)','Peak hours (sample)'),hourNote);
  h+='</div>';
- const listRow=(t,arr)=>arr.length?('<div class="pos"><div style="font-size:12px;color:var(--dim);margin-bottom:4px">'+t+'</div>'+arr.map(x=>'<div class="det" style="justify-content:space-between"><span class="mono">'+sh(x[0])+'</span><span style="color:var(--dim)">'+x[1]+' 次</span></div>').join('')+'</div>'):'';
- h+=listRow('采样内主要交互对象',topCp);
- h+=listRow('采样内主要资金来源',topSrc);
- h+=listRow('采样内主要转出对象',topSink);
+ const listRow=(t,arr)=>arr.length?('<div class="pos"><div style="font-size:12px;color:var(--dim);margin-bottom:4px">'+t+'</div>'+arr.map(x=>'<div class="det" style="justify-content:space-between"><span class="mono">'+sh(x[0])+'</span><span style="color:var(--dim)">'+x[1]+L(' 次','×')+'</span></div>').join('')+'</div>'):'';
+ h+=listRow(L('采样内主要交互对象','Top counterparties (sample)'),topCp);
+ h+=listRow(L('采样内主要资金来源','Top fund sources (sample)'),topSrc);
+ h+=listRow(L('采样内主要转出对象','Top out-flow targets (sample)'),topSink);
  let flags=[];
- if((wp&&wp.isContract)||(wa&&wa.isContract))flags.push('该地址在某条链上是合约地址');
- if(txs.length&&errs/txs.length>0.3)flags.push('采样内失败交易占比偏高');
- if(hours.length>=6&&new Set(hours).size<=2)flags.push('采样操作时段高度集中，存在自动化可能');
- h+='<div class="unknown" style="border-style:solid">🧭 可信度参考：'+(flags.length?flags.map(esc).join('；'):'采样内未见明显异常信号')+'。<br>判断依据：以上仅基于最近约 18 笔链上采样，样本有限；深度自动化识别与完整交易计数暂未接入。<b style="color:#f0b878">该结果属于链上行为分析，不代表真实身份认定。</b></div>';
+ if((wp&&wp.isContract)||(wa&&wa.isContract))flags.push(L('该地址在某条链上是合约地址','This address is a contract on some chain'));
+ if(txs.length&&errs/txs.length>0.3)flags.push(L('采样内失败交易占比偏高','High failed-tx ratio in sample'));
+ if(hours.length>=6&&new Set(hours).size<=2)flags.push(L('采样操作时段高度集中，存在自动化可能','Highly concentrated hours in sample — possible automation'));
+ h+='<div class="unknown" style="border-style:solid">'+L('🧭 可信度参考：','🧭 Trust note: ')+(flags.length?flags.map(esc).join(isZh()?'；':'; '):L('采样内未见明显异常信号','no clear anomaly in sample'))+L('。<br>判断依据：以上仅基于最近约 18 笔链上采样，样本有限；深度自动化识别与完整交易计数暂未接入。<b style="color:#f0b878">该结果属于链上行为分析，不代表真实身份认定。</b>','.<br>Basis: only ~18 recent on-chain samples — limited; deep automation detection and full tx counts are not yet connected. <b style="color:#f0b878">This is on-chain behavior analysis, not an identity determination.</b>')+'</div>';
  h+='</div>';return h;
 }
 function openPay(){const g=document.getElementById('gate');if(g)try{g.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}const mb=document.getElementById('monBuy');if(mb)monStartPay();}
@@ -746,33 +749,33 @@ async function sampleReport(){
  const lockedInner=daoHTML(comm)+rp.html+ra.html+behaviorHTML(wpol,wanb,addr);
  const locked='<div class="locked" style="margin-top:14px"><div class="lockwrap">'+lockedInner+'</div><div class="lockmask"><div class="lt">🔒 解锁完整链上尽调报告</div><div class="ls">360/600 质押逐笔明细 · DAO 等级 · 三线团队业绩 · 完整推荐人关系 · 待领奖励 · 链上行为分析 · 报告导出</div><div class="ls" style="color:var(--gold2)">一次性 10 LGNS，永久使用当前全部查询功能</div><button class="go" id="sampleUnlock" style="margin-top:6px" aria-label="解锁完整功能">🔓 解锁完整功能</button></div></div>';
  box.innerHTML=free+locked;
- box.querySelectorAll('[data-copy]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.copy);b.textContent='已复制';b.classList.add('copied');setTimeout(()=>{b.textContent=t;b.classList.remove('copied');},1200);};});
+ box.querySelectorAll('[data-copy]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.copy);b.textContent=L('已复制','Copied');b.classList.add('copied');setTimeout(()=>{b.textContent=t;b.classList.remove('copied');},1200);};});
  const su=document.getElementById('sampleUnlock');if(su)su.onclick=openPay;
  if(btn){btn.disabled=false;btn.textContent='👁 重新加载示例';}
  try{box.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}
 }
 function walletHealthHTML(pol,anb,addr){
- return `<div class="chain"><h2>通用链上体检 <span class="tag">身份 / 资产 / 活动</span></h2>
-  <div class="meta">读公开链上数据：是谁、持有什么、做过什么（经 Worker 取 Etherscan/Blockscout，key 在服务端）</div>
+ return `<div class="chain"><h2>${L('通用链上体检','On-chain checkup')} <span class="tag">${L('身份 / 资产 / 活动','identity / assets / activity')}</span></h2>
+  <div class="meta">${L('读公开链上数据：是谁、持有什么、做过什么（经 Worker 取 Etherscan/Blockscout，key 在服务端）','Reads public on-chain data: who, holdings, activity (via a Worker calling Etherscan/Blockscout; keys server-side)')}</div>
   ${walletOne(pol,'Polygon','https://polygonscan.com/address/',addr)}
   ${walletOne(anb,'Anubis','https://browser.anubispace.org/address/',addr)}</div>`;
 }
 // ===== 查推荐人 (Worker /referrer + 2LGNS解锁) =====
-function refShell(msg){return `<div class="chain"><h2>查推荐人 · 绑定关系</h2><div class="meta">${msg}</div></div>`;}
+function refShell(msg){return `<div class="chain"><h2>'+L('查推荐人 · 绑定关系','Referrer · Binding')+'</h2><div class="meta">${msg}</div></div>`;}
 async function loadReferrer(addr){
  const el=document.getElementById('refBlock');if(!el)return;
- el.innerHTML='<div class="chain"><h2>查推荐人 · 绑定关系</h2><div class="meta">正在查链上绑定关系…</div></div>';
- let d;try{d=await fetch(WK+'/referrer?addr='+addr+(MONTOKEN?'&token='+encodeURIComponent(MONTOKEN):'')).then(r=>r.json());}catch(e){el.innerHTML=refShell('查询失败，稍后再试');return;}
- if(!d||!d.ok){el.innerHTML=refShell('查询失败，稍后再试');return;}
- if(!d.hasRef){el.innerHTML=refShell('这个地址<b style="color:var(--gold2)">还没有绑定推荐人</b>（或还没加入社区）');return;}
+ el.innerHTML='<div class="chain"><h2>'+L('查推荐人 · 绑定关系','Referrer · Binding')+'</h2><div class="meta">'+L('正在查链上绑定关系…','Reading on-chain binding…')+'</div></div>';
+ let d;try{d=await fetch(WK+'/referrer?addr='+addr+(MONTOKEN?'&token='+encodeURIComponent(MONTOKEN):'')).then(r=>r.json());}catch(e){el.innerHTML=refShell(L('查询失败，稍后再试','Query failed, try again later'));return;}
+ if(!d||!d.ok){el.innerHTML=refShell(L('查询失败，稍后再试','Query failed, try again later'));return;}
+ if(!d.hasRef){el.innerHTML=refShell(L('这个地址<b style="color:var(--gold2)">还没有绑定推荐人</b>（或还没加入社区）','This address <b style="color:var(--gold2)">has no referrer bound</b> (or has not joined the community)'));return;}
  const full=d.referrer||d.masked;
  const meAddr=(document.getElementById('addr')&&document.getElementById('addr').value.trim())||'';
- el.innerHTML=`<div class="chain"><h2>⑤ 推荐关系 · 绑定 <span class="tag" style="color:#e0a06a">链上 members</span></h2>
-  <div class="pos" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;font-size:12.5px"><span class="mono" style="color:var(--txt)">${sh(meAddr)}</span><span style="color:var(--gold2)">→ 上线 →</span><span class="mono" style="color:var(--gold)">${sh(full)}</span>${d.bindTime?'<span style="color:var(--dim)">· 绑定 '+new Date(d.bindTime*1000).toLocaleDateString('zh-CN')+'</span>':''}</div>
-  <div class="grid" style="margin-top:8px"><div class="card"><div class="k">推荐人（上级）</div><div class="v gold mono" style="font-size:15px;word-break:break-all">${full}</div>${d.referrer?'<button class="verify" style="margin-top:7px" data-drill="'+d.referrer+'">🔎 查这个上线</button> <button class="verify" style="margin-top:7px" data-c="'+d.referrer+'">复制</button> <a class="verify" style="margin-top:7px" href="https://browser.anubispace.org/address/'+d.referrer+'" target="_blank">🔗 验证</a>':''}</div>
-  <div class="card"><div class="k">社区等级</div><div class="v gold">${d.level?('V'+d.level):'—'}</div></div>
-  ${d.bindTime?'<div class="card"><div class="k">绑定时间</div><div class="v" style="font-size:14px">'+new Date(d.bindTime*1000).toLocaleString('zh-CN')+'</div></div>':''}</div></div>`;
- el.querySelectorAll('[data-c]').forEach(b=>{const o=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent='已复制✓';setTimeout(()=>b.textContent=o,1200);};});
+ el.innerHTML=`<div class="chain"><h2>⑤ ${L('推荐关系 · 绑定','Referral · Binding')} <span class="tag" style="color:#e0a06a">${L('链上 members','on-chain members')}</span></h2>
+  <div class="pos" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;font-size:12.5px"><span class="mono" style="color:var(--txt)">${sh(meAddr)}</span><span style="color:var(--gold2)">${L('→ 上线 →','→ upline →')}</span><span class="mono" style="color:var(--gold)">${sh(full)}</span>${d.bindTime?'<span style="color:var(--dim)">'+L('· 绑定 ','· bound ')+new Date(d.bindTime*1000).toLocaleDateString(isZh()?'zh-CN':'en-US')+'</span>':''}</div>
+  <div class="grid" style="margin-top:8px"><div class="card"><div class="k">${L('推荐人（上级）','Referrer (upline)')}</div><div class="v gold mono" style="font-size:15px;word-break:break-all">${full}</div>${d.referrer?'<button class="verify" style="margin-top:7px" data-drill="'+d.referrer+'">'+L('🔎 查这个上线','🔎 Check this upline')+'</button> <button class="verify" style="margin-top:7px" data-c="'+d.referrer+'">'+L('复制','Copy')+'</button> <a class="verify" style="margin-top:7px" href="https://browser.anubispace.org/address/'+d.referrer+'" target="_blank">'+L('🔗 验证','🔗 Verify')+'</a>':''}</div>
+  <div class="card"><div class="k">${L('社区等级','Community level')}</div><div class="v gold">${d.level?('V'+d.level):'—'}</div></div>
+  ${d.bindTime?'<div class="card"><div class="k">'+L('绑定时间','Bind time')+'<div class="v" style="font-size:14px">'+new Date(d.bindTime*1000).toLocaleString(isZh()?'zh-CN':'en-US')+'</div></div>':''}</div></div>`;
+ el.querySelectorAll('[data-c]').forEach(b=>{const o=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent=L('已复制✓','Copied ✓');setTimeout(()=>b.textContent=o,1200);};});
  el.querySelectorAll('[data-drill]').forEach(b=>b.onclick=()=>queryAddr(b.dataset.drill));
 }
 const RCT='mon_recent_v1',FAV='mon_fav_v1';
@@ -786,8 +789,8 @@ function renderRecent(){
  const fav=loadFav(),rec=loadRec().filter(a=>!fav.includes(a));
  const chip=(a,star)=>`<span style="display:inline-flex;align-items:center;gap:5px;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:3px 10px;margin:3px 5px 3px 0;font-size:12px"><button class="lnk mono" type="button" data-q="${a}" style="background:none;border:none;padding:0;cursor:pointer;font:inherit" aria-label="查询 ${a}">${star?'⭐':''}${a.slice(0,6)}…${a.slice(-4)}</button><button type="button" data-fav="${a}" style="background:none;border:none;padding:0;color:var(--dim);cursor:pointer" title="收藏/取消收藏" aria-label="收藏或取消收藏">${star?'✕':'☆'}</button></span>`;
  let h='';
- if(fav.length)h+='<div style="font-size:11.5px;color:var(--dim);margin-bottom:2px">⭐ 收藏</div>'+fav.map(a=>chip(a,true)).join('');
- if(rec.length)h+='<div style="font-size:11.5px;color:var(--dim);margin:6px 0 2px">🕘 最近查询</div>'+rec.slice(0,10).map(a=>chip(a,false)).join('');
+ if(fav.length)h+='<div style="font-size:11.5px;color:var(--dim);margin-bottom:2px">'+L('⭐ 收藏','⭐ Favorites')+'</div>'+fav.map(a=>chip(a,true)).join('');
+ if(rec.length)h+='<div style="font-size:11.5px;color:var(--dim);margin:6px 0 2px">'+L('🕘 最近查询','🕘 Recent')+'</div>'+rec.slice(0,10).map(a=>chip(a,false)).join('');
  el.innerHTML=h;
  el.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>queryAddr(b.dataset.q));
  el.querySelectorAll('[data-fav]').forEach(b=>b.onclick=()=>toggleFav(b.dataset.fav));
@@ -798,32 +801,32 @@ async function run(){
  const addr=document.getElementById('addr').value.trim();
  const out=document.getElementById('out'),st=document.getElementById('status'),btn=document.getElementById('btn');
  out.innerHTML='';
- if(!/^0x[0-9a-fA-F]{40}$/.test(addr)){st.textContent='⚠ 请输入正确的 0x 开头 42 位钱包地址';return;}
- _running=true;btn.disabled=true;btn.textContent='查询中…';st.textContent='正在读取 Polygon + Anubis 两条链的链上数据…';
+ if(!/^0x[0-9a-fA-F]{40}$/.test(addr)){st.textContent=L('⚠ 请输入正确的 0x 开头 42 位钱包地址','⚠ Please enter a valid 0x wallet address (42 chars)');return;}
+ _running=true;btn.disabled=true;btn.textContent=L('查询中…','Checking…');st.textContent=L('正在读取 Polygon + Anubis 两条链的链上数据…','Reading on-chain data on Polygon + Anubis…');
  out.innerHTML=skeletonHTML()+skeletonHTML();
  try{
   const[p,a,comm,wpol,wanb]=await Promise.all([query('polygon',addr),query('anubis',addr),fetchCommunity(addr),fetchWallet('polygon',addr),fetchWallet('anubis',addr)]);
   const rp=chainHTML(p),ra=chainHTML(a);
   const sum=rp.total+ra.total;
-  let head=`<div class="total"><div class="lab">② 双链可验证 LGNS 资产合计</div><div class="big">${pretty(sum,9)} LGNS</div>
+  let head=`<div class="total"><div class="lab">② ${L('双链可验证 LGNS 资产合计','Total verifiable LGNS (both chains)')}</div><div class="big">${pretty(sum,9)} LGNS</div>
    <div class="split"><div>Polygon<b>${pretty(rp.total,9)} LGNS</b>${rp.price!=null?'≈'+toDai(rp.total,rp.price)+' DAI':''}</div>
    <div>Anubis<b>${pretty(ra.total,9)} LGNS</b>${ra.price!=null?'≈'+toDai(ra.total,ra.price)+' DAI':''}</div></div>
-   <div style="color:#8b97a5;font-size:11.5px;margin-top:8px">两链价格不同，分别按各自 LGNS/DAI 池计价，不混算</div></div>`;
-  out.innerHTML='<div style="text-align:right;margin-bottom:8px"><button class="btn2" id="exportBtn" style="padding:6px 14px;font-size:12.5px;min-height:auto" aria-label="导出或打印报告">🖨 导出 / 打印报告</button></div>'
+   <div style="color:#8b97a5;font-size:11.5px;margin-top:8px">${L('两链价格不同，分别按各自 LGNS/DAI 池计价，不混算','Prices differ by chain — each valued at its own LGNS/DAI pool, not mixed')}</div></div>`;
+  out.innerHTML='<div style="text-align:right;margin-bottom:8px"><button class="btn2" id="exportBtn" style="padding:6px 14px;font-size:12.5px;min-height:auto" aria-label="export or print report">'+L('🖨 导出 / 打印报告','🖨 Export / Print')+'</button></div>'
     +addressOverviewHTML(wpol,wanb,addr)
     +head
-    +'<div class="msec-h" style="margin:4px 0 10px">③ 各链资产与质押 / 债券明细</div>'
+    +'<div class="msec-h" style="margin:4px 0 10px">'+L('③ 各链资产与质押 / 债券明细','③ Per-chain assets, staking & bonds')+'</div>'
     +rp.html+ra.html
     +daoHTML(comm)
     +'<div id="refBlock"></div>'
     +behaviorHTML(wpol,wanb,addr);
-  out.querySelectorAll('[data-copy]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.copy);b.textContent='已复制';b.classList.add('copied');setTimeout(()=>{b.textContent=t;b.classList.remove('copied');},1200);};});
+  out.querySelectorAll('[data-copy]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.copy);b.textContent=L('已复制','Copied');b.classList.add('copied');setTimeout(()=>{b.textContent=t;b.classList.remove('copied');},1200);};});
   var eb=document.getElementById('exportBtn');if(eb)eb.onclick=()=>{try{window.print();}catch(e){}};
   saveRec(addr);renderRecent();
   loadReferrer(addr);
-  st.textContent='查询完成 · 数据更新时间 '+new Date().toLocaleString('zh-CN')+'（日期按实测出块速率估算）';
- }catch(e){out.innerHTML='<div class="chain"><div class="err">查询出错：'+esc(e.message||'未知错误')+'</div><button class="btn2" id="retryBtn" style="margin-top:10px">重试</button></div>';const rb=document.getElementById('retryBtn');if(rb)rb.onclick=run;st.textContent='';}
- _running=false;btn.disabled=false;btn.textContent='查询资产';
+  st.textContent=L('查询完成 · 数据更新时间 ','Done · updated ')+new Date().toLocaleString(isZh()?'zh-CN':'en-US')+L('（日期按实测出块速率估算）',' (dates estimated from measured block rate)');
+ }catch(e){out.innerHTML='<div class="chain"><div class="err">'+L('查询出错：','Query error: ')+esc(e.message||L('未知错误','unknown error'))+'</div><button class="btn2" id="retryBtn" style="margin-top:10px">'+L('重试','Retry')+'</button></div>';const rb=document.getElementById('retryBtn');if(rb)rb.onclick=run;st.textContent='';}
+ _running=false;btn.disabled=false;btn.textContent=L('查询资产','Check assets');
 }
 document.getElementById('btn').onclick=run;
 document.getElementById('addr').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
@@ -876,29 +879,29 @@ const comma=s=>String(s).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 const big=h=>h?BigInt(h):0n;
 const g=(r,d)=>(big(r)/(10n**BigInt(d))).toString();
 const mcard=(k,v,sub)=>`<div class="card"><div class="k">${k}</div><div class="v gold">${v}</div>${sub?`<div style="color:var(--dim);font-size:11.5px;margin-top:2px">${sub}</div>`:''}</div>`;
-function srcTag(src){return src==='live'?'<span class="stag rt">链上实时</span>':src==='scan'?'<span class="stag scan">后台扫描</span>':src==='bad'?'<span class="stag bad">数据异常</span>':'<span class="stag snap">快照数据</span>';}
+function srcTag(src){return src==='live'?'<span class="stag rt">'+L('链上实时','live')+'</span>':src==='scan'?'<span class="stag scan">'+L('后台扫描','back-office')+'</span>':src==='bad'?'<span class="stag bad">'+L('数据异常','data error')+'</span>':'<span class="stag snap">'+L('快照数据','snapshot')+'</span>';}
 function renderCore(d,src){
  const t=srcTag(src);
  const tre=comma((BigInt(d.treDai)+BigInt(d.treUsdt)).toString());
  $('mcore').innerHTML=
-  mcard('<span class="pill poly">Polygon</span> LGNS 价格 '+t,d.polyPrice+' DAI','QuickSwap V2 主池')+
-  mcard('<span class="pill anb">Anubis</span> LGNS 价格 '+t,d.anbPrice+' DAI','Anubis DEX 主池')+
-  mcard('Polygon 国库硬储备 '+t,'$'+tre,'DAI '+comma(d.treDai)+' + USDT '+comma(d.treUsdt))+
-  mcard('DAO V1+ 总人数 <span class="stag scan">后台扫描</span>',comma(SNAP.v1plus),'见下方等级分布');
+  mcard('<span class="pill poly">Polygon</span> '+L('LGNS 价格 ','LGNS price ')+t,d.polyPrice+' DAI',L('QuickSwap V2 主池','QuickSwap V2 main pool'))+
+  mcard('<span class="pill anb">Anubis</span> '+L('LGNS 价格 ','LGNS price ')+t,d.anbPrice+' DAI',L('Anubis DEX 主池','Anubis DEX main pool'))+
+  mcard(L('Polygon 国库硬储备 ','Polygon treasury hard reserve ')+t,'$'+tre,'DAI '+comma(d.treDai)+' + USDT '+comma(d.treUsdt))+
+  mcard(L('DAO V1+ 总人数 ','DAO V1+ total ')+'<span class="stag scan">'+L('后台扫描','back-office')+'</span>',comma(SNAP.v1plus),L('见下方等级分布','see distribution below'));
  $('massets').innerHTML=
-  mcard('<span class="pill poly">Poly</span> LGNS 供应 '+t,comma(d.supP),'sLGNS '+comma(d.ssupP))+
-  mcard('<span class="pill anb">Anubis</span> LGNS 供应 '+t,comma(d.supA),'sLGNS '+comma(d.ssupA))+
-  mcard('Polygon 已销毁 '+t,comma(d.burnP),'dEaD 地址')+
-  mcard('Anubis 已销毁 '+t,comma(d.burnA),'dEaD 地址');
+  mcard('<span class="pill poly">Poly</span> '+L('LGNS 供应 ','LGNS supply ')+t,comma(d.supP),'sLGNS '+comma(d.ssupP))+
+  mcard('<span class="pill anb">Anubis</span> '+L('LGNS 供应 ','LGNS supply ')+t,comma(d.supA),'sLGNS '+comma(d.ssupA))+
+  mcard(L('Polygon 已销毁 ','Polygon burned ')+t,comma(d.burnP),L('dEaD 地址','dEaD address'))+
+  mcard(L('Anubis 已销毁 ','Anubis burned ')+t,comma(d.burnA),L('dEaD 地址','dEaD address'));
 }
 function renderOfficial(o,src){
  const t=srcTag(src);
  const usd=v=>'$'+comma(Math.round(Number(v)).toString());
  $('mofficial').innerHTML=
-  mcard('平台 Runway '+t,(o.runway||'—')+' 天','官方口径可运行周期')+
-  mcard('质押率 '+t,(o.stakeRate||'—')+' %','已质押/总供应')+
-  mcard('累计销毁 LGNS '+t,comma(Math.round(Number(o.burnTotal)).toString()),'官方 totalBurn')+
-  mcard('国库无风险价值 '+t,usd(o.rfv),'官方 treasuryRiskFreeValue');
+  mcard(L('平台 Runway ','Platform runway ')+t,(o.runway||'—')+L(' 天',' d'),L('官方口径可运行周期','official runway estimate'))+
+  mcard(L('质押率 ','Staking ratio ')+t,(o.stakeRate||'—')+' %',L('已质押/总供应','staked/supply'))+
+  mcard(L('累计销毁 LGNS ','Total burned LGNS ')+t,comma(Math.round(Number(o.burnTotal)).toString()),L('官方 totalBurn','official totalBurn'))+
+  mcard(L('国库无风险价值 ','Treasury RFV ')+t,usd(o.rfv),L('官方 treasuryRiskFreeValue','official treasuryRiskFreeValue'));
 }
 let whPage=1;const WH_PS=20;
 function whaleData(){
@@ -924,16 +927,16 @@ function renderHoldings(){
    const ex=w.chain==='poly'?EX.poly:EX.anb,val=w.amt*price(w.chain);
    const pill=w.chain==='poly'?'<span class="pill poly">Poly</span>':'<span class="pill anb">ANB</span>';
    return `<tr><td>${start+i+1}</td><td>${pill}</td><td><a class="lnk mono" href="${ex}${w.addr}" target="_blank">${short(w.addr)}</a></td><td style="text-align:right">${w.amtStr} LGNS</td><td style="text-align:right;color:var(--dim)">$${comma(Math.round(val).toString())}</td><td><a class="verify" href="${ex}${w.addr}" target="_blank" aria-label="区块浏览器核验">🔗</a></td></tr>`;
- }).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--dim);padding:14px">没有匹配的地址</td></tr>';
+ }).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--dim);padding:14px">'+L('没有匹配的地址','No matching address')+'</td></tr>';
  const pc=Number(SNAP.polyWhales.count||0),ac=Number(SNAP.anbWhales.count||0);
- const wc=$('whCount');if(wc)wc.innerHTML=`共 Polygon <b>${pc}</b> + Anubis <b>${ac}</b> 人 · 当前筛选 ${total} 条 · 单位 LGNS，估值按各链现价 · 更新 ${SNAP.at}`;
- const pg=$('whPager');if(pg){pg.innerHTML=`<button ${whPage<=1?'disabled':''} id="whPrev" aria-label="上一页">上一页</button><span>第 ${whPage} / ${pages} 页</span><button ${whPage>=pages?'disabled':''} id="whNext" aria-label="下一页">下一页</button>`;const pv=$('whPrev'),nx=$('whNext');if(pv)pv.onclick=()=>{whPage--;renderHoldings();};if(nx)nx.onclick=()=>{whPage++;renderHoldings();};}
+ const wc=$('whCount');if(wc)wc.innerHTML=`${L('共 Polygon ','Polygon ')}<b>${pc}</b>${L(' + Anubis ',' + Anubis ')}<b>${ac}</b>${L(' 人 · 当前筛选 ',' addresses · filtered ')}${total}${L(' 条 · 单位 LGNS，估值按各链现价 · 更新 ',' · unit LGNS, valued at each chain price · updated ')}${SNAP.at}`;
+ const pg=$('whPager');if(pg){pg.innerHTML=`<button ${whPage<=1?'disabled':''} id="whPrev">${L('上一页','Prev')}</button><span>${L('第 ','Page ')}${whPage} / ${pages}${L(' 页','')}</span><button ${whPage>=pages?'disabled':''} id="whNext">${L('下一页','Next')}</button>`;const pv=$('whPrev'),nx=$('whNext');if(pv)pv.onclick=()=>{whPage--;renderHoldings();};if(nx)nx.onclick=()=>{whPage++;renderHoldings();};}
 }
-function setupHoldings(){['whChain','whSearch','whSort'].forEach(id=>{const e=$(id);if(e&&!e._wired){e._wired=1;const h=()=>{whPage=1;renderHoldings();};e.onchange=h;e.oninput=h;}});}
+function setupHoldings(){var _s=$('whSearch');if(_s)_s.placeholder=L('搜索地址…','Search address…');var _c=$('whChain');if(_c&&_c.options[0])_c.options[0].textContent=L('全部链','All chains');var _o=$('whSort');if(_o){if(_o.options[0])_o.options[0].textContent=L('持仓从高到低','High → low');if(_o.options[1])_o.options[1].textContent=L('从低到高','Low → high');}['whChain','whSearch','whSort'].forEach(id=>{const e=$(id);if(e&&!e._wired){e._wired=1;const h=()=>{whPage=1;renderHoldings();};e.onchange=h;e.oninput=h;}});}
 function renderPromoStat(){const el=$('mpromostat');if(!el)return;
- el.innerHTML=mcard('今日新增晋级 <span class="stag scan">后台扫描</span>',comma(SNAP.promo24h||0)+' 笔','过去 24 小时')
-  +mcard('近 7 日新增晋级 <span class="stag snap">暂未接入</span>','—','缺历史快照，暂未接入')
-  +mcard('近 30 日新增晋级 <span class="stag snap">暂未接入</span>','—','缺历史快照，暂未接入');
+ el.innerHTML=mcard(L('今日新增晋级 ','New promotions today ')+'<span class="stag scan">'+L('后台扫描','back-office')+'</span>',comma(SNAP.promo24h||0)+L(' 笔',''),L('过去 24 小时','last 24h'))
+  +mcard(L('近 7 日新增晋级 ','New promotions · 7d ')+'<span class="stag snap">'+L('暂未接入','not connected')+'</span>','—',L('缺历史快照，暂未接入','no history snapshot yet'))
+  +mcard(L('近 30 日新增晋级 ','New promotions · 30d ')+'<span class="stag snap">'+L('暂未接入','not connected')+'</span>','—',L('缺历史快照，暂未接入','no history snapshot yet'));
 }
 function renderSnap(src){
  renderCore(SNAP,src||'snap');
@@ -941,10 +944,10 @@ function renderSnap(src){
  renderPromoStat();
  const mx=Math.max(...Object.values(SNAP.levels));
  $('mlevels').innerHTML=[1,2,3,4,5,6].map(l=>`<div class="lv"><div class="n">V${l}</div><div class="c">${comma(SNAP.levels[l])}</div><div class="bar"><i style="width:${SNAP.levels[l]/mx*100}%"></i></div></div>`).join('');
- $('mlvnote').innerHTML=`共 <b>${comma(SNAP.v1plus)}</b> 个 V1+ 地址 · 过去24小时新增晋升 <b style="color:var(--green)">${SNAP.promo24h}</b> 笔 · 扫描 <b>${comma(SNAP.events)}</b> 条链上 daoLevel 事件（合约 0x579a71…，Anubis）。等级由官方按"三条线各≥5万"规则算好后写入链上，本站只读链上最终 daoLevel，可独立验证。<b>Polygon 无此等级系统</b>；两链地址各自独立、不做跨链合并。`;
+ $('mlvnote').innerHTML=`${L('共 ','A total of ')}<b>${comma(SNAP.v1plus)}</b>${L(' 个 V1+ 地址 · 过去24小时新增晋升 ',' V1+ addresses · promotions in the last 24h ')}<b style="color:var(--green)">${SNAP.promo24h}</b>${L(' 笔 · 扫描 ',' · scanned ')}<b>${comma(SNAP.events)}</b>${L(' 条链上 daoLevel 事件（合约 0x579a71…，Anubis）。等级由官方按"三条线各≥5万"规则算好后写入链上，本站只读链上最终 daoLevel，可独立验证。',' on-chain daoLevel events (contract 0x579a71…, Anubis). Levels are computed by the team per the rule "each of the 3 lines ≥50k" then written on-chain; this site only reads the final on-chain daoLevel, independently verifiable.')}<b>${L('Polygon 无此等级系统','Polygon has no such level system')}</b>${L('；两链地址各自独立、不做跨链合并。','; addresses on the two chains are independent, with no cross-chain merge.')}`;
  $('mpromos').querySelector('tbody').innerHTML=SNAP.promos.map(p=>`<tr><td><a class="lnk mono" href="${EX.anb}${p[0]}" target="_blank">${short(p[0])}</a></td><td class="up">V${p[1]} → V${p[2]}</td><td class="mono">${comma(p[3])}</td><td><a class="lnk mono" href="${EX.anbtx}${p[4]}" target="_blank">${p[4].slice(0,10)}…</a></td></tr>`).join('');
  setupHoldings();renderHoldings();
- $('mfoot').innerHTML=`口径：价格/供应/国库/销毁可实时读链，连不上海外节点则显示 ${SNAP.at} 快照；V1-V6 与持仓榜为后端定时扫描（当前 ${SNAP.at}）。持仓榜=钱包 LGNS + 直接持 sLGNS(活期) 合并去重，仅 EOA，已排除合约/池/国库/销毁/项目钱包；不含 360/600 锁仓、债券、warmup、未领奖励。`;
+ $('mfoot').innerHTML=`${L('口径：价格/供应/国库/销毁可实时读链，连不上海外节点则显示 ','Basis: price/supply/treasury/burn read live from chain; if overseas nodes are unreachable, showing ')}${SNAP.at}${L(' 快照；V1-V6 与持仓榜为后端定时扫描（当前 ',' snapshot; V1-V6 and the holdings board are scanned periodically by backend (current ')}${SNAP.at}${L('）。持仓榜=钱包 LGNS + 直接持 sLGNS(活期) 合并去重，仅 EOA，已排除合约/池/国库/销毁/项目钱包；不含 360/600 锁仓、债券、warmup、未领奖励。','). Holdings board = wallet LGNS + directly-held sLGNS (flexible), merged & deduped, EOA only, excluding contracts/pools/treasury/burn/project wallets; excludes 360/600 locks, bonds, warmup, unclaimed rewards.')}`;
 }
 const RPC={poly:['https://polygon-bor-rpc.publicnode.com','https://polygon.drpc.org','https://polygon-rpc.com'],anb:['https://rpc.anubispace.org']};
 async function mcall(rpcs,to,data){for(const u of rpcs){try{const c=new AbortController();const t=setTimeout(()=>c.abort(),9000);const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to,data},'latest']}),signal:c.signal});clearTimeout(t);const j=await r.json();if(j.result&&j.result!=='0x')return j.result;}catch(e){}}return null;}
@@ -957,7 +960,7 @@ async function loadLive(){
  try{
   const pr=await mcall(RPC.poly,'0x882df4B0fB50a229C3B4124EB18c759911485bFb','0x0902f1ac');
   const ar=await mcall(RPC.anb,'0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0','0x0902f1ac');
-  if(!pr&&!ar)throw new Error('节点连不上');
+  if(!pr&&!ar)throw new Error(L('节点连不上','nodes unreachable'));
   const d={...SNAP};
   if(pr){const[a,b]=resv(pr);if(b>0n)d.polyPrice=(Number((a*10n**15n)/(b*10n**18n))/1e6).toFixed(4);}
   if(ar){const[a,b]=resv(ar);if(a>0n)d.anbPrice=(Number((b*10n**15n)/(a*10n**18n))/1e6).toFixed(4);}
@@ -976,10 +979,10 @@ async function loadLive(){
    const dd=Array.isArray(dash)?dash[0]:dash,mm=Array.isArray(metr)?metr[0]:metr;
    renderOfficial({runway:(+mm.runwayCurrent).toFixed(1),stakeRate:(+dd.stakeRate).toFixed(2),burnTotal:dd.totalBurn,rfv:dd.treasuryRiskFreeValue,tvl:dd.totalValueLocked},'scan');
   }catch(e){}
-  $('mdot').className='mdot';$('mst').innerHTML='✓ 价格/供应/国库为链上实时 · '+new Date().toLocaleString('zh-CN')+' · V1-V6/持仓榜为 '+SNAP.at+' 后台扫描';
+  $('mdot').className='mdot';$('mst').innerHTML=L('✓ 价格/供应/国库为链上实时 · ','✓ Price/supply/treasury live · ')+new Date().toLocaleString(isZh()?'zh-CN':'en-US')+L(' · V1-V6/持仓榜为 ',' · V1-V6/holdings from ')+SNAP.at+L(' 后台扫描',' back-office scan');
  }catch(e){
   renderSnap('snap');
-  $('mdot').className='mdot off';$('mst').innerHTML='⚠ 当前 RPC 暂时不可用（可能需开 VPN），正在显示最近一次可用快照（'+SNAP.at+'）。';
+  $('mdot').className='mdot off';$('mst').innerHTML=L('⚠ 当前 RPC 暂时不可用（可能需开 VPN），正在显示最近一次可用快照（','⚠ RPC temporarily unavailable (a VPN may be needed); showing the last available snapshot (')+SNAP.at+L('）。',').');
  }
  rf.disabled=false;
 }
@@ -997,12 +1000,12 @@ async function loadStats(){
   if(m.official)SNAP.official=m.official;
   if(d.updatedAt)SNAP.at=d.updatedAt.slice(0,10);
   renderSnap('scan');
-  $('mdot').className='mdot';$('mst').innerHTML='✓ 数据已自动更新（后台扫描）· '+(d.updatedAt?new Date(d.updatedAt).toLocaleString('zh-CN'):'');
+  $('mdot').className='mdot';$('mst').innerHTML=L('✓ 数据已自动更新（后台扫描）· ','✓ Auto-updated (back-office scan) · ')+(d.updatedAt?new Date(d.updatedAt).toLocaleString(isZh()?'zh-CN':'en-US'):'');
  }catch(e){ try{await loadLive();}catch(e2){} }
  if(rf)rf.disabled=false;
 }
-try{ renderSnap('snap'); $('mst').innerHTML='正在加载最新数据…'; try{$('mrf').onclick=loadStats;}catch(e){} loadStats(); }
-catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="background:#e06a6a;color:#111;padding:10px">监控脚本出错: '+err.message+'</div>'); }
+try{ renderSnap('snap'); $('mst').innerHTML=L('正在加载最新数据…','Loading latest data…'); try{$('mrf').onclick=loadStats;}catch(e){} loadStats(); try{ new MutationObserver(function(){ try{renderSnap('scan');}catch(e){} }).observe(document.documentElement,{attributes:true,attributeFilter:['lang']}); }catch(e){} }
+catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="background:#e06a6a;color:#111;padding:10px">'+L('监控脚本出错: ','Monitor error: ')+err.message+'</div>'); }
 })();
 </script>
 <!-- ===== 会员 30 项工具权益渲染（读统一配置，独立作用域）===== -->
@@ -1019,6 +1022,8 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
   _set('mbTotal', M.TOOLS.length); _set('mbLive', cnt.live); _set('mbSoon', cnt.soon); _set('mbDev', cnt.dev);
 
   var _RANK={live:0,soon:1,dev:2};
+  function paintCards(){
+  host.innerHTML='';
   M.TOOLS.slice().sort(function(a,b){var r=(_RANK[a.status]!=null?_RANK[a.status]:9)-(_RANK[b.status]!=null?_RANK[b.status]:9);return r!==0?r:(a.number-b.number);}).forEach(function(t,_i){
     t._dn=_i+1;
     var sm = SM[t.status] || SM.dev;
@@ -1026,24 +1031,27 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
     el.className='mb-c'; el.setAttribute('role','button'); el.setAttribute('tabindex','0');
     el.innerHTML =
       '<div class="hd"><span class="no">'+t._dn+'</span><span class="ic">'+t.icon+'</span>'+
-      (t.isPremium?'<span class="lk" title="会员专属">🔒</span>':'')+'</div>'+
-      '<div class="nm">'+esc(t.name)+'</div>'+
-      '<div class="de">'+esc(t.description)+'</div>'+
-      '<div class="ft"><span class="mb-t '+sm.cls+'">'+sm.dot+' '+sm.label+'</span>'+
-      '<span class="act">'+(t.status==='live'?'进入工具 →':'查看介绍 →')+'</span></div>';
+      (t.isPremium?'<span class="lk" title="'+L('会员专属','Members only')+'">🔒</span>':'')+'</div>'+
+      '<div class="nm">'+esc(isZh()?t.name:(t.en&&t.en.name||t.name))+'</div>'+
+      '<div class="de">'+esc(isZh()?t.description:(t.en&&t.en.description||t.description))+'</div>'+
+      '<div class="ft"><span class="mb-t '+sm.cls+'">'+sm.dot+' '+(isZh()?sm.label:(sm.en||sm.label))+'</span>'+
+      '<span class="act">'+(t.status==='live'?L('进入工具 →','Open →'):L('查看介绍 →','Details →'))+'</span></div>';
     el.addEventListener('click', function(){ onTool(t); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onTool(t); } });
     host.appendChild(el);
   });
 
   var cats = document.getElementById('mbCats');
-  if(cats){ M.CATEGORIES.forEach(function(c){
+  if(cats){ cats.innerHTML=''; M.CATEGORIES.forEach(function(c){
     var list = M.byCategory(c.id), live = list.filter(function(t){return t.status==='live';}).length;
     var el=document.createElement('div'); el.className='mb-cat';
-    el.innerHTML='<div class="ci">'+c.icon+'</div><div class="ct">'+esc(c.name)+'</div>'+
-      '<div class="cd">'+esc(c.desc)+'</div><div class="cn">'+list.length+' 项 · 已上线 '+live+' 项</div>';
+    el.innerHTML='<div class="ci">'+c.icon+'</div><div class="ct">'+esc(isZh()?c.name:(c.en&&c.en.name||c.name))+'</div>'+
+      '<div class="cd">'+esc(isZh()?c.desc:(c.en&&c.en.desc||c.desc))+'</div><div class="cn">'+list.length+L(' 项 · 已上线 ',' tools · ')+live+L(' 项',' live')+'</div>';
     cats.appendChild(el);
   }); }
+  }
+  paintCards();
+  try{ new MutationObserver(paintCards).observe(document.documentElement,{attributes:true,attributeFilter:['lang']}); }catch(e){}
 
   // 弹窗（未上线工具只显示介绍，不进空白页）
   var mask=document.createElement('div'); mask.className='mb-mask'; mask.id='mbMask';
@@ -1070,22 +1078,23 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
       location.href = t.route; return;
     }
     var msg = t.status==='soon'
-      ? '该工具即将上线，敬请期待。上线后会员即可直接进入使用。'
-      : '该工具正在开发中，尚未开放。完成并通过测试后会更新为「已上线」。';
+      ? L('该工具即将上线，敬请期待。上线后会员即可直接进入使用。','This tool is coming soon. Once live, members can use it directly.')
+      : L('该工具正在开发中，尚未开放。完成并通过测试后会更新为「已上线」。','This tool is in development and not yet available. It will switch to Live after testing.');
     modal.innerHTML =
       '<button class="x" aria-label="关闭">×</button>'+
       '<div class="mic">'+t.icon+'</div>'+
-      '<div class="mno">工具 '+(t._dn||t.number)+' / 30 · 会员专属 🔒</div>'+
-      '<h4>'+esc(t.name)+'</h4>'+
-      '<span class="mst" style="color:'+sm.color+';background:'+hexA(sm.color,.12)+';border:1px solid '+hexA(sm.color,.4)+'">'+sm.dot+' '+sm.label+'</span>'+
-      '<p class="mde">'+esc(t.description)+'</p>'+
+      '<div class="mno">'+L('工具 ','Tool ')+(t._dn||t.number)+L(' / 30 · 会员专属 🔒',' / 31 · Members only 🔒')+'</div>'+
+      '<h4>'+esc(isZh()?t.name:(t.en&&t.en.name||t.name))+'</h4>'+
+      '<span class="mst" style="color:'+sm.color+';background:'+hexA(sm.color,.12)+';border:1px solid '+hexA(sm.color,.4)+'">'+sm.dot+' '+(isZh()?sm.label:(sm.en||sm.label))+'</span>'+
+      '<p class="mde">'+esc(isZh()?t.description:(t.en&&t.en.description||t.description))+'</p>'+
       '<div class="meta">📌 '+msg+'</div>'+
-      '<button class="mbtn" id="mbClose">我知道了</button>';
+      '<button class="mbtn" id="mbClose">'+L('我知道了','Got it')+'</button>';
     modal.querySelector('.x').addEventListener('click', closeM);
     modal.querySelector('#mbClose').addEventListener('click', closeM);
     mask.classList.add('on');
   }
 })();
 </script>
+<script src="/i18n.js"></script>
 </body>
 </html>
