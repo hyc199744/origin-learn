@@ -138,7 +138,7 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
       document.getElementById('anbN').innerHTML=aw.length+L(' 位','');
       render();
       var upd=d.updatedAt?new Date(d.updatedAt).toLocaleString(isZh()?'zh-CN':'en-US'):'—';
-      st.innerHTML='<span class="dot"></span>'+L('✓ 后台扫描更新于 ','✓ Back-office scan updated ')+upd+L('（每 30 分钟更新）· 门槛 ≥10 万 LGNS',' (every 30 min) · threshold ≥100k LGNS');
+      st.innerHTML='<span class="dot"></span>'+L('✓ 后台扫描更新于 ','✓ Back-office scan updated ')+upd+L('（每 30 分钟更新）· 门槛 Polygon ≥10万 / Anubis ≥1万 LGNS',' (every 30 min) · threshold: Polygon ≥100k / Anubis ≥10k LGNS');
     }catch(e){
       st.innerHTML='<span style="color:var(--red)">'+L('读取失败：','Load failed: ')+(e.message||L('网络波动','network error'))+L('，请点刷新重试',' — click refresh to retry')+'</span>';
     }finally{ document.getElementById('refresh').disabled=false; }
