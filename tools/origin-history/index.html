@@ -1588,7 +1588,7 @@ body.hg-locked .nav,body.hg-locked header,body.hg-locked .jump,body.hg-locked .w
   document.addEventListener('click',function(e){
     var b=e.target.closest('.copy'); if(!b)return; e.preventDefault();
     var t=b.getAttribute('data-c');
-    function ok(){toast.textContent='已复制 '+t.slice(0,10)+'…';toast.classList.add('show');setTimeout(function(){toast.classList.remove('show')},1100);}
+    function ok(){toast.textContent=(window.L?window.L('已复制 ','Copied '):'Copied ')+t.slice(0,10)+'…';toast.classList.add('show');setTimeout(function(){toast.classList.remove('show')},1100);}
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok,ok);}else{ok();}
   });
   var q=document.getElementById('q'),rows=[].slice.call(document.querySelectorAll('#at tbody tr'));
@@ -1624,7 +1624,7 @@ body.hg-locked .nav,body.hg-locked header,body.hg-locked .jump,body.hg-locked .w
       if(!/^0x[0-9a-fA-F]{64}$/.test(h)) return; // 只对交易哈希(0x+64位)加跳转,地址不加
       if(btn.nextSibling && btn.nextSibling.className==='exlink') return;
       var a=document.createElement('a');
-      a.href=base+h; a.target='_blank'; a.rel='noopener'; a.className='exlink'; a.textContent='🔗 查';
+      a.href=base+h; a.target='_blank'; a.rel='noopener'; a.className='exlink'; a.innerHTML=(window.SP?window.SP('🔗 查','🔗 View'):'🔗 View');
       btn.parentNode.insertBefore(a, btn.nextSibling);
     });
   });
