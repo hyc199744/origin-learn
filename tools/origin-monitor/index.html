@@ -518,15 +518,22 @@ async function renderMyOrders(){
  if(!arr.length){el.innerHTML='<div class="pos" style="padding:13px;text-align:center;color:var(--dim)">'+L('本设备还没有下单记录。点上面「支付 10 LGNS 解锁」生成订单后，订单号会自动记在这里。','No orders on this device yet. Tap Pay 10 LGNS above to create one; the order number is saved here automatically.')+'</div>';return;}
  el.innerHTML='<div class="pos" style="padding:13px"><div class="t" style="margin-bottom:8px">'+L('我的订单（本设备）','My orders (this device)')+'</div><div id="monMineList"></div></div>';
  const box=document.getElementById('monMineList');
+ const moStatus={};
  box.innerHTML=arr.map((o,i)=>`<div style="border:1px solid var(--line);border-radius:9px;padding:10px 11px;margin-bottom:8px">
-   <div class="det" style="justify-content:space-between"><span style="color:var(--dim);font-size:11px">${new Date(o.created).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${o.amount} LGNS</span><span class="mst-${i}" style="font-size:11.5px;color:var(--gold2)">${L('查状态中…','Checking…')}</span></div>
-   <div class="det" style="margin-top:5px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1;font-size:11.5px">${o.orderId}</code><button class="verify" data-c="${o.orderId}">${L('复制订单号','Copy order no.')}</button></div></div>`).join('');
+   <div class="det" style="justify-content:space-between"><span style="color:var(--dim);font-size:11px">${new Date(o.created).toLocaleString(isZh()?'zh-CN':'en-US',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})} · ${o.amount} LGNS</span><span class="mst-${i}" style="font-size:11.5px;color:var(--gold2)">${L('查状态中…','Checking…')}</span></div>
+   <div class="det" style="margin-top:5px;gap:6px;flex-wrap:wrap"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1;min-width:120px;font-size:11.5px">${o.orderId}</code><button class="verify" data-c="${o.orderId}">${L('复制订单号','Copy order no.')}</button><button class="verify" data-del="${o.orderId}" style="border-color:rgba(255,120,110,.45);color:#ff9a8f">${L('✕ 删除','✕ Delete')}</button></div></div>`).join('');
  box.querySelectorAll('[data-c]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.c);b.textContent=L('已复制✓','Copied ✓');setTimeout(()=>b.textContent=t,1200);};});
+ box.querySelectorAll('[data-del]').forEach(b=>{const o0=b.textContent;b.onclick=async()=>{
+   const id=b.dataset.del;let st=moStatus[id];
+   if(st===undefined){b.disabled=true;b.textContent=L('检查中…','Checking…');try{const c=await fetch(WK+'/mon/check?order='+id).then(r=>r.json());st=(c&&c.status==='paid'&&c.access)?'paid':((c&&c.status)||'pending');}catch(e){st='pending';}b.disabled=false;b.textContent=o0;}
+   if(st==='paid'){b.textContent=L('已付款·不可删','Paid · locked');b.style.color='#7bffb0';b.style.borderColor='rgba(37,201,111,.4)';return;}
+   const a=loadMonOrders().filter(x=>x.orderId!==id);try{localStorage.setItem(MORD,JSON.stringify(a));}catch(e){}renderMyOrders();
+ };});
  arr.forEach(async(o,i)=>{let c;try{c=await fetch(WK+'/mon/check?order='+o.orderId).then(r=>r.json());}catch(e){return;}
    const s=box.querySelector('.mst-'+i);if(!s)return;
-   if(c&&c.status==='paid'&&c.access){s.innerHTML='<b style="color:#7bffb0">'+L('✓ 已付款 · 点恢复','✓ Paid · tap to restore')+'</b>';s.style.cursor='pointer';s.onclick=()=>monGrant(c.access);}
-   else if(c&&c.status==='canceled')s.innerHTML='<span style="color:var(--dim)">'+L('已取消','Canceled')+'</span>';
-   else s.innerHTML='<span style="color:var(--gold2)">'+L('● 待付款','● Awaiting payment')+'</span>';
+   if(c&&c.status==='paid'&&c.access){moStatus[o.orderId]='paid';s.innerHTML='<b style="color:#7bffb0">'+L('✓ 已付款 · 点恢复','✓ Paid · tap to restore')+'</b>';s.style.cursor='pointer';s.onclick=()=>monGrant(c.access);const db=box.querySelector('[data-del="'+o.orderId+'"]');if(db)db.style.display='none';}
+   else if(c&&c.status==='canceled'){moStatus[o.orderId]='canceled';s.innerHTML='<span style="color:var(--dim)">'+L('已取消','Canceled')+'</span>';}
+   else {moStatus[o.orderId]='pending';s.innerHTML='<span style="color:var(--gold2)">'+L('● 待付款','● Awaiting payment')+'</span>';}
  });
 }
 async function monStartPay(){
