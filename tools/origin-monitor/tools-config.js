@@ -103,8 +103,8 @@
 
     { id: 'peg-logic', number: 12, name: '1美元托底逻辑', en: {"name":"$1 Backstop Logic","description":"Video lesson (~1h46m): the pool, reserves and mechanism-based support — a soft floor, not a hard one."}, category: 'data-evidence', icon: '⚖️',
       description: '视频课·约1小时46分：看懂底池、储备与机制托底的逻辑——软底不是硬底。',
-      status: 'live', isPremium: true, route: '/video/weishenme-diebupo-1usd/', enabled: true,
-      note: '会员专属视频课,点击跳独立视频页 /video/weishenme-diebupo-1usd/(该页已加会员门禁,非会员跳付款)。' },
+      status: 'live', isPremium: true, route: '/tools/peg-video/', enabled: true,
+      note: '会员专属视频课,点击跳极简独立视频页 /tools/peg-video/(只有视频,无推荐/大纲;已加会员门禁,非会员跳付款)。视频源同 weishenme-diebupo-1usd.mp4。' },
 
     { id: 'staking-total', number: 13, name: '全网质押总量看板', en: {"name":"Network Staking Overview","description":"Dual-chain staking totals, participants and daily change."}, category: 'asset-staking', icon: '📟',
       description: '统计双链各类质押总量、参与钱包数量及每日变化。',
