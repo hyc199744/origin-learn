@@ -31,6 +31,7 @@ function initHub(){
   var vids=window.VIDEOS||[];
   var reals=vids.filter(function(v){return v.src;});
   // 学习进度
+  var LOCKED={};(window.VIDEOS||[]).forEach(function(v){if(v.locked)LOCKED[v.slug]=1;});
   function refresh(){
     var watched=reals.filter(function(v){return prog(v.slug)>=90;}).length;
     var pt=document.getElementById("vidProgText"); if(pt)pt.textContent=watched+" / "+reals.length;
@@ -40,6 +41,7 @@ function initHub(){
       var pb=c.querySelector(".vid-prog"); if(pb)pb.style.width=pg+"%";
       c.classList.toggle("watched",pg>=90);
       var fb=c.querySelector(".vid-fav"); if(fb){fb.textContent=fav(s)?"★":"☆";fb.classList.toggle("on",fav(s));}
+      if(LOCKED[s]&&!c.querySelector(".vid-lock")){var lk=document.createElement("span");lk.className="vid-lock";lk.textContent="🔒";lk.style.cssText="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.65);border-radius:6px;padding:2px 8px;font-size:13px;z-index:3";var th=c.querySelector(".vid-thumb")||c;th.style.position="relative";th.appendChild(lk);}
     });
   }
   refresh(); window.addEventListener("focus",refresh); window.__vidRefresh=refresh;
@@ -87,6 +89,12 @@ function buildShort(ov,reals){
   var wrap=ov.querySelector(".vid-short-feed"); if(!wrap||wrap.getAttribute("data-built"))return;
   wrap.setAttribute("data-built","1");
   wrap.innerHTML=reals.map(function(v){
+    if(v.locked){
+      return '<div class="vid-short-item" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:28px 22px"><div style="max-width:340px"><div style="font-size:44px;line-height:1">🔒</div>'
+        +'<div class="vs-cat" style="margin-top:8px">'+catName(v.cat)+' · '+(v.durText||"")+'</div>'
+        +'<div class="vs-title">'+v.title+'</div><div class="vs-desc">'+(v.desc||"")+'</div>'
+        +'<a class="vs-open" href="/tools/origin-monitor/?from=peg">'+(EN()?"🔓 Members only · unlock to watch ›":"🔓 会员专属 · 开通观看 ›")+'</a></div></div>';
+    }
     return '<div class="vid-short-item"><video src="'+v.src+'#t=0.1" playsinline preload="metadata" controls loop></video>'
       +'<div class="vid-short-meta"><div class="vs-cat">'+catName(v.cat)+' · '+(v.durText||"")+'</div>'
       +'<div class="vs-title">'+v.title+'</div><div class="vs-desc">'+(v.desc||"")+'</div>'

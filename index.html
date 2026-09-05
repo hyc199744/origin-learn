@@ -805,7 +805,7 @@ window.renderCodices();
       const i=rows.indexOf(r), ic=ICON[r.type]||'📄';
       return `<div class="art res" data-idx="${i}">
         <span class="cat res-${r.type}">${ic} ${catT(r.cat||'')}</span>
-        <div><div class="t">${tr(r.title)}</div><div class="m">${tr(r.desc||'')}</div></div>
+        <div><div class="t">${r.locked?'🔒 ':''}${tr(r.title)}</div><div class="m">${tr(r.desc||'')}</div></div>
         <span class="arw">${r.type==='link'?'↗':'▶'}</span></div>`;
     }).join('')||'<p style="text-align:center;color:var(--muted)">这个分类还没有资料</p>';
   }
@@ -847,6 +847,16 @@ window.renderCodices();
   }
   function openModal(r){
     mttl.textContent=r.title;
+    if(r.type==='video' && r.locked){
+      var tok=''; try{tok=localStorage.getItem('mon_access_v1')||'';}catch(e){}
+      if(!tok){ location.href='/tools/origin-monitor/?from=peg'; return; }
+      mbody.innerHTML='<div style="text-align:center;color:var(--muted);padding:44px 20px">…</div>'; mask.classList.add('show');
+      fetch('https://count.web3origin.com/mon/access?token='+encodeURIComponent(tok)).then(function(x){return x.json();}).then(function(j){
+        if(j&&j.ok){ mbody.innerHTML='<video controls autoplay playsinline style="width:100%;max-height:72vh;border-radius:8px;background:#000"><source src="'+r.src+'" type="video/mp4"></video>'; }
+        else { location.href='/tools/origin-monitor/?from=peg'; }
+      }).catch(function(){ location.href='/tools/origin-monitor/?from=peg'; });
+      return;
+    }
     if(r.type==='video') mbody.innerHTML=`<video controls autoplay playsinline style="width:100%;max-height:72vh;border-radius:8px;background:#000"><source src="${r.src}" type="video/mp4"></video>`;
     else if(r.type==='pdf'){ mbody.innerHTML=''; mask.classList.add('show'); renderPDF(r.src,mbody); return; }
     else if(r.type==='article') mbody.innerHTML=`<div class="article-body">${r.html||''}</div>`;

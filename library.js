@@ -42,7 +42,7 @@ const LIBRARY = [
     src: "https://media.web3origin.com/qiyuan-dicengluoji.mp4"
   },
   {
-    type: "video", cat: "视频课",
+    type: "video", cat: "视频课", locked: true,
     title: "为什么跌不破一美金",
     desc: "约 1 小时 46 分 · 看懂底池、储备与机制托底的逻辑——但记住，软底不是硬底。",
     src: "https://media.web3origin.com/weishenme-diebupo-1usd.mp4"
