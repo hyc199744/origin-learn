@@ -191,7 +191,7 @@ button.go,.btn2{min-height:44px}
  .grid{grid-template-columns:1fr 1fr}
  h1{font-size:21px}
 }
-/* ===== 会员 30 项工具权益展示（mb- 前缀，独立不影响现有样式）===== */
+/* ===== 会员 31 项工具权益展示（mb- 前缀，独立不影响现有样式）===== */
 .mb-wrap{margin:26px 0 4px}
 .mb-h{font-size:18px;color:var(--gold);margin:0 0 4px;font-weight:800;display:flex;align-items:center;gap:9px;background:linear-gradient(90deg,rgba(212,175,55,.09),transparent 70%);border-radius:0 8px 8px 0;padding:7px 11px;border-left:3px solid var(--gold)}
 .mb-h .mb-num{font-size:12px;color:#1a1205;background:linear-gradient(135deg,var(--poly),#6fb6ff);border-radius:20px;padding:3px 10px;font-weight:800}
@@ -274,13 +274,13 @@ button.go,.btn2{min-height:44px}
   <div id="sampleReport"></div>
   </div>
 
-  <!-- ===== 会员 30 项工具（付款前=权益预览 / 付款后=会员工具台，移出 introBlock 使其解锁后仍在）===== -->
+  <!-- ===== 会员 31 项工具（付款前=权益预览 / 付款后=会员工具台，移出 introBlock 使其解锁后仍在）===== -->
   <div class="mb-wrap" id="mbShowcase">
     <h3 class="mb-h"><span class="mb-num" id="mbNum"><span data-lang="zh">31 项</span><span data-lang="en">31 tools</span></span><span id="mbTitle"><span data-lang="zh">解锁后可用的链上工具</span><span data-lang="en">On-chain tools unlocked with membership</span></span></h3>
     <div class="mb-grid" id="mbGrid"></div>
     <h3 class="mb-h" style="margin-top:24px"><span class="mb-num"><span data-lang="zh">分类</span><span data-lang="en">Categories</span></span><span data-lang="zh">六大链上能力</span><span data-lang="en">Six on-chain capability areas</span></h3>
     <div class="mb-cats" id="mbCats"></div>
-    <div class="mb-note" id="mbNote"><span data-lang="zh">会员可使用<b style="color:#f0c48c">已经上线</b>的工具，并按页面标注查看后续工具开放进度。不代表付款后立即使用全部 30 项。</span><span data-lang="en">Members can use tools marked <b style="color:#f0c48c">Live</b>, and track upcoming tools by their status. It does not mean all tools are usable immediately after paying.</span></div>
+    <div class="mb-note" id="mbNote"><span data-lang="zh">会员可使用<b style="color:#f0c48c">已经上线</b>的工具，并按页面标注查看后续工具开放进度。不代表付款后立即使用全部 31 项。</span><span data-lang="en">Members can use tools marked <b style="color:#f0c48c">Live</b>, and track upcoming tools by their status. It does not mean all tools are usable immediately after paying.</span></div>
   </div>
 
   <div id="gate"></div>
@@ -473,7 +473,7 @@ function unlockUI(){
    +'<div class="det" style="margin-top:6px"><code class="mono" style="word-break:break-all;color:var(--txt);flex:1;font-size:11.5px">'+link+'</code><button class="verify" id="copyLink">'+L('复制链接','Copy link')+'</button></div></div>';
  var cl=document.getElementById('copyLink');if(cl)cl.onclick=function(){copyText(link);cl.textContent=L(L('已复制✓','Copied ✓'),'Copied✓');setTimeout(function(){cl.textContent=L('复制链接','Copy link');},1200);};
  var ib=document.getElementById('introBlock');if(ib)ib.style.display='none';
- // 解锁后：只显示「会员工具台」(30项)。查询/监控等已各自拆成独立页,不再在本页内展示。
+ // 解锁后：只显示「会员工具台」(31项)。查询/监控等已各自拆成独立页,不再在本页内展示。
  try{
    var mt=document.getElementById('mbTitle');if(mt)mt.textContent=L('你的会员工具 · 点击进入','Your member tools · tap to open');
    var mnum=document.getElementById('mbNum');if(mnum)mnum.textContent=L('✓ 已解锁','✓ Unlocked');
@@ -493,7 +493,7 @@ function renderGate(){
  const g=document.getElementById('gate');if(!g)return;
  g.innerHTML=`<div class="total" id="gateCard" style="text-align:center;padding:24px">
   <div class="big" style="font-size:27px">${L('🔓 10 LGNS 解锁完整功能','🔓 Unlock full access · 10 LGNS')}</div>
-  <div style="color:var(--soft);font-size:14px;margin:10px 0 2px;line-height:1.75">${L('一次性付费，解锁<b style="color:var(--gold2)">当前全部查询功能</b>：双链资产 · 360/600 质押明细 · DAO 等级与团队业绩 · 地址行为画像 · <b style="color:var(--gold2)">完整推荐人 + 绑定时间</b> · 报告导出。','One-time payment unlocks <b style="color:var(--gold2)">all current query features</b>: dual-chain assets · 360/600 staking detail · DAO level & team volume · address behavior · <b style="color:var(--gold2)">full referrer + bind time</b> · report export.')}</div>
+  <div style="color:var(--soft);font-size:14px;margin:10px 0 2px;line-height:1.75">${L('一次性付费，解锁<b style="color:var(--gold2)">当前全部查询功能</b>：双链资产 · 360/600 质押明细 · DAO 等级与团队业绩 · 地址行为画像 · <b style="color:var(--gold2)">完整推荐人 + 绑定时间</b>。（报告导出即将上线）','One-time payment unlocks <b style="color:var(--gold2)">all current query features</b>: dual-chain assets · 360/600 staking detail · DAO level & team volume · address behavior · <b style="color:var(--gold2)">full referrer + bind time</b>. (Report export coming soon)')}</div>
   <div style="display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin:12px 0 2px;font-size:12.5px;color:var(--soft)">
     <span>${L('✓ 一次性付款','✓ One-time payment')}</span><span>${L('✓ Polygon 与 Anubis 双链通用','✓ Works on Polygon & Anubis')}</span><span>${L('✓ 本设备自动识别','✓ Auto-recognized on this device')}</span><span>${L('✓ 换设备可凭订单凭证恢复','✓ Restore on new devices via order')}</span><span>${L('✓ 链上提币工具无需再次付费','✓ On-chain withdraw needs no extra pay')}</span>
   </div>
@@ -742,7 +742,7 @@ async function sampleReport(){
  free+=card('最后活跃(采样)',last.length?tsD(Math.max.apply(null,last)):'—');
  free+='</div><div class="meta" style="margin-top:8px">数据来源：Polygon / Anubis 公开链上（RPC 读取） · 查询时间 '+new Date().toLocaleString('zh-CN')+'</div></div>';
  const lockedInner=daoHTML(comm)+rp.html+ra.html+behaviorHTML(wpol,wanb,addr);
- const locked='<div class="locked" style="margin-top:14px"><div class="lockwrap">'+lockedInner+'</div><div class="lockmask"><div class="lt">🔒 解锁完整链上尽调报告</div><div class="ls">360/600 质押逐笔明细 · DAO 等级 · 三线团队业绩 · 完整推荐人关系 · 待领奖励 · 链上行为分析 · 报告导出</div><div class="ls" style="color:var(--gold2)">一次性 10 LGNS，永久使用当前全部查询功能</div><button class="go" id="sampleUnlock" style="margin-top:6px" aria-label="解锁完整功能">🔓 解锁完整功能</button></div></div>';
+ const locked='<div class="locked" style="margin-top:14px"><div class="lockwrap">'+lockedInner+'</div><div class="lockmask"><div class="lt">🔒 解锁完整链上尽调报告</div><div class="ls">360/600 质押逐笔明细 · DAO 等级 · 三线团队业绩 · 完整推荐人关系 · 待领奖励 · 链上行为分析 · 报告导出（即将上线）</div><div class="ls" style="color:var(--gold2)">一次性 10 LGNS，永久使用当前全部查询功能</div><button class="go" id="sampleUnlock" style="margin-top:6px" aria-label="解锁完整功能">🔓 解锁完整功能</button></div></div>';
  box.innerHTML=free+locked;
  box.querySelectorAll('[data-copy]').forEach(b=>{const t=b.textContent;b.onclick=()=>{copyText(b.dataset.copy);b.textContent=L('已复制','Copied');b.classList.add('copied');setTimeout(()=>{b.textContent=t;b.classList.remove('copied');},1200);};});
  const su=document.getElementById('sampleUnlock');if(su)su.onclick=openPay;
@@ -985,7 +985,7 @@ try{ renderSnap('snap'); $('mst').innerHTML=L('正在加载最新数据…','Loa
 catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="background:#e06a6a;color:#111;padding:10px">'+L('监控脚本出错: ','Monitor error: ')+err.message+'</div>'); }
 })();
 </script>
-<!-- ===== 会员 30 项工具权益渲染（读统一配置，独立作用域）===== -->
+<!-- ===== 会员 31 项工具权益渲染（读统一配置，独立作用域）===== -->
 <script src="./tools-config.js"></script>
 <script>
 (function(){

@@ -132,8 +132,8 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
   <div class="sect"><div class="l"></div><h2>Awake 官方公告</h2><div class="l r"></div></div>
   <div id="anns"><div class="load">正在同步官方公告…</div></div>
 
-  <div class="sect"><div class="l"></div><h2>Awake 官方推特</h2><div class="l r"></div></div>
-  <div id="xfeed"><div class="load">正在同步官方推文…</div></div>
+  <div class="sect"><div class="l"></div><h2>Awake 官方 · 社区推特</h2><div class="l r"></div></div>
+  <div id="xfeed"><div class="load">正在同步推文…</div></div>
 
   <div class="disc"><b>Web3Origin</b> 是独立的 Web3 学习与链上研究平台，不代表任何项目方。内容基于官方公开信息整理，仅供学习研究，不构成投资建议或收益承诺。请在连接钱包或操作资产前自行核验。<div class="w">⚠️ 任何网站或个人都不应向你索要助记词、私钥、钱包密码或验证码。Web3Origin 绝不会要求你填写上述信息。</div></div>
 </div>
@@ -143,6 +143,7 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 <script>
 var API="https://count.web3origin.com/news/feed";
 var FEED=null, ANNS=[], _curAnnId="";
+function dedupe(arr,keyfn){var seen={},out=[];for(var i=0;i<arr.length;i++){var k=keyfn(arr[i]);if(seen[k])continue;seen[k]=1;out.push(arr[i]);}return out;}
 /* 埋点:若 analytics.js(defer)尚未就绪,先入队,就绪后补发,避免早点击丢事件 */
 var _evq=[];
 function _evReady(){return !!(window.W3OAnalytics&&typeof W3OAnalytics.track==="function");}
@@ -169,16 +170,19 @@ function renderAnns(){
 }
 function renderTweets(){
  var box=document.getElementById("xfeed");var tw=(FEED&&FEED.tweets)||[];
- if(!tw.length){box.innerHTML='<div class="empty">暂无官方推文。官方号发重要推文后由后台添加，自动抓取翻译显示。</div>';return;}
+ if(!tw.length){box.innerHTML='<div class="empty">暂无推文。官方号与社区作者发重要推文后自动抓取翻译显示。</div>';return;}
+ var OFFICIAL_H=["saluteorigin","anubi_sab","anubischain_","anubis_labs"];
  box.innerHTML=tw.map(function(t){
    var zh=t.text_zh&&t.text_zh.trim();var mainTx=zh||t.text||"";
+   var isOff=OFFICIAL_H.indexOf(String(t.handle||"").toLowerCase())>=0;
+   var srcLab=isOff?"官方推文":"社区作者";
    var orig=(zh&&t.text)?'<details class="tworig"><summary></summary><div class="txo">'+esc(t.text)+'</div></details><div class="ainote">🌐 由 AI 辅助翻译，以原文为准</div>':'';
    var img=(t.media&&t.media.length)?'<div class="twmedia'+(t.media.length>1?' multi':'')+'">'+t.media.slice(0,4).map(function(m){var pu="https://count.web3origin.com/news/img?u="+encodeURIComponent(m);return '<a data-analytics-skip href="'+pu+'" target="_blank" rel="noopener"><img loading="lazy" src="'+pu+'" alt="推文配图"></a>'}).join('')+'</div>':'';
    var dt=t.created_at?new Date(t.created_at).toISOString().slice(0,10):"";
    var avimg=t.avatar?'<img class="avimg" loading="lazy" alt="" src="https://count.web3origin.com/news/img?u='+encodeURIComponent(t.avatar)+'" onerror="this.remove()">':'';
    return '<div class="tw" data-h="'+esc(t.handle||"")+'"><div class="u"><div class="av"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff" aria-hidden="true"><path d="M18.9 2H22l-7.6 8.7L23.4 22h-6.9l-5.4-7-6.2 7H1.7l8.2-9.3L1 2h7l4.9 6.5L18.9 2Zm-2.4 18h1.9L7.1 3.9H5.1L16.5 20Z"/></svg>'+avimg+'</div><div><div class="n">'+esc(t.name||"")+(t.verified?' <span class="vf">✔ 认证</span>':'')+'</div><div class="h">@'+esc(t.handle||"")+'</div></div></div>'+
    '<div class="tx">'+esc(mainTx)+'</div>'+orig+img+
-   '<div class="ft">'+dt+' · 官方推文</div></div>';
+   '<div class="ft">'+dt+' · '+srcLab+'</div></div>';
  }).join('');
 }
 function openReader(i){
@@ -234,7 +238,8 @@ function maybeNotify(){
 function loadFeed(manual){
  var dot=document.getElementById('dot'),st=document.getElementById('srcState');
  fetch(API,{cache:manual?'reload':'default'}).then(function(r){return r.json()}).then(function(j){
-   FEED=j;ANNS=(j&&j.items)||[];
+   FEED=j;ANNS=dedupe((j&&j.items)||[],function(a){return (a.id||"")+"|"+(a.title||"")+"|"+(a.createtime||"");});
+   if(FEED&&FEED.tweets)FEED.tweets=dedupe(FEED.tweets,function(t){return (t.id||"")+"|"+String(t.handle||"").toLowerCase()+"|"+((t.text||"").slice(0,80));});
    if(j&&j.ok){dot.className='dot';st.textContent='数据源正常';}else{dot.className='dot bad';st.textContent='暂时无法更新';}
    renderAnns();renderTweets();maybeNotify();
  }).catch(function(){FEED={ok:false};ANNS=[];dot.className='dot bad';st.textContent='连接失败';renderAnns();renderTweets();});

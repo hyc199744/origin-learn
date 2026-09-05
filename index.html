@@ -335,10 +335,6 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
     <a href="live-cloud/" style="color:var(--gold-lt);font-weight:700">🎬 木火夜聊</a>
     <a href="video/" data-i18n="n_video">视频学院</a>
     <a href="feedback/" data-i18n="n_fb">留言区</a>
-    <a href="#intro" data-i18n="n2">初识起源</a>
-    <a href="#path" data-i18n="n3">五重试炼</a>
-    <a href="#faq" data-i18n="n4">封印解答</a>
-    <a href="#tools" data-i18n="n5">链上法器</a>
     <a href="#codex" data-i18n="n6">典籍导航</a>
     <a href="#contact" data-i18n="n7">加好友</a>
     <button id="langBtn" title="切换语言 / Language" style="font:inherit;font-size:13px;cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--gold-lt);border-radius:6px;padding:5px 13px;margin-left:8px">EN</button>
@@ -954,7 +950,7 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
   .md-foot .qb .s{background:transparent;border:1px solid rgba(118,255,54,.4);color:#76FF36}
   .md-warn{margin-top:11px;font-size:11px;color:var(--muted);line-height:1.6;text-align:center}
   /* 断点：<768 显示汉堡+移动头，隐藏桌面链接 */
-  @media (max-width:767px){
+  @media (max-width:1199px){
     #mBurger{display:flex;order:3} #mLang{display:inline-block;order:2}
     .nav{gap:8px;padding:0 12px;height:58px;align-items:center}
     .nav .brand{position:static;transform:none;order:1;margin-right:auto;font-size:17px}
@@ -962,7 +958,7 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
     .nav .links{display:none !important}
     body.mnav-lock{position:fixed;width:100%;overflow:hidden}
   }
-  @media (min-width:768px){
+  @media (min-width:1200px){
     #mBurger,#mLang{display:none !important}
     .nav .links{display:flex !important}
   }

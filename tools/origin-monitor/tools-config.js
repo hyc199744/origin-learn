@@ -1,13 +1,13 @@
 /* =============================================================================
- * 起源链上工具 · 会员 30 项统一配置（单一数据源 / Single Source of Truth）
+ * 起源链上工具 · 会员 31 项统一配置（单一数据源 / Single Source of Truth）
  * -----------------------------------------------------------------------------
- * 会员权益展示页（tools/membership/index.html）的 30 项工具、六大分类、
+ * 会员权益展示页（tools/membership/index.html）的 31 项工具、六大分类、
  * 免费/付费对比、套餐信息全部从本文件读取。以后逐个完成工具时，
  * 只需在这里改 status / route / enabled，页面自动更新，无需改动组件。
  *
  * 字段说明（每项工具）：
  *   id          唯一英文 id
- *   number      1–30 编号（决定显示顺序）
+ *   number      1–31 编号（决定显示顺序）
  *   name        工具名称
  *   description 一句话功能说明（面向普通用户，不夸大、不承诺收益）
  *   category    所属分类 id（见 CATEGORIES）
@@ -44,7 +44,7 @@
     dev:  { label: '开发中',  en: 'In dev', cls: 'dev',  color: '#e8a45c', dot: '🟠' }
   };
 
-  /* ---- 30 项工具 ---- */
+  /* ---- 31 项工具 ---- */
   var TOOLS = [
     { id: 'referrer', number: 1, name: '推荐人查询', en: {"name":"Referrer Lookup","description":"Check a wallet’s direct referrer, bind time, chain and on-chain proof."}, category: 'wallet-id', icon: '🔗',
       description: '查询钱包的直接推荐人、绑定时间、所属链和链上凭证。',

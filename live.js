@@ -216,7 +216,7 @@
     if(c.repeat_rule==="slots")return (ZH?"每天 ":"Daily ")+String(c.daily_times||"").split(",").filter(Boolean).join(" / ");
     return T.repeat_none;}
 
-  var state={course:null,offset:0,online:0,cum:0,iframeOn:false,failTimer:null,tick:null,mode:null,lastStatus:null,loaded:false,hls:null,streamFallback:false};
+  var state={course:null,offset:0,online:0,cum:0,iframeOn:false,failTimer:null,tick:null,mode:null,lastStatus:null,loaded:false,hls:null,streamFallback:false,userWantsSound:false,progMute:false};
   function serverNow(){return Math.floor(Date.now()/1000)+state.offset;}
 
   function statusInfo(st){var m={
@@ -245,17 +245,18 @@
       else{lvDestroyHls();state.streamFallback=true;state.mode=null;state.lastStatus=null;applyStage();}
     }).catch(function(){lvDestroyHls();state.streamFallback=true;state.mode=null;applyStage();});
   }
-  function lvTryPlay(v){var p=v.play&&v.play();if(p&&p.catch)p.catch(function(){if(!v.muted){v.muted=true;var p2=v.play&&v.play();if(p2&&p2.catch)p2.catch(function(){});}});}
+  function lvTryPlay(v){var p=v.play&&v.play();if(p&&p.catch)p.catch(function(){if(!v.muted){state.progMute=true;v.muted=true;setTimeout(function(){state.progMute=false;},0);var p2=v.play&&v.play();if(p2&&p2.catch)p2.catch(function(){});}});}
   function mountVideo(url){
     var stage=document.getElementById("lv-stage");if(!stage)return;
     lvDestroyHls();state.iframeOn=false;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}
     stage.innerHTML='<div class="lv-overlay"><div class="lv-spin"></div></div>';
     var v=document.createElement("video");v.id="lv-video";
-    v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.controls=true;v.autoplay=true;var _ws=false;try{_ws=/[?&](sound|snd)=1/.test(location.search);}catch(e){}v.muted=!_ws;
+    v.setAttribute("playsinline","");v.setAttribute("webkit-playsinline","");v.controls=true;v.autoplay=true;var _ws=false;try{_ws=/[?&](sound|snd)=1/.test(location.search);}catch(e){}v.muted=!(_ws||state.userWantsSound);
     v.style.cssText="position:absolute;inset:0;width:100%;height:100%;background:#000;object-fit:contain;display:block";
     stage.appendChild(v);
     var un=document.createElement("button");un.type="button";un.id="lv-unmute";un.className="lv-fsbtn";un.style.left="14px";un.style.right="auto";un.innerHTML="🔊 "+(ZH?"开启声音":"Sound");
-    un.onclick=function(){v.muted=false;var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});un.remove();};
+    un.onclick=function(){state.userWantsSound=true;v.muted=false;var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});un.remove();};
+    v.addEventListener("volumechange",function(){if(state.progMute)return;state.userWantsSound=!v.muted;});
     var readied=false;
     function ready(){if(readied)return;readied=true;_streamFails=0;if(state.failTimer){clearTimeout(state.failTimer);state.failTimer=null;}var ov=stage.querySelector(".lv-overlay");if(ov)ov.remove();if(!document.getElementById("lv-unmute"))stage.appendChild(un);syncFsButtons();}
     v.addEventListener("playing",ready);v.addEventListener("loadeddata",ready);

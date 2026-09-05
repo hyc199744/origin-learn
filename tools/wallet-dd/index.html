@@ -191,7 +191,7 @@ button.go,.btn2{min-height:44px}
  .grid{grid-template-columns:1fr 1fr}
  h1{font-size:21px}
 }
-/* ===== 会员 30 项工具权益展示（mb- 前缀，独立不影响现有样式）===== */
+/* ===== 会员 31 项工具权益展示（mb- 前缀，独立不影响现有样式）===== */
 .mb-wrap{margin:26px 0 4px}
 .mb-h{font-size:18px;color:var(--gold);margin:0 0 4px;font-weight:800;display:flex;align-items:center;gap:9px;background:linear-gradient(90deg,rgba(212,175,55,.09),transparent 70%);border-radius:0 8px 8px 0;padding:7px 11px;border-left:3px solid var(--gold)}
 .mb-h .mb-num{font-size:12px;color:#1a1205;background:linear-gradient(135deg,var(--poly),#6fb6ff);border-radius:20px;padding:3px 10px;font-weight:800}
@@ -285,7 +285,7 @@ button.go,.btn2{min-height:44px}
   <div id="sampleReport"></div>
   </div>
 
-  <!-- ===== 会员 30 项工具（付款前=权益预览 / 付款后=会员工具台，移出 introBlock 使其解锁后仍在）===== -->
+  <!-- ===== 会员 31 项工具（付款前=权益预览 / 付款后=会员工具台，移出 introBlock 使其解锁后仍在）===== -->
   <div class="mb-wrap" id="mbShowcase">
     <h3 class="mb-h"><span class="mb-num" id="mbNum"><span data-lang="zh">30 项</span><span data-lang="en">30 tools</span></span><span id="mbTitle"><span data-lang="zh">解锁后可用的链上工具</span><span data-lang="en">On-chain tools unlocked with membership</span></span></h3>
     <div class="mb-grid" id="mbGrid"></div>
@@ -481,7 +481,7 @@ function unlockUI(){
  var cl=document.getElementById('copyLink');if(cl)cl.onclick=function(){copyText(link);cl.textContent=L(L('已复制✓','Copied ✓'),'Copied✓');setTimeout(function(){cl.textContent=L('复制链接','Copy link');},1200);};
  const q=document.getElementById('queryTool');if(q)q.style.display='block';
  var ib=document.getElementById('introBlock');if(ib)ib.style.display='none';
- // 解锁后：30 项工具面板变「会员工具台」，留在页面供点击进入
+ // 解锁后：31 项工具面板变「会员工具台」，留在页面供点击进入
  try{
    var mt=document.getElementById('mbTitle');if(mt)mt.textContent=L('你的会员工具 · 点击进入','Your member tools · tap to open');
    var mnum=document.getElementById('mbNum');if(mnum)mnum.textContent=L('✓ 已解锁','✓ Unlocked');
@@ -1008,7 +1008,7 @@ try{ renderSnap('snap'); $('mst').innerHTML=L('正在加载最新数据…','Loa
 catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="background:#e06a6a;color:#111;padding:10px">'+L('监控脚本出错: ','Monitor error: ')+err.message+'</div>'); }
 })();
 </script>
-<!-- ===== 会员 30 项工具权益渲染（读统一配置，独立作用域）===== -->
+<!-- ===== 会员 31 项工具权益渲染（读统一配置，独立作用域）===== -->
 <script src="./tools-config.js"></script>
 <script>
 (function(){
