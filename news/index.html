@@ -192,11 +192,12 @@ function openReader(i){
  var _oadr=(Array.isArray(n.addrs)?n.addrs:[]).filter(function(a){return typeof a==="string"&&/^0x[0-9a-fA-F]{40}$/.test(a);});
  var oc=_oadr.length?('<div class="oc"><div class="h">⛓ 链上证据 · 公告原文公示地址，点击到区块浏览器核验</div>'+_oadr.map(function(a){return '<a class="octrk" data-analytics-skip href="https://polygonscan.com/address/'+encodeURIComponent(a)+'" target="_blank" rel="noopener"><span>链上地址</span><span class="ad">'+esc(a.slice(0,12))+'…'+esc(a.slice(-8))+'</span></a>'}).join('')+'</div>'):'';
  var langNote=n.translated?'<p style="color:var(--gold);font-size:13.5px;font-family:var(--sans)">※ 本篇官方原文为英文，以下为 AI 辅助翻译，以原文为准。</p>':'';
+ var origEn=(n.translated&&Array.isArray(n.paras_en)&&n.paras_en.length)?'<details class="tworig" style="margin:18px 0 4px"><summary></summary><div style="margin-top:8px">'+n.paras_en.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+'</div></details>':'';
  document.getElementById('reader').innerHTML=
   '<div class="rh"><span class="lab">官方公告</span><span class="lab gov">DAO治理</span><span class="x" onclick="closeReader()">×</span></div>'+
   '<div class="rb"><h2>'+esc(n.title)+'</h2>'+
   '<div class="tcard"><span><b>内容性质</b> 官方公告</span><span><b>原始发布时间</b> '+ymd(n.createtime)+'</span></div>'+
-  langNote+n.paras.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+oc+'</div>';
+  langNote+n.paras.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+origEn+oc+'</div>';
  document.getElementById('mask').classList.add('on');document.body.style.overflow='hidden';
 }
 function closeReader(){document.getElementById('mask').classList.remove('on');document.body.style.overflow='';}
