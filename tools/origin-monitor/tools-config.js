@@ -1,5 +1,5 @@
 /* =============================================================================
- * 起源链上工具 · 会员 31 项统一配置（单一数据源 / Single Source of Truth）
+ * 起源链上工具 · 会员 32 项统一配置（单一数据源 / Single Source of Truth）
  * -----------------------------------------------------------------------------
  * 会员权益展示页（tools/membership/index.html）的 31 项工具、六大分类、
  * 免费/付费对比、套餐信息全部从本文件读取。以后逐个完成工具时，
@@ -7,7 +7,7 @@
  *
  * 字段说明（每项工具）：
  *   id          唯一英文 id
- *   number      1–31 编号（决定显示顺序）
+ *   number      1–32 编号（决定显示顺序）
  *   name        工具名称
  *   description 一句话功能说明（面向普通用户，不夸大、不承诺收益）
  *   category    所属分类 id（见 CATEGORIES）
@@ -199,7 +199,12 @@
     { id: 'nft-holdings', number: 31, name: 'NFT 持有查询', en: {"name":"NFT Holdings","description":"Check a wallet’s Awake Governance NFT count, token IDs and collection share."}, category: 'wallet-id', icon: '🖼️',
       description: '查询钱包持有的 Awake Governance NFT 数量、token ID 和占全集合比例。',
       status: 'live', isPremium: true, route: '/tools/nft-holdings/', enabled: true,
-      note: '独立页 /tools/nft-holdings/(会员专属),输地址查Anubis链Awake Governance NFT(0x58839f)持有量,前端eth_call balanceOf+tokenOfOwnerByIndex枚举token ID+占全集合比例,纯只读可核实。已上线(生态目前仅此一个NFT合约)。' }
+      note: '独立页 /tools/nft-holdings/(会员专属),输地址查Anubis链Awake Governance NFT(0x58839f)持有量,前端eth_call balanceOf+tokenOfOwnerByIndex枚举token ID+占全集合比例,纯只读可核实。已上线(生态目前仅此一个NFT合约)。' },
+
+    { id: 'materials', number: 32, name: '起源资料下载', en: {"name":"Origin Materials","description":"Download the official whitepaper and learning decks, and browse the full contract list and official announcements."}, category: 'data-evidence', icon: '📚',
+      description: '集中下载官方白皮书、学习课件，并查阅合约地址大全与官方公告存档。',
+      status: 'live', isPremium: false, route: '/tools/materials/', enabled: true,
+      note: '独立页 /tools/materials/,汇总站内已收录公开资料:白皮书PDF(R2托管)、课件PDF(assets/docs真实文件)、合约页/contracts/、公告页/news/。纯静态下载/跳转,免费公开,已上线。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
