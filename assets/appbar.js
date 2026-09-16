@@ -23,6 +23,7 @@
   function dismissed() { try { return localStorage.getItem("op_appbar_x") === "1"; } catch (e) { return false; } }
 
   function showPill() {
+    return; // 已取消安卓底部"下载App"提示(2026-09-16老板要求)。如需恢复删掉本行。
     if (!isAndroid() || dismissed() || document.getElementById("op-appbar")) return;
     var css = "#op-appbar{position:fixed;left:14px;bottom:16px;z-index:2147482000;display:flex;align-items:center;gap:8px;"
       + "max-width:min(320px,90vw);padding:9px 10px 9px 12px;background:linear-gradient(135deg,#D6A84B,#b8842f);"
