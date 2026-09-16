@@ -7,6 +7,8 @@
   if (location.pathname.indexOf("/app/") === 0) return;
 
   function addNavLink() {
+    // 首页导航走极简方案,不注入下载App链接(其它页面照旧)
+    if (document.body && document.body.getAttribute("data-page") === "home") return;
     var nav = document.querySelector("nav.nav") || document.querySelector("nav");
     if (!nav || document.getElementById("op-app-navlink")) return;
     var a = document.createElement("a");

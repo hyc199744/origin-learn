@@ -429,6 +429,8 @@
   /* ---- 自动注入搜索入口到现有导航(桌面#langBtn旁 + 移动#mLang旁) ---- */
   function injectEntry() {
     try {
+      // 首页导航走极简方案,不注入搜索按钮(Ctrl+K 仍可用;其它页面照旧)
+      if (document.body && document.body.getAttribute("data-page") === "home") return;
       if (!document.getElementById("s-entry-css")) { var ec = document.createElement("style"); ec.id = "s-entry-css"; ec.textContent = "@media(min-width:768px){#mSearchBtn{display:none}}";document.head.appendChild(ec); }
       var lb = document.getElementById("langBtn");
       if (lb && !document.getElementById("navSearchBtn")) {
