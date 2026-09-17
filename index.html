@@ -476,18 +476,6 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   </div>
 </section>
 
-<!-- ══════ 链上法器（工具）══════ -->
-<section id="tools">
-  <div class="wrap">
-    <div class="reveal" style="text-align:center">
-      <div class="eyebrow" data-i18n="t_eye">Chapter IV · 法器</div>
-      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2 data-i18n="t_h2">链上法器</h2><img src="assets/text-right.png" alt=""></div>
-      <p class="sec-sub" data-i18n="t_sub">Web3 的好处是一切都能自己上链核对。这些法器帮你把"别人说的"变成"自己查到的"。</p>
-    </div>
-    <div class="altars reveal" id="altars"></div>
-    <div class="note" data-i18n="t_note">⚠️ 数据实时读自链上与官方接口，仅供参考；真正的交易 / 质押请在官方入口完成，务必<b style="color:var(--bone)">自己核对合约地址</b>，谨防钓鱼。</div>
-  </div>
-</section>
 
 <!-- ══════ 典籍导航（文章）══════ -->
 <section id="codex">
@@ -682,7 +670,7 @@ window.renderFAQ();
 
 /* ————— 工具（祭坛器物）————— */
 const TOOLS=[{"i":"&#128142;","t":"起源百宝箱","d":"输入一个钱包地址，一次看全：双链 LGNS 资产、360/600 锁仓明细、DAO 等级与团队业绩、通用链上体检、推荐人绑定关系，还能连钱包链上提币，外加全网 V1-V6/大户/国库监控。一次解锁，永久使用。","go":"打开助手","fn":"openMonitor","en":{"t":"On-chain DD Assistant","d":"Enter one wallet address to see it all: dual-chain LGNS assets, 360/600 lock details, DAO level & team volume, general on-chain checkup, referrer binding — plus on-chain withdrawal and full V1-V6 / whale / treasury monitoring. Unlock once, use forever.","go":"Open"}},{"i":"&#128178;","t":"交易教程","d":"第一次买卖生态代币怎么操作，图文步骤站内看。","go":"看教程","fn":"openTutorial","en":{"t":"Trading Tutorial","d":"How to buy/sell ecosystem tokens for the first time — step-by-step with pictures, in-site.","go":"View tutorial"}},{"i":"&#128038;","t":"官方账号","d":"4 个官方 X 账号站内展示、可复制，认准别认假冒号。","go":"查看账号","fn":"openOfficial","en":{"t":"Official Accounts","d":"The 4 official X accounts, shown and copyable in-site — verify, don't fall for fakes.","go":"View accounts"}}];
-window.renderTools=function(){var L=window.SITE_LANG||"zh";var pk=(L==="zh")?null:(window.PACKS&&(window.PACKS[L]||window.PACKS.en));document.getElementById("altars").innerHTML=TOOLS.map(function(t,idx){var d=(L==="zh")?t:((pk&&pk.tools&&pk.tools[idx])?pk.tools[idx]:t.en);return "<div class=\"altar\" data-fn=\""+t.fn+"\"><div class=\"ic\">"+t.i+"</div><h3>"+d.t+"</h3><p>"+d.d+"</p><div class=\"go\">"+d.go+" &#10142;</div></div>";}).join("");};
+window.renderTools=function(){var _al=document.getElementById("altars");if(!_al)return;var L=window.SITE_LANG||"zh";var pk=(L==="zh")?null:(window.PACKS&&(window.PACKS[L]||window.PACKS.en));_al.innerHTML=TOOLS.map(function(t,idx){var d=(L==="zh")?t:((pk&&pk.tools&&pk.tools[idx])?pk.tools[idx]:t.en);return "<div class=\"altar\" data-fn=\""+t.fn+"\"><div class=\"ic\">"+t.i+"</div><h3>"+d.t+"</h3><p>"+d.d+"</p><div class=\"go\">"+d.go+" &#10142;</div></div>";}).join("");};
 window.openWithdraw=function(){location.href='/tools/onchain-withdraw/';}
 window.openMonitor=function(){location.href='/tools/origin-monitor/';};
 window.renderTools();
