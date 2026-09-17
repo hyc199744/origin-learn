@@ -277,6 +277,11 @@ button.go,.btn2{min-height:44px}
   <!-- ===== 会员 31 项工具（付款前=权益预览 / 付款后=会员工具台，移出 introBlock 使其解锁后仍在）===== -->
   <div class="mb-wrap" id="mbShowcase">
     <h3 class="mb-h"><span class="mb-num" id="mbNum"><span data-lang="zh">34 项</span><span data-lang="en">34 tools</span></span><span id="mbTitle"><span data-lang="zh">解锁后可用的链上工具</span><span data-lang="en">On-chain tools unlocked with membership</span></span></h3>
+    <div id="mbSearchWrap" style="display:none;margin:0 0 12px;position:relative">
+      <input id="mbSearch" type="search" autocomplete="off"
+        style="width:100%;background:rgba(214,168,75,.06);border:1px solid var(--line,#3a2313);color:var(--bone,#f1dfc0);border-radius:12px;padding:11px 40px 11px 14px;font-size:14px;font-family:inherit;outline:none">
+      <span id="mbSearchN" style="position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:11.5px;color:var(--dim,#7c6a4f);pointer-events:none"></span>
+    </div>
     <div class="mb-grid" id="mbGrid"></div>
     <h3 class="mb-h" style="margin-top:24px"><span class="mb-num"><span data-lang="zh">分类</span><span data-lang="en">Categories</span></span><span data-lang="zh">六大链上能力</span><span data-lang="en">Six on-chain capability areas</span></h3>
     <div class="mb-cats" id="mbCats"></div>
@@ -479,6 +484,7 @@ function unlockUI(){
    var mnum=document.getElementById('mbNum');if(mnum)mnum.textContent=L('✓ 已解锁','✓ Unlocked');
    var mn=document.getElementById('mbNote');if(mn)mn.innerHTML='<b style="color:#7bffb0">'+L('已解锁','Unlocked')+'</b>'+L('：绿色「已上线」点击即可进入对应独立工具；蓝色「即将上线」/橙色「开发中」会按进度陆续开放。',': green Live items open the standalone tool on click; blue Soon / orange In-dev unlock progressively.');
    var ms=document.getElementById('mbShowcase');if(ms){ms.style.borderTop='1px solid rgba(37,201,111,.3)';ms.style.paddingTop='6px';}
+   var ss=document.getElementById('mbSearchWrap');if(ss)ss.style.display='';  // 付款后显示工具搜索
  }catch(e){}
 }
 async function checkAccess(){
@@ -998,7 +1004,15 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
   var _set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
   _set('mbTotal', M.TOOLS.length); _set('mbLive', cnt.live); _set('mbSoon', cnt.soon); _set('mbDev', cnt.dev);
 
+  var _q='';
   var _RANK={live:0,soon:1,dev:2};
+  function applyFilter(){
+    var q=_q, n=0, tot=host.children.length;
+    Array.prototype.forEach.call(host.children,function(el){
+      var hit=!q||(el.dataset.k||'').indexOf(q)>=0; el.style.display=hit?'':'none'; if(hit)n++;
+    });
+    var nn=document.getElementById('mbSearchN'); if(nn) nn.textContent=q?(n+'/'+tot):'';
+  }
   function paintCards(){
   host.innerHTML='';
   M.TOOLS.slice().sort(function(a,b){var r=(_RANK[a.status]!=null?_RANK[a.status]:9)-(_RANK[b.status]!=null?_RANK[b.status]:9);return r!==0?r:(a.number-b.number);}).forEach(function(t,_i){
@@ -1015,8 +1029,10 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
       '<span class="act">'+(t.status==='live'?L('进入工具 →','Open →'):L('查看介绍 →','Details →'))+'</span></div>';
     el.addEventListener('click', function(){ onTool(t); });
     el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onTool(t); } });
+    el.dataset.k=(el.textContent||'').toLowerCase();
     host.appendChild(el);
   });
+  applyFilter();
 
   var cats = document.getElementById('mbCats');
   if(cats){ cats.innerHTML=''; M.CATEGORIES.forEach(function(c){
@@ -1028,7 +1044,10 @@ catch(err){ document.body.insertAdjacentHTML('afterbegin','<div style="backgroun
   }); }
   }
   paintCards();
-  try{ new MutationObserver(paintCards).observe(document.documentElement,{attributes:true,attributeFilter:['lang']}); }catch(e){}
+  var _si=document.getElementById('mbSearch');
+  if(_si){ _si.placeholder=L('🔍 搜索工具（名称 / 功能）…','🔍 Search tools (name / function)…');
+    _si.addEventListener('input',function(){ _q=_si.value.trim().toLowerCase(); applyFilter(); }); }
+  try{ new MutationObserver(function(){paintCards(); if(_si)_si.placeholder=L('🔍 搜索工具（名称 / 功能）…','🔍 Search tools (name / function)…');}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']}); }catch(e){}
 
   // 弹窗（未上线工具只显示介绍，不进空白页）
   var mask=document.createElement('div'); mask.className='mb-mask'; mask.id='mbMask';
