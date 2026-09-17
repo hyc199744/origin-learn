@@ -278,7 +278,7 @@ function openDetail(id){
     mo.el.querySelector(".fb-modal-in").innerHTML='<button class="fb-x">✕</button>'
       +'<div class="fb-d-top"><span class="fb-catb">'+c.i+' '+c.n+'</span>'+badge(m)+'</div>'
       +'<h2 class="fb-d-title">'+esc(m.title)+'</h2>'
-      +'<div class="fb-d-meta">'+esc(m.nick||t("anon"))+' · '+ago(m.ts)+(m.link?' · <a href="'+esc(m.link)+'" target="_blank" rel="noopener" class="fb-d-link">'+t("link_arrow")+'</a>':'')+'</div>'
+      +'<div class="fb-d-meta">'+esc(m.nick||t("anon"))+' · '+ago(m.ts)+((m.link&&/^https?:\/\//i.test(m.link))?' · <a href="'+esc(m.link)+'" target="_blank" rel="noopener nofollow" class="fb-d-link">'+t("link_arrow")+'</a>':'')+'</div>'
       +'<div class="fb-d-content">'+nl2(m.content)+'</div>'+w3+off
       +'<div class="fb-d-actions"><button class="fb-act like'+(lk?" on":"")+'" id="fbLikeBtn">👍 <span id="fbLikeN">'+(m.likes||0)+'</span></button>'
       +'<button class="fb-act" id="fbRepBtn">💬 '+t("reply")+'（'+(m.replies||0)+'）</button>'
