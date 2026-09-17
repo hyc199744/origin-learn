@@ -336,7 +336,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   <a class="brand" href="#home"><img src="assets/logo.png" alt=""><span data-i18n="brand">起源 · <b>入殿指南</b></span></a>
   <div class="links" id="navlinks">
     <a href="#home" class="on" data-i18n="n1">圣殿入口</a>
-    <a href="#radar" data-i18n="n_radar">链上雷达</a>
+    <a href="#market">实时行情</a>
     <a href="tools/origin-monitor/" class="nl-hl">🧰 起源百宝箱</a>
   </div>
   <div class="navtools">
@@ -390,37 +390,6 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   <iframe id="mktFrame" src="tools/market/?embed=1" title="起源生态实时行情" loading="lazy" scrolling="no" style="width:100%;border:0;height:136px;background:transparent;color-scheme:normal"></iframe>
 </section>
 <style>@media(max-width:920px){#mktFrame{height:286px}}@media(max-width:560px){#mktFrame{height:246px}}@media(max-width:430px){#market{padding-left:16px;padding-right:16px}}</style>
-
-<!-- ══════ 起源链上雷达 Dashboard ══════ -->
-<section id="radar">
-  <div id="rdrBody">
-    <div class="rdr-head">
-      <div class="rdr-title">
-        <img class="rdr-mk" src="assets/logo.png" alt="">
-        <div>
-          <h2 id="rdrTitle">起源链上雷达 <em>Origin On-chain Radar</em></h2>
-          <p id="rdrSubt">实时追踪 LGNS、Anubis Chain 生态链上状态 · 数据可逐一核实</p>
-        </div>
-      </div>
-      <div class="rdr-meta">
-        <div><span id="rdrUpdLabel">数据更新：</span><span id="rdrUpd">加载中…</span></div>
-        <div class="rdr-net" id="rdrNet"><span class="rdr-dot ok"></span>Anubis 正常<span class="rdr-dot ok" style="margin-left:14px"></span>Polygon 正常</div>
-      </div>
-    </div>
-    <div class="rdr-cards" id="rdrCards"></div>
-    <div class="rdr-grid">
-      <div class="rdr-col">
-        <div class="rdr-panel"><h3 id="rdrH-feed"><span class="hi">⚡</span> 实时链上事件</h3><div id="rdrFeed"></div></div>
-        <div class="rdr-panel"><h3 id="rdrH-whale"><span class="hi">🐋</span> 鲸鱼动态</h3><div id="rdrWhale"></div></div>
-      </div>
-      <div class="rdr-col">
-        <div class="rdr-panel"><h3 id="rdrH-health"><span class="hi">💠</span> 生态健康指数</h3><div id="rdrHealth"></div></div>
-        <div class="rdr-panel"><h3 id="rdrH-risk"><span class="hi">⚠️</span> 链上风险雷达</h3><div id="rdrRisk"></div></div>
-      </div>
-    </div>
-    <p class="rdr-foot" id="rdrFoot">数据来源：起源官方后台 · PolygonScan(Etherscan V2) · Anubis 区块浏览器。健康指数为本站按公开链上指标机械计算的参考值，非官方评级，不构成投资建议。</p>
-  </div>
-</section>
 
 <!-- ══════ 初识起源 ══════ -->
 <section id="intro">
@@ -630,7 +599,6 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <script src="contracts.js"></script>
 <script src="events.js"></script>
 <script src="tools.js"></script>
-<script src="radar.js"></script>
 <script defer src="/assets/analytics.js"></script><script defer src="/assets/appbar.js?v=1"></script><script defer src="/assets/player.js?v=10"></script>
 <script defer src="/assets/live-reminder.js"></script>
 <script>
@@ -989,7 +957,6 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
   <div class="md-body">
     <a class="md-item md-item-star" href="tools/origin-monitor/"><span class="ic">🔍</span><span class="lbl">起源百宝箱</span><span class="mb">33 项工具</span></a>
     <a class="md-item" data-jump="home"><span class="ic">🏠</span><span class="lbl" data-i18n="md_home">首页</span></a>
-    <a class="md-item" data-jump="radar"><span class="ic">📡</span><span class="lbl" data-i18n="md_radar">链上雷达</span></a>
     <a class="md-item md-item-hl" href="news/"><span class="ic">📰</span><span class="lbl">最新资讯</span></a>
     <a class="md-item md-item-hl" href="live/"><span class="ic">📺</span><span class="lbl">线上直播</span></a>
     <a class="md-item md-item-hl" href="live-cloud/"><span class="ic">🎬</span><span class="lbl">木火夜聊</span></a>
