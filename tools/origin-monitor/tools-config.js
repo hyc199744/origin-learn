@@ -1,5 +1,5 @@
 /* =============================================================================
- * 起源链上工具 · 会员 32 项统一配置（单一数据源 / Single Source of Truth）
+ * 起源链上工具 · 会员 33 项统一配置（单一数据源 / Single Source of Truth）
  * -----------------------------------------------------------------------------
  * 会员权益展示页（tools/membership/index.html）的 31 项工具、六大分类、
  * 免费/付费对比、套餐信息全部从本文件读取。以后逐个完成工具时，
@@ -204,7 +204,12 @@
     { id: 'materials', number: 32, name: '起源资料下载', en: {"name":"Origin Materials","description":"Download the official whitepaper and learning decks, and browse the full contract list and official announcements."}, category: 'data-evidence', icon: '📚',
       description: '集中下载官方白皮书、学习课件，并查阅合约地址大全与官方公告存档。',
       status: 'live', isPremium: false, route: '/tools/materials/', enabled: true,
-      note: '独立页 /tools/materials/,汇总站内已收录公开资料:白皮书PDF(R2托管)、课件PDF(assets/docs真实文件)、合约页/contracts/、公告页/news/。纯静态下载/跳转,免费公开,已上线。' }
+      note: '独立页 /tools/materials/,汇总站内已收录公开资料:白皮书PDF(R2托管)、课件PDF(assets/docs真实文件)、合约页/contracts/、公告页/news/。纯静态下载/跳转,免费公开,已上线。' },
+
+    { id: 'market', number: 33, name: '起源生态实时行情', en: {"name":"Ecosystem Live Prices","description":"Real-time USD/CNY prices of LGNS(POL), LGNS(ANB), gLGNS and fLGNS, computed live from on-chain DEX pool reserves."}, category: 'price-calc', icon: '📈',
+      description: 'LGNS(POL)、LGNS(ANB)、gLGNS、fLGNS 实时美元/人民币价格，由链上流动性池储备实时计算。',
+      status: 'live', isPremium: false, route: '/tools/market/', enabled: true,
+      note: '独立页 /tools/market/,四币实时价:前端直连链上读DEX池getReserves算价(Polygon 0x882df4B0/ANB 0x32A45867/gLGNS 0x8c4Ea5dA/fLGNS 0x4171222d,decimals已处理),人民币按实时USD/CNY换算,RPC容灾+异常保护。免费公开,已上线。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
