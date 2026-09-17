@@ -62,7 +62,7 @@ var TOKENS=[
   { key:"pol",   label:"Polygon", dot:"#3b82f6", rpcs:POL, pair:"0x882df4B0fB50a229C3B4124EB18c759911485bFb",
     quoteIsToken0:true,  quoteDec:18, baseDec:9,  taxAddr:"0xeb51d9a39ad5eef215dc0bf39a8821ff804a0f01", hasTax:true },
   { key:"anb",   label:"Anubis",  dot:"#8b5cf6", rpcs:ANB, pair:"0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0",
-    quoteIsToken0:false, quoteDec:18, baseDec:9,  taxAddr:"0x4D1D808a081FdAc440703b3765FC61f8028C06B8", hasTax:true },
+    quoteIsToken0:false, quoteDec:18, baseDec:9,  hasTax:true, taxFixed:0.40 },  // 链上feeRatio只读到5%(代理未开源),真实卖税40%(老板确认),故用固定值
   { key:"glgns", label:"gLGNS",   dot:"#22c55e", rpcs:ANB, pair:"0x8c4Ea5dAC01E2E8Fb67F50201Aa2e10A6949C58D",
     quoteIsToken0:true,  quoteDec:18, baseDec:18, taxAddr:"0xf140a92C156e76F5A1d3D6f96284b250330F8F4c", hasTax:true },
   { key:"flgns", label:"fLGNS",   dot:"#38bdf8", rpcs:ANB, pair:"0x4171222dfb000f1b9a2e7fb9c213f3b7c656ba9f",
@@ -90,6 +90,7 @@ function quoteUsd(t){ if(t.quoteRefKey){ var r=st[t.quoteRefKey]; return (r&&r.p
 
 async function readTax(t){
   if(!t.hasTax){ return; }
+  if(t.taxFixed!=null){ st[t.key].tax=t.taxFixed; return; }   // 配置固定卖税(链上读不到真实值时)
   var fr=await ethCall(t.rpcs,t.taxAddr,"0x41744dd4");        // feeRatio()
   var pr=await ethCall(t.rpcs,t.taxAddr,"0xaaf5eb68");        // PRECISION()
   var f=bn(fr,0,64), p=bn(pr,0,64);
