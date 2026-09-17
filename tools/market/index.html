@@ -10,8 +10,8 @@
 <link rel="canonical" href="https://web3origin.com/tools/market/">
 <style>
 :root{
-  --pg:#f4f5f8;--card:#ffffff;--div:#eef0f4;--ink:#131722;--sub:#6b7280;
-  --price:#0f1420;--tax-bg:#fdeaea;--tax-fg:#e0483d;--net:#16a34a;
+  --pg:#0a0705;--card:#17110a;--div:rgba(214,168,75,.16);--ink:#f1e6cf;--sub:#b0a184;
+  --price:#f6eeda;--tax-bg:rgba(255,120,90,.15);--tax-fg:#ff9d7c;--net:#8fe36a;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 }
 *{box-sizing:border-box}
@@ -21,7 +21,7 @@ html.embed,html.embed body{background:transparent}
 html.embed .wrap{padding:0}
 .h{font-size:15px;font-weight:800;color:var(--ink);margin:0 0 12px}
 html.embed .h{display:none}
-.strip{background:var(--card);border:1px solid var(--div);border-radius:16px;box-shadow:0 2px 10px rgba(20,25,45,.05);
+.strip{background:linear-gradient(180deg,#1a130a,#120d06);border:1px solid var(--div);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.42),inset 0 1px 0 rgba(214,168,75,.08);
   display:grid;grid-template-columns:repeat(4,1fr);overflow:hidden}
 .tk{padding:14px 14px 13px;text-align:center;border-left:1px solid var(--div);min-width:0}
 .tk:first-child{border-left:0}
@@ -29,11 +29,11 @@ html.embed .h{display:none}
 .dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
 .nm{font-size:14.5px;font-weight:700;color:var(--sub)}
 .px{font-size:23px;font-weight:800;color:var(--price);letter-spacing:-.4px;font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all}
-.px .u{font-size:15px;color:#9aa1ad;margin-right:1px}
+.px .u{font-size:15px;color:#8a7c5f;margin-right:1px}
 .tax{margin-top:7px;display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:center}
 .tp{font-size:11px;font-weight:700;color:var(--tax-fg);background:var(--tax-bg);border-radius:6px;padding:2px 7px;white-space:nowrap}
 .net{font-size:13.5px;font-weight:800;color:var(--net);font-variant-numeric:tabular-nums}
-.tp.na{color:var(--sub);background:#f1f2f5}
+.tp.na{color:var(--sub);background:rgba(255,255,255,.06)}
 @media(max-width:560px){
   .strip{grid-template-columns:repeat(2,1fr)}
   .tk{padding:12px 8px}
