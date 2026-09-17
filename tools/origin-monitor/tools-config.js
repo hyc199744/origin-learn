@@ -1,5 +1,5 @@
 /* =============================================================================
- * 起源链上工具 · 会员 32 项统一配置（单一数据源 / Single Source of Truth）
+ * 起源链上工具 · 会员 33 项统一配置（单一数据源 / Single Source of Truth）
  * -----------------------------------------------------------------------------
  * 会员权益展示页（tools/membership/index.html）的 31 项工具、六大分类、
  * 免费/付费对比、套餐信息全部从本文件读取。以后逐个完成工具时，
@@ -7,7 +7,7 @@
  *
  * 字段说明（每项工具）：
  *   id          唯一英文 id
- *   number      1–32 编号（决定显示顺序）
+ *   number      1–33 编号（决定显示顺序）
  *   name        工具名称
  *   description 一句话功能说明（面向普通用户，不夸大、不承诺收益）
  *   category    所属分类 id（见 CATEGORIES）
@@ -204,7 +204,12 @@
     { id: 'materials', number: 32, name: '起源资料下载', en: {"name":"Origin Materials","description":"Download the official whitepaper and learning decks, and browse the full contract list and official announcements."}, category: 'data-evidence', icon: '📚',
       description: '集中下载官方白皮书、学习课件，并查阅合约地址大全与官方公告存档。',
       status: 'live', isPremium: false, route: '/tools/materials/', enabled: true,
-      note: '独立页 /tools/materials/,汇总站内已收录公开资料:白皮书PDF(R2托管)、课件PDF(assets/docs真实文件)、合约页/contracts/、公告页/news/。纯静态下载/跳转,免费公开,已上线。' }
+      note: '独立页 /tools/materials/,汇总站内已收录公开资料:白皮书PDF(R2托管)、课件PDF(assets/docs真实文件)、合约页/contracts/、公告页/news/。纯静态下载/跳转,免费公开,已上线。' },
+
+    { id: 'snipebot', number: 33, name: '抢币机器人（原理科普）', en: {"name":"Snipe Bot Explained","description":"Plain-language explainer on how on-chain sniping/rescue bots work, the risks, and how to protect yourself. Principles only, no runnable sweeper code."}, category: 'security-dd', icon: '🤖',
+      description: '大白话讲清链上抢币/抢救机器人的原理、风险，以及怎么保护自己、被盗后怎么办、识别交助记词的二次诈骗。',
+      status: 'live', isPremium: false, route: '/tools/snipe-bot/', enabled: true,
+      note: '独立页 /tools/snipe-bot/,纯安全科普(原理+防护+防诈+被盗自救),只讲原理不提供可运行的扫钱包/抢跑成品代码。免费公开,已上线。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
