@@ -6,403 +6,138 @@
 <meta name="robots" content="noindex,follow">
 <script>try{if(location.search.indexOf("embed")>=0)document.documentElement.classList.add("embed");}catch(e){}</script>
 <title>起源生态实时行情 · Web3Origin</title>
-<meta name="description" content="LGNS(Polygon)、LGNS(Anubis)、gLGNS、fLGNS 实时价格，价格由链上流动性池储备实时计算，非手动写死。">
+<meta name="description" content="LGNS(Polygon)、LGNS(Anubis)、gLGNS、fLGNS 实时价格与卖税后到手价，由链上流动性池储备实时计算。">
 <link rel="canonical" href="https://web3origin.com/tools/market/">
 <style>
 :root{
-  --bg:#08090c;--tile:#12151b;--tile2:#171b22;--line:#232a34;--line2:#2c3542;
-  --txt:#e8edf2;--white:#fff;--dim:#8a94a1;--soft:#c2cad4;--faint:#657082;
-  --acc:#8fe36a;--gold:#e8cf7e;--up:#4ade80;--down:#f87171;
-  --pol:#a78bfa;--anb:#e8b34a;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --pg:#f4f5f8;--card:#ffffff;--div:#eef0f4;--ink:#131722;--sub:#6b7280;
+  --price:#0f1420;--tax-bg:#fdeaea;--tax-fg:#e0483d;--net:#16a34a;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 }
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(760px 440px at 84% -8%,rgba(143,227,106,.07),transparent),var(--bg);color:var(--txt);font:15px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1000px;margin:0 auto;padding-block:20px 64px;padding-left:16px;padding-right:16px}
+body{margin:0;background:var(--pg);color:var(--ink);font:15px/1.5 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 html.embed,html.embed body{background:transparent}
-html.embed .top,html.embed h1,html.embed .foot{display:none!important}
-html.embed .wrap{padding:2px 2px}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
-.top a.home{display:inline-flex;align-items:center;gap:7px;color:var(--acc);font-weight:800;font-size:14px;text-decoration:none}
-.top .live{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--faint);box-shadow:0 0 0 0 rgba(0,0,0,0);flex:0 0 auto}
-.dot.g{background:var(--up);box-shadow:0 0 8px rgba(74,222,128,.6)}
-.dot.a{background:var(--gold);box-shadow:0 0 8px rgba(232,207,126,.5)}
-.dot.r{background:var(--down);box-shadow:0 0 8px rgba(248,113,113,.5)}
-h1{font-size:23px;margin:0 0 18px;color:var(--white);font-weight:800;letter-spacing:.3px}
-.lead{color:var(--dim);font-size:12.8px;margin:0 0 18px;line-height:1.6}
-.lead b{color:var(--acc)}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-@media(max-width:920px){.grid{grid-template-columns:repeat(2,1fr)}}
+.wrap{max-width:1000px;margin:0 auto;padding:18px 16px}
+html.embed .wrap{padding:0}
+.h{font-size:15px;font-weight:800;color:var(--ink);margin:0 0 12px}
+html.embed .h{display:none}
+.strip{background:var(--card);border:1px solid var(--div);border-radius:16px;box-shadow:0 2px 10px rgba(20,25,45,.05);
+  display:grid;grid-template-columns:repeat(4,1fr);overflow:hidden}
+.tk{padding:14px 14px 13px;text-align:center;border-left:1px solid var(--div);min-width:0}
+.tk:first-child{border-left:0}
+.hd{display:inline-flex;align-items:center;gap:7px;justify-content:center;margin-bottom:6px}
+.dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.nm{font-size:14.5px;font-weight:700;color:var(--sub)}
+.px{font-size:23px;font-weight:800;color:var(--price);letter-spacing:-.4px;font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all}
+.px .u{font-size:15px;color:#9aa1ad;margin-right:1px}
+.tax{margin-top:7px;display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:center}
+.tp{font-size:11px;font-weight:700;color:var(--tax-fg);background:var(--tax-bg);border-radius:6px;padding:2px 7px;white-space:nowrap}
+.net{font-size:13.5px;font-weight:800;color:var(--net);font-variant-numeric:tabular-nums}
+.tp.na{color:var(--sub);background:#f1f2f5}
 @media(max-width:560px){
-  .grid{gap:8px}
-  .card{padding:11px 11px 10px;border-radius:13px}
-  .ch{gap:8px;margin-bottom:8px}
-  .badge{width:28px;height:28px;border-radius:9px;font-size:13px}
-  .nm .t{font-size:13px}
-  .nm .c{font-size:8.5px;margin-top:2px}
-  .chip{font-size:8px;padding:1px 5px}
-  .px{font-size:18px;letter-spacing:-.3px}
-  .px .u{font-size:11px}
-  .cny{font-size:10px;margin-top:3px}
+  .strip{grid-template-columns:repeat(2,1fr)}
+  .tk{padding:12px 8px}
+  .tk:nth-child(odd){border-left:0}
+  .tk:nth-child(n+3){border-top:1px solid var(--div)}
+  .px{font-size:20px}
+  .nm{font-size:13px}
+  .net{font-size:12.5px}
+  .tp{font-size:10px;padding:2px 6px}
 }
-@media(max-width:430px){.wrap{padding-left:14px;padding-right:14px}}
-.card{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:18px;padding:18px 17px 16px;
-  background:linear-gradient(180deg,#161b23,#0f1319);
-  background:radial-gradient(135% 105% at 100% -12%, color-mix(in srgb, var(--accent) 15%, transparent), transparent 56%), linear-gradient(180deg,#161b23,#0f1319)}
-.card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--accent),transparent 80%)}
-.card::after{content:"";position:absolute;right:-28px;top:-28px;width:96px;height:96px;border-radius:50%;background:var(--accent);opacity:.07;filter:blur(4px)}
-.ch{display:flex;align-items:center;gap:11px;margin-bottom:16px;position:relative;z-index:1}
-.badge{width:35px;height:35px;border-radius:11px;flex:0 0 auto;display:grid;place-items:center;font-weight:900;font-size:15px;font-family:var(--mono);color:#0a0d12;
-  background:var(--accent);
-  background:linear-gradient(150deg, var(--accent), color-mix(in srgb, var(--accent) 55%, #0a0d12));
-  box-shadow:0 6px 16px color-mix(in srgb, var(--accent) 34%, transparent)}
-.nm{min-width:0}
-.nm .t{font-size:15px;font-weight:800;color:var(--white);line-height:1.12;letter-spacing:.2px}
-.nm .c{font-size:10px;color:var(--faint);margin-top:4px;letter-spacing:.6px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
-.chip{font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:5px;letter-spacing:.4px;color:#0a0d12;background:var(--accent)}
-.px{position:relative;z-index:1;font-size:22px;font-weight:800;color:var(--white);letter-spacing:-.4px;font-variant-numeric:tabular-nums;line-height:1.05;word-break:break-all}
-.px .u{font-size:12px;color:var(--faint);font-weight:700;margin-right:2px}
-.cny{position:relative;z-index:1;font-size:12.5px;color:var(--dim);margin-top:6px;font-variant-numeric:tabular-nums}
-.chg{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:800;margin-top:8px;font-variant-numeric:tabular-nums;padding:2px 8px;border-radius:7px}
-.chg.up{color:var(--up);background:rgba(74,222,128,.1)}
-.chg.down{color:var(--down);background:rgba(248,113,113,.1)}
-.chg.flat{color:var(--dim);background:rgba(138,148,161,.1)}
-.meta{margin-top:11px;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:3px}
-.meta .row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--faint)}
-.meta .row .v{color:var(--dim);font-variant-numeric:tabular-nums;text-align:right}
-.st{display:inline-flex;align-items:center;gap:4px}
-.na-box{margin-top:6px;font-size:11.5px;color:var(--dim);line-height:1.5}
-.spark{margin-top:9px;height:30px}
-.tfbar{display:flex;gap:6px;margin:16px 0 9px}
-.tf{flex:1;background:var(--tile2);border:1px solid var(--line);color:var(--dim);font:inherit;font-size:12px;font-weight:700;padding:6px 0;border-radius:8px;cursor:pointer}
-.tf.on{background:rgba(143,227,106,.14);border-color:rgba(143,227,106,.4);color:var(--acc)}
-.tf:hover{color:var(--soft)}
-.chartbox{background:var(--tile2);border:1px solid var(--line);border-radius:12px;padding:10px 10px 8px;min-height:120px}
-.chartbox .loading{color:var(--faint);font-size:12px;text-align:center;padding:46px 0}
-.axr{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:5px;font-variant-numeric:tabular-nums}
-.warnflag{position:absolute;top:12px;right:12px;font-size:10px;color:var(--down);background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);padding:1px 6px;border-radius:6px;font-weight:800}
-.foot{margin-top:24px;color:var(--faint);font-size:11px;line-height:1.7;text-align:center;border-top:1px solid var(--line);padding-top:16px}
-.foot a{color:var(--acc);text-decoration:none}
-.foot b{color:var(--soft)}
-/* 详情弹窗 */
-.mask{position:fixed;inset:0;background:rgba(3,4,6,.72);backdrop-filter:blur(3px);z-index:60;display:none;align-items:center;justify-content:center;padding:18px}
-.mask.on{display:flex}
-.modal{width:min(440px,100%);max-height:88vh;overflow:auto;background:var(--tile);border:1px solid var(--line2);border-radius:18px;padding:20px}
-.modal .mh{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.modal .mh .x{margin-left:auto;background:none;border:1px solid var(--line);color:var(--dim);width:30px;height:30px;border-radius:9px;font-size:16px;cursor:pointer;line-height:1}
-.modal .mh .x:hover{color:var(--white);border-color:var(--acc)}
-.modal .bigpx{font-size:34px;font-weight:800;color:var(--white);font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin:6px 0 2px;word-break:break-all}
-.kv{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
-.kv .k{color:var(--dim)}
-.kv .v{color:var(--soft);text-align:right;font-variant-numeric:tabular-nums}
-.kv .v.mono{font-family:var(--mono);font-size:12px;word-break:break-all}
-.mbtn{display:block;text-align:center;margin-top:14px;background:linear-gradient(180deg,#b6f36a,var(--acc));color:#0c2405;font-weight:800;font-size:14px;padding:11px;border-radius:12px;text-decoration:none}
-.mbtn:hover{filter:brightness(1.06)}
-.copy{cursor:pointer;color:var(--acc);font-size:11px;margin-left:6px}
+.upd{margin-top:9px;font-size:10.5px;color:#9aa1ad;text-align:right;font-variant-numeric:tabular-nums}
+html.embed .upd{margin-top:6px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top">
-    <a class="home" href="/tools/origin-monitor/">← 起源百宝箱</a>
-    <span class="live"><span class="dot" id="liveDot"></span><span id="liveTxt">连接链上…</span></span>
-  </div>
-  <h1>起源生态实时行情</h1>
-
-  <div class="grid" id="grid"></div>
-
-  <div class="foot">
-    价格来源为各链 DEX 流动性池 <b>getReserves</b> 实时储备，已正确处理 token decimals · Polygon 与 Anubis 为两条独立链、LGNS 分别独立计价 · 人民币按实时 USD/CNY 汇率换算（非固定 7.2）<br>
-    仅供参考，不构成投资建议 · <a href="/tools/origin-monitor/">返回起源百宝箱</a>
-  </div>
+  <h2 class="h">起源生态实时行情</h2>
+  <div class="strip" id="strip"></div>
+  <div class="upd" id="upd"></div>
 </div>
-
-<div class="mask" id="mask"><div class="modal" id="modal"></div></div>
-
 <script>
 "use strict";
-/* ================== 配置（合约/池/RPC/decimals，换池换币只改这里，不改逻辑） ================== */
-var TOKENS = [
-  { key:"polygon_lgns", name:"LGNS", chain:"Polygon", chainTag:"POL", chainId:137, badge:"L", bg:"#a78bfa",
-    rpcs:["https://polygon-bor-rpc.publicnode.com","https://polygon.drpc.org"],
-    pair:"0x882df4B0fB50a229C3B4124EB18c759911485bFb", token:"0xeb51d9a39ad5eef215dc0bf39a8821ff804a0f01",
-    quoteIsToken0:true, quoteDec:18, baseDec:9, quoteSym:"DAI", poolName:"LGNS / DAI",
-    explorer:"https://polygonscan.com", source:"Polygon 链上 LGNS/DAI 池",
-    gecko:"https://api.geckoterminal.com/api/v2/networks/polygon_pos/pools/0x882df4B0fB50a229C3B4124EB18c759911485bFb" },
-  { key:"anubis_lgns", name:"LGNS", chain:"Anubis", chainTag:"ANB", chainId:6714, badge:"L", bg:"#e8b34a",
-    rpcs:["https://rpc.anubispace.org"],
-    pair:"0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0", token:"0x4D1D808a081FdAc440703b3765FC61f8028C06B8",
-    quoteIsToken0:false, quoteDec:18, baseDec:9, quoteSym:"DAI", poolName:"LGNS / DAI",
-    explorer:"https://browser.anubispace.org", source:"Anubis 链上 LGNS/DAI 池" },
-  { key:"glgns", name:"gLGNS", chain:"Anubis", chainTag:"ANB", chainId:6714, badge:"g", bg:"#22d3ee",
-    rpcs:["https://rpc.anubispace.org"],
-    pair:"0x8c4Ea5dAC01E2E8Fb67F50201Aa2e10A6949C58D", token:"0xf140a92C156e76F5A1d3D6f96284b250330F8F4c",
-    quoteIsToken0:true, quoteDec:18, baseDec:18, quoteSym:"DAI", poolName:"gLGNS / DAI",
-    explorer:"https://browser.anubispace.org", source:"Anubis 链上 gLGNS/DAI 池" },
-  { key:"flgns", name:"fLGNS", chain:"Anubis", chainTag:"ANB", chainId:6714, badge:"f", bg:"#7dd3fc",
-    rpcs:["https://rpc.anubispace.org"],
-    pair:"0x4171222dfb000f1b9a2e7fb9c213f3b7c656ba9f", token:"0xffFfBe730E2CdE54D8928D36F547e41DEb66Aaaa",
-    quoteIsToken0:true, quoteDec:9, baseDec:18, quoteSym:"LGNS", quoteRefKey:"anubis_lgns", poolName:"fLGNS / LGNS",
-    explorer:"https://browser.anubispace.org", source:"Anubis 链上 fLGNS/LGNS 池 · 经 LGNS 价换算",
-    note:"fLGNS（Fun Longinus）为第三方 Funverse 生态代币，与起源官方无关。此价取自其 fLGNS/LGNS 交易池储备，并用 ANB LGNS 的美元价换算得出；该池深度有限、可能被操纵，价格仅供参考。" }
+var POL=["https://polygon-bor-rpc.publicnode.com","https://polygon.drpc.org"], ANB=["https://rpc.anubispace.org"];
+/* 配置：换池/换币只改这里 */
+var TOKENS=[
+  { key:"pol",   label:"Polygon", dot:"#3b82f6", rpcs:POL, pair:"0x882df4B0fB50a229C3B4124EB18c759911485bFb",
+    quoteIsToken0:true,  quoteDec:18, baseDec:9,  taxAddr:"0xeb51d9a39ad5eef215dc0bf39a8821ff804a0f01", hasTax:true },
+  { key:"anb",   label:"Anubis",  dot:"#8b5cf6", rpcs:ANB, pair:"0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0",
+    quoteIsToken0:false, quoteDec:18, baseDec:9,  taxAddr:"0x4D1D808a081FdAc440703b3765FC61f8028C06B8", hasTax:true },
+  { key:"glgns", label:"gLGNS",   dot:"#22c55e", rpcs:ANB, pair:"0x8c4Ea5dAC01E2E8Fb67F50201Aa2e10A6949C58D",
+    quoteIsToken0:true,  quoteDec:18, baseDec:18, taxAddr:"0xf140a92C156e76F5A1d3D6f96284b250330F8F4c", hasTax:true },
+  { key:"flgns", label:"fLGNS",   dot:"#38bdf8", rpcs:ANB, pair:"0x4171222dfb000f1b9a2e7fb9c213f3b7c656ba9f",
+    quoteIsToken0:true,  quoteDec:9,  baseDec:18, quoteRefKey:"anb", hasTax:false }
 ];
-var FX_URLS=["https://open.er-api.com/v6/latest/USD","https://api.exchangerate.host/latest?base=USD&symbols=CNY"];
+var st={}; TOKENS.forEach(function(t){ st[t.key]={def:t,price:null,tax:null}; });
 
-/* ================== 状态 ================== */
-var state={}; TOKENS.forEach(function(t){ state[t.key]={def:t,price:null,change24h:null,tvl:null,updatedAt:0,anomaly:false,block:null}; });
-var fx=null;
-
-/* ================== 工具 ================== */
-function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
-function reportH(){ try{ if(window.parent&&window.parent!==window){ var h=Math.ceil(document.documentElement.getBoundingClientRect().height); window.parent.postMessage({__mkt:1,h:h},"*"); } }catch(e){} }
-function fmtUsd(p){ if(p==null)return "—"; if(p>=1000)return p.toLocaleString("en-US",{maximumFractionDigits:0}); if(p>=1)return p.toFixed(4); if(p>=0.01)return p.toFixed(5); return p.toPrecision(3); }
-function fmtCny(p){ if(p==null||fx==null)return "≈ ¥ —"; var v=p*fx; return "≈ ¥ "+(v>=1000?v.toLocaleString("en-US",{maximumFractionDigits:0}):v.toFixed(2)); }
-function shortAddr(a){ return a?a.slice(0,7)+"…"+a.slice(-5):"—"; }
-function hhmmss(ts){ if(!ts)return "—"; var d=new Date(ts); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0"); }
-function statusOf(ts){ if(!ts)return {cls:"",label:"获取中"}; var age=Date.now()-ts; if(age<30000)return{cls:"g",label:"实时"}; if(age<180000)return{cls:"a",label:"延迟"}; return{cls:"r",label:"数据异常"}; }
-
-function withTimeout(ms){ var c=new AbortController(); setTimeout(function(){c.abort();},ms); return c; }
-async function ethCall(rpcs,to,data,block){
-  for(var i=0;i<rpcs.length;i++){
-    try{
-      var c=withTimeout(9000);
-      var r=await fetch(rpcs[i],{method:"POST",headers:{"Content-Type":"application/json"},signal:c.signal,
-        body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",params:[{to:to,data:data},block||"latest"]})});
-      var j=await r.json();
-      if(j&&j.result&&j.result!=="0x")return j.result;
-    }catch(e){}
-  }
+function withTimeout(ms){var c=new AbortController();setTimeout(function(){c.abort();},ms);return c;}
+async function ethCall(rpcs,to,data){
+  for(var i=0;i<rpcs.length;i++){ try{ var c=withTimeout(9000);
+    var r=await fetch(rpcs[i],{method:"POST",headers:{"Content-Type":"application/json"},signal:c.signal,
+      body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",params:[{to:to,data:data},"latest"]})});
+    var j=await r.json(); if(j&&j.result&&j.result!=="0x")return j.result; }catch(e){} }
   return null;
 }
-var _headCache={};
-async function latestBlock(rpcs){
-  var ck=rpcs[0]; var c=_headCache[ck]; if(c&&Date.now()-c.at<20000)return c.v;
-  for(var i=0;i<rpcs.length;i++){ try{ var ac=withTimeout(8000);
-    var r=await fetch(rpcs[i],{method:"POST",headers:{"Content-Type":"application/json"},signal:ac.signal,body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_getBlockByNumber",params:["latest",false]})});
-    var j=await r.json(); if(j&&j.result){ var v={number:parseInt(j.result.number,16),ts:parseInt(j.result.timestamp,16)}; _headCache[ck]={at:Date.now(),v:v}; return v; } }catch(e){} }
-  return null;
-}
-
-/* ===== 历史序列(走势图):Polygon走GeckoTerminal K线, Anubis走链上历史储备重建 ===== */
-var SPAN={ "1h":3600, "24h":86400, "7d":604800, "30d":2592000 };       // Anubis按块(≈1s/块)
-var GTF={ "1h":["minute",1,60], "24h":["hour",1,24], "7d":["hour",6,28], "30d":["day",1,30] };
-async function geckoOhlcv(t,tf){
-  var m=GTF[tf]; try{ var c=withTimeout(12000);
-    var j=await (await fetch(t.gecko+"/ohlcv/"+m[0]+"?aggregate="+m[1]+"&limit="+m[2],{signal:c.signal})).json();
-    var list=j&&j.data&&j.data.attributes&&j.data.attributes.ohlcv_list; if(!list||!list.length)return null;
-    return list.map(function(k){return {t:k[0]*1000,p:+k[4]};}).sort(function(a,b){return a.t-b.t;});
-  }catch(e){return null;}
-}
-async function anubisHist(t,tf,N){
-  var span=SPAN[tf]; var head=await latestBlock(t.rpcs); if(!head)return null;
-  var refDef=t.quoteRefKey?state[t.quoteRefKey].def:null;
-  var blocks=[]; for(var i=0;i<N;i++){ blocks.push(Math.max(1,head.number-span+Math.round(i*span/(N-1)))); }
-  var out=[];
-  for(var b=0;b<blocks.length;b+=6){
-    var rr=await Promise.all(blocks.slice(b,b+6).map(async function(bn){
-      var tag="0x"+bn.toString(16);
-      var hex=await ethCall(t.rpcs,t.pair,"0x0902f1ac",tag); var pr=hex&&priceFrom(t,reservesFromHex(hex)); if(!pr)return null;
-      var qUsd=1; if(refDef){ var h2=await ethCall(refDef.rpcs,refDef.pair,"0x0902f1ac",tag); var pr2=h2&&priceFrom(refDef,reservesFromHex(h2)); if(!pr2)return null; qUsd=pr2.priceInQuote; }
-      return { t:(head.ts-(head.number-bn))*1000, p:pr.priceInQuote*qUsd };
-    }));
-    rr.forEach(function(x){if(x)out.push(x);});
-  }
-  out.sort(function(a,b){return a.t-b.t;});
-  return out.length>=2?out:null;
-}
-function history(t,tf,N){ return t.gecko?geckoOhlcv(t,tf):anubisHist(t,tf,N||30); }
-
-/* 纯手绘 SVG 曲线(无图表库) */
-function svgChart(ser,w,h,color,fill){
-  if(!ser||ser.length<2)return '<div style="color:var(--faint);font-size:11px;text-align:center;padding:'+Math.max(8,(h/2-8))+'px 0">历史数据积累中…</div>';
-  var ps=ser.map(function(d){return d.p;}), min=Math.min.apply(null,ps), max=Math.max.apply(null,ps), rng=(max-min)||Math.abs(max)||1, n=ser.length;
-  function X(i){return (i/(n-1))*(w-2)+1;} function Y(p){return h-2-((p-min)/rng)*(h-4);}
-  var pts=ser.map(function(d,i){return X(i).toFixed(1)+","+Y(d.p).toFixed(1);}).join(" ");
-  var up=ser[n-1].p>=ser[0].p, stroke=color||(up?"#4ade80":"#f87171");
-  var area=fill?'<polygon points="'+X(0).toFixed(1)+','+(h-1)+' '+pts+' '+X(n-1).toFixed(1)+','+(h-1)+'" fill="'+stroke+'" opacity="0.13"/>':'';
-  var dot=fill?'<circle cx="'+X(n-1).toFixed(1)+'" cy="'+Y(ser[n-1].p).toFixed(1)+'" r="2.6" fill="'+stroke+'"/>':'';
-  return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="'+h+'" preserveAspectRatio="none" style="display:block">'+area+'<polyline points="'+pts+'" fill="none" stroke="'+stroke+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+dot+'</svg>';
-}
-/* 卡片迷你曲线:顺序加载(24h,少点),避免并发打爆RPC */
-async function loadSparklines(){
-  for(var i=0;i<TOKENS.length;i++){ var t=TOKENS[i]; if(t.unavailable)continue;
-    try{ var ser=await history(t,"24h",16); if(ser){ state[t.key].spark=ser; render(); } }catch(e){}
-  }
-}
-async function blockNumber(rpcs){
-  for(var i=0;i<rpcs.length;i++){ try{ var c=withTimeout(8000);
-    var r=await fetch(rpcs[i],{method:"POST",headers:{"Content-Type":"application/json"},signal:c.signal,body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_blockNumber",params:[]})});
-    var j=await r.json(); if(j&&j.result)return parseInt(j.result,16); }catch(e){} }
-  return null;
-}
-function reservesFromHex(hex){
+function bn(hex,slice0,slice1){ hex=(hex||"").replace(/^0x/,""); if(hex.length<slice1)return null; return BigInt("0x"+hex.slice(slice0,slice1)); }
+function priceOf(t,hex){
   hex=(hex||"").replace(/^0x/,""); if(hex.length<128)return null;
-  return { r0:BigInt("0x"+hex.slice(0,64)), r1:BigInt("0x"+hex.slice(64,128)) };
+  var r0=BigInt("0x"+hex.slice(0,64)), r1=BigInt("0x"+hex.slice(64,128));
+  var q=t.quoteIsToken0?r0:r1, b=t.quoteIsToken0?r1:r0;
+  var quote=Number(q)/Math.pow(10,t.quoteDec), base=Number(b)/Math.pow(10,t.baseDec);
+  return base>0?quote/base:null;
 }
-function priceFrom(def,res){
-  var q=def.quoteIsToken0?res.r0:res.r1, b=def.quoteIsToken0?res.r1:res.r0;
-  var quote=Number(q)/Math.pow(10,def.quoteDec), base=Number(b)/Math.pow(10,def.baseDec);
-  if(base<=0)return null;
-  return { priceInQuote:quote/base, tvlInQuote:quote*2 };  // 以“计价币”为单位;稳定币=美元,LGNS则再乘LGNS价
-}
-// 计价币的美元价:稳定币记 1;若挂靠另一代币(如 fLGNS 以 LGNS 计价)则取该币现价
-function quoteUsdFor(t){ if(t.quoteRefKey){ var r=state[t.quoteRefKey]; return (r&&r.price!=null)?r.price:null; } return 1; }
+function quoteUsd(t){ if(t.quoteRefKey){ var r=st[t.quoteRefKey]; return (r&&r.price!=null)?r.price:null; } return 1; }
 
-/* 单个代币取价（含异常保护：单次跳变>30% 复核一次） */
-async function fetchToken(t){
-  var s=state[t.key]; if(t.unavailable)return;
-  var hex=await ethCall(t.rpcs,t.pair,"0x0902f1ac"); var res=hex&&reservesFromHex(hex); var pr=res&&priceFrom(t,res);
-  var qUsd=quoteUsdFor(t);
-  if(!pr||qUsd==null){ return; } // 取不到(或依赖的计价币价未就绪)就保留上次，状态会转“延迟/异常”
-  var np=pr.priceInQuote*qUsd;
-  if(s.price!=null && s.price>0){
-    var chg=Math.abs(np-s.price)/s.price;
-    if(chg>0.30){ // 跳变过大：再取一次确认
-      var hex2=await ethCall(t.rpcs,t.pair,"0x0902f1ac"); var pr2=hex2&&priceFrom(t,reservesFromHex(hex2));
-      if(pr2 && Math.abs(pr2.price-np)/np<0.15){ s.anomaly=false; } // 两次一致→真实变动，接受
-      else { s.anomaly=true; render(); return; }                  // 无法确认→保留旧价+标异常
-    } else { s.anomaly=false; }
-  }
-  s.price=np; s.priceInQuote=pr.priceInQuote; s.tvl=pr.tvlInQuote*qUsd; s.updatedAt=Date.now();
-  pushHistory(t.key,np);
-  if(!t.gecko) s.change24h=change24hLocal(t.key,np); // 有GT的走GT
-  render();
+async function readTax(t){
+  if(!t.hasTax){ return; }
+  var fr=await ethCall(t.rpcs,t.taxAddr,"0x41744dd4");        // feeRatio()
+  var pr=await ethCall(t.rpcs,t.taxAddr,"0xaaf5eb68");        // PRECISION()
+  var f=bn(fr,0,64), p=bn(pr,0,64);
+  if(f!=null&&p!=null&&p>0n){ st[t.key].tax=Number(f)/Number(p); }
 }
-
-/* 24h：有GeckoTerminal的用GT真实24h；其余用本地滚动样本（首日积累中） */
-function pushHistory(key,price){
-  try{ var k="mkt_hist_"+key; var a=JSON.parse(localStorage.getItem(k)||"[]");
-    var now=Date.now(); if(!a.length||now-a[a.length-1].t>240000){ a.push({t:now,p:price}); }
-    a=a.filter(function(x){return now-x.t<26*3600e3;}); localStorage.setItem(k,JSON.stringify(a)); }catch(e){}
+async function readPrice(t){
+  var hex=await ethCall(t.rpcs,t.pair,"0x0902f1ac"); var pq=hex&&priceOf(t,hex);
+  var qu=quoteUsd(t); if(pq==null||qu==null)return;
+  st[t.key].price=pq*qu;
 }
-function change24hLocal(key,cur){
-  try{ var a=JSON.parse(localStorage.getItem("mkt_hist_"+key)||"[]"); var target=Date.now()-24*3600e3; var best=null;
-    for(var i=0;i<a.length;i++){ if(Math.abs(a[i].t-target)<2*3600e3){ if(!best||Math.abs(a[i].t-target)<Math.abs(best.t-target))best=a[i]; } }
-    if(best&&best.p>0)return (cur-best.p)/best.p*100; }catch(e){}
-  return null; // 积累中
-}
-async function fetchGecko(t){
-  if(!t.gecko)return; try{ var c=withTimeout(9000); var r=await fetch(t.gecko,{signal:c.signal,headers:{Accept:"application/json"}}); var j=await r.json();
-    var at=j&&j.data&&j.data.attributes; if(at){ var h=at.price_change_percentage&&at.price_change_percentage.h24;
-      if(h!=null&&h!=="")state[t.key].change24h=parseFloat(h);
-      if(at.reserve_in_usd)state[t.key].tvl=parseFloat(at.reserve_in_usd); render(); } }catch(e){}
-}
-async function fetchFx(){
-  try{ var c=JSON.parse(localStorage.getItem("mkt_fx")||"null"); if(c&&Date.now()-c.t<3600e3){fx=c.v;return;} }catch(e){}
-  for(var i=0;i<FX_URLS.length;i++){ try{ var ct=withTimeout(9000); var r=await fetch(FX_URLS[i],{signal:ct.signal}); var j=await r.json();
-    var v=j&&j.rates&&j.rates.CNY; if(v){ fx=v; try{localStorage.setItem("mkt_fx",JSON.stringify({t:Date.now(),v:v}));}catch(e){} return; } }catch(e){} }
-}
-
-/* ================== 渲染 ================== */
+function fmt(p){ if(p==null)return "—"; return p.toFixed(4); }
 function render(){
-  var grid=document.getElementById("grid"); grid.innerHTML="";
-  var newest=0;
+  var box=document.getElementById("strip"); box.innerHTML="";
   TOKENS.forEach(function(t){
-    var s=state[t.key]; if(s.updatedAt>newest)newest=s.updatedAt;
-    var card=el("div","card"+(t.unavailable?" na":""));
-    card.style.setProperty("--accent",t.bg);
-    var head='<div class="ch"><div class="badge">'+t.badge+'</div>'+
-      '<div class="nm"><div class="t">'+t.name+'</div><div class="c"><span class="chip">'+t.chainTag+'</span></div></div></div>';
-    if(t.unavailable){
-      card.innerHTML=head+'<div class="px" style="color:var(--dim);font-size:20px">—</div>'+
-        '<div class="na-box">暂无公开交易池，无法按市场价定价</div>'+
-        '<div class="meta"><div class="row"><span>数据来源</span><span class="v">'+t.source+'</span></div>'+
-        '<div class="row"><span>状态</span><span class="v st"><span class="dot"></span>待配置</span></div></div>';
-      card.addEventListener("click",function(){openModal(t.key);});
-      card.addEventListener("keydown",function(e){if(e.key==="Enter")openModal(t.key);});
-      grid.appendChild(card); return;
+    var s=st[t.key], d=document.createElement("div"); d.className="tk";
+    var taxHtml="";
+    if(t.hasTax){
+      if(s.tax!=null){
+        var pct=(s.tax*100); pct=(pct%1===0)?pct.toFixed(0):pct.toFixed(1);
+        var net=(s.price!=null)?("$"+fmt(s.price*(1-s.tax))):"—";
+        taxHtml='<div class="tax"><span class="tp">卖税 '+pct+'%</span><span class="net">'+net+'</span></div>';
+      } else {
+        taxHtml='<div class="tax"><span class="tp na">卖税 …</span></div>';
+      }
+    } else {
+      taxHtml='<div class="tax"><span class="tp na">卖税 —</span></div>';
     }
-    card.innerHTML=head+
-      '<div class="px"><span class="u">$</span>'+fmtUsd(s.price)+'</div>'+
-      '<div class="cny">'+fmtCny(s.price)+'</div>';
-    grid.appendChild(card);
+    d.innerHTML='<div class="hd"><span class="dot" style="background:'+t.dot+'"></span><span class="nm">'+t.label+'</span></div>'+
+      '<div class="px"><span class="u">$</span>'+fmt(s.price)+'</div>'+taxHtml;
+    box.appendChild(d);
   });
-  // 顶部总状态
-  var g=statusOf(newest);
-  document.getElementById("liveDot").className="dot "+g.cls;
-  document.getElementById("liveTxt").textContent=(newest?("已更新 "+hhmmss(newest)+" · 每12秒"):"连接链上…");
+  var now=new Date();
+  document.getElementById("upd").textContent="更新 "+String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0")+":"+String(now.getSeconds()).padStart(2,"0");
   reportH();
 }
+function reportH(){ try{ if(window.parent&&window.parent!==window){ var h=Math.ceil(Math.max(document.body.scrollHeight,document.documentElement.scrollHeight)); window.parent.postMessage({__mkt:1,h:h},"*"); } }catch(e){} }
 
-/* ================== 详情弹窗 ================== */
-function openModal(key){
-  var s=state[key],t=s.def,m=document.getElementById("modal");
-  var chg=s.change24h;
-  var rows="";
-  function row(k,v,mono){ return '<div class="kv"><span class="k">'+k+'</span><span class="v'+(mono?" mono":"")+'">'+v+'</span></div>'; }
-  if(t.unavailable){
-    m.innerHTML='<div class="mh"><div class="badge" style="background:'+t.bg+'">'+t.badge+'</div><div><div class="t" style="font-weight:800;color:var(--white)">'+t.name+'</div><div class="c" style="font-size:11px;color:var(--dim)">'+t.chain+'</div></div><button class="x" onclick="closeModal()">✕</button></div>'+
-      '<div class="na-box" style="margin:10px 0 4px">'+t.note+'</div>'+
-      row("代币合约",shortAddr(t.token)+'<span class="copy" data-c="'+t.token+'">复制</span>',true)+
-      row("所在链",t.chain+" (chainId "+t.chainId+")")+
-      '<a class="mbtn" href="'+t.explorer+'/address/'+t.token+'" target="_blank" rel="noopener">在区块浏览器查看 →</a>';
-    bindCopy(m); document.getElementById("mask").classList.add("on"); return;
-  }
-  m.innerHTML='<div class="mh"><div class="badge" style="background:'+t.bg+'">'+t.badge+'</div>'+
-    '<div><div class="t" style="font-weight:800;color:var(--white)">'+t.name+' · '+t.chain+'</div>'+
-    '<div class="c" style="font-size:11px;color:var(--dim)">'+t.source+'</div></div>'+
-    '<button class="x" onclick="closeModal()">✕</button></div>'+
-    (t.note?'<div class="na-box" style="margin:8px 0 2px">'+t.note+'</div>':'')+
-    '<div class="bigpx"><span style="font-size:18px;color:var(--dim)">$</span>'+fmtUsd(s.price)+'</div>'+
-    '<div class="cny" style="margin-bottom:6px">'+fmtCny(s.price)+'</div>'+
-    '<div class="tfbar" id="tfbar"></div><div class="chartbox" id="chartbox"><div class="loading">加载走势…</div></div>'+
-    row("24H 涨跌", chg==null?'<span style="color:var(--dim)">积累中</span>':('<span style="color:'+(chg>=0?"var(--up)":"var(--down)")+'">'+(chg>=0?"+":"")+chg.toFixed(2)+'%</span>'))+
-    row("主要交易池", t.poolName)+
-    row("流动性 (TVL)", s.tvl!=null?("$"+Math.round(s.tvl).toLocaleString("en-US")):"—")+
-    row("所在链", t.chain+" (chainId "+t.chainId+")")+
-    row("代币合约", shortAddr(t.token)+'<span class="copy" data-c="'+t.token+'">复制</span>', true)+
-    row("交易对合约", shortAddr(t.pair)+'<span class="copy" data-c="'+t.pair+'">复制</span>', true)+
-    '<div class="kv"><span class="k">最后区块</span><span class="v" id="mblock">'+(s.block!=null?("#"+s.block):"…")+'</span></div>'+
-    row("更新时间", hhmmss(s.updatedAt))+
-    '<a class="mbtn" href="'+t.explorer+'/address/'+t.pair+'" target="_blank" rel="noopener">查看链上交易池 →</a>';
-  bindCopy(m);
-  document.getElementById("mask").classList.add("on");
-  setupChart(key);
-  blockNumber(t.rpcs).then(function(b){ if(b){ s.block=b; var be=document.getElementById("mblock"); if(be)be.textContent="#"+b; } });
+async function tickPrice(){
+  await Promise.all(TOKENS.filter(function(t){return !t.quoteRefKey;}).map(readPrice));
+  await Promise.all(TOKENS.filter(function(t){return t.quoteRefKey;}).map(readPrice));
+  render();
 }
-/* ===== 详情走势图 ===== */
-var TFS=[{k:"1h",l:"1H"},{k:"24h",l:"24H"},{k:"7d",l:"7D"},{k:"30d",l:"30D"}];
-var curKey=null,curTf="24h";
-function setupChart(key){
-  curKey=key; curTf="24h";
-  var bar=document.getElementById("tfbar"); if(!bar)return;
-  bar.innerHTML=TFS.map(function(f){return '<button class="tf'+(f.k===curTf?" on":"")+'" data-tf="'+f.k+'">'+f.l+'</button>';}).join("");
-  bar.querySelectorAll(".tf").forEach(function(btn){ btn.addEventListener("click",function(){
-    curTf=btn.getAttribute("data-tf"); bar.querySelectorAll(".tf").forEach(function(b){b.classList.toggle("on",b===btn);}); drawModalChart(); }); });
-  drawModalChart();
-}
-async function drawModalChart(){
-  var key=curKey,tf=curTf,box=document.getElementById("chartbox"); if(!box)return;
-  box.innerHTML='<div class="loading">加载走势…</div>';
-  var ser=await history(state[key].def,tf,tf==="1h"?24:34);
-  var cur=document.getElementById("chartbox"); if(cur!==box)return;               // 弹窗已关/切换
-  if(curKey!==key||curTf!==tf)return;
-  if(!ser||ser.length<2){ box.innerHTML='<div class="loading">该时间段暂无足够历史</div>'; return; }
-  var ps=ser.map(function(d){return d.p;}), mn=Math.min.apply(null,ps), mx=Math.max.apply(null,ps);
-  var first=ser[0].p, last=ser[ser.length-1].p, dchg=first>0?((last-first)/first*100):0;
-  box.innerHTML=svgChart(ser,320,120,"#8fe36a",true)+
-    '<div class="axr"><span>高 $'+fmtUsd(mx)+'</span><span style="color:'+(dchg>=0?"var(--up)":"var(--down)")+'">'+(dchg>=0?"+":"")+dchg.toFixed(2)+'%</span><span>低 $'+fmtUsd(mn)+'</span></div>';
-}
-function bindCopy(m){ m.querySelectorAll(".copy").forEach(function(c){ c.addEventListener("click",function(e){ e.stopPropagation(); try{navigator.clipboard.writeText(c.getAttribute("data-c"));c.textContent="已复制";setTimeout(function(){c.textContent="复制";},1200);}catch(x){} }); }); }
-function closeModal(){ document.getElementById("mask").classList.remove("on"); }
-document.getElementById("mask").addEventListener("click",function(e){ if(e.target===this)closeModal(); });
-document.addEventListener("keydown",function(e){ if(e.key==="Escape")closeModal(); });
-
-/* ================== 主循环 ================== */
-async function tick(){
-  await Promise.all(TOKENS.filter(function(t){return !t.quoteRefKey;}).map(fetchToken)); // 先算稳定币计价的(含 ANB LGNS)
-  await Promise.all(TOKENS.filter(function(t){return t.quoteRefKey;}).map(fetchToken));  // 再算挂靠计价的(fLGNS 依赖 LGNS 价)
-}
-async function tickGecko(){ await Promise.all(TOKENS.map(fetchGecko)); }
 render();
-fetchFx();
-tick(); tickGecko();
-setInterval(tick, 12000);
-setInterval(tickGecko, 60000);
-setInterval(fetchFx, 3600000);
-setInterval(render, 5000); // 刷新价格/顶部状态
+Promise.all(TOKENS.map(readTax)).then(render);
+tickPrice();
+setInterval(tickPrice, 12000);
 window.addEventListener("load",reportH); window.addEventListener("resize",reportH);
-setTimeout(reportH,200); setTimeout(reportH,900); setTimeout(reportH,2000);
+setTimeout(reportH,300); setTimeout(reportH,1200);
 </script>
 </body>
 </html>
