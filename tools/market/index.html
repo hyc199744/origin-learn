@@ -154,6 +154,7 @@ var fx=null;
 
 /* ================== 工具 ================== */
 function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+function reportH(){ try{ if(window.parent&&window.parent!==window){ var h=Math.ceil(document.documentElement.getBoundingClientRect().height); window.parent.postMessage({__mkt:1,h:h},"*"); } }catch(e){} }
 function fmtUsd(p){ if(p==null)return "—"; if(p>=1000)return p.toLocaleString("en-US",{maximumFractionDigits:0}); if(p>=1)return p.toFixed(4); if(p>=0.01)return p.toFixed(5); return p.toPrecision(3); }
 function fmtCny(p){ if(p==null||fx==null)return "≈ ¥ —"; var v=p*fx; return "≈ ¥ "+(v>=1000?v.toLocaleString("en-US",{maximumFractionDigits:0}):v.toFixed(2)); }
 function shortAddr(a){ return a?a.slice(0,7)+"…"+a.slice(-5):"—"; }
@@ -320,6 +321,7 @@ function render(){
   var g=statusOf(newest);
   document.getElementById("liveDot").className="dot "+g.cls;
   document.getElementById("liveTxt").textContent=(newest?("已更新 "+hhmmss(newest)+" · 每12秒"):"连接链上…");
+  reportH();
 }
 
 /* ================== 详情弹窗 ================== */
@@ -399,6 +401,8 @@ setInterval(tick, 12000);
 setInterval(tickGecko, 60000);
 setInterval(fetchFx, 3600000);
 setInterval(render, 5000); // 刷新价格/顶部状态
+window.addEventListener("load",reportH); window.addEventListener("resize",reportH);
+setTimeout(reportH,200); setTimeout(reportH,900); setTimeout(reportH,2000);
 </script>
 </body>
 </html>
