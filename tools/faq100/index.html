@@ -1,237 +1,692 @@
 <!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="index,follow">
-<title>起源常见问题 100 问 · Origin FAQ · Web3Origin</title>
-<meta name="description" content="起源 / LGNS / Anubis 常见 100 个问题：基础认知、代币精度、Anubis 链、钱包设置、买卖交易、质押收益、治理 NFT、安全防诈、工具使用、链上核实，分类速查，答案可自行上链核对。">
-<link rel="canonical" href="https://web3origin.com/tools/faq100/">
-<link rel="icon" href="/assets/favicon.png">
-<style>
-:root{--bg:#050303;--temple:#210507;--blood:#7A0B12;--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--green:#8fbf78;--serif:"Noto Serif SC","Songti SC",Georgia,serif}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(1000px 520px at 50% -10%,#2a0a0c,#050303 60%) fixed,#050303;color:var(--bone);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.8}
-.top{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.top a.home{color:var(--gold-lt);font-weight:700;font-size:14px;text-decoration:none;display:inline-flex;gap:7px;align-items:center}
-.top img{height:22px}
-.wrap{max-width:860px;margin:0 auto;padding:22px 18px 70px}
-h1{font-family:var(--serif);font-size:clamp(23px,4.4vw,32px);color:var(--gold-lt);margin:4px 0 6px;font-weight:700;text-wrap:balance}
-.lede{color:var(--soft);font-size:13.5px;margin:0 0 14px;line-height:1.7}
-.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
-.tools input{flex:1;min-width:180px;background:rgba(214,168,75,.05);border:1px solid var(--line);color:var(--bone);border-radius:10px;padding:10px 13px;font-size:14px;font-family:inherit}
-.tools input::placeholder{color:var(--muted)}
-.cats{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 16px}
-.cat{font-size:12.5px;color:var(--soft);background:rgba(214,168,75,.05);border:1px solid var(--line);border-radius:999px;padding:5px 13px;cursor:pointer;white-space:nowrap}
-.cat:hover{color:var(--bone)}
-.cat.on{color:#2a1c05;background:linear-gradient(180deg,#f0d48a,var(--gold));border-color:var(--gold);font-weight:700}
-.grp{margin:0 0 22px}
-.grp h2{font-family:var(--serif);color:var(--gold-lt);font-size:18px;font-weight:400;margin:22px 0 10px;border-left:3px solid var(--blood);padding-left:11px;display:flex;align-items:center;gap:8px}
-.grp h2 .n{font-size:12px;color:var(--muted)}
-.faq{border:1px solid var(--line);border-radius:9px;margin-bottom:8px;padding:0 15px;background:rgba(214,168,75,.03)}
-.faq summary{cursor:pointer;padding:12px 0;color:var(--bone);font-size:15px;font-family:var(--serif);list-style:none;display:flex;gap:9px;align-items:flex-start}
-.faq summary::-webkit-details-marker{display:none}
-.faq summary .qn{color:var(--gold);flex:0 0 auto;font-size:13px;font-family:var(--serif);min-width:30px}
-.faq summary::after{content:"+";margin-left:auto;color:var(--soft);font-size:18px;flex:0 0 auto}
-.faq[open] summary::after{content:"–"}
-.faq .a{color:var(--soft);font-size:14px;line-height:1.85;padding:0 0 13px 39px}
-.faq .a b{color:var(--bone);font-weight:400}
-.faq mark{background:rgba(214,168,75,.28);color:var(--bone);border-radius:3px;padding:0 2px}
-.empty{color:var(--muted);text-align:center;padding:30px;font-size:14px}
-.count{color:var(--muted);font-size:12px;margin:0 0 14px}
-footer{border-top:1px solid var(--line);margin-top:34px;padding-top:18px;color:var(--muted);font-size:12px;text-align:center;line-height:1.9}
-footer a{color:var(--soft);margin:0 6px}
-.warn{background:rgba(122,11,18,.14);border:1px solid rgba(214,168,75,.22);border-radius:10px;padding:11px 14px;color:var(--soft);font-size:12.5px;line-height:1.7;margin:0 0 16px}
-.warn b{color:var(--gold-lt)}
-</style>
-</head>
-<body>
-<div class="top">
-  <a class="home" href="/tools/origin-monitor/"><img src="/assets/logo.png" alt="Web3Origin">← 起源百宝箱</a>
-</div>
-<div class="wrap">
-  <h1>起源常见问题 · 100 问</h1>
-  <p class="lede">关于 起源(Origin) / LGNS / Anubis 最常被问到的问题，分类速查、直接给答案。所有涉及链上的说法都可用本站工具或区块浏览器<b style="color:var(--soft)">自行核实</b>。</p>
-  <div class="warn"><b>⚠️ 安全第一：</b>本站及任何正规渠道<b>永远不会</b>找你要助记词、私钥或钱包密码；收到「帮你找回被盗币 / 免费领空投」私信基本可当诈骗。内容仅供学习理解，不构成投资建议（DYOR）。</div>
-  <div class="tools"><input id="q" type="text" placeholder="🔍 输入关键词搜索问题，例如：精度、卖税、质押、助记词…"></div>
-  <div class="cats" id="cats"></div>
-  <div class="count" id="count"></div>
-  <div id="list"></div>
-</div>
-<footer>
-  <div><a href="/">首页</a> · <a href="/faq/">FAQ</a> · <a href="/contracts/">合约大全</a> · <a href="/tools/origin-monitor/">起源百宝箱</a> · <a href="/baike/lgns/">LGNS百科</a></div>
-  <div style="margin-top:6px">web3origin.com · 内容仅供学习理解，不构成投资建议（DYOR）</div>
-</footer>
-<script>
-"use strict";
-/* 100 问数据：每条 {q,a}，按分类分组。答案均来自站内已核实事实/操作教程，可上链核对。 */
-var DATA=[
-{c:'基础认知',items:[
-['起源(Origin)是什么？','起源是一整个 Web3 生态的统称：核心代币是 <b>LGNS</b>，并自建了 <b>Anubis</b> 隐私公链，还有质押、DAO 治理等。可以理解成"一个有自己代币和规则的链上社区"。'],
-['LGNS 是什么？','起源生态的核心代币（算法代币，不是稳定币），精度 <b>9 位</b>，采用源自 OlympusDAO 的 <b>(3,3)</b> 质押模型，每 6 小时 rebase 增发发放奖励。部署在 Polygon 与 Anubis 两条链。'],
-['Anubis 是什么？','起源自建的隐私公链，Chain ID <b>6714</b>，gas 直接用 DAI（不用单独买原生币）。'],
-['起源、LGNS、Anubis 三者什么关系？','打个比方：起源是一座城市，LGNS 是城里流通的货币，Anubis 是城市脚下的地基（底层公链）。'],
-['起源是什么时候上线的？','LGNS 于 <b>2024-03-06</b> 在 Polygon 上线；Anubis 链稍后自建上线。关键时间点都能在链上找到对应交易。'],
-['(3,3) 是什么意思？','博弈论说法：如果大家都选择"质押并长期持有"，对所有人整体结果最好（所以写成 3,3）。它用机制鼓励长期主义，但机制本身<b>不保证赚钱</b>。'],
-['起源是不是资金盘？','别只听任何人一面之词——自己上链查：收益从哪来、资金去向、有没有人能随意增发或挪走资金。本站「合约验证」「钱包监控」「链上证据库」就是帮你查这些的。'],
-['起源和 OlympusDAO(OHM) 什么关系？','LGNS 是 OHM 机制的分叉（fork）：同样的 (3,3)、rebase、9 位精度、国库储备等设计。可对比两者代码理解机制。'],
-['「朗基努斯 / Longinus」是什么？','LGNS 的中文/英文名，就是同一个核心代币。注意别和第三方蹭名的同名币混淆，认准合约地址。'],
-['起源官方渠道有哪些？','认准官方公布的账号（如主号 @SaluteOrigin、公链 @ANUBISCHAIN_ 等），收藏官方链接，不要从搜索结果或私信链接进入。']
-]},
-{c:'LGNS 代币',items:[
-['LGNS 的精度是多少？','<b>9 位</b>（decimals=9），不是常见的 18 位——这是 OHM 分叉的传统。链上原始数字要除以 10⁹ 才是真实枚数。'],
-['LGNS 在 Polygon 的合约地址？','<b>0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01</b>。可在 PolygonScan 核实，或看本站「合约大全」。'],
-['LGNS 在 Anubis 的合约地址？','<b>0x4D1D808a081FdAc440703b3765FC61f8028C06B8</b>。可在 browser.anubispace.org 核实。'],
-['Polygon 的 LGNS 和 Anubis 的 LGNS 是同一个价吗？','<b>不是</b>。两条链各有独立的交易池，价格分别形成、通常略有差异，要分开看。'],
-['LGNS 和 GLGNS 有什么区别？','LGNS 是核心代币（质押、生息、交易）；<b>GLGNS</b> 是治理代币（用于社区投票）。治理用 GLGNS，不是 LGNS。'],
-['sLGNS 是什么？','质押 LGNS 后得到的质押凭证（staked LGNS），随 rebase 增长，代表你在质押池里的份额。'],
-['LGNS 卖出有税吗？','有。Polygon 的 LGNS 卖税约 <b>5%</b>（买入 0），可在本站「实时行情」看到税后到手价；gLGNS 卖税约 2%。'],
-['LGNS 总量是多少？会不会无限增发？','它是 rebase 增发型代币，供应随质押奖励持续增加。关键要看增发是否有真实储备支撑——用「合约验证」查谁有增发权限。'],
-['LGNS 价格为什么说有"1 美元地基"？','指国库储备为每枚提供理论托底逻辑（软底，不是硬底）。软底不等于跌不破，仍要看真实储备和市场情绪。'],
-['LGNS 能跨链吗？Polygon 和 Anubis 之间怎么转？','通过官方跨链桥在两条链之间转移，具体入口以官方公告为准，别用陌生链接。'],
-['在哪里能看到 LGNS 实时价格？','本站首页「起源生态实时行情」和「实时行情」工具，价格由链上流动性池储备实时计算。'],
-['LGNS 是稳定币吗？','<b>不是</b>。它是算法代币，价格随市场和机制波动，别当稳定币理解。']
-]},
-{c:'Anubis 链',items:[
-['Anubis 链的 Chain ID 是多少？','<b>6714</b>。在钱包里手动添加网络时会用到。'],
-['Anubis 的 gas 用什么付？','直接用 <b>DAI</b>，不需要单独持有原生代币。钱包里原生余额显示的其实就是 DAI。'],
-['Anubis 的区块浏览器是哪个？','<b>browser.anubispace.org</b>，可查地址、交易、合约。'],
-['Anubis 的 RPC 节点地址？','<b>https://rpc.anubispace.org</b>（添加网络时填这个）。'],
-['怎么把 Anubis 网络加到钱包？','在钱包"添加网络"里填：网络名 Anubis、Chain ID 6714、RPC rpc.anubispace.org、浏览器 browser.anubispace.org。本站视频学院有图文教程。'],
-['Anubis 上转账 Pending(卡住) 怎么办？','一般是 gas(DAI) 不足或网络拥堵。确认钱包里有足够 DAI 当 gas，或稍等重试；教程见本站视频学院。'],
-['Anubis 是隐私链，隐私体现在哪？','它定位为选择性隐私的 L1。具体隐私特性以官方文档为准，链上公开数据仍可在浏览器查询。'],
-['在 Anubis 上没有 gas 币怎么办？','先往该 Anubis 地址转入少量 DAI 作为 gas，才能发起交易。'],
-['Anubis 链上也能查 LGNS 吗？','能。用 browser.anubispace.org 或本站「双链钱包查询」「双链质押查询」即可。'],
-['Anubis 出块多快？','约每 1~2 秒一个块，交易确认较快。']
-]},
-{c:'钱包与设置',items:[
-['新手第一步该做什么？','先准备一个自托管钱包（如 OKX Web3 钱包 / MetaMask），<b>手抄并离线保管助记词</b>，再谈买币和质押。'],
-['助记词丢了/泄露了怎么办？','助记词一旦泄露，钱包就<b>永久不安全</b>：尽快把还能转的资产转到全新钱包并弃用旧钱包。改密码、断网都没用。'],
-['助记词该怎么保管？','只手抄、离线保存，<b>绝不</b>拍照、不存微信/相册/云盘、不发给任何人（包括自称"客服""老师"的人）。'],
-['用哪个钱包比较好？','主流自托管钱包都可以（OKX Web3、MetaMask 等）。大额建议配硬件钱包，私钥不碰联网设备。'],
-['怎么创建钱包？','在钱包 App 里"创建钱包"，按提示抄好助记词并验证。本站视频学院有 OKX 建钱包、子钱包的实操视频。'],
-['怎么把 LGNS/sLGNS 添加到钱包显示？','在钱包"添加代币"里粘贴对应合约地址即可显示余额。视频学院有教程。'],
-['硬件钱包有必要吗？','大额强烈建议。签名在硬件里完成，私钥不暴露给联网设备，能挡住大部分盗币手段。'],
-['怎么查我钱包里有多少 LGNS？','用本站「双链钱包查询 / 钱包监控」，输入地址即可看双链 LGNS/sLGNS/DAI 等余额，只读、不需要私钥。'],
-['钱包地址可以公开给别人查吗？','地址本身是公开信息、可以查；但<b>别在公开群里贴自己地址求助</b>（等于给小偷指路），更不能给助记词。'],
-['为什么钱包里 Anubis 原生余额等于 DAI？','因为 Anubis 用 DAI 当 gas，原生余额显示的就是你的 DAI 数量。'],
-['换手机/重装 App 后钱包没了怎么办？','用助记词重新导入即可（前提是助记词你安全保管着）。所以助记词才是钱包的命根子。'],
-['怎么给钱包充 gas？','Polygon 用少量 POL 当 gas；Anubis 用少量 DAI 当 gas。']
-]},
-{c:'买卖与交易',items:[
-['在哪买 LGNS？','通过对应链上的去中心化交易工具买卖，<b>具体入口以官方公告为准</b>，别在陌生链接里操作。'],
-['第一次交易要注意什么？','先小额试水、确认流程无误再加量；核对合约地址、核对网络（Polygon/Anubis 别搞混）。'],
-['卖 LGNS 为什么到手比标价少？','有卖税（Polygon 约 5%）+ 交易滑点。本站「实时行情」直接显示税后到手价，「卖出模拟器」可模拟具体到手。'],
-['买入怎么算成本？','用本站「收益与成本计算器」，输入金额和价格即可估算买到的数量与成本。'],
-['卖出能拿回多少？','用本站「LGNS 卖出模拟器」，链上实时读价+卖税，模拟不同数量的到手 DAI。'],
-['交易滑点是什么？','下单价和实际成交价的差，池子越浅、单子越大，滑点越大。大额分批更划算。'],
-['买卖需要 gas 费吗？','需要。Polygon 用 POL、Anubis 用 DAI 付 gas，每笔都要一点。'],
-['为什么我的交易失败了？','常见原因：gas 不足、滑点设置太低、授权未完成、网络拥堵。看区块浏览器的报错信息排查。'],
-['怎么确认一笔交易成功？','把交易哈希放进区块浏览器（PolygonScan / browser.anubispace.org）看状态，或用本站「链上搜索」查。'],
-['能不能跨链套利 Polygon 和 Anubis 的差价？','两链价差真实存在，但要算上跨链成本、卖税、滑点和时间风险，不一定划算，谨慎。'],
-['交易记录在哪看？','区块浏览器输地址看全部交易；或用本站「钱包监控」看某地址最近活动时间线。'],
-['gLGNS / fLGNS 能交易吗？','gLGNS 有自己的交易池可交易；fLGNS 属第三方 Funverse 生态（非官方），风险自负。']
-]},
-{c:'质押与收益',items:[
-['质押收益从哪来？','本质是协议每 6 小时<b>增发新币</b>（rebase / 通胀奖励）发给质押者，不是天上掉的。'],
-['高年化(APY)是不是就稳赚？','<b>不是</b>。APY 只是币的数量增速，能不能净赚还要看<b>币价</b>和真实储备。数量涨、币价跌，照样亏。'],
-['怎么估算我的质押收益？','用本站「收益与成本计算器」，输入本金和天数估算；参数口径页面里有标注。'],
-['活期质押和 360/600 锁仓有什么区别？','活期可随时赎回；360/600 是锁定天数更长的产品，规则和收益不同，动手前先看清具体合约规则。'],
-['质押的本金能随时取回吗？','看质押类型：活期一般可随时赎回，锁仓有锁定期。<b>以合约规则为准</b>，别听转述。'],
-['怎么查我质押了多少？','用本站「双链质押查询」，输地址看双链活期/360/600 逐笔明细和名下总质押，链上直读。'],
-['rebase 是什么？','协议按周期（每 6 小时）自动给质押者增发，使持仓数量增长，就是"利滚利"的形式。'],
-['销毁债券是什么？','一种用 LGNS/资产参与、按规则获得回报的债券产品，具体条款以官方为准，可在本站「计算器」里试算。'],
-['质押奖励需要手动领取吗？','rebase 型奖励通常自动累加到质押余额；不同产品可能不同，以合约为准。'],
-['涡轮/蜘蛛网/DAO 奖励是什么？','是质押体系里的几类额外奖励，本站「双链质押查询」能按合约读出各类奖励的当前值。'],
-['质押安全吗？会不会取不出来？','要看质押合约是否可升级、本金能否赎回——用「合约验证」查权限。不要只看年化就冲。'],
-['全网质押数据在哪看？','本站「实时行情 / 链上雷达类工具」和「大户榜 / V1-V6 数量」等工具展示全网质押相关数据。']
-]},
-{c:'治理·GLGNS·NFT',items:[
-['GLGNS 是什么？','起源的治理代币，用于社区投票（Awake DAO）。它和用来生息的 LGNS 是两码事。'],
-['GLGNS 合约地址？','Anubis 上 <b>0xf140a92C156e76F5A1d3D6f96284b250330F8F4c</b>（已验证合约）。'],
-['治理投票权怎么来的？','来自 GLGNS 治理代币和治理 NFT，<b>不是</b>直接靠持有或质押 LGNS。'],
-['Awake DAO 是什么？','起源社区的治理组织，提案流程大致是：提案 → 讨论 → 投票 → 执行。'],
-['治理 NFT 是什么？','一类代表治理权益的 NFT。本站「NFT 持有查询」可查某地址持有的 Awake Governance NFT 数量与排行。'],
-['提案在哪看/怎么参与？','以官方治理渠道公布为准；参与需要相应的 GLGNS / 治理 NFT。'],
-['GLGNS 总量多少？','治理代币采用固定总量 + 双层 NFT 治理的设计，具体以链上合约为准。'],
-['gLGNS 和 GLGNS 是一个东西吗？','是同一枚治理代币的不同写法（gLGNS / GLGNS），注意认准合约地址 0xf140a92C…。']
-]},
-{c:'安全与防诈骗',items:[
-['有人私信说能帮我找回被盗的币，可信吗？','<b>几乎都是二次诈骗</b>。你已被盗一次，骗子专挑这时上门要你交助记词——交了就是把剩下的也送出去。'],
-['什么是 EIP-7702 授权钓鱼？','一种较新的钱包机制被骗子利用：诱导你签一个授权，一旦签了恶意授权钱可能被划走。<b>看不懂的签名一律不签</b>。'],
-['怎么检查和撤销钱包授权？','定期用授权管理工具（或本站「钱包监控」看授权风险）检查，撤销(revoke)不再需要的授权。很多币是被旧授权划走的。'],
-['收到"免费领空投"链接能点吗？','别点。陌生空投链接常是钓鱼，连钱包签名就可能被盗。'],
-['官方会私信找我要助记词吗？','<b>永远不会</b>。任何要你交助记词/私钥/密码，或让你转币"验证"的，都是骗子。'],
-['怎么辨别假冒官方号？','认准官方公布的账号并收藏，不从搜索结果/私信链接进；简介、粉丝、蓝V 都可能被仿冒，最终以官方互相印证为准。'],
-['下载的"抢救脚本/机器人"能用吗？','别用来路不明的程序，很多本身就是木马，运行就把你的币卷走。'],
-['钱被盗了第一时间怎么做？','立刻把该钱包还能转的资产转到<b>全新安全钱包</b>，然后彻底弃用被盗钱包，别再往里转任何东西。'],
-['蜜罐币/貔貅盘怎么识别？','能买不能卖、或卖出税极高的常是蜜罐。用本站「代币安全检测 / 链上搜索」看买卖税和权限再动手。'],
-['第三方蹭名的币(如 fLGNS、TEM 等)安全吗？','这些多为第三方蹭 Anubis/LGNS 名字的盘，<b>非起源官方</b>，风险自负，别当官方项目。'],
-['怎么防止被钓鱼？','不点陌生链接、不签看不懂的授权、大额用硬件钱包、只走官方入口、凡事自己上链核实(DYOR)。'],
-['网站会不会盗我的币？','本站是<b>只读</b>查询：只用公开地址/哈希，绝不需要助记词或私钥，也不会让你签授权转币。']
-]},
-{c:'本站工具怎么用',items:[
-['起源百宝箱是什么？','本站的链上工具合集，包含钱包查询、质押查询、收益计算器、实时行情、合约大全、资料下载等一系列工具。'],
-['怎么查一个地址的全部资产？','用「双链钱包查询 / 钱包监控」，输入地址一次看全双链 LGNS 资产和最近活动。'],
-['怎么查某笔交易或某个地址？','用首页「链上搜索」，粘贴地址或交易哈希，直接给真实链上数据 + 大白话解读。'],
-['怎么看合约安不安全？','用「合约验证 / 合约大全」，查合约是否开源、可否升级、Owner 是谁、有无增发权限。'],
-['收益/成本怎么算？','用「收益与成本计算器」，支持买入、卖出、活期、长期、产品对比、销毁债券多种算法。'],
-['怎么下载白皮书和资料？','用「起源资料下载」，白皮书、课件、审计报告、合约地址大全都在里面。'],
-['实时行情在哪看？','首页顶部和「实时行情」工具，展示 LGNS(POL)、LGNS(ANB)、gLGNS 等实时价与卖税后到手价。'],
-['工具的数据可靠吗？','价格/余额等直接读链上，可对着区块浏览器核对；挂账类数据来自官方公开接口，页面都标注了来源。']
-]},
-{c:'合约·数据·核实',items:[
-['什么是链上证据？','真实存在于区块链、任何人可核实的记录：交易哈希、区块、合约地址、事件日志。没有链上证据的说法就别轻信。'],
-['怎么核实一个合约地址是不是官方的？','对照本站「合约大全」和官方公告，并在区块浏览器看合约的部署者、验证状态，多方印证。'],
-['合约"可升级"意味着什么？','代理合约的逻辑能被替换——好处是可修复，风险是控制升级权限的人能改规则。查清升级权限在谁手里。'],
-['怎么知道有没有人能增发 LGNS？','在区块浏览器/「合约验证」看谁拥有 mint 权限、是否多签、有没有时间锁。这些都是链上公开信息。'],
-['国库资产怎么查？','用本站「国库资产查询」，实时读主国库/基金会的 DAI/USDT 余额和 LP 自持比例。'],
-['审计报告在哪看？','「起源资料下载」里有 Certik（Anubis/Awake/Origin）和 Armors（国库）等审计报告 PDF。'],
-['审计通过就一定安全吗？','不一定。要看审计<b>覆盖了哪些合约</b>、是不是最新版本、有没有覆盖国库和权限。审计只是参考之一。'],
-['数据来源有哪些？','起源官方后台、PolygonScan(Etherscan V2)、Anubis 区块浏览器等，本站「数据来源」页有说明。']
-]},
-{c:'常见误区与风险',items:[
-['「跌不破 1 美元」是真的吗？','那是机制上的软托底逻辑，<b>不是硬保证</b>。极端行情下软底可能被击穿，别当保本。'],
-['年化几百上千是不是很赚？','高 APY 是数量增速，不代表法币净赚。币价下跌可能吃掉甚至超过增发收益。'],
-['别人喊单/说保本能信吗？','不能。任何"保本保收益""稳赚"的说法在 DeFi 里都要打问号，自己上链核实机制和资金。'],
-['把所有钱都投进去可以吗？','风险自负。DeFi 波动大、机制复杂，只投你能承受损失的部分，别借贷/杠杆梭哈。'],
-['项目负面消息怎么判断真假？','别只信截图和转述——去链上查对应的合约/交易/资金流，用事实说话。'],
-['这份 FAQ 是投资建议吗？','<b>不是</b>。仅供学习理解，帮你看懂机制、学会自己核实（DYOR），不替你做投资决定。']
-]}
-];
-
-var esc=function(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");};
-var flat=[]; DATA.forEach(function(g){ g.items.forEach(function(it,i){ flat.push({c:g.c,q:it[0],a:it[1]}); }); });
-var total=flat.length;
-var curCat="全部", kw="";
-
-function cats(){
-  var box=document.getElementById("cats"); var list=["全部"].concat(DATA.map(function(g){return g.c;}));
-  box.innerHTML=list.map(function(c){return '<span class="cat'+(c===curCat?" on":"")+'" data-c="'+esc(c)+'">'+esc(c)+(c==="全部"?" "+total:"")+'</span>';}).join("");
-  box.querySelectorAll(".cat").forEach(function(el){ el.onclick=function(){ curCat=el.getAttribute("data-c"); cats(); render(); }; });
-}
-function hl(t){ if(!kw)return esc(t); var i=t.toLowerCase().indexOf(kw.toLowerCase()); if(i<0)return esc(t); return esc(t.slice(0,i))+"<mark>"+esc(t.slice(i,i+kw.length))+"</mark>"+esc(t.slice(i+kw.length)); }
-function render(){
-  var wrap=document.getElementById("list"), cnt=document.getElementById("count"); wrap.innerHTML="";
-  var groups=DATA.filter(function(g){return curCat==="全部"||g.c===curCat;});
-  var shown=0, num=0;
-  groups.forEach(function(g){
-    var items=g.items.filter(function(it){ return !kw || (it[0]+it[1]).toLowerCase().indexOf(kw.toLowerCase())>=0; });
-    if(!items.length)return;
-    var gd=document.createElement("div"); gd.className="grp";
-    gd.innerHTML='<h2>'+esc(g.c)+' <span class="n">'+items.length+' 题</span></h2>'+items.map(function(it){
-      num++; shown++;
-      return '<details class="faq"><summary><span class="qn">Q'+num+'</span><span>'+hl(it[0])+'</span></summary><div class="a">'+it[1].replace(/__KW__/g,"")+'</div></details>';
-    }).join("");
-    wrap.appendChild(gd);
-  });
-  if(!shown){ wrap.innerHTML='<div class="empty">没有匹配"'+esc(kw)+'"的问题，换个关键词试试。</div>'; }
-  cnt.textContent="共 "+total+" 题"+(kw?("，匹配 "+shown+" 题"):(curCat!=="全部"?("，当前分类 "+shown+" 题"):""));
-}
-document.getElementById("q").addEventListener("input",function(e){ kw=e.target.value.trim(); render(); });
-cats(); render();
-</script>
-<script src="/i18n.js"></script>
-<script defer src="/assets/analytics.js"></script>
-</body>
-</html>
+<html lang="zh-CN"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="起源（LGNS）生态100个常见问题详细解答，面向新人，用大白话介绍代币、质押、Anubis Chain、DAO、AiLGNS、Funverse与链上安全。">
+  <title>起源100问答｜详细正面科普版</title>
+  <link rel="canonical" href="https://web3origin.com/tools/faq100/">
+  <link rel="icon" href="/assets/favicon.png">
+  <style>
+    :root {
+      --bg: #050913;
+      --bg-soft: #091322;
+      --card: rgba(14, 27, 48, .78);
+      --card-solid: #0d1a2d;
+      --text: #edf5ff;
+      --muted: #9fb2ca;
+      --line: rgba(116, 162, 213, .18);
+      --blue: #48b9ff;
+      --cyan: #54f4dc;
+      --gold: #f8c868;
+      --purple: #9785ff;
+      --shadow: 0 18px 60px rgba(0, 0, 0, .34);
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+      line-height: 1.8;
+      background:
+        radial-gradient(circle at 12% 5%, rgba(72, 185, 255, .15), transparent 26%),
+        radial-gradient(circle at 86% 10%, rgba(151, 133, 255, .12), transparent 25%),
+        radial-gradient(circle at 50% 100%, rgba(84, 244, 220, .07), transparent 35%),
+        var(--bg);
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .22;
+      background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+      background-size: 38px 38px;
+      mask-image: linear-gradient(to bottom, #000, transparent 90%);
+    }
+    a { color: inherit; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .backbar { width: min(1180px, calc(100% - 32px)); margin: 14px auto 0; }
+    .backbar a { color: var(--cyan); text-decoration: none; font-size: 14px; font-weight: 700; }
+    .progress {
+      position: fixed;
+      z-index: 30;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan), var(--gold));
+      box-shadow: 0 0 16px rgba(72,185,255,.7);
+    }
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 40px 0 42px;
+    }
+    .hero::after {
+      content: "100";
+      position: absolute;
+      top: 5px;
+      right: max(3vw, 20px);
+      font-size: clamp(120px, 24vw, 320px);
+      font-weight: 900;
+      line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(126, 190, 255, .09);
+      user-select: none;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 13px;
+      border: 1px solid rgba(84,244,220,.28);
+      border-radius: 999px;
+      color: var(--cyan);
+      background: rgba(84,244,220,.07);
+      font-size: 13px;
+      letter-spacing: .08em;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 12px currentColor;
+    }
+    h1 {
+      position: relative;
+      z-index: 1;
+      margin: 18px 0 14px;
+      max-width: 800px;
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: 1.1;
+      letter-spacing: -.04em;
+    }
+    h1 span {
+      background: linear-gradient(120deg, #fff 10%, var(--blue) 48%, var(--cyan) 88%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .lead {
+      position: relative;
+      z-index: 1;
+      max-width: 780px;
+      margin: 0;
+      color: #b8cae0;
+      font-size: clamp(16px, 2vw, 19px);
+    }
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 34px;
+    }
+    .metric {
+      padding: 17px 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(10, 20, 36, .62);
+      backdrop-filter: blur(12px);
+    }
+    .metric strong {
+      display: block;
+      font-size: 25px;
+      line-height: 1.2;
+      color: #fff;
+    }
+    .metric small { color: var(--muted); }
+    .notice {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 16px 18px;
+      margin: 4px 0 24px;
+      border: 1px solid rgba(248,200,104,.22);
+      border-radius: 15px;
+      color: #dacda9;
+      background: rgba(248,200,104,.055);
+      font-size: 14px;
+    }
+    .notice b { color: var(--gold); white-space: nowrap; }
+    .toolbar {
+      position: sticky;
+      z-index: 20;
+      top: 10px;
+      padding: 14px;
+      margin-bottom: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(7, 15, 27, .88);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 14px 44px rgba(0,0,0,.22);
+    }
+    .toolbar-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .search {
+      position: relative;
+      flex: 1;
+    }
+    .search svg {
+      position: absolute;
+      top: 50%;
+      left: 15px;
+      width: 19px;
+      transform: translateY(-50%);
+      color: var(--muted);
+    }
+    .search input {
+      width: 100%;
+      height: 46px;
+      padding: 0 16px 0 44px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      outline: none;
+      color: #fff;
+      background: rgba(255,255,255,.045);
+      transition: .2s ease;
+    }
+    .search input:focus {
+      border-color: rgba(72,185,255,.65);
+      box-shadow: 0 0 0 4px rgba(72,185,255,.09);
+    }
+    .action {
+      height: 46px;
+      padding: 0 15px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      color: #d9e8fa;
+      background: rgba(255,255,255,.045);
+      transition: .2s ease;
+    }
+    .action:hover { border-color: rgba(72,185,255,.55); color: #fff; }
+    .chips {
+      display: flex;
+      gap: 8px;
+      margin-top: 11px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      padding-bottom: 2px;
+    }
+    .chip {
+      flex: 0 0 auto;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255,255,255,.03);
+      font-size: 13px;
+      transition: .2s ease;
+    }
+    .chip:hover, .chip.active {
+      color: #06111c;
+      border-color: transparent;
+      background: linear-gradient(120deg, var(--blue), var(--cyan));
+      font-weight: 700;
+    }
+    .result-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin: 16px 2px 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .result-bar strong { color: var(--cyan); }
+    .chapter {
+      margin: 0 0 38px;
+      scroll-margin-top: 152px;
+    }
+    .chapter-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 0 2px 14px;
+    }
+    .chapter-kicker {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--blue);
+      font-size: 12px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .chapter h2 {
+      margin: 0;
+      font-size: clamp(23px, 3vw, 33px);
+      line-height: 1.3;
+    }
+    .chapter-intro {
+      max-width: 520px;
+      margin: 0;
+      text-align: right;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .faq-list { display: grid; gap: 10px; }
+    details.faq {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(16,31,54,.82), rgba(9,19,34,.82));
+      box-shadow: 0 8px 30px rgba(0,0,0,.12);
+      transition: border-color .2s ease, transform .2s ease, background .2s ease;
+    }
+    details.faq:hover {
+      border-color: rgba(72,185,255,.34);
+      transform: translateY(-1px);
+    }
+    details.faq[open] {
+      border-color: rgba(84,244,220,.30);
+      background: linear-gradient(145deg, rgba(17,36,61,.96), rgba(9,22,38,.96));
+    }
+    summary {
+      display: grid;
+      grid-template-columns: 54px 1fr 28px;
+      gap: 13px;
+      align-items: center;
+      min-height: 74px;
+      padding: 12px 18px 12px 13px;
+      list-style: none;
+      cursor: pointer;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .num {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(72,185,255,.22);
+      border-radius: 13px;
+      color: var(--blue);
+      background: rgba(72,185,255,.075);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .question {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    .plus {
+      position: relative;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.055);
+    }
+    .plus::before, .plus::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 11px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--muted);
+      transform: translate(-50%, -50%);
+      transition: .2s ease;
+    }
+    .plus::after { transform: translate(-50%, -50%) rotate(90deg); }
+    details[open] .plus::after { transform: translate(-50%, -50%) rotate(0); opacity: 0; }
+    .answer {
+      padding: 0 24px 23px 80px;
+      color: #c5d5e8;
+      font-size: 15px;
+    }
+    .answer p { margin: 0 0 10px; }
+    .answer p:last-child { margin-bottom: 0; }
+    .answer .point {
+      margin-top: 14px;
+      padding: 11px 13px;
+      border-left: 3px solid var(--gold);
+      border-radius: 0 10px 10px 0;
+      color: #e5d7af;
+      background: rgba(248,200,104,.055);
+    }
+    mark {
+      padding: 0 2px;
+      color: #06111c;
+      background: var(--cyan);
+      border-radius: 3px;
+    }
+    .empty {
+      display: none;
+      padding: 52px 20px;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255,255,255,.02);
+    }
+    footer {
+      margin-top: 56px;
+      padding: 35px 0 48px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .footer-title { color: #dceaff; font-weight: 700; }
+    .top {
+      position: fixed;
+      z-index: 25;
+      right: 20px;
+      bottom: 20px;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: #fff;
+      background: rgba(9,20,36,.9);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: .2s ease;
+    }
+    .top.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    @media (max-width: 820px) {
+      .hero { padding-top: 30px; }
+      .hero-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .chapter-head { display: block; }
+      .chapter-intro { margin-top: 5px; text-align: left; }
+      .toolbar { top: 5px; }
+    }
+    @media (max-width: 600px) {
+      .wrap { width: min(100% - 20px, 1180px); }
+      .backbar { width: min(100% - 20px, 1180px); }
+      .hero::after { opacity: .6; }
+      .toolbar-row { flex-wrap: wrap; }
+      .search { flex-basis: 100%; }
+      .action { flex: 1; }
+      summary { grid-template-columns: 45px 1fr 22px; gap: 9px; padding-right: 12px; }
+      .num { width: 42px; height: 42px; border-radius: 11px; }
+      .question { font-size: 15.5px; }
+      .answer { padding: 0 16px 19px 66px; font-size: 14px; }
+      .notice { display: block; }
+      .notice b { display: block; margin-bottom: 4px; }
+      .footer-grid { display: block; }
+    }
+    @media print {
+      :root { --text: #111; --muted: #555; --line: #ddd; }
+      body { color: #111; background: #fff; }
+      body::before, .progress, .toolbar, .top, .backbar { display: none !important; }
+      .hero { padding: 30px 0 20px; }
+      .hero::after { display: none; }
+      h1, h1 span { color: #111 !important; -webkit-text-fill-color: #111; }
+      .lead, .metric small, .chapter-intro, .answer { color: #333; }
+      .hero-grid { grid-template-columns: repeat(4, 1fr); }
+      .metric, .notice, details.faq { color: #111; background: #fff; box-shadow: none; }
+      details.faq { break-inside: avoid; }
+      details.faq:not([open]) .answer { display: block; }
+      .chapter { break-before: page; }
+      .chapter:first-of-type { break-before: auto; }
+    }
+  </style></head><body>
+  <div class="progress" id="progress"></div>
+  <div class="backbar"><a href="/tools/origin-monitor/">← 起源百宝箱</a></div>
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">ORIGIN · LGNS · 新手知识库</div>
+      <h1><span>起源100问答</span></h1>
+      <p class="lead">从“起源是什么”到链上操作、Anubis Chain、DAO、AiLGNS 与 Funverse，用 100 个问题把整个生态讲清楚。表达尽量简单，内容尽量完整，适合新人自学，也适合社区分享。</p>
+      <div class="hero-grid">
+        <div class="metric"><strong>100</strong><small>个核心问题</small></div>
+        <div class="metric"><strong>10</strong><small>大知识章节</small></div>
+        <div class="metric"><strong>链上</strong><small>可验证的学习方式</small></div>
+        <div class="metric"><strong>双端</strong><small>电脑与手机适配</small></div>
+      </div>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="notice">
+      <b>阅读说明</b>
+      <span>本页用于生态知识普及与学习交流，重点讲清机制、工具和参与方法，不构成投资建议，也不承诺任何收益。生态参数可能随 DAO 治理、合约升级或官方公告变化，实际操作前请以最新公告、合约数据和链上记录为准。</span>
+    </div>
+    <section class="toolbar" aria-label="问答工具栏">
+      <div class="toolbar-row">
+        <label class="search" aria-label="搜索问答">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.4-3.4"></path></svg>
+          <input id="search" type="search" placeholder="搜索关键词，例如：LGNS、质押、钱包、AiLGNS……" autocomplete="off">
+        </label>
+        <button class="action" id="openAll" type="button">全部展开</button>
+        <button class="action" id="closeAll" type="button">全部收起</button>
+        <button class="action" id="printPage" type="button">打印 / PDF</button>
+      </div>
+      <div class="chips" id="chips" aria-label="章节筛选"></div>
+    </section>
+    <div class="result-bar">
+      <span>当前显示 <strong id="visibleCount">100</strong> 个问题</span>
+      <span id="activeLabel">全部章节</span>
+    </div>
+    <div id="content"></div>
+    <div class="empty" id="empty">没有找到匹配的问题，换一个关键词试试。</div>
+  </main>
+  <footer>
+    <div class="wrap footer-grid">
+      <div><span class="footer-title">起源100问答</span><br>详细正面科普版 · 最后整理：2026年9月17日</div>
+      <div>学习链上知识 · 坚持独立验证 · 妥善保管资产</div>
+    </div>
+  </footer>
+  <button class="top" id="toTop" type="button" aria-label="返回顶部">↑</button>
+  <script>
+    const chapters = [
+      { id: "know", title: "认识起源", intro: "先建立整体地图：它是什么、为什么强调链上，以及新人应该怎样理解。" },
+      { id: "token", title: "代币与资产", intro: "把 LGNS、sLGNS、gLGNS、fLGNS、DAI 与流动性池的关系说清楚。" },
+      { id: "stake", title: "质押与 Rebase", intro: "理解质押、复利、债券和链上收益记录的基本逻辑。" },
+      { id: "anubis", title: "Anubis Chain", intro: "认识生态底层公链、EVM 兼容、Gas、RPC、跨链和隐私能力。" },
+      { id: "safe", title: "合约与安全", intro: "学会授权、签名、助记词和地址核对，让参与更稳妥。" },
+      { id: "dao", title: "DAO 与经济机制", intro: "理解治理、国库、销毁、费用与公开数据怎样协同运行。" },
+      { id: "eco", title: "生态应用", intro: "了解 Awake DAO、Funverse、AiLGNS、HELIX、RWA 等应用方向。" },
+      { id: "community", title: "参与与社区", intro: "从个人学习到团队协作，建立长期、真实、可持续的参与方式。" },
+      { id: "tools", title: "Web3Origin 工具", intro: "用实时行情、地址查询和链上证据工具提高验证与研究效率。" },
+      { id: "practice", title: "新人实操", intro: "回答入门资金、设备、钱包、转账、波动与记录管理等常见问题。" }
+    ];
+    const faqs = [
+      {c:"know", q:"什么是“起源（ORIGIN / LGNS）”？", a:["起源可以理解为一个围绕 LGNS 资产、链上金融机制、DAO 社区治理和多类生态应用逐步展开的 Web3 生态。它不是单一网页、单一钱包或单一玩法，而是一套由智能合约、链上资产、社区参与者和应用场景共同组成的系统。","对新人来说，可以先记住四个关键词：LGNS 是核心资产之一，区块链负责公开记账，智能合约负责按规则执行，社区与 DAO 负责推动治理和生态建设。先掌握这张地图，再去学习每个模块，会轻松很多。"], p:"一句话理解：起源是以链上资产和社区共识为基础，不断连接金融、AI、游戏与工具应用的生态系统。"},
+      {c:"know", q:"起源生态主要想解决什么问题？", a:["起源生态希望把资产规则、交易记录、分配过程和治理信息尽可能放到链上，让参与者能够自己查询和验证，而不只是依赖某个人的口头说明。链上公开记录使资产流动更清楚，也让全球用户可以在同一套规则下参与。","同时，生态不只关注资产本身，也在尝试通过公链、AI 服务、链上游戏、RWA 和开发者工具等方向扩大实际使用场景。它的长期价值逻辑，是让更多真实应用使用同一套基础设施和经济网络。"], p:"核心方向是：规则公开、记录可查、资产可控、应用可扩展。"},
+      {c:"know", q:"起源最值得新人先理解的核心理念是什么？", a:["第一是“自己掌握资产”。在正确使用非托管钱包的前提下，资产控制权来自私钥，而不是某个平台账号。第二是“链上验证”。余额、交易、合约和资金流都可以通过区块浏览器核对。第三是“规则先于情绪”。智能合约按照既定代码运行，参与者应先理解规则，再做决定。","第四是“长期建设”。一个生态的成长通常来自技术、产品、社区、流动性和应用的共同积累，而不是只看某一天的价格。把注意力放在学习能力、工具能力和持续贡献上，更容易形成稳定认知。"], p:"先懂规则，再做操作；先学验证，再听观点。"},
+      {c:"know", q:"为什么起源一直强调“链上”？", a:["“链上”意味着关键交易由区块链网络记录。一笔转账发生后，会留下交易哈希、发送地址、接收地址、金额、时间和执行状态等信息。任何人都可以用浏览器查询，不需要等待人工提供账单。","这种公开可验证的特性，是 Web3 与传统封闭数据库的重要区别。它能提高信息透明度，也让研究者可以观察持币分布、流动性、合约交互和大额交易。链上并不等于不用学习，反而要求参与者具备基础验证能力。"], p:"链上最大的价值，不是“听说透明”，而是你能亲自查到证据。"},
+      {c:"know", q:"起源与普通互联网平台有什么不同？", a:["普通互联网平台通常使用中心化账号和内部数据库，用户看到的是平台展示的结果；Web3 生态则更多使用钱包地址作为身份入口，资产和交易由区块链记录，智能合约负责执行关键规则。","这意味着用户可以跨应用使用同一个钱包，也能在区块浏览器中独立查看记录。生态应用即使界面不同，底层资产仍可遵循统一的链上标准。对参与者而言，最大的变化是从“只会点按钮”升级为“能够理解地址、网络、合约和交易”。"], p:"钱包是入口，地址是身份，合约是规则，区块链是公开账本。"},
+      {c:"know", q:"为什么社区共识对起源很重要？", a:["技术提供基础设施，但生态是否真正活跃，还取决于有没有人愿意学习、使用、开发、传播和共同治理。社区共识并不是简单地说相同的话，而是大家基于公开规则形成共同理解，并通过持续行动推动应用落地。","健康的共识来自真实信息和长期贡献。例如，认真帮助新人核对网络、制作教程、开发查询工具、整理公告、反馈产品问题，都属于有价值的社区建设。人数可以带来传播，能力和诚信则决定社区能走多远。"], p:"真正有力量的共识，是“理解之后仍愿意参与”，而不是盲目跟随。"},
+      {c:"know", q:"新人怎样快速看懂起源的整体结构？", a:["可以采用“四层地图”。第一层是资产层，认识 LGNS、DAI 及相关生态资产；第二层是网络层，了解 Polygon 与 Anubis Chain；第三层是机制层，学习质押、Rebase、债券、流动性和 DAO；第四层是应用层，关注 AiLGNS、Funverse、链上工具等场景。","学习时不要一次记住全部名词。先能回答“资产在哪条链、用什么钱包、Gas 用什么、合约地址是什么、交易去哪里查”，再逐步研究收益机制和生态应用。每学一个概念，最好配合一次真实的链上查询。"], p:"推荐顺序：资产 → 网络 → 机制 → 应用 → 治理。"},
+      {c:"know", q:"起源是一个 App，还是一个网站？", a:["起源更适合被理解为生态，而不是某一个 App。用户可能通过官网、DApp、钱包、区块浏览器、社区页面或第三方工具进入，但这些只是不同入口。真正承载资产和交易的，是对应区块链上的地址与智能合约。","因此，某个界面维护或升级，并不等于链上记录消失。只要网络正常、合约可访问、用户保管好钱包，仍可以通过兼容工具查看资产。理解这一点，有助于区分“前端页面”和“链上资产”两个层次。"], p:"页面是窗口，钱包是钥匙，链上合约才是规则与记录所在。"},
+      {c:"know", q:"怎样理解起源目前的发展阶段？", a:["Web3 生态往往经历基础机制建立、社区扩展、公链建设、应用丰富和真实使用增长等阶段。观察起源时，可以分别看底层网络是否稳定、核心合约是否运行、开发工具是否完善、应用数量是否增加、社区是否持续产出。","阶段性的产品调整、功能迁移和治理提案，都可以看作生态迭代的一部分。与其只用价格判断发展，更适合建立一个长期观察表：技术进度、活跃地址、链上交易、流动性、开发者活动、治理执行和用户体验。"], p:"用多项数据看成长，会比只盯单一价格更接近生态全貌。"},
+      {c:"know", q:"怎样辨别起源相关信息是否可靠？", a:["建议建立“三级验证法”。第一级看官方公告，确认时间、适用网络和具体规则；第二级看链上数据，用区块浏览器核对合约、交易和地址；第三级做交叉验证，把社区解读与官方原文、链上记录进行对照。","遇到截图或转述时，重点核对来源链接、发布时间、合约地址和是否仍在有效期内。真正可靠的信息通常能说清楚依据在哪里，也允许别人复查。养成保存交易哈希和公告原文的习惯，会让自己的判断越来越稳。"], p:"不急着相信，也不急着否定；先找到原文，再查看链上证据。"},
+      {c:"token", q:"LGNS 是什么？", a:["LGNS 是起源生态中的核心资产之一，可用于生态机制参与、链上交互、流动性与应用连接。它以代币合约的形式存在于支持的区块链网络中，余额记录在地址上，可以通过钱包和区块浏览器查询。","认识 LGNS 时要同时确认三件事：所在网络、正确合约地址和对应交易场景。同名代币可以被任何人仿造，因此不能只看名称或图标。通过官方渠道取得合约地址，再到区块浏览器核对，是最基本也最重要的一步。"], p:"代币名称只是标签，网络与合约地址才是它在链上的准确身份。"},
+      {c:"token", q:"sLGNS 是什么，它与 LGNS 有什么关系？", a:["sLGNS 通常用来表示 LGNS 进入特定质押机制后的链上凭证或状态资产。简单理解：用户把符合规则的 LGNS 交互到质押合约，系统用 sLGNS 记录质押份额或权益；退出时，再按照合约规则完成转换。","具体显示方式会取决于当前合约设计，有的机制会让凭证数量随 Rebase 变化，有的则通过兑换率体现增长。实际理解时，应查看当前官方文档和合约，而不是仅凭旧教程推断。"], p:"LGNS 是基础资产，sLGNS 更像是“已进入质押状态”的链上证明。"},
+      {c:"token", q:"gLGNS 是什么？", a:["gLGNS 可以理解为起源生态中的治理或稀缺权益型资产之一，常被用于连接更长期的生态权益、治理参与或特定兑换机制。它与普通流通代币的定位不同，因此不能简单用数量多少来比较。","研究 gLGNS 时，应重点看总量设计、产生方式、可用场景、兑换规则和链上合约。若治理对机制进行调整，应以最新提案与执行结果为准。稀缺性只有在真实用途、透明规则和持续需求共同存在时，才更容易体现价值。"], p:"理解 gLGNS，重点不是只看名称，而是看稀缺规则与生态用途。"},
+      {c:"token", q:"fLGNS 是什么？", a:["fLGNS 是与 Funverse 或相关链上游戏场景连接的生态资产，可用于符合规则的游戏参与、结算或其他应用功能。它让链上资产不只停留在钱包里，而是进入可互动的应用场景。","参与前要先了解 fLGNS 的获取方式、使用规则、结算逻辑和对应合约。游戏中的每次交互可能涉及 Gas、概率或时间条件，因此最好先用少量熟悉流程，并保留交易记录。"], p:"fLGNS 的意义在于连接“资产”和“可参与的链上游戏场景”。"},
+      {c:"token", q:"DAI 在起源生态中起什么作用？", a:["DAI 是一种常见的链上稳定币，目标是让价值相对稳定地锚定美元。在起源相关机制中，它可以承担计价、兑换、流动性、债券或生态贡献等功能，使参与者更容易理解某项操作的大致价值。","需要注意的是，不同网络上的 DAI 合约地址并不一定相同。转账或参与 DApp 前，要确认目标网络、官方支持的 DAI 合约和钱包 Gas 是否充足。稳定币价格相对稳定，但链上操作仍需要遵循合约规则。"], p:"DAI 更像生态中的“稳定计价工具”，LGNS 则承担更多生态资产功能。"},
+      {c:"token", q:"Polygon 链 LGNS 与 Anubis 链 LGNS 怎样理解？", a:["它们位于不同区块链网络。即使名称相同，链上合约、Gas 资产、浏览器和交互入口也可能不同。可以把它想象成同一种生态资产在两套道路系统中运行：目的相近，但每套道路有自己的规则和入口。","查看余额或价格时，要明确标注“哪条链”。跨链也不是普通转账，而是通过受支持的桥或官方机制完成资产映射与确认。生态重心变化时，功能入口可能逐步向某条链集中，实际以最新官方说明为准。"], p:"先选对网络，再核对合约；跨链操作必须走受支持的正式路径。"},
+      {c:"token", q:"为什么查看代币一定要核对合约地址？", a:["在区块链上，任何人都可能创建同名、同符号甚至同图标的代币。钱包里显示“LGNS”并不能单独证明它就是官方资产，唯一且更可靠的识别依据是正确网络上的合约地址。","合约地址应从官方公告、官方 DApp 或经过验证的资料页获取，并与区块浏览器中的持币人数、交易历史、创建信息和合约验证状态对照。不要直接复制陌生人私聊发来的地址。"], p:"网络 + 合约地址，是识别链上代币的“双重身份证”。"},
+      {c:"token", q:"LGNS 的市场价格是怎样形成的？", a:["去中心化交易场景中的价格，通常由流动性池内两种资产的储备比例和交易行为共同形成。有人买入或卖出，池中资产比例变化，价格也会随之调整。交易规模越接近池子深度，价格影响通常越明显。","因此，同一资产在不同链、不同池子或不同时间，报价可能存在差异。查看实时价格时，最好同时观察交易对、池子地址、流动性、最近成交和滑点，而不是只看一个页面上的单独数字。"], p:"价格来自真实交易与流动性，池子深度决定大额交易的承载能力。"},
+      {c:"token", q:"什么是流动性池，它对生态有什么帮助？", a:["流动性池是由两种或多种资产按规则存入智能合约形成的交易资金池。用户在 DEX 兑换时，不需要等待某个具体卖家，而是直接与池子合约交互，系统依据储备比例自动给出价格。","充足而稳定的流动性可以降低正常交易的滑点，提升资产兑换效率，也便于生态应用进行结算。研究一个池子时，可查看总流动性、交易量、交易对、池龄和资金变化，形成更完整的判断。"], p:"流动性池相当于链上自动兑换站，深度越合理，正常交易体验通常越顺畅。"},
+      {c:"token", q:"把资产放在非托管钱包里意味着什么？", a:["非托管钱包把资产控制权交给用户自己。钱包并不是把币“装在手机里”，而是保管用于控制链上地址的私钥。只要私钥或助记词安全，用户可以在不同兼容钱包中恢复同一个地址。","这种自主权也伴随着责任：助记词要离线备份，交易要自己核对，授权要定期检查。掌握这些基本习惯之后，用户不再完全依赖某个单一平台，可以更自由地连接不同 DApp。"], p:"真正需要保管的不是某个 App，而是永远不能泄露的私钥或完整助记词。"},
+      {c:"stake", q:"什么是质押？", a:["质押是把符合条件的资产与指定智能合约交互，以进入某种链上机制。系统会根据合约记录用户的份额、进入时间、释放规则或奖励状态。不同项目的“质押”设计不同，不能把一个项目的规则直接套到另一个项目。","在起源生态中理解质押，重点看使用哪种资产、进入哪个合约、是否可随时退出、收益如何记录、是否存在期限与费用。操作成功后，应保存交易哈希，并在区块浏览器或 DApp 中核对状态。"], p:"质押不是把币交给某个人，而是按照明确规则与智能合约交互。"},
+      {c:"stake", q:"什么是 Rebase？", a:["Rebase 可理解为系统按照预设周期调整质押凭证数量或相关记账单位的一种机制。用户看到的余额变化，来自合约按规则更新，而不是传统银行每天手工发放利息。","不同 Rebase 模型的价值呈现方式不同：有的增加代币数量，有的通过指数或兑换率体现。判断实际结果时，不能只看币的数量，还要结合市场价格、兑换规则、费用和可用流动性一起观察。"], p:"Rebase 解决的是“按规则记账”，最终价值仍要结合价格与使用场景理解。"},
+      {c:"stake", q:"为什么有人选择把 LGNS 放入质押机制？", a:["参与质押的主要吸引力，是让长期持有者按照合约规则获得相应的份额变化或生态权益，同时减少频繁操作。对于认同生态长期建设的人，质押可以成为参与机制的一种方式。","做决定前，应先确认合约地址、当前参数、退出路径和自身资金安排。适合自己的方式，比一味追求更高数字更重要。可以先用少量完成一次完整的进入、查看与退出学习流程。"], p:"质押的价值在于规则化参与，前提是读懂机制并保持资金安排从容。"},
+      {c:"stake", q:"活期质押与长期债券有什么不同？", a:["活期机制通常更强调灵活性，用户可以依据规则进行进入和退出；长期债券则更强调时间承诺，可能通过折扣、线性释放、分期领取或其他方式安排权益。两者对应不同的资金使用计划。","比较时可以列出五项：锁定或释放期限、获得资产的成本、领取节奏、提前退出规则、相关费用。长期机制不只是看最终数量，还要评估自己是否能接受整个周期。"], p:"活期偏灵活，长期债券偏规划；没有统一最好，只有是否适合自己。"},
+      {c:"stake", q:"什么是销毁债券？", a:["销毁债券是一类把指定资产按照规则送入销毁或转换机制，并换取长期权益的链上设计。它可能同时实现减少某类流通供给、鼓励长期参与和重新组织生态资产结构等目标。","参与时应查看销毁的资产是否不可逆、获得什么凭证、释放多长时间、怎样领取，以及合约是否已经正式开放。因为“销毁”通常无法撤回，所以确认网络、数量和合约尤其重要。"], p:"销毁债券的关键词是：不可逆转换、长期释放、链上可查。"},
+      {c:"stake", q:"什么叫本金线性释放？", a:["线性释放是把可领取资产按照时间均匀拆分。例如一个周期为 360 天，合约可能每天或每个区块释放一小部分，而不是第一天全部到账。这样可以让资产进入流通的节奏更平滑。","实际计算时，需要确认起始时间、总周期、释放频率、是否需要手动领取、未领取部分如何累计，以及奖励与本金是否采用同一规则。网页显示可以帮助理解，但最终数据应以合约为准。"], p:"线性释放就像把一整份权益切成许多小份，按时间逐步解锁。"},
+      {c:"stake", q:"复利在起源机制中怎样理解？", a:["复利指已经产生的份额继续参与后续计算，也就是常说的“利滚利”。当机制周期较短、持续时间较长时，复利曲线可能与简单相加产生明显差别。","计算示例可以帮助理解，但真实结果会受到合约参数、参与时长、价格、费用和退出规则影响。最稳妥的做法是把“代币数量变化”和“对应价值变化”分开记录，避免只看一个维度。"], p:"复利是数学上的滚动计算，不等同于固定的现金回报承诺。"},
+      {c:"stake", q:"日化、月化和年化应该怎样正确理解？", a:["日化是以一天为单位描述变化比例，月化和年化则是把这一比例延伸到更长周期。若采用复利计算，不能简单用日化乘以天数；同时，代币价格与机制参数都可能变化，所以长期结果只能作为情景测算。","更实用的方法是做三档模拟：保守、中性、积极，并定期用真实链上余额更新。任何展示的年化数字都不应被理解为保证到账的法币收益。"], p:"比例用于理解机制，情景测算用于规划；实际结果必须回到链上数据核对。"},
+      {c:"stake", q:"如何在链上查看自己的质押与收益记录？", a:["先复制自己的公开钱包地址，打开对应网络的区块浏览器，查看代币余额、合约交互和历史交易。每次质押、领取或退出通常都会产生交易哈希，可点开查看状态、区块时间、调用方法和资产变化。","如果 DApp 提供个人面板，可以用它快速汇总，但最好定期与区块浏览器交叉核对。还可以建立表格，记录日期、操作类型、数量、价格参考、Gas 和交易哈希，形成属于自己的完整账本。"], p:"DApp 方便阅读，区块浏览器负责验证，两者结合最清楚。"},
+      {c:"stake", q:"新人怎样选择适合自己的参与方式？", a:["先确定目标：是学习链上操作、长期观察生态，还是参与某个具体应用。然后评估资金使用期限、对波动的接受程度和自己对规则的理解深度。不了解的机制可以先观察，不必急于一次性完成所有操作。","比较不同方式时，重点看灵活性、期限、费用、退出路径和信息透明度。先做小额测试，确认从钱包连接到查看记录的完整流程，再决定是否继续，是很实用的入门方法。"], p:"适合新人的节奏是：先学习、再小额验证、最后根据自己的计划逐步参与。"},
+      {c:"anubis", q:"什么是 Anubis Chain？", a:["Anubis Chain 是与起源生态深度连接的区块链基础设施，可承载代币、智能合约、DApp、游戏、AI 服务和其他链上应用。它提供独立的区块、地址、交易、Gas 与浏览器体系。","建设自己的生态公链，可以让项目在交易成本、处理速度、隐私功能和应用协同方面拥有更大的设计空间。对普通用户而言，最直观的变化是钱包需要添加新网络，并使用对应 Gas 资产完成操作。"], p:"Anubis Chain 是生态的“链上操作系统”，应用与资产可以在其上协同运行。"},
+      {c:"anubis", q:"Anubis Chain 与起源是什么关系？", a:["起源提供核心生态、社区和资产场景，Anubis Chain 提供底层网络能力。可以把起源理解为不断扩展的城市，把 Anubis Chain 理解为道路、电力和公共设施；两者结合后，更容易承载丰富应用。","当 LGNS、AiLGNS、游戏或其他应用在同一条生态公链上交互时，可以减少跨系统割裂，形成统一的地址、数据和开发环境。长期观察重点是有多少真实应用持续使用这条链。"], p:"起源是生态内容，Anubis Chain 是承载这些内容的重要基础设施。"},
+      {c:"anubis", q:"为什么生态会从 Polygon 扩展到 Anubis Chain？", a:["Polygon 为早期链上运行提供了成熟的 EVM 环境，而自有生态链可以围绕实际需求做更针对性的优化，例如更低的交互成本、更快确认、原生隐私能力和更统一的应用入口。","“扩展”并不意味着过去的链上历史没有价值。Polygon 上的交易记录仍可查询，生态则可以通过受支持的迁移、映射或新合约，把后续应用逐步连接到 Anubis Chain。具体功能开放节奏以官方公告为准。"], p:"从通用公链走向生态公链，是为了获得更强的自主设计和应用协同能力。"},
+      {c:"anubis", q:"什么是 EVM 兼容？", a:["EVM 是以太坊虚拟机。EVM 兼容意味着开发者可以使用熟悉的 Solidity 合约、钱包接口和开发工具，把已有经验更顺畅地带到新链上。普通用户也可以使用支持自定义网络的钱包进行连接。","兼容并不表示所有参数完全相同。每条链仍有自己的 RPC、Chain ID、浏览器和 Gas 资产。添加网络时应从官方渠道复制配置，避免连接到错误节点。"], p:"EVM 兼容降低了开发和使用门槛，让成熟的 Web3 工具更容易接入。"},
+      {c:"anubis", q:"在 Anubis Chain 上操作为什么需要 Gas？", a:["Gas 是支付给区块链网络的计算与记账费用。转账、授权、质押、兑换或参与游戏，都需要验证节点处理并写入区块，因此要消耗少量原生 Gas 资产。","Gas 费与代币金额是两回事。即使钱包里有大量 LGNS 或 DAI，如果缺少该链的 Gas 资产，交易也无法正常提交。日常可以保留一小部分 Gas，并在确认网络后再进行交互。"], p:"Gas 就像链上操作的“网络通行费”，每次写入区块都需要它。"},
+      {c:"anubis", q:"什么是 RPC，为什么钱包需要配置它？", a:["RPC 是钱包或应用与区块链节点沟通的接口。钱包通过 RPC 查询余额、读取合约、估算 Gas、发送签名后的交易，再获取交易是否上链的结果。它不控制你的私钥，只负责传递和读取网络信息。","一个网络可以有多个 RPC 入口。若某个入口拥堵或暂时不稳定，可以切换到官方提供的其他节点。配置时要核对 RPC 地址、Chain ID、币种符号和浏览器链接。"], p:"钱包是操作面板，RPC 是连接区块链节点的数据通道。"},
+      {c:"anubis", q:"区块浏览器能为起源用户做什么？", a:["区块浏览器是查看链上事实的核心工具。输入地址可以看余额和历史，输入交易哈希可以看执行状态，输入合约地址可以看持币、事件、代码验证和交互记录。","遇到“资产没显示”“交易是否成功”“转到哪个地址”等问题时，浏览器通常比截图更可靠。学会识别 Success、Failed、From、To、Token Transfer 和 Gas 等字段，就掌握了最实用的链上自查能力。"], p:"不会写代码也能看懂区块浏览器，它就是公开账本的搜索引擎。"},
+      {c:"anubis", q:"跨链桥是什么，使用时要注意什么？", a:["跨链桥用于在不同区块链之间转移或映射资产。由于两条链各自独立，资产不能通过普通转账自动“穿越网络”，桥接机制需要在源链锁定或销毁，再在目标链释放或铸造对应资产。","使用时要确认官方支持的入口、方向、资产、最低数量、手续费和到账时间。桥接前先检查目标链钱包是否已配置，并预留目标链 Gas。小额测试成功后再做较大操作，更容易掌握流程。"], p:"普通转账是在同一条链上移动，跨链桥才负责连接两条不同网络。"},
+      {c:"anubis", q:"Anubis Chain 的隐私能力有什么意义？", a:["公链透明便于验证，但部分商业数据、身份信息和策略并不适合完全公开。隐私能力的目标，是在保留可验证性的同时，减少不必要的信息暴露，为支付、AI 代理、RWA 和企业应用提供更多选择。","隐私不等于没有规则，而是通过密码学技术控制“谁能看到什么”。真正成熟的隐私基础设施，需要兼顾安全、性能、合规需求与开发体验。"], p:"隐私的价值，是让数据可以被验证，同时不必把所有细节暴露给所有人。"},
+      {c:"anubis", q:"未来怎样观察 Anubis Chain 的真实发展？", a:["可以长期跟踪六类指标：活跃地址、每日交易、独立合约数量、稳定币与流动性规模、开发者与应用数量、网络稳定性。还可以观察用户是否愿意持续使用，而不只是短期注册。","生态路线图提供方向，链上数据提供执行结果。把官方发布的阶段目标与实际数据定期对照，就能看到网络从基础建设走向真实使用的过程。"], p:"看公链发展，既看故事，也看代码、应用、用户和持续发生的链上交易。"},
+      {c:"safe", q:"什么是智能合约？", a:["智能合约是部署在区块链上的程序。它按照代码和输入自动执行，例如完成转账、兑换、质押、领取或游戏结算。一旦交易确认，执行结果会写入链上，任何人可以查询。","合约的优势是规则统一、过程可追踪。用户连接 DApp 时，真正产生资产变化的通常是合约调用，因此要核对合约地址、调用方法和钱包弹窗中的金额。"], p:"智能合约就像公开运行的自动规则机器，代码定义它能做什么。"},
+      {c:"safe", q:"什么是代币授权（Approve）？", a:["授权是用户允许某个智能合约在限定范围内使用指定代币。DEX 兑换、质押或债券操作往往先授权，再执行正式交易。授权本身通常不等于立即转走资产，而是建立可使用额度。","钱包弹窗中要看清被授权合约、代币和额度。只连接经过确认的官方入口，使用后可通过授权管理工具查看或取消不再需要的额度。"], p:"授权相当于给合约一张“可使用额度的通行证”，对象和额度都要核对。"},
+      {c:"safe", q:"签名与链上交易有什么区别？", a:["签名是用钱包私钥证明“这个操作由地址所有者同意”。有些签名只用于登录或验证身份，不消耗 Gas；有些签名会授权后续操作；链上交易则会发送到网络并写入区块，通常需要 Gas。","不要因为弹窗显示“免费签名”就忽略内容。应查看请求来自哪个网站、签名目的、有效期和授权范围。对不理解的签名，可以先取消并查清含义。"], p:"交易会直接上链，签名可能不上链，但两者都代表你的明确授权。"},
+      {c:"safe", q:"为什么要管理无限授权？", a:["无限授权的优点是后续多次交互不必重复授权，可以节省操作次数和 Gas。但如果授权对象不再使用，长期保留大额度就没有必要。定期整理授权，可以让钱包权限更清晰。","可以使用可信的授权查询工具，按网络查看合约、代币、额度和最近交互。对陌生或已停用的 DApp 授权进行取消，是良好的链上账户管理习惯。"], p:"授权不是越多越方便；保留正在使用的，取消不需要的，钱包会更清爽。"},
+      {c:"safe", q:"助记词应该怎样安全保管？", a:["完整助记词可以恢复钱包，也意味着掌握地址中的全部资产。最好手写在耐久介质上，离线保存至少两份，并放在不同的安全位置。记录时要核对单词拼写和顺序。","不要截图、不要发给任何人、不要上传网盘，也不要在陌生网页输入。官方客服、社区管理员和真正的技术支持都不需要你的助记词。需要恢复时，只在确认来源的正版钱包中操作。"], p:"任何索要助记词的人都不应获得它；真正的资产安全从离线保管开始。"},
+      {c:"safe", q:"怎样识别并避开假钱包或假 DApp？", a:["下载钱包时优先使用官方网站、官方应用商店页面或经过长期验证的发布渠道，核对开发者名称、域名和下载链接。搜索广告、群聊安装包和私聊链接不应直接使用。","进入 DApp 后，再次核对域名拼写、证书、网络和合约。可以把确认过的官方网址加入书签，以后从书签进入。第一次连接新应用时，用独立的小额测试钱包更稳妥。"], p:"入口核对 + 小额测试 + 主钱包分离，是非常有效的安全组合。"},
+      {c:"safe", q:"为什么钱包里要保留少量 Gas 资产？", a:["没有 Gas 时，用户可能无法转账、取消授权、领取或退出机制。提前保留一小部分对应网络的原生资产，可以在需要操作时更从容。","Gas 不需要盲目准备很多，够若干次正常交互即可。转入前要确认网络一致，并通过区块浏览器查看到账。若网络拥堵，可以等待费用回落或使用 DApp 合理推荐值。"], p:"少量 Gas 是链上账户的基础备用金，让关键操作不会因手续费不足而中断。"},
+      {c:"safe", q:"转账前怎样核对地址最稳妥？", a:["先确认网络一致，再核对地址前六位和后六位，不要只看中间缩略显示。地址可以从可信来源复制，但粘贴后仍要重新对照，避免剪贴板被替换。","首次向新地址或新网络转账，建议先发送最小可用金额。确认到账后，再继续后续操作。常用地址可以在钱包中添加备注，但仍应每次复核。"], p:"网络、代币、地址、金额四项全部确认，再点击发送。"},
+      {c:"safe", q:"交易失败时应该怎样排查？", a:["先在区块浏览器输入交易哈希，看状态是待确认、失败还是已经成功。常见排查项包括：Gas 是否足够、网络是否正确、授权额度是否充足、滑点是否合适、合约功能是否在开放时间内。","交易失败通常不会完成目标资产转移，但网络已执行验证时可能仍消耗 Gas。不要连续盲目重复提交，可以先刷新 RPC、查看官方状态和合约提示，再做下一次尝试。"], p:"先看交易哈希，再按网络、Gas、授权、滑点、开放条件逐项检查。"},
+      {c:"safe", q:"起源用户可以建立怎样的日常安全清单？", a:["每次操作前：从书签进入官网，核对网络和合约，检查钱包弹窗。每次操作后：保存交易哈希，到区块浏览器确认结果。每月一次：检查授权、更新离线账本、确认助记词备份状态。","主资产钱包、日常交互钱包和测试钱包可以分开使用；电脑与手机保持系统更新，开启锁屏和双重验证。把安全变成固定流程，比临时依靠记忆更可靠。"], p:"安全不是一次设置，而是一套可以重复执行的小习惯。"},
+      {c:"dao", q:"什么是 DAO？", a:["DAO 是去中心化自治组织的简称。它通过公开规则、提案、投票或多方协作，让社区成员共同参与生态决策。DAO 的形式可以很多，关键在于决策依据、执行结果和资金使用是否尽可能透明。","在起源生态中，DAO 可以围绕机制调整、激励分配、生态合作或发展方向进行讨论。普通成员的价值不仅是投票，也包括提供数据、提出建议、发现问题和参与建设。"], p:"DAO 的核心不是“没有组织”，而是用公开规则组织更多人协同。"},
+      {c:"dao", q:"治理提案是怎样从想法变成执行的？", a:["一般会经历提出问题、公开讨论、形成方案、表决或确认、技术实施和结果公示等阶段。成熟的提案需要说明目标、影响范围、执行时间、参数变化和可能涉及的合约。","参与者阅读提案时，可以先看“改什么、为什么改、什么时候生效、谁负责执行、怎样验证结果”。执行后，再用公告和链上交易核对是否落地。"], p:"好治理不仅有投票，还应有清楚的方案、执行记录和可验证结果。"},
+      {c:"dao", q:"生态国库有什么作用？", a:["生态国库用于集中管理支持长期发展的公共资源，可能服务于流动性、技术开发、市场合作、应用激励、安全建设或社区活动。合理的国库可以为生态穿越不同发展阶段提供资源基础。","观察国库时，应关注地址是否公开、资金如何分类、重大支出是否有说明、链上流向是否可查。国库规模是一方面，使用效率和长期规划同样重要。"], p:"国库像生态的长期建设基金，透明管理和有效使用决定它能发挥多大作用。"},
+      {c:"dao", q:"护盘或市场支持资金应该怎样理解？", a:["市场支持资金通常用于在特定规则下改善流动性、降低异常波动或增强市场稳定性。它是一种生态工具，具体使用时机、规模和方式需要依据治理安排。","理性理解的重点是查看公开方案与链上执行，而不是把它等同于固定价格承诺。真正长期的市场基础仍来自流动性、真实应用、用户需求和生态发展。"], p:"市场支持可以改善阶段性结构，长期价值仍要靠真实生态需求。"},
+      {c:"dao", q:"代币销毁对生态有什么意义？", a:["销毁通常是把代币发送到无法取回的地址或通过合约永久移除，使其不再进入流通。公开可验证的销毁可以调整供给结构，也能与费用、债券或治理机制结合。","分析销毁时，应看销毁来源、是否真实不可取回、数量占流通比例、是否持续，以及生态需求是否同步增长。单独的销毁数字不是全部，但它可以成为经济模型中的重要组成部分。"], p:"销毁减少的是可流通供给，应用与需求决定这种变化能否形成长期意义。"},
+      {c:"dao", q:"交易费用或卖出费用为什么会存在？", a:["某些生态会通过动态费用来调节短期交易行为、支持国库、流动性或销毁机制。费用写入合约后，可以根据规则自动执行，使不同用途的分配更加清楚。","用户交易前应查看当前费率、滑点和预计到账数量。动态费率可能随市场状态或治理参数变化，因此以交易界面的实时预估和合约数据为准。"], p:"费用是经济机制的一部分；操作前看清实时费率，才能准确计算到账结果。"},
+      {c:"dao", q:"gLGNS 的总量设计为什么值得关注？", a:["当一种治理或权益资产具有明确上限时，参与者可以更清楚地理解其稀缺结构。总量只是第一层，还要看当前流通、分配方式、锁定情况和具体用途。","如果生态把 gLGNS 与治理、长期权益或应用兑换连接，它的意义会随着使用场景逐步体现。所有总量与分配数据都应以最新合约和治理公告为准。"], p:"上限定义稀缺框架，用途、分配与真实需求决定长期表现。"},
+      {c:"dao", q:"地址数量增长说明了什么？", a:["地址数量可以反映网络触达范围和资产分布广度，是观察生态扩展的一个指标。持续新增地址说明有更多钱包与生态发生连接，也为社区和应用增长提供基础。","但一个人可以拥有多个地址，因此还要结合活跃地址、交易频率、独立合约交互和留存情况分析。把多个指标放在一起，能更真实地理解增长质量。"], p:"地址数看广度，活跃度看使用，应用与留存看增长质量。"},
+      {c:"dao", q:"“去中心化”是否意味着完全不需要治理？", a:["去中心化不是没有规则，而是减少对单一主体的依赖，并让规则、资产和决策过程更公开。网络仍需要开发者维护、社区讨论、节点运行和治理协调。","一个健康生态会逐步扩大可验证、可参与和多方协作的范围。参与者也需要承担更多自我管理责任，例如保管私钥、核对合约和理解提案。"], p:"去中心化把权力与责任分散给更多参与者，同时也需要更成熟的协作机制。"},
+      {c:"dao", q:"怎样用数据验证经济机制是否在运行？", a:["可以从区块浏览器查看合约调用、代币转移、销毁地址、国库地址和流动性池变化；也可以通过数据看板追踪每日交易、质押量、持币分布与大额流动。","最好记录固定时间点的数据，再做周度或月度对比。单笔交易只能说明一个事件，连续数据更容易显示趋势。若使用第三方看板，要知道它的数据来源和更新时间。"], p:"链上研究的好方法是：明确指标、固定频率、保存证据、长期对比。"},
+      {c:"eco", q:"Awake DAO 在生态中扮演什么角色？", a:["Awake DAO 可以理解为连接社区治理、生态机制与项目协作的重要组织层。它通过公告、提案、活动和资源协调，推动不同模块按照共同方向发展。","对普通参与者而言，关注 Awake DAO 的正式公告，可以了解功能窗口、治理调整、生态合作与阶段目标。阅读时最好保留原文，并与链上执行进行对照。"], p:"Awake DAO 是社区协作与治理的重要枢纽，连接规则讨论和实际落地。"},
+      {c:"eco", q:"什么是 Funverse？", a:["Funverse 是面向娱乐、游戏和互动场景的生态方向，尝试把链上资产、可验证规则和玩家行为结合起来。它让用户不仅持有资产，还能在游戏或活动中使用资产、形成记录和获得身份体验。","链上游戏的特色是关键操作与结算可以被验证，玩家的部分成就或资产也能由钱包持有。长期价值来自游戏是否有趣、规则是否清楚、玩家是否持续参与。"], p:"Funverse 让区块链从金融工具走向可玩、可互动、可验证的数字世界。"},
+      {c:"eco", q:"Fun Longinus 是什么类型的链上应用？", a:["Fun Longinus 是与 Anubis 生态连接的链上武道游戏，通过地址参与、规则结算和链上记录，把竞技体验与生态资产结合。玩家可以按照场次、角色或师徒等规则参与。","了解游戏时要先阅读当前版本规则，包括入场资产、每日场次、结算、释放和推荐关系。由于规则可能升级，旧截图只适合作为历史资料，实际以最新页面和合约为准。"], p:"它的亮点是把游戏规则、参与记录与资产结算放进可验证的链上环境。"},
+      {c:"eco", q:"什么是 AiLGNS？", a:["AiLGNS 是起源生态把 AI 服务、智能经济与链上资产结合的探索方向。它不仅关注代币本身，也希望为 AI 代理、计算服务、数据协作或生态贡献建立可度量的经济连接。","理解 AiLGNS 时，可以分别看技术用途、供应规则、获得方式和实际应用。随着产品推进，真正值得关注的是它是否被 AI 服务持续使用，并形成清晰的价值循环。"], p:"AiLGNS 的核心想象，是让 AI 能力与链上经济在同一套规则中协同。"},
+      {c:"eco", q:"HELIX 经济系统是什么？", a:["HELIX 是 AiLGNS 相关的经济分配与生命周期设计。简单理解，参与者的经济贡献先转化为 Power，再依据规则竞争有限的 AiLGNS 排放；系统通过周期、阶段和供应上限控制整体节奏。","这种设计把“投入贡献”和“代币排放”分开处理，目的是避免简单固定兑换，让分配随参与情况动态变化。研究时应关注每周期规则、总 Power、个人占比和阶段参数。"], p:"HELIX 像一套分阶段运行的排放引擎，用贡献权重分配有限供给。"},
+      {c:"eco", q:"HELIX 中的 Power 应该怎样理解？", a:["Power 可以看作参与 AiLGNS 排放竞争的权重或能力值。DAI 等经济贡献不一定直接购买 AiLGNS，而是先形成 Power；个人 Power 占全网 Power 的比例，会影响对应周期中的分配。","因此，Power 并不是稳定币余额，也不等于保证获得固定数量。要计算结果，需要结合当期总 Power、排放量、个人权重和完整规则。"], p:"Power 代表参与分配的权重，不是直接可按固定比例兑换的代币。"},
+      {c:"eco", q:"为什么 HELIX 要设置 520 个周期？", a:["分周期排放可以把生态发展拉长到更长期，而不是短时间集中释放。每个周期都有明确时间边界，系统可以按照预设曲线经历启动、加速、扩张、成熟和通缩等阶段。","长期周期也给产品建设、用户增长和市场需求留出匹配空间。参与者应关注当前处于哪个阶段，以及阶段参数如何影响每期排放。"], p:"周期设计让供给释放有节奏，也让经济模型能够陪伴生态长期成长。"},
+      {c:"eco", q:"AI 代理与 Anubis Chain 可以怎样结合？", a:["AI 代理可以代表用户或应用执行分析、调用服务、完成小额支付和记录结果。区块链则提供身份、资产、权限与可验证结算，使不同 AI 代理之间能够在统一规则下协作。","例如，AI 可以根据授权读取公开数据、购买计算服务、调用智能合约，再把关键结果写入链上。隐私能力还能帮助保护不需要公开的数据。"], p:"AI 负责判断与执行，区块链负责身份、资产和可信结算。"},
+      {c:"eco", q:"RWA 与起源生态有什么连接空间？", a:["RWA 指现实世界资产上链，例如合规框架下的商品、票据、收益权或其他可验证权益。区块链可以帮助记录权属、流转和结算，提高跨地区协作效率。","起源与 Anubis Chain 若连接 RWA，需要同时重视真实资产映射、法律结构、审计、数据可信和链上流动性。技术能提升效率，规范的资产来源与权利安排则是基础。"], p:"RWA 的价值在于把现实资产与链上效率连接起来，让记录和结算更透明。"},
+      {c:"eco", q:"生态工具为什么也是起源建设的重要部分？", a:["普通用户不一定会读合约代码，工具可以把复杂链上数据转化为价格、图表、地址关系、风险提示和操作说明，降低学习门槛。开发者也需要 RPC、API、索引和文档来构建新应用。","当查询、监控和验证工具越来越完善，生态参与会更高效，问题也更容易被发现。工具本身就是基础设施，能够长期服务社区。"], p:"好工具让链上透明真正变得“看得懂、查得到、用得上”。"},
+      {c:"community", q:"新人加入起源后的第一周应该做什么？", a:["第一天先认识四个核心概念：钱包、网络、Gas、合约地址；第二步添加正确网络并学会使用区块浏览器；第三步阅读官方基础资料；第四步用不含资产的测试地址练习查询。","接着再了解 LGNS、质押和生态应用，不急着做复杂操作。把自己不懂的问题记录下来，逐个验证。第一周的目标不是记住所有术语，而是建立独立查询能力。"], p:"新人第一周最宝贵的成果，是能自己核对地址、网络、交易和合约。"},
+      {c:"community", q:"为什么学习链上基础比记收益数字更重要？", a:["参数和市场会变化，但钱包、合约、交易、流动性和区块浏览器这些基础能力长期通用。掌握它们后，不论生态功能怎样更新，都能更快看懂规则。","只记一个数字容易被旧信息影响；理解计算方式，则可以随时用最新数据重新测算。社区真正需要的长期人才，也是能够解释、验证和解决问题的人。"], p:"数字会变，底层能力会复用；先学方法，之后才能正确理解每次变化。"},
+      {c:"community", q:"怎样建设一个健康的起源学习团队？", a:["健康团队首先要统一学习方法：信息有出处、数据能复查、操作先小额测试。可以明确不同角色，有人整理公告、有人研究链上数据、有人制作新手教程、有人收集产品反馈。","定期复盘比每天刷屏更有价值。团队会议可以围绕“本周发生了什么、链上如何验证、对用户有什么影响、下周学什么”展开，让成员逐步形成独立能力。"], p:"好团队不是让成员依赖带领者，而是让每个人越来越会独立判断。"},
+      {c:"community", q:"向别人介绍起源时怎样表达更有说服力？", a:["从事实和体验出发：起源有哪些链上资产、在哪些网络运行、有哪些公开工具和实际应用，再演示一笔真实交易怎样查询。具体证据比口号更容易建立信任。","避免使用绝对化收益承诺，也不要替别人做财务决定。把规则、机会和需要学习的内容都讲清楚，让对方在理解后自行选择，这样形成的社区关系更稳固。"], p:"真实、清楚、可验证，是最有长期价值的传播方式。"},
+      {c:"community", q:"社区夜聊或线上会议怎样办得更有价值？", a:["每次围绕一个明确主题，例如“如何看懂区块浏览器”或“Anubis RPC 是什么”，提前准备三个核心问题和一个实操演示。会议结束后整理要点、原始链接和常见问答。","鼓励不同成员分享自己验证过的经验，并把暂时无法确认的问题列为待办。录音或回放配上时间目录，可以沉淀为持续可用的学习资料。"], p:"一次高质量会议，应当留下可以复用的知识，而不只是当时热闹。"},
+      {c:"community", q:"怎样持续产出起源相关内容？", a:["可以建立四条内容线：新手科普、链上数据、生态进展、工具教程。每周从官方公告和链上变化中选择三到五个重点，短内容用于快速传播，长文章用于完整解释。","发布前做事实核对，标注数据时间和网络，避免把推测写成已经发生。持续保持统一的视觉、语言和验证标准，会逐步形成个人或团队的专业品牌。"], p:"稳定更新、说人话、给出处，比追求每篇都轰动更能积累信任。"},
+      {c:"community", q:"为什么起源内容适合做中英双语？", a:["Web3 天然面向全球用户。中文内容帮助本地社区深入理解，英文内容可以让更多开发者、研究者和海外用户看到生态进展，也便于参与全球讨论。","双语不是逐字机械翻译，而是保持事实一致、表达符合各自读者习惯。合约、数据和公告链接属于共同证据，可以跨语言复用。"], p:"双语内容扩大的是生态沟通半径，也能让信息接受更多公开检验。"},
+      {c:"community", q:"推荐人关系为什么需要链上查询工具？", a:["推荐关系涉及地址之间的绑定或层级，仅凭昵称和截图容易混淆。查询工具可以通过地址读取合约记录，帮助用户确认推荐人、绑定时间或相关层级信息。","使用时要明确查询的是哪条链、哪个合约和哪个时间点。公开地址可以查询，但不应把助记词或私钥输入任何推荐关系工具。"], p:"推荐关系查询只需要公开地址，不需要任何私钥信息。"},
+      {c:"community", q:"钱包等级或 V1–V6 数据应该怎样理解？", a:["等级通常由生态设定的团队结构、资产量或多条线路条件综合计算，用于描述账户在特定规则下的状态。工具可以读取地址与下级关系，自动汇总是否达到对应条件。","等级结果应显示计算口径、数据来源和更新时间。规则变化后，工具也要同步更新，避免沿用旧标准。等级可以帮助理解团队进度，但长期建设仍依赖真实用户与持续贡献。"], p:"等级是规则下的数据结果，透明的计算过程比单独一个称号更重要。"},
+      {c:"community", q:"哪些长期贡献最能推动起源生态？", a:["开发稳定工具、改善用户体验、制作准确教程、翻译全球资料、运营高质量社区、发现合约或产品问题、连接真实应用，都是能长期积累的贡献。","每个人不必做所有事情，可以选择自己擅长的一项持续做。生态会记住能够解决问题的人，个人也能在过程中积累技术、内容、组织和研究能力。"], p:"最可持续的参与方式，是让自己的成长与生态的真实需求互相促进。"},
+      {c:"tools", q:"Web3Origin 网站可以为新人提供什么？", a:["Web3Origin 可以作为起源生态的中文学习和工具入口，把分散的公告、链上数据、操作教程和实用查询集中起来。新人无需一次面对复杂合约，可以先通过大白话说明建立理解。","网站的价值不仅是展示内容，还在于把实时价格、地址查询、大额交易、合约资料和安全研究连接起来，让用户从“看资讯”进一步走向“自己验证”。"], p:"Web3Origin 的定位可以概括为：起源学习入口 + 链上验证工具箱。"},
+      {c:"tools", q:"“起源百宝箱”适合解决哪些问题？", a:["百宝箱把常用功能集中到一个页面，例如推荐人查询、钱包等级、实时行情、大额交易、质押数据、合约库和链上搜索。用户可以按问题选择工具，不必在多个网站之间反复切换。","每个工具最好同时显示数据来源、网络、更新时间和使用说明。这样不仅给出结果，也帮助用户理解结果是怎样得来的。"], p:"百宝箱的目标，是把复杂链上任务变成一个个清楚、可操作的小工具。"},
+      {c:"tools", q:"大额交易监控工具有什么用？", a:["大额交易监控会识别超过设定金额的买入、卖出、转账或流动性变化，帮助用户更快发现市场中的重要事件。它可以显示地址、方向、数量、价格影响和交易哈希。","单笔大额交易不应被自动解释为趋势，但可以作为进一步研究的线索。结合池子深度、地址历史和后续交易观察，信息价值会更高。"], p:"监控负责发现线索，链上上下文负责解释线索。"},
+      {c:"tools", q:"实时价格工具怎样做到不写死价格？", a:["可靠的实时价格应优先读取 DEX 流动性池储备或 Router / Quoter 报价，根据交易对实时计算；也可以接入区块浏览器或项目 API，并设置备用数据源。","页面应明确网络、交易对、更新时间、流动性和数据状态。POL 链 LGNS、Anubis 链 LGNS、gLGNS 与 fLGNS 可能来自不同合约或场景，必须分别标识，不能用一个固定数字代替。"], p:"真实价格来自可验证的数据源，而不是前端代码里手动填写的数字。"},
+      {c:"tools", q:"“一个地址查全起源”可以展示什么？", a:["输入公开钱包地址后，工具可以汇总不同支持网络上的代币余额、质押状态、推荐关系、等级、历史交互和生态应用记录，形成统一视图。","这种汇总能减少用户逐个页面查询的时间，但每项结果仍应提供跳转到区块浏览器的入口。工具只读取公开链上数据，不需要用户输入助记词。"], p:"一个地址形成一张生态画像，汇总方便，原始交易仍可逐项验证。"},
+      {c:"tools", q:"链上证据库的意义是什么？", a:["链上证据库把重要合约、交易、国库地址、销毁记录、治理执行和历史事件按主题整理，并保留原始交易哈希与说明。它能让社区讨论从“听说”回到“证据”。","好的证据库应标注网络、区块时间、数据来源和解释边界，也要允许用户直接打开区块浏览器复查。长期积累后，它会成为生态发展的公开档案。"], p:"证据库不是替用户下结论，而是把能验证结论的材料整理好。"},
+      {c:"tools", q:"代币安全研究报告工具可以检查什么？", a:["输入合约地址后，工具可以检查代码是否验证、所有者权限、增发能力、暂停或黑名单功能、交易费用、代理升级、持币集中度、流动性和常见风险特征。","自动报告适合快速初筛，结论应展示依据与限制。对于复杂合约，还需要人工阅读代码、追踪权限地址并核对官方文档。"], p:"自动检测帮助快速看重点，原始合约与专业复核负责最终确认。"},
+      {c:"tools", q:"学习 RPC 和 getLogs 对研究起源有什么帮助？", a:["RPC 让程序读取区块链，getLogs 则可以按区块范围、合约地址和事件主题查询大量链上日志。掌握它们后，可以自动统计转账、质押、销毁、晋升或新增地址。","这类能力能把手动查询升级为持续数据服务，例如每日看板、异常提醒和历史趋势分析。学习时可从一个合约、一个事件和较小区块范围开始。"], p:"区块浏览器适合人工查看，RPC 与 getLogs 适合批量、自动和长期分析。"},
+      {c:"tools", q:"公开数据 API 能为生态带来什么？", a:["API 可以把已经整理好的价格、地址、等级、交易和统计数据提供给网站、机器人或其他开发者使用。统一接口能减少重复开发，让更多应用更快接入起源生态。","一个可靠 API 需要清楚的字段说明、更新时间、限流策略、错误码和数据来源。关键结果最好带上链上引用，方便使用方追溯。"], p:"开放 API 能把一个工具的能力，变成整个开发者生态都能使用的基础服务。"},
+      {c:"tools", q:"怎样正确使用 Web3Origin 的数据结果？", a:["先看数据来自哪条链、哪个合约和什么时间，再理解指标口径。例如“持币地址”是否去除了合约地址，“价格”来自哪个交易对，“团队数量”是否做了跨链去重。","重要操作前，点击交易哈希或浏览器链接复查原始数据。若工具与链上显示不同，可以记录地址、时间和截图反馈，帮助持续优化。"], p:"工具提高效率，链上原始记录提供最终依据；两者结合使用最可靠。"},
+      {c:"practice", q:"新人需要准备多少钱才能学习起源？", a:["学习本身不需要大额资金。可以先零成本阅读资料、查询公开地址和观察合约；需要体验链上操作时，用自己完全能够承受的小额，加上少量 Gas 完成一次测试即可。","重点不是一开始投入多少，而是能否说清每一步在做什么。等自己真正理解网络、钱包、合约、费用和退出路径后，再依据个人情况安排。"], p:"先投入时间建立能力，再决定是否投入资金；小额测试足以完成大部分入门学习。"},
+      {c:"practice", q:"参与起源一定需要电脑吗？", a:["不一定。支持 Web3 的手机钱包可以完成查看资产、转账和连接许多 DApp，适合日常操作；电脑屏幕更大，更适合阅读合约、对比数据、做表格和使用开发工具。","无论使用手机还是电脑，都应保持系统与浏览器更新，只安装可信软件。重要操作尽量在网络稳定、环境安静时完成，避免边聊天边确认钱包弹窗。"], p:"手机适合便捷操作，电脑适合深度研究；安全习惯比设备品牌更重要。"},
+      {c:"practice", q:"选择钱包时应该看哪些方面？", a:["优先选择长期维护、来源清楚、支持目标网络、可自主管理私钥的钱包。还要看是否便于添加 Anubis Chain、管理多账户、查看授权和连接常用 DApp。","钱包下载安装后，先创建测试账户，熟悉备份、接收、发送和切换网络。不要因为界面相似就导入主助记词，确认官方来源后再使用。"], p:"合适的钱包应当来源可信、网络兼容、权限清楚，并让用户真正掌握私钥。"},
+      {c:"practice", q:"从稳定币到参与生态的一般流程是什么？", a:["常见流程是：在合规渠道准备稳定币，提到自己的 Web3 钱包，选择正确网络并准备 Gas，再通过官方支持的 DEX、桥或 DApp 完成对应操作。每一步都要核对网络和合约。","流程看似很长，实际可以拆成小步骤逐个验证。第一次先转小额，确认到账；第一次兑换先查看预计数量和滑点；第一次参与机制先保存交易哈希。"], p:"把复杂流程拆成“准备—转入—核对—兑换—参与—验证”，每一步都能单独检查。"},
+      {c:"practice", q:"如果转账时选错网络，应该怎么办？", a:["先不要继续操作，保存交易哈希，确认发送链、接收地址和资产合约。如果接收地址由自己的同一助记词控制，很多 EVM 网络使用相同地址格式，添加正确网络后可能看到资产。","如果转入交易平台或第三方托管地址，需要联系对方官方支持，并提供交易哈希、网络、金额和时间。任何情况下都不要把助记词交给声称能“帮忙找回”的人。"], p:"交易哈希是处理问题最重要的凭证；先确认资产实际在哪条链上。"},
+      {c:"practice", q:"遇到系统升级或维护时应该怎样做？", a:["先查看官方维护时间、受影响功能和恢复通知。维护期间可以暂停非必要交互，保存当前余额与重要交易记录，确认钱包内 Gas 充足。","链上网络、DApp 前端、价格接口和查询工具可能分别维护，不能只凭一个页面判断全部状态。恢复后先做只读查询或小额测试，再逐步恢复正常操作。"], p:"维护前留记录，维护中少操作，维护后先验证，是最稳妥的三步。"},
+      {c:"practice", q:"面对价格波动，怎样保持理性？", a:["先把生态发展和短期市场价格分开观察。价格会受到流动性、交易行为和市场情绪影响；生态则可以从技术、用户、应用和链上数据持续评估。","提前设定自己能承受的资金范围和观察周期，不使用影响生活的资金。用数据记录代替频繁情绪判断，能让决策更清楚。"], p:"理解波动、控制规模、保留选择权，比猜测每一次涨跌更重要。"},
+      {c:"practice", q:"为什么要建立个人链上记录表？", a:["记录每次日期、网络、资产、数量、参考价格、Gas、交易类型和哈希，可以清楚看到自己的真实成本、余额变化和参与历史。遇到问题时，也能快速定位对应交易。","表格还可以帮助区分本金、获得的代币和不同应用中的资产，便于做阶段复盘。公开地址能查到交易，但个人备注能解释当时为什么操作。"], p:"链上保存事实，个人账本保存上下文；两者结合就是完整记录。"},
+      {c:"practice", q:"遇到不懂的问题，应该向谁求助？", a:["优先查官方文档、公告、DApp 帮助页和区块浏览器，再到公开社区提出具体问题。提问时提供网络、公开地址、交易哈希、时间和错误提示，但遮住个人身份信息。","选择愿意给出处、能解释原理的人，而不是只让你执行操作的人。真正的帮助不会索要助记词、私钥或远程控制你的钱包。"], p:"高质量求助 = 清楚描述问题 + 提供公开证据 + 永不泄露钱包秘密。"},
+      {c:"practice", q:"长期参与起源最重要的三个原则是什么？", a:["第一，持续学习：理解钱包、合约、数据和新应用。第二，坚持验证：重大信息回到官方原文和链上记录。第三，量力而行：根据自己的资金、时间和能力选择参与方式。","在这三个原则之上，再去做内容、工具、社区或应用贡献。生态会变化，但学习能力、验证习惯和长期主义会一直有价值。"], p:"懂规则、查证据、按自己的节奏长期建设，是穿越变化的最好方法。"}
+    ];
+    const content = document.getElementById("content");
+    const chips = document.getElementById("chips");
+    const search = document.getElementById("search");
+    const visibleCount = document.getElementById("visibleCount");
+    const activeLabel = document.getElementById("activeLabel");
+    const empty = document.getElementById("empty");
+    let activeChapter = "all";
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]));
+    }
+    function highlight(text, keyword) {
+      if (!keyword) return escapeHtml(text);
+      const safe = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return escapeHtml(text).replace(new RegExp(`(${safe})`, "ig"), "<mark>$1</mark>");
+    }
+    function renderChips() {
+      const items = [{id:"all", title:"全部"}, ...chapters];
+      chips.innerHTML = items.map(item => `<button type="button" class="chip ${item.id === activeChapter ? "active" : ""}" data-id="${item.id}">${item.title}</button>`).join("");
+      chips.querySelectorAll(".chip").forEach(btn => btn.addEventListener("click", () => {
+        activeChapter = btn.dataset.id;
+        renderChips();
+        render();
+      }));
+    }
+    function render() {
+      const keyword = search.value.trim();
+      let total = 0;
+      const sections = chapters.map((chapter, chapterIndex) => {
+        if (activeChapter !== "all" && activeChapter !== chapter.id) return "";
+        const list = faqs.map((item, index) => ({...item, number:index + 1}))
+          .filter(item => item.c === chapter.id)
+          .filter(item => !keyword || `${item.q} ${item.a.join(" ")} ${item.p}`.toLowerCase().includes(keyword.toLowerCase()));
+        if (!list.length) return "";
+        total += list.length;
+        const cards = list.map(item => `
+          <details class="faq" ${keyword ? "open" : ""}>
+            <summary>
+              <span class="num">${String(item.number).padStart(2,"0")}</span>
+              <span class="question">${highlight(item.q, keyword)}</span>
+              <span class="plus" aria-hidden="true"></span>
+            </summary>
+            <div class="answer">
+              ${item.a.map(p => `<p>${highlight(p, keyword)}</p>`).join("")}
+              <div class="point"><strong>一句话记住：</strong>${highlight(item.p, keyword)}</div>
+            </div>
+          </details>`).join("");
+        return `
+          <section class="chapter" id="chapter-${chapter.id}">
+            <div class="chapter-head">
+              <div><span class="chapter-kicker">CHAPTER ${String(chapterIndex + 1).padStart(2,"0")}</span><h2>${chapter.title}</h2></div>
+              <p class="chapter-intro">${chapter.intro}</p>
+            </div>
+            <div class="faq-list">${cards}</div>
+          </section>`;
+      }).join("");
+      content.innerHTML = sections;
+      visibleCount.textContent = total;
+      activeLabel.textContent = activeChapter === "all" ? "全部章节" : chapters.find(c => c.id === activeChapter).title;
+      empty.style.display = total ? "none" : "block";
+    }
+    search.addEventListener("input", render);
+    document.getElementById("openAll").addEventListener("click", () => document.querySelectorAll("details.faq").forEach(item => item.open = true));
+    document.getElementById("closeAll").addEventListener("click", () => document.querySelectorAll("details.faq").forEach(item => item.open = false));
+    document.getElementById("printPage").addEventListener("click", () => {
+      document.querySelectorAll("details.faq").forEach(item => item.open = true);
+      setTimeout(() => window.print(), 80);
+    });
+    const progress = document.getElementById("progress");
+    const toTop = document.getElementById("toTop");
+    window.addEventListener("scroll", () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = `${max > 0 ? (window.scrollY / max) * 100 : 0}%`;
+      toTop.classList.toggle("show", window.scrollY > 520);
+    }, {passive:true});
+    toTop.addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
+    renderChips();
+    render();
+  </script>
+  <script defer src="/assets/analytics.js"></script>
+</body></html>
