@@ -31,8 +31,6 @@
   "@graph":[
     {"@type":"Organization","@id":"https://web3origin.com/#org","name":"起源学习站 web3origin","alternateName":["Web3Origin","web3origin"],"url":"https://web3origin.com/","logo":"https://web3origin.com/assets/logo.png","description":"Web3Origin 是 Origin(起源)生态的链上数据查询与研究平台：合约验证、钱包体检、链上日报、链上证据库、新手百科，所有数据可在区块浏览器独立核实。","knowsAbout":["Origin","ORIGIN","LGNS","Anubis Chain","GLGNS","Awake DAO","DeFi","(3,3)","OlympusDAO fork","Polygon"]},
     {"@type":"WebSite","@id":"https://web3origin.com/#website","url":"https://web3origin.com/","name":"起源学习站","inLanguage":"zh-CN","publisher":{"@id":"https://web3origin.com/#org"}},
-    {"@type":"SoftwareApplication","name":"起源链上雷达 Origin On-chain Radar","applicationCategory":"FinanceApplication","operatingSystem":"Web","url":"https://web3origin.com/#radar","description":"实时展示 LGNS 行情、Anubis Chain 链状态、生态质押、国库、链上事件与鲸鱼动态的链上数据驾驶舱，数据可逐一核实。","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@id":"https://web3origin.com/#org"}},
-    {"@type":"Dataset","name":"Origin / LGNS / Anubis Chain 链上实时数据","description":"包含 LGNS 价格与 24h 涨跌、流通量、成交量、质押率、TVL、LP、国库市值、Anubis 链区块高度/地址数/交易数、链上大额成交等指标，数据源为起源官方后台、PolygonScan(Etherscan V2) 与 Anubis 区块浏览器。","url":"https://web3origin.com/#radar","creator":{"@id":"https://web3origin.com/#org"},"keywords":["LGNS","Origin","Anubis Chain","TVL","质押率","国库","链上数据"],"license":"https://web3origin.com/"},
     {"@type":"FAQPage","mainEntity":[
       {"@type":"Question","name":"起源(ORIGIN)是什么？","acceptedAnswer":{"@type":"Answer","text":"起源是一整个 Web3 生态的统称，核心代币是 LGNS(精度 9 位)，并自建了隐私公链 Anubis(Chain ID 6714，gas 用 DAI)。"}},
       {"@type":"Question","name":"LGNS 是什么？","acceptedAnswer":{"@type":"Answer","text":"LGNS 是起源生态的核心代币(算法代币)，精度 9 位不是 18，采用 (3,3) 质押模型，每 6 小时 rebase 增发发放质押奖励。治理代币是另一枚 GLGNS。"}},
@@ -965,16 +963,7 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
       </div>
     </div>
 
-    <div class="md-group">
-      <button class="md-item" aria-expanded="false" aria-controls="msub-learn"><span class="ic">📖</span><span class="lbl" data-i18n="md_learn">学习中心</span><svg class="arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
-      <div class="md-sub" id="msub-learn">
-        <a data-jump="path" data-i18n="md_l1">新人学习路线</a>
-        <a data-jump="codex" data-i18n="md_l2">资料中心</a>
-        <a href="faq/" data-i18n="md_l3">常见问题</a>
-      </div>
-    </div>
-
-    <a class="md-item" href="articles/"><span class="ic">📄</span><span class="lbl" data-i18n="md_articles">研究文章</span></a>
+    <a class="md-item" href="faq/"><span class="ic">❓</span><span class="lbl">常见100个问题</span></a>
     <a class="md-item" href="about/"><span class="ic">ℹ️</span><span class="lbl" data-i18n="md_about">关于 Web3Origin</span></a>
     <a class="md-item" data-jump="contact"><span class="ic">💬</span><span class="lbl" data-i18n="md_contact">加好友 / 联系</span></a>
   </div>
