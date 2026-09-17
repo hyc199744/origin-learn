@@ -301,7 +301,7 @@ function render(){
     var card=el("div","card"+(t.unavailable?" na":""));
     card.style.setProperty("--accent",t.bg);
     var head='<div class="ch"><div class="badge">'+t.badge+'</div>'+
-      '<div class="nm"><div class="t">'+t.name+'</div><div class="c"><span class="chip">'+t.chainTag+'</span>'+t.chain+'</div></div></div>';
+      '<div class="nm"><div class="t">'+t.name+'</div></div></div>';
     if(t.unavailable){
       card.innerHTML=head+'<div class="px" style="color:var(--dim);font-size:20px">—</div>'+
         '<div class="na-box">暂无公开交易池，无法按市场价定价</div>'+
