@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index,follow">
+<title>起源常见问题 100 问 · Origin FAQ · Web3Origin</title>
+<meta name="description" content="起源 / LGNS / Anubis 常见 100 个问题：基础认知、代币精度、Anubis 链、钱包设置、买卖交易、质押收益、治理 NFT、安全防诈、工具使用、链上核实，分类速查，答案可自行上链核对。">
+<link rel="canonical" href="https://web3origin.com/tools/faq100/">
+<link rel="icon" href="/assets/favicon.png">
+<style>
+:root{--bg:#050303;--temple:#210507;--blood:#7A0B12;--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--green:#8fbf78;--serif:"Noto Serif SC","Songti SC",Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1000px 520px at 50% -10%,#2a0a0c,#050303 60%) fixed,#050303;color:var(--bone);font-family:"Microsoft YaHei",system-ui,sans-serif;line-height:1.8}
+.top{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.top a.home{color:var(--gold-lt);font-weight:700;font-size:14px;text-decoration:none;display:inline-flex;gap:7px;align-items:center}
+.top img{height:22px}
+.wrap{max-width:860px;margin:0 auto;padding:22px 18px 70px}
+h1{font-family:var(--serif);font-size:clamp(23px,4.4vw,32px);color:var(--gold-lt);margin:4px 0 6px;font-weight:700;text-wrap:balance}
+.lede{color:var(--soft);font-size:13.5px;margin:0 0 14px;line-height:1.7}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.tools input{flex:1;min-width:180px;background:rgba(214,168,75,.05);border:1px solid var(--line);color:var(--bone);border-radius:10px;padding:10px 13px;font-size:14px;font-family:inherit}
+.tools input::placeholder{color:var(--muted)}
+.cats{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 16px}
+.cat{font-size:12.5px;color:var(--soft);background:rgba(214,168,75,.05);border:1px solid var(--line);border-radius:999px;padding:5px 13px;cursor:pointer;white-space:nowrap}
+.cat:hover{color:var(--bone)}
+.cat.on{color:#2a1c05;background:linear-gradient(180deg,#f0d48a,var(--gold));border-color:var(--gold);font-weight:700}
+.grp{margin:0 0 22px}
+.grp h2{font-family:var(--serif);color:var(--gold-lt);font-size:18px;font-weight:400;margin:22px 0 10px;border-left:3px solid var(--blood);padding-left:11px;display:flex;align-items:center;gap:8px}
+.grp h2 .n{font-size:12px;color:var(--muted)}
+.faq{border:1px solid var(--line);border-radius:9px;margin-bottom:8px;padding:0 15px;background:rgba(214,168,75,.03)}
+.faq summary{cursor:pointer;padding:12px 0;color:var(--bone);font-size:15px;font-family:var(--serif);list-style:none;display:flex;gap:9px;align-items:flex-start}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .qn{color:var(--gold);flex:0 0 auto;font-size:13px;font-family:var(--serif);min-width:30px}
+.faq summary::after{content:"+";margin-left:auto;color:var(--soft);font-size:18px;flex:0 0 auto}
+.faq[open] summary::after{content:"–"}
+.faq .a{color:var(--soft);font-size:14px;line-height:1.85;padding:0 0 13px 39px}
+.faq .a b{color:var(--bone);font-weight:400}
+.faq mark{background:rgba(214,168,75,.28);color:var(--bone);border-radius:3px;padding:0 2px}
+.empty{color:var(--muted);text-align:center;padding:30px;font-size:14px}
+.count{color:var(--muted);font-size:12px;margin:0 0 14px}
+footer{border-top:1px solid var(--line);margin-top:34px;padding-top:18px;color:var(--muted);font-size:12px;text-align:center;line-height:1.9}
+footer a{color:var(--soft);margin:0 6px}
+.warn{background:rgba(122,11,18,.14);border:1px solid rgba(214,168,75,.22);border-radius:10px;padding:11px 14px;color:var(--soft);font-size:12.5px;line-height:1.7;margin:0 0 16px}
+.warn b{color:var(--gold-lt)}
+</style>
+</head>
+<body>
+<div class="top">
+  <a class="home" href="/tools/origin-monitor/"><img src="/assets/logo.png" alt="Web3Origin">← 起源百宝箱</a>
+</div>
+<div class="wrap">
+  <h1>起源常见问题 · 100 问</h1>
+  <p class="lede">关于 起源(Origin) / LGNS / Anubis 最常被问到的问题，分类速查、直接给答案。所有涉及链上的说法都可用本站工具或区块浏览器<b style="color:var(--soft)">自行核实</b>。</p>
+  <div class="warn"><b>⚠️ 安全第一：</b>本站及任何正规渠道<b>永远不会</b>找你要助记词、私钥或钱包密码；收到「帮你找回被盗币 / 免费领空投」私信基本可当诈骗。内容仅供学习理解，不构成投资建议（DYOR）。</div>
+  <div class="tools"><input id="q" type="text" placeholder="🔍 输入关键词搜索问题，例如：精度、卖税、质押、助记词…"></div>
+  <div class="cats" id="cats"></div>
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+</div>
+<footer>
+  <div><a href="/">首页</a> · <a href="/faq/">FAQ</a> · <a href="/contracts/">合约大全</a> · <a href="/tools/origin-monitor/">起源百宝箱</a> · <a href="/baike/lgns/">LGNS百科</a></div>
+  <div style="margin-top:6px">web3origin.com · 内容仅供学习理解，不构成投资建议（DYOR）</div>
+</footer>
+<script>
+"use strict";
+/* 100 问数据：每条 {q,a}，按分类分组。答案均来自站内已核实事实/操作教程，可上链核对。 */
+var DATA=[
+{c:'基础认知',items:[
+['起源(Origin)是什么？','起源是一整个 Web3 生态的统称：核心代币是 <b>LGNS</b>，并自建了 <b>Anubis</b> 隐私公链，还有质押、DAO 治理等。可以理解成"一个有自己代币和规则的链上社区"。'],
+['LGNS 是什么？','起源生态的核心代币（算法代币，不是稳定币），精度 <b>9 位</b>，采用源自 OlympusDAO 的 <b>(3,3)</b> 质押模型，每 6 小时 rebase 增发发放奖励。部署在 Polygon 与 Anubis 两条链。'],
+['Anubis 是什么？','起源自建的隐私公链，Chain ID <b>6714</b>，gas 直接用 DAI（不用单独买原生币）。'],
+['起源、LGNS、Anubis 三者什么关系？','打个比方：起源是一座城市，LGNS 是城里流通的货币，Anubis 是城市脚下的地基（底层公链）。'],
+['起源是什么时候上线的？','LGNS 于 <b>2024-03-06</b> 在 Polygon 上线；Anubis 链稍后自建上线。关键时间点都能在链上找到对应交易。'],
+['(3,3) 是什么意思？','博弈论说法：如果大家都选择"质押并长期持有"，对所有人整体结果最好（所以写成 3,3）。它用机制鼓励长期主义，但机制本身<b>不保证赚钱</b>。'],
+['起源是不是资金盘？','别只听任何人一面之词——自己上链查：收益从哪来、资金去向、有没有人能随意增发或挪走资金。本站「合约验证」「钱包监控」「链上证据库」就是帮你查这些的。'],
+['起源和 OlympusDAO(OHM) 什么关系？','LGNS 是 OHM 机制的分叉（fork）：同样的 (3,3)、rebase、9 位精度、国库储备等设计。可对比两者代码理解机制。'],
+['「朗基努斯 / Longinus」是什么？','LGNS 的中文/英文名，就是同一个核心代币。注意别和第三方蹭名的同名币混淆，认准合约地址。'],
+['起源官方渠道有哪些？','认准官方公布的账号（如主号 @SaluteOrigin、公链 @ANUBISCHAIN_ 等），收藏官方链接，不要从搜索结果或私信链接进入。']
+]},
+{c:'LGNS 代币',items:[
+['LGNS 的精度是多少？','<b>9 位</b>（decimals=9），不是常见的 18 位——这是 OHM 分叉的传统。链上原始数字要除以 10⁹ 才是真实枚数。'],
+['LGNS 在 Polygon 的合约地址？','<b>0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01</b>。可在 PolygonScan 核实，或看本站「合约大全」。'],
+['LGNS 在 Anubis 的合约地址？','<b>0x4D1D808a081FdAc440703b3765FC61f8028C06B8</b>。可在 browser.anubispace.org 核实。'],
+['Polygon 的 LGNS 和 Anubis 的 LGNS 是同一个价吗？','<b>不是</b>。两条链各有独立的交易池，价格分别形成、通常略有差异，要分开看。'],
+['LGNS 和 GLGNS 有什么区别？','LGNS 是核心代币（质押、生息、交易）；<b>GLGNS</b> 是治理代币（用于社区投票）。治理用 GLGNS，不是 LGNS。'],
+['sLGNS 是什么？','质押 LGNS 后得到的质押凭证（staked LGNS），随 rebase 增长，代表你在质押池里的份额。'],
+['LGNS 卖出有税吗？','有。Polygon 的 LGNS 卖税约 <b>5%</b>（买入 0），可在本站「实时行情」看到税后到手价；gLGNS 卖税约 2%。'],
+['LGNS 总量是多少？会不会无限增发？','它是 rebase 增发型代币，供应随质押奖励持续增加。关键要看增发是否有真实储备支撑——用「合约验证」查谁有增发权限。'],
+['LGNS 价格为什么说有"1 美元地基"？','指国库储备为每枚提供理论托底逻辑（软底，不是硬底）。软底不等于跌不破，仍要看真实储备和市场情绪。'],
+['LGNS 能跨链吗？Polygon 和 Anubis 之间怎么转？','通过官方跨链桥在两条链之间转移，具体入口以官方公告为准，别用陌生链接。'],
+['在哪里能看到 LGNS 实时价格？','本站首页「起源生态实时行情」和「实时行情」工具，价格由链上流动性池储备实时计算。'],
+['LGNS 是稳定币吗？','<b>不是</b>。它是算法代币，价格随市场和机制波动，别当稳定币理解。']
+]},
+{c:'Anubis 链',items:[
+['Anubis 链的 Chain ID 是多少？','<b>6714</b>。在钱包里手动添加网络时会用到。'],
+['Anubis 的 gas 用什么付？','直接用 <b>DAI</b>，不需要单独持有原生代币。钱包里原生余额显示的其实就是 DAI。'],
+['Anubis 的区块浏览器是哪个？','<b>browser.anubispace.org</b>，可查地址、交易、合约。'],
+['Anubis 的 RPC 节点地址？','<b>https://rpc.anubispace.org</b>（添加网络时填这个）。'],
+['怎么把 Anubis 网络加到钱包？','在钱包"添加网络"里填：网络名 Anubis、Chain ID 6714、RPC rpc.anubispace.org、浏览器 browser.anubispace.org。本站视频学院有图文教程。'],
+['Anubis 上转账 Pending(卡住) 怎么办？','一般是 gas(DAI) 不足或网络拥堵。确认钱包里有足够 DAI 当 gas，或稍等重试；教程见本站视频学院。'],
+['Anubis 是隐私链，隐私体现在哪？','它定位为选择性隐私的 L1。具体隐私特性以官方文档为准，链上公开数据仍可在浏览器查询。'],
+['在 Anubis 上没有 gas 币怎么办？','先往该 Anubis 地址转入少量 DAI 作为 gas，才能发起交易。'],
+['Anubis 链上也能查 LGNS 吗？','能。用 browser.anubispace.org 或本站「双链钱包查询」「双链质押查询」即可。'],
+['Anubis 出块多快？','约每 1~2 秒一个块，交易确认较快。']
+]},
+{c:'钱包与设置',items:[
+['新手第一步该做什么？','先准备一个自托管钱包（如 OKX Web3 钱包 / MetaMask），<b>手抄并离线保管助记词</b>，再谈买币和质押。'],
+['助记词丢了/泄露了怎么办？','助记词一旦泄露，钱包就<b>永久不安全</b>：尽快把还能转的资产转到全新钱包并弃用旧钱包。改密码、断网都没用。'],
+['助记词该怎么保管？','只手抄、离线保存，<b>绝不</b>拍照、不存微信/相册/云盘、不发给任何人（包括自称"客服""老师"的人）。'],
+['用哪个钱包比较好？','主流自托管钱包都可以（OKX Web3、MetaMask 等）。大额建议配硬件钱包，私钥不碰联网设备。'],
+['怎么创建钱包？','在钱包 App 里"创建钱包"，按提示抄好助记词并验证。本站视频学院有 OKX 建钱包、子钱包的实操视频。'],
+['怎么把 LGNS/sLGNS 添加到钱包显示？','在钱包"添加代币"里粘贴对应合约地址即可显示余额。视频学院有教程。'],
+['硬件钱包有必要吗？','大额强烈建议。签名在硬件里完成，私钥不暴露给联网设备，能挡住大部分盗币手段。'],
+['怎么查我钱包里有多少 LGNS？','用本站「双链钱包查询 / 钱包监控」，输入地址即可看双链 LGNS/sLGNS/DAI 等余额，只读、不需要私钥。'],
+['钱包地址可以公开给别人查吗？','地址本身是公开信息、可以查；但<b>别在公开群里贴自己地址求助</b>（等于给小偷指路），更不能给助记词。'],
+['为什么钱包里 Anubis 原生余额等于 DAI？','因为 Anubis 用 DAI 当 gas，原生余额显示的就是你的 DAI 数量。'],
+['换手机/重装 App 后钱包没了怎么办？','用助记词重新导入即可（前提是助记词你安全保管着）。所以助记词才是钱包的命根子。'],
+['怎么给钱包充 gas？','Polygon 用少量 POL 当 gas；Anubis 用少量 DAI 当 gas。']
+]},
+{c:'买卖与交易',items:[
+['在哪买 LGNS？','通过对应链上的去中心化交易工具买卖，<b>具体入口以官方公告为准</b>，别在陌生链接里操作。'],
+['第一次交易要注意什么？','先小额试水、确认流程无误再加量；核对合约地址、核对网络（Polygon/Anubis 别搞混）。'],
+['卖 LGNS 为什么到手比标价少？','有卖税（Polygon 约 5%）+ 交易滑点。本站「实时行情」直接显示税后到手价，「卖出模拟器」可模拟具体到手。'],
+['买入怎么算成本？','用本站「收益与成本计算器」，输入金额和价格即可估算买到的数量与成本。'],
+['卖出能拿回多少？','用本站「LGNS 卖出模拟器」，链上实时读价+卖税，模拟不同数量的到手 DAI。'],
+['交易滑点是什么？','下单价和实际成交价的差，池子越浅、单子越大，滑点越大。大额分批更划算。'],
+['买卖需要 gas 费吗？','需要。Polygon 用 POL、Anubis 用 DAI 付 gas，每笔都要一点。'],
+['为什么我的交易失败了？','常见原因：gas 不足、滑点设置太低、授权未完成、网络拥堵。看区块浏览器的报错信息排查。'],
+['怎么确认一笔交易成功？','把交易哈希放进区块浏览器（PolygonScan / browser.anubispace.org）看状态，或用本站「链上搜索」查。'],
+['能不能跨链套利 Polygon 和 Anubis 的差价？','两链价差真实存在，但要算上跨链成本、卖税、滑点和时间风险，不一定划算，谨慎。'],
+['交易记录在哪看？','区块浏览器输地址看全部交易；或用本站「钱包监控」看某地址最近活动时间线。'],
+['gLGNS / fLGNS 能交易吗？','gLGNS 有自己的交易池可交易；fLGNS 属第三方 Funverse 生态（非官方），风险自负。']
+]},
+{c:'质押与收益',items:[
+['质押收益从哪来？','本质是协议每 6 小时<b>增发新币</b>（rebase / 通胀奖励）发给质押者，不是天上掉的。'],
+['高年化(APY)是不是就稳赚？','<b>不是</b>。APY 只是币的数量增速，能不能净赚还要看<b>币价</b>和真实储备。数量涨、币价跌，照样亏。'],
+['怎么估算我的质押收益？','用本站「收益与成本计算器」，输入本金和天数估算；参数口径页面里有标注。'],
+['活期质押和 360/600 锁仓有什么区别？','活期可随时赎回；360/600 是锁定天数更长的产品，规则和收益不同，动手前先看清具体合约规则。'],
+['质押的本金能随时取回吗？','看质押类型：活期一般可随时赎回，锁仓有锁定期。<b>以合约规则为准</b>，别听转述。'],
+['怎么查我质押了多少？','用本站「双链质押查询」，输地址看双链活期/360/600 逐笔明细和名下总质押，链上直读。'],
+['rebase 是什么？','协议按周期（每 6 小时）自动给质押者增发，使持仓数量增长，就是"利滚利"的形式。'],
+['销毁债券是什么？','一种用 LGNS/资产参与、按规则获得回报的债券产品，具体条款以官方为准，可在本站「计算器」里试算。'],
+['质押奖励需要手动领取吗？','rebase 型奖励通常自动累加到质押余额；不同产品可能不同，以合约为准。'],
+['涡轮/蜘蛛网/DAO 奖励是什么？','是质押体系里的几类额外奖励，本站「双链质押查询」能按合约读出各类奖励的当前值。'],
+['质押安全吗？会不会取不出来？','要看质押合约是否可升级、本金能否赎回——用「合约验证」查权限。不要只看年化就冲。'],
+['全网质押数据在哪看？','本站「实时行情 / 链上雷达类工具」和「大户榜 / V1-V6 数量」等工具展示全网质押相关数据。']
+]},
+{c:'治理·GLGNS·NFT',items:[
+['GLGNS 是什么？','起源的治理代币，用于社区投票（Awake DAO）。它和用来生息的 LGNS 是两码事。'],
+['GLGNS 合约地址？','Anubis 上 <b>0xf140a92C156e76F5A1d3D6f96284b250330F8F4c</b>（已验证合约）。'],
+['治理投票权怎么来的？','来自 GLGNS 治理代币和治理 NFT，<b>不是</b>直接靠持有或质押 LGNS。'],
+['Awake DAO 是什么？','起源社区的治理组织，提案流程大致是：提案 → 讨论 → 投票 → 执行。'],
+['治理 NFT 是什么？','一类代表治理权益的 NFT。本站「NFT 持有查询」可查某地址持有的 Awake Governance NFT 数量与排行。'],
+['提案在哪看/怎么参与？','以官方治理渠道公布为准；参与需要相应的 GLGNS / 治理 NFT。'],
+['GLGNS 总量多少？','治理代币采用固定总量 + 双层 NFT 治理的设计，具体以链上合约为准。'],
+['gLGNS 和 GLGNS 是一个东西吗？','是同一枚治理代币的不同写法（gLGNS / GLGNS），注意认准合约地址 0xf140a92C…。']
+]},
+{c:'安全与防诈骗',items:[
+['有人私信说能帮我找回被盗的币，可信吗？','<b>几乎都是二次诈骗</b>。你已被盗一次，骗子专挑这时上门要你交助记词——交了就是把剩下的也送出去。'],
+['什么是 EIP-7702 授权钓鱼？','一种较新的钱包机制被骗子利用：诱导你签一个授权，一旦签了恶意授权钱可能被划走。<b>看不懂的签名一律不签</b>。'],
+['怎么检查和撤销钱包授权？','定期用授权管理工具（或本站「钱包监控」看授权风险）检查，撤销(revoke)不再需要的授权。很多币是被旧授权划走的。'],
+['收到"免费领空投"链接能点吗？','别点。陌生空投链接常是钓鱼，连钱包签名就可能被盗。'],
+['官方会私信找我要助记词吗？','<b>永远不会</b>。任何要你交助记词/私钥/密码，或让你转币"验证"的，都是骗子。'],
+['怎么辨别假冒官方号？','认准官方公布的账号并收藏，不从搜索结果/私信链接进；简介、粉丝、蓝V 都可能被仿冒，最终以官方互相印证为准。'],
+['下载的"抢救脚本/机器人"能用吗？','别用来路不明的程序，很多本身就是木马，运行就把你的币卷走。'],
+['钱被盗了第一时间怎么做？','立刻把该钱包还能转的资产转到<b>全新安全钱包</b>，然后彻底弃用被盗钱包，别再往里转任何东西。'],
+['蜜罐币/貔貅盘怎么识别？','能买不能卖、或卖出税极高的常是蜜罐。用本站「代币安全检测 / 链上搜索」看买卖税和权限再动手。'],
+['第三方蹭名的币(如 fLGNS、TEM 等)安全吗？','这些多为第三方蹭 Anubis/LGNS 名字的盘，<b>非起源官方</b>，风险自负，别当官方项目。'],
+['怎么防止被钓鱼？','不点陌生链接、不签看不懂的授权、大额用硬件钱包、只走官方入口、凡事自己上链核实(DYOR)。'],
+['网站会不会盗我的币？','本站是<b>只读</b>查询：只用公开地址/哈希，绝不需要助记词或私钥，也不会让你签授权转币。']
+]},
+{c:'本站工具怎么用',items:[
+['起源百宝箱是什么？','本站的链上工具合集，包含钱包查询、质押查询、收益计算器、实时行情、合约大全、资料下载等一系列工具。'],
+['怎么查一个地址的全部资产？','用「双链钱包查询 / 钱包监控」，输入地址一次看全双链 LGNS 资产和最近活动。'],
+['怎么查某笔交易或某个地址？','用首页「链上搜索」，粘贴地址或交易哈希，直接给真实链上数据 + 大白话解读。'],
+['怎么看合约安不安全？','用「合约验证 / 合约大全」，查合约是否开源、可否升级、Owner 是谁、有无增发权限。'],
+['收益/成本怎么算？','用「收益与成本计算器」，支持买入、卖出、活期、长期、产品对比、销毁债券多种算法。'],
+['怎么下载白皮书和资料？','用「起源资料下载」，白皮书、课件、审计报告、合约地址大全都在里面。'],
+['实时行情在哪看？','首页顶部和「实时行情」工具，展示 LGNS(POL)、LGNS(ANB)、gLGNS 等实时价与卖税后到手价。'],
+['工具的数据可靠吗？','价格/余额等直接读链上，可对着区块浏览器核对；挂账类数据来自官方公开接口，页面都标注了来源。']
+]},
+{c:'合约·数据·核实',items:[
+['什么是链上证据？','真实存在于区块链、任何人可核实的记录：交易哈希、区块、合约地址、事件日志。没有链上证据的说法就别轻信。'],
+['怎么核实一个合约地址是不是官方的？','对照本站「合约大全」和官方公告，并在区块浏览器看合约的部署者、验证状态，多方印证。'],
+['合约"可升级"意味着什么？','代理合约的逻辑能被替换——好处是可修复，风险是控制升级权限的人能改规则。查清升级权限在谁手里。'],
+['怎么知道有没有人能增发 LGNS？','在区块浏览器/「合约验证」看谁拥有 mint 权限、是否多签、有没有时间锁。这些都是链上公开信息。'],
+['国库资产怎么查？','用本站「国库资产查询」，实时读主国库/基金会的 DAI/USDT 余额和 LP 自持比例。'],
+['审计报告在哪看？','「起源资料下载」里有 Certik（Anubis/Awake/Origin）和 Armors（国库）等审计报告 PDF。'],
+['审计通过就一定安全吗？','不一定。要看审计<b>覆盖了哪些合约</b>、是不是最新版本、有没有覆盖国库和权限。审计只是参考之一。'],
+['数据来源有哪些？','起源官方后台、PolygonScan(Etherscan V2)、Anubis 区块浏览器等，本站「数据来源」页有说明。']
+]},
+{c:'常见误区与风险',items:[
+['「跌不破 1 美元」是真的吗？','那是机制上的软托底逻辑，<b>不是硬保证</b>。极端行情下软底可能被击穿，别当保本。'],
+['年化几百上千是不是很赚？','高 APY 是数量增速，不代表法币净赚。币价下跌可能吃掉甚至超过增发收益。'],
+['别人喊单/说保本能信吗？','不能。任何"保本保收益""稳赚"的说法在 DeFi 里都要打问号，自己上链核实机制和资金。'],
+['把所有钱都投进去可以吗？','风险自负。DeFi 波动大、机制复杂，只投你能承受损失的部分，别借贷/杠杆梭哈。'],
+['项目负面消息怎么判断真假？','别只信截图和转述——去链上查对应的合约/交易/资金流，用事实说话。'],
+['这份 FAQ 是投资建议吗？','<b>不是</b>。仅供学习理解，帮你看懂机制、学会自己核实（DYOR），不替你做投资决定。']
+]}
+];
+
+var esc=function(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");};
+var flat=[]; DATA.forEach(function(g){ g.items.forEach(function(it,i){ flat.push({c:g.c,q:it[0],a:it[1]}); }); });
+var total=flat.length;
+var curCat="全部", kw="";
+
+function cats(){
+  var box=document.getElementById("cats"); var list=["全部"].concat(DATA.map(function(g){return g.c;}));
+  box.innerHTML=list.map(function(c){return '<span class="cat'+(c===curCat?" on":"")+'" data-c="'+esc(c)+'">'+esc(c)+(c==="全部"?" "+total:"")+'</span>';}).join("");
+  box.querySelectorAll(".cat").forEach(function(el){ el.onclick=function(){ curCat=el.getAttribute("data-c"); cats(); render(); }; });
+}
+function hl(t){ if(!kw)return esc(t); var i=t.toLowerCase().indexOf(kw.toLowerCase()); if(i<0)return esc(t); return esc(t.slice(0,i))+"<mark>"+esc(t.slice(i,i+kw.length))+"</mark>"+esc(t.slice(i+kw.length)); }
+function render(){
+  var wrap=document.getElementById("list"), cnt=document.getElementById("count"); wrap.innerHTML="";
+  var groups=DATA.filter(function(g){return curCat==="全部"||g.c===curCat;});
+  var shown=0, num=0;
+  groups.forEach(function(g){
+    var items=g.items.filter(function(it){ return !kw || (it[0]+it[1]).toLowerCase().indexOf(kw.toLowerCase())>=0; });
+    if(!items.length)return;
+    var gd=document.createElement("div"); gd.className="grp";
+    gd.innerHTML='<h2>'+esc(g.c)+' <span class="n">'+items.length+' 题</span></h2>'+items.map(function(it){
+      num++; shown++;
+      return '<details class="faq"><summary><span class="qn">Q'+num+'</span><span>'+hl(it[0])+'</span></summary><div class="a">'+it[1].replace(/__KW__/g,"")+'</div></details>';
+    }).join("");
+    wrap.appendChild(gd);
+  });
+  if(!shown){ wrap.innerHTML='<div class="empty">没有匹配"'+esc(kw)+'"的问题，换个关键词试试。</div>'; }
+  cnt.textContent="共 "+total+" 题"+(kw?("，匹配 "+shown+" 题"):(curCat!=="全部"?("，当前分类 "+shown+" 题"):""));
+}
+document.getElementById("q").addEventListener("input",function(e){ kw=e.target.value.trim(); render(); });
+cats(); render();
+</script>
+<script src="/i18n.js"></script>
+<script defer src="/assets/analytics.js"></script>
+</body>
+</html>

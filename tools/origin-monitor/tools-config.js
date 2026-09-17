@@ -1,5 +1,5 @@
 /* =============================================================================
- * 起源链上工具 · 会员 33 项统一配置（单一数据源 / Single Source of Truth）
+ * 起源链上工具 · 会员 34 项统一配置（单一数据源 / Single Source of Truth）
  * -----------------------------------------------------------------------------
  * 会员权益展示页（tools/membership/index.html）的 31 项工具、六大分类、
  * 免费/付费对比、套餐信息全部从本文件读取。以后逐个完成工具时，
@@ -209,7 +209,12 @@
     { id: 'market', number: 33, name: '起源生态实时行情', en: {"name":"Ecosystem Live Prices","description":"Real-time USD/CNY prices of LGNS(POL), LGNS(ANB), gLGNS and fLGNS, computed live from on-chain DEX pool reserves."}, category: 'price-calc', icon: '📈',
       description: 'LGNS(POL)、LGNS(ANB)、gLGNS、fLGNS 实时美元/人民币价格，由链上流动性池储备实时计算。',
       status: 'live', isPremium: false, route: '/tools/market/', enabled: true,
-      note: '独立页 /tools/market/,四币实时价:前端直连链上读DEX池getReserves算价(Polygon 0x882df4B0/ANB 0x32A45867/gLGNS 0x8c4Ea5dA/fLGNS 0x4171222d,decimals已处理),人民币按实时USD/CNY换算,RPC容灾+异常保护。免费公开,已上线。' }
+      note: '独立页 /tools/market/,四币实时价:前端直连链上读DEX池getReserves算价(Polygon 0x882df4B0/ANB 0x32A45867/gLGNS 0x8c4Ea5dA/fLGNS 0x4171222d,decimals已处理),人民币按实时USD/CNY换算,RPC容灾+异常保护。免费公开,已上线。' },
+
+    { id: 'faq100', number: 34, name: '常见100个问题', en: {"name":"Origin FAQ · 100 Q&A","description":"100 common questions about Origin, LGNS and Anubis — basics, tokens, chain, wallet, trading, staking, governance, security, tools and on-chain verification, with search and category filter."}, category: 'data-evidence', icon: '❓',
+      description: '起源/LGNS/Anubis 常见问题速查：基础/代币/链/钱包/买卖/质押/治理/安全/工具/核实，分类+搜索，答案可自行上链核对。',
+      status: 'live', isPremium: false, route: '/tools/faq100/', enabled: true,
+      note: '独立页 /tools/faq100/,110题分11类,纯前端(搜索+分类筛选),内容取自站内已核实事实/操作教程/安全知识,含防诈警示。免费公开,已上线。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
