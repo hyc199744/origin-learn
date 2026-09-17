@@ -31,7 +31,8 @@ html.embed .wrap{padding:2px 2px}
 h1{font-size:23px;margin:0 0 18px;color:var(--white);font-weight:800;letter-spacing:.3px}
 .lead{color:var(--dim);font-size:12.8px;margin:0 0 18px;line-height:1.6}
 .lead b{color:var(--acc)}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.grid{display:flex;flex-wrap:wrap;gap:14px}
+.card{flex:0 0 auto;width:min(340px,100%)}
 @media(max-width:920px){.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){
   .grid{gap:10px}
@@ -128,23 +129,7 @@ var TOKENS = [
     pair:"0x882df4B0fB50a229C3B4124EB18c759911485bFb", token:"0xeb51d9a39ad5eef215dc0bf39a8821ff804a0f01",
     quoteIsToken0:true, quoteDec:18, baseDec:9, quoteSym:"DAI", poolName:"LGNS / DAI",
     explorer:"https://polygonscan.com", source:"Polygon 链上 LGNS/DAI 池",
-    gecko:"https://api.geckoterminal.com/api/v2/networks/polygon_pos/pools/0x882df4B0fB50a229C3B4124EB18c759911485bFb" },
-  { key:"anubis_lgns", name:"LGNS", chain:"Anubis", chainTag:"ANB", chainId:6714, badge:"L", bg:"#e8b34a",
-    rpcs:["https://rpc.anubispace.org"],
-    pair:"0x32A4586797E3f561F41C0F47CA57eD08D64f3dC0", token:"0x4D1D808a081FdAc440703b3765FC61f8028C06B8",
-    quoteIsToken0:false, quoteDec:18, baseDec:9, quoteSym:"DAI", poolName:"LGNS / DAI",
-    explorer:"https://browser.anubispace.org", source:"Anubis 链上 LGNS/DAI 池" },
-  { key:"glgns", name:"gLGNS", chain:"Anubis", chainTag:"ANB", chainId:6714, badge:"g", bg:"#22d3ee",
-    rpcs:["https://rpc.anubispace.org"],
-    pair:"0x8c4Ea5dAC01E2E8Fb67F50201Aa2e10A6949C58D", token:"0xf140a92C156e76F5A1d3D6f96284b250330F8F4c",
-    quoteIsToken0:true, quoteDec:18, baseDec:18, quoteSym:"DAI", poolName:"gLGNS / DAI",
-    explorer:"https://browser.anubispace.org", source:"Anubis 链上 gLGNS/DAI 池" },
-  { key:"flgns", name:"fLGNS", chain:"Anubis", chainTag:"ANB", chainId:6714, badge:"f", bg:"#7dd3fc",
-    rpcs:["https://rpc.anubispace.org"],
-    pair:"0x4171222dfb000f1b9a2e7fb9c213f3b7c656ba9f", token:"0xffFfBe730E2CdE54D8928D36F547e41DEb66Aaaa",
-    quoteIsToken0:true, quoteDec:9, baseDec:18, quoteSym:"LGNS", quoteRefKey:"anubis_lgns", poolName:"fLGNS / LGNS",
-    explorer:"https://browser.anubispace.org", source:"Anubis 链上 fLGNS/LGNS 池 · 经 LGNS 价换算",
-    note:"fLGNS（Fun Longinus）为第三方 Funverse 生态代币，与起源官方无关。此价取自其 fLGNS/LGNS 交易池储备，并用 ANB LGNS 的美元价换算得出；该池深度有限、可能被操纵，价格仅供参考。" }
+    gecko:"https://api.geckoterminal.com/api/v2/networks/polygon_pos/pools/0x882df4B0fB50a229C3B4124EB18c759911485bFb" }
 ];
 var FX_URLS=["https://open.er-api.com/v6/latest/USD","https://api.exchangerate.host/latest?base=USD&symbols=CNY"];
 
