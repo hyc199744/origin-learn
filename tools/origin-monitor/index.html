@@ -145,15 +145,6 @@ button.go,.btn2{min-height:44px}
 .fcard .de{font-size:13px;color:var(--soft);line-height:1.6}
 .locked{position:relative}
 .locked .lockwrap{filter:blur(5px);pointer-events:none;user-select:none;opacity:.7}
-/* 未付费:工具台清单锁定(模糊+锁罩) */
-#mbShowcase{position:relative}
-.mbLockMask{display:none}
-body.mb-locked #mbGrid,body.mb-locked #mbCats,body.mb-locked #mbNote{filter:blur(7px);-webkit-filter:blur(7px);pointer-events:none;user-select:none;opacity:.5}
-body.mb-locked .mbLockMask{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:absolute;left:0;right:0;top:50px;bottom:0;z-index:6;padding:24px;background:linear-gradient(180deg,rgba(7,8,6,.35),rgba(7,8,6,.72))}
-.mbLockMask .mlk-ic{font-size:42px}
-.mbLockMask .mlk-t{font-size:18px;font-weight:800;color:var(--gold2);margin:9px 0 4px}
-.mbLockMask .mlk-s{font-size:13px;color:var(--soft);max-width:340px;line-height:1.7;margin:0 0 15px}
-.mbLockMask .mlk-b{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#2a1c05;border:none;border-radius:12px;padding:12px 26px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit}
 .lockmask{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;text-align:center;background:radial-gradient(circle at 50% 40%,rgba(14,16,14,.55),rgba(7,8,6,.82));border-radius:12px;padding:16px}
 .lockmask .lt{font-size:15px;color:var(--gold2);font-weight:800}
 .lockmask .ls{font-size:12.5px;color:var(--soft)}
@@ -252,7 +243,7 @@ body.mb-locked .mbLockMask{display:flex;flex-direction:column;align-items:center
 </style>
 <style>[data-lang]{display:none!important}html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}#langBtn{background:none;border:1px solid var(--line,#333);color:var(--dim,#8a94a1);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit;line-height:1.4;margin-left:auto}</style>
 </head>
-<body class="mb-locked">
+<body>
 <script>if(/[?&]embed=1/.test(location.search))document.body.classList.add('embed');</script>
 <style>body.embed .top{display:none!important}</style>
 <div class="wrap">
@@ -295,12 +286,6 @@ body.mb-locked .mbLockMask{display:flex;flex-direction:column;align-items:center
     <h3 class="mb-h" style="margin-top:24px"><span class="mb-num"><span data-lang="zh">分类</span><span data-lang="en">Categories</span></span><span data-lang="zh">六大链上能力</span><span data-lang="en">Six on-chain capability areas</span></h3>
     <div class="mb-cats" id="mbCats"></div>
     <div class="mb-note" id="mbNote"><span data-lang="zh">会员可使用<b style="color:#f0c48c">已经上线</b>的工具，并按页面标注查看后续工具开放进度。不代表付款后立即使用全部 34 项。</span><span data-lang="en">Members can use tools marked <b style="color:#f0c48c">Live</b>, and track upcoming tools by their status. It does not mean all tools are usable immediately after paying.</span></div>
-    <div class="mbLockMask" id="mbLockMask">
-      <div class="mlk-ic">🔒</div>
-      <div class="mlk-t"><span data-lang="zh">工具清单会员专属</span><span data-lang="en">Tool list is members-only</span></div>
-      <div class="mlk-s"><span data-lang="zh">付费解锁后即可查看并使用全部 34 项链上工具。</span><span data-lang="en">Unlock to view and use all 34 on-chain tools.</span></div>
-      <button class="mlk-b" id="mbLockBuy" type="button"><span data-lang="zh">🔓 支付 10 LGNS 解锁</span><span data-lang="en">🔓 Pay 10 LGNS to unlock</span></button>
-    </div>
   </div>
 
   <div id="gate"></div>
@@ -500,7 +485,6 @@ function unlockUI(){
    var mn=document.getElementById('mbNote');if(mn)mn.innerHTML='<b style="color:#7bffb0">'+L('已解锁','Unlocked')+'</b>'+L('：绿色「已上线」点击即可进入对应独立工具；蓝色「即将上线」/橙色「开发中」会按进度陆续开放。',': green Live items open the standalone tool on click; blue Soon / orange In-dev unlock progressively.');
    var ms=document.getElementById('mbShowcase');if(ms){ms.style.borderTop='1px solid rgba(37,201,111,.3)';ms.style.paddingTop='6px';}
    var ss=document.getElementById('mbSearchWrap');if(ss)ss.style.display='';  // 付款后显示工具搜索
-   document.body.classList.remove('mb-locked');  // 解锁工具台清单
  }catch(e){}
 }
 async function checkAccess(){
@@ -849,7 +833,6 @@ document.getElementById('btn').onclick=run;
 document.getElementById('addr').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
 document.querySelectorAll('.ex').forEach(el=>el.onclick=e=>{e.preventDefault();document.getElementById('addr').value=el.dataset.a;run();});
 (function(){var hu=document.getElementById('heroUnlock');if(hu)hu.onclick=openPay;})();
-(function(){var lb=document.getElementById('mbLockBuy');if(lb)lb.onclick=openPay;})();
 checkAccess();
 </script>
 <script>
