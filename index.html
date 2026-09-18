@@ -672,7 +672,6 @@ const TOOLS=[{"i":"&#128142;","t":"起源百宝箱","d":"输入一个钱包地�
 window.renderTools=function(){var _al=document.getElementById("altars");if(!_al)return;var L=window.SITE_LANG||"zh";var pk=(L==="zh")?null:(window.PACKS&&(window.PACKS[L]||window.PACKS.en));_al.innerHTML=TOOLS.map(function(t,idx){var d=(L==="zh")?t:((pk&&pk.tools&&pk.tools[idx])?pk.tools[idx]:t.en);return "<div class=\"altar\" data-fn=\""+t.fn+"\"><div class=\"ic\">"+t.i+"</div><h3>"+d.t+"</h3><p>"+d.d+"</p><div class=\"go\">"+d.go+" &#10142;</div></div>";}).join("");};
 window.openWithdraw=function(){location.href='/tools/onchain-withdraw/';}
 window.openMonitor=function(){location.href='/tools/origin-monitor/';};
-window.openReferrer=function(){location.href='/tools/origin-monitor/?from=referrer';};
 window.renderTools();
 document.getElementById('altars').addEventListener('click',function(e){var a=e.target.closest('.altar');if(!a)return;var fn=a.dataset.fn;if(fn&&typeof window[fn]==='function')window[fn]();});
 
