@@ -137,9 +137,6 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   <div id="list"></div>
   <div class="empty" id="empty" style="display:none"><span data-lang="zh">该时段暂无大额成交（行情平淡时大单本就少）。</span><span data-lang="en">No large trades in this window (whale trades are rare when the market is quiet).</span></div>
 
-  <div class="note">
-    <span data-lang="zh"><b style="color:var(--soft)">口径与核实</b>：本页展示 LGNS/DAI 主池折合金额较大的成交，来自 VPS 大额监控（GeckoTerminal 成交源，与 TG 大单播报同一来源），可按<b>今天 / 近7天 / 近30天</b>查看、也可<b>选具体某一天</b>（保留近30天），并切买/卖，列表按时间倒序、按天分组。<b>买入</b>=有人用 DAI 买 LGNS；<b>卖出</b>=有人把 LGNS 换回 DAI。每笔点「查看交易」可在 Polygonscan 看原始交易与钱包。数据随成交实时累积，最长保留近 30 天。</span><span data-lang="en"><b style="color:var(--soft)">Scope &amp; verification</b>: this page shows LGNS/DAI main-pool trades with a large converted value, from the VPS whale monitor (GeckoTerminal trade feed, same source as the TG whale alerts). View by <b>Today / 7d / 30d</b> or pick <b>a specific day</b> (last 30 days kept), toggle buy/sell; the list is newest-first and grouped by day. <b>Buy</b> = someone bought LGNS with DAI; <b>Sell</b> = someone swapped LGNS back to DAI. Click "View tx" on any row to see the raw transaction and wallet on Polygonscan. Data accumulates in real time and is kept for up to 30 days.</span>
-  </div>
   <div class="foot"><span data-lang="zh">数据源：LGNS 主池链上成交（Polygon）· 纯只读 · 不连钱包不签名</span><span data-lang="en">Source: LGNS main-pool on-chain trades (Polygon) · read-only · no wallet, no signature</span></div>
 </div>
 
