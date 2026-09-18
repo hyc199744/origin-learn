@@ -49,12 +49,12 @@
     { id: 'referrer', number: 1, name: '推荐人查询', en: {"name":"Referrer Lookup","description":"Check a wallet’s direct referrer, bind time, chain and on-chain proof."}, category: 'wallet-id', icon: '🔗',
       description: '查询钱包的直接推荐人、绑定时间、所属链和链上凭证。',
       status: 'live', isPremium: true, route: '/?tool=openReferrer', enabled: true,
-      note: '首页 openReferrer 弹窗，已上线。' },
+      note: '首页 openReferrer→跳会员门控的百宝箱(?from=referrer),非会员见付费页。2026-09-18统一为10 LGNS会员专属(取消2 LGNS单独解锁入口)。' },
 
     { id: 'withdraw', number: 2, name: '链上提币 DApp', en: {"name":"On-chain Withdraw DApp","description":"Within contract rules, claim, redeem or withdraw via your own wallet."}, category: 'asset-staking', icon: '💸',
       description: '在符合合约规则的情况下，通过自己的钱包完成领取、赎回或提取。',
       status: 'live', isPremium: true, route: '/tools/onchain-withdraw/', enabled: true,
-      note: '独立工具页 /tools/onchain-withdraw/，已上线（需连钱包签名，能否执行以合约与权限为准）。' },
+      note: '独立工具页 /tools/onchain-withdraw/，已上线。2026-09-18加顶部会员门控:非会员打开直接跳付费页(?from=withdraw),统一10 LGNS会员(取消5 LGNS单独收费)。' },
 
     { id: 'whale', number: 3, name: '大额交易监控', en: {"name":"Whale Trade Monitor","description":"Track large buy and sell fills."}, category: 'trade-whale', icon: '🐋',
       description: '监控大额买入、卖出成交动态。',

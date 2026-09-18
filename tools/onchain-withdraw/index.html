@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<script>/* 会员门控:非会员直接跳付费页(与全站一致,10 LGNS 会员通用) */(function(){try{var t=localStorage.getItem("mon_access_v1")||"";var PAY="/tools/origin-monitor/?from=withdraw";if(!t){location.replace(PAY);return;}fetch("https://count.web3origin.com/mon/access?token="+encodeURIComponent(t)).then(function(r){return r.json();}).then(function(j){if(!(j&&j.ok))location.replace(PAY);}).catch(function(){});}catch(e){}})();</script>
 <script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>链上提币｜LGNS 链上操作工具 · Web3Origin</title>
