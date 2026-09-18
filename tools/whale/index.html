@@ -40,6 +40,28 @@ h1 span{color:var(--txt)}
 .dpi{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:8px 11px;font-size:13.5px;min-height:40px}
 .dpi::-webkit-calendar-picker-indicator{filter:invert(.7) sepia(1) saturate(3) hue-rotate(5deg)}
 .dpc{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:9px;padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;min-height:40px}
+.datepick{position:relative}
+.dpr{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:3px}
+.dpf{background:transparent;border:0;color:var(--dim);font:inherit;font-size:13.5px;padding:7px 13px;border-radius:8px;cursor:pointer;min-width:92px;text-align:center;min-height:36px}
+.dpf.set{color:var(--gold2);font-weight:700}
+.dpf.act{background:rgba(212,175,55,.15);color:var(--gold2)}
+.dpdash{color:var(--dim);font-size:13px}
+.cal{position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:0 18px 44px rgba(0,0,0,.55);width:296px;max-width:calc(100vw - 30px)}
+.cal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.cal-h b{color:var(--gold2);font-size:14px}
+.cal-nav{background:var(--panel2);border:1px solid var(--line);color:var(--gold2);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;line-height:1}
+.cal-nav:disabled{opacity:.3;cursor:default}
+.cal-w{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px}
+.cal-w span{text-align:center;font-size:11px;color:var(--dim);padding:3px 0}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-d{aspect-ratio:1;display:grid;place-items:center;border-radius:8px;font-size:13px;color:var(--txt);cursor:pointer;font-variant-numeric:tabular-nums;user-select:none}
+.cal-d:hover{background:rgba(212,175,55,.14)}
+.cal-d.off,.cal-d.dis{color:var(--dim);opacity:.35;cursor:default}
+.cal-d.off:hover,.cal-d.dis:hover{background:transparent}
+.cal-d.inr{background:rgba(212,175,55,.13)}
+.cal-d.sel{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1205;font-weight:800}
+.cal-ft{display:flex;justify-content:flex-end;margin-top:8px}
+.cal-ft button{background:transparent;border:0;color:var(--gold2);font:inherit;font-size:12.5px;cursor:pointer}
 .trade{background:var(--panel);border:1px solid var(--line);border-left-width:4px;border-radius:12px;padding:13px 15px 12px;margin-bottom:11px}
 .trade.buy{border-left-color:var(--buy)}
 .trade.sell{border-left-color:var(--sell)}
@@ -97,9 +119,14 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
     <div class="tab" data-r="30d"><span data-lang="zh">近 30 天</span><span data-lang="en">30d</span></div>
   </div>
   <div class="datepick">
-    <span class="dpl"><span data-lang="zh">📅 按日期查</span><span data-lang="en">📅 By date</span></span>
-    <input type="date" id="dp" class="dpi">
-    <button id="dpClear" class="dpc" style="display:none"><span data-lang="zh">✕ 返回</span><span data-lang="en">✕ Back</span></button>
+    <span class="dpl"><span data-lang="zh">📅 日期筛选</span><span data-lang="en">📅 Date</span></span>
+    <div class="dpr">
+      <button type="button" class="dpf" id="dpStart"></button>
+      <span class="dpdash">—</span>
+      <button type="button" class="dpf" id="dpEnd"></button>
+    </div>
+    <button id="dpClear" class="dpc" style="display:none"><span data-lang="zh">清除</span><span data-lang="en">Clear</span></button>
+    <div class="cal" id="cal" style="display:none"></div>
   </div>
   <div class="tabs">
     <div class="tab on" data-f="all"><span data-lang="zh">全部</span><span data-lang="en">All</span></div>
@@ -121,15 +148,61 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
 (function(){
   "use strict";
   var WK='https://count.web3origin.com', MLS='mon_access_v1', MONTOKEN=null;
-  var ALL=[], filter='all', range='today', pickedDate=null, PRICE=0, RES=null, shownCount=0, lastSrc='live', lastLoadClock='';
+  var ALL=[], filter='all', range='today', startDate=null, endDate=null, calY=0, calM=0, actField='start', PRICE=0, RES=null, shownCount=0, lastSrc='live', lastLoadClock='';
   function isZh(){ return (document.documentElement.lang||'zh').toLowerCase().indexOf('zh')===0; }
   function L(zh,en){ return isZh()?zh:en; }
   function SP(zh,en){ return '<span data-lang="zh">'+zh+'</span><span data-lang="en">'+en+'</span>'; }
   function md(k){ return isZh()?(k.slice(5).replace('-','月')+'日'):k.slice(5); }
-  function clearPick(){ pickedDate=null; var dp=document.getElementById('dp'), c=document.getElementById('dpClear'); if(dp)dp.value=''; if(c)c.style.display='none'; }
+  function clearPick(){ startDate=null; endDate=null; actField='start'; var c=document.getElementById('dpClear'), cal=document.getElementById('cal'); if(c)c.style.display='none'; if(cal)cal.style.display='none'; updDp(); }
+  function calOpen(){ var c=document.getElementById('cal'); return !!(c&&c.style.display!=='none'); }
+  function updDp(){
+    var s=document.getElementById('dpStart'), e=document.getElementById('dpEnd');
+    if(s){ s.innerHTML=startDate?md(startDate):SP('开始日期','Start'); s.classList.toggle('set',!!startDate); s.classList.toggle('act',actField==='start'&&calOpen()); }
+    if(e){ e.innerHTML=endDate?md(endDate):SP('结束日期','End'); e.classList.toggle('set',!!endDate); e.classList.toggle('act',actField==='end'&&calOpen()); }
+  }
+  function bjKeyOff(days){ return bjDateKey(Math.floor(Date.now()/1000)+days*86400); }
+  function openCal(field){
+    actField=field||'start'; var c=document.getElementById('cal'); if(!c)return;
+    var jump=(field==='end'&&endDate)?endDate:(startDate||bjDateKey(Math.floor(Date.now()/1000)));
+    calY=+jump.slice(0,4); calM=+jump.slice(5,7)-1; c.style.display=''; renderCal(); updDp();
+  }
+  function renderCal(){
+    var c=document.getElementById('cal'); if(!c)return;
+    var maxK=bjDateKey(Math.floor(Date.now()/1000)), minK=bjKeyOff(-29);
+    var first=new Date(calY,calM,1), lead=first.getDay(), dim=new Date(calY,calM+1,0).getDate();
+    var mn=isZh()?(calM+1)+'月':['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][calM];
+    var wk=isZh()?['日','一','二','三','四','五','六']:['Su','Mo','Tu','We','Th','Fr','Sa'];
+    var mk=calY+'-'+String(calM+1).padStart(2,'0');
+    var atMax=(mk>=maxK.slice(0,7)), atMin=(mk<=minK.slice(0,7));
+    var h='<div class="cal-h"><button class="cal-nav" id="calPrev"'+(atMin?' disabled':'')+'>‹</button><b>'+mn+' '+calY+'</b><button class="cal-nav" id="calNext"'+(atMax?' disabled':'')+'>›</button></div>';
+    h+='<div class="cal-w">'+wk.map(function(w){return '<span>'+(isZh()?'周'+w:w)+'</span>';}).join('')+'</div><div class="cal-g">';
+    for(var i=0;i<lead;i++) h+='<div class="cal-d off"></div>';
+    for(var d=1;d<=dim;d++){
+      var key=mk+'-'+String(d).padStart(2,'0');
+      var dis=(key<minK||key>maxK), sel=(key===startDate||key===endDate), inr=(startDate&&endDate&&key>startDate&&key<endDate);
+      h+='<div class="cal-d'+(dis?' dis':'')+(sel?' sel':'')+(inr?' inr':'')+'" data-k="'+key+'">'+d+'</div>';
+    }
+    h+='</div><div class="cal-ft"><button id="calDone">'+L('完成','Done')+'</button></div>';
+    c.innerHTML=h;
+    var p=document.getElementById('calPrev'), n=document.getElementById('calNext');
+    if(p&&!atMin)p.onclick=function(){calM--;if(calM<0){calM=11;calY--;}renderCal();};
+    if(n&&!atMax)n.onclick=function(){calM++;if(calM>11){calM=0;calY++;}renderCal();};
+    document.getElementById('calDone').onclick=function(){ c.style.display='none'; updDp(); };
+    c.querySelectorAll('.cal-d[data-k]').forEach(function(el){ if(el.classList.contains('dis'))return; el.onclick=function(){ pickDay(el.getAttribute('data-k')); }; });
+  }
+  function pickDay(key){
+    if(!startDate || (startDate&&endDate)){ startDate=key; endDate=null; actField='end'; }
+    else if(key<startDate){ endDate=startDate; startDate=key; }
+    else { endDate=key; }
+    document.querySelectorAll('.tab[data-r]').forEach(function(x){x.classList.remove('on');});
+    var c=document.getElementById('dpClear'); if(c)c.style.display='';
+    renderCal(); render(); refreshStatus();
+    if(startDate&&endDate){ var cal=document.getElementById('cal'); if(cal)cal.style.display='none'; }
+    updDp();
+  }
   function refreshStatus(){
     var st=document.getElementById('status'); if(!st) return;
-    var rlab=pickedDate?md(pickedDate):(range==='7d'?L('近7天','7d'):range==='30d'?L('近30天','30d'):L('今天','today'));
+    var rlab=(startDate||endDate)?((startDate?md(startDate):'…')+'~'+(endDate?md(endDate):L('今','now'))):(range==='7d'?L('近7天','7d'):range==='30d'?L('近30天','30d'):L('今天','today'));
     st.innerHTML='<span class="dot"></span>'+L('✓ ','✓ ')+(lastSrc==='live'?L('实时','live'):L('今日','today'))+L('大额成交 · ',' whale trades · ')+rlab+' <b style="color:var(--gold2)">'+shownCount+'</b>'+L(' 笔 · 自动刷新中 · ',' · auto-refresh · ')+lastLoadClock;
   }
   var EX='https://polygonscan.com/tx/', EXA='https://polygonscan.com/address/';
@@ -170,9 +243,10 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   function renderSummary(){
     var box=document.getElementById('summary'); var html='';
     // 📊 大额统计:选了某天=统计那天,否则=今日(北京0点起)
-    var dayKey=pickedDate||bjDateKey(Math.floor(Date.now()/1000));
-    var dayTitle=pickedDate?md(dayKey):L('今日','Today');
-    var day=ALL.filter(function(x){ return bjDateKey(x.ts||0)===dayKey; });
+    var hasR=(startDate||endDate);
+    var todayKey=bjDateKey(Math.floor(Date.now()/1000));
+    var dayTitle=hasR?((startDate?md(startDate):'…')+' ~ '+(endDate?md(endDate):L('今','now'))):L('今日','Today');
+    var day=hasR?ALL.filter(function(x){var k=bjDateKey(x.ts||0);return (!startDate||k>=startDate)&&(!endDate||k<=endDate);}):ALL.filter(function(x){ return bjDateKey(x.ts||0)===todayKey; });
     var buys=day.filter(function(x){return x.dir==='buy';}), sells=day.filter(function(x){return x.dir==='sell';});
     var bd=buys.reduce(function(s,x){return s+(x.dai||0);},0), sd=sells.reduce(function(s,x){return s+(x.dai||0);},0);
     var tot=bd+sd, bp=tot>0?(bd/tot*100):50, sp=100-bp;
@@ -204,14 +278,16 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
   }
   function render(){
     renderSummary();
-    var rs=rangeStart();
+    var rs=rangeStart(); var hasR=(startDate||endDate);
     var arr=ALL.filter(function(t){
-      var inView=pickedDate?(bjDateKey(t.ts||0)===pickedDate):((t.ts||0)>=rs);
+      var inView;
+      if(hasR){ var k=bjDateKey(t.ts||0); inView=(!startDate||k>=startDate)&&(!endDate||k<=endDate); }
+      else{ inView=((t.ts||0)>=rs); }
       return inView && (filter==='all' || t.dir===filter);
     });
     shownCount=arr.length;
     var list=document.getElementById('list'), empty=document.getElementById('empty');
-    if(!arr.length){ list.innerHTML=''; empty.textContent=pickedDate?L('该日无大额成交记录（仅保留近 30 天）。','No large trades on this day (only the last 30 days are kept).'):L('该时段暂无大额成交（行情平淡时大单本就少）。','No large trades in this window (whale trades are rare when the market is quiet).'); empty.style.display='block'; return; }
+    if(!arr.length){ list.innerHTML=''; empty.textContent=hasR?L('该时段无大额成交记录（仅保留近 30 天）。','No large trades in this range (only the last 30 days are kept).'):L('该时段暂无大额成交（行情平淡时大单本就少）。','No large trades in this window (whale trades are rare when the market is quiet).'); empty.style.display='block'; return; }
     empty.style.display='none';
     // 按天分组(北京),组内已按时间倒序(ALL 已排序)
     var html='', curKey=null, bucket=[];
@@ -260,12 +336,14 @@ body.locked .wrap{filter:blur(6px);pointer-events:none;user-select:none}
     document.querySelectorAll('.tab[data-r]').forEach(function(t){ t.onclick=function(){ document.querySelectorAll('.tab[data-r]').forEach(function(x){x.classList.remove('on');}); t.classList.add('on'); range=t.dataset.r; clearPick(); render(); refreshStatus(); }; });
     // 买/卖切换
     document.querySelectorAll('.tab[data-f]').forEach(function(t){ t.onclick=function(){ document.querySelectorAll('.tab[data-f]').forEach(function(x){x.classList.remove('on');}); t.classList.add('on'); filter=t.dataset.f; render(); refreshStatus(); }; });
-    // 按日期查:限定近30天内可选
-    var dp=document.getElementById('dp'), dpClear=document.getElementById('dpClear');
-    if(dp){ var todayK=bjDateKey(Math.floor(Date.now()/1000)), minK=bjDateKey(Math.floor(Date.now()/1000)-29*86400); dp.max=todayK; dp.min=minK;
-      dp.onchange=function(){ if(!dp.value){ clearPick(); render(); refreshStatus(); return; } pickedDate=dp.value; document.querySelectorAll('.tab[data-r]').forEach(function(x){x.classList.remove('on');}); dpClear.style.display=''; render(); refreshStatus(); };
-    }
-    if(dpClear){ dpClear.onclick=function(){ clearPick(); var d=document.querySelector('.tab[data-r="today"]'); if(d)d.classList.add('on'); range='today'; render(); refreshStatus(); }; }
+    // 日期区间选择(自绘日历,限定近30天内可选)
+    var dpStart=document.getElementById('dpStart'), dpEnd=document.getElementById('dpEnd'), dpClear=document.getElementById('dpClear');
+    if(dpStart){ dpStart.onclick=function(e){ e.stopPropagation(); openCal('start'); }; }
+    if(dpEnd){ dpEnd.onclick=function(e){ e.stopPropagation(); openCal('end'); }; }
+    if(dpClear){ dpClear.onclick=function(e){ e.stopPropagation(); clearPick(); var d=document.querySelector('.tab[data-r="today"]'); if(d)d.classList.add('on'); range='today'; render(); refreshStatus(); }; }
+    updDp();
+    // 点击日历外部关闭
+    document.addEventListener('click',function(e){ var cal=document.getElementById('cal'); if(!cal||cal.style.display==='none')return; if(cal.contains(e.target)||(dpStart&&dpStart.contains(e.target))||(dpEnd&&dpEnd.contains(e.target)))return; cal.style.display='none'; });
     document.getElementById('refresh').onclick=function(){ load(false); };
     load(false);
     // 自动刷新(实时同步):每30秒静默拉一次,与 @lgns_whale_bot(whale.py)扫链同频
