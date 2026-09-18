@@ -52,7 +52,6 @@ html.embed .upd{margin-top:6px}
 <div class="wrap">
   <h2 class="h">起源生态实时行情</h2>
   <div class="strip" id="strip"></div>
-  <div class="upd" id="upd"></div>
 </div>
 <script>
 "use strict";
@@ -122,8 +121,6 @@ function render(){
       '<div class="px"><span class="u">$</span>'+fmt(s.price)+'</div>'+taxHtml;
     box.appendChild(d);
   });
-  var now=new Date();
-  document.getElementById("upd").textContent="更新 "+String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0")+":"+String(now.getSeconds()).padStart(2,"0");
   reportH();
 }
 function reportH(){ try{ if(window.parent&&window.parent!==window){ var h=Math.ceil(Math.max(document.body.scrollHeight,document.documentElement.scrollHeight)); window.parent.postMessage({__mkt:1,h:h},"*"); } }catch(e){} }
