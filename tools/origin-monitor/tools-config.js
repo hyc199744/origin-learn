@@ -213,8 +213,8 @@
 
     { id: 'faq100', number: 34, name: '常见100个问题', en: {"name":"Origin FAQ · 100 Q&A","description":"100 common questions about Origin, LGNS and Anubis — basics, tokens, chain, wallet, trading, staking, governance, security, tools and on-chain verification, with search and category filter."}, category: 'data-evidence', icon: '❓',
       description: '起源/LGNS/Anubis 常见问题速查：基础/代币/链/钱包/买卖/质押/治理/安全/工具/核实，分类+搜索，答案可自行上链核对。',
-      status: 'live', isPremium: false, route: '/tools/faq100/', enabled: true,
-      note: '独立页 /tools/faq100/,110题分11类,纯前端(搜索+分类筛选),内容取自站内已核实事实/操作教程/安全知识,含防诈警示。免费公开,已上线。' }
+      status: 'live', isPremium: true, route: '/tools/faq100/', enabled: true,
+      note: '独立页 /tools/faq100/,110题分11类,纯前端(搜索+分类筛选),内容取自站内已核实事实/操作教程/安全知识,含防诈警示。2026-09-18改会员专属付费门控(body.locked+#gate,读/mon/access,与全站会员工具一致)。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----

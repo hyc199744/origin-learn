@@ -448,7 +448,18 @@
       .chapter { break-before: page; }
       .chapter:first-of-type { break-before: auto; }
     }
-  </style></head><body>
+    /* ===== 会员门控(与全站会员工具一致) ===== */
+    #gate{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(900px 500px at 50% 0%,rgba(214,168,75,.12),transparent),rgba(5,3,3,.97);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+    #gate.on{display:flex}
+    #gate .gb{max-width:440px;width:100%;text-align:center;background:radial-gradient(120% 130% at 85% -10%,rgba(214,168,75,.16),transparent 60%),#140f08;border:1px solid var(--line);border-radius:22px;padding:32px 24px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+    #gate .gic{font-size:44px}
+    #gate h3{font-size:21px;color:var(--gold);margin:12px 0 6px;font-weight:800}
+    #gate .gs{font-size:14px;color:var(--muted);line-height:1.8;margin:0 0 18px}
+    #gate .gc{display:inline-block;text-decoration:none;padding:14px 28px;border-radius:14px;font-weight:800;font-size:16px;color:#2a1c05;background:linear-gradient(180deg,var(--gold),var(--blue))}
+    #gate .gback{display:block;margin-top:14px;color:var(--muted);font-size:13px;text-decoration:none}
+    body.locked .progress,body.locked .backbar,body.locked .hero,body.locked main{filter:blur(7px);pointer-events:none;user-select:none}
+  </style></head><body class="locked">
+  <div id="gate" class="on"><div class="gb"><div class="gic">🔒</div><div class="gs" style="margin:12px 0 0">正在验证会员…</div></div></div>
   <div class="progress" id="progress"></div>
   <div class="backbar"><a href="/tools/origin-monitor/">← 起源百宝箱</a></div>
   <header class="hero">
@@ -687,6 +698,27 @@
     toTop.addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
     renderChips();
     render();
+  </script>
+  <script>
+  /* ===== 付费门控:未开通会员不可查看 ===== */
+  (function(){
+    var WK='https://count.web3origin.com', MLS='mon_access_v1';
+    var gate=document.getElementById('gate'), body=document.body;
+    function showGate(){
+      gate.innerHTML='<div class="gb"><div class="gic">🔒</div><h3>起源100问答 · 会员专属</h3>'
+        +'<div class="gs">开通 <b style="color:var(--gold)">10 LGNS 会员</b> 后即可查看全部 100 问答，全站工具一次通用。</div>'
+        +'<a class="gc" href="/tools/origin-monitor/">🔓 开通会员 · 10 LGNS 解锁全部工具</a>'
+        +'<a class="gback" href="/">← 返回主站</a></div>';
+      gate.classList.add('on');
+    }
+    function unlock(){ body.classList.remove('locked'); gate.classList.remove('on'); }
+    function tok(){ try{ return localStorage.getItem(MLS)||''; }catch(e){ return ''; } }
+    var t=tok();
+    if(!t){ showGate(); return; }
+    fetch(WK+'/mon/access?token='+encodeURIComponent(t)).then(function(x){return x.json();}).then(function(r){
+      if(r&&r.ok) unlock(); else showGate();
+    }).catch(showGate);
+  })();
   </script>
   <script defer src="/assets/analytics.js"></script>
 </body></html>
