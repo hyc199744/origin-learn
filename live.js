@@ -152,7 +152,9 @@
     +"#live-wrap .lv-chat-in button:disabled{opacity:.5}"
     +"#live-wrap .lv-nick{width:96px;background:#0b0906;border:1px solid var(--line);border-radius:6px;color:var(--soft);font:inherit;font-size:12px;padding:3px 7px}"
     +"#live-wrap #lv-like b{color:var(--grn2);margin-left:4px}"
-    +"#live-wrap .lv-rep-head{display:flex;align-items:center;gap:13px;margin-bottom:16px}"
+    +"#live-wrap .lv-rep-head{display:flex;align-items:center;gap:13px;margin-bottom:16px;flex-wrap:wrap}"
+    +"#live-wrap .lv-vidlink{margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border:1px solid var(--g);border-radius:999px;color:var(--glt);text-decoration:none;font-size:13.5px;font-weight:600;white-space:nowrap;transition:.2s;background:rgba(214,168,75,.07)}"
+    +"#live-wrap .lv-vidlink:hover,#live-wrap .lv-vidlink:focus{background:rgba(214,168,75,.16);transform:translateY(-1px);outline:none}"
     +"#live-wrap .lv-rep-ic{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,rgba(214,168,75,.22),rgba(214,168,75,.06));border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:21px}"
     +"#live-wrap .lv-rep-title{font-family:'STZhongsong',serif;font-size:20px;color:var(--glt);letter-spacing:.08em}"
     +"#live-wrap .lv-rep-desc{font-size:12.5px;color:var(--soft);margin-top:2px}"
@@ -419,7 +421,7 @@
     root.innerHTML='<div id="live-wrap">'
       +'<div class="lv-head"><div class="lv-eyebrow">'+esc(T.eyebrow)+'</div><h1>'+esc(T.page_title)+'</h1><div class="lv-sub">'+esc(T.subtitle)+'</div></div>'
       +'<div id="lv-body"><div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div></div>'
-      +'<div class="lv-section" id="lv-replays-sec" style="display:none"><div class="lv-rep-head"><div class="lv-rep-ic">🎧</div><div><div class="lv-rep-title">'+esc(T.replays_title)+'</div><div class="lv-rep-desc">'+esc(T.replays_sub)+'</div></div></div><div class="lv-rep-grid" id="lv-replays"></div></div>'
+      +'<div class="lv-section" id="lv-replays-sec" style="display:none"><div class="lv-rep-head"><div class="lv-rep-ic">🎧</div><div style="flex:1;min-width:0"><div class="lv-rep-title">'+esc(T.replays_title)+'</div><div class="lv-rep-desc">'+esc(T.replays_sub)+'</div></div><a class="lv-vidlink" href="/tools/video-replays/">🎬 '+esc(T.video_replays_title)+' →</a></div><div class="lv-rep-grid" id="lv-replays"></div></div>'
       +'<div class="lv-section"><div class="lv-card"><div class="lv-h3">🛡 '+esc(T.disclaimer_t)+'</div><div class="lv-disc"><ul>'+T.disc.map(function(d){return "<li>"+esc(d)+"</li>";}).join("")+'</ul></div></div>'
       +'<div class="lv-foot"><a class="lv-back" href="/">← '+(ZH?"返回起源首页":"Back to Origin home")+'</a></div></div>'
       +'</div>';
