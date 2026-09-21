@@ -1,8 +1,9 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
 <script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
-<script>(function(){try{var t=localStorage.getItem("mon_access_v1")||"";var PAY="/tools/origin-monitor/?from=videoreplays";if(!t){location.replace(PAY);return;}fetch("https://count.web3origin.com/mon/access?token="+encodeURIComponent(t)).then(function(r){return r.json();}).then(function(j){if(!(j&&j.ok))location.replace(PAY);}).catch(function(){});}catch(e){}})();</script>
+<!-- 会员门禁：暂时免费开放（老板2026-09-21：先免费养用户习惯，以后再收费）。要改回收费，把下面这行注释取消即可 -->
+<!-- <script>(function(){try{var t=localStorage.getItem("mon_access_v1")||"";var PAY="/tools/origin-monitor/?from=videoreplays";if(!t){location.replace(PAY);return;}fetch("https://count.web3origin.com/mon/access?token="+encodeURIComponent(t)).then(function(r){return r.json();}).then(function(j){if(!(j&&j.ok))location.replace(PAY);}).catch(function(){});}catch(e){}})();</script> -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>精品视频回放 · 会员专属 · Web3Origin</title>
+<title>精品视频回放 · Web3Origin</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="/assets/logo.png">
 <style>
@@ -55,7 +56,7 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
 <div class="wrap">
   <div class="hd"><span class="ic">🎬</span><div>
     <h1><span data-lang="zh">精品视频回放</span><span data-lang="en">Premium Video Replays</span></h1>
-    <div class="sub"><span data-lang="zh">带 PPT / 共享屏幕的直播课程录像，点击任意一节即可在本页观看。会员专属。</span><span data-lang="en">Recorded live sessions with slides / screen share. Tap any one to watch here. Members only.</span></div>
+    <div class="sub"><span data-lang="zh">带 PPT / 共享屏幕的直播课程录像，点击任意一节即可在本页观看。<b style="color:var(--green)">限时免费</b>。</span><span data-lang="en">Recorded live sessions with slides / screen share. Tap any one to watch here. <b style="color:var(--green)">Free for now</b>.</span></div>
   </div></div>
   <div id="list" class="grid"><div class="loading" data-lang="zh">正在加载视频回放…</div><div class="loading" data-lang="en">Loading video replays…</div></div>
 </div>

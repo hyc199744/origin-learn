@@ -216,10 +216,10 @@
       status: 'live', isPremium: true, route: '/tools/faq100/', enabled: true,
       note: '独立页 /tools/faq100/,110题分11类,纯前端(搜索+分类筛选),内容取自站内已核实事实/操作教程/安全知识,含防诈警示。2026-09-18改会员专属付费门控(body.locked+#gate,读/mon/access,与全站会员工具一致)。' },
 
-    { id: 'video-replays', number: 35, name: '精品视频回放', en: {"name":"Premium Video Replays","description":"Recorded live sessions with slides / screen share — watch the video replays in one place. Members only."}, category: 'data-evidence', icon: '🎬',
-      description: '带 PPT / 共享屏幕的直播课程录像，视频回放集中一处随时看。会员专属。',
-      status: 'live', isPremium: true, route: '/tools/video-replays/', enabled: true,
-      note: '独立页 /tools/video-replays/(会员专属),读 /live/replays 筛 kind=video,网格封面+弹层video播放。会员门禁同peg-video(mon_access_v1→/mon/access,非会员跳付款)。视频源=直播自动录制识别为有画面的场(rclone直传R2)。已上线。' }
+    { id: 'video-replays', number: 35, name: '精品视频回放', en: {"name":"Premium Video Replays","description":"Recorded live sessions with slides / screen share — watch the video replays in one place. Free for now."}, category: 'data-evidence', icon: '🎬',
+      description: '带 PPT / 共享屏幕的直播课程录像，视频回放集中一处随时看。限时免费。',
+      status: 'live', isPremium: false, route: '/tools/video-replays/', enabled: true,
+      note: '独立页 /tools/video-replays/,读 /live/replays 筛 kind=video,网格封面+弹层video播放。视频源=直播自动录制识别为有画面的场(rclone直传R2)。**2026-09-21老板改:暂时免费(养用户习惯,以后再收费)**——页面会员门禁已注释掉,isPremium改false去🔒;要收费=取消门禁注释+isPremium改true。已上线。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
