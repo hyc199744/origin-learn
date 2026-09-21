@@ -214,7 +214,12 @@
     { id: 'faq100', number: 34, name: '常见100个问题', en: {"name":"Origin FAQ · 100 Q&A","description":"100 common questions about Origin, LGNS and Anubis — basics, tokens, chain, wallet, trading, staking, governance, security, tools and on-chain verification, with search and category filter."}, category: 'data-evidence', icon: '❓',
       description: '起源/LGNS/Anubis 常见问题速查：基础/代币/链/钱包/买卖/质押/治理/安全/工具/核实，分类+搜索，答案可自行上链核对。',
       status: 'live', isPremium: true, route: '/tools/faq100/', enabled: true,
-      note: '独立页 /tools/faq100/,110题分11类,纯前端(搜索+分类筛选),内容取自站内已核实事实/操作教程/安全知识,含防诈警示。2026-09-18改会员专属付费门控(body.locked+#gate,读/mon/access,与全站会员工具一致)。' }
+      note: '独立页 /tools/faq100/,110题分11类,纯前端(搜索+分类筛选),内容取自站内已核实事实/操作教程/安全知识,含防诈警示。2026-09-18改会员专属付费门控(body.locked+#gate,读/mon/access,与全站会员工具一致)。' },
+
+    { id: 'video-replays', number: 35, name: '精品视频回放', en: {"name":"Premium Video Replays","description":"Recorded live sessions with slides / screen share — watch the video replays in one place. Members only."}, category: 'data-evidence', icon: '🎬',
+      description: '带 PPT / 共享屏幕的直播课程录像，视频回放集中一处随时看。会员专属。',
+      status: 'live', isPremium: true, route: '/tools/video-replays/', enabled: true,
+      note: '独立页 /tools/video-replays/(会员专属),读 /live/replays 筛 kind=video,网格封面+弹层video播放。会员门禁同peg-video(mon_access_v1→/mon/access,非会员跳付款)。视频源=直播自动录制识别为有画面的场(rclone直传R2)。已上线。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----

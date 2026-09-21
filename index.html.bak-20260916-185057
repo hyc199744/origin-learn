@@ -31,6 +31,8 @@
   "@graph":[
     {"@type":"Organization","@id":"https://web3origin.com/#org","name":"起源学习站 web3origin","alternateName":["Web3Origin","web3origin"],"url":"https://web3origin.com/","logo":"https://web3origin.com/assets/logo.png","description":"Web3Origin 是 Origin(起源)生态的链上数据查询与研究平台：合约验证、钱包体检、链上日报、链上证据库、新手百科，所有数据可在区块浏览器独立核实。","knowsAbout":["Origin","ORIGIN","LGNS","Anubis Chain","GLGNS","Awake DAO","DeFi","(3,3)","OlympusDAO fork","Polygon"]},
     {"@type":"WebSite","@id":"https://web3origin.com/#website","url":"https://web3origin.com/","name":"起源学习站","inLanguage":"zh-CN","publisher":{"@id":"https://web3origin.com/#org"}},
+    {"@type":"SoftwareApplication","name":"起源链上雷达 Origin On-chain Radar","applicationCategory":"FinanceApplication","operatingSystem":"Web","url":"https://web3origin.com/#radar","description":"实时展示 LGNS 行情、Anubis Chain 链状态、生态质押、国库、链上事件与鲸鱼动态的链上数据驾驶舱，数据可逐一核实。","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@id":"https://web3origin.com/#org"}},
+    {"@type":"Dataset","name":"Origin / LGNS / Anubis Chain 链上实时数据","description":"包含 LGNS 价格与 24h 涨跌、流通量、成交量、质押率、TVL、LP、国库市值、Anubis 链区块高度/地址数/交易数、链上大额成交等指标，数据源为起源官方后台、PolygonScan(Etherscan V2) 与 Anubis 区块浏览器。","url":"https://web3origin.com/#radar","creator":{"@id":"https://web3origin.com/#org"},"keywords":["LGNS","Origin","Anubis Chain","TVL","质押率","国库","链上数据"],"license":"https://web3origin.com/"},
     {"@type":"FAQPage","mainEntity":[
       {"@type":"Question","name":"起源(ORIGIN)是什么？","acceptedAnswer":{"@type":"Answer","text":"起源是一整个 Web3 生态的统称，核心代币是 LGNS(精度 9 位)，并自建了隐私公链 Anubis(Chain ID 6714，gas 用 DAI)。"}},
       {"@type":"Question","name":"LGNS 是什么？","acceptedAnswer":{"@type":"Answer","text":"LGNS 是起源生态的核心代币(算法代币)，精度 9 位不是 18，采用 (3,3) 质押模型，每 6 小时 rebase 增发发放质押奖励。治理代币是另一枚 GLGNS。"}},
@@ -314,7 +316,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 }
 </style>
 </head>
-<body data-page="home">
+<body>
 
 <!-- 背景层 -->
 <div class="bg"><img src="assets/bg.png" alt=""></div>
@@ -334,11 +336,13 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   <a class="brand" href="#home"><img src="assets/logo.png" alt=""><span data-i18n="brand">起源 · <b>入殿指南</b></span></a>
   <div class="links" id="navlinks">
     <a href="#home" class="on" data-i18n="n1">圣殿入口</a>
-    <a href="#market">实时行情</a>
+    <a href="#radar" data-i18n="n_radar">链上雷达</a>
     <a href="tools/origin-monitor/" class="nl-hl">🧰 起源百宝箱</a>
   </div>
   <div class="navtools">
+    <a class="nt-ic" href="search/" title="搜索 / Search" aria-label="搜索">🔍</a>
     <button id="langBtn" title="切换语言 / Language">EN</button>
+    <a class="nt-app" href="app/origin-download.html" title="下载 App">📱 <span data-i18n="n_app">下载App</span></a>
     <button id="mLang" aria-label="切换语言">EN</button>
     <button id="mBurger" aria-label="打开导航菜单" aria-expanded="false" aria-controls="mDrawer"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
   </div>
@@ -382,13 +386,36 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   <div class="scroll-hint" data-i18n="h_scroll">向 下 滚 动</div>
 </section>
 
-<!-- ══════ 起源生态实时行情(嵌入 /tools/market/) ══════ -->
-<section id="market" style="max-width:1120px;margin:0 auto;padding:26px 26px 6px">
-  <h2 style="font-family:var(--serif,'Noto Serif SC',serif);font-weight:700;font-size:22px;color:var(--bone,#f1dfc0);margin:0 0 14px">起源生态实时行情</h2>
-  <iframe id="mktFrame" src="tools/market/?embed=1" title="起源生态实时行情" scrolling="no" style="width:100%;border:0;height:120px;background:transparent;color-scheme:normal"></iframe>
+<!-- ══════ 起源链上雷达 Dashboard ══════ -->
+<section id="radar">
+  <div id="rdrBody">
+    <div class="rdr-head">
+      <div class="rdr-title">
+        <img class="rdr-mk" src="assets/logo.png" alt="">
+        <div>
+          <h2 id="rdrTitle">起源链上雷达 <em>Origin On-chain Radar</em></h2>
+          <p id="rdrSubt">实时追踪 LGNS、Anubis Chain 生态链上状态 · 数据可逐一核实</p>
+        </div>
+      </div>
+      <div class="rdr-meta">
+        <div><span id="rdrUpdLabel">数据更新：</span><span id="rdrUpd">加载中…</span></div>
+        <div class="rdr-net" id="rdrNet"><span class="rdr-dot ok"></span>Anubis 正常<span class="rdr-dot ok" style="margin-left:14px"></span>Polygon 正常</div>
+      </div>
+    </div>
+    <div class="rdr-cards" id="rdrCards"></div>
+    <div class="rdr-grid">
+      <div class="rdr-col">
+        <div class="rdr-panel"><h3 id="rdrH-feed"><span class="hi">⚡</span> 实时链上事件</h3><div id="rdrFeed"></div></div>
+        <div class="rdr-panel"><h3 id="rdrH-whale"><span class="hi">🐋</span> 鲸鱼动态</h3><div id="rdrWhale"></div></div>
+      </div>
+      <div class="rdr-col">
+        <div class="rdr-panel"><h3 id="rdrH-health"><span class="hi">💠</span> 生态健康指数</h3><div id="rdrHealth"></div></div>
+        <div class="rdr-panel"><h3 id="rdrH-risk"><span class="hi">⚠️</span> 链上风险雷达</h3><div id="rdrRisk"></div></div>
+      </div>
+    </div>
+    <p class="rdr-foot" id="rdrFoot">数据来源：起源官方后台 · PolygonScan(Etherscan V2) · Anubis 区块浏览器。健康指数为本站按公开链上指标机械计算的参考值，非官方评级，不构成投资建议。</p>
+  </div>
 </section>
-<style>@media(max-width:560px){#mktFrame{height:210px}}@media(max-width:430px){#market{padding-left:16px;padding-right:16px}}</style>
-<script>window.addEventListener("message",function(e){try{if(e&&e.data&&e.data.__mkt&&e.data.h>50){var f=document.getElementById("mktFrame");if(f)f.style.height=e.data.h+"px";}}catch(x){}});</script>
 
 <!-- ══════ 初识起源 ══════ -->
 <section id="intro">
@@ -475,6 +502,18 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
   </div>
 </section>
 
+<!-- ══════ 链上法器（工具）══════ -->
+<section id="tools">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center">
+      <div class="eyebrow" data-i18n="t_eye">Chapter IV · 法器</div>
+      <div class="sec-title"><img class="flip" src="assets/text-right.png" alt=""><h2 data-i18n="t_h2">链上法器</h2><img src="assets/text-right.png" alt=""></div>
+      <p class="sec-sub" data-i18n="t_sub">Web3 的好处是一切都能自己上链核对。这些法器帮你把"别人说的"变成"自己查到的"。</p>
+    </div>
+    <div class="altars reveal" id="altars"></div>
+    <div class="note" data-i18n="t_note">⚠️ 数据实时读自链上与官方接口，仅供参考；真正的交易 / 质押请在官方入口完成，务必<b style="color:var(--bone)">自己核对合约地址</b>，谨防钓鱼。</div>
+  </div>
+</section>
 
 <!-- ══════ 典籍导航（文章）══════ -->
 <section id="codex">
@@ -573,7 +612,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
     <a href="https://x.com/hyc199844" target="_blank" rel="noopener" style="color:var(--gold-lt);margin:0 10px">𝕏 Twitter</a>
     <a href="https://t.me/hyc199744" target="_blank" rel="noopener" style="color:var(--gold-lt);margin:0 10px">✈ Telegram</a>
   </div>
-  <div style="margin-bottom:12px;font-size:13px;line-height:2.2" data-i18n="ft_links">📺 <a href="live/" style="color:var(--gold-lt)">线上直播</a> · 🎞️ <a href="/tools/video-replays/" style="color:var(--gold-lt)">视频回放</a> · 🎬 <a href="live-cloud/" style="color:var(--gold-lt)">木火夜聊</a> · 📖 <a href="baike/lgns/" style="color:var(--gold-lt)">LGNS 是什么？核心代币完整介绍</a> · 📑 <a href="contracts/" style="color:var(--gold-lt)">起源合约地址大全</a> · ❓ <a href="faq/" style="color:var(--gold-lt)">常见问题</a> · 🏛️ <a href="about/" style="color:var(--gold-lt)">关于</a> · 🔍 <a href="sources/" style="color:var(--gold-lt)">数据来源</a> · 💬 <a href="feedback/" style="color:var(--gold-lt)">留言区</a> · ⚙️ <a href="baike/anubis-network/" style="color:var(--gold-lt)">Anubis网络配置</a> · 🪙 <a href="baike/what-is-glgns/" style="color:var(--gold-lt)">gLGNS是什么</a> · 🌱 <a href="baike/what-is-origin/" style="color:var(--gold-lt)">ORIGIN是什么</a> · 🔎 <a href="baike/is-origin-safe/" style="color:var(--gold-lt)">起源是不是资金盘</a> · ⛓️ <a href="baike/lgns-which-chain/" style="color:var(--gold-lt)">LGNS在哪条链</a> · 🧾 <a href="baike/how-to-check-tx/" style="color:var(--gold-lt)">如何查交易哈希</a> · 📐 <a href="about/methodology/" style="color:var(--gold-lt)">方法论</a> · 📋 <a href="about/editorial-policy/" style="color:var(--gold-lt)">编辑政策</a></div>
+  <div style="margin-bottom:12px;font-size:13px;line-height:2.2" data-i18n="ft_links">📺 <a href="live/" style="color:var(--gold-lt)">线上直播</a> · 🎬 <a href="live-cloud/" style="color:var(--gold-lt)">木火夜聊</a> · 📖 <a href="baike/lgns/" style="color:var(--gold-lt)">LGNS 是什么？核心代币完整介绍</a> · 📑 <a href="contracts/" style="color:var(--gold-lt)">起源合约地址大全</a> · ❓ <a href="faq/" style="color:var(--gold-lt)">常见问题</a> · 🏛️ <a href="about/" style="color:var(--gold-lt)">关于</a> · 🔍 <a href="sources/" style="color:var(--gold-lt)">数据来源</a> · 💬 <a href="feedback/" style="color:var(--gold-lt)">留言区</a> · ⚙️ <a href="baike/anubis-network/" style="color:var(--gold-lt)">Anubis网络配置</a> · 🪙 <a href="baike/what-is-glgns/" style="color:var(--gold-lt)">gLGNS是什么</a> · 🌱 <a href="baike/what-is-origin/" style="color:var(--gold-lt)">ORIGIN是什么</a> · 🔎 <a href="baike/is-origin-safe/" style="color:var(--gold-lt)">起源是不是资金盘</a> · ⛓️ <a href="baike/lgns-which-chain/" style="color:var(--gold-lt)">LGNS在哪条链</a> · 🧾 <a href="baike/how-to-check-tx/" style="color:var(--gold-lt)">如何查交易哈希</a> · 📐 <a href="about/methodology/" style="color:var(--gold-lt)">方法论</a> · 📋 <a href="about/editorial-policy/" style="color:var(--gold-lt)">编辑政策</a></div>
   <span data-i18n="ft_disc">内容仅供学习理解，不构成投资建议 · DYOR，自己查、自己懂、再决定</span><br>
   <span style="color:var(--muted);font-size:11px" data-i18n="ft_sub">动态素材取自起源官方页面 · 新手友好学习站</span>
   <div style="margin-top:16px;font-size:12.5px;color:var(--muted)"><span data-i18n="vc1">本页累计访问 </span><span id="vercount_value_page_pv" style="color:var(--gold-lt)">···</span><span data-i18n="vc2"> 次 · 独立访客 </span><span id="vercount_value_site_uv" style="color:var(--gold-lt)">···</span><span data-i18n="vc3"> 人</span></div>
@@ -586,6 +625,7 @@ footer .cn{font-family:var(--serif);color:var(--soft);font-size:15px;letter-spac
 <script src="contracts.js"></script>
 <script src="events.js"></script>
 <script src="tools.js"></script>
+<script src="radar.js"></script>
 <script defer src="/assets/analytics.js"></script><script defer src="/assets/appbar.js?v=1"></script><script defer src="/assets/player.js?v=10"></script>
 <script defer src="/assets/live-reminder.js"></script>
 <script>
@@ -669,7 +709,7 @@ window.renderFAQ();
 
 /* ————— 工具（祭坛器物）————— */
 const TOOLS=[{"i":"&#128142;","t":"起源百宝箱","d":"输入一个钱包地址，一次看全：双链 LGNS 资产、360/600 锁仓明细、DAO 等级与团队业绩、通用链上体检、推荐人绑定关系，还能连钱包链上提币，外加全网 V1-V6/大户/国库监控。一次解锁，永久使用。","go":"打开助手","fn":"openMonitor","en":{"t":"On-chain DD Assistant","d":"Enter one wallet address to see it all: dual-chain LGNS assets, 360/600 lock details, DAO level & team volume, general on-chain checkup, referrer binding — plus on-chain withdrawal and full V1-V6 / whale / treasury monitoring. Unlock once, use forever.","go":"Open"}},{"i":"&#128178;","t":"交易教程","d":"第一次买卖生态代币怎么操作，图文步骤站内看。","go":"看教程","fn":"openTutorial","en":{"t":"Trading Tutorial","d":"How to buy/sell ecosystem tokens for the first time — step-by-step with pictures, in-site.","go":"View tutorial"}},{"i":"&#128038;","t":"官方账号","d":"4 个官方 X 账号站内展示、可复制，认准别认假冒号。","go":"查看账号","fn":"openOfficial","en":{"t":"Official Accounts","d":"The 4 official X accounts, shown and copyable in-site — verify, don't fall for fakes.","go":"View accounts"}}];
-window.renderTools=function(){var _al=document.getElementById("altars");if(!_al)return;var L=window.SITE_LANG||"zh";var pk=(L==="zh")?null:(window.PACKS&&(window.PACKS[L]||window.PACKS.en));_al.innerHTML=TOOLS.map(function(t,idx){var d=(L==="zh")?t:((pk&&pk.tools&&pk.tools[idx])?pk.tools[idx]:t.en);return "<div class=\"altar\" data-fn=\""+t.fn+"\"><div class=\"ic\">"+t.i+"</div><h3>"+d.t+"</h3><p>"+d.d+"</p><div class=\"go\">"+d.go+" &#10142;</div></div>";}).join("");};
+window.renderTools=function(){var L=window.SITE_LANG||"zh";var pk=(L==="zh")?null:(window.PACKS&&(window.PACKS[L]||window.PACKS.en));document.getElementById("altars").innerHTML=TOOLS.map(function(t,idx){var d=(L==="zh")?t:((pk&&pk.tools&&pk.tools[idx])?pk.tools[idx]:t.en);return "<div class=\"altar\" data-fn=\""+t.fn+"\"><div class=\"ic\">"+t.i+"</div><h3>"+d.t+"</h3><p>"+d.d+"</p><div class=\"go\">"+d.go+" &#10142;</div></div>";}).join("");};
 window.openWithdraw=function(){location.href='/tools/onchain-withdraw/';}
 window.openMonitor=function(){location.href='/tools/origin-monitor/';};
 window.renderTools();
@@ -942,11 +982,11 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
     <button id="mClose" aria-label="关闭导航菜单">✕</button>
   </div>
   <div class="md-body">
-    <a class="md-item md-item-star" href="tools/origin-monitor/"><span class="ic">🔍</span><span class="lbl">起源百宝箱</span><span class="mb">35 项工具</span></a>
+    <a class="md-item md-item-star" href="tools/origin-monitor/"><span class="ic">🔍</span><span class="lbl">起源百宝箱</span><span class="mb">31 项工具</span></a>
     <a class="md-item" data-jump="home"><span class="ic">🏠</span><span class="lbl" data-i18n="md_home">首页</span></a>
+    <a class="md-item" data-jump="radar"><span class="ic">📡</span><span class="lbl" data-i18n="md_radar">链上雷达</span></a>
     <a class="md-item md-item-hl" href="news/"><span class="ic">📰</span><span class="lbl">最新资讯</span></a>
     <a class="md-item md-item-hl" href="live/"><span class="ic">📺</span><span class="lbl">线上直播</span></a>
-    <a class="md-item md-item-hl" href="/tools/video-replays/"><span class="ic">🎞️</span><span class="lbl">视频回放</span></a>
     <a class="md-item md-item-hl" href="live-cloud/"><span class="ic">🎬</span><span class="lbl">木火夜聊</span></a>
     <a class="md-item" href="video/"><span class="ic">🎬</span><span class="lbl" data-i18n="md_video">起源视频学院</span></a>
     <a class="md-item" href="feedback/"><span class="ic">💬</span><span class="lbl" data-i18n="md_fb">留言区 · 社区反馈</span></a>
@@ -964,7 +1004,16 @@ window.PACKS={en:{ui:EN,tools:TOOLS.map(function(t){return t.en;}),faqs:FAQS.map
       </div>
     </div>
 
-    <a class="md-item" href="tools/faq100/"><span class="ic">❓</span><span class="lbl">常见100个问题</span></a>
+    <div class="md-group">
+      <button class="md-item" aria-expanded="false" aria-controls="msub-learn"><span class="ic">📖</span><span class="lbl" data-i18n="md_learn">学习中心</span><svg class="arw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="md-sub" id="msub-learn">
+        <a data-jump="path" data-i18n="md_l1">新人学习路线</a>
+        <a data-jump="codex" data-i18n="md_l2">资料中心</a>
+        <a href="faq/" data-i18n="md_l3">常见问题</a>
+      </div>
+    </div>
+
+    <a class="md-item" href="articles/"><span class="ic">📄</span><span class="lbl" data-i18n="md_articles">研究文章</span></a>
     <a class="md-item" href="about/"><span class="ic">ℹ️</span><span class="lbl" data-i18n="md_about">关于 Web3Origin</span></a>
     <a class="md-item" data-jump="contact"><span class="ic">💬</span><span class="lbl" data-i18n="md_contact">加好友 / 联系</span></a>
   </div>

@@ -364,7 +364,7 @@
   }
   function showEnded(stage,replay){
     var c=state.course,cover=c&&safeCover(c.cover_url)?'<img class="lv-cover" src="'+esc(safeCover(c.cover_url))+'" alt="">':"";
-    var sub=ZH?"本场直播已结束。回放在下方分「视频回放」和「音频回放」两个专区，点开即可回看。":"This session has ended. Replays are below, split into Video and Audio sections — tap any one to watch.";
+    var sub=ZH?"本场直播已结束。音频回放在下方「往期回放」里，点开即可收听。":"This session has ended. Audio replays are available below in “Past Replays”.";
     stage.innerHTML='<div class="lv-overlay">'+cover+'<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:12px"><div style="font-size:34px">🌙</div><div class="lv-ovtitle">'+(ZH?"今日课程已结束":"Today's session has ended")+'</div><div class="lv-ovsub">'+esc(sub)+'</div></div></div>';
   }
   function showUnavailable(stage){
@@ -419,10 +419,7 @@
     root.innerHTML='<div id="live-wrap">'
       +'<div class="lv-head"><div class="lv-eyebrow">'+esc(T.eyebrow)+'</div><h1>'+esc(T.page_title)+'</h1><div class="lv-sub">'+esc(T.subtitle)+'</div></div>'
       +'<div id="lv-body"><div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div></div>'
-      +'<div class="lv-section" id="lv-replays-sec" style="display:none">'
-        +'<div class="lv-repblk" id="lv-repblk-video"><div class="lv-rep-head"><div class="lv-rep-ic">🎬</div><div><div class="lv-rep-title">'+esc(T.video_replays_title)+'</div><div class="lv-rep-desc">'+esc(T.video_replays_sub)+'</div></div></div><div class="lv-rep-grid" id="lv-replays-video"></div></div>'
-        +'<div class="lv-repblk" id="lv-repblk-audio" style="margin-top:26px"><div class="lv-rep-head"><div class="lv-rep-ic">🎧</div><div><div class="lv-rep-title">'+esc(T.audio_replays_title)+'</div><div class="lv-rep-desc">'+esc(T.audio_replays_sub)+'</div></div></div><div class="lv-rep-grid" id="lv-replays-audio"></div></div>'
-      +'</div>'
+      +'<div class="lv-section" id="lv-replays-sec" style="display:none"><div class="lv-rep-head"><div class="lv-rep-ic">🎧</div><div><div class="lv-rep-title">'+esc(T.replays_title)+'</div><div class="lv-rep-desc">'+esc(T.replays_sub)+'</div></div></div><div class="lv-rep-grid" id="lv-replays"></div></div>'
       +'<div class="lv-section"><div class="lv-card"><div class="lv-h3">🛡 '+esc(T.disclaimer_t)+'</div><div class="lv-disc"><ul>'+T.disc.map(function(d){return "<li>"+esc(d)+"</li>";}).join("")+'</ul></div></div>'
       +'<div class="lv-foot"><a class="lv-back" href="/">← '+(ZH?"返回起源首页":"Back to Origin home")+'</a></div></div>'
       +'</div>';
@@ -618,17 +615,14 @@
       if(sb)sb.addEventListener("click",function(e){e.stopPropagation();shareReplay(el.getAttribute("data-ticket"),el.getAttribute("data-title"));});
     })(cards[i]);}
   }
-  // 拆成两个专区:视频回放(有PPT/画面) + 音频回放(纯语音)
+  // 免费直播页只显示「音频回放」;视频回放为会员专属,在 /tools/video-replays/ 里看
   function renderReplays(list){
-    var sec=document.getElementById("lv-replays-sec");if(!sec)return;
+    var sec=document.getElementById("lv-replays-sec"),grid=document.getElementById("lv-replays");
+    if(!sec||!grid)return;
     state.replays=list||[];
-    var vg=document.getElementById("lv-replays-video"),ag=document.getElementById("lv-replays-audio");
-    if(!vg||!ag)return;
+    var auds=(list||[]).filter(function(c){return c&&c.play_url&&!(c.kind==="video"||c.kind==="embed");});
     sec.style.display="";
-    var vids=[],auds=[];
-    (list||[]).forEach(function(c){if(!c||!c.play_url)return;var k=(c.kind==="video"||c.kind==="embed")?"video":"audio";(k==="video"?vids:auds).push(c);});
-    fillGrid(vids,vg,T.no_video);
-    fillGrid(auds,ag,T.no_audio);
+    fillGrid(auds,grid,T.no_replays);
   }
   function shareReplay(tkt,label){
     if(!tkt)return;

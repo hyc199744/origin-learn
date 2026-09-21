@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<script>(function(){try{var t=localStorage.getItem("mon_access_v1")||"";var PAY="/tools/origin-monitor/?from=videoreplays";if(!t){location.replace(PAY);return;}fetch("https://count.web3origin.com/mon/access?token="+encodeURIComponent(t)).then(function(r){return r.json();}).then(function(j){if(!(j&&j.ok))location.replace(PAY);}).catch(function(){});}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>精品视频回放 · 会员专属 · Web3Origin</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/assets/logo.png">
+<style>
+:root{--ob:#050303;--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--ink:#e8d9be;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--green:#25C96F;--serif:"STZhongsong","Songti SC",Georgia,serif;--sans:"Microsoft YaHei","PingFang SC",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -8%,#0f2318,#050303 60%) fixed,#050303;color:var(--ink);font-family:var(--sans);line-height:1.7}
+.top{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.top a.back{display:flex;align-items:center;gap:8px;color:var(--soft);text-decoration:none;font-size:14px}
+.top a.back img{width:24px;height:24px}
+.top .sp{margin-left:auto}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 16px 70px}
+.hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:6px}
+.hd .ic{font-size:26px;line-height:1}
+h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(--serif);letter-spacing:.04em}
+.sub{color:var(--soft);font-size:13.5px;margin:4px 0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:.2s;text-align:left}
+.card:hover,.card:focus{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 14px 32px rgba(0,0,0,.4);outline:none}
+.card .thumb{position:relative;width:100%;aspect-ratio:16/9;background:#000 center/cover no-repeat}
+.card .thumb .pl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.card .thumb .pl span{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold-lt),#b8842f);color:#1a1206;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 6px 18px rgba(214,168,75,.4);transition:.2s}
+.card:hover .thumb .pl span{transform:scale(1.08)}
+.card .thumb .dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.72);color:#fff;font-size:11.5px;padding:2px 7px;border-radius:6px;font-variant-numeric:tabular-nums}
+.card .cb{padding:11px 13px 13px}
+.card .ct{font-size:14.5px;color:var(--bone);font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .cm{margin-top:5px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.card .tag{font-size:10.5px;padding:2px 7px;border-radius:999px;background:rgba(118,255,54,.12);color:var(--green);border:1px solid rgba(37,201,111,.4);font-weight:600}
+.card .pv{color:var(--gold);font-weight:700}
+.empty,.loading{text-align:center;color:var(--muted);padding:48px 16px;font-size:14px}
+/* modal */
+.modal{position:fixed;inset:0;z-index:9999;background:rgba(3,5,4,.88);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.on{display:flex}
+.mbox{width:min(1040px,96vw);background:#0b0906;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6);display:flex;flex-direction:column;max-height:94vh}
+.mhd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 15px;border-bottom:1px solid var(--line)}
+.mhd .t{font-family:var(--serif);font-size:15.5px;color:var(--gold-lt);line-height:1.4;min-width:0;word-break:break-word}
+.mhd .x{flex:0 0 auto;cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:6px 11px;font:inherit;font-size:14px}
+.mhd .x:hover{border-color:var(--gold);color:var(--gold-lt)}
+.mstage{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.mstage video,.mstage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+@media(max-width:600px){.modal{padding:0}.mbox{width:100vw;height:100vh;max-height:100vh;border-radius:0;border:0;justify-content:center}}
+[data-lang]{display:none!important}html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+</style>
+</head><body>
+<div class="top">
+  <a class="back" href="/tools/origin-monitor/"><img src="/assets/logo.png" alt=""><span data-lang="zh">← 返回起源百宝箱</span><span data-lang="en">← Back to Toolbox</span></a>
+  <span class="sp"></span>
+  <button id="langBtn" aria-label="Language">🌐</button>
+</div>
+<div class="wrap">
+  <div class="hd"><span class="ic">🎬</span><div>
+    <h1><span data-lang="zh">精品视频回放</span><span data-lang="en">Premium Video Replays</span></h1>
+    <div class="sub"><span data-lang="zh">带 PPT / 共享屏幕的直播课程录像，点击任意一节即可在本页观看。会员专属。</span><span data-lang="en">Recorded live sessions with slides / screen share. Tap any one to watch here. Members only.</span></div>
+  </div></div>
+  <div id="list" class="grid"><div class="loading" data-lang="zh">正在加载视频回放…</div><div class="loading" data-lang="en">Loading video replays…</div></div>
+</div>
+
+<div class="modal" id="modal"><div class="mbox">
+  <div class="mhd"><span class="t" id="mtitle"></span><button class="x" id="mclose" aria-label="close">✕</button></div>
+  <div class="mstage" id="mstage"></div>
+</div></div>
+
+<script>
+(function(){
+  var API="https://count.web3origin.com";
+  var ZH=(document.documentElement.lang||"zh").slice(0,2)==="zh";
+  var list=document.getElementById("list");
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+  function two(n){return (n<10?"0":"")+n;}
+  function fmtClock(ts){if(!ts)return"";var d=new Date(ts*1000);return d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate())+" "+two(d.getHours())+":"+two(d.getMinutes());}
+  function fmtDur(s){s=parseInt(s,10)||0;if(!s)return"";var m=Math.round(s/60);if(m<60)return m+(ZH?" 分钟":" min");var h=Math.floor(m/60),mm=m%60;return h+(ZH?" 小时":"h")+(mm?(" "+mm+(ZH?" 分":"m")):"");}
+  function safeUrl(u){u=String(u||"");return /^https:\/\//i.test(u)?u:"";}
+  function safeCover(u){u=String(u||"");return /^https:\/\//i.test(u)?u:"";}
+
+  var modal=document.getElementById("modal"),mstage=document.getElementById("mstage"),mtitle=document.getElementById("mtitle");
+  function closeModal(){modal.classList.remove("on");mstage.innerHTML="";document.body.style.overflow="";}
+  document.getElementById("mclose").onclick=closeModal;
+  modal.addEventListener("click",function(e){if(e.target===modal)closeModal();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal();});
+  function openPlay(item){
+    var url=safeUrl(item.play_url);if(!url)return;
+    mtitle.textContent=item._label||"";
+    if(item.kind==="embed"){mstage.innerHTML='<iframe src="'+esc(url)+'" allow="autoplay;fullscreen;picture-in-picture;encrypted-media" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>';}
+    else{mstage.innerHTML='<video controls playsinline autoplay preload="metadata"'+(item.cover?' poster="'+esc(safeCover(item.cover))+'"':'')+'><source src="'+esc(url)+'" type="video/mp4"></video>';}
+    modal.classList.add("on");document.body.style.overflow="hidden";
+    if(item.ticket_id){try{fetch(API+"/live/replays/play?ticket="+encodeURIComponent(item.ticket_id),{method:"POST"}).catch(function(){});}catch(e){}}
+  }
+
+  function render(items){
+    if(!items.length){list.innerHTML='<div class="empty" style="grid-column:1/-1">'+esc(ZH?"暂无视频回放。带 PPT / 画面的课程录制后会自动出现在这里。":"No video replays yet. Sessions with slides/video will appear here after recording.")+'</div>';return;}
+    list.innerHTML="";
+    items.forEach(function(c){
+      var url=safeUrl(c.play_url);if(!url)return;
+      var cov=safeCover(c.cover),when=c.live_time?fmtClock(c.live_time):"",dur=fmtDur(c.duration),plays=Number(c.plays)||0;
+      c._label=when||(c.title||(ZH?"视频回放":"Video replay"));
+      var el=document.createElement("div");
+      el.className="card";el.setAttribute("tabindex","0");el.setAttribute("role","button");
+      el.innerHTML='<div class="thumb"'+(cov?' style="background-image:url(\''+esc(cov)+'\')"':'')+'><div class="pl"><span>▶</span></div>'+(dur?'<span class="dur">'+esc(dur)+'</span>':'')+'</div>'
+        +'<div class="cb"><div class="ct">'+esc(c._label)+'</div>'
+        +'<div class="cm"><span class="tag">'+(ZH?"▶ 视频":"▶ Video")+'</span><span class="pv">▶ '+plays+(ZH?" 次":"")+'</span></div></div>';
+      var go=function(){openPlay(c);};
+      el.addEventListener("click",go);
+      el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});
+      list.appendChild(el);
+    });
+  }
+
+  fetch(API+"/live/replays?limit=200").then(function(r){return r.json();}).then(function(r){
+    if(!r||!r.ok){render([]);return;}
+    var vids=(r.replays||[]).filter(function(c){return c&&c.play_url&&(c.kind==="video"||c.kind==="embed");});
+    render(vids);
+  }).catch(function(){list.innerHTML='<div class="empty" style="grid-column:1/-1">'+esc(ZH?"加载失败，稍后再试。":"Failed to load, try again later.")+'</div>';});
+})();
+</script>
+<script src="/i18n.js"></script>
+</body></html>
