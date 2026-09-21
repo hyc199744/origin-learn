@@ -97,12 +97,13 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
     items.forEach(function(c){
       var url=safeUrl(c.play_url);if(!url)return;
       var cov=safeCover(c.cover),when=c.live_time?fmtClock(c.live_time):"",dur=fmtDur(c.duration),plays=Number(c.plays)||0;
-      c._label=when||(c.title||(ZH?"视频回放":"Video replay"));
+      var ttl=String(c.title||"").trim();
+      c._label=ttl||when||(ZH?"视频回放":"Video replay");
       var el=document.createElement("div");
       el.className="card";el.setAttribute("tabindex","0");el.setAttribute("role","button");
       el.innerHTML='<div class="thumb"'+(cov?' style="background-image:url(\''+esc(cov)+'\')"':'')+'><div class="pl"><span>▶</span></div>'+(dur?'<span class="dur">'+esc(dur)+'</span>':'')+'</div>'
         +'<div class="cb"><div class="ct">'+esc(c._label)+'</div>'
-        +'<div class="cm"><span class="tag">'+(ZH?"▶ 视频":"▶ Video")+'</span><span class="pv">▶ '+plays+(ZH?" 次":"")+'</span></div></div>';
+        +'<div class="cm">'+((when&&ttl)?'<span>'+esc(when)+'</span>':'')+'<span class="tag">'+(ZH?"▶ 视频":"▶ Video")+'</span><span class="pv">▶ '+plays+(ZH?" 次":"")+'</span></div></div>';
       var go=function(){openPlay(c);};
       el.addEventListener("click",go);
       el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}});
