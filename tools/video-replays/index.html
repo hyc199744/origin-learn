@@ -55,6 +55,25 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
 .mstage{position:relative;width:100%;aspect-ratio:16/9;background:#000}
 .mstage video,.mstage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
 @media(max-width:600px){.modal{padding:0}.mbox{width:100vw;height:100vh;max-height:100vh;border-radius:0;border:0;justify-content:center}}
+/* 分享弹窗(样式B) */
+#sharemodal{z-index:10000}
+.sbox{width:min(360px,90vw);background:#0d0a06;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.shd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.shd .shdt{font-family:var(--serif);font-size:16px;color:var(--gold-lt)}
+.shd .sx{cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--bone);border-radius:8px;padding:5px 10px;font:inherit;font-size:14px}
+.shd .sx:hover{border-color:var(--gold);color:var(--gold-lt)}
+.sbd{padding:16px}
+.srow{display:flex;gap:12px;align-items:center}
+.sthumb{width:112px;flex:0 0 auto;aspect-ratio:16/9;border-radius:10px;background:#000 center/cover no-repeat;position:relative}
+.sthumb::after{content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--gold-lt);font-size:15px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.sinfo{min-width:0}
+.sinfo .sit{font-family:var(--serif);font-size:15px;color:var(--bone);font-weight:600;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.sinfo .sim{font-size:12px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+.sacts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.sbtn{display:flex;align-items:center;justify-content:center;gap:7px;padding:12px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid var(--line);color:var(--bone);background:rgba(255,255,255,.03);transition:.15s}
+.sbtn.gold{background:linear-gradient(135deg,var(--gold-lt),#b8842f);color:#1a1206;border:0}
+.sbtn.wx{background:rgba(37,201,111,.14);border:1px solid rgba(37,201,111,.5);color:var(--green)}
+.sbtn:hover{filter:brightness(1.07)}
 [data-lang]{display:none!important}html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
 </style>
 </head><body>
@@ -77,6 +96,14 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
 </div></div>
 <div class="toast" id="toast"></div>
 
+<div class="modal" id="sharemodal"><div class="sbox">
+  <div class="shd"><span class="shdt"><span data-lang="zh">分享这节课</span><span data-lang="en">Share</span></span><button class="sx" id="sclose" aria-label="close">✕</button></div>
+  <div class="sbd">
+    <div class="srow"><div class="sthumb" id="sthumb"></div><div class="sinfo"><div class="sit" id="stitle"></div><div class="sim" id="smeta"></div></div></div>
+    <div class="sacts"><button class="sbtn gold" id="scopy" type="button">🔗 <span data-lang="zh">复制链接</span><span data-lang="en">Copy link</span></button><button class="sbtn wx" id="swx" type="button">💬 <span data-lang="zh">发到微信</span><span data-lang="en">WeChat</span></button></div>
+  </div>
+</div></div>
+
 <script>
 (function(){
   var API="https://count.web3origin.com";
@@ -94,18 +121,39 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
   function closeModal(){modal.classList.remove("on");mstage.innerHTML="";document.body.style.overflow="";curItem=null;}
   document.getElementById("mclose").onclick=closeModal;
   modal.addEventListener("click",function(e){if(e.target===modal)closeModal();});
-  document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){if(sm&&sm.classList.contains("on"))closeShare();else closeModal();}});
   var toastEl=document.getElementById("toast"),toastT;
   function showToast(msg){toastEl.textContent=msg;toastEl.classList.add("on");clearTimeout(toastT);toastT=setTimeout(function(){toastEl.classList.remove("on");},2600);}
+  // 分享:弹出分享卡(封面+标题+复制链接/发到微信)
+  var shareItem=null;
+  var sm=document.getElementById("sharemodal");
+  var sthumb=document.getElementById("sthumb"),stitle=document.getElementById("stitle"),smeta=document.getElementById("smeta");
+  function shareLink(item){return location.origin+location.pathname+"?v="+encodeURIComponent((item&&item.ticket_id)||"");}
+  function closeShare(){sm.classList.remove("on");document.body.style.overflow=modal.classList.contains("on")?"hidden":"";}
   function shareVideo(item){
-    if(!item)return;
-    var link=location.origin+location.pathname+"?v="+encodeURIComponent(item.ticket_id||"");
-    var title=ZH?"起源视频回放":"Origin video replay";
-    var txt=(ZH?"🎬 起源课程视频回放 · ":"Origin class video · ")+(item._label||"");
-    if(navigator.share){navigator.share({title:title,text:txt,url:link}).catch(function(){});return;}
-    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(function(){showToast(ZH?"链接已复制，粘贴到微信发给好友即可观看":"Link copied");}).catch(function(){window.prompt(ZH?"复制此链接分享：":"Copy link:",link);});return;}
-    window.prompt(ZH?"复制此链接分享：":"Copy link:",link);
+    if(!item)return;shareItem=item;
+    var cov=safeCover(item.cover);
+    sthumb.style.backgroundImage=cov?("url('"+cov+"')"):"";
+    stitle.textContent=item._label||(ZH?"视频回放":"Video replay");
+    var when=item.live_time?fmtClock(item.live_time):"",dur=fmtDur(item.duration);
+    smeta.textContent=[when,dur].filter(Boolean).join(" · ");
+    sm.classList.add("on");document.body.style.overflow="hidden";
   }
+  document.getElementById("sclose").onclick=closeShare;
+  sm.addEventListener("click",function(e){if(e.target===sm)closeShare();});
+  document.getElementById("scopy").onclick=function(){
+    var link=shareLink(shareItem);
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(function(){showToast(ZH?"链接已复制，粘贴到微信发给好友即可观看":"Link copied");closeShare();}).catch(function(){window.prompt(ZH?"复制此链接分享：":"Copy link:",link);});}
+    else{window.prompt(ZH?"复制此链接分享：":"Copy link:",link);}
+  };
+  document.getElementById("swx").onclick=function(){
+    var link=shareLink(shareItem);
+    var title=ZH?"起源视频回放":"Origin video replay";
+    var txt=(ZH?"🎬 起源课程视频回放 · ":"Origin class video · ")+((shareItem&&shareItem._label)||"");
+    if(navigator.share){navigator.share({title:title,text:txt,url:link}).then(function(){closeShare();}).catch(function(){});return;}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(function(){showToast(ZH?"链接已复制，去微信粘贴发送给好友":"Link copied — paste in WeChat");closeShare();}).catch(function(){window.prompt(ZH?"复制此链接发到微信：":"Copy link:",link);});}
+    else{window.prompt(ZH?"复制此链接发到微信：":"Copy link:",link);}
+  };
   document.getElementById("mshare").onclick=function(){shareVideo(curItem);};
   function openPlay(item){
     var url=safeUrl(item.play_url);if(!url)return;
