@@ -120,87 +120,86 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
     var ic={g:"✓",r:"✕",a:"!",n:"·"}[level]||"·";
     return '<div class="item"><div class="dot '+level+'">'+ic+'</div><div class="tx"><div class="tt">'+esc(label)+(val?' <span class="val '+(vl||"")+'">'+esc(val)+'</span>':'')+'</div>'+(desc?'<div class="ds">'+esc(desc)+'</div>':'')+'</div></div>';
   }
-  function pct(v){v=Number(v);if(!isFinite(v))return null;return v;}
+  function pct(v){if(v===""||v==null)return null;v=Number(v);if(!isFinite(v))return null;return v;}
 
   function analyze(r){
-    var reds=0,ambers=0,H=[];
-    function push(level,label,val,vl,desc){if(level==="r")reds++;if(level==="a")ambers++;H.push({level:level,label:label,val:val,vl:vl,desc:desc,});}
-
+    // 每条=[level,label,val,valLevel,desc]; r红=真后门/骗局, a黄=中心化权限/需了解, g绿=好, n中性
     // ===== 交易 =====
     var trade=[];
     var honey=is1(r.is_honeypot)||is1(r.cannot_sell_all);
-    trade.push(["honey",honey?"r":"g","是否貔貅（买了卖不掉）",honey?"是·危险":"否",honey?"r":"g",honey?"检测到买入后无法卖出，典型骗局，别碰。":"可以正常卖出。"]);
+    trade.push([honey?"r":"g","是否貔貅（买了卖不掉）",honey?"是·危险":"否",honey?"r":"g",honey?"检测到买入后无法卖出，典型骗局，别碰。":"可以正常卖出。"]);
     var bt=pct(r.buy_tax),st=pct(r.sell_tax);
-    var taxV=((bt!=null?(bt*100).toFixed(bt*100%1?1:0):"?")+"% / "+(st!=null?(st*100).toFixed(st*100%1?1:0):"?")+"%");
-    var maxtax=Math.max(bt||0,st||0);
-    var taxL=maxtax>=0.10?"r":(maxtax>=0.05?"a":"g");
-    trade.push(["tax",taxL,"买入税 / 卖出税",taxV,taxL,maxtax>=0.10?"税极高（≥10%），进出成本很大，警惕。":maxtax>=0.05?"税偏高（5%~10%），注意成本。":"税正常。"]);
-    if(is1(r.cannot_buy)) trade.push(["cb","r","是否禁止买入","是",("r"),"当前无法买入。"]);
-    if(is1(r.trading_cooldown)) trade.push(["cd","a","交易冷却限制","有","a","两次交易之间有时间限制，可能影响买卖。"]);
-    if(is1(r.is_anti_whale)) trade.push(["aw","n","限购/限持（防巨鲸）","有","n","单笔或单账户有上限，本身中性。"]);
+    if(bt==null&&st==null){ trade.push(["n","买入税 / 卖出税","接口未返回","n","GoPlus 没给出税率，需自行到 DEX 试算。"]); }
+    else{ var taxV=(bt!=null?(+(bt*100).toFixed(1)):"?")+"% / "+(st!=null?(+(st*100).toFixed(1)):"?")+"%"; var maxtax=Math.max(bt||0,st||0); var taxL=maxtax>=0.15?"r":(maxtax>=0.05?"a":"g"); trade.push([taxL,"买入税 / 卖出税",taxV,taxL,maxtax>=0.15?"税极高（≥15%），进出损耗很大，警惕。":maxtax>=0.05?"税偏高（5%~15%），注意成本。":"税正常。"]); }
+    if(is1(r.cannot_buy)) trade.push(["r","是否禁止买入","是","r","当前无法买入。"]);
+    if(is1(r.trading_cooldown)) trade.push(["a","交易冷却限制","有","a","两次交易之间有时间限制。"]);
+    if(is1(r.is_anti_whale)) trade.push(["n","限购/限持（防巨鲸）","有","n","单笔或单账户有上限，本身中性。"]);
 
-    // ===== 权限（最关键）=====
+    // ===== 权限 =====
     var perm=[];
-    var ownerReal=r.owner_address&&r.owner_address!=="0x0000000000000000000000000000000000000000"&&r.owner_address.toLowerCase()!=="0x000000000000000000000000000000000000dead";
-    perm.push(["own",ownerReal?"a":"g","合约 owner（管理员）",ownerReal?short(r.owner_address):"已放弃/无",ownerReal?"a":"g",ownerReal?"仍有管理员，能否作恶取决于下面几项权限。":"owner 已放弃，规则基本改不动，较安心。"]);
-    var mint=is1(r.is_mintable);
-    perm.push(["mint",mint?(ownerReal?"r":"a"):"g","能否增发（无限印币）",mint?"能":"不能",mint?(ownerReal?"r":"a"):"g",mint?(ownerReal?"管理员能凭空增发，随时稀释/砸盘，高危。":"合约含增发功能，但owner已放弃，风险降低。"):"不能增发，供应量固定。"]);
-    if(is1(r.transfer_pausable)) perm.push(["pause","r","能否暂停转账",("能"),"r","管理员能一键冻结所有人转账/买卖。"]);
-    if(is1(r.is_blacklisted)) perm.push(["bl","r","有黑名单","有","r","能把指定地址拉黑、禁止其买卖，可定点针对你。"]);
-    if(is1(r.can_take_back_ownership)) perm.push(["tbo","r","可收回 owner","是","r","即使显示放弃了，也能偷偷收回管理员权限。"]);
-    if(is1(r.hidden_owner)) perm.push(["ho","r","隐藏的 owner","有","r","存在隐藏管理员，比明面owner更危险。"]);
-    if(is1(r.owner_change_balance)) perm.push(["ocb","r","owner 可改余额","能","r","管理员能直接改任何人的代币余额，极危险。"]);
-    if(is1(r.slippage_modifiable)) perm.push(["sm","a","税率可改","能","a","管理员随时能调买卖税（可能改成超高税=变相貔貅）。"]);
-    if(is1(r.personal_slippage_modifiable)) perm.push(["psm","a","可对个人设不同税","能","a","能给指定地址单独设税，可针对性收割。"]);
+    var ownerReal=r.owner_address&&r.owner_address!=="0x0000000000000000000000000000000000000000"&&String(r.owner_address).toLowerCase()!=="0x000000000000000000000000000000000000dead";
+    perm.push([ownerReal?"a":"g","合约 owner（管理员）",ownerReal?short(r.owner_address):"已放弃/无",ownerReal?"a":"g",ownerReal?"仍有管理员，需信任团队不作恶。":"owner 已放弃，规则改不动，较安心。"]);
+    if(is1(r.is_mintable)) perm.push(["a","能否增发","可以","a","含增发功能（OHM 类 / 稳定币常见）——供应量非固定，需信任发行方不滥发；本身不等于骗局。"]);
+    if(is1(r.transfer_pausable)) perm.push(["a","能否暂停转账","能","a","管理员能暂停转账/买卖（部分合规代币也有）。"]);
+    if(is1(r.is_blacklisted)) perm.push(["a","有黑名单","有","a","能把地址拉黑禁买卖（USDC 等也有，也可能被滥用）。"]);
+    if(is1(r.can_take_back_ownership)) perm.push(["r","可收回 owner","是","r","即使显示放弃也能偷偷收回管理员权限——后门。"]);
+    if(is1(r.hidden_owner)) perm.push(["r","隐藏的 owner","有","r","存在隐藏管理员，比明面 owner 更危险。"]);
+    if(is1(r.owner_change_balance)) perm.push(["r","owner 可改余额","能","r","管理员能直接改你的代币余额——极危险后门。"]);
+    if(is1(r.slippage_modifiable)) perm.push(["a","税率可改","能","a","理论上能调整买卖税（owner 已放弃则难触发）。"]);
+    if(is1(r.personal_slippage_modifiable)) perm.push(["a","可对个人设不同税","能","a","能给指定地址单独设税。"]);
 
     // ===== 代码 =====
     var code=[];
     var open=is1(r.is_open_source);
-    code.push(["os",open?"g":"r","源码是否开源验证",open?"已开源":"未开源",open?"g":"r",open?"代码公开可查。":"合约没开源，里面有什么规则看不到，风险偏高。"]);
-    if(is1(r.is_proxy)) code.push(["px","a","是否可升级（代理合约）","是","a","逻辑可被管理员替换，今天安全≠明天安全。"]);
-    if(is1(r.selfdestruct)) code.push(["sd","r","含自毁功能","是","r","合约可被销毁，极危险。"]);
-    if(is1(r.external_call)) code.push(["ec","a","有外部调用","有","a","会调用外部合约，行为可能被外部改变。"]);
-    if(is1(r.gas_abuse)) code.push(["ga","r","疑似 gas 滥用","是","r","检测到异常 gas 消耗行为。"]);
+    code.push([open?"g":"r","源码是否开源验证",open?"已开源":"未开源",open?"g":"r",open?"代码公开可查。":"合约没开源，规则看不到，风险偏高。"]);
+    if(is1(r.is_proxy)) code.push(["a","是否可升级（代理）","是","a","逻辑可被替换，今天安全≠明天。"]);
+    if(is1(r.selfdestruct)) code.push(["r","含自毁功能","是","r","合约可被销毁——极危险。"]);
+    if(is1(r.external_call)) code.push(["a","有外部调用","有","a","会调用外部合约。"]);
+    if(is1(r.gas_abuse)) code.push(["r","疑似 gas 滥用","是","r","检测到异常 gas 行为。"]);
 
     // ===== 流动性 =====
     var liq=[];
-    var dex=r.dex&&r.dex.length;
-    if(!dex){ liq.push(["nodex","a","是否有交易池","没找到","a","没检测到 DEX 流动性池，可能没法交易或很新。"]); }
+    var established=(+r.holder_count||0)>=2000||(r.dex&&r.dex.length>=3);
+    if(!(r.dex&&r.dex.length)){ liq.push(["a","是否有交易池","没找到","a","没检测到 DEX 池，可能没法交易或很新。"]); }
     else{
       var lpArr=r.lp_holders||[],lockedPct=0;
-      lpArr.forEach(function(h){var ad=(h.address||"").toLowerCase();var locked=is1(h.is_locked)||ad==="0x000000000000000000000000000000000000dead"||ad==="0x0000000000000000000000000000000000000000";if(locked)lockedPct+=(pct(h.percent)||0);});
+      lpArr.forEach(function(h){var ad=String(h.address||"").toLowerCase();var locked=is1(h.is_locked)||ad==="0x000000000000000000000000000000000000dead"||ad==="0x0000000000000000000000000000000000000000";if(locked)lockedPct+=(pct(h.percent)||0);});
       lockedPct=Math.round(lockedPct*1000)/10;
-      var lpL=lockedPct>=50?"g":(lockedPct>0?"a":"r");
-      liq.push(["lp",lpL,"LP 是否锁定/销毁",lockedPct+"%",lpL,lockedPct>=50?"大部分流动性已锁定或烧掉，跑路风险低。":lockedPct>0?"只有部分LP锁定，仍有撤池风险。":"LP 没锁定也没销毁，项目方可随时撤走流动性跑路（抽地毯）。"]);
+      if(lockedPct>=50) liq.push(["g","LP 锁定/销毁",lockedPct+"%","g","大部分流动性已锁或烧，跑路风险低。"]);
+      else if(established) liq.push(["n","LP 锁定/销毁",lockedPct+"%","n","LP 未显示第三方锁定，但该币持有人多、有多个交易池，多为协议自持流动性，不宜简单判为跑路风险。"]);
+      else liq.push(["a","LP 锁定/销毁",lockedPct+"%","a","LP 没锁也没烧，小币要警惕项目方撤池跑路。"]);
     }
 
-    // ===== 集中度 =====
+    // ===== 集中度（排除合约/LP池/锁仓/带标签地址）=====
     var conc=[];
-    var cp=pct(r.creator_percent),op=pct(r.owner_percent);
-    var topHold=(r.holders&&r.holders[0]&&pct(r.holders[0].percent))||0;
-    if(cp!=null&&cp>0){var cpP=(cp*100).toFixed(1);var cL=cp>=0.3?"r":(cp>=0.1?"a":"g");conc.push(["cp",cL,"创建者持仓",cpP+"%",cL,cp>=0.3?"创建者手里握着大量筹码，可随时砸盘。":cp>=0.1?"创建者持仓偏高，注意。":"创建者持仓不高。"]);}
-    if(topHold>0){var thP=(topHold*100).toFixed(1);var tL=topHold>=0.5?"r":(topHold>=0.2?"a":"g");conc.push(["th",tL,"第一大户持仓",thP+"%",tL,topHold>=0.5?"单一地址控盘过半，极易被操纵。":topHold>=0.2?"第一大户持仓较高。":"筹码相对分散。"]);}
-    conc.push(["hc","n","持币地址数",r.holder_count?fmtN(r.holder_count):"—","n",r.holder_count&&+r.holder_count<50?"持币人很少，可能是新币或冷门币。":"—"]);
+    var cp=pct(r.creator_percent);
+    var real=(r.holders||[]).filter(function(h){return !is1(h.is_contract)&&!is1(h.is_locked)&&!(h.tag&&String(h.tag).length);});
+    var topHold=(real[0]&&pct(real[0].percent))||0;
+    if(cp!=null&&cp>0.001){var cpP=(cp*100).toFixed(1);var cL=cp>=0.3?"r":(cp>=0.1?"a":"g");conc.push([cL,"创建者持仓",cpP+"%",cL,cp>=0.3?"创建者握大量筹码，可砸盘。":cp>=0.1?"创建者持仓偏高。":"创建者持仓不高。"]);}
+    if(topHold>0.001){var thP=(topHold*100).toFixed(1);var tL=topHold>=0.5?"r":(topHold>=0.2?"a":"g");conc.push([tL,"第一大户持仓（不含池/合约）",thP+"%",tL,topHold>=0.5?"单一散户地址控盘过半。":topHold>=0.2?"第一大户偏高。":"筹码较分散。"]);}
+    conc.push(["n","持币地址数",r.holder_count?fmtN(r.holder_count):"—","n",""]);
 
-    var groups=[["交易 · 能不能正常买卖",trade],["权限 · 项目方能干什么（最关键）",perm],["代码 · 合约本身",code],["流动性 · 会不会跑路",liq],["集中度 · 筹码在谁手里",conc]];
-    groups.forEach(function(g){g[1].forEach(function(x){push(x[1],x[2],x[3],x[4],x[5]);});});
+    var groups=[["交易 · 能不能正常买卖",trade],["权限 · 项目方能干什么",perm],["代码 · 合约本身",code],["流动性 · 会不会跑路",liq],["集中度 · 筹码在谁手里",conc]];
+    var reds=0,ambers=0;
+    groups.forEach(function(g){g[1].forEach(function(x){if(x[0]==="r")reds++;else if(x[0]==="a")ambers++;});});
     return {reds:reds,ambers:ambers,groups:groups,honey:honey};
   }
 
   function render(r,addr,chainName){
     var A=analyze(r);
     var vl,vcls,vdesc;
-    if(A.honey||A.reds>=2){vl=ZH?"高风险":"High risk";vcls="v-red";vdesc=ZH?"检测到 "+A.reds+" 项高危信号，强烈建议远离。":A.reds+" high-risk signals.";}
-    else if(A.reds===1){vl=ZH?"偏高风险":"Elevated risk";vcls="v-red";vdesc=ZH?"有 1 项高危信号，务必谨慎。":"1 high-risk signal.";}
-    else if(A.ambers>=1){vl=ZH?"中等风险":"Medium risk";vcls="v-amber";vdesc=ZH?"没有致命问题，但有 "+A.ambers+" 项需要注意。":A.ambers+" items to watch.";}
-    else{vl=ZH?"暂无明显风险":"No obvious risk";vcls="v-green";vdesc=ZH?"常见风险项都没命中，但仍需结合团队/项目基本面判断。":"No common red flags hit.";}
+    if(A.honey){vl=ZH?"高风险 · 疑似骗局":"High risk · likely scam";vcls="v-red";vdesc=ZH?"检测到貔貅/无法卖出，典型骗局特征，强烈建议远离。":"Honeypot / cannot sell — likely scam.";}
+    else if(A.reds>=2){vl=ZH?"高风险":"High risk";vcls="v-red";vdesc=ZH?"发现 "+A.reds+" 项后门/危险特征，强烈建议远离。":A.reds+" backdoor/danger signals.";}
+    else if(A.reds===1){vl=ZH?"偏高风险":"Elevated risk";vcls="v-red";vdesc=ZH?"发现 1 项后门/危险特征，务必谨慎核实。":"1 backdoor/danger signal — verify carefully.";}
+    else if(A.ambers>=1){vl=ZH?"未发现明显骗局":"No scam signals";vcls="v-amber";vdesc=ZH?"没有貔貅/后门等骗局特征；有 "+A.ambers+" 项属项目方中心化权限（如可增发、可暂停等），需信任团队，本身不代表骗局。":"No scam/backdoor signals; "+A.ambers+" centralization items to understand.";}
+    else{vl=ZH?"未见明显风险":"No obvious risk";vcls="v-green";vdesc=ZH?"常见风险与后门项都没命中，仍建议结合项目基本面判断。":"No common red flags hit.";}
 
     var html='<div class="verdict '+vcls+'"><div class="vl">'+(vcls==="v-green"?"🟢":vcls==="v-amber"?"🟡":"🔴")+' '+esc(vl)+'</div><div class="vd">'+esc(vdesc)+'</div></div>';
     html+='<div class="tk"><span class="nm">'+esc(r.token_name||"?")+' ('+esc(r.token_symbol||"?")+')</span><span class="chip">'+esc(chainName)+'</span>'+(r.total_supply?'<span class="chip">'+(ZH?"总量 ":"supply ")+fmtN(Math.round(+r.total_supply))+'</span>':'')+(r.holder_count?'<span class="chip">'+(ZH?"持币 ":"")+fmtN(r.holder_count)+(ZH?" 人":" holders")+'</span>':'')+'</div>';
     A.groups.forEach(function(g){
       if(!g[1].length)return;
       html+='<div class="sec"><div class="sh">'+esc(g[0])+'</div>';
-      g[1].forEach(function(x){html+=row(x[1],x[2],x[3],x[4],x[5]);});
+      g[1].forEach(function(x){html+=row(x[0],x[1],x[2],x[3],x[4]);});
       html+='</div>';
     });
     out.innerHTML=html;
