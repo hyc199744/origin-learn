@@ -123,7 +123,7 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.js"></script>
+<script src="/assets/html-docx.js"></script>
 <script>
 (function(){
   var ZH=(document.documentElement.lang||"zh").slice(0,2)==="zh";
@@ -231,7 +231,6 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
 
   function buildDocx(){
     if(!LAST)return;
-    if(!window.htmlDocx||!window.htmlDocx.asBlob){alert(ZH?"报告组件加载中，请稍等两秒再点":"Loading, retry in a moment");return;}
     var L=LAST,r=L.r;
     var lvlT={g:"正常",r:"风险",a:"注意",n:"—"},lvlC={g:"#1a7f47",r:"#c0392b",a:"#b9770e",n:"#888"};
     var d=new Date(),ds=d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate())+" "+two(d.getHours())+":"+two(d.getMinutes());
@@ -257,13 +256,15 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
       +'<table style="width:100%;border-collapse:collapse;font-size:12.5px;"><tr style="background:#e8dfc8;"><td style="padding:6px 8px;font-weight:bold;">检测项</td><td style="padding:6px 8px;font-weight:bold;">结果</td><td style="padding:6px 8px;font-weight:bold;">级别</td><td style="padding:6px 8px;font-weight:bold;">说明</td></tr>'+rows+'</table>'
       +'<p style="font-size:11px;color:#999;margin-top:16px;line-height:1.7;">数据来自 GoPlus 安全接口，检测时点如上；仅供参考、不构成投资建议。“未发现明显风险”不等于“绝对安全”，请结合项目团队与基本面综合判断。想要更深入的资金流向追踪与完整尽调，请加微信联系（见 web3origin.com）。</p>'
       +'</body></html>';
+    var fname="代币安全检测_"+(r.token_symbol||"token")+"_"+ds.slice(0,10);
+    function dl(blob,ext){var url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=fname+ext;a.rel="noopener";document.body.appendChild(a);a.click();setTimeout(function(){try{document.body.removeChild(a);}catch(e){}URL.revokeObjectURL(url);},1500);}
     try{
-      var blob=window.htmlDocx.asBlob(doc);
-      var url=URL.createObjectURL(blob),a=document.createElement("a");
-      a.href=url;a.download="代币安全检测_"+(r.token_symbol||"token")+"_"+ds.slice(0,10)+".docx";
-      document.body.appendChild(a);a.click();document.body.removeChild(a);
-      setTimeout(function(){URL.revokeObjectURL(url);},3000);
-    }catch(e){alert(ZH?"生成失败，请刷新重试":"Failed");}
+      if(window.htmlDocx&&window.htmlDocx.asBlob){dl(window.htmlDocx.asBlob(doc),".docx");}
+      else{dl(new Blob(["﻿"+doc],{type:"application/msword"}),".doc");}
+    }catch(e){
+      try{dl(new Blob(["﻿"+doc],{type:"application/msword"}),".doc");}
+      catch(e2){alert(ZH?"下载没成功。若你在微信里打开，请点右上角「···」→用浏览器打开，再试下载。":"Download failed — open in a real browser and retry.");}
+    }
   }
 
   function go(){
