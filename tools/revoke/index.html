@@ -1,0 +1,215 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>授权检查·一键撤销 · Web3Origin</title>
+<meta name="description" content="查你的钱包授权过哪些合约、有没有无限额度、能不能被划走资产，一键撤销危险授权。不需要助记词/私钥，撤销在你自己钱包里签名。多链支持。">
+<meta property="og:title" content="授权检查·一键撤销 · 防盗必备">
+<meta property="og:description" content="查钱包授权、撤销危险授权，防止资产被划走。不连助记词，纯钱包签名，多链。">
+<meta property="og:image" content="https://web3origin.com/assets/logo.png">
+<link rel="icon" href="/assets/logo.png">
+<style>
+:root{--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--ink:#e8d9be;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--line2:#4a3320;--green:#3ad07f;--red:#e0705f;--amber:#e8a45c;--serif:"STZhongsong","Songti SC",Georgia,serif;--sans:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -8%,#0f2318,#050303 60%) fixed,#050303;color:var(--ink);font-family:var(--sans);line-height:1.7}
+.top{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.top a.back{display:flex;align-items:center;gap:8px;color:var(--soft);text-decoration:none;font-size:14px}
+.top a.back img{width:24px;height:24px}
+.top .sp{margin-left:auto}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit}
+.wrap{max-width:820px;margin:0 auto;padding:22px 16px 70px}
+.hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px}
+.hd .ic{font-size:26px}
+h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(--serif);letter-spacing:.04em}
+.sub{color:var(--soft);font-size:13.5px;margin:4px 0 18px}
+.box{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));border:1px solid var(--line);border-radius:14px;padding:15px}
+.frm{display:flex;gap:10px;flex-wrap:wrap}
+.frm select{background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;color:var(--bone);padding:11px 12px;font:inherit;font-size:14px}
+.frm input{flex:1;min-width:200px;background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;color:var(--bone);padding:11px 13px;font:inherit;font-size:14px;font-family:var(--mono)}
+.frm input:focus,.frm select:focus{outline:none;border-color:var(--gold)}
+.frm button{border:0;border-radius:10px;padding:11px 18px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.b-go{background:linear-gradient(135deg,var(--gold-lt),#b8842f);color:#1a1206}
+.b-wc{background:rgba(255,255,255,.05);border:1px solid var(--line2)!important;color:var(--gold-lt)}
+.frm button:disabled{opacity:.55;cursor:default}
+.hint{color:var(--muted);font-size:12px;margin-top:10px}
+.wallet{margin-top:10px;font-size:12.5px;color:var(--soft)}
+.wallet b{color:var(--green);font-family:var(--mono)}
+#out{margin-top:18px}
+.state{text-align:center;color:var(--muted);padding:34px 12px;font-size:14px}
+.sum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.sumc{flex:1;min-width:120px;border:1px solid var(--line);border-radius:12px;padding:11px 13px;background:var(--panel,rgba(255,255,255,.02))}
+.sumc .n{font-family:var(--mono);font-size:24px;font-weight:700}
+.sumc .l{font-size:12px;color:var(--muted);margin-top:2px}
+.sumc.r .n{color:var(--red)}.sumc.a .n{color:var(--amber)}.sumc.g .n{color:var(--soft)}
+.ap{display:flex;align-items:center;gap:12px;padding:12px 13px;border:1px solid var(--line);border-radius:13px;margin-top:10px;background:rgba(255,255,255,.02)}
+.ap.risk{border-color:rgba(224,112,95,.5);background:rgba(224,112,95,.06)}
+.ap .tok{flex:0 0 auto;width:52px}
+.ap .tok .sym{font-weight:700;color:var(--bone);font-size:14px}
+.ap .tok .bal{font-size:10.5px;color:var(--muted);margin-top:1px}
+.ap .mid{flex:1;min-width:0}
+.ap .mid .sp{font-size:13px;color:var(--ink)}
+.ap .mid .sp b{color:var(--bone)}
+.ap .mid .meta{font-size:11.5px;color:var(--muted);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tag{font-size:10.5px;padding:1px 8px;border-radius:999px;font-weight:600}
+.tag.r{background:rgba(224,112,95,.16);color:var(--red);border:1px solid rgba(224,112,95,.45)}
+.tag.a{background:rgba(232,164,92,.16);color:var(--amber);border:1px solid rgba(232,164,92,.45)}
+.tag.g{background:rgba(58,208,127,.14);color:var(--green);border:1px solid rgba(58,208,127,.4)}
+.tag.n{background:rgba(255,255,255,.05);color:var(--soft);border:1px solid var(--line2)}
+.ap .rv{flex:0 0 auto;border:1px solid var(--red);color:#ff8d78;background:rgba(224,112,95,.1);border-radius:10px;padding:9px 15px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.ap .rv:hover{background:rgba(224,112,95,.2)}
+.ap .rv:disabled{opacity:.55;cursor:default}
+.ap.done{opacity:.5}
+.ap.done .rv{border-color:var(--green);color:var(--green);background:transparent}
+a.ex{color:var(--soft);text-decoration:none;border-bottom:1px dotted var(--line2)}
+.foot{color:var(--muted);font-size:11.5px;margin-top:22px;line-height:1.8;border-top:1px solid var(--line);padding-top:14px}
+.foot b{color:var(--soft)}
+[data-lang]{display:none!important}html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+</style>
+</head><body>
+<div class="top">
+  <a class="back" href="/tools/origin-monitor/"><img src="/assets/logo.png" alt=""><span data-lang="zh">← 返回起源百宝箱</span><span data-lang="en">← Back to Toolbox</span></a>
+  <span class="sp"></span>
+  <button id="langBtn" aria-label="Language">🌐</button>
+</div>
+<div class="wrap">
+  <div class="hd"><span class="ic">🔐</span><div>
+    <h1><span data-lang="zh">授权检查 · 一键撤销</span><span data-lang="en">Approvals · Revoke</span></h1>
+    <div class="sub"><span data-lang="zh">查你的钱包授权过哪些合约、有没有"无限额度"、能不能被划走资产，一键撤销危险授权。<b style="color:var(--green)">不需要助记词/私钥</b>，撤销是在你自己钱包里签名。</span><span data-lang="en">See what contracts your wallet approved and revoke risky ones. No seed phrase — you sign the revoke in your own wallet.</span></div>
+  </div></div>
+
+  <div class="box">
+    <div class="frm">
+      <select id="chain">
+        <option value="1">Ethereum</option>
+        <option value="56" selected>BSC 币安链</option>
+        <option value="137">Polygon</option>
+        <option value="42161">Arbitrum</option>
+        <option value="8453">Base</option>
+        <option value="10">Optimism</option>
+        <option value="43114">Avalanche</option>
+      </select>
+      <input id="addr" placeholder="0x… 钱包地址" spellcheck="false" autocomplete="off">
+      <button class="b-go" id="go" type="button"><span data-lang="zh">查授权</span><span data-lang="en">Check</span></button>
+      <button class="b-wc" id="wc" type="button"><span data-lang="zh">连接钱包</span><span data-lang="en">Connect</span></button>
+    </div>
+    <div class="hint"><span data-lang="zh">可直接输地址查看（只读），要"撤销"需连接钱包。选对链——授权是分链的。数据来自 <b>GoPlus</b>。</span><span data-lang="en">Enter an address to view (read-only). To revoke, connect wallet. Data from GoPlus.</span></div>
+    <div class="wallet" id="wstat"></div>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="foot">
+    <div data-lang="zh"><b>为什么要撤销：</b>你在各种 DApp 买卖/质押时会"授权"合约动用你的代币，很多是<b>无限额度</b>且永久有效。一旦那个合约有漏洞或是骗局，就能把你钱包里对应代币<b>全部划走</b>——这是最常见的被盗方式。定期检查、把不用的和危险的撤掉，最有效防盗。</div>
+    <div data-lang="zh" style="margin-top:6px"><b>安全：</b>本工具只读公开授权数据，撤销时只发一笔把额度归零的交易（approve 0），<b>永远不需要助记词/私钥</b>，交易在你自己钱包里确认。</div>
+    <div data-lang="en"><b>Safe:</b> read-only data; revoke sends a single approve(0) tx signed in your own wallet. Never needs your seed phrase.</div>
+  </div>
+</div>
+
+<script src="/assets/ethers6.min.js"></script>
+<script>
+(function(){
+  var ZH=(document.documentElement.lang||"zh").slice(0,2)==="zh";
+  var addrEl=document.getElementById("addr"),chainEl=document.getElementById("chain"),goEl=document.getElementById("go"),wcEl=document.getElementById("wc"),out=document.getElementById("out"),wstat=document.getElementById("wstat");
+  var CHAINS={1:{n:"Ethereum",hex:"0x1"},56:{n:"BSC",hex:"0x38"},137:{n:"Polygon",hex:"0x89"},42161:{n:"Arbitrum",hex:"0xa4b1"},8453:{n:"Base",hex:"0x2105"},10:{n:"Optimism",hex:"0xa"},43114:{n:"Avalanche",hex:"0xa86a"}};
+  var EXP={1:"https://etherscan.io",56:"https://bscscan.com",137:"https://polygonscan.com",42161:"https://arbiscan.io",8453:"https://basescan.org",10:"https://optimistic.etherscan.io",43114:"https://snowtrace.io"};
+  var connected=null, rows=[];
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function isAddr(a){return /^0x[0-9a-fA-F]{40}$/.test(a);}
+  function short(a){a=String(a||"");return a.length>12?a.slice(0,6)+"…"+a.slice(-4):a;}
+  function state(m){out.innerHTML='<div class="state">'+esc(m)+'</div>';}
+
+  function riskOf(sp,tok){
+    var ai=sp.address_info||{};
+    if((ai.malicious_behavior&&ai.malicious_behavior.length)||ai.doubt_list==1||tok.malicious_address==1) return "r";
+    if(ai.trust_list==1) return "g";
+    if(String(sp.approved_amount).toLowerCase()==="unlimited") return "a";
+    return "n";
+  }
+  function spenderName(sp){var ai=sp.address_info||{};return ai.tag||ai.contract_name||short(sp.approved_contract);}
+  function fmtAmt(v){if(v==null)return"—";if(String(v).toLowerCase()==="unlimited")return ZH?"无限额度":"Unlimited";var n=Number(v);return isFinite(n)?(n>=1e9?"≈"+(n/1e9).toFixed(1)+"B":n.toLocaleString("en-US")):String(v);}
+  function fmtDate(t){t=Number(t);if(!t)return"";var d=new Date(t*1000);return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);}
+
+  function fetchApprovals(){
+    var a=addrEl.value.trim(),cid=chainEl.value;
+    if(!isAddr(a)){state(ZH?"地址格式不对，应是 0x 开头 42 位":"Invalid address");return;}
+    goEl.disabled=true;state(ZH?"正在读取授权…（首次约 3–6 秒）":"Loading approvals…");
+    fetch("https://api.gopluslabs.io/api/v2/token_approval_security/"+cid+"?addresses="+a).then(function(r){return r.json();}).then(function(d){
+      goEl.disabled=false;
+      var list=(d&&d.result)||[];
+      rows=[];
+      list.forEach(function(tok){(tok.approved_list||[]).forEach(function(sp){
+        rows.push({token:tok.token_symbol||"?",tokenAddr:tok.token_address,decimals:tok.decimals,bal:tok.balance,
+          spender:sp.approved_contract,spenderName:spenderName(sp),amount:sp.approved_amount,date:sp.approved_time,
+          risk:riskOf(sp,tok),done:false});
+      });});
+      // 排序:危险>无限>其它
+      var ord={r:0,a:1,n:2,g:3};
+      rows.sort(function(x,y){return ord[x.risk]-ord[y.risk];});
+      renderList(a,cid);
+    }).catch(function(){goEl.disabled=false;state(ZH?"读取失败，稍后再试":"Failed, try later");});
+  }
+
+  function renderList(a,cid){
+    if(!rows.length){state(ZH?"这个钱包在该链上没有查到授权 —— 很干净，或换条链看看。":"No approvals found on this chain.");return;}
+    var nr=rows.filter(function(x){return x.risk==="r";}).length, na=rows.filter(function(x){return String(x.amount).toLowerCase()==="unlimited";}).length;
+    var h='<div class="sum"><div class="sumc r"><div class="n">'+nr+'</div><div class="l">'+(ZH?"危险授权":"Risky")+'</div></div>'
+      +'<div class="sumc a"><div class="n">'+na+'</div><div class="l">'+(ZH?"无限额度":"Unlimited")+'</div></div>'
+      +'<div class="sumc g"><div class="n">'+rows.length+'</div><div class="l">'+(ZH?"授权总数":"Total")+'</div></div></div>';
+    rows.forEach(function(x,i){
+      var badge=x.risk==="r"?'<span class="tag r">'+(ZH?"危险":"Risky")+'</span>':x.risk==="g"?'<span class="tag g">'+(ZH?"可信":"Trusted")+'</span>':x.risk==="a"?'<span class="tag a">'+(ZH?"无限额度":"Unlimited")+'</span>':'<span class="tag n">'+(ZH?"一般":"—")+'</span>';
+      h+='<div class="ap'+(x.risk==="r"?" risk":"")+'" id="ap'+i+'">'
+        +'<div class="tok"><div class="sym">'+esc(x.token)+'</div></div>'
+        +'<div class="mid"><div class="sp">'+(ZH?"授权给 ":"→ ")+'<b>'+esc(x.spenderName)+'</b></div>'
+        +'<div class="meta">'+badge+'<span>'+(ZH?"额度 ":"")+fmtAmt(x.amount)+'</span>'+(x.date?'<span>'+fmtDate(x.date)+'</span>':'')+'<a class="ex" href="'+EXP[cid]+'/address/'+esc(x.spender)+'" target="_blank" rel="noopener">'+short(x.spender)+' ↗</a></div></div>'
+        +'<button class="rv" data-i="'+i+'">'+(ZH?"撤销":"Revoke")+'</button></div>';
+    });
+    out.innerHTML=h;
+    out.querySelectorAll(".rv").forEach(function(b){b.onclick=function(){revoke(+b.getAttribute("data-i"),b);};});
+  }
+
+  async function ensureWallet(){
+    if(!window.ethereum){alert(ZH?"没检测到钱包插件。请用 MetaMask/OKX 等钱包的浏览器打开本页。":"No wallet found. Open in a wallet browser.");return null;}
+    var prov=new ethers.BrowserProvider(window.ethereum);
+    await prov.send("eth_requestAccounts",[]);
+    var signer=await prov.getSigner();
+    connected=(await signer.getAddress());
+    wstat.innerHTML=(ZH?"已连接钱包：":"Wallet: ")+"<b>"+short(connected)+"</b>";
+    return {prov:prov,signer:signer};
+  }
+  async function switchChain(cid){
+    var hex=(CHAINS[cid]||{}).hex;if(!hex)return true;
+    try{await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:hex}]});return true;}
+    catch(e){alert(ZH?"请在钱包里手动切换到 "+(CHAINS[cid].n)+" 链后再撤销":"Switch to "+CHAINS[cid].n+" in wallet");return false;}
+  }
+  async function revoke(i,btn){
+    var x=rows[i];if(!x||x.done)return;
+    var cid=chainEl.value;
+    try{
+      var w=await ensureWallet();if(!w)return;
+      if(connected.toLowerCase()!==addrEl.value.trim().toLowerCase()){
+        if(!confirm(ZH?"连接的钱包和查询地址不一样。只能撤销你自己钱包的授权，确定用当前连接的钱包继续吗？":"Connected wallet differs from queried address. Continue?"))return;
+      }
+      if(!(await switchChain(cid)))return;
+      btn.disabled=true;btn.textContent=ZH?"确认中…":"Confirm…";
+      var c=new ethers.Contract(x.tokenAddr,["function approve(address spender,uint256 value) returns (bool)"],w.signer);
+      var tx=await c.approve(x.spender,0n);
+      btn.textContent=ZH?"上链中…":"Pending…";
+      await tx.wait();
+      x.done=true;
+      var el=document.getElementById("ap"+i);if(el)el.classList.add("done");
+      btn.textContent=ZH?"✓ 已撤销":"✓ Revoked";
+    }catch(e){
+      btn.disabled=false;btn.textContent=ZH?"撤销":"Revoke";
+      var msg=(e&&(e.shortMessage||e.message))||"";
+      if(/reject|denied|4001/i.test(msg)){/*用户取消*/}
+      else alert(ZH?"撤销未成功："+msg.slice(0,120):"Failed: "+msg.slice(0,120));
+    }
+  }
+
+  goEl.onclick=fetchApprovals;
+  addrEl.addEventListener("keydown",function(e){if(e.key==="Enter")fetchApprovals();});
+  wcEl.onclick=async function(){var w=await ensureWallet();if(w){addrEl.value=connected;fetchApprovals();}};
+  try{var q=new URLSearchParams(location.search);var qa=q.get("addr"),qc=q.get("chain");if(qc&&CHAINS[qc])chainEl.value=qc;if(qa&&isAddr(qa.trim())){addrEl.value=qa.trim();fetchApprovals();}}catch(e){}
+})();
+</script>
+<script src="/i18n.js"></script>
+</body></html>

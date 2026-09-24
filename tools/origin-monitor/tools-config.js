@@ -126,10 +126,10 @@
       status: 'soon', isPremium: true, route: '', enabled: false,
       note: '大额交易监控已覆盖成交，但针对单地址的持仓增减追踪尚未独立，标即将上线。' },
 
-    { id: 'approval-check', number: 17, name: '合约授权安全检查', en: {"name":"Approval Safety Check","description":"Approved contracts, assets, allowances and potential risk."}, category: 'security-dd', icon: '🔐',
-      description: '查看钱包授权过的合约、授权资产、授权额度和潜在风险。',
-      status: 'live', isPremium: true, route: '/?tool=openSecurity', enabled: true,
-      note: '首页 openSecurity 弹窗，已上线。' },
+    { id: 'approval-check', number: 17, name: '授权检查 · 一键撤销', en: {"name":"Approvals · Revoke","description":"See what contracts your wallet approved (unlimited allowances, risky spenders) and revoke them in one click."}, category: 'security-dd', icon: '🔐',
+      description: '查钱包授权过哪些合约、有没有无限额度、能不能被划走，一键撤销危险授权。防盗必备，不连助记词。',
+      status: 'live', isPremium: false, route: '/tools/revoke/', enabled: true,
+      note: '独立页 /tools/revoke/,前端GoPlus token_approval_security查授权(多链),ethers6连钱包发approve(spender,0)撤销;危险/无限额度排前;免费公开、纯钱包签名不碰私钥。2026-09-24做,取代原指向首页openSecurity弹窗的占位。' },
 
     { id: 'sell-sim', number: 18, name: '卖出冲击模拟器', en: {"name":"Sell Impact Simulator","description":"Estimate slippage, fees, proceeds and price impact for a sell."}, category: 'price-calc', icon: '🌊',
       description: '估算卖出数量对应的滑点、手续费、预计到账和价格影响。',
