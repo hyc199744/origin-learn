@@ -219,7 +219,12 @@
     { id: 'video-replays', number: 35, name: '精品视频回放', en: {"name":"Premium Video Replays","description":"Recorded live sessions with slides / screen share — watch the video replays in one place. Free for now."}, category: 'data-evidence', icon: '🎬',
       description: '带 PPT / 共享屏幕的直播课程录像，视频回放集中一处随时看。限时免费。',
       status: 'live', isPremium: false, route: '/tools/video-replays/', enabled: true,
-      note: '独立页 /tools/video-replays/,读 /live/replays 筛 kind=video,网格封面+弹层video播放。视频源=直播自动录制识别为有画面的场(rclone直传R2)。**2026-09-21老板改:暂时免费(养用户习惯,以后再收费)**——页面会员门禁已注释掉,isPremium改false去🔒;要收费=取消门禁注释+isPremium改true。已上线。' }
+      note: '独立页 /tools/video-replays/,读 /live/replays 筛 kind=video,网格封面+弹层video播放。视频源=直播自动录制识别为有画面的场(rclone直传R2)。**2026-09-21老板改:暂时免费(养用户习惯,以后再收费)**——页面会员门禁已注释掉,isPremium改false去🔒;要收费=取消门禁注释+isPremium改true。已上线。' },
+
+    { id: 'token-safety', number: 36, name: '代币安全检测', en: {"name":"Token Safety Check","description":"Check any token contract for honeypot, taxes, mint, blacklist, owner powers, LP lock and holder concentration. Multi-chain, free."}, category: 'security-dd', icon: '🛡️',
+      description: '输入任意代币合约地址，一键查有没有"漏洞"：貔貅、买卖税、可否增发、黑名单、owner 权限、是否开源、可否升级、LP 锁定、持仓集中度。多链、免费、不连钱包。',
+      status: 'live', isPremium: false, route: '/tools/token-safety/', enabled: true,
+      note: '独立页 /tools/token-safety/,前端直连GoPlus(api.gopluslabs.io/api/v1/token_security/<chainId>,浏览器CORS通)查任意代币安全项,红黄绿分级+大白话+总体风险结论;多链下拉(BSC/ETH/Polygon/Arb/Base等);支持?addr=&chain=直达。免费公开(安全防骗,引流),不连钱包纯只读。已上线。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----

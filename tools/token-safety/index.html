@@ -1,0 +1,227 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代币安全检测 · Web3Origin</title>
+<meta name="description" content="输入任意代币合约地址，一键检测貔貅、买卖税、可否增发、可否暂停、黑名单、owner权限、是否开源、可否升级、LP锁定、持仓集中度等风险。数据来自 GoPlus，多链支持，纯只读不连钱包。">
+<meta property="og:title" content="代币安全检测 · 有没有漏洞一键查">
+<meta property="og:description" content="输入代币合约地址，一键查貔貅/买卖税/增发/黑名单/owner权限/LP锁定/持仓集中度等风险。多链、免费、不连钱包。">
+<meta property="og:image" content="https://web3origin.com/assets/logo.png">
+<link rel="icon" href="/assets/logo.png">
+<style>
+:root{--ob:#050303;--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--ink:#e8d9be;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--line2:#4a3320;--green:#3ad07f;--red:#e0705f;--amber:#e8a45c;--serif:"STZhongsong","Songti SC",Georgia,serif;--sans:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -8%,#0f2318,#050303 60%) fixed,#050303;color:var(--ink);font-family:var(--sans);line-height:1.7}
+.top{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.top a.back{display:flex;align-items:center;gap:8px;color:var(--soft);text-decoration:none;font-size:14px}
+.top a.back img{width:24px;height:24px}
+.top .sp{margin-left:auto}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit}
+.wrap{max-width:760px;margin:0 auto;padding:22px 16px 70px}
+.hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px}
+.hd .ic{font-size:26px;line-height:1}
+h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(--serif);letter-spacing:.04em}
+.sub{color:var(--soft);font-size:13.5px;margin:4px 0 18px}
+.box{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));border:1px solid var(--line);border-radius:14px;padding:15px}
+.frm{display:flex;gap:10px;flex-wrap:wrap}
+.frm input{flex:1;min-width:200px;background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;color:var(--bone);padding:11px 13px;font:inherit;font-size:14px;font-family:var(--mono)}
+.frm select{background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;color:var(--bone);padding:11px 12px;font:inherit;font-size:14px}
+.frm input:focus,.frm select:focus{outline:none;border-color:var(--gold)}
+.frm button{background:linear-gradient(135deg,var(--gold-lt),#b8842f);color:#1a1206;border:0;border-radius:10px;padding:11px 22px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.frm button:disabled{opacity:.6;cursor:default}
+.hint{color:var(--muted);font-size:12px;margin-top:10px}
+.hint b{color:var(--soft)}
+#out{margin-top:18px}
+.state{text-align:center;color:var(--muted);padding:34px 12px;font-size:14px}
+/* verdict banner */
+.verdict{border-radius:14px;padding:16px 18px;margin-bottom:16px;border:1px solid}
+.verdict .vl{font-family:var(--serif);font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px}
+.verdict .vd{font-size:13px;margin-top:6px;opacity:.92}
+.v-red{background:rgba(224,112,95,.12);border-color:rgba(224,112,95,.55);color:#f0a596}
+.v-red .vl{color:#ff8d78}
+.v-amber{background:rgba(232,164,92,.12);border-color:rgba(232,164,92,.5);color:#eec49a}
+.v-amber .vl{color:#f2b56c}
+.v-green{background:rgba(58,208,127,.12);border-color:rgba(58,208,127,.5);color:#a6e6c4}
+.v-green .vl{color:#5fe0a0}
+.tk{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;font-size:13px;color:var(--soft)}
+.tk .nm{font-family:var(--serif);font-size:17px;color:var(--gold-lt);font-weight:700}
+.tk .chip{font-size:11.5px;border:1px solid var(--line2);border-radius:999px;padding:2px 9px;color:var(--soft);font-variant-numeric:tabular-nums}
+.sec{margin-top:16px}
+.sec .sh{font-size:12px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.item{display:flex;align-items:flex-start;gap:11px;padding:10px 0;border-top:1px solid rgba(255,255,255,.05)}
+.item:first-child{border-top:0}
+.item .dot{flex:0 0 auto;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;margin-top:1px}
+.dot.g{background:rgba(58,208,127,.16);color:var(--green)}
+.dot.r{background:rgba(224,112,95,.18);color:var(--red)}
+.dot.a{background:rgba(232,164,92,.18);color:var(--amber)}
+.dot.n{background:rgba(255,255,255,.06);color:var(--muted)}
+.item .tx{min-width:0;flex:1}
+.item .tt{font-size:14px;color:var(--bone);font-weight:600}
+.item .tt .val{font-weight:700}
+.val.g{color:var(--green)}.val.r{color:var(--red)}.val.a{color:var(--amber)}
+.item .ds{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.6}
+.foot{color:var(--muted);font-size:11.5px;margin-top:20px;line-height:1.8;border-top:1px solid var(--line);padding-top:14px}
+.foot b{color:var(--soft)}
+.foot a{color:var(--soft)}
+[data-lang]{display:none!important}html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+</style>
+</head><body>
+<div class="top">
+  <a class="back" href="/tools/origin-monitor/"><img src="/assets/logo.png" alt=""><span data-lang="zh">← 返回起源百宝箱</span><span data-lang="en">← Back to Toolbox</span></a>
+  <span class="sp"></span>
+  <button id="langBtn" aria-label="Language">🌐</button>
+</div>
+<div class="wrap">
+  <div class="hd"><span class="ic">🛡️</span><div>
+    <h1><span data-lang="zh">代币安全检测</span><span data-lang="en">Token Safety Check</span></h1>
+    <div class="sub"><span data-lang="zh">输入任意代币合约地址，一键查它有没有"漏洞"——貔貅、买卖税、可否增发、黑名单、owner 权限、LP 锁定、持仓集中度等。纯只读，不连钱包、不需助记词。</span><span data-lang="en">Enter any token contract address to check for red flags — honeypot, taxes, mintability, blacklist, owner powers, LP lock, holder concentration and more. Read-only, no wallet.</span></div>
+  </div></div>
+
+  <div class="box">
+    <div class="frm">
+      <select id="chain">
+        <option value="56">BSC 币安链</option>
+        <option value="1">Ethereum 以太坊</option>
+        <option value="137">Polygon</option>
+        <option value="42161">Arbitrum</option>
+        <option value="8453">Base</option>
+        <option value="10">Optimism</option>
+        <option value="43114">Avalanche</option>
+        <option value="324">zkSync Era</option>
+        <option value="59144">Linea</option>
+        <option value="250">Fantom</option>
+      </select>
+      <input id="addr" placeholder="0x… 代币合约地址" spellcheck="false" autocomplete="off">
+      <button id="go" type="button"><span data-lang="zh">检测</span><span data-lang="en">Check</span></button>
+    </div>
+    <div class="hint"><span data-lang="zh">选对链很重要——同一个地址在不同链是不同代币。数据来自 <b>GoPlus 安全接口</b>，实时查询。</span><span data-lang="en">Pick the right chain. Data from <b>GoPlus</b>, live.</span></div>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="foot">
+    <div data-lang="zh"><b>说明：</b>本工具只读取公开链上/安全接口数据，<b>永远不需要你的助记词、私钥或授权</b>。检测结果来自 GoPlus，仅供参考、不构成投资建议；未收录或新合约可能查不到，建议多方核实。"没有明显风险"不等于"绝对安全"。</div>
+    <div data-lang="en"><b>Note:</b> Read-only public data, never needs your seed phrase or approval. Results from GoPlus, for reference only, not investment advice. Unlisted/new contracts may return nothing. "No obvious risk" ≠ "100% safe".</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ZH=(document.documentElement.lang||"zh").slice(0,2)==="zh";
+  var addrEl=document.getElementById("addr"),chainEl=document.getElementById("chain"),goEl=document.getElementById("go"),out=document.getElementById("out");
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function isAddr(a){return /^0x[0-9a-fA-F]{40}$/.test(a);}
+  function short(a){a=String(a||"");return a.length>12?a.slice(0,6)+"…"+a.slice(-4):a;}
+  function fmtN(n){n=Number(n)||0;return n.toLocaleString("en-US");}
+  function is1(v){return v==="1"||v===1;}
+  function state(msg){out.innerHTML='<div class="state">'+esc(msg)+'</div>';}
+
+  // 一条检测项: level=g好/r风险/a注意/n中性; label,val,valLevel,desc
+  function row(level,label,val,vl,desc){
+    var ic={g:"✓",r:"✕",a:"!",n:"·"}[level]||"·";
+    return '<div class="item"><div class="dot '+level+'">'+ic+'</div><div class="tx"><div class="tt">'+esc(label)+(val?' <span class="val '+(vl||"")+'">'+esc(val)+'</span>':'')+'</div>'+(desc?'<div class="ds">'+esc(desc)+'</div>':'')+'</div></div>';
+  }
+  function pct(v){v=Number(v);if(!isFinite(v))return null;return v;}
+
+  function analyze(r){
+    var reds=0,ambers=0,H=[];
+    function push(level,label,val,vl,desc){if(level==="r")reds++;if(level==="a")ambers++;H.push({level:level,label:label,val:val,vl:vl,desc:desc,});}
+
+    // ===== 交易 =====
+    var trade=[];
+    var honey=is1(r.is_honeypot)||is1(r.cannot_sell_all);
+    trade.push(["honey",honey?"r":"g","是否貔貅（买了卖不掉）",honey?"是·危险":"否",honey?"r":"g",honey?"检测到买入后无法卖出，典型骗局，别碰。":"可以正常卖出。"]);
+    var bt=pct(r.buy_tax),st=pct(r.sell_tax);
+    var taxV=((bt!=null?(bt*100).toFixed(bt*100%1?1:0):"?")+"% / "+(st!=null?(st*100).toFixed(st*100%1?1:0):"?")+"%");
+    var maxtax=Math.max(bt||0,st||0);
+    var taxL=maxtax>=0.10?"r":(maxtax>=0.05?"a":"g");
+    trade.push(["tax",taxL,"买入税 / 卖出税",taxV,taxL,maxtax>=0.10?"税极高（≥10%），进出成本很大，警惕。":maxtax>=0.05?"税偏高（5%~10%），注意成本。":"税正常。"]);
+    if(is1(r.cannot_buy)) trade.push(["cb","r","是否禁止买入","是",("r"),"当前无法买入。"]);
+    if(is1(r.trading_cooldown)) trade.push(["cd","a","交易冷却限制","有","a","两次交易之间有时间限制，可能影响买卖。"]);
+    if(is1(r.is_anti_whale)) trade.push(["aw","n","限购/限持（防巨鲸）","有","n","单笔或单账户有上限，本身中性。"]);
+
+    // ===== 权限（最关键）=====
+    var perm=[];
+    var ownerReal=r.owner_address&&r.owner_address!=="0x0000000000000000000000000000000000000000"&&r.owner_address.toLowerCase()!=="0x000000000000000000000000000000000000dead";
+    perm.push(["own",ownerReal?"a":"g","合约 owner（管理员）",ownerReal?short(r.owner_address):"已放弃/无",ownerReal?"a":"g",ownerReal?"仍有管理员，能否作恶取决于下面几项权限。":"owner 已放弃，规则基本改不动，较安心。"]);
+    var mint=is1(r.is_mintable);
+    perm.push(["mint",mint?(ownerReal?"r":"a"):"g","能否增发（无限印币）",mint?"能":"不能",mint?(ownerReal?"r":"a"):"g",mint?(ownerReal?"管理员能凭空增发，随时稀释/砸盘，高危。":"合约含增发功能，但owner已放弃，风险降低。"):"不能增发，供应量固定。"]);
+    if(is1(r.transfer_pausable)) perm.push(["pause","r","能否暂停转账",("能"),"r","管理员能一键冻结所有人转账/买卖。"]);
+    if(is1(r.is_blacklisted)) perm.push(["bl","r","有黑名单","有","r","能把指定地址拉黑、禁止其买卖，可定点针对你。"]);
+    if(is1(r.can_take_back_ownership)) perm.push(["tbo","r","可收回 owner","是","r","即使显示放弃了，也能偷偷收回管理员权限。"]);
+    if(is1(r.hidden_owner)) perm.push(["ho","r","隐藏的 owner","有","r","存在隐藏管理员，比明面owner更危险。"]);
+    if(is1(r.owner_change_balance)) perm.push(["ocb","r","owner 可改余额","能","r","管理员能直接改任何人的代币余额，极危险。"]);
+    if(is1(r.slippage_modifiable)) perm.push(["sm","a","税率可改","能","a","管理员随时能调买卖税（可能改成超高税=变相貔貅）。"]);
+    if(is1(r.personal_slippage_modifiable)) perm.push(["psm","a","可对个人设不同税","能","a","能给指定地址单独设税，可针对性收割。"]);
+
+    // ===== 代码 =====
+    var code=[];
+    var open=is1(r.is_open_source);
+    code.push(["os",open?"g":"r","源码是否开源验证",open?"已开源":"未开源",open?"g":"r",open?"代码公开可查。":"合约没开源，里面有什么规则看不到，风险偏高。"]);
+    if(is1(r.is_proxy)) code.push(["px","a","是否可升级（代理合约）","是","a","逻辑可被管理员替换，今天安全≠明天安全。"]);
+    if(is1(r.selfdestruct)) code.push(["sd","r","含自毁功能","是","r","合约可被销毁，极危险。"]);
+    if(is1(r.external_call)) code.push(["ec","a","有外部调用","有","a","会调用外部合约，行为可能被外部改变。"]);
+    if(is1(r.gas_abuse)) code.push(["ga","r","疑似 gas 滥用","是","r","检测到异常 gas 消耗行为。"]);
+
+    // ===== 流动性 =====
+    var liq=[];
+    var dex=r.dex&&r.dex.length;
+    if(!dex){ liq.push(["nodex","a","是否有交易池","没找到","a","没检测到 DEX 流动性池，可能没法交易或很新。"]); }
+    else{
+      var lpArr=r.lp_holders||[],lockedPct=0;
+      lpArr.forEach(function(h){var ad=(h.address||"").toLowerCase();var locked=is1(h.is_locked)||ad==="0x000000000000000000000000000000000000dead"||ad==="0x0000000000000000000000000000000000000000";if(locked)lockedPct+=(pct(h.percent)||0);});
+      lockedPct=Math.round(lockedPct*1000)/10;
+      var lpL=lockedPct>=50?"g":(lockedPct>0?"a":"r");
+      liq.push(["lp",lpL,"LP 是否锁定/销毁",lockedPct+"%",lpL,lockedPct>=50?"大部分流动性已锁定或烧掉，跑路风险低。":lockedPct>0?"只有部分LP锁定，仍有撤池风险。":"LP 没锁定也没销毁，项目方可随时撤走流动性跑路（抽地毯）。"]);
+    }
+
+    // ===== 集中度 =====
+    var conc=[];
+    var cp=pct(r.creator_percent),op=pct(r.owner_percent);
+    var topHold=(r.holders&&r.holders[0]&&pct(r.holders[0].percent))||0;
+    if(cp!=null&&cp>0){var cpP=(cp*100).toFixed(1);var cL=cp>=0.3?"r":(cp>=0.1?"a":"g");conc.push(["cp",cL,"创建者持仓",cpP+"%",cL,cp>=0.3?"创建者手里握着大量筹码，可随时砸盘。":cp>=0.1?"创建者持仓偏高，注意。":"创建者持仓不高。"]);}
+    if(topHold>0){var thP=(topHold*100).toFixed(1);var tL=topHold>=0.5?"r":(topHold>=0.2?"a":"g");conc.push(["th",tL,"第一大户持仓",thP+"%",tL,topHold>=0.5?"单一地址控盘过半，极易被操纵。":topHold>=0.2?"第一大户持仓较高。":"筹码相对分散。"]);}
+    conc.push(["hc","n","持币地址数",r.holder_count?fmtN(r.holder_count):"—","n",r.holder_count&&+r.holder_count<50?"持币人很少，可能是新币或冷门币。":"—"]);
+
+    var groups=[["交易 · 能不能正常买卖",trade],["权限 · 项目方能干什么（最关键）",perm],["代码 · 合约本身",code],["流动性 · 会不会跑路",liq],["集中度 · 筹码在谁手里",conc]];
+    groups.forEach(function(g){g[1].forEach(function(x){push(x[1],x[2],x[3],x[4],x[5]);});});
+    return {reds:reds,ambers:ambers,groups:groups,honey:honey};
+  }
+
+  function render(r,addr,chainName){
+    var A=analyze(r);
+    var vl,vcls,vdesc;
+    if(A.honey||A.reds>=2){vl=ZH?"高风险":"High risk";vcls="v-red";vdesc=ZH?"检测到 "+A.reds+" 项高危信号，强烈建议远离。":A.reds+" high-risk signals.";}
+    else if(A.reds===1){vl=ZH?"偏高风险":"Elevated risk";vcls="v-red";vdesc=ZH?"有 1 项高危信号，务必谨慎。":"1 high-risk signal.";}
+    else if(A.ambers>=1){vl=ZH?"中等风险":"Medium risk";vcls="v-amber";vdesc=ZH?"没有致命问题，但有 "+A.ambers+" 项需要注意。":A.ambers+" items to watch.";}
+    else{vl=ZH?"暂无明显风险":"No obvious risk";vcls="v-green";vdesc=ZH?"常见风险项都没命中，但仍需结合团队/项目基本面判断。":"No common red flags hit.";}
+
+    var html='<div class="verdict '+vcls+'"><div class="vl">'+(vcls==="v-green"?"🟢":vcls==="v-amber"?"🟡":"🔴")+' '+esc(vl)+'</div><div class="vd">'+esc(vdesc)+'</div></div>';
+    html+='<div class="tk"><span class="nm">'+esc(r.token_name||"?")+' ('+esc(r.token_symbol||"?")+')</span><span class="chip">'+esc(chainName)+'</span>'+(r.total_supply?'<span class="chip">'+(ZH?"总量 ":"supply ")+fmtN(Math.round(+r.total_supply))+'</span>':'')+(r.holder_count?'<span class="chip">'+(ZH?"持币 ":"")+fmtN(r.holder_count)+(ZH?" 人":" holders")+'</span>':'')+'</div>';
+    A.groups.forEach(function(g){
+      if(!g[1].length)return;
+      html+='<div class="sec"><div class="sh">'+esc(g[0])+'</div>';
+      g[1].forEach(function(x){html+=row(x[1],x[2],x[3],x[4],x[5]);});
+      html+='</div>';
+    });
+    out.innerHTML=html;
+  }
+
+  function go(){
+    var a=addrEl.value.trim(),cid=chainEl.value,cn=chainEl.options[chainEl.selectedIndex].text;
+    if(!isAddr(a)){state(ZH?"地址格式不对，应是 0x 开头 42 位":"Invalid address");return;}
+    goEl.disabled=true;state(ZH?"正在检测…（首次约 3–6 秒）":"Checking…");
+    fetch("https://api.gopluslabs.io/api/v1/token_security/"+cid+"?contract_addresses="+a).then(function(r){return r.json();}).then(function(d){
+      goEl.disabled=false;
+      var r=d&&d.result&&(d.result[a.toLowerCase()]||d.result[a]);
+      if(!r||!Object.keys(r).length){state(ZH?"没查到这个代币的数据 —— 可能不在所选链上、地址填错、或太新还没收录。换条链或核对地址再试。":"No data — wrong chain/address or not indexed yet.");return;}
+      render(r,a,cn);
+    }).catch(function(){goEl.disabled=false;state(ZH?"检测失败，稍后再试（接口忙或网络问题）":"Failed, try again later");});
+  }
+  goEl.onclick=go;
+  addrEl.addEventListener("keydown",function(e){if(e.key==="Enter")go();});
+  // 支持 ?addr=&chain= 直达
+  try{var q=new URLSearchParams(location.search);var qa=q.get("addr"),qc=q.get("chain");if(qc)chainEl.value=qc;if(qa&&isAddr(qa.trim())){addrEl.value=qa.trim();go();}}catch(e){}
+})();
+</script>
+<script src="/i18n.js"></script>
+</body></html>
