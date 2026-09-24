@@ -112,6 +112,11 @@ a.ex{color:var(--soft);text-decoration:none;border-bottom:1px dotted var(--line2
   var CHAINS={1:{n:"Ethereum",hex:"0x1"},56:{n:"BSC",hex:"0x38"},137:{n:"Polygon",hex:"0x89"},42161:{n:"Arbitrum",hex:"0xa4b1"},8453:{n:"Base",hex:"0x2105"},10:{n:"Optimism",hex:"0xa"},43114:{n:"Avalanche",hex:"0xa86a"}};
   var EXP={1:"https://etherscan.io",56:"https://bscscan.com",137:"https://polygonscan.com",42161:"https://arbiscan.io",8453:"https://basescan.org",10:"https://optimistic.etherscan.io",43114:"https://snowtrace.io"};
   var connected=null, rows=[];
+  var WK="https://count.web3origin.com";
+  var PUBRPC={1:"https://ethereum-rpc.publicnode.com",137:"https://polygon-bor-rpc.publicnode.com",42161:"https://arbitrum-one-rpc.publicnode.com"};
+  var SUPP={"1":1,"137":1,"42161":1};
+  var ERCABI=["function allowance(address,address) view returns (uint256)","function symbol() view returns (string)","function decimals() view returns (uint8)"];
+  var MAXU=(1n<<255n);
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
   function isAddr(a){return /^0x[0-9a-fA-F]{40}$/.test(a);}
   function short(a){a=String(a||"");return a.length>12?a.slice(0,6)+"…"+a.slice(-4):a;}
@@ -128,22 +133,63 @@ a.ex{color:var(--soft);text-decoration:none;border-bottom:1px dotted var(--line2
   function fmtAmt(v){if(v==null)return"—";if(String(v).toLowerCase()==="unlimited")return ZH?"无限额度":"Unlimited";var n=Number(v);return isFinite(n)?(n>=1e9?"≈"+(n/1e9).toFixed(1)+"B":n.toLocaleString("en-US")):String(v);}
   function fmtDate(t){t=Number(t);if(!t)return"";var d=new Date(t*1000);return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);}
 
+  var ORD={r:0,a:1,n:2,g:3};
   function fetchApprovals(){
     var a=addrEl.value.trim(),cid=chainEl.value;
     if(!isAddr(a)){state(ZH?"地址格式不对，应是 0x 开头 42 位":"Invalid address");return;}
-    goEl.disabled=true;state(ZH?"正在读取授权…（首次约 3–6 秒）":"Loading approvals…");
+    goEl.disabled=true;state(ZH?"正在读取授权…（首次约 3–8 秒）":"Loading approvals…");
+    if(SUPP[cid]&&window.ethers){ logsScan(a,cid); } else { goplusScan(a,cid); }
+  }
+
+  // 准确路径:Worker用Etherscan日志查出所有授权对 → 公共节点读当前额度、过滤已撤销 → GoPlus富化风险
+  async function logsScan(a,cid){
+    try{
+      var d=await fetch(WK+"/approvals?chain="+cid+"&addr="+a).then(function(r){return r.json();});
+      if(!d||d.useGoplus||!d.ok){ goplusScan(a,cid); return; }
+      var pairs=d.pairs||[];
+      if(!pairs.length){ goEl.disabled=false; rows=[]; renderList(a,cid); return; }
+      var prov=new ethers.JsonRpcProvider(PUBRPC[cid]);
+      var toks={}; pairs.forEach(function(p){toks[p.t]=1;});
+      var meta={};
+      await Promise.all(Object.keys(toks).map(async function(t){
+        var sy="?",de=18;try{var c=new ethers.Contract(t,ERCABI,prov);try{sy=await c.symbol();}catch(e){}try{de=Number(await c.decimals());}catch(e){}}catch(e){}
+        meta[t]={sym:sy,dec:isFinite(de)?de:18};
+      }));
+      var built=[];
+      await Promise.all(pairs.map(async function(p){
+        try{
+          var al=await new ethers.Contract(p.t,ERCABI,prov).allowance(a,p.s);
+          if(al>0n){var m=meta[p.t]||{sym:"?",dec:18};var unl=al>=MAXU;
+            built.push({token:m.sym,tokenAddr:p.t,decimals:m.dec,spender:p.s,spenderName:short(p.s),amount:unl?"Unlimited":Number(ethers.formatUnits(al,m.dec)),risk:unl?"a":"n",done:false});}
+        }catch(e){}
+      }));
+      rows=built;
+      await enrichRisk(a,cid);
+      rows.sort(function(x,y){return ORD[x.risk]-ORD[y.risk];});
+      goEl.disabled=false; renderList(a,cid);
+    }catch(e){ goplusScan(a,cid); }
+  }
+  // GoPlus富化:补spender名、把已知危险spender标红(best-effort,失败忽略)
+  async function enrichRisk(a,cid){
+    try{
+      var d=await fetch("https://api.gopluslabs.io/api/v2/token_approval_security/"+cid+"?addresses="+a).then(function(r){return r.json();});
+      var map={};
+      ((d&&d.result)||[]).forEach(function(tok){(tok.approved_list||[]).forEach(function(sp){
+        map[(tok.token_address||"").toLowerCase()+":"+(sp.approved_contract||"").toLowerCase()]={name:spenderName(sp),risk:riskOf(sp,tok)};});});
+      rows.forEach(function(x){var g=map[(x.tokenAddr||"").toLowerCase()+":"+(x.spender||"").toLowerCase()];
+        if(g){if(g.name)x.spenderName=g.name;if(g.risk==="r")x.risk="r";}});
+    }catch(e){}
+  }
+  // 兜底路径:GoPlus(覆盖不全,但BSC等不支持日志的链只能用它)
+  function goplusScan(a,cid){
     fetch("https://api.gopluslabs.io/api/v2/token_approval_security/"+cid+"?addresses="+a).then(function(r){return r.json();}).then(function(d){
       goEl.disabled=false;
-      var list=(d&&d.result)||[];
-      rows=[];
+      var list=(d&&d.result)||[]; rows=[];
       list.forEach(function(tok){(tok.approved_list||[]).forEach(function(sp){
-        rows.push({token:tok.token_symbol||"?",tokenAddr:tok.token_address,decimals:tok.decimals,bal:tok.balance,
+        rows.push({token:tok.token_symbol||"?",tokenAddr:tok.token_address,decimals:tok.decimals,
           spender:sp.approved_contract,spenderName:spenderName(sp),amount:sp.approved_amount,date:sp.approved_time,
-          risk:riskOf(sp,tok),done:false});
-      });});
-      // 排序:危险>无限>其它
-      var ord={r:0,a:1,n:2,g:3};
-      rows.sort(function(x,y){return ord[x.risk]-ord[y.risk];});
+          risk:riskOf(sp,tok),done:false});});});
+      rows.sort(function(x,y){return ORD[x.risk]-ORD[y.risk];});
       renderList(a,cid);
     }).catch(function(){goEl.disabled=false;state(ZH?"读取失败，稍后再试":"Failed, try later");});
   }
