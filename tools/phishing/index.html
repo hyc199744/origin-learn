@@ -1,0 +1,168 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>钓鱼网址检测 · Web3Origin</title>
+<meta name="description" content="粘一个网址，检测是不是钓鱼站/假官网/假客服：已知钓鱼库+仿冒域名、punycode伪装、IP、钓鱼关键词、可疑TLD等启发式判断，给出风险结论和防诈提示。">
+<meta property="og:title" content="钓鱼网址检测 · 假官网一键查">
+<meta property="og:description" content="粘网址查是不是钓鱼站/假官网/假客服，红黄绿分级+防诈提示。">
+<meta property="og:image" content="https://web3origin.com/assets/logo.png">
+<link rel="icon" href="/assets/logo.png">
+<style>
+:root{--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--ink:#e8d9be;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--line2:#4a3320;--green:#3ad07f;--red:#e0705f;--amber:#e8a45c;--serif:"STZhongsong","Songti SC",Georgia,serif;--sans:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -8%,#0f2318,#050303 60%) fixed,#050303;color:var(--ink);font-family:var(--sans);line-height:1.7}
+.top{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.top a.back{display:flex;align-items:center;gap:8px;color:var(--soft);text-decoration:none;font-size:14px}
+.top a.back img{width:24px;height:24px}
+.top .sp{margin-left:auto}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit}
+.wrap{max-width:720px;margin:0 auto;padding:22px 16px 70px}
+.hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px}
+.hd .ic{font-size:26px}
+h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(--serif);letter-spacing:.04em}
+.sub{color:var(--soft);font-size:13.5px;margin:4px 0 18px}
+.box{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));border:1px solid var(--line);border-radius:14px;padding:15px}
+.frm{display:flex;gap:10px;flex-wrap:wrap}
+.frm input{flex:1;min-width:220px;background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;color:var(--bone);padding:11px 13px;font:inherit;font-size:14px;font-family:var(--mono)}
+.frm input:focus{outline:none;border-color:var(--gold)}
+.frm button{background:linear-gradient(135deg,var(--gold-lt),#b8842f);color:#1a1206;border:0;border-radius:10px;padding:11px 22px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.hint{color:var(--muted);font-size:12px;margin-top:10px}
+#out{margin-top:18px}
+.state{text-align:center;color:var(--muted);padding:30px 12px;font-size:14px}
+.verdict{border-radius:14px;padding:16px 18px;margin-bottom:14px;border:1px solid}
+.verdict .vl{font-family:var(--serif);font-size:22px;font-weight:700}
+.verdict .vd{font-size:13px;margin-top:6px;opacity:.94}
+.v-red{background:rgba(224,112,95,.12);border-color:rgba(224,112,95,.55)}.v-red .vl{color:#ff8d78}.v-red .vd{color:#f0a596}
+.v-amber{background:rgba(232,164,92,.12);border-color:rgba(232,164,92,.5)}.v-amber .vl{color:#f2b56c}.v-amber .vd{color:#eec49a}
+.v-green{background:rgba(58,208,127,.12);border-color:rgba(58,208,127,.5)}.v-green .vl{color:#5fe0a0}.v-green .vd{color:#a6e6c4}
+.host{font-family:var(--mono);font-size:13px;color:var(--bone);background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin-bottom:14px;word-break:break-all}
+.sig{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-top:1px solid rgba(255,255,255,.05)}
+.sig:first-child{border-top:0}
+.sig .d{flex:0 0 auto;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;margin-top:1px}
+.d.g{background:rgba(58,208,127,.16);color:var(--green)}.d.r{background:rgba(224,112,95,.18);color:var(--red)}.d.a{background:rgba(232,164,92,.18);color:var(--amber)}
+.sig .tx .t{font-size:13.5px;color:var(--bone);font-weight:600}
+.sig .tx .s{font-size:12px;color:var(--muted);margin-top:1px}
+.rules{margin-top:16px;background:rgba(224,112,95,.06);border:1px solid rgba(224,112,95,.3);border-radius:12px;padding:14px}
+.rules h3{margin:0 0 8px;font-size:14px;color:#ff8d78;font-family:var(--serif)}
+.rules ul{margin:0;padding-left:20px}.rules li{font-size:12.5px;color:var(--ink);margin:4px 0}
+.foot{color:var(--muted);font-size:11.5px;margin-top:18px;line-height:1.8;border-top:1px solid var(--line);padding-top:14px}
+.foot b{color:var(--soft)}
+[data-lang]{display:none!important}html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+</style>
+</head><body>
+<div class="top">
+  <a class="back" href="/tools/origin-monitor/"><img src="/assets/logo.png" alt=""><span data-lang="zh">← 返回起源百宝箱</span><span data-lang="en">← Back to Toolbox</span></a>
+  <span class="sp"></span>
+  <button id="langBtn" aria-label="Language">🌐</button>
+</div>
+<div class="wrap">
+  <div class="hd"><span class="ic">🎣</span><div>
+    <h1><span data-lang="zh">钓鱼网址检测</span><span data-lang="en">Phishing URL Check</span></h1>
+    <div class="sub"><span data-lang="zh">粘一个网址（收到的链接、"官网"、"客服"页），查是不是<b style="color:var(--gold-lt)">钓鱼站/假官网/仿冒站</b>。结合已知钓鱼库和仿冒特征判断，并给出防诈提示。</span><span data-lang="en">Paste a URL to check if it's a phishing / fake / impersonation site.</span></div>
+  </div></div>
+
+  <div class="box">
+    <div class="frm">
+      <input id="url" placeholder="粘贴网址，如 https://xxx.com …" spellcheck="false" autocomplete="off">
+      <button id="go" type="button"><span data-lang="zh">检测</span><span data-lang="en">Check</span></button>
+    </div>
+    <div class="hint"><span data-lang="zh">只分析网址本身，<b>不会打开它、不连钱包、不需助记词</b>。已知钓鱼库来自 GoPlus，仿冒/可疑特征为本站启发式判断。</span><span data-lang="en">Analyzes the URL only; never opens it or connects a wallet.</span></div>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="foot">
+    <div data-lang="zh"><b>重要：</b>"没发现问题"≠"绝对安全"——新钓鱼站可能还没被收录。<b>永远以官方渠道核对域名，一个字母都不能差</b>；任何网站/客服向你要助记词、私钥、或让你"验证钱包"都是骗子。</div>
+    <div data-lang="en"><b>Note:</b> "no issue" ≠ 100% safe. Always verify the official domain char-by-char.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ZH=(document.documentElement.lang||"zh").slice(0,2)==="zh";
+  var urlEl=document.getElementById("url"),goEl=document.getElementById("go"),out=document.getElementById("out");
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function state(m){out.innerHTML='<div class="state">'+esc(m)+'</div>';}
+
+  var BRANDS=[
+    {n:"起源 Origin",kw:["web3origin","origindefi","ocros","lgns","anubis"],off:["web3origin.com","origindefi.io","rocket.origindefi.io","anubis.origindefi.io","apiv2.ocros.io","lgns.tech"]},
+    {n:"Uniswap",kw:["uniswap"],off:["uniswap.org"]},
+    {n:"PancakeSwap",kw:["pancake"],off:["pancakeswap.finance"]},
+    {n:"MetaMask",kw:["metamask"],off:["metamask.io"]},
+    {n:"OKX",kw:["okx","okex"],off:["okx.com"]},
+    {n:"币安 Binance",kw:["binance"],off:["binance.com"]},
+    {n:"OpenSea",kw:["opensea"],off:["opensea.io"]},
+    {n:"Coinbase",kw:["coinbase"],off:["coinbase.com"]},
+    {n:"TrustWallet",kw:["trustwallet"],off:["trustwallet.com"]},
+    {n:"TokenPocket",kw:["tokenpocket"],off:["tokenpocket.pro"]},
+    {n:"imToken",kw:["imtoken"],off:["token.im","imtoken.com"]},
+    {n:"Bybit",kw:["bybit"],off:["bybit.com"]},
+    {n:"Gate",kw:["gateio","gate-io"],off:["gate.io","gate.com"]},
+    {n:"KuCoin",kw:["kucoin"],off:["kucoin.com"]}
+  ];
+  var SCAM=["airdrop","claim","reward","bonus","giveaway","verify","validate","connect-wallet","walletconnect","mint","presale","double","freemint","unlock","migrate","restore","recover","kefu","support-","-support"];
+  var BADTLD=["xyz","top","cc","icu","club","live","vip","gq","tk","ml","cf","ga","buzz","monster","sbs","rest","fit","cyou","bond"];
+  function reg(host){var p=host.split(".");return p.length<=2?host:p.slice(-2).join(".");}
+  function isOff(host,off){return host===off||host.endsWith("."+off);}
+
+  function go(){
+    var raw=urlEl.value.trim();if(!raw){state(ZH?"粘一个网址":"Paste a URL");return;}
+    var u;try{u=new URL(/^https?:\/\//i.test(raw)?raw:("https://"+raw));}catch(e){state(ZH?"网址格式不对，检查一下":"Invalid URL");return;}
+    var host=u.hostname.toLowerCase();
+    goEl.disabled=true;state(ZH?"正在检测…":"Checking…");
+    fetch("https://api.gopluslabs.io/api/v1/phishing_site?url="+encodeURIComponent(u.href)).then(function(r){return r.json();}).then(function(d){
+      goEl.disabled=false;
+      var known=d&&d.result&&(d.result.phishing_site==1||d.result.phishing_site==="1");
+      render(u,host,known);
+    }).catch(function(){goEl.disabled=false;render(u,host,false);});
+  }
+
+  function render(u,host,known){
+    var sigs=[],reds=0,ambers=0;
+    function add(l,t,s){sigs.push({l:l,t:t,s:s});if(l==="r")reds++;else if(l==="a")ambers++;}
+    // 已知钓鱼库
+    if(known)add("r","已在钓鱼库中","GoPlus 安全库已把它标记为钓鱼站，别碰。");
+    // HTTPS
+    if(u.protocol!=="https:")add("a","不是 HTTPS","正规网站基本都用 https，http 站要格外小心。");
+    else add("g","使用 HTTPS","");
+    // IP host
+    if(/^\d{1,3}(\.\d{1,3}){3}$/.test(host))add("r","用 IP 地址访问","正规网站极少直接用 IP，钓鱼站常见。");
+    // punycode
+    if(host.indexOf("xn--")>=0)add("r","含伪装字符 (punycode)","可能用相似字符冒充知名域名（如把 o 换成别的字），高度可疑。");
+    // 仿冒品牌
+    var imp=null;
+    for(var i=0;i<BRANDS.length;i++){var b=BRANDS[i];for(var j=0;j<b.kw.length;j++){if(host.indexOf(b.kw[j])>=0){var ok=false;for(var k=0;k<b.off.length;k++){if(isOff(host,b.off[k])){ok=true;break;}}if(!ok){imp=b;}break;}}if(imp)break;}
+    if(imp)add("r","疑似仿冒「"+imp.n+"」","域名里带了 "+imp.n+" 的字样，但不是它的官方域名。真官网是 "+imp.off[0]+" —— 极可能是假官网。");
+    // 钓鱼关键词
+    var hit=SCAM.filter(function(w){return host.indexOf(w)>=0;});
+    if(hit.length)add("a","域名含钓鱼常用词","含「"+hit.slice(0,3).join("、")+"」等词，airdrop/claim/verify 这类是钓鱼站高频词。");
+    // 可疑TLD
+    var tld=host.split(".").pop();
+    if(BADTLD.indexOf(tld)>=0)add("a","廉价/高危后缀 ."+tld,"钓鱼站爱用的便宜后缀（正规站也有用，非绝对）。");
+    // 结构可疑
+    if((host.match(/-/g)||[]).length>=3||host.length>40)add("a","域名结构可疑","过多连字符或超长域名，常见于拼凑的钓鱼域名。");
+    if(!sigs.some(function(x){return x.l==="r"||x.l==="a";}))add("g","未命中已知钓鱼与常见仿冒特征","");
+
+    var vcls,vl,vd,em;
+    if(known||imp||host.indexOf("xn--")>=0){vcls="v-red";em="🔴";vl=ZH?"高度危险 · 疑似钓鱼/假官网":"High risk";vd=ZH?"命中钓鱼或仿冒特征，强烈建议别打开、别连钱包、别输任何信息。":"";}
+    else if(reds>0){vcls="v-red";em="🔴";vl=ZH?"危险":"Dangerous";vd=ZH?"命中高危特征，务必谨慎。":"";}
+    else if(ambers>0){vcls="v-amber";em="🟡";vl=ZH?"可疑 · 需谨慎":"Suspicious";vd=ZH?"有 "+ambers+" 项可疑特征，别急着连钱包，先核对官方域名。":"";}
+    else{vcls="v-green";em="🟢";vl=ZH?"未发现明显问题":"No obvious issue";vd=ZH?"没命中已知钓鱼和常见仿冒特征——但仍请以官方渠道核对域名。":"";}
+
+    var h='<div class="verdict '+vcls+'"><div class="vl">'+em+' '+esc(vl)+'</div><div class="vd">'+esc(vd)+'</div></div>';
+    h+='<div class="host">'+esc(u.href)+'</div>';
+    sigs.forEach(function(x){var ic={g:"✓",r:"✕",a:"!"}[x.l];h+='<div class="sig"><span class="d '+x.l+'">'+ic+'</span><div class="tx"><div class="t">'+esc(x.t)+'</div>'+(x.s?'<div class="s">'+esc(x.s)+'</div>':'')+'</div></div>';});
+    h+='<div class="rules"><h3>🛡️ 防钓鱼铁律</h3><ul>'
+      +'<li>官方域名从可信渠道（官方公众号/置顶）核对，<b>一个字母都不能差</b>，别从聊天/搜索广告里点。</li>'
+      +'<li>任何网站/"客服"要你的<b>助记词、私钥</b>，或让你"验证/同步钱包"——100% 是骗子。</li>'
+      +'<li>陌生站别连钱包；真要连，连完先来「授权检查」看有没有被套授权。</li>'
+      +'<li>"空投/领奖/翻倍"链接九成是钓鱼，越急越是坑。</li></ul></div>';
+    out.innerHTML=h;
+  }
+  goEl.onclick=go;
+  urlEl.addEventListener("keydown",function(e){if(e.key==="Enter")go();});
+  try{var q=new URLSearchParams(location.search).get("url");if(q){urlEl.value=q;go();}}catch(e){}
+})();
+</script>
+<script src="/i18n.js"></script>
+</body></html>
