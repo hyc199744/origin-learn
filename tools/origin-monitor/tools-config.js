@@ -236,12 +236,7 @@
       status: 'live', isPremium: false, route: '/tools/phishing/', enabled: true,
       note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' },
 
-    { id: 'contract-read', number: 39, name: '合约大白话解读', en: {"name":"Contract Explainer","description":"Fetch verified source of any contract and explain in plain words what admins can do and any backdoors."}, category: 'security-dd', icon: '📖',
-      description: '输合约地址→自动拉验证源码→大白话讲这合约干嘛的、管理员能做什么、有没有增发/暂停/拉黑/改余额/升级/自毁等后门。不连钱包。',
-      status: 'live', isPremium: false, route: '/tools/contract-read/', enabled: true,
-      note: '独立页 /tools/contract-read/,Worker /source(Etherscan getsourcecode,隐藏key,代理连带取impl的ABI)拉ABI→前端按函数名正则分类管理员权限(增发/改余额/升级/自毁/拉黑/提资产=红;暂停/改税/限额/白名单/转owner=黄)+publicnode读owner()是否放弃→大白话+结论。仅ETH/Polygon/Arb(免费Etherscan);未开源直接警示。免费公开。2026-09-26做。' },
-
-    { id: 'scam-db', number: 40, name: '骗局曝光库', en: {"name":"Scam Exposure DB","description":"Searchable list of high-risk scams Origin has DD'd, each with on-chain evidence and contract addresses."}, category: 'security-dd', icon: '🚨',
+    { id: 'scam-db', number: 39, name: '骗局曝光库', en: {"name":"Scam Exposure DB","description":"Searchable list of high-risk scams Origin has DD'd, each with on-chain evidence and contract addresses."}, category: 'security-dd', icon: '🚨',
       description: '起源尽调过、判高危的资金盘/传销/蹭名假盘名单，附链上证据和合约地址，可核实。输项目名或地址即可查，防诈避雷。',
       status: 'live', isPremium: false, route: '/tools/scam-db/', enabled: true,
       note: '独立页 /tools/scam-db/,纯前端策展数据(来自老板尽调:CryptoDAO/MOVA/MarsChain/Meta-SENTIS/8888/IBS/templeraid/funverse等)+搜索(名/地址/关键词);每条含结论+链上证据bullets+可核实地址(EVM链带区块浏览器链接);含申诉/举报加微信CTA+独立分析风险提示免责。免费公开。以后加新盘直接改DATA数组。2026-09-26做。' }
