@@ -229,7 +229,12 @@
     { id: 'wallet-checkup', number: 37, name: '钱包安全体检', en: {"name":"Wallet Security Checkup","description":"One-click wallet security score: approval risks, unlimited allowances, fixes; revoke and download a report."}, category: 'security-dd', icon: '🩺',
       description: '一键给钱包做安全体检：授权风险、无限额度、危险合约，出安全评分+整改建议，可一键去撤销、下载体检报告(Word)。旗舰安全工具，不连助记词。',
       status: 'live', isPremium: false, route: '/tools/checkup/', enabled: true,
-      note: '独立页 /tools/checkup/,复用 revoke 那套(Worker /approvals + publicnode实时额度 + GoPlus富化)算授权风险→安全评分(100-危险*15-无限*6-普通*1)+整改建议+基础画像+一键跳撤销+下载Word体检报告(html-docx自托管);加微信深度体检CTA(wechat-qr.png)。免费公开,ETH/Polygon/Arb最准,其它退GoPlus。把token-safety+revoke整合成招牌"体检"。2026-09-26做。' }
+      note: '独立页 /tools/checkup/,复用 revoke 那套(Worker /approvals + publicnode实时额度 + GoPlus富化)算授权风险→安全评分(100-危险*15-无限*6-普通*1)+整改建议+基础画像+一键跳撤销+下载Word体检报告(html-docx自托管);加微信深度体检CTA(wechat-qr.png)。免费公开,ETH/Polygon/Arb最准,其它退GoPlus。把token-safety+revoke整合成招牌"体检"。2026-09-26做。' },
+
+    { id: 'phishing-check', number: 38, name: '钓鱼网址检测', en: {"name":"Phishing URL Check","description":"Paste a URL to check if it is a phishing / fake / impersonation site: known-phishing DB + look-alike heuristics."}, category: 'security-dd', icon: '🎣',
+      description: '粘一个网址查是不是钓鱼站/假官网/仿冒站：已知钓鱼库 + 仿冒域名/punycode/IP/钓鱼词/可疑后缀等启发式，红黄绿分级+防诈提示。',
+      status: 'live', isPremium: false, route: '/tools/phishing/', enabled: true,
+      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
