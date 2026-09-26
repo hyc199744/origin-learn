@@ -234,7 +234,12 @@
     { id: 'phishing-check', number: 38, name: '钓鱼网址检测', en: {"name":"Phishing URL Check","description":"Paste a URL to check if it is a phishing / fake / impersonation site: known-phishing DB + look-alike heuristics."}, category: 'security-dd', icon: '🎣',
       description: '粘一个网址查是不是钓鱼站/假官网/仿冒站：已知钓鱼库 + 仿冒域名/punycode/IP/钓鱼词/可疑后缀等启发式，红黄绿分级+防诈提示。',
       status: 'live', isPremium: false, route: '/tools/phishing/', enabled: true,
-      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' }
+      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' },
+
+    { id: 'contract-read', number: 39, name: '合约大白话解读', en: {"name":"Contract Explainer","description":"Fetch verified source of any contract and explain in plain words what admins can do and any backdoors."}, category: 'security-dd', icon: '📖',
+      description: '输合约地址→自动拉验证源码→大白话讲这合约干嘛的、管理员能做什么、有没有增发/暂停/拉黑/改余额/升级/自毁等后门。不连钱包。',
+      status: 'live', isPremium: false, route: '/tools/contract-read/', enabled: true,
+      note: '独立页 /tools/contract-read/,Worker /source(Etherscan getsourcecode,隐藏key,代理连带取impl的ABI)拉ABI→前端按函数名正则分类管理员权限(增发/改余额/升级/自毁/拉黑/提资产=红;暂停/改税/限额/白名单/转owner=黄)+publicnode读owner()是否放弃→大白话+结论。仅ETH/Polygon/Arb(免费Etherscan);未开源直接警示。免费公开。2026-09-26做。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
