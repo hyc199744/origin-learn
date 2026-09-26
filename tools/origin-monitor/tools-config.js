@@ -224,7 +224,12 @@
     { id: 'token-safety', number: 36, name: '代币安全检测', en: {"name":"Token Safety Check","description":"Check any token contract for honeypot, taxes, mint, blacklist, owner powers, LP lock and holder concentration. Multi-chain, free."}, category: 'security-dd', icon: '🛡️',
       description: '输入任意代币合约地址，一键查有没有"漏洞"：貔貅、买卖税、可否增发、黑名单、owner 权限、是否开源、可否升级、LP 锁定、持仓集中度。多链、免费、不连钱包。',
       status: 'live', isPremium: false, route: '/tools/token-safety/', enabled: true,
-      note: '独立页 /tools/token-safety/,前端直连GoPlus(api.gopluslabs.io/api/v1/token_security/<chainId>,浏览器CORS通)查任意代币安全项,红黄绿分级+大白话+总体风险结论;多链下拉(BSC/ETH/Polygon/Arb/Base等);支持?addr=&chain=直达。免费公开(安全防骗,引流),不连钱包纯只读。已上线。' }
+      note: '独立页 /tools/token-safety/,前端直连GoPlus(api.gopluslabs.io/api/v1/token_security/<chainId>,浏览器CORS通)查任意代币安全项,红黄绿分级+大白话+总体风险结论;多链下拉(BSC/ETH/Polygon/Arb/Base等);支持?addr=&chain=直达。免费公开(安全防骗,引流),不连钱包纯只读。已上线。' },
+
+    { id: 'wallet-checkup', number: 37, name: '钱包安全体检', en: {"name":"Wallet Security Checkup","description":"One-click wallet security score: approval risks, unlimited allowances, fixes; revoke and download a report."}, category: 'security-dd', icon: '🩺',
+      description: '一键给钱包做安全体检：授权风险、无限额度、危险合约，出安全评分+整改建议，可一键去撤销、下载体检报告(Word)。旗舰安全工具，不连助记词。',
+      status: 'live', isPremium: false, route: '/tools/checkup/', enabled: true,
+      note: '独立页 /tools/checkup/,复用 revoke 那套(Worker /approvals + publicnode实时额度 + GoPlus富化)算授权风险→安全评分(100-危险*15-无限*6-普通*1)+整改建议+基础画像+一键跳撤销+下载Word体检报告(html-docx自托管);加微信深度体检CTA(wechat-qr.png)。免费公开,ETH/Polygon/Arb最准,其它退GoPlus。把token-safety+revoke整合成招牌"体检"。2026-09-26做。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
