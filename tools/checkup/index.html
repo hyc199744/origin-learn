@@ -196,7 +196,7 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
     var adv=[];
     if(sc.r>0)adv.push(ZH?"立刻撤销 "+sc.r+" 个被标记危险的授权。":"Revoke "+sc.r+" risky approvals now.");
     if(sc.u>0)adv.push(ZH?"把 "+sc.u+" 个无限额度授权改成不用就撤，或改成够用的额度。":"Trim "+sc.u+" unlimited approvals.");
-    adv.push(ZH?"以后在陌生 DApp 授权时，尽量别给"无限额度"。":"Avoid unlimited approvals on unknown DApps.");
+    adv.push(ZH?"以后在陌生 DApp 授权时，尽量别给「无限额度」。":"Avoid unlimited approvals on unknown DApps.");
     adv.push(ZH?"任何人向你要助记词/私钥都是骗子——本站永不索取。":"Never share your seed phrase.");
     h+='<div class="card"><h3>✅ '+(ZH?"整改建议":"Suggestions")+'</h3><ul class="advice">'+adv.map(function(x){return '<li>'+esc(x)+'</li>';}).join("")+'</ul></div>';
     // 基础画像
