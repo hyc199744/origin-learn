@@ -234,12 +234,7 @@
     { id: 'phishing-check', number: 38, name: '钓鱼网址检测', en: {"name":"Phishing URL Check","description":"Paste a URL to check if it is a phishing / fake / impersonation site: known-phishing DB + look-alike heuristics."}, category: 'security-dd', icon: '🎣',
       description: '粘一个网址查是不是钓鱼站/假官网/仿冒站：已知钓鱼库 + 仿冒域名/punycode/IP/钓鱼词/可疑后缀等启发式，红黄绿分级+防诈提示。',
       status: 'live', isPremium: false, route: '/tools/phishing/', enabled: true,
-      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' },
-
-    { id: 'scam-db', number: 39, name: '骗局曝光库', en: {"name":"Scam Exposure DB","description":"Searchable list of high-risk scams Origin has DD'd, each with on-chain evidence and contract addresses."}, category: 'security-dd', icon: '🚨',
-      description: '起源尽调过、判高危的资金盘/传销/蹭名假盘名单，附链上证据和合约地址，可核实。输项目名或地址即可查，防诈避雷。',
-      status: 'live', isPremium: false, route: '/tools/scam-db/', enabled: true,
-      note: '独立页 /tools/scam-db/,纯前端策展数据(来自老板尽调:CryptoDAO/MOVA/MarsChain/Meta-SENTIS/8888/IBS/templeraid/funverse等)+搜索(名/地址/关键词);每条含结论+链上证据bullets+可核实地址(EVM链带区块浏览器链接);含申诉/举报加微信CTA+独立分析风险提示免责。免费公开。以后加新盘直接改DATA数组。2026-09-26做。' }
+      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
