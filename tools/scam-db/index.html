@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>骗局曝光库 · Web3Origin</title>
+<meta name="description" content="起源独立尽调、判定为高危的资金盘/传销盘/蹭名假盘名单，附链上证据和合约地址，可自行核实。输项目名或合约地址即可查。防诈避雷。">
+<meta property="og:title" content="骗局曝光库 · 起源尽调避雷名单">
+<meta property="og:description" content="起源尽调过判高危的资金盘/传销/蹭名假盘，附链上证据和地址，可核实。输名字或地址即可查。">
+<meta property="og:image" content="https://web3origin.com/assets/logo.png">
+<link rel="icon" href="/assets/logo.png">
+<style>
+:root{--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--ink:#e8d9be;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--line2:#4a3320;--green:#3ad07f;--red:#e0705f;--amber:#e8a45c;--serif:"STZhongsong","Songti SC",Georgia,serif;--sans:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -8%,#0f2318,#050303 60%) fixed,#050303;color:var(--ink);font-family:var(--sans);line-height:1.7}
+.top{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.top a.back{display:flex;align-items:center;gap:8px;color:var(--soft);text-decoration:none;font-size:14px}
+.top a.back img{width:24px;height:24px}
+.top .sp{margin-left:auto}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit}
+.wrap{max-width:800px;margin:0 auto;padding:22px 16px 70px}
+.hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px}
+.hd .ic{font-size:26px}
+h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(--serif);letter-spacing:.04em}
+.sub{color:var(--soft);font-size:13.5px;margin:4px 0 16px}
+.searchbar{display:flex;gap:10px;flex-wrap:wrap;position:sticky;top:env(safe-area-inset-top,0);background:#050303;padding:6px 0 12px;z-index:5}
+.searchbar input{flex:1;min-width:180px;background:rgba(0,0,0,.4);border:1px solid var(--line2);border-radius:10px;color:var(--bone);padding:11px 13px;font:inherit;font-size:14px}
+.searchbar input:focus{outline:none;border-color:var(--gold)}
+.count{color:var(--muted);font-size:12px;margin-bottom:10px}
+.card{border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px;background:linear-gradient(180deg,rgba(224,112,95,.05),rgba(255,255,255,0))}
+.card .ch{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}
+.card .nm{font-family:var(--serif);font-size:17px;color:var(--bone);font-weight:700}
+.lvl{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;background:rgba(224,112,95,.16);color:#ff8d78;border:1px solid rgba(224,112,95,.5)}
+.chip{font-size:11px;color:var(--soft);border:1px solid var(--line2);border-radius:999px;padding:2px 9px}
+.card .cc{font-size:13.5px;color:var(--ink);margin:6px 0 10px;line-height:1.65}
+.card .cc b{color:#ff8d78}
+.ev{margin:0;padding-left:18px}
+.ev li{font-size:12.5px;color:var(--soft);margin:4px 0;line-height:1.6}
+.addr{margin-top:10px;font-size:11.5px;color:var(--muted);word-break:break-all}
+.addr a,.addr code{font-family:var(--mono);color:var(--soft);text-decoration:none}
+.addr a{border-bottom:1px dotted var(--line2)}
+.date{float:right;color:var(--muted);font-size:11px}
+.empty{text-align:center;color:var(--muted);padding:30px}
+.cta{margin-top:18px;background:linear-gradient(135deg,rgba(58,208,127,.08),rgba(255,255,255,.02));border:1px solid rgba(58,208,127,.4);border-radius:14px;padding:16px}
+.cta-t{font-size:14px;color:var(--bone);font-weight:600;margin-bottom:12px}.cta-t b{color:var(--green)}
+.cta-b{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.cta-qr{width:110px;height:110px;border-radius:10px;background:#fff;padding:6px;flex:0 0 auto}
+.cta-x b{color:var(--green);font-size:14px;display:block}.cta-x span{color:var(--soft);font-size:12.5px;display:block;margin-top:4px}
+.foot{color:var(--muted);font-size:11.5px;margin-top:16px;line-height:1.8;border-top:1px solid var(--line);padding-top:14px}
+.foot b{color:var(--soft)}
+[data-lang]{display:none!important}html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+</style>
+</head><body>
+<div class="top">
+  <a class="back" href="/tools/origin-monitor/"><img src="/assets/logo.png" alt=""><span data-lang="zh">← 返回起源百宝箱</span><span data-lang="en">← Back to Toolbox</span></a>
+  <span class="sp"></span>
+  <button id="langBtn" aria-label="Language">🌐</button>
+</div>
+<div class="wrap">
+  <div class="hd"><span class="ic">🚨</span><div>
+    <h1><span data-lang="zh">骗局曝光库</span><span data-lang="en">Scam Exposure DB</span></h1>
+    <div class="sub"><span data-lang="zh">起源<b style="color:var(--gold-lt)">独立尽调</b>、判定为高危的资金盘/传销盘/蹭名假盘名单，每条附<b>链上证据和合约地址</b>，可自行核实。输项目名或合约地址即可查。</span><span data-lang="en">Origin's independent DD list of high-risk scams, with on-chain evidence and addresses.</span></div>
+  </div></div>
+
+  <div class="searchbar"><input id="q" placeholder="搜项目名 / 合约地址 / 关键词，如 OHM、质押、Anubis…" spellcheck="false" autocomplete="off"></div>
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+
+  <div class="cta">
+    <div class="cta-t">🕵️ <span data-lang="zh">发现新骗局，或对某条有异议想<b>申诉</b>？加我微信</span><span data-lang="en">Report a scam or appeal? Add WeChat.</span></div>
+    <div class="cta-b"><img class="cta-qr" src="/assets/wechat-qr.png" alt="微信二维码" loading="lazy"><div class="cta-x"><b data-lang="zh">加我微信</b><b data-lang="en">Add WeChat</b><span data-lang="zh">举报新盘 / 申诉 / 求助尽调，发地址给我。</span><span data-lang="en">Report / appeal / request DD.</span></div></div>
+  </div>
+
+  <div class="foot">
+    <div data-lang="zh"><b>说明：</b>本库是起源基于<b>公开链上数据的独立分析与风险提示</b>，列出的都是链上可核实的事实（合约权限、资金去向、经济模型等），并非法律定性。项目方如有异议可加微信申诉。判断仅供参考、不构成投资建议——但"链上证据摆在这，自己核实"。</div>
+    <div data-lang="en"><b>Note:</b> Independent risk analysis from public on-chain data, not a legal ruling. Verify the evidence yourself. Not investment advice.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ZH=(document.documentElement.lang||"zh").slice(0,2)==="zh";
+  var EX={bsc:"https://bscscan.com/address/",polygon:"https://polygonscan.com/address/",eth:"https://etherscan.io/address/",anubis:"https://browser.anubispace.org/address/",mova:"https://scan.movachain.com/address/"};
+  var DATA=[
+    {name:"CryptoDAO（PRO）",chain:"BSC",ex:"bsc",addr:"0x8d65744527f55d0b2338350912d5c99a81ddf0e2",level:"极高",type:"资金盘·OHM仿盘",date:"2026-07-13",
+     kw:"cryptodao pro ohm rebase 拉人头 质押 certik",
+     concl:"表面“弃权/不可增发/LP已烧/有CertiK审计”全是障眼法——真权力在活的治理合约，可增发、可一键关停买卖、可掏空质押池。",
+     ev:["owner虽转黑洞，但 governance(0x96079ef9…) 仍能 mint 增发、一键关停买卖、改税、改国库","治理/金库/质押三大核心都是可升级代理，逻辑随时可换；无多签","质押池约占全网 54%（约 2.5 亿美元），逻辑可被换掉掏空","rebase 增发 + 日息 0.5–0.9%/年化约 48880% + V1–V15 拉人头庞氏；已被新浪财经点名"]},
+    {name:"MOVA / MovaChain",chain:"自建链 MovaChain",ex:"mova",addr:"VC盘 0xfe7f0dbc… · 假USD1 0x57b84a31…",level:"极高",type:"自建链资金盘+传销",date:"2026-07-13",
+     kw:"mova movachain usd1 wlfi 特朗普 vc 理财 传销 自建链",
+     concl:"项目方自建自控公链，浏览器“链上数据”可造假；核心是假 USD1 + VC 理财盘 + 拉人头，用户拿的收益全是白条。",
+     ev:["“Mova USD1”是自印可升级币，冒充特朗普 WLFI 的真 USD1（真的在 BSC/ETH）","VC 理财盘：单个人钱包(0xe65e7ced…)同时控 代币升级+销售合约+持 85% 的池子；日息 0.3–1.2%+20% 强制复投+十代拉人头","实测用户链上真实 VC 余额=0，App 显示的“收益”来自中心化后台，想显示多少显示多少","桥托管收真 USDT；多家中文反诈已点名“MOVA 公链骗局”"]},
+    {name:"MarsChain（火星链）",chain:"自建链 MarsChain",ex:"",addr:"万能钥匙 0xc0cff42c… · 代理 0x52FA2D…",level:"极高",type:"自建链资金盘·Burn to Mine",date:"2026-09-18",
+     kw:"mars marschain 火星链 burn to mine 烧币 挖矿 拉人头 poa",
+     concl:"“烧币挖矿”(Burn to Mine)+系统凭空增发+拉人头裂变+188天回本，出块 100% 中心化，一把私钥控核心逻辑。",
+     ev:["出块 100% 中心化：连拉 300 块只有 5 个固定地址轮流坐庄（许可链，节点全项目方）","GitHub 假开源(404)；CoinGecko 查无真实市场，价格由自家后台自报","万能钥匙：单个人钱包(0xc0cff42c…)同时是系统合约与可升级代理的 owner，一把私钥可升级逻辑+控挖矿","奖励来自“系统增发”+烧币换算力+推荐裂变=典型庞氏"]},
+    {name:"Meta / SENTIS",chain:"BSC",ex:"bsc",addr:"SENTIS 0x8Fd0d741e09a98e82256C63F25f90301eA71A83e",level:"高",type:"双层空气收割盘",date:"2026-07-27",
+     kw:"meta sentis 蜜罐 layerzero 跨链 空气币",
+     concl:"精心包装的双层空气盘：Meta 能一键关卖(蜜罐)、SENTIS 可跨链增发，而整个生态的真金出口只有约 109 USDT。",
+     ev:["Meta 的 owner 弃权是障眼法，真掌权是两个个人钱包(whaAuth/eAuth)，能 setSellEnabled(false) 随时关卖出","Meta 筹码 96.4% 集中在单个钱包","SENTIS 的 owner 未放弃，可 setPeer 从别链凭空跨链铸币，供应不是真锁死","致命：SENTIS/USDT 池里只有约 109 USDT——几百块就能抽干，“市值几亿”全是纸面"]},
+    {name:"Polygon「8888」POL 质押盘",chain:"Polygon",ex:"polygon",addr:"0xfcf181f533c5c9D2f40Bd397F62fE803ab308888",level:"极高",type:"POL质押庞氏",date:"2026-08-19",
+     kw:"8888 pol 质押 polygon 庞氏 拉人头 emergencywithdraw",
+     concl:"POL 质押 + 拉人头返佣的庞氏盘：全套黑箱未开源，金库有后门可被一笔清空 312 万 POL。",
+     ev:["核心合约全部未开源（黑箱）；front owner=0 是障眼法，实际个人私钥控盘，无多签无时间锁","金库有 emergencyWithdrawToken 后门，已被某地址实际调用 ≥8 次，可一笔清空金库约 312 万 POL","资金零外部 DeFi 交互→收益没有真实来源=新钱补旧钱","带层级计数的 MLM 拉人头结构；项目方个人钱包+黑箱金库控约 2800 万 POL"]},
+    {name:"IBS 代币",chain:"BSC",ex:"bsc",addr:"0x255e746abb8d9acac00d6d023e5e63e3b8dfa7cd",level:"高",type:"可增发·伪去中心化",date:"2026-09-16",
+     kw:"ibs bsc 增发 minter 可升级 铸币",
+     concl:"卖点“表面去中心化”其实误导：真正的命门是增发权，握在两个黑箱铸币代理+四个单私钥手里。",
+     ev:["owner 已放弃(那套权限冻死)——这部分反而安全，但被拿来当卖点误导","真命门=增发：mint 由 MINTER_ROLE 控制，被两个可升级黑箱铸币代理永久持有","四个控制点全是单私钥 EOA，无多签无时间锁，任一私钥可凭空增发或换掉铸币逻辑","供应已从初始 50 万增发到 238 万（4.76 倍）"]},
+    {name:"Temple Raid（templeraid.game）",chain:"Anubis(ANB)",ex:"anubis",addr:"TEM 0x8b8c34859bd2980bba4af03db6480816f4a21be6 · 控盘 0x0f4943…",level:"较高",type:"蹭Anubis名·链上赌局",date:"2026-09-07",
+     kw:"templeraid temple raid tem anubis 赌局 遗迹 蹭名 拉人头",
+     concl:"蹭“Anubis Labs”名的第三方链上赌局，非起源/Anubis 官方；一把私钥控全部合约，池子随时可撤走。",
+     ev:["一把单私钥(0x0f4943…)同时是 TEM/主游戏/LPVault/GVReserve/做市 的 owner，非多签","30 万 DAI 真钱池的 LP 没锁没烧，99.99% 躺在项目方控制的 LPVault，可撤资跑路","1050 万 TEM 待释放，砸向仅 30 万 DAI 的浅池=拿玩家真钱接项目方凭空币","每注抽水约 30% + 领奖再抽 10% + 二级拉人头返佣"]},
+    {name:"funverse.gg（Fun Longinus / fLGNS）",chain:"Anubis(ANB)",ex:"anubis",addr:"fLGNS 0xffFfBe730E2CdE54D8928D36F547e41DEb66Aaaa",level:"较高",type:"蹭LGNS名·博弈挖矿盘",date:"2026-09-04",
+     kw:"funverse fun longinus flgns anubis lgns 蹭名 博弈 挖矿",
+     concl:"第三方蹭“LGNS”名的博弈挖矿盘（币叫 fLGNS），跟起源官方无任何关系；用靓号伪装官方感。",
+     ev:["蹭起源 LGNS 名字，用首尾对称靓号(ffFf…Aaaa)伪装官方，易误导社区","24 人一场押注、1 赢 23 输；95% 代币锁在“津贴池”慢慢放=新人接盘老人","开奖用区块哈希伪随机，出块方(运营)理论上可内定=非去信任化","卖税 2.4% + 师徒拉人头传承机制"]}
+  ];
+
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function linkAddr(x){
+    // 从 addr 文本里把 0x…完整地址转成区块浏览器链接(仅有EX的链)
+    var base=EX[x.ex];
+    var t=esc(x.addr);
+    if(base){t=t.replace(/(0x[0-9a-fA-F]{40})/g,function(m){return '<a href="'+base+m+'" target="_blank" rel="noopener">'+m+'</a>';});}
+    return t;
+  }
+  var listEl=document.getElementById("list"),countEl=document.getElementById("count"),qEl=document.getElementById("q");
+  function render(items){
+    countEl.textContent=(ZH?"共 ":"")+items.length+(ZH?" 条已曝光记录":" records");
+    if(!items.length){listEl.innerHTML='<div class="empty">'+(ZH?"没找到匹配的记录。没查到不代表安全——新盘可能还没收录，可加微信让我尽调。":"No match.")+'</div>';return;}
+    listEl.innerHTML=items.map(function(x){return '<div class="card"><div class="ch"><span class="nm">'+esc(x.name)+'</span><span class="lvl">🔴 '+esc(x.level)+'风险</span><span class="chip">'+esc(x.chain)+'</span><span class="chip">'+esc(x.type)+'</span></div>'
+      +'<div class="cc">'+esc(x.concl)+'</div>'
+      +'<ul class="ev">'+x.ev.map(function(e){return '<li>'+esc(e)+'</li>';}).join("")+'</ul>'
+      +'<div class="addr"><span class="date">尽调 '+esc(x.date)+'</span>📄 '+linkAddr(x)+'</div></div>';}).join("");
+  }
+  function filt(){
+    var q=qEl.value.trim().toLowerCase();
+    if(!q){render(DATA);return;}
+    render(DATA.filter(function(x){return (x.name+" "+x.chain+" "+x.type+" "+x.concl+" "+x.kw+" "+x.addr+" "+x.ev.join(" ")).toLowerCase().indexOf(q)>=0;}));
+  }
+  qEl.addEventListener("input",filt);
+  try{var pq=new URLSearchParams(location.search).get("q");if(pq){qEl.value=pq;}}catch(e){}
+  filt();
+})();
+</script>
+<script src="/i18n.js"></script>
+</body></html>
