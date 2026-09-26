@@ -85,7 +85,7 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
   function state(m){out.innerHTML='<div class="state">'+esc(m)+'</div>';}
 
   var BRANDS=[
-    {n:"起源 Origin",kw:["web3origin","origindefi","ocros","lgns","anubis"],off:["web3origin.com","origindefi.io","rocket.origindefi.io","anubis.origindefi.io","apiv2.ocros.io","lgns.tech"]},
+    {n:"起源 Origin / Anubis(ANB)",kw:["web3origin","origindefi","ocros","lgns","anubis","awake","glgns"],off:["web3origin.com","origindefi.io","rocket.origindefi.io","anubis.origindefi.io","apiv2.ocros.io","lgns.tech"]},
     {n:"Uniswap",kw:["uniswap"],off:["uniswap.org"]},
     {n:"PancakeSwap",kw:["pancake"],off:["pancakeswap.finance"]},
     {n:"MetaMask",kw:["metamask"],off:["metamask.io"]},
@@ -102,6 +102,11 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
   ];
   var SCAM=["airdrop","claim","reward","bonus","giveaway","verify","validate","connect-wallet","walletconnect","mint","presale","double","freemint","unlock","migrate","restore","recover","kefu","support-","-support"];
   var BADTLD=["xyz","top","cc","icu","club","live","vip","gq","tk","ml","cf","ga","buzz","monster","sbs","rest","fit","cyou","bond"];
+  // 已知"非官方·蹭起源/Anubis(ANB)名"的第三方站(来自起源尽调,非官方,风险自负)
+  var KNOWNBAD=[
+    {d:"templeraid.game",r:"蹭 Anubis Labs 名的第三方链上赌局，非起源/Anubis 官方，单私钥控盘、风险高。"},
+    {d:"funverse.gg",r:"蹭 Anubis 链 + LGNS 名的第三方博弈挖矿盘，非官方，链数据黑箱、风险高。"}
+  ];
   function reg(host){var p=host.split(".");return p.length<=2?host:p.slice(-2).join(".");}
   function isOff(host,off){return host===off||host.endsWith("."+off);}
 
@@ -120,6 +125,9 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
   function render(u,host,known){
     var sigs=[],reds=0,ambers=0;
     function add(l,t,s){sigs.push({l:l,t:t,s:s});if(l==="r")reds++;else if(l==="a")ambers++;}
+    // 已知非官方·蹭起源/Anubis名的第三方站(起源尽调库)
+    var nonoff=null;
+    for(var bi=0;bi<KNOWNBAD.length;bi++){var kb=KNOWNBAD[bi];if(host===kb.d||host.endsWith("."+kb.d)){nonoff=kb;add("r","已知非官方 · 蹭起源/Anubis 名",kb.r);break;}}
     // 已知钓鱼库
     if(known)add("r","已在钓鱼库中","GoPlus 安全库已把它标记为钓鱼站，别碰。");
     // HTTPS
@@ -144,7 +152,8 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
     if(!sigs.some(function(x){return x.l==="r"||x.l==="a";}))add("g","未命中已知钓鱼与常见仿冒特征","");
 
     var vcls,vl,vd,em;
-    if(known||imp||host.indexOf("xn--")>=0){vcls="v-red";em="🔴";vl=ZH?"高度危险 · 疑似钓鱼/假官网":"High risk";vd=ZH?"命中钓鱼或仿冒特征，强烈建议别打开、别连钱包、别输任何信息。":"";}
+    if(nonoff){vcls="v-red";em="⚠️";vl=ZH?"非官方 · 蹭起源/Anubis 名":"Non-official";vd=ZH?"这是第三方蹭名站，不是起源/Anubis 官方——风险自负，切勿当成官方对待或投入资金。":"Third-party impersonation, not official.";}
+    else if(known||imp||host.indexOf("xn--")>=0){vcls="v-red";em="🔴";vl=ZH?"高度危险 · 疑似钓鱼/假官网":"High risk";vd=ZH?"命中钓鱼或仿冒特征，强烈建议别打开、别连钱包、别输任何信息。":"";}
     else if(reds>0){vcls="v-red";em="🔴";vl=ZH?"危险":"Dangerous";vd=ZH?"命中高危特征，务必谨慎。":"";}
     else if(ambers>0){vcls="v-amber";em="🟡";vl=ZH?"可疑 · 需谨慎":"Suspicious";vd=ZH?"有 "+ambers+" 项可疑特征，别急着连钱包，先核对官方域名。":"";}
     else{vcls="v-green";em="🟢";vl=ZH?"未发现明显问题":"No obvious issue";vd=ZH?"没命中已知钓鱼和常见仿冒特征——但仍请以官方渠道核对域名。":"";}
