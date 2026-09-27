@@ -234,7 +234,12 @@
     { id: 'phishing-check', number: 38, name: '钓鱼网址检测', en: {"name":"Phishing URL Check","description":"Paste a URL to check if it is a phishing / fake / impersonation site: known-phishing DB + look-alike heuristics."}, category: 'security-dd', icon: '🎣',
       description: '粘一个网址查是不是钓鱼站/假官网/仿冒站：已知钓鱼库 + 仿冒域名/punycode/IP/钓鱼词/可疑后缀等启发式，红黄绿分级+防诈提示。',
       status: 'live', isPremium: false, route: '/tools/phishing/', enabled: true,
-      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' }
+      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' },
+
+    { id: 'unlock-timer', number: 39, name: '锁仓解锁倒计时', en: {"name":"Unlock Countdown","description":"Enter a wallet to see when each 360/600-day lock stake unlocks and days left, on both chains. On-chain, free, no wallet connection."}, category: 'asset-staking', icon: '⏳',
+      description: '输入钱包地址，查你在双链的 360/600 天锁仓质押分别哪天解锁、还剩多少天——倒计时+进度条一目了然，别到期了忘了取。纯链上读取，免费，不连钱包。',
+      status: 'live', isPremium: false, route: '/tools/unlock-timer/', enabled: true,
+      note: '独立页 /tools/unlock-timer/,纯前端eth_call双链直读锁仓合约每笔stakes(选择器getUserStakesCount 0x98dc8dea/stakes 0x584b62a1,解码w0本金÷1e9/w3到期块/w5起始块/w7状态)→按实测出块速度(blockTime动态算spb,不硬编码)换算解锁日期+剩余天数+进度条(已锁=cur-start/mat-start)。过滤异常笔(到期块0/年份非2023~2032/久前到期)。锁仓合约=Polygon 0x6652d0f0(360)/0x25a4b842(能量值),Anubis 0x88ea98af(360)/0x04eD22c6(600)/0x1E5FeeC4(能量值)。复用staking-query#6已验证读法,只聚焦锁仓倒计时(不含活期/债券/奖励,底部链到#6看全部)。已用真实地址0xc07eebea…验证(32.30 LGNS到期2027-02-03剩129天)。免费公开不连钱包。2026-09-27做。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
