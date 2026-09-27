@@ -234,12 +234,7 @@
     { id: 'phishing-check', number: 38, name: '钓鱼网址检测', en: {"name":"Phishing URL Check","description":"Paste a URL to check if it is a phishing / fake / impersonation site: known-phishing DB + look-alike heuristics."}, category: 'security-dd', icon: '🎣',
       description: '粘一个网址查是不是钓鱼站/假官网/仿冒站：已知钓鱼库 + 仿冒域名/punycode/IP/钓鱼词/可疑后缀等启发式，红黄绿分级+防诈提示。',
       status: 'live', isPremium: false, route: '/tools/phishing/', enabled: true,
-      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' },
-
-    { id: 'dca-plan', number: 39, name: '定投计划计算器', en: {"name":"DCA Planner","description":"Set a goal (N LGNS to accumulate, or $N to invest) + duration + frequency, and get how much to buy each period, by live price."}, category: 'price-calc', icon: '🎯',
-      description: '想攒够多少枚 LGNS、或总共投入多少美元？设目标+时长+频率，自动算每期该买多少钱、约多少枚，按实时价估算。定投摊平成本、不追高不杀跌。',
-      status: 'live', isPremium: false, route: '/tools/dca/', enabled: true,
-      note: '独立页 /tools/dca/,纯前端定投倒推计算:目标(攒N枚LGNS/投N美元)+时长(月)+频率(每天/每周/每月)→每期金额+约枚数+总期数+总投入。LGNS实时价读GeckoTerminal(polygon_pos token_price 0xeb51d9a3…,可手动改),汇率open.er-api.com(兜底7.25)。不连钱包不代买,结果按当前价估算不含手续费/滑点/税。免费公开。2026-09-27做。' }
+      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
