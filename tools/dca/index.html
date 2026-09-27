@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
+<script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>定投计划计算器 · Web3Origin</title>
+<meta name="description" content="定投攒币计算器：设一个目标（攒够多少枚 LGNS，或投入多少美元）和时长、频率，自动算出每期该买多少钱、约多少枚，按实时价估算。摊平成本、拒绝追高杀跌。">
+<meta property="og:title" content="定投计划计算器 · 每期该买多少一算就知道">
+<meta property="og:description" content="设目标+时长+频率→自动算每期买多少钱/约多少枚,按LGNS实时价。定投摊平成本。">
+<meta property="og:image" content="https://web3origin.com/assets/logo.png">
+<link rel="icon" href="/assets/logo.png">
+<style>
+:root{--gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--ink:#e8d9be;--soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;--line2:#4a3320;--green:#3ad07f;--serif:"STZhongsong","Songti SC",Georgia,serif;--sans:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1100px 560px at 50% -8%,#0f2318,#050303 60%) fixed,#050303;color:var(--ink);font-family:var(--sans);line-height:1.7}
+.top{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.top a.back{display:flex;align-items:center;gap:8px;color:var(--soft);text-decoration:none;font-size:14px}
+.top a.back img{width:24px;height:24px}
+.top .sp{margin-left:auto}
+#langBtn{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit}
+.wrap{max-width:640px;margin:0 auto;padding:22px 16px 70px}
+.hd{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px}
+.hd .ic{font-size:26px}
+h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(--serif);letter-spacing:.04em}
+.sub{color:var(--soft);font-size:13.5px;margin:4px 0 18px}
+.box{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0));border:1px solid var(--line);border-radius:14px;padding:16px}
+.row{margin-bottom:14px}
+.row label{display:block;font-size:12.5px;color:var(--soft);margin-bottom:6px}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;background:rgba(0,0,0,.3);border:1px solid var(--line2);color:var(--soft);border-radius:10px;padding:10px;font:inherit;font-size:13.5px;cursor:pointer}
+.seg button.on{background:linear-gradient(135deg,var(--gold-lt),#b8842f);color:#1a1206;border-color:transparent;font-weight:700}
+.inp{display:flex;gap:8px}
+.inp input{flex:1;min-width:0;background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;color:var(--bone);padding:11px 13px;font:inherit;font-size:15px;font-variant-numeric:tabular-nums}
+.inp input:focus,.inp select:focus{outline:none;border-color:var(--gold)}
+.inp .unit{display:flex;align-items:center;color:var(--muted);font-size:13px;padding:0 4px;white-space:nowrap}
+.inp select{background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:10px;color:var(--bone);padding:11px 10px;font:inherit;font-size:14px}
+.grid2{display:flex;gap:12px}.grid2>div{flex:1}
+.price{font-size:12px;color:var(--muted);margin-top:6px}.price b{color:var(--gold-lt)}
+.res{margin-top:18px}
+.big{background:linear-gradient(135deg,rgba(214,168,75,.14),rgba(255,255,255,.02));border:1px solid var(--gold);border-radius:14px;padding:18px;text-align:center;margin-bottom:12px}
+.big .l{font-size:12.5px;color:var(--soft)}
+.big .v{font-family:var(--serif);font-size:clamp(26px,7vw,36px);color:var(--gold-lt);font-weight:700;margin:4px 0;font-variant-numeric:tabular-nums}
+.big .s{font-size:13px;color:var(--bone)}
+.stat{display:flex;gap:10px;flex-wrap:wrap}
+.stat .s{flex:1;min-width:120px;border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:rgba(255,255,255,.02)}
+.stat .s .n{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--bone);font-variant-numeric:tabular-nums}
+.stat .s .l{font-size:11.5px;color:var(--muted);margin-top:2px}
+.note{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.8;border-top:1px solid var(--line);padding-top:12px}
+.note b{color:var(--soft)}
+[data-lang]{display:none!important}html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert!important}
+</style>
+</head><body>
+<div class="top">
+  <a class="back" href="/tools/origin-monitor/"><img src="/assets/logo.png" alt=""><span data-lang="zh">← 返回起源百宝箱</span><span data-lang="en">← Back to Toolbox</span></a>
+  <span class="sp"></span>
+  <button id="langBtn" aria-label="Language">🌐</button>
+</div>
+<div class="wrap">
+  <div class="hd"><span class="ic">🎯</span><div>
+    <h1><span data-lang="zh">定投计划计算器</span><span data-lang="en">DCA Planner</span></h1>
+    <div class="sub"><span data-lang="zh">设一个目标 + 时长 + 频率，自动算出<b style="color:var(--gold-lt)">每期该买多少</b>。定投摊平成本、不追高不杀跌，适合长期持有 LGNS。</span><span data-lang="en">Set a goal, time and frequency — get how much to buy each period.</span></div>
+  </div></div>
+
+  <div class="box">
+    <div class="row"><label data-lang="zh">目标是什么？</label><label data-lang="en">Goal</label>
+      <div class="seg"><button id="mCoins" class="on" type="button"><span data-lang="zh">攒够 N 枚 LGNS</span><span data-lang="en">N LGNS</span></button><button id="mMoney" type="button"><span data-lang="zh">投入 N 美元</span><span data-lang="en">$N total</span></button></div>
+    </div>
+    <div class="row"><label id="tgtLabel"></label><div class="inp"><input id="target" type="number" inputmode="decimal" value="5000" min="0"><span class="unit" id="tgtUnit">枚 LGNS</span></div></div>
+    <div class="grid2">
+      <div class="row"><label data-lang="zh">定投时长</label><label data-lang="en">Duration</label><div class="inp"><input id="months" type="number" inputmode="decimal" value="6" min="1"><span class="unit" data-lang="zh">个月</span><span class="unit" data-lang="en">mo</span></div></div>
+      <div class="row"><label data-lang="zh">买入频率</label><label data-lang="en">Frequency</label><div class="inp"><select id="freq"><option value="day" data-lang="zh">每天</option><option value="week" selected>每周</option><option value="month">每月</option></select></div></div>
+    </div>
+    <div class="row"><label data-lang="zh">LGNS 当前价（美元，可手动改）</label><label data-lang="en">LGNS price (USD)</label><div class="inp"><span class="unit">$</span><input id="price" type="number" inputmode="decimal" step="0.0001" value=""></div>
+      <div class="price" id="priceHint"></div></div>
+  </div>
+
+  <div class="res" id="res"></div>
+
+  <div class="note">
+    <div data-lang="zh"><b>说明：</b>结果按<b>当前价</b>估算，实际每期买入价会波动——这正是定投的意义：价高时买得少、价低时买得多，长期摊平成本。计算<b>不含手续费/滑点/买卖税</b>（LGNS 有卖出税，买入有滑点，实际略有出入）。本工具只算数，不连钱包、不代买，理性投资、风险自负。</div>
+    <div data-lang="en"><b>Note:</b> Estimated at current price; actual prices vary. Excludes fees/slippage/taxes. Not investment advice.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ZH=(document.documentElement.lang||"zh").slice(0,2)==="zh";
+  var LGNS="0xeb51d9a39ad5eef215dc0bf39a8821ff804a0f01";
+  var mode="coins",cny=7.25;
+  var elTarget=document.getElementById("target"),elMonths=document.getElementById("months"),elFreq=document.getElementById("freq"),elPrice=document.getElementById("price"),res=document.getElementById("res");
+  var mCoins=document.getElementById("mCoins"),mMoney=document.getElementById("mMoney"),tgtUnit=document.getElementById("tgtUnit"),tgtLabel=document.getElementById("tgtLabel");
+  function fmtMoney(n){n=Number(n)||0;return n.toLocaleString("en-US",{maximumFractionDigits:n<100?2:0});}
+  function fmtCoin(n){n=Number(n)||0;return n.toLocaleString("en-US",{maximumFractionDigits:n<100?2:0});}
+  function periods(){var m=Number(elMonths.value)||0;var f=elFreq.value;var p=f==="day"?Math.round(m*30):f==="week"?Math.round(m*4.345):Math.round(m);return Math.max(1,p);}
+  function freqTxt(){return elFreq.value==="day"?(ZH?"天":"day"):elFreq.value==="week"?(ZH?"周":"wk"):(ZH?"月":"mo");}
+  function setMode(m){mode=m;mCoins.classList.toggle("on",m==="coins");mMoney.classList.toggle("on",m==="money");
+    tgtUnit.textContent=m==="coins"?(ZH?"枚 LGNS":"LGNS"):(ZH?"美元(U)":"USD");
+    tgtLabel.textContent=m==="coins"?(ZH?"目标：想攒够多少枚 LGNS？":"Target LGNS"):(ZH?"目标：总共想投入多少美元？":"Total USD to invest");
+    calc();}
+  function calc(){
+    var price=Number(elPrice.value)||0, tgt=Number(elTarget.value)||0, n=periods();
+    if(price<=0||tgt<=0){res.innerHTML="";return;}
+    var totalCoins,totalMoney;
+    if(mode==="coins"){totalCoins=tgt;totalMoney=tgt*price;}
+    else{totalMoney=tgt;totalCoins=tgt/price;}
+    var perMoney=totalMoney/n, perCoins=totalCoins/n;
+    var perCny=perMoney*cny;
+    var ft=freqTxt();
+    res.innerHTML='<div class="big"><div class="l">'+(ZH?"每"+ft+"买":"Each "+ft)+'</div><div class="v">$'+fmtMoney(perMoney)+'</div><div class="s">'+(ZH?"≈ ￥"+fmtMoney(perCny)+" · 约 "+fmtCoin(perCoins)+" 枚 LGNS":"≈ "+fmtCoin(perCoins)+" LGNS")+'</div></div>'
+      +'<div class="stat"><div class="s"><div class="n">'+n+'</div><div class="l">'+(ZH?"总期数（"+ (ZH?"每"+ft:"") +"）":"periods")+'</div></div>'
+      +'<div class="s"><div class="n">$'+fmtMoney(totalMoney)+'</div><div class="l">'+(ZH?"预计总投入":"Total")+'</div></div>'
+      +'<div class="s"><div class="n">'+fmtCoin(totalCoins)+'</div><div class="l">'+(ZH?"预计总枚数(LGNS)":"Total LGNS")+'</div></div></div>';
+  }
+  mCoins.onclick=function(){setMode("coins");};mMoney.onclick=function(){setMode("money");};
+  [elTarget,elMonths,elFreq,elPrice].forEach(function(e){e.addEventListener("input",calc);e.addEventListener("change",calc);});
+  setMode("coins");
+  // 读实时价
+  document.getElementById("priceHint").textContent=ZH?"正在读取 LGNS 实时价…":"Loading price…";
+  fetch("https://api.geckoterminal.com/api/v2/simple/networks/polygon_pos/token_price/"+LGNS).then(function(r){return r.json();}).then(function(d){
+    var p=d&&d.data&&d.data.attributes&&d.data.attributes.token_prices&&d.data.attributes.token_prices[LGNS];
+    if(p){elPrice.value=Number(p).toFixed(4);document.getElementById("priceHint").innerHTML=(ZH?"已自动填入实时价 ":"Live price ")+"<b>$"+Number(p).toFixed(4)+"</b>"+(ZH?"（可手动改）":"");calc();}
+    else{elPrice.value="1";document.getElementById("priceHint").textContent=ZH?"没读到实时价，已填默认 $1，请手动改成当前价":"Enter price manually";calc();}
+  }).catch(function(){elPrice.value="1";document.getElementById("priceHint").textContent=ZH?"没读到实时价，请手动填当前价":"Enter price manually";calc();});
+  // 汇率(best-effort)
+  fetch("https://open.er-api.com/v6/latest/USD").then(function(r){return r.json();}).then(function(d){if(d&&d.rates&&d.rates.CNY){cny=d.rates.CNY;calc();}}).catch(function(){});
+})();
+</script>
+<script src="/i18n.js"></script>
+</body></html>
