@@ -234,7 +234,12 @@
     { id: 'phishing-check', number: 38, name: '钓鱼网址检测', en: {"name":"Phishing URL Check","description":"Paste a URL to check if it is a phishing / fake / impersonation site: known-phishing DB + look-alike heuristics."}, category: 'security-dd', icon: '🎣',
       description: '粘一个网址查是不是钓鱼站/假官网/仿冒站：已知钓鱼库 + 仿冒域名/punycode/IP/钓鱼词/可疑后缀等启发式，红黄绿分级+防诈提示。',
       status: 'live', isPremium: false, route: '/tools/phishing/', enabled: true,
-      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' }
+      note: '独立页 /tools/phishing/,前端 GoPlus phishing_site(查已知钓鱼库)+本地启发式(仿冒知名品牌官方域名对照/punycode/IP/钓鱼关键词/廉价TLD/结构)判钓鱼假官网,只分析URL不打开不连钱包;含防钓鱼铁律。免费公开。2026-09-26做。' },
+
+    { id: 'lgns-pnl', number: 39, name: 'LGNS 盈亏账本', en: {"name":"LGNS PnL Ledger","description":"Enter a wallet to see all its LGNS main-pool trades: bought/sold amounts, DAI spent/received, avg prices, realized & unrealized PnL. On-chain, free."}, category: 'trade-whale', icon: '📒',
+      description: '输入钱包地址，自动查它在 LGNS 主池的全部买卖：买了多少花了多少 DAI、卖了多少收回多少、买卖均价、已实现盈亏和当前持仓浮盈——到底赚没赚一目了然。纯链上、免费、不连钱包。',
+      status: 'live', isPremium: false, route: '/tools/pnl/', enabled: true,
+      note: '独立页 /tools/pnl/,纯前端:拉某地址 LGNS+DAI 两条 tokentx(经 origin-geo Worker /tokentx 接口隐藏ESKEY,Etherscan V2 chainid=137)→按txhash配对(同hash LGNS↑DAI↓=买/LGNS↓DAI↑=卖)→加权平均成本法算买入均价/卖出均价/已实现盈亏/净现金流/当前净买入持仓×现价浮盈。价读GeckoTerminal。主池=QuickSwap V2 0x882df4B0fB50a229C3B4124EB18c759911485bFb(token0=DAI/token1=LGNS 9dp)。只统计主池DAI买卖,不计转账/质押/领奖/空投/CEX/其它池;最近约1000笔(超大户截断会标注);仅Polygon(Anubis免费接口不支持)。免费公开不连钱包。数据源与配对逻辑已用3个真实散户验证通过。2026-09-27做。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
