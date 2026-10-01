@@ -76,6 +76,10 @@
       <button class="btn ghost" id="setTokenBtn" style="flex:1">换成 LGNS 奖励币</button>
       <button class="btn ghost" id="setMinBtn" style="flex:1">最小发包改成 10</button>
     </div>
+    <div class="row" style="margin-bottom:0;margin-top:8px">
+      <button class="btn" id="rescueBtn" style="flex:1;background:#c62828;color:#fff">💰 提取合约全部余额到我钱包</button>
+    </div>
+    <div style="font-size:12px;color:#999;margin-top:6px">把合约里剩的 LGNS（押金等）一次性提回 owner 钱包。提完这个游戏就彻底结束了，点之前想清楚。</div>
   </div>
 
   <div class="card">
@@ -124,7 +128,8 @@ const SEL = {
   owner:            '8da5cb5b',
   getRewardToken:   'f7c618c1',
   setRewardToken:   '8aee8127',
-  setMinPacket:     '3f44febe'
+  setMinPacket:     '3f44febe',
+  rescueTokens:     '57376198'
 };
 
 // ---- 最小 ABI 编解码（只覆盖本页用到的类型：uint/bool/address/address[]） ----
@@ -279,6 +284,18 @@ async function doSetMinPacket() {
   } catch (e) { toast('失败：' + (e.message || e)); }
 }
 
+async function doRescue() {
+  if (!needContract()) return;
+  try {
+    const bal = decUint(await ethCall(CFG.rewardToken, txData(SEL.balanceOf, [encAddr(CFG.CONTRACT)])));
+    if (bal <= 0n) return toast('合约里没钱了，不用提');
+    if (!confirm('把合约里剩的 ' + formatUnits(bal) + ' LGNS 全部提到你钱包？提完这游戏就结束了。')) return;
+    await sendTx(CFG.CONTRACT, txData(SEL.rescueTokens, [encAddr(myAddr), encUint(bal)]));
+    toast('✅ 已提取 ' + formatUnits(bal) + ' LGNS');
+    connect();
+  } catch (e) { toast('失败：' + (e.message || e)); }
+}
+
 async function doGrab(id) {
   if (!needContract()) return;
   try {
@@ -386,6 +403,7 @@ $('createBtn').onclick = doCreate;
 $('refreshBtn').onclick = loadPackets;
 $('setTokenBtn').onclick = doSetRewardToken;
 $('setMinBtn').onclick = doSetMinPacket;
+$('rescueBtn').onclick = doRescue;
 if (window.ethereum) connect();
 
 </script>
