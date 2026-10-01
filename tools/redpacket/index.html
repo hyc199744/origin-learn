@@ -123,7 +123,7 @@ const fmt = v => Number(ethers.formatUnits(v, 18)).toLocaleString('zh-CN', {maxi
 function toast(msg) { alert(msg); }
 
 async function connect() {
-  if (!window.ethereum) return toast('没检测到钱包，请先安装 MetaMask / OKX 钱包');
+  if (!window.ethereum) return toast('没检测到钱包：手机请用钱包 App（MetaMask/OKX/TP/imToken）自带的浏览器打开本页面，电脑请安装钱包插件');
   provider = new ethers.BrowserProvider(window.ethereum);
   try {
     await provider.send('eth_requestAccounts', []);
@@ -159,8 +159,8 @@ async function connect() {
 }
 
 function needContract() {
-  if (!contract) { toast('合约地址还没配置'); return false; }
-  if (!myAddr) { toast('请先连接钱包'); return false; }
+  if (!CFG.CONTRACT) { toast('合约地址还没配置'); return false; }
+  if (!myAddr) { toast('请先点右上角「连接钱包」'); return false; }
   return true;
 }
 
