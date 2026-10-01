@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>LGNS 链上彩票 | Web3Origin 工具</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0f1420; color: #e8ecf4; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 16px 14px 60px; }
+  h1 { font-size: 22px; text-align: center; margin: 8px 0 4px; }
+  .sub { text-align: center; color: #8b93a7; font-size: 13px; margin-bottom: 14px; }
+  .card { background: #1a2133; border: 1px solid #2a3350; border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+  .card h2 { font-size: 16px; margin: 0 0 10px; }
+  .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px dashed #2a3350; }
+  .row:last-child { border-bottom: none; }
+  .k { color: #8b93a7; } .v { font-weight: 600; }
+  .big { font-size: 28px; font-weight: 800; color: #ffd75e; text-align: center; margin: 6px 0; }
+  .big small { font-size: 14px; color: #8b93a7; font-weight: 400; }
+  .countdown { text-align: center; font-size: 15px; color: #7ee2a8; margin: 4px 0 8px; }
+  input, button { font-size: 15px; border-radius: 8px; }
+  input { width: 100%; padding: 10px; background: #0f1420; border: 1px solid #2a3350; color: #e8ecf4; margin: 6px 0; }
+  button { padding: 11px 14px; border: none; cursor: pointer; font-weight: 700; }
+  .btn-p { background: #ffd75e; color: #1a1405; width: 100%; margin-top: 6px; }
+  .btn-s { background: #2a3350; color: #e8ecf4; width: 100%; margin-top: 6px; }
+  .btn-row { display: flex; gap: 8px; } .btn-row button { flex: 1; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  #connectBtn { display: block; margin: 0 auto 12px; background: #4f8cff; color: #fff; padding: 10px 26px; }
+  .addr { font-size: 12px; color: #8b93a7; text-align: center; margin-bottom: 8px; word-break: break-all; }
+  .note { font-size: 12px; color: #8b93a7; line-height: 1.7; }
+  .winner { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px dashed #2a3350; }
+  .tag { display: inline-block; font-size: 11px; background: #ffd75e; color: #1a1405; border-radius: 4px; padding: 1px 6px; margin-right: 6px; font-weight: 700; }
+  .t2 .tag { background: #7ee2a8; } .t3 .tag { background: #8fb8ff; }
+  #ownerPanel { display: none; border-color: #ffd75e; }
+  .foot { text-align: center; font-size: 12px; color: #5a6378; margin-top: 18px; line-height: 1.8; }
+  .foot a { color: #4f8cff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🎰 LGNS 链上彩票</h1>
+  <div class="sub">1 LGNS / 张 · 24 小时一期 · 平台抽水 10%</div>
+  <button id="connectBtn" onclick="connect()">连接钱包</button>
+  <div class="addr" id="myAddr"></div>
+
+  <div class="card">
+    <h2>🎟️ 本期 <span id="roundId">-</span></h2>
+    <div class="countdown" id="countdown">--</div>
+    <div class="big"><span id="prizePool">-</span> <small>LGNS 奖池</small></div>
+    <div class="row"><span class="k">已售票数</span><span class="v" id="sold">-</span></div>
+    <div class="row"><span class="k">本期票款</span><span class="v" id="sales">-</span></div>
+    <div class="row"><span class="k">上期滚存</span><span class="v" id="jackpot">-</span></div>
+    <div class="row"><span class="k">我的票数</span><span class="v" id="myTickets">-</span></div>
+    <div class="row"><span class="k">我的 LGNS</span><span class="v" id="myBal">-</span></div>
+    <div id="buyBox">
+      <input id="buyCount" type="number" min="1" max="200" value="1" placeholder="买几张（1-200）">
+      <div class="btn-row">
+        <button class="btn-s" id="approveBtn" onclick="approve()">1. 授权 LGNS</button>
+        <button class="btn-p" id="buyBtn" onclick="buy()">2. 买票</button>
+      </div>
+    </div>
+    <div id="drawBox" style="display:none">
+      <div class="btn-row">
+        <button class="btn-s" id="closeBtn" onclick="closeRound()">关闭本期</button>
+        <button class="btn-p" id="drawBtn" onclick="draw()">开奖</button>
+      </div>
+      <div class="note" style="margin-top:6px">本期已截止：先点「关闭本期」锁定开奖区块，再等约 50 个块后点「开奖」。任何人都可以点，Gas 谁点谁出。</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🏆 奖项说明</h2>
+    <div class="row"><span class="k">一等奖 × 1 名</span><span class="v">奖池 50%</span></div>
+    <div class="row"><span class="k">二等奖 × 3 名</span><span class="v">每人奖池 10%</span></div>
+    <div class="row"><span class="k">三等奖 × 10 名</span><span class="v">每人奖池 2%</span></div>
+    <div class="note" style="margin-top:8px">
+      · 奖池 = 本期票款 × 90% + 上期滚存<br>
+      · 没人中的奖项自动滚入下期，奖池越滚越大<br>
+      · 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>
+      · 票数不够 14 张时按实际票数开奖，剩下的全滚存
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📢 上期开奖 <span id="lastRound" style="color:#8b93a7;font-size:13px"></span></h2>
+    <div id="lastWinners"><div class="note">暂无开奖记录</div></div>
+    <div class="row" style="margin-top:6px"><span class="k">滚入下期</span><span class="v" id="lastRollover">-</span></div>
+  </div>
+
+  <div class="card" id="ownerPanel">
+    <h2>👑 房主管理</h2>
+    <div class="note">冷启动：往当期奖池里加钱，奖金更诱人，吸引第一批玩家。加进去的钱就回不来了，算营销成本。</div>
+    <input id="seedAmt" type="number" min="1" placeholder="注入多少 LGNS">
+    <div class="btn-row">
+      <button class="btn-s" onclick="approveSeed()">1. 授权</button>
+      <button class="btn-p" onclick="seed()">2. 注入奖池</button>
+    </div>
+  </div>
+
+  <div class="foot">
+    合约 <a id="contractLink" href="#" target="_blank">浏览器查看</a><br>
+    Anubis 链 · 票币 LGNS(9 位精度) · 本页面无外部依赖
+  </div>
+</div>
+
+<script>
+/* 无外部依赖：钱包直连 + 最小 ABI 编解码 */
+const CFG = {
+  chainId: 6714, chainHex: '0x1A3A', chainName: 'Anubis',
+  rpcUrl: 'https://rpc.anubispace.org',
+  explorer: 'https://browser.anubispace.org',
+  token: '0x4d1d808a081fdac440703b3765fc61f8028c06b8', // LGNS 9 位精度
+  decimals: 9,
+  CONTRACT: '0x0E1e458F1e2fD60364D1906Dc058760070D43902' // 2026-10-02 部署
+};
+const SEL = {
+  approve: '095ea7b3', allowance: 'dd62ed3e', balanceOf: '70a08231',
+  buyTickets: '2f366637', seedJackpot: '02950fb9', closeRound: 'e278fe6f', draw: '0eecae21',
+  ticketPrice: '1209b1f6', feeBps: '24a9d853', currentRound: '8a19c8bc',
+  rounds: '8c65c81f', lastDrawnRound: '9fe8862a', lastRollover: '953523e8',
+  getLastWinners: '95690936', getTicketOwners: '36a65e80', owner: '8da5cb5b'
+};
+function encUint(v){ return BigInt(v).toString(16).padStart(64,'0'); }
+function encAddr(a){ return '0'.repeat(24) + a.toLowerCase().replace(/^0x/,''); }
+function decUint(h){ return BigInt('0x'+h); }
+function decAddr(h){ return '0x'+h.slice(-40); }
+function decBool(h){ return BigInt('0x'+h) !== 0n; }
+function decAddrArray(h, off){ // off: hex 字符偏移
+  const n = Number(decUint(h.slice(off, off+64)));
+  const a = [];
+  for (let i=0;i<n;i++) a.push(decAddr(h.slice(off+64*(i+1), off+64*(i+2))));
+  return a;
+}
+function decUintArray(h, off){
+  const n = Number(decUint(h.slice(off, off+64)));
+  const a = [];
+  for (let i=0;i<n;i++) a.push(decUint(h.slice(off+64*(i+1), off+64*(i+2))));
+  return a;
+}
+function parseUnits(str, dec){
+  dec = dec || CFG.decimals; str = String(str).trim();
+  if (!/^\d+(\.\d+)?$/.test(str)) throw new Error('金额格式不对');
+  const p = str.split('.'), f = p[1] || '';
+  if (f.length > dec) throw new Error('小数位太多');
+  return BigInt(p[0] + (f + '0'.repeat(dec)).slice(0, dec));
+}
+function formatUnits(v, dec){
+  dec = dec || CFG.decimals;
+  const s = BigInt(v).toString().padStart(dec+1,'0');
+  const i = s.slice(0,-dec), f = s.slice(-dec).replace(/0+$/,'');
+  return i + (f ? '.'+f : '');
+}
+let myAddr = null, TICKET = 0n, FEE = 1000n, OWNER = '';
+const $ = id => document.getElementById(id);
+const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '';
+const fmt = v => Number(formatUnits(v)).toLocaleString('zh-CN',{maximumFractionDigits:2});
+function toast(m){ alert(m); }
+function req(m,p){ return window.ethereum.request({method:m, params:p}); }
+async function ethCall(to,d){ return ((await req('eth_call',[{to,data:d},'latest']))||'0x').replace(/^0x/,''); }
+async function sendTx(to,d){
+  const hash = await req('eth_sendTransaction',[{from:myAddr,to,data:d}]);
+  toast('交易已发送，等待确认…');
+  for (let i=0;i<150;i++){
+    await new Promise(r=>setTimeout(r,2000));
+    const rc = await req('eth_getTransactionReceipt',[hash]);
+    if (rc && rc.blockNumber && rc.blockNumber!=='0x0'){
+      if (rc.status==='0x1'){ await refresh(); return rc; }
+      throw new Error('交易执行失败（被 revert）');
+    }
+  }
+  throw new Error('等太久没确认，请去浏览器查：'+hash);
+}
+async function connect(){
+  if (!window.ethereum) return toast('没检测到钱包：手机请用钱包 App 自带浏览器打开本页面，电脑请装钱包插件');
+  try{
+    const accs = await req('eth_requestAccounts',[]);
+    if(!accs||!accs.length) throw new Error('没拿到地址');
+    myAddr = accs[0];
+    const cid = await req('eth_chainId',[]);
+    if (parseInt(cid,16)!==CFG.chainId){
+      try{ await req('wallet_switchEthereumChain',[{chainId:CFG.chainHex}]); }
+      catch(e){
+        if(e.code===4902) await req('wallet_addEthereumChain',[{chainId:CFG.chainHex,chainName:CFG.chainName,rpcUrls:[CFG.rpcUrl],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:[CFG.explorer]}]);
+        else throw e;
+      }
+    }
+    $('connectBtn').textContent = '已连接 '+short(myAddr);
+    $('myAddr').textContent = myAddr;
+    await refresh();
+  }catch(e){ toast('连接失败：'+(e.message||e)); }
+}
+async function loadStatic(){
+  TICKET = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.ticketPrice));
+  FEE = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.feeBps));
+  OWNER = decAddr(await ethCall(CFG.CONTRACT,'0x'+SEL.owner));
+  if (myAddr && myAddr.toLowerCase()===OWNER.toLowerCase()) $('ownerPanel').style.display='block';
+}
+async function refresh(){
+  try{
+    await loadStatic();
+    const rid = Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.currentRound)));
+    $('roundId').textContent = '#'+rid;
+    const h = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid));
+    const w = i => h.slice(i*64,(i+1)*64);
+    const endTime=Number(decUint(w(0))), drawBlock=Number(decUint(w(1))),
+          sold=Number(decUint(w(2))), sales=decUint(w(3)), jackpot=decUint(w(4));
+    const pool = sales*(10000n-FEE)/10000n + jackpot;
+    $('prizePool').textContent = fmt(pool);
+    $('sold').textContent = sold+' 张';
+    $('sales').textContent = fmt(sales)+' LGNS';
+    $('jackpot').textContent = fmt(jackpot)+' LGNS';
+    const now = Math.floor(Date.now()/1000);
+    if (now <= endTime){
+      const s = endTime-now, hh=String(Math.floor(s/3600)).padStart(2,'0'),
+            mm=String(Math.floor(s%3600/60)).padStart(2,'0'), ss=String(s%60).padStart(2,'0');
+      $('countdown').textContent = '⏳ 售票中，'+hh+':'+mm+':'+ss+' 后截止';
+      $('buyBox').style.display='block'; $('drawBox').style.display='none';
+    } else {
+      $('countdown').textContent = drawBlock===0 ? '⏰ 已截止，等待关闭本期' : '🎲 等待开奖（目标块 '+drawBlock+'）';
+      $('buyBox').style.display='none'; $('drawBox').style.display='block';
+      $('closeBtn').disabled = drawBlock!==0;
+    }
+    if (myAddr){
+      const bal = decUint(await ethCall(CFG.token,'0x'+SEL.balanceOf+encAddr(myAddr)));
+      $('myBal').textContent = fmt(bal)+' LGNS';
+      try{
+        const th = await ethCall(CFG.CONTRACT,'0x'+SEL.getTicketOwners+encUint(rid));
+        const owners = decAddrArray(th, 0);
+        $('myTickets').textContent = owners.filter(a=>a.toLowerCase()===myAddr.toLowerCase()).length+' 张';
+      }catch(e){ $('myTickets').textContent='-'; }
+    }
+    // 上期开奖
+    const lr = Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastDrawnRound)));
+    if (lr>0){
+      $('lastRound').textContent = '(第 '+lr+' 期)';
+      const wh = await ethCall(CFG.CONTRACT,'0x'+SEL.getLastWinners);
+      const offW = Number(decUint(wh.slice(0,64)))*2, offA = Number(decUint(wh.slice(64,128)))*2;
+      const winners = decAddrArray(wh, offW), amounts = decUintArray(wh, offA);
+      const names = ['一等奖','二等奖','二等奖','二等奖'];
+      let html='';
+      for(let i=0;i<winners.length;i++){
+        const t = i===0?'一等奖':(i<4?'二等奖':'三等奖');
+        html += '<div class="winner '+(i===0?'':(i<4?'t2':'t3'))+'"><span><span class="tag">'+t+'</span>'+short(winners[i])+'</span><span><b>'+fmt(amounts[i])+'</b> LGNS</span></div>';
+      }
+      $('lastWinners').innerHTML = html || '<div class="note">本期无人购票，奖池全额滚存</div>';
+      $('lastRollover').textContent = fmt(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastRollover)))+' LGNS';
+    }
+    $('contractLink').href = CFG.explorer+'/address/'+CFG.CONTRACT;
+  }catch(e){ console.error(e); }
+}
+async function approve(){
+  const n = Math.max(1, Math.min(200, parseInt($('buyCount').value||'1')));
+  await sendTx(CFG.token, '0x'+SEL.approve+encAddr(CFG.CONTRACT)+encUint(TICKET*BigInt(n)));
+  toast('授权成功，再点「买票」');
+}
+async function buy(){
+  const n = Math.max(1, Math.min(200, parseInt($('buyCount').value||'1')));
+  await sendTx(CFG.CONTRACT, '0x'+SEL.buyTickets+encUint(n));
+  toast('买票成功，祝中大奖！');
+}
+async function closeRound(){ await sendTx(CFG.CONTRACT,'0x'+SEL.closeRound); toast('本期已关闭，等约 50 个块后点开奖'); }
+async function draw(){ await sendTx(CFG.CONTRACT,'0x'+SEL.draw); toast('开奖完成！'); }
+async function approveSeed(){
+  const amt = parseUnits($('seedAmt').value||'0');
+  if (amt<=0n) return toast('先填注入金额');
+  await sendTx(CFG.token,'0x'+SEL.approve+encAddr(CFG.CONTRACT)+encUint(amt));
+  toast('授权成功，再点「注入奖池」');
+}
+async function seed(){
+  const amt = parseUnits($('seedAmt').value||'0');
+  if (amt<=0n) return toast('先填注入金额');
+  if(!confirm('往奖池注入 '+$('seedAmt').value+' LGNS？这钱就回不来了，算营销成本。')) return;
+  await sendTx(CFG.CONTRACT,'0x'+SEL.seedJackpot+encUint(amt));
+  toast('注入成功！');
+}
+$('contractLink').href = CFG.explorer+'/address/'+CFG.CONTRACT;
+setInterval(()=>{ if(myAddr) refresh(); }, 15000);
+window.addEventListener('load', ()=>{ loadStatic().then(refresh).catch(()=>{}); });
+</script>
+</body>
+</html>
