@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>一键发币 · 进阶版 · Web3Origin</title>
-<meta name="description" content="在 Anubis 链上一键发行进阶版 ERC20 代币：可配买卖税、增发上限、黑名单、持仓上限，部署后自带管理面板。">
+<title>一键发币 · Web3Origin</title>
+<meta name="description" content="在 Anubis 链上一键发行 ERC20 代币：可配买卖税、增发上限、黑名单、持仓上限，部署后自带管理面板。">
 <script src="/assets/ethers6.min.js"></script>
 <script>if(!window.ethers){document.write('<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.min.js"><\/script>');}</script>
 <style>
@@ -90,10 +90,8 @@ h1{font-family:var(--serif);font-size:27px;color:var(--gold-lt);margin:0 0 6px;l
 </head>
 <body>
 <div class="wrap">
-  <div class="crumb"><a href="/">Web3Origin</a> / <a href="/tools/origin-monitor/">起源百宝箱</a> / 一键发币 · 进阶版</div>
-  <h1>一键发币 <span style="font-size:15px;color:var(--blood-lt,#c0272d)">进阶版</span></h1>
-  <p class="sub">v1 是干净的白开水，这个是"能干活"的：买卖税、增发上限、黑名单、持仓上限都能配，部署后自带管理面板。想发营销盘、社群币、活动币，用这个。</p>
-
+  <div class="crumb"><a href="/">Web3Origin</a> / <a href="/tools/origin-monitor/">起源百宝箱</a> / 一键发币</div>
+  <h1>一键发币</h1>
   <div class="stepnav" id="stepNav"></div>
   <div class="tokbar" id="tokenBar"></div>
 
@@ -145,7 +143,7 @@ h1{font-family:var(--serif);font-size:27px;color:var(--gold-lt);margin:0 0 6px;l
     <h2><span class="step">5</span>连接钱包并发行</h2>
     <div class="row">
       <div><button class="btn ghost" id="connectBtn">连接钱包</button></div>
-      <div><button class="btn" id="deployBtn" disabled>🚀 发行进阶版代币</button></div>
+      <div><button class="btn" id="deployBtn" disabled>🚀 发行代币</button></div>
     </div>
     <div class="hint" id="walletHint" style="margin-top:8px">还没连接钱包。发行时会自动切换到 Anubis 链，需要一点 DAI 当 gas。</div>
     <div class="existbox">
@@ -241,7 +239,7 @@ h1{font-family:var(--serif);font-size:27px;color:var(--gold-lt);margin:0 0 6px;l
 </div>
 <script>
 "use strict";
-/* ============ 一键发币 · 进阶版 ============ */
+/* ============ 一键发币 ============ */
 var ANUBIS = { chainId: 6714, hex: "0x1a3a",
   rpc: "https://rpc.anubispace.org", explorer: "https://browser.anubispace.org" };
 var ROUTER = "0x3E412E02B6157fBE80b6C6697f3Ce1142E629019";   /* RocketSwap Router */
@@ -287,7 +285,7 @@ function renderNav(){
     $("chgTokBtn").addEventListener("click", function(){
       if(confirm("清除当前代币，重新选币？")){
         window._deployed=false;
-        $("deployBtn").disabled=false; $("deployBtn").textContent="🚀 发行进阶版代币";
+        $("deployBtn").disabled=false; $("deployBtn").textContent="🚀 发行代币";
         setToken(null);
       }
     });
@@ -456,7 +454,7 @@ $("deployBtn").addEventListener("click", async function(){
   if(tokenAddr && !confirm("本页已载入代币 "+tokenAddr.slice(0,10)+"…，再点发行会部署一个全新的币（又花一份 gas），确定吗？")) return;
   var p=validParams();
   if(p.err){ alert(p.err); return; }
-  var msg="确认发行进阶版吗？\n\n名称："+p.name+"\n简称："+p.sym+"\n初始量："+p.sup+
+  var msg="确认发行吗？\n\n名称："+p.name+"\n简称："+p.sym+"\n初始量："+p.sup+
     "\n买税/卖税："+p.buy+"% / "+p.sell+"%\n增发上限："+p.sup+" × "+p.capMult+
     "\n持仓上限："+(p.maxw?p.maxw+"%":"不限")+"\n\n发到 Anubis 主网，基础参数不可改。";
   if(!confirm(msg)) return;
