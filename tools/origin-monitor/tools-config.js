@@ -27,14 +27,15 @@
 (function (root) {
   'use strict';
 
-  /* ---- 六大能力分类 ---- */
+  /* ---- 七大能力分类 ---- */
   var CATEGORIES = [
     { id: 'wallet-id',     icon: '🪪', name: '钱包与身份', en: {"name":"Wallet & Identity","desc":"Referrals, wallet level, promotions and address links."}, desc: '推荐关系、钱包等级、晋升记录、地址关系。' },
     { id: 'asset-staking', icon: '💰', name: '资产与质押', en: {"name":"Assets & Staking","desc":"Dual-chain assets, flexible/360/600 staking and network staking data."}, desc: '双链资产、活期质押、360、600 及全网质押数据。' },
     { id: 'trade-whale',   icon: '🐋', name: '交易与大户', en: {"name":"Trades & Whales","desc":"Large trades, whale changes, fund sources/destinations and wallet alerts."}, desc: '大额交易、大户增减仓、资金来源、资金去向和钱包预警。' },
     { id: 'security-dd',   icon: '🛡️', name: '安全与尽调', en: {"name":"Security & DD","desc":"Full wallet DD, approval checks, anomaly detection and tx translation."}, desc: '钱包综合尽调、授权检查、异常行为识别和交易翻译。' },
     { id: 'price-calc',    icon: '🧮', name: '价格与计算', en: {"name":"Price & Calc","desc":"Live prices, buy calc, sell simulation, cost and yield."}, desc: '实时价格、买入计算、卖出模拟、成本和收益计算。' },
-    { id: 'data-evidence', icon: '📜', name: '资料与证据', en: {"name":"Data & Evidence","desc":"Contract addresses, timeline, backstop logic, treasury and PDF reports."}, desc: '合约地址、发展时间轴、托底逻辑、国库资产和 PDF 报告。' }
+    { id: 'data-evidence', icon: '📜', name: '资料与证据', en: {"name":"Data & Evidence","desc":"Contract addresses, timeline, backstop logic, treasury and PDF reports."}, desc: '合约地址、发展时间轴、托底逻辑、国库资产和 PDF 报告。' },
+    { id: 'game',          icon: '🎮', name: '游戏', en: {"name":"Games","desc":"On-chain games: swap platform tokens and play dice, coin flip and more."}, desc: '链上游戏：兑换平台币，玩骰子、抛硬币等。' }
   ];
 
   /* ---- 状态样式元信息 ---- */
@@ -247,7 +248,12 @@
     { id: 'token-launcher', number: 41, name: '一键发币', en: {"name":"Token Launcher","description":"Launch your own ERC20 on Anubis in one click: name, symbol, supply, buy/sell tax, mint cap, blacklist, max wallet; then add LP and auto-set the pair."}, category: 'trade-whale', icon: '🚀',
       description: '在 Anubis 上一键发行你自己的代币：名字、简称、总量、买卖税、增发上限、黑名单、持仓上限都能配；发完一键加池建 LP 底池，交易对自动设进合约。模板开局，小白也能当项目方。',
       status: 'live', isPremium: false, route: '/tools/token-launcher/', enabled: true,
-      note: '独立页 /tools/token-launcher/。进阶版 ERC20（AdvancedToken.sol，solc 0.8.20 本地编译，38 项本地 EVM 逻辑测试全过）：买/卖税 0-30%（合约写死上限）、增发上限、黑名单、持仓上限（部署者分发豁免）、owner 管理（调税/设交易对/拉黑/增发/转移管理权）。部署后"一键加池"：approve→Router(0x3E412E02B6157fBE80b6C6697f3Ce1142E629019).addLiquidity(代币+ERC20 DAI 0x83fd…)，LP 归用户，factory.getPair 读 pair 后自动 setPair。Router/Factory/DAI 地址及 addLiquidity 签名已链上验证。2026-10-02 上线。' }
+      note: '独立页 /tools/token-launcher/。进阶版 ERC20（AdvancedToken.sol，solc 0.8.20 本地编译，38 项本地 EVM 逻辑测试全过）：买/卖税 0-30%（合约写死上限）、增发上限、黑名单、持仓上限（部署者分发豁免）、owner 管理（调税/设交易对/拉黑/增发/转移管理权）。部署后"一键加池"：approve→Router(0x3E412E02B6157fBE80b6C6697f3Ce1142E629019).addLiquidity(代币+ERC20 DAI 0x83fd…)，LP 归用户，factory.getPair 读 pair 后自动 setPair。Router/Factory/DAI 地址及 addLiquidity 签名已链上验证。2026-10-02 上线。' },
+
+    { id: 'fcb-arcade', number: 42, name: '发财游戏平台', en: {"name":"FCB Arcade","description":"Swap LGNS for FCB platform tokens on a bonding curve, then play on-chain dice and coin flip games."}, category: 'game', icon: '🪙',
+      description: '发财币（FCB）聚合游戏平台：用 LGNS 按 bonding curve 兑换发财币（总量 2.1 亿，越早换越便宜，双向 2.5% 手续费），再用 FCB 玩链上骰子、抛硬币（返还率 98%），后续持续上新游戏。',
+      status: 'live', isPremium: false, route: '/tools/arcade/', enabled: true,
+      note: '聚合页 /tools/arcade/ + 骰子 /tools/arcade/dice/ + 抛硬币 /tools/arcade/coinflip/。FCB(ERC20,18位,2.1亿固定总量)+FCBSwap(LGNS↔FCB 双向兑换,线性 bonding curve:起价 0.000001 LGNS/枚,全流通约 21 倍,双向 2.5% 手续费归 owner,储备金只进不出)+Dice/CoinFlip(FCB 奖池,2% 水位,未来区块哈希开奖,单注盈利≤奖池 5%)。合约 solc 0.8.20,20 项 Foundry 测试全过。页面无外部依赖(EIP-1193+手写 ABI),Anubis 发 legacy type-0 交易。2026-10-02 上线,合约待部署(页面为待部署态,部署后填地址)。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
