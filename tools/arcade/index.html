@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>发财游戏平台 · FCB Arcade</title>
+<style>
+:root{--gold:#d4a017;--gold2:#f5c542;--bg:#0d0b08;--card:#161310;--line:#3a2f1a;--txt:#e8dcc0;--dim:#9a8a6a;--green:#4caf7d;--red:#e05c5c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1200px 600px at 50% -10%,#241c0e 0%,var(--bg) 60%);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+header{text-align:center;padding:28px 0 18px}
+.logo{font-size:52px}
+h1{font-size:26px;color:var(--gold2);letter-spacing:2px;margin:6px 0}
+.sub{color:var(--dim);font-size:13px}
+.conn{display:flex;justify-content:center;margin:14px 0}
+button{cursor:pointer;border:none;border-radius:10px;font-size:15px}
+.btn{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#231a05;font-weight:700;padding:12px 26px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold2);padding:10px 20px}
+.btn.small{padding:8px 14px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+.card h2{font-size:16px;color:var(--gold2);margin-bottom:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{flex:1;padding:10px;border-radius:10px;background:#0f0d09;border:1px solid var(--line);color:var(--dim);font-size:14px}
+.tab.on{border-color:var(--gold);color:var(--gold2);background:#1d170c}
+input[type=text],input[type=number]{width:100%;background:#0f0d09;border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:12px;font-size:16px;outline:none}
+input:focus{border-color:var(--gold)}
+label{font-size:12px;color:var(--dim);display:block;margin:10px 0 6px}
+.quote{background:#0f0d09;border-radius:10px;padding:12px;margin-top:12px;font-size:14px;line-height:1.9}
+.quote b{color:var(--gold2)}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stat .v{font-size:17px;color:var(--gold2);font-weight:700}
+.stat .k{font-size:11px;color:var(--dim);margin-top:4px}
+.games{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.game{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 14px;text-align:center;text-decoration:none;color:var(--txt);display:block}
+.game.off{opacity:.45;pointer-events:none}
+.game .e{font-size:40px}
+.game .t{font-size:16px;font-weight:700;margin:8px 0 4px;color:var(--gold2)}
+.game .d{font-size:12px;color:var(--dim);line-height:1.6}
+.badge{display:inline-block;font-size:11px;background:#2a2110;color:var(--gold2);border:1px solid var(--gold);border-radius:20px;padding:2px 10px;margin-top:8px}
+.rules{font-size:13px;line-height:2;color:var(--dim)}
+.rules b{color:var(--txt)}
+.addr{font-size:11px;color:var(--dim);word-break:break-all;margin-top:8px}
+.warn{background:#2a160f;border:1px solid #7a3a1a;border-radius:10px;padding:12px;font-size:12px;color:#e0a080;line-height:1.8;margin-top:12px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#000;border:1px solid var(--gold);color:var(--gold2);padding:12px 22px;border-radius:10px;font-size:14px;display:none;z-index:99;max-width:90vw}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="logo">🪙</div>
+<h1>发财游戏平台</h1>
+<div class="sub">FCB ARCADE · 一个币，玩转所有游戏</div>
+</header>
+<div class="conn"><button class="btn" id="connBtn">连接钱包</button></div>
+<div id="acct" style="text-align:center;font-size:12px;color:var(--dim)"></div>
+
+<div class="stats">
+<div class="stat"><div class="v" id="sPrice">-</div><div class="k">当前价格 (LGNS/枚)</div></div>
+<div class="stat"><div class="v" id="sCirc">-</div><div class="k">已流通 FCB</div></div>
+<div class="stat"><div class="v" id="sReserve">-</div><div class="k">合约 LGNS 储备</div></div>
+</div>
+
+<div class="card">
+<h2>💱 兑换发财币</h2>
+<div class="tabs">
+<button class="tab on" id="tabBuy">LGNS → FCB</button>
+<button class="tab" id="tabSell">FCB → LGNS</button>
+</div>
+<label id="inLabel">付出 LGNS 数量</label>
+<input type="number" id="amt" placeholder="0.0" min="0" step="any">
+<div class="quote" id="quoteBox">输入数量查看实时报价…</div>
+<div class="row" style="margin-top:12px">
+<button class="btn ghost small" id="apprBtn" style="display:none">授权</button>
+<button class="btn" id="swapBtn" style="flex:1">兑换</button>
+</div>
+<div class="addr" id="balLine"></div>
+</div>
+
+<div class="card">
+<h2>🎮 游戏大厅</h2>
+<div class="games">
+<a class="game" id="gDice" href="dice/"><div class="e">🎲</div><div class="t">骰子</div><div class="d">选 5–95 的目标值<br>掷出更小即赢 · 返还率 98%</div><span class="badge">FCB 下注</span></a>
+<a class="game" id="gFlip" href="coinflip/"><div class="e">🪙</div><div class="t">抛硬币</div><div class="d">猜正反 · 猜中 1.96 倍<br>返还率 98%</div><span class="badge">FCB 下注</span></a>
+<a class="game" href="/tools/lottery/"><div class="e">🎰</div><div class="t">LGNS 彩票</div><div class="d">每天一期 · 一等奖 50%<br>奖池滚存</div><span class="badge">LGNS 直接玩</span></a>
+<a class="game off"><div class="e">🎯</div><div class="t">更多游戏</div><div class="d">持续开发中…<br>敬请期待</div></a>
+</div>
+</div>
+
+<div class="card">
+<h2>📜 规则说明</h2>
+<div class="rules">
+<b>发财币（FCB）</b>：总量 2.1 亿枚，18 位精度，固定总量永不增发。只能通过本平台用 LGNS 兑换获得，没有其他购买渠道。<br>
+<b>价格机制</b>：线性 bonding curve——FCB 流通越多，价格越高。起价 <b>0.000001 LGNS/枚</b>，2.1 亿枚全部流通时涨到约 <b>0.000021 LGNS/枚</b>（约 21 倍）。早换便宜，晚换贵。<br>
+<b>手续费</b>：买入、卖出双向各收 <b>2.5%</b>，直接归平台所有者。<br>
+<b>卖回</b>：FCB 随时可以按曲线卖回 LGNS，合约储备金只进不出（所有者提不走），保证随时可赎回。<br>
+<b>游戏</b>：所有游戏用 FCB 下注，庄家水位 2%（返还率 98%）。开奖用未来区块哈希，奖池不足或单注过大时会拒绝下注。<br>
+</div>
+<div class="warn">⚠️ 链上游戏有风险：价格随供需波动，游戏有 2% 数学劣势。合约参数（曲线、手续费）部署后写死不可更改；平台为单所有者制，请自行评估后参与。</div>
+<div class="addr">LGNS: 0x4d1d808a081fdac440703b3765fc61f8028c06b8<br><span id="contractAddrs"></span></div>
+</div>
+</div>
+<div id="toast"></div>
+<script>
+"use strict";
+// ===== 合约地址（部署后填写） =====
+const LGNS = "0x4d1d808a081fdac440703b3765fc61f8028c06b8";
+const FCB  = "0x0000000000000000000000000000000000000000"; // 发财币
+const SWAP = "0x0000000000000000000000000000000000000000"; // 兑换合约
+const ZERO = "0x0000000000000000000000000000000000000000";
+const DEPLOYED = FCB !== ZERO && SWAP !== ZERO;
+// ===== selector =====
+const S = {
+  balanceOf:"0x70a08231", approve:"0x095ea7b3", allowance:"0xdd62ed3e",
+  buy:"0xd6febde8", sell:"0xd79875eb",
+  getBuyQuote:"0xb390452c", getSellQuote:"0x0812530e",
+  circulating:"0xf8718858", currentPrice:"0x9d1b464a"
+};
+const $=id=>document.getElementById(id);
+let ACCT=null, DIR="buy";
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(t._h);t._h=setTimeout(()=>t.style.display="none",3500);}
+const eth=(m,p)=>window.ethereum.request({method:m,params:p});
+const call=(to,data)=>eth("eth_call",[{to,data},"latest"]);
+const pAddr=a=>"0".repeat(24)+a.slice(2).toLowerCase();
+const pUint=n=>BigInt(n).toString(16).padStart(64,"0");
+function dec(hex){hex=hex.slice(2);const r=[];for(let i=0;i<hex.length;i+=64)r.push(BigInt("0x"+hex.slice(i,i+64)));return r;}
+function fmt(b,d,dp){d=Number(d);const neg=b<0n;b=neg?-b:b;let s=b.toString().padStart(d+1,"0");let ip=s.slice(0,-d),fp=s.slice(-d).replace(/0+$/,"");if(dp!==undefined)fp=(fp+"0".repeat(dp)).slice(0,dp);return (neg?"-":"")+ip+(fp?"."+fp:"");}
+const fmtF=b=>fmt(b,18,4), fmtL=b=>fmt(b,9,4);
+async function sendTx(to,data){
+  const gas=await eth("eth_estimateGas",[{from:ACCT,to,data}]);
+  const gasPrice=await eth("eth_gasPrice",[]);
+  return eth("eth_sendTransaction",[{from:ACCT,to,data,gas:"0x"+(BigInt(gas)*13n/10n).toString(16),gasPrice,type:"0x0"}]);
+}
+async function connect(){
+  if(!window.ethereum){toast("请在钱包 App 内打开");return;}
+  const acc=await eth("eth_requestAccounts",[]);
+  ACCT=acc[0];$("connBtn").textContent="已连接";
+  $("acct").textContent=ACCT;
+  refreshAll();
+}
+async function bal(token,dec_){
+  if(!ACCT)return 0n;
+  return dec(await call(token,S.balanceOf+pAddr(ACCT)))[0];
+}
+async function refreshStats(){
+  if(!DEPLOYED)return;
+  try{
+    const [price]=dec(await call(SWAP,S.currentPrice));
+    const [circ]=dec(await call(SWAP,S.circulating));
+    const [resv]=dec(await call(LGNS,S.balanceOf+pAddr(SWAP)));
+    $("sPrice").textContent=fmt(price,9,8);
+    $("sCirc").textContent=fmt(circ,18,0);
+    $("sReserve").textContent=fmt(resv,9,2);
+  }catch(e){}
+}
+let quoteTimer=null, lastQuote=null;
+async function refreshQuote(){
+  const box=$("quoteBox"),appr=$("apprBtn");
+  appr.style.display="none";lastQuote=null;
+  if(!DEPLOYED){box.textContent="合约部署后开放兑换。";return;}
+  const v=$("amt").value.trim();
+  if(!v||Number(v)<=0){box.textContent="输入数量查看实时报价…";return;}
+  try{
+    if(DIR==="buy"){
+      const wei=BigInt(Math.floor(Number(v)*1e9));
+      const [out,fee]=dec(await call(SWAP,S.getBuyQuote+pUint(wei)));
+      lastQuote={out,fee,inWei:wei};
+      const price=Number(wei)/Number(out)*1e18/1e9;
+      box.innerHTML=`预计到账 <b>${fmtF(out)} FCB</b><br>手续费 <b>${fmtL(fee)} LGNS</b>（2.5%）<br>本次买入均价约 <b>${price.toFixed(8)} LGNS/枚</b>`;
+      const al=dec(await call(LGNS,S.allowance+pAddr(ACCT)+pAddr(SWAP)))[0];
+      if(al<wei){appr.style.display="";appr.textContent="授权 LGNS";appr.onclick=()=>doApprove(LGNS,wei);}
+    }else{
+      const wei=BigInt(Math.floor(Number(v)*1e18));
+      const [out,fee,gross]=dec(await call(SWAP,S.getSellQuote+pUint(wei)));
+      lastQuote={out,fee,inWei:wei};
+      box.innerHTML=`预计到账 <b>${fmtL(out)} LGNS</b><br>手续费 <b>${fmtL(fee)} LGNS</b>（2.5%）<br>实际卖出均价约 <b>${(Number(gross)/Number(wei)*1e18/1e9).toFixed(8)} LGNS/枚</b>`;
+      const al=dec(await call(FCB,S.allowance+pAddr(ACCT)+pAddr(SWAP)))[0];
+      if(al<wei){appr.style.display="";appr.textContent="授权 FCB";appr.onclick=()=>doApprove(FCB,wei);}
+    }
+  }catch(e){box.textContent="报价失败："+(e.message||e).slice(0,80);}
+}
+async function doApprove(token,wei){
+  try{toast("等待钱包确认授权…");const h=await sendTx(token,S.approve+pAddr(SWAP)+pUint(wei));toast("授权已提交："+h.slice(0,18)+"…");setTimeout(refreshQuote,3000);}
+  catch(e){toast("授权失败："+(e.message||e).slice(0,80));}
+}
+async function doSwap(){
+  if(!ACCT){toast("先连接钱包");return;}
+  if(!lastQuote){toast("先输入数量");return;}
+  const minOut=lastQuote.out*99n/100n; // 1% 滑点
+  try{
+    toast("等待钱包确认…");
+    const data=(DIR==="buy"?S.buy:S.sell)+pUint(lastQuote.inWei)+pUint(minOut);
+    const h=await sendTx(SWAP,data);
+    toast("交易已提交："+h.slice(0,18)+"…");$("amt").value="";
+    setTimeout(refreshAll,4000);
+  }catch(e){toast("失败："+(e.message||e).slice(0,100));}
+}
+async function refreshBal(){
+  if(!ACCT||!DEPLOYED)return;
+  const l=await bal(LGNS),f=await bal(FCB);
+  $("balLine").textContent=`我的余额：${fmtL(l)} LGNS · ${fmtF(f)} FCB`;
+}
+function refreshAll(){refreshStats();refreshBal();refreshQuote();}
+$("connBtn").onclick=connect;
+$("tabBuy").onclick=()=>{DIR="buy";$("tabBuy").classList.add("on");$("tabSell").classList.remove("on");$("inLabel").textContent="付出 LGNS 数量";refreshQuote();};
+$("tabSell").onclick=()=>{DIR="sell";$("tabSell").classList.add("on");$("tabBuy").classList.remove("on");$("inLabel").textContent="付出 FCB 数量";refreshQuote();};
+$("amt").oninput=()=>{clearTimeout(quoteTimer);quoteTimer=setTimeout(refreshQuote,400);};
+$("swapBtn").onclick=doSwap;
+$("contractAddrs").innerHTML=DEPLOYED?`FCB: ${FCB}<br>兑换: ${SWAP}`:"FCB / 兑换合约：待部署";
+if(!DEPLOYED){
+  $("gDice").classList.add("off");$("gFlip").classList.add("off");
+  $("swapBtn").disabled=true;
+}
+refreshStats();
+</script>
+</body>
+</html>
