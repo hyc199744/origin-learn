@@ -122,6 +122,7 @@ h1{font-family:var(--serif);font-size:27px;color:var(--gold-lt);margin:0 0 6px;l
     </div>
     <div class="hint" id="walletHint" style="margin-top:8px">还没连接钱包。发行时会自动切换到 Anubis 链，需要一点 DAI 当 gas。</div>
     <div class="status" id="status"></div>
+    <div class="hint" style="font-size:11px;opacity:.55;margin-top:4px">页面版本 v20261002c · legacy 交易模式</div>
     <div class="result" id="result">
       <div style="color:var(--green);font-weight:800;margin-bottom:8px">🎉 发行成功！</div>
       <div>合约地址：<span class="addr" id="rAddr"></span></div>
@@ -331,7 +332,7 @@ $("deployBtn").addEventListener("click", async function(){
   }catch(e){
     var m=String((e&&(e.shortMessage||e.message))||"");
     if(/reject|denied|4001/i.test(m)) setStatus("已取消（钱包拒绝签名）。");
-    else if(/missing revert data/i.test(m)) setStatus("链上没返回结果：多半是 RPC 瞬断、交易没发出去。等几秒重试一次就行。");
+    else if(/missing revert data/i.test(m)) setStatus("链上没返回结果 [code:"+(e&&e.code||"?")+"]：多半是 RPC 瞬断、交易没发出去。等几秒重试一次就行。");
     else { setStatus("发行失败："+m.slice(0,150)); alert("发行失败："+m.slice(0,150)); }
   }finally{ $("deployBtn").disabled=false; }
 });
