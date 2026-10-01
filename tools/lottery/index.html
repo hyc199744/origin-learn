@@ -100,10 +100,6 @@
     </div>
   </div>
 
-  <div class="foot">
-    合约 <a id="contractLink" href="#" target="_blank">浏览器查看</a><br>
-    Anubis 链 · 票币 LGNS(9 位精度) · 本页面无外部依赖
-  </div>
 </div>
 
 <script>
@@ -250,7 +246,6 @@ async function refresh(){
       $('lastWinners').innerHTML = html || '<div class="note">本期无人购票，奖池全额滚存</div>';
       $('lastRollover').textContent = fmt(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastRollover)))+' LGNS';
     }
-    $('contractLink').href = CFG.explorer+'/address/'+CFG.CONTRACT;
   }catch(e){ console.error(e); }
 }
 async function approve(){
@@ -284,7 +279,6 @@ async function doSetTicketPrice(){
   toast('票价已改成 3 LGNS！');
   await refresh();
 }
-$('contractLink').href = CFG.explorer+'/address/'+CFG.CONTRACT;
 setInterval(()=>{ if(myAddr) refresh(); }, 15000);
 window.addEventListener('load', ()=>{ loadStatic().then(refresh).catch(()=>{}); });
 </script>
