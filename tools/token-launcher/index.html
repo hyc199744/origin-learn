@@ -313,7 +313,7 @@ $("deployBtn").addEventListener("click", async function(){
     if(gp>0n&&bal<cost){ alert("gas 不够：部署约需 "+ethers.formatEther(cost)+" DAI，你钱包只有 "+ethers.formatEther(bal)+" DAI，先转点 DAI 进来。"); return; }
     setStatus("自检通过（gas 约 "+ethers.formatEther(cost)+" DAI），正在部署合约，等待钱包确认…");
     var sent=await sendTx(factory.getDeployTransaction(p.name,p.sym,p.supWei,p.buy,p.sell,p.taxW,p.maxWei,p.maxw));
-    tokenAddr=ethers.getContractAddress({from:wallet.addr,nonce:sent.nonce});
+    tokenAddr=ethers.getCreateAddress({from:wallet.addr,nonce:sent.nonce});
     setStatus("已提交 <b>"+sent.hash.slice(0,10)+"…</b>，上链确认中…");
     var drc=await sent.wait();
     if(drc&&drc.status===0) throw new Error("合约部署在链上执行失败（reverted）");
