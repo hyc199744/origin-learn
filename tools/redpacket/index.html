@@ -81,6 +81,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.min.js"></script>
+<script>if (typeof ethers === 'undefined') document.write('<script src="https://unpkg.com/ethers@6.13.4/dist/ethers.min.js"><\/script>');</script>
 <script>
 // ================= 配置（部署后把合约地址填到 CONTRACT） =================
 const CFG = {
@@ -123,9 +124,10 @@ const fmt = v => Number(ethers.formatUnits(v, 18)).toLocaleString('zh-CN', {maxi
 function toast(msg) { alert(msg); }
 
 async function connect() {
+  if (typeof ethers === 'undefined') return toast('页面组件没加载出来，可能是网络问题，刷新再试一次');
   if (!window.ethereum) return toast('没检测到钱包：手机请用钱包 App（MetaMask/OKX/TP/imToken）自带的浏览器打开本页面，电脑请安装钱包插件');
-  provider = new ethers.BrowserProvider(window.ethereum);
   try {
+    provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send('eth_requestAccounts', []);
     const net = await provider.getNetwork();
     if (Number(net.chainId) !== CFG.chainId) {
