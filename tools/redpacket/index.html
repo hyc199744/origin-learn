@@ -80,84 +80,127 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.min.js"></script>
-<script>if (typeof ethers === 'undefined') document.write('<script src="https://unpkg.com/ethers@6.13.4/dist/ethers.min.js"><\/script>');</script>
 <script>
-// ================= 配置（部署后把合约地址填到 CONTRACT） =================
+/* 无外部依赖：钱包直连 + 最小 ABI 编解码（2026-10-02） */
+// ================= 配置 =================
 const CFG = {
   chainId: 6714,
   chainHex: '0x1A3A',
   chainName: 'Anubis',
   rpcUrl: 'https://rpc.anubispace.org',
-  nativeSymbol: 'DAI',
   explorer: 'https://browser.anubispace.org',
   rewardToken: '0x256edb652db43e721ec6a12b6b51b6967d3bb8cb',
   rewardSymbol: 'LGNS',
   CONTRACT: '0xb4838C2EA00D007EB1478cFf4e80DA464C2B7680' // 2026-10-01 已部署
 };
-// ================= 合约 ABI（最小集） =================
-const ABI = [
-  "function createPacket(uint256 amount, uint8 shares) returns (uint256)",
-  "function grab(uint256 id)",
-  "function relay(uint256 oldId, uint256 amount, uint8 shares) returns (uint256)",
-  "function takeoverRelay(uint256 oldId, uint256 amount, uint8 shares) returns (uint256)",
-  "function settleUnfinished(uint256 id)",
-  "function sweepDeposit(uint256 id)",
-  "function packetCount() view returns (uint256)",
-  "function packets(uint256) view returns (address creator,uint256 totalAmount,uint256 netAmount,uint8 shares,uint8 grabbed,uint256 distributed,address luckiest,uint256 best,uint256 relayDeposit,uint256 grabDeadline,uint256 relayDeadline,bool relayed,bool closed)",
-  "function hasGrabbed(uint256,address) view returns (bool)",
-  "function getGrabbers(uint256) view returns (address[])",
-  "function relayBps() view returns (uint256)",
-  "function minPacket() view returns (uint256)"
-];
-const ERC20_ABI = [
-  "function approve(address spender, uint256 amount) returns (bool)",
-  "function allowance(address owner, address spender) view returns (uint256)",
-  "function balanceOf(address) view returns (uint256)"
-];
 
-let provider, signer, contract, token, myAddr = null;
+// 合约函数 selector（keccak256(签名)前4字节，本地算好写死，页面零外部依赖）
+const SEL = {
+  approve:          '095ea7b3',
+  allowance:        'dd62ed3e',
+  balanceOf:        '70a08231',
+  createPacket:     '8a394fa8',
+  grab:             '0895c229',
+  relay:            '612ca561',
+  takeoverRelay:    'a0c1be48',
+  settleUnfinished: '037be37b',
+  sweepDeposit:     'bc8d07ca',
+  packetCount:      '6de56271',
+  packets:          'd0a9e0c0',
+  hasGrabbed:       '1c2c47df',
+  getGrabbers:      'bbd6c33b',
+  relayBps:         '8ea1c312',
+  minPacket:        '05fd9cdb'
+};
+
+// ---- 最小 ABI 编解码（只覆盖本页用到的类型：uint/bool/address/address[]） ----
+function encUint(v) { return BigInt(v).toString(16).padStart(64, '0'); }
+function encAddr(a) { return '0'.repeat(24) + a.toLowerCase().replace(/^0x/, ''); }
+function txData(sel, words) { return '0x' + sel + words.join(''); }
+function decUint(h) { return BigInt('0x' + h); }
+function decAddr(h) { return '0x' + h.slice(-40); }
+function decBool(h) { return BigInt('0x' + h) !== 0n; }
+function decodePacket(h) {
+  const w = i => h.slice(i * 64, (i + 1) * 64);
+  return {
+    creator: decAddr(w(0)), totalAmount: decUint(w(1)), netAmount: decUint(w(2)),
+    shares: Number(decUint(w(3))), grabbed: Number(decUint(w(4))),
+    distributed: decUint(w(5)), luckiest: decAddr(w(6)), best: decUint(w(7)),
+    relayDeposit: decUint(w(8)), grabDeadline: Number(decUint(w(9))),
+    relayDeadline: Number(decUint(w(10))), relayed: decBool(w(11)), closed: decBool(w(12))
+  };
+}
+function parseUnits(str, dec) {
+  dec = dec || 18;
+  str = String(str).trim();
+  if (!/^\d+(\.\d+)?$/.test(str)) throw new Error('金额格式不对');
+  const parts = str.split('.'), f = parts[1] || '';
+  if (f.length > dec) throw new Error('小数位太多');
+  return BigInt(parts[0] + (f + '0'.repeat(dec)).slice(0, dec));
+}
+function formatUnits(v, dec) {
+  dec = dec || 18;
+  const s = BigInt(v).toString().padStart(dec + 1, '0');
+  const i = s.slice(0, -dec), f = s.slice(-dec).replace(/0+$/, '');
+  return i + (f ? '.' + f : '');
+}
+
+// ---- 基础 ----
+let myAddr = null;
 const $ = id => document.getElementById(id);
-const short = a => a ? a.slice(0,6) + '…' + a.slice(-4) : '';
-const fmt = v => Number(ethers.formatUnits(v, 18)).toLocaleString('zh-CN', {maximumFractionDigits: 2});
-
+const short = a => a ? a.slice(0, 6) + '…' + a.slice(-4) : '';
+const fmt = v => Number(formatUnits(v)).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
 function toast(msg) { alert(msg); }
+function req(method, params) { return window.ethereum.request({ method, params }); }
+
+async function ethCall(to, d) {
+  const r = await req('eth_call', [{ to, data: d }, 'latest']);
+  return (r || '0x').replace(/^0x/, '');
+}
+async function sendTx(to, d) {
+  const hash = await req('eth_sendTransaction', [{ from: myAddr, to, data: d }]);
+  toast('交易已发送，等待确认…');
+  for (let i = 0; i < 150; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    const rc = await req('eth_getTransactionReceipt', [hash]);
+    if (rc && rc.blockNumber && rc.blockNumber !== '0x0') {
+      if (rc.status === '0x1') return rc;
+      throw new Error('交易执行失败（被 revert）');
+    }
+  }
+  throw new Error('等太久没确认，请稍后去浏览器查：' + hash);
+}
 
 async function connect() {
-  if (typeof ethers === 'undefined') return toast('页面组件没加载出来，可能是网络问题，刷新再试一次');
   if (!window.ethereum) return toast('没检测到钱包：手机请用钱包 App（MetaMask/OKX/TP/imToken）自带的浏览器打开本页面，电脑请安装钱包插件');
   try {
-    provider = new ethers.BrowserProvider(window.ethereum);
-    await provider.send('eth_requestAccounts', []);
-    const net = await provider.getNetwork();
-    if (Number(net.chainId) !== CFG.chainId) {
+    const accs = await req('eth_requestAccounts', []);
+    if (!accs || !accs.length) throw new Error('没拿到钱包地址');
+    myAddr = accs[0];
+    const chainId = await req('eth_chainId', []);
+    if (parseInt(chainId, 16) !== CFG.chainId) {
       try {
-        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CFG.chainHex }] });
+        await req('wallet_switchEthereumChain', [{ chainId: CFG.chainHex }]);
       } catch (e) {
         if (e.code === 4902) {
-          await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{
+          await req('wallet_addEthereumChain', [{
             chainId: CFG.chainHex, chainName: CFG.chainName, rpcUrls: [CFG.rpcUrl],
-            nativeCurrency: { name: CFG.nativeSymbol, symbol: CFG.nativeSymbol, decimals: 18 },
+            nativeCurrency: { name: 'DAI', symbol: 'DAI', decimals: 18 },
             blockExplorerUrls: [CFG.explorer]
-          }]});
+          }]);
         } else throw e;
       }
-      provider = new ethers.BrowserProvider(window.ethereum);
     }
-    signer = await provider.getSigner();
-    myAddr = await signer.getAddress();
     $('walletBtn').textContent = short(myAddr);
     $('netStatus').textContent = '✅ Anubis (chainId 6714)';
     if (CFG.CONTRACT) {
-      contract = new ethers.Contract(CFG.CONTRACT, ABI, signer);
-      token = new ethers.Contract(CFG.rewardToken, ERC20_ABI, signer);
-      const bal = await token.balanceOf(myAddr);
-      $('myBal').textContent = '我的 LGNS 余额：' + fmt(bal);
+      const bal = await ethCall(CFG.rewardToken, txData(SEL.balanceOf, [encAddr(myAddr)]));
+      $('myBal').textContent = '我的 LGNS 余额：' + fmt(decUint(bal));
     } else {
       $('noContract').classList.remove('hidden');
     }
     loadPackets();
-  } catch (e) { toast('连接失败：' + (e.reason || e.message)); }
+  } catch (e) { toast('连接失败：' + (e.message || e)); }
 }
 
 function needContract() {
@@ -168,65 +211,66 @@ function needContract() {
 
 async function doApprove() {
   if (!needContract()) return;
-  const amt = $('inAmount').value;
-  if (!amt || Number(amt) <= 0) return toast('先填写发包金额');
+  let amt;
+  try { amt = parseUnits($('inAmount').value); }
+  catch (e) { return toast('先填写发包金额'); }
+  if (amt <= 0n) return toast('先填写发包金额');
   try {
-    const tx = await token.approve(CFG.CONTRACT, ethers.parseUnits(amt, 18));
-    toast('授权交易已发送，等待确认…');
-    await tx.wait();
+    await sendTx(CFG.rewardToken, txData(SEL.approve, [encAddr(CFG.CONTRACT), encUint(amt)]));
     toast('✅ 授权成功，可以发红包了');
-  } catch (e) { toast('授权失败：' + (e.reason || e.message)); }
+  } catch (e) { toast('授权失败：' + (e.message || e)); }
 }
 
 async function doCreate() {
   if (!needContract()) return;
-  const amt = $('inAmount').value, shares = Number($('inShares').value);
-  if (!amt || Number(amt) < 100) return toast('金额最少 100 LGNS');
+  let amt;
+  try { amt = parseUnits($('inAmount').value); }
+  catch (e) { return toast(e.message); }
+  const shares = Number($('inShares').value);
+  if (amt < parseUnits('100')) return toast('金额最少 100 LGNS');
   if (!shares || shares < 2 || shares > 100) return toast('份数 2~100');
   try {
-    const allow = await token.allowance(myAddr, CFG.CONTRACT);
-    if (allow < ethers.parseUnits(amt, 18)) return toast('额度不够，请先点"授权 LGNS"');
-    const tx = await contract.createPacket(ethers.parseUnits(amt, 18), shares);
-    toast('发包交易已发送，等待确认…');
-    await tx.wait();
+    const allow = decUint(await ethCall(CFG.rewardToken, txData(SEL.allowance, [encAddr(myAddr), encAddr(CFG.CONTRACT)])));
+    if (allow < amt) return toast('额度不够，请先点"授权 LGNS"');
+    await sendTx(CFG.CONTRACT, txData(SEL.createPacket, [encUint(amt), encUint(shares)]));
     toast('🧧 红包发出去了！');
     loadPackets();
-  } catch (e) { toast('发包失败：' + (e.reason || e.message)); }
+  } catch (e) { toast('发包失败：' + (e.message || e)); }
 }
 
 async function doGrab(id) {
   if (!needContract()) return;
   try {
-    const tx = await contract.grab(id);
-    toast('抢包交易已发送…');
-    await tx.wait();
+    await sendTx(CFG.CONTRACT, txData(SEL.grab, [encUint(id)]));
     toast('🧧 抢到啦！20% 会暂扣，结算后退还');
     loadPackets();
-  } catch (e) { toast('抢包失败：' + (e.reason || e.message || e)); }
+  } catch (e) { toast('抢包失败：' + (e.message || e)); }
 }
 
 async function doRelay(id, isTakeover) {
   if (!needContract()) return;
-  const amtEl = $('relayAmt' + id), shEl = $('relaySh' + id);
-  const amt = amtEl.value, shares = Number(shEl.value);
-  if (!amt || Number(amt) <= 0) return toast('填写续发金额');
+  let amt;
+  try { amt = parseUnits($('relayAmt' + id).value); }
+  catch (e) { return toast('填写续发金额'); }
+  const shares = Number($('relaySh' + id).value);
+  if (amt <= 0n) return toast('填写续发金额');
   if (!shares || shares < 2 || shares > 100) return toast('份数 2~100');
   try {
-    const allow = await token.allowance(myAddr, CFG.CONTRACT);
-    if (allow < ethers.parseUnits(amt, 18)) return toast('额度不够，请先授权 LGNS（发包区点"授权"）');
-    const fn = isTakeover ? 'takeoverRelay' : 'relay';
-    const tx = await contract[fn](id, ethers.parseUnits(amt, 18), shares);
-    toast('接龙交易已发送…');
-    await tx.wait();
+    const allow = decUint(await ethCall(CFG.rewardToken, txData(SEL.allowance, [encAddr(myAddr), encAddr(CFG.CONTRACT)])));
+    if (allow < amt) return toast('额度不够，请先在发包区点"授权 LGNS"');
+    await sendTx(CFG.CONTRACT, txData(isTakeover ? SEL.takeoverRelay : SEL.relay, [encUint(id), encUint(amt), encUint(shares)]));
     toast(isTakeover ? '🔥 续龙成功！' : '🐲 接龙成功，押金已退还！');
     loadPackets();
-  } catch (e) { toast('失败：' + (e.reason || e.message)); }
+  } catch (e) { toast('失败：' + (e.message || e)); }
 }
 
 async function doSettle(id) {
   if (!needContract()) return;
-  try { const tx = await contract.settleUnfinished(id); await tx.wait(); toast('已结算'); loadPackets(); }
-  catch (e) { toast('失败：' + (e.reason || e.message)); }
+  try {
+    await sendTx(CFG.CONTRACT, txData(SEL.settleUnfinished, [encUint(id)]));
+    toast('已结算');
+    loadPackets();
+  } catch (e) { toast('失败：' + (e.message || e)); }
 }
 
 function cd(ts) {
@@ -236,22 +280,22 @@ function cd(ts) {
 }
 
 async function loadPackets() {
-  if (!contract) { $('packetList').innerHTML = '<div style="color:#999">合约未配置</div>'; return; }
+  if (!CFG.CONTRACT) { $('packetList').innerHTML = '<div style="color:#999">合约未配置</div>'; return; }
   $('packetList').innerHTML = '<div style="color:#999">加载中…</div>';
   try {
-    const n = Number(await contract.packetCount());
+    const n = Number(decUint(await ethCall(CFG.CONTRACT, txData(SEL.packetCount, []))));
     if (n === 0) { $('packetList').innerHTML = '<div style="color:#999">还没有红包，快来发第一个！</div>'; $('myList').innerHTML = '—'; return; }
     const from = Math.max(1, n - 29);
     let html = '', myHtml = '';
-    const relayBps = Number(await contract.relayBps());
+    const relayBps = decUint(await ethCall(CFG.CONTRACT, txData(SEL.relayBps, [])));
     for (let id = n; id >= from; id--) {
-      const p = await contract.packets(id);
-      const grabbed = await contract.hasGrabbed(id, myAddr);
+      const p = decodePacket(await ethCall(CFG.CONTRACT, txData(SEL.packets, [encUint(id)])));
+      const grabbed = myAddr ? decBool(await ethCall(CFG.CONTRACT, txData(SEL.hasGrabbed, [encUint(id), encAddr(myAddr)]))) : false;
       const open = !p.closed;
-      const needRelay = p.closed && !p.relayed && p.relayDeadline > 0n;
-      const relayDue = needRelay && Date.now() / 1000 > Number(p.relayDeadline);
-      const minRelay = fmt(p.totalAmount * BigInt(relayBps) / 10000n);
-      let tag = open ? '<span class="tag">抢包中</span>'
+      const needRelay = p.closed && !p.relayed && p.relayDeadline > 0;
+      const relayDue = needRelay && Date.now() / 1000 > p.relayDeadline;
+      const minRelay = fmt(p.totalAmount * relayBps / 10000n);
+      const tag = open ? '<span class="tag">抢包中</span>'
         : needRelay ? (relayDue ? '<span class="tag">龙头超时</span>' : '<span class="tag green">待接龙</span>')
         : '<span class="tag gray">已结束</span>';
       html += '<div class="packet"><div><span class="pid">🧧 #' + id + '</span>' + tag + '</div>'
@@ -259,14 +303,16 @@ async function loadPackets() {
         + (open ? ' ｜ 抢包倒计时 <span class="timer" data-dl="' + p.grabDeadline + '"></span>' : '')
         + (needRelay && !relayDue ? ' ｜ 接龙倒计时 <span class="timer" data-dl="' + p.relayDeadline + '"></span>' : '')
         + '<br>房主 <span class="addr">' + short(p.creator) + '</span>'
-        + (p.luckiest !== '0x0000000000000000000000000000000000000000' ? ' ｜ 龙头 <span class="addr">' + short(p.luckiest) + '</span>' + (p.luckiest.toLowerCase() === myAddr.toLowerCase() ? ' <b>👈 就是你！</b>' : '') : '')
+        + (p.luckiest !== '0x0000000000000000000000000000000000000000'
+          ? ' ｜ 龙头 <span class="addr">' + short(p.luckiest) + '</span>' + (myAddr && p.luckiest.toLowerCase() === myAddr.toLowerCase() ? ' <b>👈 就是你！</b>' : '')
+          : '')
         + '</div>';
       if (open) {
         html += grabbed
           ? '<button class="btn" disabled>已抢过 ✅</button>'
           : '<button class="btn" onclick="doGrab(' + id + ')">抢！</button>';
         html += '<button class="btn ghost small" style="width:100%;margin-top:6px" onclick="doSettle(' + id + ')">份数没抢完？超时后点我结算</button>';
-      } else if (needRelay && !relayDue && p.luckiest.toLowerCase() === myAddr.toLowerCase()) {
+      } else if (needRelay && !relayDue && myAddr && p.luckiest.toLowerCase() === myAddr.toLowerCase()) {
         html += '<div class="relay-form"><div style="font-size:13px;color:#c62828;margin-bottom:6px">🐲 你是龙头！续发 ≥ ' + minRelay + ' LGNS 可拿回押金</div>'
           + '<div class="row"><label>金额</label><input id="relayAmt' + id + '" type="number" placeholder="≥ ' + minRelay + '"></div>'
           + '<div class="row"><label>份数</label><input id="relaySh' + id + '" type="number" value="10" min="2" max="100"></div>'
@@ -283,7 +329,7 @@ async function loadPackets() {
     $('packetList').innerHTML = html;
     $('myList').innerHTML = myHtml || '还没抢过红包';
     tick();
-  } catch (e) { $('packetList').innerHTML = '<div style="color:#c62828">加载失败：' + e.message + '</div>'; }
+  } catch (e) { $('packetList').innerHTML = '<div style="color:#c62828">加载失败：' + (e.message || e) + '</div>'; }
 }
 
 function tick() {
@@ -298,6 +344,7 @@ $('approveBtn').onclick = doApprove;
 $('createBtn').onclick = doCreate;
 $('refreshBtn').onclick = loadPackets;
 if (window.ethereum) connect();
+
 </script>
 </body>
 </html>
