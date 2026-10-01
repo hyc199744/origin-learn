@@ -39,7 +39,7 @@
 <body>
 <div class="wrap">
   <h1>🎰 LGNS 链上彩票</h1>
-  <div class="sub">1 LGNS / 张 · 24 小时一期 · 平台抽水 10%</div>
+  <div class="sub" id="priceSub">LGNS / 张 · 24 小时一期 · 平台抽水 10%</div>
   <button id="connectBtn" onclick="connect()">连接钱包</button>
   <div class="addr" id="myAddr"></div>
 
@@ -95,6 +95,9 @@
       <button class="btn-s" onclick="approveSeed()">1. 授权</button>
       <button class="btn-p" onclick="seed()">2. 注入奖池</button>
     </div>
+    <div class="btn-row" style="margin-top:8px">
+      <button class="btn-p" onclick="doSetTicketPrice()">🎫 票价改成 3 LGNS</button>
+    </div>
   </div>
 
   <div class="foot">
@@ -116,6 +119,7 @@ const CFG = {
 const SEL = {
   approve: '095ea7b3', allowance: 'dd62ed3e', balanceOf: '70a08231',
   buyTickets: '2f366637', seedJackpot: '02950fb9', closeRound: 'e278fe6f', draw: '0eecae21',
+  setTicketPrice: '15981650',
   ticketPrice: '1209b1f6', feeBps: '24a9d853', currentRound: '8a19c8bc',
   rounds: '8c65c81f', lastDrawnRound: '9fe8862a', lastRollover: '953523e8',
   getLastWinners: '95690936', getTicketOwners: '36a65e80', owner: '8da5cb5b'
@@ -191,6 +195,7 @@ async function connect(){
 }
 async function loadStatic(){
   TICKET = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.ticketPrice));
+  $('priceSub').textContent = (Number(TICKET)/1e9)+' LGNS / 张 · 24 小时一期 · 平台抽水 10%';
   FEE = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.feeBps));
   OWNER = decAddr(await ethCall(CFG.CONTRACT,'0x'+SEL.owner));
   if (myAddr && myAddr.toLowerCase()===OWNER.toLowerCase()) $('ownerPanel').style.display='block';
@@ -272,6 +277,12 @@ async function seed(){
   if(!confirm('往奖池注入 '+$('seedAmt').value+' LGNS？这钱就回不来了，算营销成本。')) return;
   await sendTx(CFG.CONTRACT,'0x'+SEL.seedJackpot+encUint(amt));
   toast('注入成功！');
+}
+async function doSetTicketPrice(){
+  if(!confirm('把票价改成 3 LGNS / 张？')) return;
+  await sendTx(CFG.CONTRACT,'0x'+SEL.setTicketPrice+encUint(3000000000n));
+  toast('票价已改成 3 LGNS！');
+  await refresh();
 }
 $('contractLink').href = CFG.explorer+'/address/'+CFG.CONTRACT;
 setInterval(()=>{ if(myAddr) refresh(); }, 15000);
