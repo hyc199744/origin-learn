@@ -278,6 +278,20 @@ function validParams(){
     maxWei:maxWei, maxw:maxw, capMult:capMult };
 }
 
+/* Anubis 全网都用 legacy 交易（type 0）：eth_maxPriorityFeePerGas 有返回值会让 ethers v6 默认发 EIP-1559，
+   实测这条链/钱包组合处理不了 type-2（部署一直报 missing revert data），所以全部强制 legacy */
+async function sendTx(txP){
+  var tx=await txP;
+  var f=await wallet.prov.getFeeData();
+  delete tx.maxFeePerGas; delete tx.maxPriorityFeePerGas;
+  tx.type=0;
+  tx.gasPrice=f.gasPrice||12000000000n;
+  if(tx.gasLimit==null){
+    var g=await wallet.signer.estimateGas(tx);
+    tx.gasLimit=g*130n/100n;
+  }
+  return await wallet.signer.sendTransaction(tx);
+}
 $("deployBtn").addEventListener("click", async function(){
   if(!wallet){ alert("先连接钱包"); return; }
   var p=validParams();
@@ -297,11 +311,11 @@ $("deployBtn").addEventListener("click", async function(){
     var cost=est*gp, bal=await wallet.prov.getBalance(wallet.addr);
     if(gp>0n&&bal<cost){ alert("gas 不够：部署约需 "+ethers.formatEther(cost)+" DAI，你钱包只有 "+ethers.formatEther(bal)+" DAI，先转点 DAI 进来。"); return; }
     setStatus("自检通过（gas 约 "+ethers.formatEther(cost)+" DAI），正在部署合约，等待钱包确认…");
-    var c=await factory.deploy(p.name,p.sym,p.supWei,p.buy,p.sell,p.taxW,p.maxWei,p.maxw);
-    var depTx=c.deploymentTransaction();
-    setStatus("已提交 <b>"+depTx.hash.slice(0,10)+"…</b>，上链确认中…");
-    await c.waitForDeployment();
-    tokenAddr=await c.getAddress();
+    var sent=await sendTx(factory.getDeployTransaction(p.name,p.sym,p.supWei,p.buy,p.sell,p.taxW,p.maxWei,p.maxw));
+    tokenAddr=ethers.getContractAddress({from:wallet.addr,nonce:sent.nonce});
+    setStatus("已提交 <b>"+sent.hash.slice(0,10)+"…</b>，上链确认中…");
+    var drc=await sent.wait();
+    if(drc&&drc.status===0) throw new Error("合约部署在链上执行失败（reverted）");
     token=new ethers.Contract(tokenAddr,ABI,wallet.signer);
     setStatus("上链成功！");
     $("rAddr").textContent=tokenAddr;
@@ -375,13 +389,13 @@ $("lpBtn").addEventListener("click", async function(){
     if(bD < wD){ alert("DAI(ERC20) 余额不足（有 " + ethers.formatUnits(bD, 18) + "），先去兑换再来。"); return; }
     if(!confirm("确认加池吗？\n\n" + amtT + " 代币 + " + amtD + " DAI\n组成交易对，LP 凭证归你，交易对自动设进合约。")) return;
     setStatus("第 1/4 步：授权代币给 Router…");
-    if(await t.allowance(wallet.addr, ROUTER) < wT){ var a1 = await t.approve(ROUTER, wT); await a1.wait(); }
+    if(await t.allowance(wallet.addr, ROUTER) < wT){ var a1 = await sendTx(t.populateTransaction.approve(ROUTER, wT)); await a1.wait(); }
     setStatus("第 2/4 步：授权 DAI 给 Router…");
-    if(await d.allowance(wallet.addr, ROUTER) < wD){ var a2 = await d.approve(ROUTER, wD); await a2.wait(); }
+    if(await d.allowance(wallet.addr, ROUTER) < wD){ var a2 = await sendTx(d.populateTransaction.approve(ROUTER, wD)); await a2.wait(); }
     setStatus("第 3/4 步：加池上链（钱包确认一次）…");
     var rc = dex()[0];
     var dl = Math.floor(Date.now() / 1000) + 1200;
-    var lptx = await rc.addLiquidity(tokenAddr, DAIE, wT, wD, 0, 0, wallet.addr, dl);
+    var lptx = await sendTx(rc.populateTransaction.addLiquidity(tokenAddr, DAIE, wT, wD, 0, 0, wallet.addr, dl));
     setStatus("加池交易已提交 " + lptx.hash.slice(0, 10) + "…，等待确认");
     await lptx.wait();
     setStatus("第 4/4 步：读取交易对并设进合约…");
@@ -460,7 +474,7 @@ $("sbBtn").addEventListener("click", async function(){
     if(!confirm("确认开盘自购吗？\n\n" + cnt + " 笔 × " + perS + " DAI = 共 " + ethers.formatUnits(total, 18) + " DAI\n滑点保护 " + slip + "%，每笔间隔 " + gap + " 秒\n\nDAI 真花出去、币进你钱包。钱包要签名 " + (1 + cnt) + " 次（1 次授权+" + cnt + " 次买入），中途可点停止。")) return;
     sbLog("开始自购：共 " + cnt + " 笔，每笔 " + perS + " DAI…");
     setStatus("第 1 步：授权 DAI 给 Router…");
-    if(await d.allowance(wallet.addr, ROUTER) < total){ var ap = await d.approve(ROUTER, total); await ap.wait(); }
+    if(await d.allowance(wallet.addr, ROUTER) < total){ var ap = await sendTx(d.populateTransaction.approve(ROUTER, total)); await ap.wait(); }
     _sbRun = true;
     var slipBps = Math.round(slip * 100), done = 0;
     for(var i = 0; i < cnt && _sbRun; i++){
@@ -471,7 +485,7 @@ $("sbBtn").addEventListener("click", async function(){
       var minOut = q[1] * BigInt(100 - buyTaxPct) * BigInt(10000 - slipBps) / 1000000n;
       setStatus("自购第 " + (i + 1) + "/" + cnt + " 笔：钱包确认买入…");
       var dl = Math.floor(Date.now() / 1000) + 1200;
-      var tx = await rc.swapExactTokensForTokens(wPer, minOut, [DAIE, tokA], wallet.addr, dl);
+      var tx = await sendTx(rc.populateTransaction.swapExactTokensForTokens(wPer, minOut, [DAIE, tokA], wallet.addr, dl));
       sbLog("第 " + (i + 1) + "/" + cnt + " 笔已提交 " + tx.hash.slice(0, 10) + "…");
       await tx.wait();
       done++;
