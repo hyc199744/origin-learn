@@ -243,7 +243,11 @@
     { id: 'new-pool-radar', number: 40, name: '新池雷达', en: {"name":"New Pool Radar","description":"Watch RocketSwap for newly created pairs in real time: DAI liquidity, LP supply and deployer LP share with risk badges."}, category: 'trade-whale', icon: '📡',
       description: '实时监控 RocketSwap 新创建的交易池：第一时间发现新币，看池内 DAI、LP 总量，重点看"部署者持有 LP 占比"——控盘 100% 的池子标红预警。纯链上读取，免费，不连钱包。',
       status: 'live', isPremium: false, route: '/tools/new-pool-radar/', enabled: true,
-      note: '独立页 /tools/new-pool-radar/。读工厂 0xaf6f4e641c86a25518509bc840051a8652af598a 的 PairCreated 事件（RocketSwap 非标准：只有 3 个 topic，pair 地址在 event data 里；allPairsLength 会 revert）。启动扫最近 5 万块、每 30 秒轮询新池。读 pair 储备（DAI 侧）、LP totalSupply、创建交易发送者当前 LP 余额→占比；≥90% 标红、DAI<10 或 ≥50% 标黄。2026-10-01 上线，已用真实新池（起源AI/DAI）验证。免费公开不连钱包。' }
+      note: '独立页 /tools/new-pool-radar/。读工厂 0xaf6f4e641c86a25518509bc840051a8652af598a 的 PairCreated 事件（RocketSwap 非标准：只有 3 个 topic，pair 地址在 event data 里；allPairsLength 会 revert）。启动扫最近 5 万块、每 30 秒轮询新池。读 pair 储备（DAI 侧）、LP totalSupply、创建交易发送者当前 LP 余额→占比；≥90% 标红、DAI<10 或 ≥50% 标黄。2026-10-01 上线，已用真实新池（起源AI/DAI）验证。免费公开不连钱包。' },
+    { id: 'token-launcher', number: 41, name: '一键发币', en: {"name":"Token Launcher","description":"Launch your own ERC20 on Anubis in one click: name, symbol, supply, buy/sell tax, mint cap, blacklist, max wallet; then add LP and auto-set the pair."}, category: 'trade-whale', icon: '🚀',
+      description: '在 Anubis 上一键发行你自己的代币：名字、简称、总量、买卖税、增发上限、黑名单、持仓上限都能配；发完一键加池建 LP 底池，交易对自动设进合约。模板开局，小白也能当项目方。',
+      status: 'live', isPremium: false, route: '/tools/token-launcher/', enabled: true,
+      note: '独立页 /tools/token-launcher/。进阶版 ERC20（AdvancedToken.sol，solc 0.8.20 本地编译，38 项本地 EVM 逻辑测试全过）：买/卖税 0-30%（合约写死上限）、增发上限、黑名单、持仓上限（部署者分发豁免）、owner 管理（调税/设交易对/拉黑/增发/转移管理权）。部署后"一键加池"：approve→Router(0x3E412E02B6157fBE80b6C6697f3Ce1142E629019).addLiquidity(代币+ERC20 DAI 0x83fd…)，LP 归用户，factory.getPair 读 pair 后自动 setPair。Router/Factory/DAI 地址及 addLiquidity 签名已链上验证。2026-10-02 上线。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
