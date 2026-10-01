@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🧧 LGNS 红包接龙</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #b71c1c; color: #333; min-height: 100vh; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 12px 12px 60px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px; color: #fff; }
+  .topbar h1 { margin: 0; font-size: 20px; }
+  .card { background: #fff8f0; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
+  .card h3 { margin: 0 0 10px; font-size: 16px; color: #b71c1c; }
+  .btn { display: inline-block; border: none; border-radius: 10px; padding: 12px 18px; font-size: 15px; font-weight: 700; cursor: pointer; background: #d32f2f; color: #fff; width: 100%; margin-top: 8px; }
+  .btn:active { transform: scale(.98); }
+  .btn:disabled { background: #ccc; cursor: not-allowed; }
+  .btn.ghost { background: #fff; color: #d32f2f; border: 2px solid #d32f2f; }
+  .btn.small { width: auto; padding: 8px 14px; font-size: 13px; margin-top: 0; }
+  .row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .row label { width: 86px; flex-shrink: 0; font-size: 14px; color: #666; }
+  .row input { flex: 1; padding: 10px; border: 1.5px solid #e0c9a6; border-radius: 8px; font-size: 15px; background: #fff; }
+  .packet { border: 2px solid #e8b4b8; border-radius: 12px; padding: 12px; margin-bottom: 10px; background: #fff; }
+  .packet .pid { font-weight: 800; color: #b71c1c; font-size: 15px; }
+  .packet .meta { font-size: 13px; color: #666; margin: 6px 0; line-height: 1.7; }
+  .packet .meta b { color: #333; }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 20px; background: #ffebee; color: #c62828; margin-left: 6px; vertical-align: middle; }
+  .tag.green { background: #e8f5e9; color: #2e7d32; }
+  .tag.gray { background: #f5f5f5; color: #999; }
+  .timer { font-variant-numeric: tabular-nums; font-weight: 700; color: #e65100; }
+  .addr { font-family: monospace; font-size: 12px; }
+  .notice { background: #fff3e0; border: 1px solid #ffcc80; border-radius: 10px; padding: 10px 12px; font-size: 13px; color: #8d5a00; margin-bottom: 12px; line-height: 1.6; }
+  .rules { font-size: 13px; color: #fff; opacity: .92; line-height: 1.8; padding: 0 4px 12px; }
+  .rules b { color: #ffe082; }
+  #walletBtn { width: auto; margin-top: 0; padding: 9px 16px; font-size: 14px; }
+  .status { font-size: 12px; color: #ffe082; }
+  .relay-form { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e0c9a6; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <h1>🧧 LGNS 红包接龙</h1>
+    <div>
+      <div class="status" id="netStatus">未连接</div>
+      <button class="btn" id="walletBtn">连接钱包</button>
+    </div>
+  </div>
+
+  <div class="notice hidden" id="noContract">
+    合约还没部署：请先按 <b>DEPLOY.md</b> 部署 RedPacketRelay 合约，再把地址填到本页顶部的 <b>CONTRACT</b> 配置里。
+  </div>
+
+  <div class="rules">
+    📜 玩法：发红包 → 抢（每人每包限抢1份，金额随机）→ <b>手气最佳者当龙头</b> →
+    24小时内续发 <b>≥1.1倍</b> 的新包。龙头超时没续发，押金被瓜分，任何人可续龙顶替拿奖励。<br>
+    💰 平台抽成 2%，每份金额的 20% 暂扣（结算后退还，龙头的转为接龙押金）。
+  </div>
+
+  <div class="card">
+    <h3>🧧 发红包</h3>
+    <div class="row"><label>金额 (LGNS)</label><input id="inAmount" type="number" min="100" placeholder="最少 100"></div>
+    <div class="row"><label>份数</label><input id="inShares" type="number" min="2" max="100" value="10"></div>
+    <div class="row" style="margin-bottom:0">
+      <button class="btn ghost" id="approveBtn" style="flex:1">1️⃣ 授权 LGNS</button>
+      <button class="btn" id="createBtn" style="flex:1">2️⃣ 发红包</button>
+    </div>
+    <div class="meta" style="font-size:12px;color:#999;margin-top:8px" id="myBal"></div>
+  </div>
+
+  <div class="card">
+    <h3>🔥 红包广场 <button class="btn small ghost" id="refreshBtn" style="float:right">刷新</button></h3>
+    <div id="packetList"><div style="color:#999;font-size:14px">连接钱包后加载…</div></div>
+  </div>
+
+  <div class="card">
+    <h3>🏆 我的记录</h3>
+    <div id="myList" style="font-size:14px;color:#666">连接钱包后加载…</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.min.js"></script>
+<script>
+// ================= 配置（部署后把合约地址填到 CONTRACT） =================
+const CFG = {
+  chainId: 6714,
+  chainHex: '0x1A3A',
+  chainName: 'Anubis',
+  rpcUrl: 'https://rpc.anubispace.org',
+  nativeSymbol: 'DAI',
+  explorer: 'https://browser.anubispace.org',
+  rewardToken: '0x256edb652db43e721ec6a12b6b51b6967d3bb8cb',
+  rewardSymbol: 'LGNS',
+  CONTRACT: '0xb4838C2EA00D007EB1478cFf4e80DA464C2B7680' // 2026-10-01 已部署
+};
+// ================= 合约 ABI（最小集） =================
+const ABI = [
+  "function createPacket(uint256 amount, uint8 shares) returns (uint256)",
+  "function grab(uint256 id)",
+  "function relay(uint256 oldId, uint256 amount, uint8 shares) returns (uint256)",
+  "function takeoverRelay(uint256 oldId, uint256 amount, uint8 shares) returns (uint256)",
+  "function settleUnfinished(uint256 id)",
+  "function sweepDeposit(uint256 id)",
+  "function packetCount() view returns (uint256)",
+  "function packets(uint256) view returns (address creator,uint256 totalAmount,uint256 netAmount,uint8 shares,uint8 grabbed,uint256 distributed,address luckiest,uint256 best,uint256 relayDeposit,uint256 grabDeadline,uint256 relayDeadline,bool relayed,bool closed)",
+  "function hasGrabbed(uint256,address) view returns (bool)",
+  "function getGrabbers(uint256) view returns (address[])",
+  "function relayBps() view returns (uint256)",
+  "function minPacket() view returns (uint256)"
+];
+const ERC20_ABI = [
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function balanceOf(address) view returns (uint256)"
+];
+
+let provider, signer, contract, token, myAddr = null;
+const $ = id => document.getElementById(id);
+const short = a => a ? a.slice(0,6) + '…' + a.slice(-4) : '';
+const fmt = v => Number(ethers.formatUnits(v, 18)).toLocaleString('zh-CN', {maximumFractionDigits: 2});
+
+function toast(msg) { alert(msg); }
+
+async function connect() {
+  if (!window.ethereum) return toast('没检测到钱包，请先安装 MetaMask / OKX 钱包');
+  provider = new ethers.BrowserProvider(window.ethereum);
+  try {
+    await provider.send('eth_requestAccounts', []);
+    const net = await provider.getNetwork();
+    if (Number(net.chainId) !== CFG.chainId) {
+      try {
+        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CFG.chainHex }] });
+      } catch (e) {
+        if (e.code === 4902) {
+          await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{
+            chainId: CFG.chainHex, chainName: CFG.chainName, rpcUrls: [CFG.rpcUrl],
+            nativeCurrency: { name: CFG.nativeSymbol, symbol: CFG.nativeSymbol, decimals: 18 },
+            blockExplorerUrls: [CFG.explorer]
+          }]});
+        } else throw e;
+      }
+      provider = new ethers.BrowserProvider(window.ethereum);
+    }
+    signer = await provider.getSigner();
+    myAddr = await signer.getAddress();
+    $('walletBtn').textContent = short(myAddr);
+    $('netStatus').textContent = '✅ Anubis (chainId 6714)';
+    if (CFG.CONTRACT) {
+      contract = new ethers.Contract(CFG.CONTRACT, ABI, signer);
+      token = new ethers.Contract(CFG.rewardToken, ERC20_ABI, signer);
+      const bal = await token.balanceOf(myAddr);
+      $('myBal').textContent = '我的 LGNS 余额：' + fmt(bal);
+    } else {
+      $('noContract').classList.remove('hidden');
+    }
+    loadPackets();
+  } catch (e) { toast('连接失败：' + (e.reason || e.message)); }
+}
+
+function needContract() {
+  if (!contract) { toast('合约地址还没配置'); return false; }
+  if (!myAddr) { toast('请先连接钱包'); return false; }
+  return true;
+}
+
+async function doApprove() {
+  if (!needContract()) return;
+  const amt = $('inAmount').value;
+  if (!amt || Number(amt) <= 0) return toast('先填写发包金额');
+  try {
+    const tx = await token.approve(CFG.CONTRACT, ethers.parseUnits(amt, 18));
+    toast('授权交易已发送，等待确认…');
+    await tx.wait();
+    toast('✅ 授权成功，可以发红包了');
+  } catch (e) { toast('授权失败：' + (e.reason || e.message)); }
+}
+
+async function doCreate() {
+  if (!needContract()) return;
+  const amt = $('inAmount').value, shares = Number($('inShares').value);
+  if (!amt || Number(amt) < 100) return toast('金额最少 100 LGNS');
+  if (!shares || shares < 2 || shares > 100) return toast('份数 2~100');
+  try {
+    const allow = await token.allowance(myAddr, CFG.CONTRACT);
+    if (allow < ethers.parseUnits(amt, 18)) return toast('额度不够，请先点"授权 LGNS"');
+    const tx = await contract.createPacket(ethers.parseUnits(amt, 18), shares);
+    toast('发包交易已发送，等待确认…');
+    await tx.wait();
+    toast('🧧 红包发出去了！');
+    loadPackets();
+  } catch (e) { toast('发包失败：' + (e.reason || e.message)); }
+}
+
+async function doGrab(id) {
+  if (!needContract()) return;
+  try {
+    const tx = await contract.grab(id);
+    toast('抢包交易已发送…');
+    await tx.wait();
+    toast('🧧 抢到啦！20% 会暂扣，结算后退还');
+    loadPackets();
+  } catch (e) { toast('抢包失败：' + (e.reason || e.message || e)); }
+}
+
+async function doRelay(id, isTakeover) {
+  if (!needContract()) return;
+  const amtEl = $('relayAmt' + id), shEl = $('relaySh' + id);
+  const amt = amtEl.value, shares = Number(shEl.value);
+  if (!amt || Number(amt) <= 0) return toast('填写续发金额');
+  if (!shares || shares < 2 || shares > 100) return toast('份数 2~100');
+  try {
+    const allow = await token.allowance(myAddr, CFG.CONTRACT);
+    if (allow < ethers.parseUnits(amt, 18)) return toast('额度不够，请先授权 LGNS（发包区点"授权"）');
+    const fn = isTakeover ? 'takeoverRelay' : 'relay';
+    const tx = await contract[fn](id, ethers.parseUnits(amt, 18), shares);
+    toast('接龙交易已发送…');
+    await tx.wait();
+    toast(isTakeover ? '🔥 续龙成功！' : '🐲 接龙成功，押金已退还！');
+    loadPackets();
+  } catch (e) { toast('失败：' + (e.reason || e.message)); }
+}
+
+async function doSettle(id) {
+  if (!needContract()) return;
+  try { const tx = await contract.settleUnfinished(id); await tx.wait(); toast('已结算'); loadPackets(); }
+  catch (e) { toast('失败：' + (e.reason || e.message)); }
+}
+
+function cd(ts) {
+  const s = Math.max(0, Math.floor(ts - Date.now() / 1000));
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60;
+  return (h > 0 ? h + '小时' : '') + m + '分' + ss + '秒';
+}
+
+async function loadPackets() {
+  if (!contract) { $('packetList').innerHTML = '<div style="color:#999">合约未配置</div>'; return; }
+  $('packetList').innerHTML = '<div style="color:#999">加载中…</div>';
+  try {
+    const n = Number(await contract.packetCount());
+    if (n === 0) { $('packetList').innerHTML = '<div style="color:#999">还没有红包，快来发第一个！</div>'; $('myList').innerHTML = '—'; return; }
+    const from = Math.max(1, n - 29);
+    let html = '', myHtml = '';
+    const relayBps = Number(await contract.relayBps());
+    for (let id = n; id >= from; id--) {
+      const p = await contract.packets(id);
+      const grabbed = await contract.hasGrabbed(id, myAddr);
+      const open = !p.closed;
+      const needRelay = p.closed && !p.relayed && p.relayDeadline > 0n;
+      const relayDue = needRelay && Date.now() / 1000 > Number(p.relayDeadline);
+      const minRelay = fmt(p.totalAmount * BigInt(relayBps) / 10000n);
+      let tag = open ? '<span class="tag">抢包中</span>'
+        : needRelay ? (relayDue ? '<span class="tag">龙头超时</span>' : '<span class="tag green">待接龙</span>')
+        : '<span class="tag gray">已结束</span>';
+      html += '<div class="packet"><div><span class="pid">🧧 #' + id + '</span>' + tag + '</div>'
+        + '<div class="meta">总额 <b>' + fmt(p.totalAmount) + ' LGNS</b> ｜ ' + p.grabbed + '/' + p.shares + ' 份'
+        + (open ? ' ｜ 抢包倒计时 <span class="timer" data-dl="' + p.grabDeadline + '"></span>' : '')
+        + (needRelay && !relayDue ? ' ｜ 接龙倒计时 <span class="timer" data-dl="' + p.relayDeadline + '"></span>' : '')
+        + '<br>房主 <span class="addr">' + short(p.creator) + '</span>'
+        + (p.luckiest !== '0x0000000000000000000000000000000000000000' ? ' ｜ 龙头 <span class="addr">' + short(p.luckiest) + '</span>' + (p.luckiest.toLowerCase() === myAddr.toLowerCase() ? ' <b>👈 就是你！</b>' : '') : '')
+        + '</div>';
+      if (open) {
+        html += grabbed
+          ? '<button class="btn" disabled>已抢过 ✅</button>'
+          : '<button class="btn" onclick="doGrab(' + id + ')">抢！</button>';
+        html += '<button class="btn ghost small" style="width:100%;margin-top:6px" onclick="doSettle(' + id + ')">份数没抢完？超时后点我结算</button>';
+      } else if (needRelay && !relayDue && p.luckiest.toLowerCase() === myAddr.toLowerCase()) {
+        html += '<div class="relay-form"><div style="font-size:13px;color:#c62828;margin-bottom:6px">🐲 你是龙头！续发 ≥ ' + minRelay + ' LGNS 可拿回押金</div>'
+          + '<div class="row"><label>金额</label><input id="relayAmt' + id + '" type="number" placeholder="≥ ' + minRelay + '"></div>'
+          + '<div class="row"><label>份数</label><input id="relaySh' + id + '" type="number" value="10" min="2" max="100"></div>'
+          + '<button class="btn" onclick="doRelay(' + id + ',false)">续发接龙</button></div>';
+      } else if (needRelay && relayDue) {
+        html += '<div class="relay-form"><div style="font-size:13px;color:#c62828;margin-bottom:6px">🔥 龙头超时，续发 ≥ ' + minRelay + ' LGNS 可顶替并拿一半押金奖励</div>'
+          + '<div class="row"><label>金额</label><input id="relayAmt' + id + '" type="number" placeholder="≥ ' + minRelay + '"></div>'
+          + '<div class="row"><label>份数</label><input id="relaySh' + id + '" type="number" value="10" min="2" max="100"></div>'
+          + '<button class="btn" onclick="doRelay(' + id + ',true)">续龙顶替</button></div>';
+      }
+      html += '</div>';
+      if (grabbed) myHtml += '<div>#' + id + ' 已抢 ✅</div>';
+    }
+    $('packetList').innerHTML = html;
+    $('myList').innerHTML = myHtml || '还没抢过红包';
+    tick();
+  } catch (e) { $('packetList').innerHTML = '<div style="color:#c62828">加载失败：' + e.message + '</div>'; }
+}
+
+function tick() {
+  document.querySelectorAll('[data-dl]').forEach(el => {
+    el.textContent = cd(Number(el.dataset.dl));
+  });
+}
+setInterval(tick, 1000);
+
+$('walletBtn').onclick = connect;
+$('approveBtn').onclick = doApprove;
+$('createBtn').onclick = doCreate;
+$('refreshBtn').onclick = loadPackets;
+if (window.ethereum) connect();
+</script>
+</body>
+</html>
