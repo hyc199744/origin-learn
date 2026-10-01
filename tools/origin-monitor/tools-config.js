@@ -240,6 +240,10 @@
       description: '输入钱包地址，查你在双链的 360/600 天锁仓分别哪天解锁、还剩多少天，以及 Anubis 销毁债券的释放进度和可领取——倒计时+进度条一目了然，别到期了忘了取。纯链上读取，免费，不连钱包。',
       status: 'live', isPremium: false, route: '/tools/unlock-timer/', enabled: true,
       note: '独立页 /tools/unlock-timer/,纯前端eth_call双链直读。①锁仓:每笔stakes(getUserStakesCount 0x98dc8dea/stakes 0x584b62a1,解码w0本金÷1e9/w3到期块/w5起始块/w7状态)→按实测出块速spb(blockTime动态算不硬编码)换算解锁日+剩余天数+进度条。过滤异常笔(到期块0/年份非2023~2032/久前到期)。锁仓合约=Polygon 0x6652d0f0(360)/0x25a4b842(能量值),Anubis 0x88ea98af(360)/0x04eD22c6(600)/0x1E5FeeC4(能量值)。②2026-09-27补:Anubis销毁债券(逐步释放型,老板反馈没显示)=0x11b10c98,getUserDepositCount 0x1bae91a4/getUserDeposit 0x60711058(w0本金DAI÷1e18/w3已释放DAI÷1e18/w4已领LGNS÷1e9/w7存入unix)/getClaimable 0x6f5244b1→显示本金+释放进度(已释放/总额,总额=本金×2.5连本带息,与官方App截图135.14×2.5=337.85吻合)+可领取LGNS+存入时间,不套解锁倒计时(债券持续释放无单一解锁日)。复用staking-query#6已验证读法。已用真实地址验证(锁仓0xc07eebea…/债券0x5007…)。免费公开不连钱包。' }
+    { id: 'new-pool-radar', number: 40, name: '新池雷达', en: {"name":"New Pool Radar","description":"Watch RocketSwap for newly created pairs in real time: DAI liquidity, LP supply and deployer LP share with risk badges."}, category: 'trade-whale', icon: '📡',
+      description: '实时监控 RocketSwap 新创建的交易池：第一时间发现新币，看池内 DAI、LP 总量，重点看"部署者持有 LP 占比"——控盘 100% 的池子标红预警。纯链上读取，免费，不连钱包。',
+      status: 'live', isPremium: false, route: '/tools/new-pool-radar/', enabled: true,
+      note: '独立页 /tools/new-pool-radar/。读工厂 0xaf6f4e641c86a25518509bc840051a8652af598a 的 PairCreated 事件（RocketSwap 非标准：只有 3 个 topic，pair 地址在 event data 里；allPairsLength 会 revert）。启动扫最近 5 万块、每 30 秒轮询新池。读 pair 储备（DAI 侧）、LP totalSupply、创建交易发送者当前 LP 余额→占比；≥90% 标红、DAI<10 或 ≥50% 标黄。2026-10-01 上线，已用真实新池（起源AI/DAI）验证。免费公开不连钱包。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----

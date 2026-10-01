@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新池雷达 · RocketSwap 新交易池实时监控 | Web3Origin</title>
+<meta name="description" content="实时监控 Anubis 链 RocketSwap 新创建的交易池：第一时间发现新币、查看初始流动性、识别部署者控盘风险。">
+<style>
+:root{
+  --obsidian:#050303; --temple:#210507; --blood:#7A0B12; --blood-lt:#c0272d;
+  --gold:#D6A84B; --gold-lt:#f0d48a; --bone:#F1DFC0; --ink:#e8d9be;
+  --soft:#b79c74; --muted:#7c6a4f; --line:#3a2313;
+  --green:#25C96F; --red:#ff6b6b; --yellow:#e8a45c;
+  --serif:"STZhongsong","Songti SC","SimSun",Georgia,serif;
+  --sans:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(120% 80% at 50% 0%, rgba(122,11,18,.28), transparent 55%),#050303;color:var(--ink);font-family:var(--sans);line-height:1.7;min-height:100vh}
+.wrap{max-width:1060px;margin:0 auto;padding:28px 20px 60px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+h1{font-family:var(--serif);font-weight:400;color:var(--bone);font-size:30px;margin:0;letter-spacing:.06em}
+.badge{font-size:12px;color:var(--gold-lt);border:1px solid var(--line);border-radius:20px;padding:4px 12px;background:rgba(214,168,75,.08)}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--soft);margin-left:auto}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--muted);transition:background .3s}
+.dot.ok{background:var(--green);box-shadow:0 0 10px rgba(37,201,111,.8)}
+.dot.bad{background:var(--red);box-shadow:0 0 10px rgba(255,107,107,.8)}
+.dot.scan{background:var(--yellow);box-shadow:0 0 10px rgba(232,164,92,.8);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.4}}
+.sub{color:var(--muted);font-size:14px;margin:0 0 22px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,rgba(33,5,7,.85),rgba(10,3,4,.9));border:1px solid var(--line);border-radius:14px;padding:18px 16px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7}
+.card .k{font-size:12px;color:var(--muted);letter-spacing:.15em;margin-bottom:8px}
+.card .v{font-family:var(--serif);font-size:30px;color:var(--gold-lt);line-height:1.2}
+.card .v small{font-size:14px;color:var(--soft);font-family:var(--sans)}
+.card .d{font-size:12px;color:var(--muted);margin-top:6px}
+.panel{background:linear-gradient(180deg,rgba(33,5,7,.85),rgba(10,3,4,.9));border:1px solid var(--line);border-radius:14px;padding:20px 18px;margin-bottom:14px}
+.panel h2{font-family:var(--serif);font-weight:400;color:var(--bone);font-size:20px;margin:0 0 4px;letter-spacing:.08em}
+.panel .hint{font-size:12px;color:var(--muted);margin:0 0 14px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.chip{cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:8px 16px;font-size:14px;color:var(--soft);background:rgba(214,168,75,.05);transition:all .2s;font-family:var(--sans)}
+.chip:hover{color:var(--bone);border-color:var(--gold)}
+.chip.on{color:#0a0304;background:var(--gold);border-color:var(--gold);font-weight:700}
+.btn{cursor:pointer;border:1px solid var(--gold);color:var(--gold-lt);background:transparent;border-radius:10px;padding:8px 18px;font-size:14px;font-family:var(--sans);transition:all .2s}
+.btn:hover{background:var(--gold);color:#0a0304;font-weight:700}
+.btn.off{border-color:var(--line);color:var(--muted)}
+.countdown{font-size:12px;color:var(--muted);margin-left:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:var(--muted);font-weight:400;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);letter-spacing:.08em;font-size:12px;white-space:nowrap}
+td{padding:12px 10px;border-bottom:1px solid rgba(58,35,19,.4);color:var(--ink);vertical-align:top}
+td.num{font-variant-numeric:tabular-nums}
+.pairname{font-weight:700;color:var(--bone);font-size:14px}
+.pairaddr{font-size:11px;color:var(--muted);font-family:monospace}
+.risk{display:inline-block;font-size:12px;border-radius:8px;padding:3px 10px;white-space:nowrap}
+.risk.red{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.4)}
+.risk.yellow{background:rgba(232,164,92,.12);color:var(--yellow);border:1px solid rgba(232,164,92,.4)}
+.risk.green{background:rgba(37,201,111,.1);color:var(--green);border:1px solid rgba(37,201,111,.35)}
+a.ext{color:var(--gold-lt);font-size:12px;white-space:nowrap}
+tr.fresh td{animation:fresh 2.5s}
+@keyframes fresh{0%{background:rgba(214,168,75,.25)}100%{background:transparent}}
+.newtag{display:inline-block;font-size:10px;background:var(--blood-lt);color:#fff;border-radius:6px;padding:1px 7px;margin-left:6px;vertical-align:2px}
+.empty{color:var(--muted);font-size:14px;text-align:center;padding:30px 0}
+.foot{margin-top:26px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;line-height:2}
+.warnbox{border:1px solid rgba(255,107,107,.35);background:rgba(122,11,18,.12);border-radius:10px;padding:12px 16px;font-size:13px;color:#e8b0a0;margin-bottom:14px}
+@media(max-width:760px){table,thead,tbody,th,td,tr{display:block}thead{display:none}tr{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;padding:6px 12px}td{border:none;padding:6px 0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📡 新池雷达</h1>
+    <span class="badge">RocketSwap · Anubis</span>
+    <div class="status"><span class="dot scan" id="rpcDot"></span><span id="rpcText">扫描中…</span></div>
+  </header>
+  <p class="sub">实时监控 RocketSwap 工厂合约的新交易池创建事件。新池=新机会，也是土狗高发地——先看风险徽章，再决定要不要点进去。</p>
+
+  <div class="warnbox">⚠️ 新池不等于好池。刚创建的池子常伴随"部署者持有 100% LP"（可随时撤池跑路）。本页只呈现链上事实，不构成任何投资建议，DYOR。</div>
+
+  <div class="grid">
+    <div class="card"><div class="k" id="statRange">近期新增池数</div><div class="v" id="statNew">—</div><div class="d" id="statNewD">扫描中…</div></div>
+    <div class="card"><div class="k">其中含 DAI 配对</div><div class="v" id="statDai">—</div><div class="d">以 DAI 计价的池子最值得看</div></div>
+    <div class="card"><div class="k">部署者控盘池</div><div class="v" id="statRisk" style="color:var(--red)">—</div><div class="d">部署者持有 ≥90% LP</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="controls">
+      <button class="chip on" data-f="all">全部</button>
+      <button class="chip" data-f="dai">含 DAI</button>
+      <button class="chip" data-f="risk">高风险</button>
+      <button class="btn off" id="notifyBtn">🔔 新池提醒：关</button>
+      <button class="btn" id="refreshBtn">↻ 立即刷新</button>
+      <span class="countdown" id="countdown"></span>
+    </div>
+    <h2>新池列表 <span style="font-size:12px;color:var(--muted);font-family:var(--sans)">按创建时间倒序</span></h2>
+    <p class="hint">部署者 LP 占比 = 部署者当前持有 LP / LP 总量（实时）</p>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>交易对</th><th>创建时间</th><th>池内 DAI</th><th>LP 总量</th><th>部署者持有 LP</th><th>风险</th><th></th></tr></thead>
+      <tbody id="poolBody"><tr><td colspan="7"><div class="empty">正在扫描链上新池事件…</div></td></tr></tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="foot">
+    数据来源：RocketSwap 工厂合约 <span style="font-family:monospace">0xaf6f4e641c86a25518509bc840051a8652af598a</span> 的 PairCreated 事件，经 Anubis 公共 RPC 读取。<br>
+    本页只读链上公开数据，不连接钱包、不索取助记词/私钥。自动刷新每 30 秒一次。<br>
+    风险徽章基于当前链上状态计算，仅供参考。
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var RPC='https://rpc.anubispace.org';
+var FACTORY='0xaf6f4e641c86a25518509bc840051a8652af598a';
+var TOPIC0='0x0d3648bd0f6ba80134a33ba9275ac585d9d315f0ad8355cddefde31afa28d0e9';
+var DAI='0x83fd06f0846d9d90b3016bf670efe2e0b11cde14';
+var SCAN_BLOCKS=50000, POLL_MS=30000, MAXRANGE=5000;
+var pools=[], lastBlock=0, filter='all', notifyOn=false, countdownT=POLL_MS/1000;
+var tokenCache={};
+var $=function(id){return document.getElementById(id);};
+function hex(n){return parseInt(n,16);}
+function hx(n){return '0x'+n.toString(16);}
+function addrOf(topic){return '0x'+topic.slice(-40).toLowerCase();}
+function rpc(method,params){
+  return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({jsonrpc:'2.0',id:Date.now()+Math.random(),method:method,params:params||[]})})
+    .then(function(r){if(!r.ok)throw new Error('http '+r.status);return r.json();})
+    .then(function(j){if(j.error)throw new Error(j.error.message);return j.result;});
+}
+function call(to,data){return rpc('eth_call',[{to:to,data:data},'latest']);}
+function setStatus(mode,text){
+  $('rpcDot').className='dot '+mode;
+  $('rpcText').textContent=text;
+}
+function ago(ts){
+  var s=Math.max(0,Math.floor(Date.now()/1000)-ts);
+  if(s<60)return s+' 秒前';
+  if(s<3600)return Math.floor(s/60)+' 分钟前';
+  if(s<86400)return Math.floor(s/3600)+' 小时前';
+  return Math.floor(s/86400)+' 天前';
+}
+function fmt(n,dec){
+  if(!isFinite(n))return '—';
+  if(n>=1000000)return (n/1000000).toFixed(2)+'M';
+  if(n>=1000)return (n/1000).toFixed(2)+'K';
+  return n.toFixed(dec==null?2:dec);
+}
+function getToken(a){
+  a=a.toLowerCase();
+  if(tokenCache[a])return Promise.resolve(tokenCache[a]);
+  var p=Promise.all([
+    call(a,'0x95d89b41').catch(function(){return null;}),
+    call(a,'0x313ce567').catch(function(){return null;})
+  ]).then(function(r){
+    var sym='???',dec=18;
+    try{
+      if(r[0]&&r[0].length>=66){
+        var raw=r[0].slice(2);
+        var len=parseInt(raw.slice(64,128),16);
+        if(len>0&&len<=128){
+          sym=decodeURIComponent('%'+raw.slice(128,128+len*2).match(/../g).join('%')).replace(/\0/g,'');
+        }else{
+          var b32=raw.slice(0,64).replace(/00+$/,'');
+          if(b32.length>=2)sym=decodeURIComponent('%'+b32.match(/../g).join('%')).replace(/\0/g,'');
+        }
+        if(!sym||!/^[\x20-\x7e\u4e00-\u9fa5]+$/.test(sym))sym='0x'+a.slice(2,6)+'…';
+      }else sym='0x'+a.slice(2,6)+'…';
+    }catch(e){sym='0x'+a.slice(2,6)+'…';}
+    try{if(r[1])dec=parseInt(r[1],16);}catch(e){}
+    var info={addr:a,symbol:sym,decimals:dec,isDAI:a===DAI};
+    tokenCache[a]=info;return info;
+  });
+  tokenCache[a]=p;return p;
+}
+function enrich(log,isNew){
+  var t0=addrOf(log.topics[1]),t1=addrOf(log.topics[2]);
+  var pair='0x'+log.data.slice(26,66).toLowerCase();
+  var bn=hex(log.blockNumber);
+  return Promise.all([
+    getToken(t0),getToken(t1),
+    call(pair,'0x0902f1ac'),
+    call(pair,'0x18160ddd'),
+    rpc('eth_getBlockByNumber',[hx(bn),false]),
+    rpc('eth_getTransactionByHash',[log.transactionHash])
+  ]).then(function(r){
+    var tk0=r[0],tk1=r[1];
+    var r0=parseInt(r[2].slice(2,66),16),r1=parseInt(r[2].slice(66,130),16);
+    var lpTotal=parseInt(r[3],16)/1e18;
+    var ts=hex(r[4].timestamp);
+    var deployer=r[5]?r[5].from.toLowerCase():null;
+    var lpCall=deployer?call(pair,'0x70a08231'+'000000000000000000000000'+deployer.slice(2)):Promise.resolve('0x0');
+    return lpCall.then(function(b){
+      var depLp=parseInt(b||'0x0',16)/1e18;
+      var share=lpTotal>0?depLp/lpTotal:0;
+      var daiReserve=0,other=null;
+      if(tk0.isDAI){daiReserve=r0/1e18;other=tk1;}
+      else if(tk1.isDAI){daiReserve=r1/1e18;other=tk0;}
+      var risk,riskCls;
+      if(share>=0.9){risk='🔴 部署者控盘 '+(share*100).toFixed(0)+'%';riskCls='red';}
+      else if(daiReserve>0&&daiReserve<10){risk='🟡 流动性极低';riskCls='yellow';}
+      else if(share>=0.5){risk='🟡 部署者持有 '+(share*100).toFixed(0)+'%';riskCls='yellow';}
+      else{risk='🟢 暂无明显异常';riskCls='green';}
+      return {pair:pair,t0:tk0,t1:tk1,ts:ts,bn:bn,tx:log.transactionHash,
+        dai:daiReserve,otherSym:other?other.symbol:'—',lpTotal:lpTotal,
+        depShare:share,deployer:deployer,risk:risk,riskCls:riskCls,isNew:!!isNew,
+        hasDai:tk0.isDAI||tk1.isDAI,isRisk:riskCls==='red'};
+    });
+  }).catch(function(e){return null;});
+}
+function scanRange(fromB,toB){
+  return rpc('eth_getLogs',[{fromBlock:hx(fromB),toBlock:hx(toB),address:FACTORY,topics:[TOPIC0]}]);
+}
+function initialScan(){
+  setStatus('scan','扫描中…');
+  return rpc('eth_blockNumber',[]).then(function(b){
+    var latest=hex(b);lastBlock=latest;
+    var jobs=[],n=Math.ceil(SCAN_BLOCKS/MAXRANGE);
+    for(var i=0;i<n;i++){
+      var to=latest-i*MAXRANGE,from=Math.max(0,to-MAXRANGE+1);
+      jobs.push(scanRange(from,to));
+    }
+    return Promise.all(jobs).then(function(arr){
+      var logs=[];arr.forEach(function(l){logs=logs.concat(l);});
+      logs.sort(function(a,b){return hex(a.blockNumber)-hex(b.blockNumber);});
+      setStatus('scan','解析 '+logs.length+' 个新池…');
+      var chain=Promise.resolve(),out=[];
+      logs.forEach(function(l){
+        chain=chain.then(function(){return enrich(l,false).then(function(p){if(p)out.push(p);});});
+      });
+      return chain.then(function(){
+        out.sort(function(a,b){return b.ts-a.ts;});
+        pools=out;render();updateStats(latest);
+        setStatus('ok','已连接 · 自动刷新中');
+      });
+    });
+  }).catch(function(e){
+    setStatus('bad','连接失败，重试中…');
+    setTimeout(initialScan,10000);
+  });
+}
+function poll(){
+  if(!lastBlock)return;
+  rpc('eth_blockNumber',[]).then(function(b){
+    var latest=hex(b);
+    if(latest<=lastBlock){return;}
+    return scanRange(lastBlock+1,latest).then(function(logs){
+      lastBlock=latest;
+      if(!logs.length)return;
+      var chain=Promise.resolve(),fresh=[];
+      logs.forEach(function(l){
+        chain=chain.then(function(){return enrich(l,true).then(function(p){if(p){fresh.push(p);pools.unshift(p);}});});
+      });
+      return chain.then(function(){
+        if(fresh.length){
+          render();updateStats(latest);
+          if(notifyOn&&'Notification' in window&&Notification.permission==='granted'){
+            fresh.forEach(function(p){
+              new Notification('🆕 新池：'+p.t0.symbol+' / '+p.t1.symbol,{
+                body:'池内 DAI '+fmt(p.dai)+' · '+p.risk});
+            });
+          }
+        }
+      });
+    });
+  }).catch(function(){});
+}
+function updateStats(latest){
+  var hrs=(SCAN_BLOCKS/3600).toFixed(0);
+  $('statRange').textContent='近 '+hrs+' 小时新增池数';
+  $('statNew').textContent=pools.length;
+  var firstTs=pools.length?pools[pools.length-1].ts:null;
+  $('statNewD').textContent=firstTs?('最早 '+ago(firstTs)):'—';
+  $('statDai').textContent=pools.filter(function(p){return p.hasDai;}).length;
+  $('statRisk').textContent=pools.filter(function(p){return p.isRisk;}).length;
+}
+function render(){
+  var list=pools.filter(function(p){
+    if(filter==='dai')return p.hasDai;
+    if(filter==='risk')return p.isRisk;
+    return true;
+  });
+  if(!list.length){
+    $('poolBody').innerHTML='<tr><td colspan="7"><div class="empty">该筛选下暂无池子</div></td></tr>';return;
+  }
+  $('poolBody').innerHTML=list.map(function(p){
+    var nm=p.t0.symbol+' / '+p.t1.symbol;
+    var exp='https://browser.anubispace.org/address/'+p.pair;
+    var txexp='https://browser.anubispace.org/tx/'+p.tx;
+    return '<tr class="'+(p.isNew?'fresh':'')+'">'+
+      '<td><div class="pairname">'+nm+(p.isNew?'<span class="newtag">NEW</span>':'')+'</div>'+
+      '<div class="pairaddr">'+p.pair.slice(0,10)+'…'+p.pair.slice(-8)+'</div></td>'+
+      '<td class="num">'+ago(p.ts)+'<div class="pairaddr">#'+p.bn.toLocaleString()+'</div></td>'+
+      '<td class="num">'+(p.hasDai?fmt(p.dai):'<span style="color:var(--muted)">无DAI</span>')+'</td>'+
+      '<td class="num">'+fmt(p.lpTotal)+'</td>'+
+      '<td class="num">'+(p.deployer?(p.depShare*100).toFixed(1)+'%':'—')+'</td>'+
+      '<td><span class="risk '+p.riskCls+'">'+p.risk+'</span></td>'+
+      '<td><a class="ext" target="_blank" rel="noopener" href="'+exp+'">池子 ↗</a><br>'+
+      '<a class="ext" target="_blank" rel="noopener" href="'+txexp+'">创建交易 ↗</a></td></tr>';
+  }).join('');
+  pools.forEach(function(p){p.isNew=false;});
+}
+document.querySelectorAll('.chip').forEach(function(c){
+  c.addEventListener('click',function(){
+    document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on');});
+    c.classList.add('on');filter=c.getAttribute('data-f');render();
+  });
+});
+$('refreshBtn').addEventListener('click',function(){countdownT=0;});
+$('notifyBtn').addEventListener('click',function(){
+  if(!notifyOn){
+    if(!('Notification' in window)){$('notifyBtn').textContent='🔔 当前浏览器不支持通知';return;}
+    Notification.requestPermission().then(function(pm){
+      if(pm==='granted'){notifyOn=true;$('notifyBtn').textContent='🔔 新池提醒：开';$('notifyBtn').classList.remove('off');}
+      else{$('notifyBtn').textContent='🔔 通知被拒绝';}
+    });
+  }else{notifyOn=false;$('notifyBtn').textContent='🔔 新池提醒：关';$('notifyBtn').classList.add('off');}
+});
+setInterval(function(){
+  countdownT--;
+  if(countdownT<=0){poll();countdownT=POLL_MS/1000;}
+  $('countdown').textContent='下次刷新 '+countdownT+'s';
+},1000);
+initialScan();
+})();
+</script>
+</body>
+</html>

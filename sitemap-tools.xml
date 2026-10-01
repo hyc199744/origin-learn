@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://web3origin.com/tools/onchain-search/</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://web3origin.com/tools/onchain-withdraw/</loc><lastmod>2026-08-14</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/onchain-search/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/onchain-withdraw/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/whale/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/holders/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/levels/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/staking-query/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/v-level/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/promotion/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/contracts/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/origin-history/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/treasury/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/peg-video/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/staking/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/wallet-dd/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/calculators/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/revoke/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/tx-translate/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/nft-holdings/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/materials/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/market/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/faq100/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/video-replays/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/token-safety/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/checkup/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/phishing/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/unlock-timer/</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://web3origin.com/tools/new-pool-radar/</loc><lastmod>2026-10-01</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>
