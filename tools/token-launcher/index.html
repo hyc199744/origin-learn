@@ -287,9 +287,16 @@ $("deployBtn").addEventListener("click", async function(){
     "\n持仓上限："+(p.maxw?p.maxw+"%":"不限")+"\n\n发到 Anubis 主网，基础参数不可改。";
   if(!confirm(msg)) return;
   $("deployBtn").disabled=true;
+  var factory=new ethers.ContractFactory(ABI,BYTECODE,wallet.signer);
   try{
-    setStatus("正在部署合约，等待钱包确认…");
-    var factory=new ethers.ContractFactory(ABI,BYTECODE,wallet.signer);
+    setStatus("部署前自检：链上模拟 + gas 检查…");
+    var simTx=await factory.getDeployTransaction(p.name,p.sym,p.supWei,p.buy,p.sell,p.taxW,p.maxWei,p.maxw);
+    var est=await wallet.signer.estimateGas(simTx);
+    var fee=await wallet.prov.getFeeData();
+    var gp=fee.gasPrice||fee.maxFeePerGas||0n;
+    var cost=est*gp, bal=await wallet.prov.getBalance(wallet.addr);
+    if(gp>0n&&bal<cost){ alert("gas 不够：部署约需 "+ethers.formatEther(cost)+" DAI，你钱包只有 "+ethers.formatEther(bal)+" DAI，先转点 DAI 进来。"); return; }
+    setStatus("自检通过（gas 约 "+ethers.formatEther(cost)+" DAI），正在部署合约，等待钱包确认…");
     var c=await factory.deploy(p.name,p.sym,p.supWei,p.buy,p.sell,p.taxW,p.maxWei,p.maxw);
     var depTx=c.deploymentTransaction();
     setStatus("已提交 <b>"+depTx.hash.slice(0,10)+"…</b>，上链确认中…");
@@ -310,6 +317,7 @@ $("deployBtn").addEventListener("click", async function(){
   }catch(e){
     var m=String((e&&(e.shortMessage||e.message))||"");
     if(/reject|denied|4001/i.test(m)) setStatus("已取消（钱包拒绝签名）。");
+    else if(/missing revert data/i.test(m)) setStatus("链上没返回结果：多半是 RPC 瞬断、交易没发出去。等几秒重试一次就行。");
     else { setStatus("发行失败："+m.slice(0,150)); alert("发行失败："+m.slice(0,150)); }
   }finally{ $("deployBtn").disabled=false; }
 });
