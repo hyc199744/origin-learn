@@ -39,7 +39,7 @@
 <body>
 <div class="wrap">
   <h1>🎰 LGNS 链上彩票</h1>
-  <div class="sub" id="priceSub">LGNS / 张 · 24 小时一期 · 平台抽水 10%</div>
+  <div class="sub" id="priceSub">LGNS / 张 · 24 小时一期</div>
   <button id="connectBtn" onclick="connect()">连接钱包</button>
   <div class="addr" id="myAddr"></div>
 
@@ -195,7 +195,7 @@ async function connect(){
 }
 async function loadStatic(){
   TICKET = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.ticketPrice));
-  $('priceSub').textContent = (Number(TICKET)/1e9)+' LGNS / 张 · 24 小时一期 · 平台抽水 10%';
+  $('priceSub').textContent = (Number(TICKET)/1e9)+' LGNS / 张 · 24 小时一期';
   FEE = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.feeBps));
   OWNER = decAddr(await ethCall(CFG.CONTRACT,'0x'+SEL.owner));
   if (myAddr && myAddr.toLowerCase()===OWNER.toLowerCase()) $('ownerPanel').style.display='block';
