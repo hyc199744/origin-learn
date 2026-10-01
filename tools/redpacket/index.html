@@ -60,13 +60,22 @@
 
   <div class="card">
     <h3>🧧 发红包</h3>
-    <div class="row"><label>金额 (LGNS)</label><input id="inAmount" type="number" min="100" placeholder="最少 100"></div>
+    <div class="row"><label>金额 (LGNS)</label><input id="inAmount" type="number" min="10" placeholder="最少 10"></div>
     <div class="row"><label>份数</label><input id="inShares" type="number" min="2" max="100" value="10"></div>
     <div class="row" style="margin-bottom:0">
       <button class="btn ghost" id="approveBtn" style="flex:1">1️⃣ 授权 LGNS</button>
       <button class="btn" id="createBtn" style="flex:1">2️⃣ 发红包</button>
     </div>
     <div class="meta" style="font-size:12px;color:#999;margin-top:8px" id="myBal"></div>
+  </div>
+
+  <div class="card hidden" id="adminBox" style="border-color:#e65100">
+    <h3>🛠 管理 <span style="font-size:12px;color:#999">（仅 owner 可见）</span></h3>
+    <div class="meta" style="font-size:12px;color:#666;margin-bottom:8px" id="adminInfo"></div>
+    <div class="row" style="margin-bottom:0">
+      <button class="btn ghost" id="setTokenBtn" style="flex:1">换成 LGNS 奖励币</button>
+      <button class="btn ghost" id="setMinBtn" style="flex:1">最小发包改成 10</button>
+    </div>
   </div>
 
   <div class="card">
@@ -89,8 +98,9 @@ const CFG = {
   chainName: 'Anubis',
   rpcUrl: 'https://rpc.anubispace.org',
   explorer: 'https://browser.anubispace.org',
-  rewardToken: '0x256edb652db43e721ec6a12b6b51b6967d3bb8cb',
+  rewardToken: '0x4d1d808a081fdac440703b3765fc61f8028c06b8', // LGNS (Longinus)，9 位精度
   rewardSymbol: 'LGNS',
+  decimals: 9,
   CONTRACT: '0xb4838C2EA00D007EB1478cFf4e80DA464C2B7680' // 2026-10-01 已部署
 };
 
@@ -110,7 +120,11 @@ const SEL = {
   hasGrabbed:       '1c2c47df',
   getGrabbers:      'bbd6c33b',
   relayBps:         '8ea1c312',
-  minPacket:        '05fd9cdb'
+  minPacket:        '05fd9cdb',
+  owner:            '8da5cb5b',
+  getRewardToken:   'f7c618c1',
+  setRewardToken:   '8aee8127',
+  setMinPacket:     '3f44febe'
 };
 
 // ---- 最小 ABI 编解码（只覆盖本页用到的类型：uint/bool/address/address[]） ----
@@ -131,7 +145,7 @@ function decodePacket(h) {
   };
 }
 function parseUnits(str, dec) {
-  dec = dec || 18;
+  dec = dec || CFG.decimals;
   str = String(str).trim();
   if (!/^\d+(\.\d+)?$/.test(str)) throw new Error('金额格式不对');
   const parts = str.split('.'), f = parts[1] || '';
@@ -139,7 +153,7 @@ function parseUnits(str, dec) {
   return BigInt(parts[0] + (f + '0'.repeat(dec)).slice(0, dec));
 }
 function formatUnits(v, dec) {
-  dec = dec || 18;
+  dec = dec || CFG.decimals;
   const s = BigInt(v).toString().padStart(dec + 1, '0');
   const i = s.slice(0, -dec), f = s.slice(-dec).replace(/0+$/, '');
   return i + (f ? '.' + f : '');
@@ -196,6 +210,15 @@ async function connect() {
     if (CFG.CONTRACT) {
       const bal = await ethCall(CFG.rewardToken, txData(SEL.balanceOf, [encAddr(myAddr)]));
       $('myBal').textContent = '我的 LGNS 余额：' + fmt(decUint(bal));
+      try {
+        const ow = decAddr(await ethCall(CFG.CONTRACT, txData(SEL.owner, [])));
+        if (ow.toLowerCase() === myAddr.toLowerCase()) {
+          $('adminBox').classList.remove('hidden');
+          const rt = decAddr(await ethCall(CFG.CONTRACT, txData(SEL.getRewardToken, [])));
+          const mp = decUint(await ethCall(CFG.CONTRACT, txData(SEL.minPacket, [])));
+          $('adminInfo').textContent = '链上奖励币：' + rt + ' ｜ 最小发包：' + formatUnits(mp) + ' LGNS';
+        }
+      } catch (e) { /* 读不到就跳过 */ }
     } else {
       $('noContract').classList.remove('hidden');
     }
@@ -227,7 +250,7 @@ async function doCreate() {
   try { amt = parseUnits($('inAmount').value); }
   catch (e) { return toast(e.message); }
   const shares = Number($('inShares').value);
-  if (amt < parseUnits('100')) return toast('金额最少 100 LGNS');
+  if (amt < parseUnits('10')) return toast('金额最少 10 LGNS');
   if (!shares || shares < 2 || shares > 100) return toast('份数 2~100');
   try {
     const allow = decUint(await ethCall(CFG.rewardToken, txData(SEL.allowance, [encAddr(myAddr), encAddr(CFG.CONTRACT)])));
@@ -236,6 +259,24 @@ async function doCreate() {
     toast('🧧 红包发出去了！');
     loadPackets();
   } catch (e) { toast('发包失败：' + (e.message || e)); }
+}
+
+async function doSetRewardToken() {
+  if (!needContract()) return;
+  try {
+    await sendTx(CFG.CONTRACT, txData(SEL.setRewardToken, [encAddr(CFG.rewardToken)]));
+    toast('✅ 奖励币已换成 LGNS');
+    connect();
+  } catch (e) { toast('失败：' + (e.message || e)); }
+}
+
+async function doSetMinPacket() {
+  if (!needContract()) return;
+  try {
+    await sendTx(CFG.CONTRACT, txData(SEL.setMinPacket, [encUint(parseUnits('10'))]));
+    toast('✅ 最小发包已改成 10 LGNS');
+    connect();
+  } catch (e) { toast('失败：' + (e.message || e)); }
 }
 
 async function doGrab(id) {
@@ -343,6 +384,8 @@ $('walletBtn').onclick = connect;
 $('approveBtn').onclick = doApprove;
 $('createBtn').onclick = doCreate;
 $('refreshBtn').onclick = loadPackets;
+$('setTokenBtn').onclick = doSetRewardToken;
+$('setMinBtn').onclick = doSetMinPacket;
 if (window.ethereum) connect();
 
 </script>
