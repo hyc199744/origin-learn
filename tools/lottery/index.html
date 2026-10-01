@@ -32,6 +32,24 @@
   .tag { display: inline-block; font-size: 11px; background: #ffd75e; color: #1a1405; border-radius: 4px; padding: 1px 6px; margin-right: 6px; font-weight: 700; }
   .t2 .tag { background: #7ee2a8; } .t3 .tag { background: #8fb8ff; }
   #ownerPanel { display: none; border-color: #ffd75e; }
+  /* 开奖动画 */
+  #drawOverlay { position: fixed; inset: 0; background: rgba(8,11,20,.97); z-index: 99; display: none; flex-direction: column; align-items: center; padding: 26px 14px 40px; overflow-y: auto; }
+  #drawOverlay.show { display: flex; }
+  #drawOverlay h2 { margin: 0 0 4px; font-size: 20px; }
+  #drawStatus { color: #8b93a7; font-size: 13px; margin-bottom: 6px; text-align: center; }
+  #ballStage { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 480px; margin: 16px 0; min-height: 130px; align-content: flex-start; }
+  .ball { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffffff88, #ffd75e 55%, #b98a1e); color: #1a1405; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 15px; animation: bounce 1s infinite ease-in-out; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-24px); } }
+  .ball.t1 { background: radial-gradient(circle at 35% 30%, #ffffff88, #ff5f6d 55%, #a3121f); color: #fff; animation: none; transform: scale(1.3); font-size: 20px; }
+  .ball.t2 { background: radial-gradient(circle at 35% 30%, #ffffff88, #7ee2a8 55%, #1d7a45); color: #06281a; animation: none; font-size: 18px; }
+  .ball.t3 { background: radial-gradient(circle at 35% 30%, #ffffff88, #8fb8ff 55%, #2b4d9b); color: #fff; animation: none; }
+  .ball.out { opacity: .15; animation: none; }
+  #drawResults { width: 100%; max-width: 460px; }
+  .wrow { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 4px; border-bottom: 1px dashed #2a3350; font-size: 14px; animation: fadein .4s; }
+  .wrow .wa { color: #8b93a7; font-size: 12px; }
+  .wrow .wamt { font-weight: 800; color: #ffd75e; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+  #drawClose { display: none; margin-top: 18px; background: #4f8cff; color: #fff; padding: 11px 40px; }
   .foot { text-align: center; font-size: 12px; color: #5a6378; margin-top: 18px; line-height: 1.8; }
   .foot a { color: #4f8cff; }
 </style>
@@ -62,7 +80,7 @@
     <div id="drawBox" style="display:none">
       <div class="btn-row">
         <button class="btn-s" id="closeBtn" onclick="closeRound()">关闭本期</button>
-        <button class="btn-p" id="drawBtn" onclick="draw()">开奖</button>
+        <button class="btn-p" id="drawBtn" onclick="drawVisual()">开奖</button>
       </div>
       <div class="note" style="margin-top:6px">本期已截止：先点「关闭本期」锁定开奖区块，再等约 50 个块后点「开奖」。任何人都可以点，Gas 谁点谁出。</div>
     </div>
@@ -99,7 +117,14 @@
       <button class="btn-p" onclick="doSetTicketPrice()">🎫 票价改成 3 LGNS</button>
     </div>
   </div>
+</div>
 
+<div id="drawOverlay">
+  <h2>🎰 开奖中</h2>
+  <div id="drawStatus">准备开奖…</div>
+  <div id="ballStage"></div>
+  <div id="drawResults"></div>
+  <button id="drawClose" onclick="closeDraw()">关闭</button>
 </div>
 
 <script>
@@ -259,7 +284,80 @@ async function buy(){
   toast('买票成功，祝中大奖！');
 }
 async function closeRound(){ await sendTx(CFG.CONTRACT,'0x'+SEL.closeRound); toast('本期已关闭，等约 50 个块后点开奖'); }
-async function draw(){ await sendTx(CFG.CONTRACT,'0x'+SEL.draw); toast('开奖完成！'); }
+async function sendTxQuiet(to,d){
+  const hash = await req('eth_sendTransaction',[{from:myAddr,to,data:d}]);
+  for (let i=0;i<150;i++){
+    await new Promise(r=>setTimeout(r,2000));
+    const rc = await req('eth_getTransactionReceipt',[hash]);
+    if (rc && rc.blockNumber && rc.blockNumber!=='0x0'){
+      if (rc.status==='0x1'){ await refresh(); return rc; }
+      throw new Error('交易执行失败（被 revert）');
+    }
+  }
+  throw new Error('等太久没确认，请去浏览器查：'+hash);
+}
+async function drawVisual(){
+  const ov=$('drawOverlay'), stage=$('ballStage'), res=$('drawResults'), st=$('drawStatus');
+  ov.classList.add('show'); res.innerHTML=''; $('drawClose').style.display='none';
+  stage.innerHTML='';
+  const balls=[];
+  for(let i=0;i<14;i++){
+    const b=document.createElement('div'); b.className='ball'; b.textContent='?';
+    b.style.animationDuration=(0.7+Math.random()*0.9).toFixed(2)+'s';
+    b.style.animationDelay=(Math.random()*0.6).toFixed(2)+'s';
+    stage.appendChild(b); balls.push(b);
+  }
+  const rnd=setInterval(()=>{ balls.forEach(b=>{ if(!b.dataset.done) b.textContent=Math.floor(Math.random()*99)+1; }); },120);
+  const stop=()=>clearInterval(rnd);
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  try{
+    if(!myAddr) throw new Error('请先连接钱包');
+    const ridBefore=Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.currentRound)));
+    st.textContent='等待钱包确认开奖交易…';
+    await sendTxQuiet(CFG.CONTRACT,'0x'+SEL.draw);
+    const ridAfter=Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.currentRound)));
+    if(ridAfter<=ridBefore){
+      stop();
+      st.textContent='开奖区块太久没人开奖、哈希过期了，已自动重新锁定，再等约 50 个块后重试';
+      $('drawClose').style.display='block';
+      return;
+    }
+    st.textContent='🎉 开奖成功！正在揭晓中奖者…';
+    const wh=await ethCall(CFG.CONTRACT,'0x'+SEL.getLastWinners);
+    const offW=Number(decUint(wh.slice(0,64)))*2, offA=Number(decUint(wh.slice(64,128)))*2;
+    const winners=decAddrArray(wh,offW), amounts=decUintArray(wh,offA);
+    stop();
+    if(!winners.length){
+      balls.forEach(b=>{ b.classList.add('out'); b.textContent='-'; });
+      st.textContent='本期无人购票，奖池全额滚入下期';
+      $('drawClose').style.display='block';
+      return;
+    }
+    // 名次:[0]=一等奖,[1..3]=二等奖,[4..13]=三等奖;先揭三等奖,最后揭一等奖
+    const order=[];
+    for(let i=4;i<winners.length;i++) order.push({i,t:'t3',label:'三等奖'});
+    for(let i=1;i<Math.min(4,winners.length);i++) order.push({i,t:'t2',label:'二等奖'});
+    order.push({i:0,t:'t1',label:'一等奖'});
+    let bi=0;
+    for(const o of order){
+      const b=balls[bi++]; b.dataset.done='1';
+      b.className='ball '+o.t; b.textContent=o.label[0];
+      const row=document.createElement('div'); row.className='wrow';
+      row.innerHTML='<span><span class="tag">'+o.label+'</span><span class="wa">'+short(winners[o.i])+'</span></span><span class="wamt">'+fmt(amounts[o.i])+' LGNS</span>';
+      res.appendChild(row);
+      if(o.t==='t1'){ st.textContent='🎊 一等奖诞生！'; }
+      await sleep(o.t==='t1'?1200:650);
+    }
+    balls.slice(bi).forEach(b=>{ b.classList.add('out'); b.textContent='-'; });
+    st.textContent='🎉 本期开奖完成，奖金已自动打到中奖者钱包';
+    $('drawClose').style.display='block';
+  }catch(e){
+    stop();
+    st.textContent='开奖失败：'+(e.message||e);
+    $('drawClose').style.display='block';
+  }
+}
+function closeDraw(){ $('drawOverlay').classList.remove('show'); refresh(); }
 async function approveSeed(){
   const amt = parseUnits($('seedAmt').value||'0');
   if (amt<=0n) return toast('先填注入金额');
