@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FCB Arcade</title>
+<style>
+:root{
+  --gold:#d4a017; --gold2:#f5c542; --gold3:#ffe9a8;
+  --bg:#0a0805; --line:rgba(212,160,23,.20);
+  --txt:#f2e8d0; --dim:#a8905e;
+  --green:#43c783; --red:#e05c5c; --blue:#6fb6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  background:
+    radial-gradient(1100px 520px at 50% -10%, rgba(212,160,23,.13), transparent 62%),
+    radial-gradient(700px 500px at 100% 100%, rgba(120,70,10,.08), transparent 60%),
+    var(--bg);
+  color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  min-height:100vh;
+}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 70px}
+header{text-align:center;padding:42px 0 6px}
+.logo{font-size:68px;line-height:1;filter:drop-shadow(0 0 26px rgba(245,197,66,.5));animation:float 4.5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-9px) rotate(3deg)}}
+h1{font-size:30px;letter-spacing:8px;margin:12px 0 8px;font-weight:800;
+  background:linear-gradient(180deg,var(--gold3) 10%,var(--gold2) 45%,#8a5f08 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--dim);font-size:12px;letter-spacing:4px}
+.conn{display:flex;justify-content:center;margin:18px 0 4px}
+#acct{margin-top:6px;letter-spacing:1px}
+button{cursor:pointer;border:none;border-radius:12px;font-size:15px;font-family:inherit}
+.btn{position:relative;overflow:hidden;background:linear-gradient(180deg,#ffd968,#d9a416);color:#241a04;font-weight:800;padding:13px 30px;box-shadow:0 4px 18px rgba(212,160,23,.35);transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(212,160,23,.45)}
+.btn:active{transform:translateY(1px)}
+.btn::after{content:"";position:absolute;top:0;left:-70%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg)}
+.btn:hover::after{left:140%;transition:left .6s}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.btn.ghost{background:rgba(212,160,23,.08);border:1px solid var(--gold);color:var(--gold2);box-shadow:none}
+.btn.ghost::after{display:none}
+.btn.small{padding:9px 16px;font-size:13px}
+.btn.danger{background:rgba(224,92,92,.08);border:1px solid var(--red);color:var(--red);padding:9px 16px;font-size:13px;box-shadow:none}
+.btn.danger::after{display:none}
+.banner{display:flex;align-items:center;justify-content:center;gap:9px;max-width:360px;margin:14px auto;padding:11px 24px;border-radius:999px;font-size:14px;font-weight:700;letter-spacing:1px}
+.banner::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+.banner.wait{background:rgba(212,160,23,.10);border:1px solid rgba(212,160,23,.5);color:var(--gold2)}
+.banner.live{background:rgba(67,199,131,.10);border:1px solid rgba(67,199,131,.5);color:var(--green)}
+.banner.open{background:rgba(111,182,255,.10);border:1px solid rgba(111,182,255,.5);color:var(--blue)}
+.card{background:linear-gradient(170deg,rgba(28,21,10,.92),rgba(16,12,6,.94));border:1px solid var(--line);border-radius:20px;padding:22px;margin:16px 0;box-shadow:0 10px 34px rgba(0,0,0,.45),inset 0 1px 0 rgba(245,197,66,.07)}
+.card h2{font-size:15px;color:var(--gold2);margin-bottom:14px;letter-spacing:2px;display:flex;align-items:center;gap:12px;font-weight:700}
+.card h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(212,160,23,.35),transparent)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.stat{background:linear-gradient(165deg,#1e160b,#120d06);border:1px solid var(--line);border-radius:16px;padding:16px 8px;text-align:center;position:relative;overflow:hidden}
+.stat::before{content:"";position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--gold2),transparent);opacity:.7}
+.stat .v{font-size:17px;color:var(--gold3);font-weight:800;font-variant-numeric:tabular-nums}
+.stat .k{font-size:11px;color:var(--dim);margin-top:6px;letter-spacing:1px}
+.games{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(min-width:640px){.games{grid-template-columns:repeat(3,1fr)}}
+.game{position:relative;display:block;text-decoration:none;color:var(--txt);background:linear-gradient(165deg,#1e160b 0%,#100c06 100%);border:1px solid var(--line);border-radius:18px;padding:26px 12px 20px;text-align:center;overflow:hidden;transition:transform .22s ease,box-shadow .25s ease,border-color .25s}
+.game::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold2),transparent);opacity:.85}
+.game::after{content:"";position:absolute;top:-40%;left:50%;width:130px;height:130px;transform:translateX(-50%);background:radial-gradient(circle,rgba(245,197,66,.13),transparent 70%);pointer-events:none}
+.game:not(.off):hover{transform:translateY(-6px);border-color:rgba(245,197,66,.55);box-shadow:0 16px 40px rgba(212,160,23,.22)}
+.game.off{filter:grayscale(.85);opacity:.45}
+.game .e{font-size:48px;line-height:1.2;filter:drop-shadow(0 6px 14px rgba(0,0,0,.55))}
+.game .t{font-size:17px;font-weight:800;margin:10px 0 6px;color:var(--gold3);letter-spacing:2px}
+.game .d{font-size:12px;color:var(--dim);line-height:1.7}
+.badge{display:inline-block;font-size:11px;background:rgba(212,160,23,.12);color:var(--gold2);border:1px solid rgba(212,160,23,.45);border-radius:999px;padding:3px 12px;margin:10px 3px 0;letter-spacing:.5px}
+.badge.green{background:rgba(67,199,131,.10);border-color:rgba(67,199,131,.45);color:var(--green)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tabs{display:flex;gap:6px;margin-bottom:14px;background:rgba(0,0,0,.32);padding:5px;border-radius:14px;border:1px solid rgba(212,160,23,.12)}
+.tab{flex:1;padding:11px;border-radius:10px;background:transparent;border:none;color:var(--dim);font-size:14px;font-weight:600;transition:all .2s;box-shadow:none}
+.tab::after{display:none}
+.tab.on{background:linear-gradient(180deg,#ffd968,#d9a416);color:#241a04;box-shadow:0 3px 12px rgba(212,160,23,.35)}
+input[type=text],input[type=number]{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:12px;color:var(--txt);padding:13px 14px;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s;font-family:inherit}
+input:focus{border-color:var(--gold2);box-shadow:0 0 0 3px rgba(212,160,23,.12)}
+label{font-size:12px;color:var(--dim);display:block;margin:12px 0 7px;letter-spacing:1px}
+.quote{background:rgba(0,0,0,.32);border:1px dashed rgba(212,160,23,.3);border-radius:12px;padding:13px 14px;margin-top:12px;font-size:14px;line-height:1.9}
+.quote b{color:var(--gold3)}
+.prog{background:rgba(0,0,0,.4);border-radius:999px;height:12px;overflow:hidden;margin:10px 0;border:1px solid rgba(212,160,23,.15)}
+.prog>div{height:100%;background:linear-gradient(90deg,#8a5f08,var(--gold2),#ffe9a8);width:0%;border-radius:999px;transition:width .5s;box-shadow:0 0 12px rgba(245,197,66,.5)}
+.cd{font-size:26px;color:var(--gold3);font-weight:800;text-align:center;letter-spacing:4px;margin:10px 0;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(245,197,66,.35)}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:8px 0;border-bottom:1px dashed rgba(212,160,23,.16)}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--dim)}
+.kv .v{color:var(--txt);font-weight:700;text-align:right}
+.hint{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.8}
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:rgba(10,8,5,.96);border:1px solid var(--gold);color:var(--gold3);padding:13px 24px;border-radius:14px;font-size:14px;display:none;z-index:99;max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.foot{text-align:center;margin-top:30px;font-size:12px;color:var(--dim);letter-spacing:1px}
+.foot a{color:var(--gold2);text-decoration:none}
+.rules{font-size:13px;line-height:2.1;color:var(--dim)}
+.rules b{color:var(--gold3)}
+.addr{font-size:11px;color:var(--dim);word-break:break-all;margin-top:10px;line-height:1.8;opacity:.8}
+.warn{background:rgba(122,58,26,.14);border:1px solid rgba(224,120,60,.35);border-radius:12px;padding:13px 14px;font-size:12px;color:#e8b088;line-height:1.9;margin-top:14px}
+
+/* ===== 底部导航 ===== */
+#tabbar{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(10,8,5,.93);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tb-in{max-width:880px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tbtn{background:none;border:none;color:var(--dim);font-size:21px;padding:10px 0 9px;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:inherit;border-radius:0}
+.tbtn span{font-size:11px;letter-spacing:2px}
+.tbtn.on{color:var(--gold2)}
+/* ===== 游戏记录 ===== */
+.hrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 4px;border-bottom:1px dashed var(--line);font-size:13px;flex-wrap:wrap}
+.hrow:last-child{border-bottom:none}
+.hrow .win{color:var(--green);font-weight:700}
+.hrow .lose{color:var(--dim)}
+
+header{position:relative}
+.langbtn{position:absolute;top:14px;right:14px;background:rgba(212,160,23,.12);border:1px solid var(--gold);color:var(--gold2);border-radius:999px;padding:7px 16px;font-size:13px;font-weight:700;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<button id="langBtn" class="langbtn">EN</button>
+<div class="logo">🪙</div>
+<h1 data-i18n="appName">发财游戏平台</h1>
+<div class="sub" data-i18n="tagline">FCB ARCADE · 一个币，玩转所有游戏</div>
+</header>
+<div class="conn"><button class="btn" id="connBtn" data-i18n="connect">连接钱包</button></div>
+<div id="acct" style="text-align:center;font-size:12px;color:var(--dim)"></div>
+<div class="banner wait" id="phaseBanner" data-i18n="phaseDeploy">合约待部署</div>
+<div id="secLobby">
+<div class="stats">
+<div class="stat"><div class="v" id="sPrice">-</div><div class="k" data-i18n="stPrice">当前价格 (LGNS/枚)</div></div>
+<div class="stat"><div class="v" id="sSold">-</div><div class="k" data-i18n="stSold">已售 FCB</div></div>
+<div class="stat"><div class="v" id="sReserve">-</div><div class="k" data-i18n="stReserve">合约 LGNS 储备</div></div>
+</div>
+
+<div class="card">
+<h2>🎮 <span data-i18n="lobby">游戏大厅</span></h2>
+<div class="games">
+<a class="game off" id="gDice" href="dice/"><div class="e">🎲</div><div class="t" data-i18n="gDice">骰子</div><div class="d" data-i18n-html="gDiceD">选 5–95 的目标值<br>掷出更小即赢 · 返还率 98%</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span> <span class="badge green" data-i18n="mining">下注挖矿 +1%</span></a>
+<a class="game off" id="gFlip" href="coinflip/"><div class="e">🪙</div><div class="t" data-i18n="gFlip">抛硬币</div><div class="d" data-i18n-html="gFlipD">猜正反 · 猜中 1.96 倍<br>返还率 98%</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span> <span class="badge green" data-i18n="mining">下注挖矿 +1%</span></a>
+<a class="game off" id="gZjh" href="zjh/"><div class="e">🃏</div><div class="t" data-i18n="gZjh">炸金花</div><div class="d" data-i18n-html="gZjhD">发 3 张牌按牌型赔付<br>豹子 60 倍 · 返还率 98.14%</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span> <span class="badge green" data-i18n="mining">下注挖矿 +1%</span></a>
+<a class="game off" id="gLh" href="lh/"><div class="e">🐉</div><div class="t" data-i18n="gLh">龙虎斗</div><div class="d" data-i18n-html="gLhD">龙虎各发 1 张比大小<br>赢 2.02 倍 · 返还率 98%</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span> <span class="badge green" data-i18n="mining">下注挖矿 +1%</span></a>
+<a class="game off" id="gSlot" href="slot/"><div class="e">🎰</div><div class="t" data-i18n="gSlot">老虎机</div><div class="d" data-i18n-html="gSlotD">三连 7️⃣ 最高 60 倍<br>返还率 98.15%</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span> <span class="badge green" data-i18n="mining">下注挖矿 +1%</span></a>
+<a class="game off" id="gSicbo" href="sicbo/"><div class="e">🎲</div><div class="t" data-i18n="gSicbo">骰宝</div><div class="d" data-i18n-html="gSicboD">押大小单双赢 2.02 倍<br>围骰通杀 · 返还率 98.19%</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span> <span class="badge green" data-i18n="mining">下注挖矿 +1%</span></a>
+<a class="game off" id="gBac" href="baccarat/"><div class="e">🃏</div><div class="t" data-i18n="gBac">百家乐</div><div class="d" data-i18n-html="gBacD">押庄押闲 · 和局退本金<br>返还率 98.8%+</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span> <span class="badge green" data-i18n="mining">下注挖矿 +1%</span></a>
+<a class="game off" id="gPlinko" href="plinko/"><div class="e">🔮</div><div class="t" data-i18n="gPlinko">Plinko</div><div class="d" data-i18n-html="gPlinkoD">小球弹珠落位赔付<br>边格 12 倍 · 返还率 98.13%</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span> <span class="badge green" data-i18n="mining">下注挖矿 +1%</span></a>
+<a class="game off" id="gWheel" href="wheel/"><div class="e">🎡</div><div class="t" data-i18n="gWheel">幸运转盘</div><div class="d" data-i18n-html="gWheelD">转到多少倍赔多少倍<br>最高 5 倍 · 返还率 98%</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span> <span class="badge green" data-i18n="mining">下注挖矿 +1%</span></a>
+<a class="game off" id="gArena" href="dragon-arena/"><div class="e">🐲</div><div class="t" data-i18n="gArena">龙武擂台</div><div class="d" data-i18n-html="gArenaD">24 人同场 · 链上随机冠军<br>四礼分配 · 龙武俸</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span></a>
+<a class="game off" id="gTreasure" href="temple-treasure/"><div class="e">🏛️</div><div class="t" data-i18n="gTreasure">神殿夺宝</div><div class="d" data-i18n-html="gTreasureD">25 格押注 · 链上开奖<br>宝库爆奖</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span></a>
+<a class="game" href="/tools/lottery/"><div class="e">🎰</div><div class="t" data-i18n="gLottery">LGNS 彩票</div><div class="d" data-i18n-html="gLotteryD">每天一期 · 一等奖 50%<br>奖池滚存</div><span class="badge" data-i18n="playWithLgns">LGNS 直接玩</span></a>
+<a class="game off"><div class="e">🎯</div><div class="t" data-i18n="gMore">更多游戏</div><div class="d" data-i18n-html="gMoreD">持续开发中…<br>敬请期待</div></a>
+</div>
+<div class="hint" id="gameHint" data-i18n="gameLocked">游戏在公开交易开启后开放。</div>
+</div>
+
+<div class="card">
+<h2>📜 <span data-i18n="rulesT">规则说明</span></h2>
+<div class="rules" data-i18n-html="rulesHtml">
+<b>发财币（FCB）</b>：总量 2.1 亿枚，18 位精度，固定总量永不增发。<br>
+<b>共建期</b>：7 天，固定价 <b>0.0005 LGNS/枚</b>（待定 A/B/C），先到先得，每人上限为共建额度的 1%。额度售罄或时间到即结束。<br>
+<b>防砸盘</b>：共建所得先给 20%，剩下 80% 按 120 天线性释放。<br>
+<b>公开交易</b>：线性 bonding curve，流通越多越贵。共建价起步，全流通时约 21 倍。开盘价由共建卖量决定（卖完约 3 倍）。<br>
+<b>手续费</b>：公开兑换双向各收 <b>2.5%</b>，归平台所有者；共建期免手续费。<br>
+<b>游戏金库</b>：1.89 亿 FCB 锁金库，只能拨给游戏奖池、兑换补库存、游戏挖矿，所有者直接提不走。<br>
+<b>游戏</b>：FCB 下注，庄家水位 2%（返还率 98%），下注即挖矿 +1%。单注潜在盈利 ≤ 空闲奖池 5%。<br>
+<b>运营权</b>：平台方保留紧急暂停、修复升级权；敏感操作（改费率、动金库）走 48 小时公示。
+</div>
+<div class="warn" data-i18n="riskWarn">⚠️ 链上游戏有风险：价格随供需波动，游戏有 2% 数学劣势。平台为单所有者运营制，请自行评估后参与。</div>
+<div class="addr">LGNS: 0x4d1d808a081fdac440703b3765fc61f8028c06b8<br><span id="contractAddrs" data-i18n="contractsPending">FCB / 兑换合约：待部署</span></div>
+</div>
+
+</div>
+<div id="secSwap" style="display:none">
+<div class="card" id="cobuildCard" style="display:none">
+<h2>🌱 <span data-i18n="cbTitle">共建期 · 固定价认购</span></h2>
+<div class="cd" id="cdLine">-- : -- : --</div>
+<div class="kv"><span class="k" data-i18n="cbPriceL">认购价</span><span class="v" id="cbPrice">-</span></div>
+<div class="kv"><span class="k" data-i18n="cbProgL">进度</span><span class="v" id="cbProg">-</span></div>
+<div class="prog"><div id="cbBar"></div></div>
+<div class="kv"><span class="k" data-i18n="cbMineL">我已投</span><span class="v" id="cbMine">-</span></div>
+<div class="kv"><span class="k" data-i18n="cbCapL">我的上限</span><span class="v" id="cbCap">-</span></div>
+<label data-i18n="cbAmtL">投入 LGNS 数量</label>
+<input type="number" id="cbAmt" placeholder="0.0" min="0" step="any">
+<div class="quote" id="cbQuote" data-i18n="cbQuotePh">输入数量查看可得 FCB…</div>
+<div class="row" style="margin-top:12px">
+<button class="btn ghost small" id="cbApprBtn" style="display:none" data-i18n="approveLgns">授权 LGNS</button>
+<button class="btn" id="cbGoBtn" style="flex:1" data-i18n="cbGo">参与共建</button>
+</div>
+<div class="row" style="margin-top:10px;justify-content:space-between">
+<button class="btn danger" id="cbRefundBtn" data-i18n="cbRefund">紧急退款</button>
+<span class="hint" style="margin:0" data-i18n="cbRefundHint">共建期内可原路退回 LGNS</span>
+</div>
+<div class="warn" data-i18n="cbWarn">共建的 FCB 先给 20%，剩下 80% 按 120 天线性释放。细水长流，禁止砸盘。</div>
+</div>
+
+<div class="card" id="swapCard" style="display:none">
+<h2>💱 <span data-i18n="swapTitle">兑换发财币</span></h2>
+<div class="tabs">
+<button class="tab on" id="tabBuy">LGNS → FCB</button>
+<button class="tab" id="tabSell">FCB → LGNS</button>
+</div>
+<label id="inLabel" data-i18n="inLgns">付出 LGNS 数量</label>
+<input type="number" id="amt" placeholder="0.0" min="0" step="any">
+<div class="quote" id="quoteBox" data-i18n="quotePh">输入数量查看实时报价…</div>
+<div class="row" style="margin-top:12px">
+<button class="btn ghost small" id="apprBtn" style="display:none" data-i18n="approve">授权</button>
+<button class="btn" id="swapBtn" style="flex:1" data-i18n="swapGo">兑换</button>
+</div>
+<div class="addr" id="balLine"></div>
+<div class="hint" data-i18n="swapHint">双向各收 2.5% 手续费（归平台所有者）。FCB 随时可按曲线卖回 LGNS，储备金只进不出。</div>
+</div>
+
+</div>
+<div id="secHistory" style="display:none">
+
+<div class="card">
+<h2>📜 <span data-i18n="histT">游戏记录</span></h2>
+<div class="row" style="margin-bottom:6px">
+<button class="btn ghost small" id="histBtn" data-i18n="refresh">刷新</button>
+<span class="hint" style="margin:0" id="histHint" data-i18n="histConnect">连接钱包后显示</span>
+</div>
+<div id="histList"><div class="hint" data-i18n="noHist">暂无记录</div></div>
+<div class="hint" data-i18n="histNote">只显示最近约 1 天（10 万个区块内）的记录，完整记录可在区块浏览器查询。</div>
+</div>
+</div>
+<div id="secAssets" style="display:none">
+
+<div class="card">
+<h2>💰 <span data-i18n="assetT">我的资产</span></h2>
+<div class="stats" style="grid-template-columns:1fr 1fr;margin-top:0">
+<div class="stat"><div class="v" id="aLgns">-</div><div class="k" data-i18n="balLgns">LGNS 余额</div></div>
+<div class="stat"><div class="v" id="aFcb">-</div><div class="k" data-i18n="balFcb">FCB 余额</div></div>
+</div>
+<div class="kv"><span class="k" data-i18n="cbIn">共建投入</span><span class="v" id="aCbIn">-</span></div>
+<div class="kv"><span class="k" data-i18n="vestPending">待释放 FCB</span><span class="v" id="aVest">-</span></div>
+<div class="hint" data-i18n="assetHint">FCB 可用于所有游戏下注。共建所得先给 20%，剩下 80% 按 120 天线性释放。</div>
+</div>
+<div class="card" id="vestCard" style="display:none">
+<h2>🔓 <span data-i18n="vestT">我的释放</span></h2>
+<div class="kv"><span class="k" data-i18n="vTotal">应得总额</span><span class="v" id="vTotal">-</span></div>
+<div class="kv"><span class="k" data-i18n="vClaimed">已领取</span><span class="v" id="vClaimed">-</span></div>
+<div class="kv"><span class="k" data-i18n="vCan">当前可领</span><span class="v" id="vCan" style="color:var(--green)">-</span></div>
+<div class="prog"><div id="vBar"></div></div>
+<button class="btn" id="claimBtn" style="width:100%;margin-top:10px" data-i18n="claim">领取可领部分</button>
+<div class="hint" data-i18n="vestHint">首期 20% 共建结束后可领，剩下 80% 按 120 天线性释放。</div>
+</div>
+
+</div>
+<div class="foot"><a href="admin.html" data-i18n="admin">👑 管理后台</a> · <span data-i18n="footNote">合约部署后开放兑换与游戏</span></div>
+</div>
+
+<nav id="tabbar"><div class="tb-in">
+<button class="tbtn on" id="tabLobby">🎮<span data-i18n="tabLobby">大厅</span></button>
+<button class="tbtn" id="tabSwap">💱<span data-i18n="tabSwap">兑换</span></button>
+<button class="tbtn" id="tabHistory">📜<span data-i18n="tabHistory">记录</span></button>
+<button class="tbtn" id="tabAssets">💰<span data-i18n="tabAssets">资产</span></button>
+</div></nav>
+
+<div id="toast"></div>
+<script>
+"use strict";
+/* ============ 配置（部署后填地址；定价待定项集中在此） ============ */
+const LGNS="0x4d1d808a081fdac440703b3765fc61f8028c06b8";
+const FCB ="0x9B3F8c231C40ffC7d3669419dbD24495df84d303";
+const SWAP="0x8323d876e533ECfB2EBe9F9338C1BAa541D9462D";
+const DICE="0x052Ac85fB75d4BdD18df6B89778a1CEeEA9EFce8";
+const FLIP="0x6bd9EAe820a821bA9f0633686676CaD62dC894F4";
+const ZJH="0xcc374B78E3D09dbFC922853769A5BC64873d1E1b";
+const DT="0x87840804C3C474521F2cdA445129b59B25d30FC2";
+const SLOT="0x9AFAb0767718dd6a30eDe165C6B8DD5d6A548081";
+const SICBO="0x81b6196f63ac7F6Bd187B99B12c9836C8E9D4727";
+const BAC="0xF5670CfFeA3F729b6EdeE087a6372203894938E5";
+const PLINKO="0x192bCB39a30663aC8d70AA54240102A7C8e538f7";
+const WHEEL="0xcBFE0E97d0213b94a9Edd1974cCF47173Ae6Bf63";
+const ZERO="0x0000000000000000000000000000000000000000";
+const DEPLOYED=SWAP!==ZERO&&FCB!==ZERO;
+/* --- 待定：P0 A档0.0001/B档0.0005/C档0.001；共建额度 2100万/1000万 --- */
+const P0_FCB_PER_LGNS=2000n;          // 1 LGNS = 2000 FCB（B档 0.0005）
+const COBUILD_CAP_FCB=21000000n;      // 共建额度（FCB，待定）
+const E18=10n**18n, E9=10n**9n;
+
+const S={ // swap selectors（见 CONTRACTS.md）
+ cobuildStart:"0xc4404ba4",cobuildEnd:"0xc52e7ba1",cobuildCap:"0x2e617635",
+ cobuildSold:"0x36c7bec2",cobuildRaised:"0x2e10d867",userCobuy:"0xd3894199",
+ contribute:"0xc1cbbca7",emergencyRefund:"0x16bfe25c",
+ vestTotal:"0xa5d4562f",vestClaimed:"0x00f34972",claimable:"0x402914f5",claim:"0x4e71d92d",
+ buy:"0xd6febde8",sell:"0xd79875eb",quoteBuy:"0x4beb394c",quoteSell:"0xa64190c4",
+ sold:"0x02c7e7af",paused:"0x5c975abb",publicOpen:"0xba70c515",
+ balanceOf:"0x70a08231",approve:"0x095ea7b3",allowance:"0xdd62ed3e"};
+const $=id=>document.getElementById(id);
+let ACCT=null, MODE="buy", PUB=false, CB={start:0,end:0};
+/* ===== 中英双语 ===== */
+const I18N={"zh": {"appName": "发财游戏平台", "tagline": "FCB ARCADE · 一个币，玩转所有游戏", "docTitle": "发财游戏平台 · FCB Arcade", "connect": "连接钱包", "connected": "已连接", "openInWallet": "请在钱包 App 内打开", "stPrice": "当前价格 (LGNS/枚)", "stSold": "已售 FCB", "stReserve": "合约 LGNS 储备", "cbTitle": "共建期 · 固定价认购", "cbPriceL": "认购价", "cbProgL": "进度", "cbMineL": "我已投", "cbCapL": "我的上限", "cbAmtL": "投入 LGNS 数量", "approveLgns": "授权 LGNS", "approve": "授权", "cbGo": "参与共建", "cbRefund": "紧急退款", "cbRefundHint": "共建期内可原路退回 LGNS", "cbWarn": "共建的 FCB 先给 20%，剩下 80% 按 120 天线性释放。细水长流，禁止砸盘。", "swapTitle": "兑换发财币", "swapGo": "兑换", "swapHint": "双向各收 2.5% 手续费（归平台所有者）。FCB 随时可按曲线卖回 LGNS，储备金只进不出。", "lobby": "游戏大厅", "gDice": "骰子", "gDiceD": "选 5–95 的目标值<br>掷出更小即赢 · 返还率 98%", "gFlip": "抛硬币", "gFlipD": "猜正反 · 猜中 1.96 倍<br>返还率 98%", "gZjh": "炸金花", "gZjhD": "发 3 张牌按牌型赔付<br>豹子 60 倍 · 返还率 98.14%", "gLh": "龙虎斗", "gLhD": "龙虎各发 1 张比大小<br>赢 2.02 倍 · 返还率 98%", "gSlot": "老虎机", "gSlotD": "三连 7️⃣ 最高 60 倍<br>返还率 98.15%", "gSicbo": "骰宝", "gSicboD": "押大小单双赢 2.02 倍<br>围骰通杀 · 返还率 98.19%", "gBac": "百家乐", "gBacD": "押庄押闲 · 和局退本金<br>返还率 98.8%+", "gPlinko": "Plinko", "gPlinkoD": "小球弹珠落位赔付<br>边格 12 倍 · 返还率 98.13%", "gWheel": "幸运转盘", "gWheelD": "转到多少倍赔多少倍<br>最高 5 倍 · 返还率 98%", "gArena": "龙武擂台", "gArenaD": "24 人同场 · 链上随机冠军<br>四礼分配 · 龙武俸", "gTreasure": "神殿夺宝", "gTreasureD": "25 格押注 · 链上开奖<br>宝库爆奖", "gLottery": "LGNS 彩票", "gLotteryD": "每天一期 · 一等奖 50%<br>奖池滚存", "gMore": "更多游戏", "gMoreD": "持续开发中…<br>敬请期待", "betWithFcb": "FCB 下注", "mining": "下注挖矿 +1%", "playWithLgns": "LGNS 直接玩", "rulesT": "规则说明", "rulesHtml": "<b>发财币（FCB）</b>：总量 2.1 亿枚，18 位精度，固定总量永不增发。<br><b>共建期</b>：7 天，固定价 <b>0.0005 LGNS/枚</b>（待定 A/B/C），先到先得，每人上限为共建额度的 1%。额度售罄或时间到即结束。<br><b>防砸盘</b>：共建所得先给 20%，剩下 80% 按 120 天线性释放。<br><b>公开交易</b>：线性 bonding curve，流通越多越贵。共建价起步，全流通时约 21 倍。开盘价由共建卖量决定（卖完约 3 倍）。<br><b>手续费</b>：公开兑换双向各收 <b>2.5%</b>，归平台所有者；共建期免手续费。<br><b>游戏金库</b>：1.89 亿 FCB 锁金库，只能拨给游戏奖池、兑换补库存、游戏挖矿，所有者直接提不走。<br><b>游戏</b>：FCB 下注，庄家水位 2%（返还率 98%），下注即挖矿 +1%。单注潜在盈利 ≤ 空闲奖池 5%。<br><b>运营权</b>：平台方保留紧急暂停、修复升级权；敏感操作（改费率、动金库）走 48 小时公示。", "riskWarn": "⚠️ 链上游戏有风险：价格随供需波动，游戏有 2% 数学劣势。平台为单所有者运营制，请自行评估后参与。", "contractsPending": "FCB / 兑换合约：待部署", "admin": "👑 管理后台", "footNote": "合约部署后开放兑换与游戏", "histT": "游戏记录", "refresh": "刷新", "histNote": "只显示最近约 1 天（10 万个区块内）的记录，完整记录可在区块浏览器查询。", "assetT": "我的资产", "balLgns": "LGNS 余额", "balFcb": "FCB 余额", "cbIn": "共建投入", "vestPending": "待释放 FCB", "assetHint": "FCB 可用于所有游戏下注。共建所得先给 20%，剩下 80% 按 120 天线性释放。", "vestT": "我的释放", "vTotal": "应得总额", "vClaimed": "已领取", "vCan": "当前可领", "claim": "领取可领部分", "vestHint": "首期 20% 共建结束后可领，剩下 80% 按 120 天线性释放。", "tabLobby": "大厅", "tabSwap": "兑换", "tabHistory": "记录", "tabAssets": "资产", "connectFirst": "先连接钱包", "approveFirst": "先授权 LGNS…", "approveFirstFcb": "先授权 FCB…", "approveOk2": "授权成功，继续确认", "approveOk": "授权成功", "approving": "授权中…", "waiting": "等待钱包确认…", "fail": "失败：", "inputAmt": "输入数量", "inputCb": "输入投入数量", "cbQuotePh": "输入数量查看可得 FCB…", "quotePh": "输入数量查看实时报价…", "quoteFail": "报价失败", "contribOk": "参与成功：", "refundOk": "退款已提交", "claimOk": "领取成功：", "swapOk": "兑换成功：", "phaseDeploy": "合约待部署", "phasePre": "共建未开始", "phaseLive": "🌱 共建进行中", "phaseOpen": "💱 公开交易中", "phaseWait": "共建结束，等待开启公开交易", "inLgns": "付出 LGNS 数量", "inFcb": "付出 FCB 数量", "cbProgT": "{a} / {b} FCB（{c}%）· 已筹 {d} LGNS", "cbPriceT": "{a} LGNS/枚（固定）", "cbQuoteT": "投入 <b>{a} LGNS</b> → 得 <b>{b} FCB</b>（共建免手续费）<br>个人上限约 <b>{c} LGNS</b>", "buyQuoteT": "付出 <b>{a} LGNS</b> → 得 <b>{b} FCB</b>（已扣 2.5%）", "sellQuoteT": "付出 <b>{a} FCB</b> → 得 <b>{b} LGNS</b>（已扣 2.5%）", "balLineT": "我的余额：{a} LGNS · {b} FCB", "cdEnd": "距结束 ", "cdStart": "距开始 ", "dayT": "天 ", "gameLocked": "游戏在公开交易开启后开放。", "gameLive": "游戏已开放，祝好运。", "confirmRefund": "确定原路退回已投 LGNS 吗？对应 FCB 额度将清零。", "histConnect": "连接钱包后显示", "histDeploy": "合约待部署", "histLoading": "读取中…", "histEmpty": "最近约1天内没有游戏记录", "histCount": "最近 {a} 条（约1天内）", "histFail": "读取失败：", "stPending": "⏳ 待开奖", "stPaid": "已派彩", "stLose": "未中奖", "stRefund": "已退款", "noHist": "暂无记录"}, "en": {"appName": "Fortune Arcade", "tagline": "FCB ARCADE · One token, play them all", "docTitle": "Fortune Arcade · FCB", "connect": "Connect Wallet", "connected": "Connected", "openInWallet": "Please open in a wallet App", "stPrice": "Price (LGNS/FCB)", "stSold": "FCB sold", "stReserve": "LGNS reserve", "cbTitle": "Community Sale · Fixed Price", "cbPriceL": "Price", "cbProgL": "Progress", "cbMineL": "My contribution", "cbCapL": "My cap", "cbAmtL": "Amount of LGNS", "approveLgns": "Approve LGNS", "approve": "Approve", "cbGo": "Contribute", "cbRefund": "Emergency Refund", "cbRefundHint": "Refundable in LGNS during the sale", "cbWarn": "20% of FCB unlocks at TGE, the remaining 80% vests linearly over 120 days. No dumping.", "swapTitle": "Swap FCB", "swapGo": "Swap", "swapHint": "2.5% fee each way (to platform owner). FCB can be sold back for LGNS anytime; the reserve only grows.", "lobby": "Game Lobby", "gDice": "Dice", "gDiceD": "Pick a target 5–95<br>Win if roll is lower · 98% RTP", "gFlip": "Coin Flip", "gFlipD": "Call heads or tails · 1.96x on win<br>98% RTP", "gZjh": "Zha Jinhua", "gZjhD": "3 cards paid by hand rank<br>60x for trio · 98.14% RTP", "gLh": "Dragon Tiger", "gLhD": "Dragon vs Tiger, one card each<br>2.02x on win · 98% RTP", "gSlot": "Slots", "gSlotD": "Triple 7️⃣ pays up to 60x<br>98.15% RTP", "gSicbo": "Sic Bo", "gSicboD": "Big/Small/Odd/Even pays 2.02x<br>Triples lose · 98.19% RTP", "gBac": "Baccarat", "gBacD": "Banker / Player · tie refunds<br>98.8%+ RTP", "gPlinko": "Plinko", "gPlinkoD": "Drop the ball, win by slot<br>12x on edges · 98.13% RTP", "gWheel": "Lucky Wheel", "gWheelD": "Win the multiplier you land on<br>Up to 5x · 98% RTP", "gArena": "Dragon Arena", "gArenaD": "24-player arena · on-chain champion<br>Four rites · stipend", "gTreasure": "Temple Treasure", "gTreasureD": "Bet on 25 cells · on-chain draw<br>Vault jackpot", "gLottery": "LGNS Lottery", "gLotteryD": "Daily draw · 50% for 1st prize<br>Rollover jackpot", "gMore": "More games", "gMoreD": "In development…<br>Stay tuned", "betWithFcb": "Bet FCB", "mining": "+1% mining", "playWithLgns": "Play with LGNS", "rulesT": "Rules", "rulesHtml": "<b>FCB</b>: 210M fixed supply, 18 decimals, never minted again.<br><b>Community sale</b>: 7 days at a fixed <b>0.0005 LGNS/FCB</b> (tier TBD), first come first served, 1% cap per wallet. Ends when sold out or time is up.<br><b>Anti-dump</b>: 20% unlocked at TGE, 80% vests linearly over 120 days.<br><b>Public trading</b>: linear bonding curve — the more in circulation, the higher the price. Starts at sale price, ~21x at full circulation.<br><b>Fees</b>: <b>2.5%</b> each way on public swaps (to platform owner); no fee during the sale.<br><b>Treasury</b>: 189M FCB locked, only for game bankrolls, swap inventory and mining. The owner cannot withdraw directly.<br><b>Games</b>: bet with FCB, 2% house edge (98% RTP), +1% mining on every bet. Max win per bet ≤ 5% of free bankroll.<br><b>Ops</b>: the team keeps emergency pause & upgrade rights; sensitive actions (fees, treasury) go through a 48h timelock.", "riskWarn": "⚠️ On-chain gaming is risky: prices move with supply and demand, and games carry a 2% mathematical disadvantage. Single-owner operated — do your own research.", "contractsPending": "FCB / swap contracts: pending deployment", "admin": "👑 Admin", "footNote": "Swaps and games open after contracts deploy", "histT": "Game History", "refresh": "Refresh", "histNote": "Only shows records from the last ~1 day (100k blocks). Full history is on the block explorer.", "assetT": "My Assets", "balLgns": "LGNS balance", "balFcb": "FCB balance", "cbIn": "Sale contribution", "vestPending": "FCB vesting", "assetHint": "FCB can be used in all games. 20% of the sale allocation unlocks at TGE, 80% vests over 120 days.", "vestT": "My Vesting", "vTotal": "Total", "vClaimed": "Claimed", "vCan": "Claimable", "claim": "Claim", "vestHint": "First 20% claimable after the sale ends; the remaining 80% vests linearly over 120 days.", "tabLobby": "Lobby", "tabSwap": "Swap", "tabHistory": "History", "tabAssets": "Assets", "connectFirst": "Connect wallet first", "approveFirst": "Approve LGNS first…", "approveFirstFcb": "Approve FCB first…", "approveOk2": "Approved, continue to confirm", "approveOk": "Approved", "approving": "Approving…", "waiting": "Waiting for wallet confirmation…", "fail": "Failed: ", "inputAmt": "Enter an amount", "inputCb": "Enter contribution amount", "cbQuotePh": "Enter an amount to see FCB…", "quotePh": "Enter an amount for a live quote…", "quoteFail": "Quote failed", "contribOk": "Contributed: ", "refundOk": "Refund submitted", "claimOk": "Claimed: ", "swapOk": "Swapped: ", "phaseDeploy": "Contracts not deployed", "phasePre": "Sale not started", "phaseLive": "🌱 Sale live", "phaseOpen": "💱 Public trading", "phaseWait": "Sale ended, waiting for public trading", "inLgns": "Amount of LGNS to spend", "inFcb": "Amount of FCB to spend", "cbProgT": "{a} / {b} FCB ({c}%) · raised {d} LGNS", "cbPriceT": "{a} LGNS/FCB (fixed)", "cbQuoteT": "Spend <b>{a} LGNS</b> → get <b>{b} FCB</b> (no fee in sale)<br>Personal cap ≈ <b>{c} LGNS</b>", "buyQuoteT": "Spend <b>{a} LGNS</b> → get <b>{b} FCB</b> (2.5% fee included)", "sellQuoteT": "Spend <b>{a} FCB</b> → get <b>{b} LGNS</b> (2.5% fee included)", "balLineT": "Balance: {a} LGNS · {b} FCB", "cdEnd": "Ends in ", "cdStart": "Starts in ", "dayT": "d ", "gameLocked": "Games open after public trading starts.", "gameLive": "Games are live. Good luck!", "confirmRefund": "Refund your LGNS contribution? Your FCB allocation will be cleared.", "histConnect": "Connect wallet to view", "histDeploy": "Contracts not deployed", "histLoading": "Loading…", "histEmpty": "No game records in the last ~1 day", "histCount": "Last {a} records (~1 day)", "histFail": "Load failed: ", "stPending": "⏳ Pending", "stPaid": "Paid", "stLose": "Lost", "stRefund": "Refunded", "noHist": "No records"}};
+function __langGet(){try{if(window.hatchWidget&&window.hatchWidget.getState){const s=window.hatchWidget.getState({})||{};if(s["fcb-lang"])return s["fcb-lang"];}}catch(e){}return "zh";}
+function __langSet(l){try{if(window.hatchWidget&&window.hatchWidget.setState){const s=window.hatchWidget.getState({})||{};s["fcb-lang"]=l;window.hatchWidget.setState(s);}}catch(e){}}
+let LANG=__langGet();
+try{window.addEventListener("hatch-widget-state",e=>{const s=e.detail&&e.detail.state;if(s&&s["fcb-lang"]&&s["fcb-lang"]!==LANG){LANG=s["fcb-lang"];applyLang();}});}catch(e){}
+function T(k){return (I18N[LANG]&&I18N[LANG][k])||I18N.zh[k]||k;}
+function tpl(k,o){let s=T(k);for(const x in o)s=s.split("{"+x+"}").join(o[x]);return s;}
+function applyLang(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=T(el.getAttribute("data-i18n"));});
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{el.innerHTML=T(el.getAttribute("data-i18n-html"));});
+  if(ACCT)$("connBtn").textContent=T("connected");
+  $("langBtn").textContent=LANG==="zh"?"EN":"中文";
+  document.documentElement.lang=LANG==="zh"?"zh-CN":"en";
+  document.title=T("docTitle");
+}
+function setLang(l){LANG=l;__langSet(l);applyLang();refresh();}
+$("langBtn").onclick=()=>setLang(LANG==="zh"?"en":"zh");
+
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(t._h);t._h=setTimeout(()=>t.style.display="none",3500);}
+const eth=(m,p)=>window.ethereum.request({method:m,params:p});
+const call=(to,data)=>eth("eth_call",[{to,data},"latest"]);
+const pAddr=a=>"0".repeat(24)+a.slice(2).toLowerCase();
+const pUint=n=>BigInt(n).toString(16).padStart(64,"0");
+function dec(hex){hex=hex.slice(2);const r=[];for(let i=0;i<hex.length;i+=64)r.push(BigInt("0x"+hex.slice(i,i+64)));return r;}
+const fmt=(b,d)=>{const neg=b<0n;b=neg?-b:b;let s=b.toString().padStart(d+1,"0");let ip=s.slice(0,-d),fp=s.slice(-d).replace(/0+$/,"").slice(0,4);return (neg?"-":"")+ip+(fp?"."+fp:"");};
+const fmtF=b=>fmt(b,18), fmtL=b=>fmt(b,9);
+async function sendTx(to,data){
+  const gas=await eth("eth_estimateGas",[{from:ACCT,to,data}]);
+  const gasPrice=await eth("eth_gasPrice",[]);
+  return eth("eth_sendTransaction",[{from:ACCT,to,data,gas:"0x"+(BigInt(gas)*13n/10n).toString(16),gasPrice,type:"0x0"}]);
+}
+function fmtT(ms){if(ms<0)ms=0;const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),ss=s%60;const p=n=>String(n).padStart(2,"0");return (d>0?d+T("dayT"):"")+p(h)+":"+p(m)+":"+p(ss);}
+function cbQuote(){
+  const v=$("cbAmt").value.trim();
+  if(!v||Number(v)<=0){$("cbQuote").innerHTML=T("cbQuotePh");return 0n;}
+  const lw=BigInt(Math.floor(Number(v)*1e9));
+  const fw=lw*P0_FCB_PER_LGNS*E9;
+  const capL=(COBUILD_CAP_FCB*E18)/(P0_FCB_PER_LGNS*E9)/100n;
+  $("cbQuote").innerHTML=tpl("cbQuoteT",{a:fmtL(lw),b:fmtF(fw),c:fmtL(capL)});
+  return lw;
+}
+async function ensureLgns(w){
+  const al=dec(await call(LGNS,S.allowance+pAddr(ACCT)+pAddr(SWAP)))[0];
+  if(al<w){toast(T("approveFirst"));await sendTx(LGNS,S.approve+pAddr(SWAP)+pUint(w));toast(T("approveOk2"));}
+}
+async function refresh(){
+  const now=Date.now();
+  if(!DEPLOYED){$("phaseBanner").className="banner wait";$("phaseBanner").textContent=T("phaseDeploy");return;}
+  try{
+    const [st]=dec(await call(SWAP,S.cobuildStart));const [en]=dec(await call(SWAP,S.cobuildEnd));
+    const [pub]=dec(await call(SWAP,S.publicOpen));PUB=pub!==0n;
+    CB={start:Number(st)*1000,end:Number(en)*1000};
+    const bn=$("phaseBanner"), cobLive=!PUB&&now>=CB.start&&now<=CB.end;
+    if(!PUB&&now<CB.start){bn.className="banner wait";bn.textContent=T("phasePre");}
+    else if(cobLive){bn.className="banner live";bn.textContent=T("phaseLive");}
+    else if(PUB){bn.className="banner open";bn.textContent=T("phaseOpen");}
+    else{bn.className="banner wait";bn.textContent=T("phaseWait");}
+    $("cobuildCard").style.display=cobLive?"":"none";
+    $("swapCard").style.display=PUB?"":"none";
+    if(PUB){$("gDice").classList.remove("off");$("gFlip").classList.remove("off");$("gZjh").classList.remove("off");$("gLh").classList.remove("off");$("gSlot").classList.remove("off");$("gSicbo").classList.remove("off");$("gBac").classList.remove("off");$("gPlinko").classList.remove("off");$("gWheel").classList.remove("off");$("gameHint").textContent=T("gameLive");}
+    const [sold]=dec(await call(SWAP,S.sold));
+    $("sSold").textContent=fmtF(sold);
+    const px=0.0005*(1+20*Number(sold/E18)/210000000); // B档 P0；定价定后改此处
+    $("sPrice").textContent=px.toFixed(7);
+    try{const rb=BigInt(await eth("eth_getBalance",[SWAP,"latest"]));$("sReserve").textContent=fmtL(rb);}catch(e){}
+    if(cobLive){
+      const [cap]=dec(await call(SWAP,S.cobuildCap));
+      const [cs]=dec(await call(SWAP,S.cobuildSold));
+      const [cr]=dec(await call(SWAP,S.cobuildRaised));
+      const pct=cap>0n?Number(cs*10000n/cap)/100:0;
+      $("cbProg").textContent=tpl("cbProgT",{a:fmtF(cs),b:fmtF(cap),c:pct.toFixed(2),d:fmtL(cr)});
+      $("cbBar").style.width=Math.min(100,pct)+"%";
+      $("cbPrice").textContent=tpl("cbPriceT",{a:(1/Number(P0_FCB_PER_LGNS)).toFixed(7)});
+      $("cdLine").textContent=T("cdEnd")+fmtT(CB.end-now);
+    }else if(!PUB&&now<CB.start){$("cdLine").textContent=T("cdStart")+fmtT(CB.start-now);}
+  }catch(e){console.log(e);}
+  if(!ACCT)return;
+  try{
+    const lb=dec(await call(LGNS,S.balanceOf+pAddr(ACCT)))[0];
+    const fb=dec(await call(FCB,S.balanceOf+pAddr(ACCT)))[0];
+    $("balLine").textContent=tpl("balLineT",{a:fmtL(lb),b:fmtF(fb)});
+    $("acct").textContent=ACCT.slice(0,6)+"…"+ACCT.slice(-4);
+    if($("cobuildCard").style.display!=="none"){
+      const [my]=dec(await call(SWAP,S.userCobuy+pAddr(ACCT)));
+      const capL=(COBUILD_CAP_FCB*E18)/(P0_FCB_PER_LGNS*E9)/100n;
+      $("cbMine").textContent=`${fmtL(my)} LGNS`;
+      $("cbCap").textContent=`${fmtL(capL)} LGNS`;
+      const lw=cbQuote();
+      if(lw>0n){const al=dec(await call(LGNS,S.allowance+pAddr(ACCT)+pAddr(SWAP)))[0];$("cbApprBtn").style.display=al<lw?"":"none";}
+      const [vt]=dec(await call(SWAP,S.vestTotal+pAddr(ACCT)));
+      if(vt>0n){
+        $("vestCard").style.display="";
+        const [vc]=dec(await call(SWAP,S.vestClaimed+pAddr(ACCT)));
+        const [cc]=dec(await call(SWAP,S.claimable+pAddr(ACCT)));
+        $("vTotal").textContent=fmtF(vt)+" FCB";$("vClaimed").textContent=fmtF(vc)+" FCB";
+        $("vCan").textContent=fmtF(cc)+" FCB";
+        $("vBar").style.width=(vt>0n?Number(vc*100n/vt):0)+"%";
+        $("claimBtn").disabled=cc===0n;
+      }
+    }
+    if(PUB){
+      const v=$("amt").value.trim()?BigInt(Math.floor(Number($("amt").value)*(MODE==="buy"?1e9:1e18))):0n;
+      if(v>0n){
+        const tk=MODE==="buy"?LGNS:FCB;
+        const al=dec(await call(tk,S.allowance+pAddr(ACCT)+pAddr(SWAP)))[0];
+        $("apprBtn").style.display=al<v?"":"none";
+      }
+    }
+  }catch(e){console.log(e);}
+}
+async function updQuote(){
+  if(!PUB||!DEPLOYED)return;
+  const v=$("amt").value.trim();
+  if(!v||Number(v)<=0){$("quoteBox").innerHTML=T("quotePh");return;}
+  try{
+    if(MODE==="buy"){
+      const w=BigInt(Math.floor(Number(v)*1e9));
+      const [out]=dec(await call(SWAP,S.quoteBuy+pUint(w)));
+      $("quoteBox").innerHTML=tpl("buyQuoteT",{a:fmtL(w),b:fmtF(out)});
+    }else{
+      const w=BigInt(Math.floor(Number(v)*1e18));
+      const [out]=dec(await call(SWAP,S.quoteSell+pUint(w)));
+      $("quoteBox").innerHTML=tpl("sellQuoteT",{a:fmtF(w),b:fmtF(out)});
+    }
+  }catch(e){$("quoteBox").textContent=T("quoteFail");}
+}
+$("tabBuy").onclick=()=>{MODE="buy";$("tabBuy").classList.add("on");$("tabSell").classList.remove("on");$("inLabel").textContent=T("inLgns");updQuote();};
+$("tabSell").onclick=()=>{MODE="sell";$("tabSell").classList.add("on");$("tabBuy").classList.remove("on");$("inLabel").textContent=T("inFcb");updQuote();};
+$("amt").oninput=()=>{updQuote();};
+$("cbAmt").oninput=cbQuote;
+$("connBtn").onclick=async()=>{if(!window.ethereum){toast(T("openInWallet"));return;}const a=await eth("eth_requestAccounts",[]);ACCT=a[0];$("connBtn").textContent=T("connected");refresh();};
+$("cbApprBtn").onclick=async()=>{const w=cbQuote();if(w<=0n)return;try{await sendTx(LGNS,S.approve+pAddr(SWAP)+pUint(w));toast(T("approveOk"));refresh();}catch(e){toast(T("fail")+(e.message||e).slice(0,80));}};
+$("cbGoBtn").onclick=async()=>{
+  if(!ACCT){toast(T("connectFirst"));return;}
+  const w=cbQuote();if(w<=0n){toast(T("inputCb"));return;}
+  try{toast(T("waiting"));await ensureLgns(w);const h=await sendTx(SWAP,S.contribute+pUint(w));toast(T("contribOk")+h.slice(0,18)+"…");$("cbAmt").value="";setTimeout(refresh,4000);}
+  catch(e){toast(T("fail")+(e.message||e).slice(0,100));}
+};
+$("cbRefundBtn").onclick=async()=>{
+  if(!ACCT){toast(T("connectFirst"));return;}
+  if(!confirm(T("confirmRefund")))return;
+  try{toast(T("waiting"));await sendTx(SWAP,S.emergencyRefund);toast(T("refundOk"));setTimeout(refresh,4000);}
+  catch(e){toast(T("fail")+(e.message||e).slice(0,100));}
+};
+$("claimBtn").onclick=async()=>{
+  if(!ACCT)return;
+  try{toast(T("waiting"));const h=await sendTx(SWAP,S.claim);toast(T("claimOk")+h.slice(0,18)+"…");setTimeout(refresh,4000);}
+  catch(e){toast(T("fail")+(e.message||e).slice(0,100));}
+};
+$("apprBtn").onclick=async()=>{
+  const tk=MODE==="buy"?LGNS:FCB;
+  const w=BigInt(Math.floor(Number($("amt").value)*(MODE==="buy"?1e9:1e18)));
+  try{toast(T("approving"));await sendTx(tk,S.approve+pAddr(SWAP)+pUint(w));toast(T("approveOk"));refresh();}catch(e){toast(T("fail")+(e.message||e).slice(0,80));}
+};
+$("swapBtn").onclick=async()=>{
+  if(!ACCT){toast(T("connectFirst"));return;}
+  const v=$("amt").value.trim();if(!v||Number(v)<=0){toast(T("inputAmt"));return;}
+  try{
+    toast(T("waiting"));let h;
+    if(MODE==="buy"){const w=BigInt(Math.floor(Number(v)*1e9));await ensureLgns(w);h=await sendTx(SWAP,S.buy+pUint(w)+pUint(0));}
+    else{const w=BigInt(Math.floor(Number(v)*1e18));const al=dec(await call(FCB,S.allowance+pAddr(ACCT)+pAddr(SWAP)))[0];if(al<w){toast(T("approveFirstFcb"));await sendTx(FCB,S.approve+pAddr(SWAP)+pUint(w));}h=await sendTx(SWAP,S.sell+pUint(w)+pUint(0));}
+    toast(T("swapOk")+h.slice(0,18)+"…");$("amt").value="";setTimeout(refresh,4000);
+  }catch(e){toast(T("fail")+(e.message||e).slice(0,100));}
+};
+setInterval(()=>{ // 倒计时每秒
+  if($("cobuildCard").style.display!=="none"){const now=Date.now();$("cdLine").textContent=T("cdEnd")+fmtT(CB.end-now);}
+},1000);
+
+/* ===== 底部导航 ===== */
+const TABS=["secLobby","secSwap","secHistory","secAssets"];
+const TBTS=["tabLobby","tabSwap","tabHistory","tabAssets"];
+function showTab(i){
+  TABS.forEach((id,j)=>{$(id).style.display=j===i?"":"none";$(TBTS[j]).classList.toggle("on",j===i);});
+  if(i===2)loadHistory();
+  if(i===3)refreshAssets();
+  window.scrollTo(0,0);
+}
+TBTS.forEach((id,i)=>{$(id).onclick=()=>showTab(i);});
+/* ===== 游戏记录（读各游戏合约事件） ===== */
+const T_PLACED_C="0x5b70029c2661c4a9199ccdd6b370f084615aa3e33d2327ed901579b698ab5a32";
+const T_PLACED_N="0xab2115bac1de808eb7fe2be0309085b11f1f42b1eb980de8352efefdbfc098e2";
+const T_REFUND="0xf22517a5eae9f54be712c3150eca5ba925d233687b223c2ebf89272f12ee0865";
+const GAMES=[
+ {nk:"gDice",e:"🎲",a:DICE,tp:T_PLACED_C,tr:"0x4b4b324ecba61713fd0e585dafb474eee58fd87c5c0309d6a81011a49fbb7126",ai:1},
+ {nk:"gFlip",e:"🪙",a:FLIP,tp:T_PLACED_C,tr:"0x4b4b324ecba61713fd0e585dafb474eee58fd87c5c0309d6a81011a49fbb7126",ai:1},
+ {nk:"gZjh",e:"🃏",a:ZJH,tp:T_PLACED_N,tr:"0x4175ec97e38a64de6dd4b847078c5bf586ef019897b287679c3ca740def822ab",ai:0},
+ {nk:"gLh",e:"🐉",a:DT,tp:T_PLACED_C,tr:"0x6f87a9c3b2dbd676978920271c0e1910bd5bf1480e96406015876b1e2e7a1020",ai:1},
+ {nk:"gSlot",e:"🎰",a:SLOT,tp:T_PLACED_N,tr:"0x4175ec97e38a64de6dd4b847078c5bf586ef019897b287679c3ca740def822ab",ai:0},
+ {nk:"gSicbo",e:"🎲",a:SICBO,tp:T_PLACED_C,tr:"0x411862d8730fd41a1856b0f23bfea6d220e1f9a9e2d207a728a5f023721ab94e",ai:1},
+ {nk:"gBac",e:"🃏",a:BAC,tp:T_PLACED_C,tr:"0x2ad2788d0e11405d91dd7ab7e2494ebadf7ed6915cb51e8bc0a86ccd00eba238",ai:1},
+ {nk:"gPlinko",e:"🔮",a:PLINKO,tp:T_PLACED_N,tr:"0xfcfce68981a5d1b71f7937c518b97bea1fa94f6cfda781f8e3e4144ab608d110",ai:0},
+ {nk:"gWheel",e:"🎡",a:WHEEL,tp:T_PLACED_N,tr:"0xb4d97645e221ce37a767222a6b75f5a2827a2b9623ba18037641b7874005e4b2",ai:0},
+];
+let histLoading=false;
+async function loadHistory(){
+  if(histLoading)return;
+  if(!ACCT){$("histList").innerHTML='<div class="hint">'+T("histConnect")+'</div>';return;}
+  if(!DEPLOYED){$("histList").innerHTML='<div class="hint">'+T("histDeploy")+'</div>';return;}
+  histLoading=true;$("histHint").textContent=T("histLoading");
+  try{
+    const pt="0x"+"0".repeat(24)+ACCT.slice(2).toLowerCase();
+    const latest=parseInt(await eth("eth_blockNumber",[]),16);
+    const from="0x"+Math.max(0,latest-100000).toString(16);
+    const recs=[];
+    for(const g of GAMES){
+      if(!g.a||g.a===ZERO)continue;
+      const f={address:g.a,fromBlock:from,toBlock:"latest"};
+      const [lp,lr,lf]=await Promise.all([
+        eth("eth_getLogs",[{...f,topics:[g.tp,null,pt]}]).catch(()=>[]),
+        eth("eth_getLogs",[{...f,topics:[g.tr,null,pt]}]).catch(()=>[]),
+        eth("eth_getLogs",[{...f,topics:[T_REFUND,null,pt]}]).catch(()=>[]),
+      ]);
+      const placed={},res={},ref={};
+      for(const l of lp||[]){const d=dec(l.data);placed[BigInt(l.topics[1]).toString()]={amt:d[g.ai],bn:parseInt(l.blockNumber,16),li:parseInt(l.logIndex,16)};}
+      for(const l of lr||[]){const d=dec(l.data);res[BigInt(l.topics[1]).toString()]={paid:d[d.length-1],bn:parseInt(l.blockNumber,16),li:parseInt(l.logIndex,16)};}
+      for(const l of lf||[]){ref[BigInt(l.topics[1]).toString()]=1;}
+      for(const id in placed){
+        const p=placed[id];let st=T("stPending"),paid=0n,cls="",bn=p.bn,li=p.li;
+        if(res[id]){paid=res[id].paid;bn=res[id].bn;li=res[id].li;st=paid>0n?T("stPaid"):T("stLose");cls=paid>0n?"win":"lose";}
+        else if(ref[id]){st=T("stRefund");}
+        recs.push({t:g.e+" "+T(g.nk),id,amt:p.amt,paid,st,cls,bn,li});
+      }
+    }
+    recs.sort((a,b)=>b.bn-a.bn||b.li-a.li);
+    const show=recs.slice(0,50),ts={};
+    await Promise.all([...new Set(show.map(r=>r.bn))].map(async bn=>{
+      try{const b=await eth("eth_getBlockByNumber",["0x"+bn.toString(16),false]);ts[bn]=parseInt(b.timestamp,16)*1000;}catch(e){}
+    }));
+    if(!show.length){$("histList").innerHTML='<div class="hint">'+T("histEmpty")+'</div>';}
+    else $("histList").innerHTML=show.map(r=>{
+      let tm="#"+r.bn;const t=ts[r.bn]?new Date(ts[r.bn]):null;
+      if(t){const p2=n=>String(n).padStart(2,"0");tm=`${p2(t.getMonth()+1)}-${p2(t.getDate())} ${p2(t.getHours())}:${p2(t.getMinutes())}`;}
+      return `<div class="hrow"><span>${r.t} <span style="color:var(--dim)">#${r.id}</span></span><span>下注 ${fmtF(r.amt)}</span><span class="${r.cls}">${r.st}${r.paid>0n?" +"+fmtF(r.paid):""}</span><span style="color:var(--dim)">${tm}</span></div>`;
+    }).join("");
+    $("histHint").textContent=tpl("histCount",{a:show.length});
+  }catch(e){$("histHint").textContent=T("histFail")+(e.message||e).slice(0,60);}
+  histLoading=false;
+}
+$("histBtn").onclick=loadHistory;
+/* ===== 我的资产 ===== */
+async function refreshAssets(){
+  if(!ACCT||!DEPLOYED)return;
+  try{
+    const lb=dec(await call(LGNS,S.balanceOf+pAddr(ACCT)))[0];
+    const fb=dec(await call(FCB,S.balanceOf+pAddr(ACCT)))[0];
+    $("aLgns").textContent=fmtL(lb)+" LGNS";
+    $("aFcb").textContent=fmtF(fb)+" FCB";
+    const [my]=dec(await call(SWAP,S.userCobuy+pAddr(ACCT)));
+    $("aCbIn").textContent=fmtL(my)+" LGNS";
+    const [vt]=dec(await call(SWAP,S.vestTotal+pAddr(ACCT)));
+    const [vc]=dec(await call(SWAP,S.vestClaimed+pAddr(ACCT)));
+    $("aVest").textContent=fmtF(vt-vc)+" FCB";
+  }catch(e){console.log(e);}
+}
+setInterval(()=>{if(DEPLOYED)refresh();},20000);
+applyLang();
+refresh();
+</script>
+</body>
+</html>
