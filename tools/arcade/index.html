@@ -143,7 +143,6 @@ header{position:relative}
 <a class="game off" id="gWheel" href="wheel/"><div class="e">🎡</div><div class="t" data-i18n="gWheel">幸运转盘</div><div class="d" data-i18n-html="gWheelD">转到多少倍赔多少倍<br>最高 5 倍 · 返还率 98%</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span> <span class="badge green" data-i18n="mining">下注挖矿 +1%</span></a>
 <a class="game off" id="gArena" href="dragon-arena/"><div class="e">🐲</div><div class="t" data-i18n="gArena">龙武擂台</div><div class="d" data-i18n-html="gArenaD">24 人同场 · 链上随机冠军<br>四礼分配 · 龙武俸</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span></a>
 <a class="game off" id="gTreasure" href="temple-treasure/"><div class="e">🏛️</div><div class="t" data-i18n="gTreasure">神殿夺宝</div><div class="d" data-i18n-html="gTreasureD">25 格押注 · 链上开奖<br>宝库爆奖</div><span class="badge" data-i18n="betWithFcb">FCB 下注</span></a>
-<a class="game" href="/tools/lottery/"><div class="e">🎰</div><div class="t" data-i18n="gLottery">LGNS 彩票</div><div class="d" data-i18n-html="gLotteryD">每天一期 · 一等奖 50%<br>奖池滚存</div><span class="badge" data-i18n="playWithLgns">LGNS 直接玩</span></a>
 <a class="game off"><div class="e">🎯</div><div class="t" data-i18n="gMore">更多游戏</div><div class="d" data-i18n-html="gMoreD">持续开发中…<br>敬请期待</div></a>
 </div>
 <div class="hint" id="gameHint" data-i18n="gameLocked">游戏在公开交易开启后开放。</div>
@@ -275,13 +274,9 @@ const P0_FCB_PER_LGNS=2000n;          // 1 LGNS = 2000 FCB（B档 0.0005）
 const COBUILD_CAP_FCB=21000000n;      // 共建额度（FCB，待定）
 const E18=10n**18n, E9=10n**9n;
 
-const S={ // swap selectors（见 CONTRACTS.md）
- cobuildStart:"0xc4404ba4",cobuildEnd:"0xc52e7ba1",cobuildCap:"0x2e617635",
- cobuildSold:"0x36c7bec2",cobuildRaised:"0x2e10d867",userCobuy:"0xd3894199",
- contribute:"0xc1cbbca7",emergencyRefund:"0x16bfe25c",
- vestTotal:"0xa5d4562f",vestClaimed:"0x00f34972",claimable:"0x402914f5",claim:"0x4e71d92d",
- buy:"0xd6febde8",sell:"0xd79875eb",quoteBuy:"0x4beb394c",quoteSell:"0xa64190c4",
- sold:"0x02c7e7af",paused:"0x5c975abb",publicOpen:"0xba70c515",
+const S={ // swap selectors（实际部署的 FCBSwap，无共建功能）
+ currentPrice:"0x9d1b464a",circulating:"0xf8718858",
+ buy:"0xd6febde8",sell:"0xd79875eb",quoteBuy:"0xb390452c",quoteSell:"0x0812530e",
  balanceOf:"0x70a08231",approve:"0x095ea7b3",allowance:"0xdd62ed3e"};
 const $=id=>document.getElementById(id);
 let ACCT=null, MODE="buy", PUB=false, CB={start:0,end:0};
@@ -332,35 +327,20 @@ async function ensureLgns(w){
   if(al<w){toast(T("approveFirst"));await sendTx(LGNS,S.approve+pAddr(SWAP)+pUint(w));toast(T("approveOk2"));}
 }
 async function refresh(){
-  const now=Date.now();
   if(!DEPLOYED){$("phaseBanner").className="banner wait";$("phaseBanner").textContent=T("phaseDeploy");return;}
   try{
-    const [st]=dec(await call(SWAP,S.cobuildStart));const [en]=dec(await call(SWAP,S.cobuildEnd));
-    const [pub]=dec(await call(SWAP,S.publicOpen));PUB=pub!==0n;
-    CB={start:Number(st)*1000,end:Number(en)*1000};
-    const bn=$("phaseBanner"), cobLive=!PUB&&now>=CB.start&&now<=CB.end;
-    if(!PUB&&now<CB.start){bn.className="banner wait";bn.textContent=T("phasePre");}
-    else if(cobLive){bn.className="banner live";bn.textContent=T("phaseLive");}
-    else if(PUB){bn.className="banner open";bn.textContent=T("phaseOpen");}
-    else{bn.className="banner wait";bn.textContent=T("phaseWait");}
-    $("cobuildCard").style.display=cobLive?"":"none";
-    $("swapCard").style.display=PUB?"":"none";
-    if(PUB){$("gDice").classList.remove("off");$("gFlip").classList.remove("off");$("gZjh").classList.remove("off");$("gLh").classList.remove("off");$("gSlot").classList.remove("off");$("gSicbo").classList.remove("off");$("gBac").classList.remove("off");$("gPlinko").classList.remove("off");$("gWheel").classList.remove("off");$("gameHint").textContent=T("gameLive");}
-    const [sold]=dec(await call(SWAP,S.sold));
+    // 无共建合约，直接进入公开交易模式
+    PUB=true;
+    const bn=$("phaseBanner");
+    bn.className="banner open";bn.textContent=T("phaseOpen");
+    $("cobuildCard").style.display="none";
+    $("swapCard").style.display="";
+    $("gDice").classList.remove("off");$("gFlip").classList.remove("off");$("gZjh").classList.remove("off");$("gLh").classList.remove("off");$("gSlot").classList.remove("off");$("gSicbo").classList.remove("off");$("gBac").classList.remove("off");$("gPlinko").classList.remove("off");$("gWheel").classList.remove("off");$("gArena").classList.remove("off");$("gTreasure").classList.remove("off");$("gameHint").textContent=T("gameLive");
+    const [sold]=dec(await call(SWAP,S.circulating));
     $("sSold").textContent=fmtF(sold);
-    const px=0.0005*(1+20*Number(sold/E18)/210000000); // B档 P0；定价定后改此处
-    $("sPrice").textContent=px.toFixed(7);
-    try{const rb=BigInt(await eth("eth_getBalance",[SWAP,"latest"]));$("sReserve").textContent=fmtL(rb);}catch(e){}
-    if(cobLive){
-      const [cap]=dec(await call(SWAP,S.cobuildCap));
-      const [cs]=dec(await call(SWAP,S.cobuildSold));
-      const [cr]=dec(await call(SWAP,S.cobuildRaised));
-      const pct=cap>0n?Number(cs*10000n/cap)/100:0;
-      $("cbProg").textContent=tpl("cbProgT",{a:fmtF(cs),b:fmtF(cap),c:pct.toFixed(2),d:fmtL(cr)});
-      $("cbBar").style.width=Math.min(100,pct)+"%";
-      $("cbPrice").textContent=tpl("cbPriceT",{a:(1/Number(P0_FCB_PER_LGNS)).toFixed(7)});
-      $("cdLine").textContent=T("cdEnd")+fmtT(CB.end-now);
-    }else if(!PUB&&now<CB.start){$("cdLine").textContent=T("cdStart")+fmtT(CB.start-now);}
+    const [px]=dec(await call(SWAP,S.currentPrice));
+    $("sPrice").textContent=fmtL(px);
+    try{const [rb]=dec(await call(LGNS,S.balanceOf+pAddr(SWAP)));$("sReserve").textContent=fmtL(rb);}catch(e){}
   }catch(e){console.log(e);}
   if(!ACCT)return;
   try{
@@ -368,24 +348,7 @@ async function refresh(){
     const fb=dec(await call(FCB,S.balanceOf+pAddr(ACCT)))[0];
     $("balLine").textContent=tpl("balLineT",{a:fmtL(lb),b:fmtF(fb)});
     $("acct").textContent=ACCT.slice(0,6)+"…"+ACCT.slice(-4);
-    if($("cobuildCard").style.display!=="none"){
-      const [my]=dec(await call(SWAP,S.userCobuy+pAddr(ACCT)));
-      const capL=(COBUILD_CAP_FCB*E18)/(P0_FCB_PER_LGNS*E9)/100n;
-      $("cbMine").textContent=`${fmtL(my)} LGNS`;
-      $("cbCap").textContent=`${fmtL(capL)} LGNS`;
-      const lw=cbQuote();
-      if(lw>0n){const al=dec(await call(LGNS,S.allowance+pAddr(ACCT)+pAddr(SWAP)))[0];$("cbApprBtn").style.display=al<lw?"":"none";}
-      const [vt]=dec(await call(SWAP,S.vestTotal+pAddr(ACCT)));
-      if(vt>0n){
-        $("vestCard").style.display="";
-        const [vc]=dec(await call(SWAP,S.vestClaimed+pAddr(ACCT)));
-        const [cc]=dec(await call(SWAP,S.claimable+pAddr(ACCT)));
-        $("vTotal").textContent=fmtF(vt)+" FCB";$("vClaimed").textContent=fmtF(vc)+" FCB";
-        $("vCan").textContent=fmtF(cc)+" FCB";
-        $("vBar").style.width=(vt>0n?Number(vc*100n/vt):0)+"%";
-        $("claimBtn").disabled=cc===0n;
-      }
-    }
+    // 无共建/释放功能，跳过 vesting 相关
     if(PUB){
       const v=$("amt").value.trim()?BigInt(Math.floor(Number($("amt").value)*(MODE==="buy"?1e9:1e18))):0n;
       if(v>0n){
