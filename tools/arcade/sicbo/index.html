@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>骰宝 · 发财游戏平台</title>
+<style>
+:root{--gold:#d4a017;--gold2:#f5c542;--bg:#0d0b08;--card:#161310;--line:#3a2f1a;--txt:#e8dcc0;--dim:#9a8a6a;--green:#4caf7d;--red:#e05c5c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1200px 600px at 50% -10%,#241c0e 0%,var(--bg) 60%);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.top a{color:var(--gold2);text-decoration:none;font-size:14px}
+h1{font-size:22px;color:var(--gold2)}
+button{cursor:pointer;border:none;border-radius:10px;font-size:15px}
+.btn{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#231a05;font-weight:700;padding:12px 26px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold2);padding:10px 20px}
+.btn.small{padding:7px 12px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+.card h2{font-size:16px;color:var(--gold2);margin-bottom:12px}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stat .v{font-size:16px;color:var(--gold2);font-weight:700}
+.stat .k{font-size:11px;color:var(--dim);margin-top:4px}
+input[type=number]{width:100%;background:#0f0d09;border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:12px;font-size:16px;outline:none}
+label{font-size:12px;color:var(--dim);display:block;margin:10px 0 6px}
+.info{background:#0f0d09;border-radius:10px;padding:12px;margin-top:12px;font-size:14px;line-height:2}
+.info b{color:var(--gold2)}
+.betrow{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#0f0d09;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:13px}
+.betrow .acts{display:flex;gap:6px}
+.hint{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.7}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#000;border:1px solid var(--gold);color:var(--gold2);padding:12px 22px;border-radius:10px;font-size:14px;display:none;z-index:99;max-width:90vw}
+.dices{display:flex;gap:14px;justify-content:center;margin:16px 0}
+.die{width:76px;height:76px;border-radius:14px;background:linear-gradient(160deg,#f5f0e6,#cfc8b8);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:38px;color:#231a05;font-weight:800}
+.die.rolling{animation:roll .3s infinite}
+@keyframes roll{0%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}100%{transform:rotate(-12deg)}}
+#resultLine{text-align:center;font-size:16px;min-height:28px;margin-top:6px}
+#resultLine b{color:var(--gold2)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.choice{padding:14px;border-radius:12px;font-size:16px;font-weight:800;border:2px solid var(--line);background:#0f0d09;color:var(--txt)}
+.choice.sel{border-color:var(--gold2);background:#241c0e;color:var(--gold2)}
+.choice small{display:block;font-size:11px;font-weight:400;color:var(--dim);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><a href="../">← 发财游戏平台</a><button class="btn small" id="connBtn">连接钱包</button></div>
+<h1>🎲 骰宝</h1>
+<div style="font-size:12px;color:var(--dim)">押大小单双，赢 2.02 倍，围骰通杀 · 返还率 98.19% · <b style="color:var(--green)">下注即挖矿 +1%</b></div>
+<div class="stats">
+<div class="stat"><div class="v" id="sPool">-</div><div class="k">奖池 (FCB)</div></div>
+<div class="stat"><div class="v" id="sMine">-</div><div class="k">我的 FCB</div></div>
+<div class="stat"><div class="v" id="sPend">-</div><div class="k">待开奖</div></div>
+</div>
+<div class="card">
+<h2>下注</h2>
+<div class="dices">
+<div class="die" id="d0">🎲</div><div class="die" id="d1">🎲</div><div class="die" id="d2">🎲</div>
+</div>
+<div id="resultLine"></div>
+<div class="choices">
+<button class="choice sel" id="c0">大<small>11–17 点 · 赢 2.02x</small></button>
+<button class="choice" id="c1">小<small>4–10 点 · 赢 2.02x</small></button>
+<button class="choice" id="c2">单<small>单数点 · 赢 2.02x</small></button>
+<button class="choice" id="c3">双<small>双数点 · 赢 2.02x</small></button>
+</div>
+<label>下注 FCB 数量</label>
+<input type="number" id="amt" placeholder="0.0" min="0" step="any">
+<div class="info" id="betInfo">选一边，输入下注数量…</div>
+<div style="display:flex;gap:10px;margin-top:12px">
+<button class="btn ghost small" id="apprBtn" style="display:none">授权 FCB</button>
+<button class="btn" id="betBtn" style="flex:1">掷骰子</button>
+</div>
+<div class="hint" id="maxHint"></div>
+<div class="hint" id="phaseHint" style="color:var(--gold2)"></div>
+</div>
+<div class="card">
+<h2>📜 玩法</h2>
+<div class="info">
+三颗骰子，押 <b>大</b>(11–17) / <b>小</b>(4–10) / <b>单</b> / <b>双</b>，赢了拿回 <b>2.02 倍</b>（含本金）。<br>
+⚠️ <b>围骰</b>（三颗同点）<b>通杀</b>，押什么都输。<br>
+期望返还 <b>98.19%</b>。骰子用下注后第 10 个区块哈希掷出，下注时无人能预知。
+</div>
+</div>
+<div class="card">
+<h2>我的待开奖</h2>
+<div id="pendList" style="font-size:13px;color:var(--dim)">连接钱包后查看</div>
+<div class="hint">下注后约 10 个区块可开奖（Anubis 约 10 秒）；若 256 个区块内无人开奖，可退回本金。</div>
+</div>
+<div class="card" id="ownerCard" style="display:none">
+<h2>👑 房主管理</h2>
+<label>向奖池注资 FCB</label>
+<div style="display:flex;gap:8px"><input type="number" id="fundAmt" placeholder="0.0"><button class="btn small" id="fundBtn">注资</button></div>
+<label>提取空闲奖池 FCB</label>
+<div style="display:flex;gap:8px"><input type="number" id="wdAmt" placeholder="0.0"><button class="btn small ghost" id="wdBtn">提取</button></div>
+<div class="hint">只能提取未被待开奖锁定的空闲部分。</div>
+</div>
+</div>
+<div id="toast"></div>
+<script>
+"use strict";
+const FCB ="0x9B3F8c231C40ffC7d3669419dbD24495df84d303";
+const SICBO="0x81b6196f63ac7F6Bd187B99B12c9836C8E9D4727";
+const SWAP="0x8323d876e533ECfB2EBe9F9338C1BAa541D9462D";
+const ZERO="0x0000000000000000000000000000000000000000";
+const DEPLOYED=SICBO!==ZERO&&FCB!==ZERO;
+const S={balanceOf:"0x70a08231",approve:"0x095ea7b3",allowance:"0xdd62ed3e",
+ bet:"0x7c695384",resolve:"0x4f896d4f",refund:"0x278ecde1",bets:"0x22af00fa",
+ freeBankroll:"0xfc958429",userBets:"0x8068aa68",userBetCount:"0xf408a23a",
+ fund:"0xca1d209d",withdraw:"0x2e1a7d4d",owner:"0x8da5cb5b",publicOpen:"0xba70c515"};
+const CNAMES=["大","小","单","双"];
+const DOTS=["","⚀","⚁","⚂","⚃","⚄","⚅"];
+const $=id=>document.getElementById(id);
+let ACCT=null,CHOICE=0,rollIv=null;
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(t._h);t._h=setTimeout(()=>t.style.display="none",3500);}
+const eth=(m,p)=>window.ethereum.request({method:m,params:p});
+const call=(to,data)=>eth("eth_call",[{to,data},"latest"]);
+const pAddr=a=>"0".repeat(24)+a.slice(2).toLowerCase();
+const pUint=n=>BigInt(n).toString(16).padStart(64,"0");
+function dec(hex){hex=hex.slice(2);const r=[];for(let i=0;i<hex.length;i+=64)r.push(BigInt("0x"+hex.slice(i,i+64)));return r;}
+const fmtF=b=>{const neg=b<0n;b=neg?-b:b;let s=b.toString().padStart(19,"0");let ip=s.slice(0,-18),fp=s.slice(-18).replace(/0+$/,"").slice(0,4);return (neg?"-":"")+ip+(fp?"."+fp:"");};
+async function sendTx(to,data){
+  const gas=await eth("eth_estimateGas",[{from:ACCT,to,data}]);
+  const gasPrice=await eth("eth_gasPrice",[]);
+  return eth("eth_sendTransaction",[{from:ACCT,to,data,gas:"0x"+(BigInt(gas)*13n/10n).toString(16),gasPrice,type:"0x0"}]);
+}
+function isWin(ch,a,b,c){
+  if(a===b&&b===c)return false;
+  const t=a+b+c;
+  if(ch===0)return t>=11;
+  if(ch===1)return t<=10;
+  if(ch===2)return t%2===1;
+  return t%2===0;
+}
+function showDice(a,b,c,paid,ch){
+  if(rollIv){clearInterval(rollIv);rollIv=null;}
+  ["d0","d1","d2"].forEach(id=>$(id).classList.remove("rolling"));
+  const ds=[a,b,c],ids=["d0","d1","d2"];
+  ids.forEach((id,i)=>setTimeout(()=>{$(id).textContent=DOTS[ds[i]];},400*(i+1)));
+  setTimeout(()=>{
+    const t=a+b+c, triple=a===b&&b===c, win=isWin(ch,a,b,c);
+    $("resultLine").innerHTML=triple?`🎲 <b>围骰 ${a}${b}${c}</b>，通杀！`:
+      win?`🎉 <b>${t} 点</b>，押${CNAMES[ch]}赢了！拿回 <b>${fmtF(paid)} FCB</b>`:
+      `😅 <b>${t} 点</b>，押${CNAMES[ch]}没中`;
+  },1400);
+}
+function resetDice(){
+  if(rollIv){clearInterval(rollIv);rollIv=null;}
+  ["d0","d1","d2"].forEach(id=>{$(id).textContent="🎲";$(id).classList.remove("rolling");});
+  $("resultLine").innerHTML="";
+}
+function startRolling(){
+  resetDice();
+  ["d0","d1","d2"].forEach(id=>$(id).classList.add("rolling"));
+  rollIv=setInterval(()=>{
+    ["d0","d1","d2"].forEach(id=>{$(id).textContent=DOTS[1+Math.floor(Math.random()*6)];});
+  },120);
+}
+function updInfo(){
+  const v=$("amt").value.trim();
+  if(v&&Number(v)>0){const w=Number(v);
+    $("betInfo").innerHTML=`押<b>${CNAMES[CHOICE]}</b> <b>${v} FCB</b>：赢了拿回 <b>${(w*2.02).toLocaleString()} FCB</b>（净赚 ${(w*1.02).toLocaleString()}）`;
+  }else{$("betInfo").textContent="选一边，输入下注数量…";}
+}
+function diceMini(a,b,c){return `${a} ${b} ${c}`;}
+async function refresh(){
+  if(!DEPLOYED)return;
+  try{
+    const [pub]=dec(await call(SWAP,S.publicOpen));
+    if(pub===0n){$("betBtn").disabled=true;$("phaseHint").textContent="⏳ 公开交易开启后开放下注，共建期请先去首页认购 FCB。";return;}
+    $("betBtn").disabled=false;$("phaseHint").textContent="";
+  }catch(e){}
+  try{
+    const [pool]=dec(await call(SICBO,S.freeBankroll));
+    $("sPool").textContent=fmtF(pool);
+    $("maxHint").textContent=`当前单注上限约 ${fmtF(pool*5n/102n)} FCB（潜在盈利 ≤ 奖池 5% 风控）。`;
+  }catch(e){}
+  if(!ACCT)return;
+  try{
+    const [m]=dec(await call(FCB,S.balanceOf+pAddr(ACCT)));$("sMine").textContent=fmtF(m);
+    const [n]=dec(await call(SICBO,S.userBetCount+pAddr(ACCT)));
+    const blk=BigInt(await eth("eth_blockNumber",[]));
+    let pend=0,html="";
+    const count=Number(n);
+    for(let i=count-1;i>=0&&i>=count-60;i--){
+      const [id]=dec(await call(SICBO,S.userBets+pAddr(ACCT)+pUint(i)));
+      const w=dec(await call(SICBO,S.bets+pUint(id)));
+      const amt=w[1],ch=Number(w[3]),d0=Number(w[4]),bb=w[7],res=w[8],paid=w[9];
+      if(res!==0n){
+        if(count-1-i<5&&d0!==0){
+          const t=d0+Number(w[5])+Number(w[6]),triple=d0===Number(w[5])&&d0===Number(w[6]);
+          html+=`<div class="betrow"><span>#${id} 押${CNAMES[ch]} · 🎲${diceMini(d0,Number(w[5]),Number(w[6]))}(${t}点${triple?"围骰":""}) · ${paid>0n?"赢 "+fmtF(paid)+" FCB":"输"}</span></div>`;
+        }
+        continue;
+      }
+      pend++;
+      const canR=blk>=bb+10n, canF=blk>bb+266n;
+      html=`<div class="betrow"><span>#${id} 押${CNAMES[ch]} · ${fmtF(amt)} FCB · 赢得 ${fmtF(amt*202n/100n)}</span><span class="acts">${canR?`<button class="btn small" onclick="doResolve(${id},false)">开奖</button>`:""}${canF?`<button class="btn small ghost" onclick="doResolve(${id},true)">退款</button>`:""}${(!canR&&!canF)?"<span style='color:var(--dim)'>等待区块…</span>":""}</span></div>`+html;
+    }
+    $("sPend").textContent=pend;
+    $("pendList").innerHTML=html||"没有投注记录";
+    const [ow]=dec(await call(SICBO,S.owner));const owa="0x"+ow.toString(16).padStart(64,"0").slice(24);
+    if(owa.toLowerCase()===ACCT.toLowerCase())$("ownerCard").style.display="";
+    const wei=$("amt").value.trim()?BigInt(Math.floor(Number($("amt").value)*1e18)):0n;
+    if(wei>0n){const al=dec(await call(FCB,S.allowance+pAddr(ACCT)+pAddr(SICBO)))[0];$("apprBtn").style.display=al<wei?"":"none";}
+  }catch(e){console.log(e);}
+}
+window.doResolve=async(id,refund)=>{
+  try{
+    toast("等待钱包确认…");
+    const h=await sendTx(SICBO,(refund?S.resolve:S.refund)+pUint(id));
+    toast("已提交："+h.slice(0,18)+"…");
+    if(!refund)setTimeout(async()=>{
+      try{
+        const w=dec(await call(SICBO,S.bets+pUint(id)));
+        const d0=Number(w[4]);
+        if(d0!==0)showDice(d0,Number(w[5]),Number(w[6]),w[9],Number(w[3]));
+      }catch(e){}
+      refresh();
+    },6000);
+    else setTimeout(refresh,4000);
+  }catch(e){toast("失败："+(e.message||e).slice(0,100));}
+};
+for(let i=0;i<4;i++)$("c"+i).onclick=()=>{CHOICE=i;for(let j=0;j<4;j++)$("c"+j).classList.toggle("sel",j===i);updInfo();};
+$("amt").oninput=()=>{updInfo();refresh();};
+$("connBtn").onclick=async()=>{if(!window.ethereum){toast("请在钱包 App 内打开");return;}const a=await eth("eth_requestAccounts",[]);ACCT=a[0];$("connBtn").textContent="已连接";refresh();};
+$("apprBtn").onclick=async()=>{const w=BigInt(Math.floor(Number($("amt").value)*1e18));try{toast("等待钱包确认授权…");await sendTx(FCB,S.approve+pAddr(SICBO)+pUint(w));toast("授权成功");refresh();}catch(e){toast("失败："+(e.message||e).slice(0,80));}};
+$("betBtn").onclick=async()=>{
+  if(!ACCT){toast("先连接钱包");return;}
+  const v=$("amt").value.trim();
+  if(!v||Number(v)<=0){toast("输入下注数量");return;}
+  const w=BigInt(Math.floor(Number(v)*1e18));
+  try{toast("等待钱包确认下注…");const h=await sendTx(SICBO,S.bet+pUint(CHOICE)+pUint(w));toast("下注成功："+h.slice(0,18)+"…");$("amt").value="";startRolling();updInfo();setTimeout(refresh,4000);}
+  catch(e){toast("失败："+(e.message||e).slice(0,100));}
+};
+$("fundBtn").onclick=async()=>{
+  const v=$("fundAmt").value.trim();if(!v||Number(v)<=0){toast("输入注资金额");return;}
+  const w=BigInt(Math.floor(Number(v)*1e18));
+  try{toast("授权中…");await sendTx(FCB,S.approve+pAddr(SICBO)+pUint(w));toast("注资中…");await sendTx(SICBO,S.fund+pUint(w));toast("注资成功");setTimeout(refresh,4000);}
+  catch(e){toast("失败："+(e.message||e).slice(0,100));}
+};
+$("wdBtn").onclick=async()=>{
+  const v=$("wdAmt").value.trim();if(!v||Number(v)<=0){toast("输入提取金额");return;}
+  const w=BigInt(Math.floor(Number(v)*1e18));
+  try{toast("等待钱包确认…");await sendTx(SICBO,S.withdraw+pUint(w));toast("提取成功");setTimeout(refresh,4000);}
+  catch(e){toast("失败："+(e.message||e).slice(0,100));}
+};
+updInfo();
+if(!DEPLOYED){$("betBtn").disabled=true;$("pendList").textContent="合约部署后开放。";}
+refresh();
+</script>
+</body>
+</html>
