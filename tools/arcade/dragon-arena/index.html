@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dragon Arena 龙武擂台</title>
+<style>
+:root{
+  --bg:#0a0a0f; --bg2:#12121a; --card:#16161f; --line:#23232f;
+  --gold:#d4af37; --gold2:#f5d76e; --txt:#e8e8ec; --dim:#8a8a96;
+  --green:#2ecc71; --red:#e74c3c;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+a{color:var(--gold)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px 60px}
+/* 顶栏 */
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.logo{font-size:22px;font-weight:800;letter-spacing:2px}
+.logo span{color:var(--gold)}
+.lang button{background:var(--card);border:1px solid var(--line);color:var(--txt);padding:6px 14px;border-radius:20px;cursor:pointer;margin-left:8px;font-size:13px}
+.lang button.on{border-color:var(--gold);color:var(--gold)}
+.btn{background:linear-gradient(135deg,var(--gold),#b8962e);color:#111;border:none;padding:10px 22px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:var(--card);color:var(--txt);border:1px solid var(--line)}
+/* hero */
+.hero{text-align:center;padding:48px 0 32px}
+.hero h1{font-size:42px;letter-spacing:6px;margin-bottom:10px}
+.hero h1 span{color:var(--gold)}
+.hero p{color:var(--dim);font-size:15px}
+/* 编号分区 */
+.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:20px 0}
+.sec-h{display:flex;align-items:center;margin-bottom:18px}
+.sec-n{font-size:13px;color:var(--gold);border:1px solid var(--gold);border-radius:6px;padding:3px 10px;margin-right:12px;letter-spacing:1px}
+.sec-t{font-size:19px;font-weight:700}
+/* 数据看板 */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+.stat .v{font-size:24px;font-weight:800;color:var(--gold2);margin-bottom:4px}
+.stat .l{font-size:12px;color:var(--dim)}
+/* 擂台 */
+.match{display:flex;justify-content:space-between;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:10px}
+.match .id{font-weight:700;font-size:16px}
+.match .cnt{color:var(--dim);font-size:13px}
+.bar{height:8px;background:#222;border-radius:4px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px}
+/* 四礼 */
+.rites{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.rite{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.rite .amt{font-size:22px;color:var(--gold2);font-weight:800}
+.rite .n{font-weight:700;margin:6px 0 4px}
+.rite .d{font-size:12px;color:var(--dim);line-height:1.6}
+/* 表单 */
+.row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+input{background:var(--bg2);border:1px solid var(--line);color:var(--txt);padding:10px 14px;border-radius:10px;font-size:14px;flex:1;min-width:200px}
+.note{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.7}
+.addr{font-family:monospace;font-size:12px;color:var(--dim);word-break:break-all}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tabs button{background:var(--bg2);border:1px solid var(--line);color:var(--dim);padding:8px 18px;border-radius:20px;cursor:pointer}
+.tabs button.on{color:var(--gold);border-color:var(--gold)}
+.hist{font-size:13px}
+.hist div{padding:10px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+.ok{color:var(--green)} .warn{color:var(--gold2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="logo">龙武擂台 <span>DRAGON ARENA</span></div>
+    <div style="display:flex;align-items:center">
+      <div class="lang"><button id="lZh" class="on">中文</button><button id="lEn">EN</button></div>
+      <button class="btn" id="connBtn" style="margin-left:12px">连接钱包</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>龙武擂台 <span>DRAGON ARENA</span></h1>
+    <p data-i="hero">24 人同场竞技 · 链上随机冠军 · 四礼分配 · 全程可验证</p>
+  </div>
+
+  <!-- 01 我的领域 -->
+  <div class="sec">
+    <div class="sec-h"><span class="sec-n">01</span><span class="sec-t" data-i="s1t">我的领域 MY REALM</span></div>
+    <div class="grid">
+      <div class="stat"><div class="v" id="stLwu">--</div><div class="l" data-i="fcbBal">FCB 余额</div></div>
+      <div class="stat"><div class="v" id="stPlayed">--</div><div class="l" data-i="played">今日场次</div></div>
+      <div class="stat"><div class="v" id="stStipend">--</div><div class="l" data-i="stipend">龙武俸待领</div></div>
+      <div class="stat"><div class="v" id="stMandate">--</div><div class="l" data-i="mandate">龙武令</div></div>
+      <div class="stat"><div class="v" id="stMaster">--</div><div class="l" data-i="master">我的师父</div></div>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="btnClaimStipend" data-i="claimStipend">领取龙武俸</button>
+      <button class="btn ghost" id="btnAdvance" data-i="advance">推进今日俸</button>
+      <button class="btn ghost" id="btnClaimBless" data-i="claimBless">领血脉福</button>
+    </div>
+  </div>
+
+  <!-- 02 擂台 -->
+  <div class="sec">
+    <div class="sec-h"><span class="sec-n">02</span><span class="sec-t" data-i="s2t">擂台 ARENA</span></div>
+    <div class="row" style="margin-bottom:16px">
+      <button class="btn" id="btnCreate" data-i="create">创建擂台</button>
+      <span class="note" data-i="createNote">创建即提交随机种子承诺，满 24 人后 5 个块可揭示开奖</span>
+    </div>
+    <div id="matchList"><div class="note" data-i="loading">加载中…</div></div>
+  </div>
+
+  <!-- 03 四礼 -->
+  <div class="sec">
+    <div class="sec-h"><span class="sec-n">03</span><span class="sec-t" data-i="s3t">四礼分配 FOUR RITES</span></div>
+    <div class="rites">
+      <div class="rite"><div class="amt">66</div><div class="n" data-i="r1n">归墟</div><div class="d" data-i="r1d">冠军席位的 66 FCB 归墟；每第 66 场为天赦场，转入福池</div></div>
+      <div class="rite"><div class="amt">18.4</div><div class="n" data-i="r2n">胜奖励</div><div class="d" data-i="r2d">23 名非冠军各得 0.8，另拿回 100 本金</div></div>
+      <div class="rite"><div class="amt">6</div><div class="n" data-i="r3n">敬师礼</div><div class="d" data-i="r3d">每席位 0.25 累积给师父，次日按师父活跃度解锁</div></div>
+      <div class="rite"><div class="amt">9.6</div><div class="n" data-i="r4n">血脉福</div><div class="d" data-i="r4d">每席位 0.4，师父随时可领</div></div>
+    </div>
+    <div class="note" data-i="champNote">冠军另得 200 FCB 龙武俸，按 60 个有效日释放；领完一份即铸一枚龙武令（灵魂绑定）</div>
+  </div>
+
+  <!-- 04 师徒 -->
+  <div class="sec">
+    <div class="sec-h"><span class="sec-n">04</span><span class="sec-t" data-i="s4t">师徒 LINEAGE</span></div>
+    <div class="row">
+      <input id="masterAddr" data-i-ph="masterPh" placeholder="师父地址">
+      <button class="btn" id="btnBind" data-i="bind">绑定师父</button>
+    </div>
+    <div class="note" data-i="bindNote">每地址只能绑定一次，不可更改。徒弟参赛即给师父累积敬师礼；师父次日打满 10 场可解锁 100%，建议先打满再解锁。</div>
+    <div class="row">
+      <input id="unlockDay" data-i-ph="dayPh" placeholder="解锁哪天（时间戳/86400）">
+      <button class="btn ghost" id="btnUnlock" data-i="unlock">解锁敬师礼</button>
+    </div>
+  </div>
+
+  <!-- 05 记录 -->
+  <div class="sec">
+    <div class="sec-h"><span class="sec-n">05</span><span class="sec-t" data-i="s5t">战绩记录 HISTORY</span></div>
+    <div class="tabs"><button class="on" id="tSettle" data-i="tSettle">已结算</button><button id="tJoin" data-i="tJoin">我的参赛</button></div>
+    <div class="hist" id="histList"><div class="note" data-i="loading">加载中…</div></div>
+  </div>
+
+  <div class="sec">
+    <div class="note" data-i="disclaimer">合约地址待部署后填入。本页面为演示版，所有操作需连接 Anubis 链钱包。链上随机可验证，请自行核对交易。</div>
+    <div class="addr" id="addrBox">Arena: -- · FCB: -- · Vesting: -- · Lineage: --</div>
+  </div>
+</div>
+
+<script src="/assets/ethers6.min.js"></script>
+<script>
+// ===== 中英词典 =====
+const I18N = {
+  hero:{zh:"24 人同场竞技 · 链上随机冠军 · 四礼分配 · 全程可验证",en:"24-player arena · on-chain random champion · four rites · fully verifiable"},
+  s1t:{zh:"我的领域 MY REALM",en:"MY REALM"},
+  fcbBal:{zh:"FCB 余额",en:"FCB Balance"},
+  played:{zh:"今日场次",en:"Matches Today"},
+  stipend:{zh:"龙武俸待领",en:"Stipend Claimable"},
+  mandate:{zh:"龙武令",en:"Mandates"},
+  master:{zh:"我的师父",en:"My Master"},
+  claimStipend:{zh:"领取龙武俸",en:"Claim Stipend"},
+  advance:{zh:"推进今日俸",en:"Advance Today"},
+  claimBless:{zh:"领血脉福",en:"Claim Blessing"},
+  s2t:{zh:"擂台 ARENA",en:"ARENA"},
+  create:{zh:"创建擂台",en:"Create Match"},
+  createNote:{zh:"创建即提交随机种子承诺，满 24 人后 5 个块可揭示开奖",en:"Commit a random seed on creation; reveal 5 blocks after full"},
+  loading:{zh:"加载中…",en:"Loading…"},
+  s3t:{zh:"四礼分配 FOUR RITES",en:"FOUR RITES"},
+  r1n:{zh:"归墟",en:"Return to Void"},
+  r1d:{zh:"冠军席位的 66 FCB 归墟；每第 66 场为天赦场，转入福池",en:"66 FCB voided; every 66th match (TianShe) goes to the vessel"},
+  r2n:{zh:"胜奖励",en:"Victory Reward"},
+  r2d:{zh:"23 名非冠军各得 0.8，另拿回 100 本金",en:"23 non-champions get 0.8 each plus 100 principal back"},
+  r3n:{zh:"敬师礼",en:"Master Offering"},
+  r3d:{zh:"每席位 0.25 累积给师父，次日按师父活跃度解锁",en:"0.25/seat accrues to master, unlocked next day by activity"},
+  r4n:{zh:"血脉福",en:"Bloodline Blessing"},
+  r4d:{zh:"每席位 0.4，师父随时可领",en:"0.4/seat, claimable anytime"},
+  champNote:{zh:"冠军另得 200 FCB 龙武俸，按 60 个有效日释放；领完一份即铸一枚龙武令（灵魂绑定）",en:"Champion also gets 200 FCB stipend over 60 active days; a soulbound Mandate is minted per completed stipend"},
+  s4t:{zh:"师徒 LINEAGE",en:"LINEAGE"},
+  masterPh:{zh:"师父地址",en:"Master address"},
+  bind:{zh:"绑定师父",en:"Bind Master"},
+  bindNote:{zh:"每地址只能绑定一次，不可更改。徒弟参赛即给师父累积敬师礼；师父次日打满 10 场可解锁 100%，建议先打满再解锁。",en:"One-time binding, irreversible. Disciples accrue offerings for masters; masters unlock up to 100% with 10 matches next day — play first, then unlock."},
+  dayPh:{zh:"解锁哪天（时间戳/86400）",en:"Day to unlock (ts/86400)"},
+  unlock:{zh:"解锁敬师礼",en:"Unlock Offering"},
+  s5t:{zh:"战绩记录 HISTORY",en:"HISTORY"},
+  tSettle:{zh:"已结算",en:"Settled"},
+  tJoin:{zh:"我的参赛",en:"My Matches"},
+  disclaimer:{zh:"合约地址待部署后填入。本页面为演示版，所有操作需连接 Anubis 链钱包。链上随机可验证，请自行核对交易。",en:"Contract addresses pending deployment. Demo version — connect an Anubis wallet. On-chain randomness is verifiable; check transactions yourself."},
+  connect:{zh:"连接钱包",en:"Connect Wallet"},
+};
+let LANG = "zh";
+function t(k){ const e=I18N[k]; return e ? (e[LANG]||e.zh) : k; }
+function applyLang(){
+  document.querySelectorAll("[data-i]").forEach(el=>{ el.textContent = t(el.dataset.i); });
+  document.querySelectorAll("[data-i-ph]").forEach(el=>{ el.placeholder = t(el.dataset.iPh); });
+  document.getElementById("connBtn").textContent = t("connect");
+}
+document.getElementById("lZh").onclick=()=>{LANG="zh";document.getElementById("lZh").classList.add("on");document.getElementById("lEn").classList.remove("on");applyLang();};
+document.getElementById("lEn").onclick=()=>{LANG="en";document.getElementById("lEn").classList.add("on");document.getElementById("lZh").classList.remove("on");applyLang();};
+
+// ===== 合约地址（2026-10-02 已部署 Anubis 主网） =====
+const ADDR = { arena:"0xc167445c7Af62819DFEaFDf64C23b63462be90d2", fcb:"0x9B3F8c231C40ffC7d3669419dbD24495df84d303", vesting:"0x5a8Bbe4929f0C893bb11A5873c6f2Ffde36A3368", lineage:"0x050604cC2C5CcE61f57A0F490f1Fe9B1ACc261b4", mandate:"0xB8e0FDB949b88D3CD2Ba29597C90726dC088cE08", vessel:"0x17B2ccef26058E1Bc0AC4f13a046FC2Bf8C8A2f7" };
+// ===== ABI（最小集） =====
+const ABI_ARENA=["function createMatch(bytes32) returns(uint256)","function join(uint256)","function reveal(uint256,bytes32)","function settle(uint256)","function matchCount() view returns(uint256)","function matches(uint256) view returns(uint8,bytes32,uint64,uint64,uint64,bool,bool,bool,bytes32,address)","function dailyPlayed(address,uint256) view returns(uint256)","function playersOf(uint256) view returns(address[24])"];
+const ABI_ERC20=["function balanceOf(address) view returns(uint256)","function approve(address,uint256) returns(bool)"];
+const ABI_VEST=["function claimable(address) view returns(uint256)","function advance()","function claim()","function stipendCount(address) view returns(uint256)"];
+const ABI_LIN=["function masterOf(address) view returns(address)","function bindMaster(address)","function unlockOffering(uint256)","function claimBlessing()","function blessingBalance(address) view returns(uint256)"];
+const ABI_NFT=["function balanceOf(address) view returns(uint256)"];
+
+let provider, signer, me;
+async function connect(){
+  if(!window.ethereum){ alert(LANG==="zh"?"请安装钱包":"Install a wallet first"); return; }
+  provider = new ethers.BrowserProvider(window.ethereum);
+  await provider.send("eth_requestAccounts",[]);
+  signer = await provider.getSigner();
+  me = await signer.getAddress();
+  document.getElementById("connBtn").textContent = me.slice(0,6)+"…"+me.slice(-4);
+  refresh();
+}
+document.getElementById("connBtn").onclick = connect;
+const C = n => new ethers.Contract(ADDR[n], n==="arena"?ABI_ARENA:n==="fcb"?ABI_ERC20:n==="vesting"?ABI_VEST:n==="lineage"?ABI_LIN:ABI_NFT, signer);
+
+async function refresh(){
+  if(!signer || !ADDR.arena) return;
+  try{
+    const fcb = C("fcb"), arena = C("arena"), vest = C("vesting"), lin = C("lineage"), nft = C("mandate");
+    const day = Math.floor(Date.now()/86400000);
+    document.getElementById("stLwu").textContent = (+ethers.formatEther(await fcb.balanceOf(me))).toFixed(1);
+    document.getElementById("stPlayed").textContent = (await arena.dailyPlayed(me, day)).toString() + " / 12";
+    document.getElementById("stStipend").textContent = (+ethers.formatEther(await vest.claimable(me))).toFixed(2);
+    document.getElementById("stMandate").textContent = (await nft.balanceOf(me)).toString();
+    const m = await lin.masterOf(me);
+    document.getElementById("stMaster").textContent = m==="0x0000000000000000000000000000000000000000" ? "--" : m.slice(0,6)+"…"+m.slice(-4);
+    loadMatches();
+  }catch(e){ console.error(e); }
+}
+async function loadMatches(){
+  const box = document.getElementById("matchList");
+  try{
+    const arena = C("arena");
+    const n = Number(await arena.matchCount());
+    if(!n){ box.innerHTML = `<div class="note">${t("loading")} (0)</div>`; return; }
+    let html = "";
+    for(let i=Math.max(1,n-9); i<=n; i++){
+      const m = await arena.matches(i);
+      const cnt = Number(m[0]), settled = m[5], refunded = m[7];
+      const status = settled ? "✅" : refunded ? "↩️" : cnt>=24 ? "🔒" : "🟢";
+      html += `<div class="match"><div><div class="id">${status} #${i}</div><div class="cnt">${cnt}/24 · ${settled?t("tSettle"):refunded?"Refunded":LANG==="zh"?"报名中":"Open"}</div><div class="bar"><i style="width:${cnt/24*100}%"></i></div></div><button class="btn" data-join="${i}" ${settled||refunded||cnt>=24?"disabled":""}>${LANG==="zh"?"报名 100 FCB":"Join 100 FCB"}</button></div>`;
+    }
+    box.innerHTML = html;
+    box.querySelectorAll("[data-join]").forEach(b=>b.onclick=()=>joinMatch(b.dataset.join));
+  }catch(e){ box.innerHTML = `<div class="note">${e.message||e}</div>`; }
+}
+async function joinMatch(id){
+  try{
+    const fcb = C("fcb");
+    await (await fcb.approve(ADDR.arena, ethers.parseEther("100"))).wait();
+    await (await C("arena").join(id)).wait();
+    refresh();
+  }catch(e){ alert(e.message||e); }
+}
+document.getElementById("btnCreate").onclick = async ()=>{
+  try{
+    const seed = ethers.hexlify(ethers.randomBytes(32));
+    const commit = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(["bytes32"],[seed]));
+    const tx = await C("arena").createMatch(commit);
+    await tx.wait();
+    alert((LANG==="zh"?"已创建！种子请保存：":"Created! Save your seed:")+seed);
+    refresh();
+  }catch(e){ alert(e.message||e); }
+};
+document.getElementById("btnBind").onclick = async ()=>{
+  const a = document.getElementById("masterAddr").value.trim();
+  if(!a) return;
+  try{ await (await C("lineage").bindMaster(a)).wait(); refresh(); }catch(e){ alert(e.message||e); }
+};
+document.getElementById("btnUnlock").onclick = async ()=>{
+  const d = document.getElementById("unlockDay").value.trim();
+  if(!d) return;
+  try{ await (await C("lineage").unlockOffering(d)).wait(); refresh(); }catch(e){ alert(e.message||e); }
+};
+document.getElementById("btnAdvance").onclick = async ()=>{ try{ await (await C("vesting").advance()).wait(); refresh(); }catch(e){ alert(e.message||e); } };
+document.getElementById("btnClaimStipend").onclick = async ()=>{ try{ await (await C("vesting").claim()).wait(); refresh(); }catch(e){ alert(e.message||e); } };
+document.getElementById("btnClaimBless").onclick = async ()=>{ try{ await (await C("lineage").claimBlessing()).wait(); refresh(); }catch(e){ alert(e.message||e); } };
+
+applyLang();
+if(ADDR.arena) document.getElementById("addrBox").textContent = `Arena: ${ADDR.arena} · FCB: ${ADDR.fcb}`;
+</script>
+</body>
+</html>
