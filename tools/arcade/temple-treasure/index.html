@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temple Treasure 神殿夺宝</title>
+<style>
+:root{
+  --bg:#0a0a0f; --bg2:#12121a; --card:#16161f; --line:#23232f;
+  --gold:#d4af37; --gold2:#f5d76e; --txt:#e8e8ec; --dim:#8a8a96;
+  --green:#2ecc71; --red:#e74c3c;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px 60px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--line)}
+.logo{font-size:22px;font-weight:800;letter-spacing:2px}
+.logo span{color:var(--gold)}
+.lang button{background:var(--card);border:1px solid var(--line);color:var(--txt);padding:6px 14px;border-radius:20px;cursor:pointer;margin-left:8px;font-size:13px}
+.lang button.on{border-color:var(--gold);color:var(--gold)}
+.btn{background:linear-gradient(135deg,var(--gold),#b8962e);color:#111;border:none;padding:10px 22px;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:var(--card);color:var(--txt);border:1px solid var(--line)}
+.hero{text-align:center;padding:48px 0 32px}
+.hero h1{font-size:42px;letter-spacing:6px;margin-bottom:10px}
+.hero h1 span{color:var(--gold)}
+.hero p{color:var(--dim);font-size:15px}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:20px 0}
+.sec-h{display:flex;align-items:center;margin-bottom:18px}
+.sec-n{font-size:13px;color:var(--gold);border:1px solid var(--gold);border-radius:6px;padding:3px 10px;margin-right:12px;letter-spacing:1px}
+.sec-t{font-size:19px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+.stat .v{font-size:24px;font-weight:800;color:var(--gold2);margin-bottom:4px}
+.stat .l{font-size:12px;color:var(--dim)}
+.row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
+input{background:var(--bg2);border:1px solid var(--line);color:var(--txt);padding:10px 14px;border-radius:10px;font-size:14px;flex:1;min-width:160px}
+.note{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.7}
+/* 格子 */
+.cells{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}
+.cell{background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:14px 6px;text-align:center;cursor:pointer;transition:.15s}
+.cell:hover{border-color:var(--gold)}
+.cell.sel{border-color:var(--gold);background:#1e1a10}
+.cell .n{font-size:18px;font-weight:800}
+.cell .b{font-size:11px;color:var(--dim);margin-top:4px}
+.cell.win{border-color:var(--green);background:#0f1f14}
+.roundbox{display:flex;justify-content:space-between;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:10px;flex-wrap:wrap;gap:10px}
+.addr{font-family:monospace;font-size:12px;color:var(--dim);word-break:break-all}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="logo">神殿夺宝 <span>TEMPLE TREASURE</span></div>
+    <div style="display:flex;align-items:center">
+      <div class="lang"><button id="lZh" class="on">中文</button><button id="lEn">EN</button></div>
+      <button class="btn" id="connBtn" style="margin-left:12px">连接钱包</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>神殿夺宝 <span>TEMPLE TREASURE</span></h1>
+    <p data-i="hero">押注格子 · 链上开奖 · 宝库爆奖 · FCB 投注</p>
+  </div>
+
+  <!-- 01 我的领域 -->
+  <div class="sec">
+    <div class="sec-h"><span class="sec-n">01</span><span class="sec-t" data-i="s1t">我的领域 MY REALM</span></div>
+    <div class="grid">
+      <div class="stat"><div class="v" id="stDai">--</div><div class="l" data-i="fcbBal">FCB 余额</div></div>
+      <div class="stat"><div class="v" id="stVault">--</div><div class="l" data-i="vault">神殿宝库</div></div>
+    </div>
+  </div>
+
+  <!-- 02 本轮 -->
+  <div class="sec">
+    <div class="sec-h"><span class="sec-n">02</span><span class="sec-t" data-i="s2t">本轮 CURRENT ROUND</span></div>
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn" id="btnCreate" data-i="create">开新一轮</button>
+      <button class="btn ghost" id="btnDraw" data-i="draw">开奖</button>
+      <span class="note" id="roundInfo">--</span>
+    </div>
+    <div class="cells" id="cells"></div>
+    <div class="row">
+      <input id="betAmt" type="number" min="1" value="10" style="max-width:140px">
+      <span class="note" data-i="perCell">FCB / 格</span>
+      <button class="btn" id="btnBet" data-i="bet">押注选中格子</button>
+      <button class="btn ghost" id="btnClear" data-i="clear">清空选择</button>
+    </div>
+    <div class="note" data-i="betNote">每轮 25 格，每格最低 1 FCB。中奖格按投注占比分 94% 奖池。</div>
+  </div>
+
+  <!-- 03 分配 -->
+  <div class="sec">
+    <div class="sec-h"><span class="sec-n">03</span><span class="sec-t" data-i="s3t">分配规则 PAYOUTS</span></div>
+    <div class="grid">
+      <div class="stat"><div class="v">94%</div><div class="l" data-i="p1">中奖格按占比分</div></div>
+      <div class="stat"><div class="v">5%</div><div class="l" data-i="p2">神殿宝库</div></div>
+      <div class="stat"><div class="v">1%</div><div class="l" data-i="p4">平台</div></div>
+    </div>
+    <div class="note" data-i="jackpotNote">每轮结算时 1/100 概率触发宝库爆奖：随机一位本轮玩家独得宝库全部 FCB。</div>
+  </div>
+
+  <div class="sec">
+    <div class="note" data-i="disclaimer">合约地址待部署后填入。本页面为演示版，需连接 Anubis 链钱包。开奖用预定区块哈希，任何人可触发，链上可验证。</div>
+    <div class="addr" id="addrBox">Game: -- · FCB: --</div>
+  </div>
+</div>
+
+<script src="/assets/ethers6.min.js"></script>
+<script>
+const I18N = {
+  hero:{zh:"押注格子 · 链上开奖 · 宝库爆奖 · FCB 投注",en:"Bet on cells · on-chain draw · vault jackpot · bet with FCB"},
+  s1t:{zh:"我的领域 MY REALM",en:"MY REALM"},
+  fcbBal:{zh:"FCB 余额",en:"FCB Balance"},
+  vault:{zh:"神殿宝库",en:"Vault"},
+  s2t:{zh:"本轮 CURRENT ROUND",en:"CURRENT ROUND"},
+  create:{zh:"开新一轮",en:"New Round"},
+  draw:{zh:"开奖",en:"Draw"},
+  perCell:{zh:"FCB / 格",en:"FCB / cell"},
+  bet:{zh:"押注选中格子",en:"Bet Selected"},
+  clear:{zh:"清空选择",en:"Clear"},
+  betNote:{zh:"每轮 25 格，每格最低 1 FCB。中奖格按投注占比分 94% 奖池。",en:"25 cells per round, min 1 FCB/cell. Winners split 90% by share; 1 TRS mined per 1 FCB bet."},
+  s3t:{zh:"分配规则 PAYOUTS",en:"PAYOUTS"},
+  p1:{zh:"中奖格按占比分",en:"Winners by share"},
+  p2:{zh:"神殿宝库",en:"Vault"},
+  p4:{zh:"平台",en:"Platform"},
+  jackpotNote:{zh:"每轮结算时 1/100 概率触发宝库爆奖：随机一位本轮玩家独得宝库全部 FCB。",en:"1/100 jackpot each round: a random bettor wins the entire vault."},
+  disclaimer:{zh:"合约地址待部署后填入。本页面为演示版，需连接 Anubis 链钱包。开奖用预定区块哈希，任何人可触发，链上可验证。",en:"Addresses pending deployment. Demo — connect an Anubis wallet. Draw uses predetermined blockhash, triggerable by anyone, verifiable on-chain."},
+  connect:{zh:"连接钱包",en:"Connect Wallet"},
+};
+let LANG="zh";
+function t(k){const e=I18N[k];return e?(e[LANG]||e.zh):k;}
+function applyLang(){
+  document.querySelectorAll("[data-i]").forEach(el=>el.textContent=t(el.dataset.i));
+  document.querySelectorAll("[data-i-ph]").forEach(el=>el.placeholder=t(el.dataset.iPh));
+  document.getElementById("connBtn").textContent=t("connect");
+}
+document.getElementById("lZh").onclick=()=>{LANG="zh";document.getElementById("lZh").classList.add("on");document.getElementById("lEn").classList.remove("on");applyLang();renderCells();};
+document.getElementById("lEn").onclick=()=>{LANG="en";document.getElementById("lEn").classList.add("on");document.getElementById("lZh").classList.remove("on");applyLang();renderCells();};
+
+const ADDR = { game:"0xA2a9F8f8f8ae5cd632FEE951DD669243F2a5De43", fcb:"0x9B3F8c231C40ffC7d3669419dbD24495df84d303" };
+const ABI_GAME=["function createRound() returns(uint256)","function bet(uint256,uint8[],uint256)","function draw(uint256)","function roundCount() view returns(uint256)","function getRound(uint256) view returns(uint64,uint64,uint64,bool,bool,uint8,uint256,uint256)","function cellBets(uint256,uint8) view returns(uint256)","function vaultBalance() view returns(uint256)"];
+const ABI_ERC20=["function balanceOf(address) view returns(uint256)","function approve(address,uint256) returns(bool)"];
+
+let provider,signer,me,roundId=0,selected=new Set(),cellData=[];
+async function connect(){
+  if(!window.ethereum){alert(LANG==="zh"?"请安装钱包":"Install a wallet");return;}
+  provider=new ethers.BrowserProvider(window.ethereum);
+  await provider.send("eth_requestAccounts",[]);
+  signer=await provider.getSigner(); me=await signer.getAddress();
+  document.getElementById("connBtn").textContent=me.slice(0,6)+"…"+me.slice(-4);
+  refresh();
+}
+document.getElementById("connBtn").onclick=connect;
+const G=()=>new ethers.Contract(ADDR.game,ABI_GAME,signer);
+const E=a=>new ethers.Contract(a,ABI_ERC20,signer);
+
+async function refresh(){
+  if(!signer||!ADDR.game) return;
+  try{
+    document.getElementById("stDai").textContent=(+ethers.formatEther(await E(ADDR.fcb).balanceOf(me))).toFixed(1);
+    document.getElementById("stVault").textContent=(+ethers.formatEther(await G().vaultBalance())).toFixed(1);
+    roundId=Number(await G().roundCount());
+    if(roundId>0) await loadRound();
+  }catch(e){console.error(e);}
+}
+async function loadRound(){
+  const g=G();
+  const r=await g.getRound(roundId);
+  const info=document.getElementById("roundInfo");
+  const status=r[3]?(LANG==="zh"?"已开奖":"Drawn"):(LANG==="zh"?"进行中":"Live");
+  info.textContent=`#${roundId} · ${status} · ${LANG==="zh"?"总投注":"Total"} ${(+ethers.formatEther(r[6])).toFixed(1)} FCB`;
+  cellData=[];
+  for(let i=0;i<25;i++) cellData.push(ethers.formatEther(await g.cellBets(roundId,i)));
+  renderCells(r[5],r[3]);
+}
+function renderCells(winCell,drawn){
+  const box=document.getElementById("cells");
+  let html="";
+  for(let i=0;i<25;i++){
+    const cls="cell"+(selected.has(i)?" sel":"")+(drawn&&Number(winCell)===i?" win":"");
+    html+=`<div class="${cls}" data-c="${i}"><div class="n">${i}</div><div class="b">${(+cellData[i]||0).toFixed(1)} FCB</div></div>`;
+  }
+  box.innerHTML=html;
+  box.querySelectorAll(".cell").forEach(c=>c.onclick=()=>{
+    const i=+c.dataset.c;
+    selected.has(i)?selected.delete(i):selected.add(i);
+    renderCells(winCell,drawn);
+  });
+}
+document.getElementById("btnCreate").onclick=async()=>{try{await(await G().createRound()).wait();selected.clear();refresh();}catch(e){alert(e.message||e);}};
+document.getElementById("btnDraw").onclick=async()=>{try{await(await G().draw(roundId)).wait();refresh();}catch(e){alert(e.message||e);}};
+document.getElementById("btnBet").onclick=async()=>{
+  if(!selected.size){alert(LANG==="zh"?"先选格子":"Select cells first");return;}
+  const amt=document.getElementById("betAmt").value;
+  try{
+    const cells=[...selected];
+    const total=BigInt(Math.floor(parseFloat(amt)*1e18))*BigInt(cells.length);
+    await(await E(ADDR.fcb).approve(ADDR.game,total)).wait();
+    await(await G().bet(roundId,cells,ethers.parseEther(amt))).wait();
+    selected.clear();refresh();
+  }catch(e){alert(e.message||e);}
+};
+document.getElementById("btnClear").onclick=()=>{selected.clear();renderCells();};
+
+applyLang();
+renderCells();
+</script>
+</body>
+</html>
