@@ -233,6 +233,17 @@ async function connect(){
     }
     $('connectBtn').textContent = '已连接 '+short(myAddr);
     $('myAddr').textContent = myAddr;
+    // 监听钱包切换
+    if(window.ethereum && !window._lotteryListeners){
+      window._lotteryListeners = true;
+      window.ethereum.on('accountsChanged', accs=>{
+        myAddr = (accs&&accs[0])||null;
+        if(myAddr){ $('connectBtn').textContent='已连接 '+short(myAddr); $('myAddr').textContent=myAddr; }
+        else { $('connectBtn').textContent='连接钱包'; $('myAddr').textContent=''; }
+        refresh();
+      });
+      window.ethereum.on('chainChanged', ()=> location.reload());
+    }
     await refresh();
   }catch(e){ toast('连接失败：'+(e.message||e)); }
 }
@@ -273,7 +284,8 @@ async function refresh(){
       $('myBal').textContent = fmt(bal)+' LGNS';
       try{
         const th = await ethCall(CFG.CONTRACT,'0x'+SEL.getTicketOwners+encUint(rid));
-        const owners = decAddrArray(th, 0);
+        const off = Number(decUint(th.slice(0,64)))*2;
+        const owners = decAddrArray(th, off);
         $('myTickets').textContent = owners.filter(a=>a.toLowerCase()===myAddr.toLowerCase()).length+' 张';
       }catch(e){ $('myTickets').textContent='-'; }
     }
