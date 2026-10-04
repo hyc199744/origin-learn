@@ -117,6 +117,16 @@
     <div class="row" style="margin-top:6px"><span class="k">滚入下期</span><span class="v" id="lastRollover">-</span></div>
   </div>
 
+  <div class="card">
+    <h2>🏅 累计中奖榜</h2>
+    <div id="leaderboard"><div class="note">加载中…</div></div>
+  </div>
+
+  <div class="card">
+    <h2>📜 历史开奖</h2>
+    <div id="historyList"><div class="note">加载中…</div></div>
+  </div>
+
   <div class="card" id="ownerPanel">
     <h2>👑 房主管理</h2>
     <div class="note">冷启动：往当期奖池里加钱，奖金更诱人，吸引第一批玩家。加进去的钱就回不来了，算营销成本。</div>
@@ -283,7 +293,51 @@ async function refresh(){
       $('lastWinners').innerHTML = html || '<div class="note">本期无人购票，奖池全额滚存</div>';
       $('lastRollover').textContent = fmt(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastRollover)))+' LGNS';
     }
+    loadHistory();
   }catch(e){ console.error(e); }
+}
+// 历史开奖 + 累计榜：从 WinnersDrawn 事件读
+const EV_WIN = '0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627b4';
+async function loadHistory(){
+  try{
+    const logs = await req('eth_getLogs',[{address:CFG.CONTRACT, topics:[EV_WIN], fromBlock:'0x0', toBlock:'latest'}]);
+    if(!logs || !logs.length){
+      $('historyList').innerHTML = '<div class="note">暂无历史开奖</div>';
+      $('leaderboard').innerHTML = '<div class="note">暂无数据</div>';
+      return;
+    }
+    const total = {}; // addr -> {count, amount}
+    let hhtml = '';
+    // 按 roundId 排序（从 topic1 取）
+    logs.sort((a,b)=> Number(BigInt(a.topics[1])) - Number(BigInt(b.topics[1]));
+    for(const lg of logs){
+      const rid = Number(BigInt(lg.topics[1]));
+      const d = (lg.data||'0x').replace(/^0x/,'');
+      const offW = Number(BigInt('0x'+d.slice(0,64)))*2;
+      const offA = Number(BigInt('0x'+d.slice(64,128)))*2;
+      const winners = decAddrArray(d, offW), amounts = decUintArray(d, offA);
+      let sum = 0n;
+      let wh = '';
+      for(let i=0;i<winners.length;i++){
+        sum += amounts[i];
+        const k = winners[i].toLowerCase();
+        if(!total[k]) total[k] = {n:0, amt:0n};
+        total[k].n++; total[k].amt += amounts[i];
+        const t = i===0?'一等奖':(i<4?'二等奖':'三等奖');
+        wh += '<div class="winner"><span><span class="tag">'+t+'</span>'+short(winners[i])+'</span><span><b>'+fmt(amounts[i])+'</b></span></div>';
+      }
+      hhtml = '<div style="margin-bottom:10px"><div class="row"><span class="k"><b>第 '+rid+' 期</b></span><span class="v">共发出 '+fmt(sum)+' LGNS</span></div>'+wh+'</div>' + hhtml;
+    }
+    $('historyList').innerHTML = hhtml || '<div class="note">暂无历史开奖</div>';
+    // 累计榜
+    const arr = Object.entries(total).sort((a,b)=> Number(b[1].amt - a[1].amt)).slice(0,10);
+    const medal = ['🥇','🥈','🥉'];
+    let lh = '';
+    arr.forEach(([addr, st], i)=>{
+      lh += '<div class="winner"><span>'+(medal[i]||(i+1)+'.')+' '+short(addr)+'</span><span>中 '+st.n+' 次 · <b>'+fmt(st.amt)+'</b> LGNS</span></div>';
+    });
+    $('leaderboard').innerHTML = lh || '<div class="note">暂无数据</div>';
+  }catch(e){ console.error('history', e); }
 }
 async function approve(){
   const n = Math.max(1, Math.min(200, parseInt($('buyCount').value||'1')));
