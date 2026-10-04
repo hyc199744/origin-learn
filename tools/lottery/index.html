@@ -275,7 +275,7 @@ zh: {
   roundN: '第 {n} 期', totalPaid: '共发出 {amt} LGNS', wonTimes: '中 {n} 次 · <b>{amt}</b> LGNS',
   prize1: '一等奖', prize2: '二等奖', prize3: '三等奖',
   reportTitle: '开奖战报', reportPool: '奖池构成', reportSalesPart: '票款可分配', reportRolloverIn: '上期滚存',
-  reportUnwon: '未中出滚入下期', reportMeta: '售票 {sold} 张 · 平台费 {fee} LGNS',
+  reportUnwon: '未中出滚入下期', reportMeta: '售票 {sold} 张',
   ownerTitle: '房主管理', ownerNote: '冷启动：往当期奖池里加钱，奖金更诱人，吸引第一批玩家。加进去的钱就回不来了，算营销成本。',
   seedPh: '注入多少 LGNS', approveSeedBtn: '1. 授权', seedBtn: '2. 注入奖池', setPriceBtn: '票价改成 3 LGNS',
   drawing: '开奖中', drawPreparing: '准备开奖…', drawClose: '关闭',
@@ -325,7 +325,7 @@ en: {
   roundN: 'Round {n}', totalPaid: 'Paid out {amt} LGNS', wonTimes: 'Won {n}× · <b>{amt}</b> LGNS',
   prize1: '1st Prize', prize2: '2nd Prize', prize3: '3rd Prize',
   reportTitle: 'Draw Report', reportPool: 'Pool breakdown', reportSalesPart: 'Sales share', reportRolloverIn: 'Rollover in',
-  reportUnwon: 'Unwon → next round', reportMeta: '{sold} tickets · fee {fee} LGNS',
+  reportUnwon: 'Unwon → next round', reportMeta: '{sold} tickets sold',
   ownerTitle: 'Owner Panel', ownerNote: 'Cold start: seed the current prize pool to attract the first players. Seeded funds cannot be withdrawn — treat as marketing cost.',
   seedPh: 'Amount to seed (LGNS)', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Pool', setPriceBtn: 'Set price to 3 LGNS',
   drawing: 'Drawing…', drawPreparing: 'Preparing…', drawClose: 'Close',
@@ -691,7 +691,7 @@ async function loadHistory(){
             ? '<div class="kv"><span class="k">'+t('reportUnwon')+'</span><span class="v">'+fmt(roll)+' LGNS</span></div>'
               + '<div class="rbar"><i class="gray" style="width:'+pct(roll)+'%"></i></div>'
             : '')
-        + '<div class="note" style="margin-top:4px">'+t('reportMeta',{sold:sold, fee:fmt(feeAmt)})+'</div>'
+        + '<div class="note" style="margin-top:4px">'+t('reportMeta',{sold:sold})+'</div>'
         + '</div>';
       hhtml = card + hhtml;
     }
