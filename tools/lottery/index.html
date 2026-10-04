@@ -121,7 +121,6 @@
 <body>
 <div class="wrap">
   <div class="topbar">
-    <button class="pill" id="chainBtn" onclick="toggleChain()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V8m0 0L4 11m3-3l3 3M17 8v8m0 0l3-3m-3 3l-3-3"/></svg><span id="chainBtnTxt">Anubis</span></button>
     <button class="pill" id="langBtn" onclick="toggleLang()">EN</button>
     <button class="pill" id="walletBtn" onclick="connect()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/></svg><span id="walletBtnTxt">连接钱包</span></button>
   </div>
@@ -371,19 +370,6 @@ function toggleLang(){
   applyLang(); updateWalletBtn();
   refresh();
 }
-function toggleChain(){
-  chainKey = chainKey==='anubis' ? 'polygon' : 'anubis';
-  localStorage.setItem('lottery_chain', chainKey);
-  CFG = CHAINS[chainKey];
-  myAddr = null;
-  const ma = $('myAddr'); if(ma) ma.textContent = '-';
-  const mb = $('myBal'); if(mb) mb.textContent = '-';
-  updateChainText();
-  updateContractInfo();
-  updateWalletBtn();
-  setBuyN(1);
-  refresh();
-}
 function updateChainText(){
   const bt = $('chainBtnTxt'); if(bt) bt.textContent = CFG.chainName;
   const bn = $('chainBigName'); if(bn) bn.textContent = CFG.chainName.toUpperCase();
@@ -419,8 +405,8 @@ const CHAINS = {
     deployBlock: 94920000 // 2026-10-04 前后，历史事件从这里开始扫
   }
 };
-let chainKey = localStorage.getItem('lottery_chain') || 'anubis';
-let CFG = CHAINS[chainKey] || CHAINS.anubis;
+let chainKey = 'anubis';
+let CFG = CHAINS.anubis;
 const SEL = {
   approve: '095ea7b3', allowance: 'dd62ed3e', balanceOf: '70a08231',
   buyTickets: '2f366637', seedJackpot: '02950fb9', closeRound: 'e278fe6f', draw: '0eecae21',
