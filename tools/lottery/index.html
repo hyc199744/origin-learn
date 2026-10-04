@@ -6,59 +6,60 @@
 <title>Anubis 彩票 | Web3Origin 工具</title>
 <style>
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #0b0e17 radial-gradient(ellipse 90% 42% at 50% 0%, #2b2113 0%, #0b0e17 70%); color: #e8ecf4; min-height: 100vh; }
+  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(180deg, #b71c1c 0%, #d32f2f 30%, #f9f3e8 100%); background-attachment: fixed; color: #4a2c0a; min-height: 100vh; }
   .wrap { max-width: 560px; margin: 0 auto; padding: 16px 14px 60px; }
-  .brand { text-align: center; padding: 12px 0 2px; }
-  .logo { width: 104px; height: 104px; border-radius: 50%; border: 3px solid #d4af37; box-shadow: 0 0 28px #d4af3766, inset 0 0 14px #000; background: #0b0e17; }
-  h1 { font-size: 27px; text-align: center; margin: 12px 0 4px; letter-spacing: 8px; text-indent: 8px; font-weight: 800; background: linear-gradient(180deg, #ffedb0, #d4af37 55%, #9a7b24); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .sub { text-align: center; color: #b39a5e; font-size: 13px; margin-bottom: 4px; letter-spacing: 3px; }
-  .divider { display: flex; align-items: center; gap: 10px; margin: 8px auto 16px; max-width: 400px; }
-  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; }
-  .divider::before { background: linear-gradient(90deg, transparent, #d4af37); }
-  .divider::after { background: linear-gradient(90deg, #d4af37, transparent); }
-  .divider span { color: #d4af37; font-size: 12px; }
-  .card { background: linear-gradient(180deg, #151b2e, #10141f); border: 1px solid #6b5426; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: inset 0 0 0 1px #241d0e, 0 2px 14px #0009; }
-  .card h2 { font-size: 16px; margin: 0 0 10px; color: #ffd75e; }
-  .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px dashed #2a3350; }
+  .brand { text-align: center; padding: 20px 0 6px; background: radial-gradient(ellipse 70% 90% at 50% 0%, #ff6f6088, transparent); border-radius: 0 0 24px 24px; }
+  .logo { width: 92px; height: 92px; border-radius: 50%; border: 4px solid #ffd700; box-shadow: 0 0 24px #ffd70088, 0 4px 12px #0006; background: #fff; }
+  h1 { font-size: 30px; text-align: center; margin: 12px 0 4px; letter-spacing: 10px; text-indent: 10px; font-weight: 900; color: #ffd700; text-shadow: 0 2px 0 #7f0000, 0 4px 12px #0008; }
+  .sub { text-align: center; color: #ffe9b0; font-size: 13px; margin-bottom: 4px; letter-spacing: 3px; text-shadow: 0 1px 2px #0008; }
+  .divider { display: flex; align-items: center; gap: 10px; margin: 10px auto 18px; max-width: 400px; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 2px; }
+  .divider::before { background: linear-gradient(90deg, transparent, #ffd700); }
+  .divider::after { background: linear-gradient(90deg, #ffd700, transparent); }
+  .divider span { color: #ffd700; font-size: 14px; text-shadow: 0 1px 2px #0008; }
+  .card { background: #fffdf7; border: 2px solid #d4af37; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 4px 16px #7f000066, inset 0 1px 0 #fff; }
+  .card h2 { font-size: 17px; margin: 0 0 10px; color: #b71c1c; border-bottom: 2px solid #f5d67b; padding-bottom: 8px; }
+  .row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 14px; border-bottom: 1px dashed #e8c96a; }
   .row:last-child { border-bottom: none; }
-  .k { color: #8b93a7; } .v { font-weight: 600; }
-  .big { font-size: 28px; font-weight: 800; color: #ffd75e; text-align: center; margin: 6px 0; }
-  .big small { font-size: 14px; color: #8b93a7; font-weight: 400; }
-  .countdown { text-align: center; font-size: 15px; color: #7ee2a8; margin: 4px 0 8px; }
-  input, button { font-size: 15px; border-radius: 8px; }
-  input { width: 100%; padding: 10px; background: #0f1420; border: 1px solid #2a3350; color: #e8ecf4; margin: 6px 0; }
-  button { padding: 11px 14px; border: none; cursor: pointer; font-weight: 700; }
-  .btn-p { background: #ffd75e; color: #1a1405; width: 100%; margin-top: 6px; }
-  .btn-s { background: #2a3350; color: #e8ecf4; width: 100%; margin-top: 6px; }
+  .k { color: #8a6d3b; } .v { font-weight: 700; color: #4a2c0a; }
+  .big { font-size: 30px; font-weight: 900; color: #c62828; text-align: center; margin: 6px 0; text-shadow: 0 1px 0 #ffe9b0; }
+  .big small { font-size: 14px; color: #8a6d3b; font-weight: 400; }
+  .countdown { text-align: center; font-size: 15px; color: #2e7d32; font-weight: 700; margin: 4px 0 8px; }
+  input, button { font-size: 15px; border-radius: 10px; }
+  input { width: 100%; padding: 11px; background: #fff; border: 2px solid #e8c96a; color: #4a2c0a; margin: 6px 0; }
+  input:focus { border-color: #c62828; outline: none; }
+  button { padding: 12px 14px; border: none; cursor: pointer; font-weight: 800; }
+  .btn-p { background: linear-gradient(180deg, #e53935, #b71c1c); color: #ffd700; width: 100%; margin-top: 6px; box-shadow: 0 3px 8px #b71c1c66; text-shadow: 0 1px 2px #0006; }
+  .btn-s { background: linear-gradient(180deg, #ffd54f, #f9a825); color: #7f0000; width: 100%; margin-top: 6px; box-shadow: 0 3px 8px #f9a82566; }
   .btn-row { display: flex; gap: 8px; } .btn-row button { flex: 1; }
   button:disabled { opacity: .45; cursor: not-allowed; }
-  #connectBtn { display: block; margin: 0 auto 12px; background: linear-gradient(180deg, #e8c96a, #c39a2e); color: #1a1405; padding: 10px 26px; border: 1px solid #8a6d2f; }
-  .addr { font-size: 12px; color: #8b93a7; text-align: center; margin-bottom: 8px; word-break: break-all; }
-  .note { font-size: 12px; color: #8b93a7; line-height: 1.7; }
-  .winner { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px dashed #2a3350; }
-  .tag { display: inline-block; font-size: 11px; background: #ffd75e; color: #1a1405; border-radius: 4px; padding: 1px 6px; margin-right: 6px; font-weight: 700; }
-  .t2 .tag { background: #7ee2a8; } .t3 .tag { background: #8fb8ff; }
-  #ownerPanel { display: none; border-color: #ffd75e; }
+  #connectBtn { display: block; margin: 0 auto 14px; background: linear-gradient(180deg, #ffd54f, #f9a825); color: #7f0000; padding: 11px 30px; border: 2px solid #ffd700; box-shadow: 0 4px 12px #0006; font-size: 16px; }
+  .addr { font-size: 12px; color: #ffe9b0; text-align: center; margin-bottom: 10px; word-break: break-all; text-shadow: 0 1px 2px #0008; }
+  .note { font-size: 12px; color: #8a6d3b; line-height: 1.7; }
+  .winner { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px dashed #e8c96a; }
+  .tag { display: inline-block; font-size: 11px; background: #c62828; color: #ffd700; border-radius: 4px; padding: 1px 6px; margin-right: 6px; font-weight: 700; }
+  .t2 .tag { background: #2e7d32; color: #fff; } .t3 .tag { background: #1565c0; color: #fff; }
+  #ownerPanel { display: none; border-color: #c62828; }
   /* 开奖动画 */
-  #drawOverlay { position: fixed; inset: 0; background: rgba(8,11,20,.97); z-index: 99; display: none; flex-direction: column; align-items: center; padding: 26px 14px 40px; overflow-y: auto; }
+  #drawOverlay { position: fixed; inset: 0; background: rgba(120,10,10,.97); z-index: 99; display: none; flex-direction: column; align-items: center; padding: 26px 14px 40px; overflow-y: auto; }
   #drawOverlay.show { display: flex; }
-  #drawOverlay h2 { margin: 0 0 4px; font-size: 20px; }
-  #drawStatus { color: #8b93a7; font-size: 13px; margin-bottom: 6px; text-align: center; }
+  #drawOverlay h2 { margin: 0 0 4px; font-size: 22px; color: #ffd700; text-shadow: 0 2px 4px #0008; }
+  #drawStatus { color: #ffe9b0; font-size: 13px; margin-bottom: 6px; text-align: center; }
   #ballStage { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 480px; margin: 16px 0; min-height: 130px; align-content: flex-start; }
-  .ball { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffffff88, #ffd75e 55%, #b98a1e); color: #1a1405; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 15px; animation: bounce 1s infinite ease-in-out; }
+  .ball { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffffffcc, #ffd54f 55%, #c8930a); color: #7f0000; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 15px; animation: bounce 1s infinite ease-in-out; box-shadow: 0 4px 10px #0006; }
   @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-24px); } }
-  .ball.t1 { background: radial-gradient(circle at 35% 30%, #ffffff88, #ff5f6d 55%, #a3121f); color: #fff; animation: none; transform: scale(1.3); font-size: 20px; }
-  .ball.t2 { background: radial-gradient(circle at 35% 30%, #ffffff88, #7ee2a8 55%, #1d7a45); color: #06281a; animation: none; font-size: 18px; }
-  .ball.t3 { background: radial-gradient(circle at 35% 30%, #ffffff88, #8fb8ff 55%, #2b4d9b); color: #fff; animation: none; }
+  .ball.t1 { background: radial-gradient(circle at 35% 30%, #ffffffcc, #ff5f6d 55%, #a3121f); color: #fff; animation: none; transform: scale(1.3); font-size: 20px; }
+  .ball.t2 { background: radial-gradient(circle at 35% 30%, #ffffffcc, #7ee2a8 55%, #1d7a45); color: #06281a; animation: none; font-size: 18px; }
+  .ball.t3 { background: radial-gradient(circle at 35% 30%, #ffffffcc, #8fb8ff 55%, #2b4d9b); color: #fff; animation: none; }
   .ball.out { opacity: .15; animation: none; }
-  #drawResults { width: 100%; max-width: 460px; }
-  .wrow { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 4px; border-bottom: 1px dashed #2a3350; font-size: 14px; animation: fadein .4s; }
-  .wrow .wa { color: #8b93a7; font-size: 12px; }
-  .wrow .wamt { font-weight: 800; color: #ffd75e; }
+  #drawResults { width: 100%; max-width: 460px; background: #fffdf7; border-radius: 12px; padding: 10px 14px; }
+  .wrow { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 8px 4px; border-bottom: 1px dashed #e8c96a; font-size: 14px; animation: fadein .4s; }
+  .wrow .wa { color: #8a6d3b; font-size: 12px; }
+  .wrow .wamt { font-weight: 800; color: #c62828; }
   @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
-  #drawClose { display: none; margin-top: 18px; background: #4f8cff; color: #fff; padding: 11px 40px; }
-  .foot { text-align: center; font-size: 12px; color: #5a6378; margin-top: 18px; line-height: 1.8; }
-  .foot a { color: #4f8cff; }
+  #drawClose { display: none; margin-top: 18px; background: linear-gradient(180deg, #e53935, #b71c1c); color: #ffd700; padding: 12px 44px; font-size: 16px; }
+  .foot { text-align: center; font-size: 12px; color: #ffe9b0; margin-top: 18px; line-height: 1.8; text-shadow: 0 1px 2px #0008; }
+  .foot a { color: #ffd700; }
 </style>
 </head>
 <body>
