@@ -262,7 +262,7 @@ zh: {
   poolFormula: '· 奖池 = 本期票款 × {pct}% + 上期滚存<br>· 没人中的奖项自动滚入下期，奖池越滚越大<br>· 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>· 票数不够 14 张时按实际票数开奖，剩下的全滚存',
   lastDraw: '上期开奖', lastRound: '(第 {n} 期)', noRecord: '暂无开奖记录', rolloverNext: '滚入下期',
   board: '累计中奖榜', history: '历史开奖', loading: '加载中…',
-  noHistory: '暂无历史开奖', noData: '暂无数据',
+  noHistory: '暂无历史开奖', noData: '暂无数据', loadFail: '加载失败，请稍后刷新重试',
   roundN: '第 {n} 期', totalPaid: '共发出 {amt} LGNS', wonTimes: '中 {n} 次 · <b>{amt}</b> LGNS',
   prize1: '一等奖', prize2: '二等奖', prize3: '三等奖',
   ownerTitle: '房主管理', ownerNote: '冷启动：往当期奖池里加钱，奖金更诱人，吸引第一批玩家。加进去的钱就回不来了，算营销成本。',
@@ -310,7 +310,7 @@ en: {
   poolFormula: '· Pool = round sales × {pct}% + rollover<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
   lastDraw: 'Last Draw', lastRound: '(Round {n})', noRecord: 'No draw records yet', rolloverNext: 'Rollover to next',
   board: 'Leaderboard', history: 'History', loading: 'Loading…',
-  noHistory: 'No draw history yet', noData: 'No data',
+  noHistory: 'No draw history yet', noData: 'No data', loadFail: 'Load failed, please refresh and retry',
   roundN: 'Round {n}', totalPaid: 'Paid out {amt} LGNS', wonTimes: 'Won {n}× · <b>{amt}</b> LGNS',
   prize1: '1st Prize', prize2: '2nd Prize', prize3: '3rd Prize',
   ownerTitle: 'Owner Panel', ownerNote: 'Cold start: seed the current prize pool to attract the first players. Seeded funds cannot be withdrawn — treat as marketing cost.',
@@ -403,7 +403,8 @@ const CHAINS = {
     token: '0x4d1d808a081fdac440703b3765fc61f8028c06b8', // LGNS 9 位精度
     decimals: 9,
     CONTRACT: '0x0E1e458F1e2fD60364D1906Dc058760070D43902', // 2026-10-02 部署
-    native: {name:'DAI', symbol:'DAI', decimals:18}
+    native: {name:'DAI', symbol:'DAI', decimals:18},
+    deployBlock: 15440000 // 2026-10-02 前后，历史事件从这里开始扫
   },
   polygon: {
     chainId: 137, chainHex: '0x89', chainName: 'Polygon',
@@ -412,7 +413,8 @@ const CHAINS = {
     token: '0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01', // Polygon LGNS 9 位精度
     decimals: 9,
     CONTRACT: '0x4f528929fc0663280f63b342f60af945f44f644f', // 2026-10-04 部署
-    native: {name:'POL', symbol:'POL', decimals:18}
+    native: {name:'POL', symbol:'POL', decimals:18},
+    deployBlock: 94920000 // 2026-10-04 前后，历史事件从这里开始扫
   }
 };
 let chainKey = localStorage.getItem('lottery_chain') || 'anubis';
@@ -625,8 +627,19 @@ async function refresh(){
 const EV_WIN = '0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627b4';
 async function loadHistory(){
   try{
-    const logs = await req('eth_getLogs',[{address:CFG.CONTRACT, topics:[EV_WIN], fromBlock:'0x0', toBlock:'latest'}]);
-    if(!logs || !logs.length){
+    // RPC 单次最多查 5000 块，从部署块开始分段扫
+    const CHUNK = 4000;
+    const latest = Number(BigInt(await req('eth_blockNumber',[])));
+    let from = CFG.deployBlock || 0;
+    let logs = [];
+    while (from <= latest){
+      const to = Math.min(from + CHUNK - 1, latest);
+      const part = await req('eth_getLogs',[{address:CFG.CONTRACT, topics:[EV_WIN],
+        fromBlock:'0x'+from.toString(16), toBlock:'0x'+to.toString(16)}]);
+      if (part && part.length) logs = logs.concat(part);
+      from = to + 1;
+    }
+    if(!logs.length){
       $('historyList').innerHTML = '<div class="note">'+t('noHistory')+'</div>';
       $('leaderboard').innerHTML = '<div class="note">'+t('noData')+'</div>';
       return;
@@ -662,7 +675,11 @@ async function loadHistory(){
       lh += '<div class="winner"><span>'+(medal[i]||(i+1)+'.')+' '+short(addr)+'</span><span>'+t('wonTimes',{n:st.n, amt:fmt(st.amt)})+'</span></div>';
     });
     $('leaderboard').innerHTML = lh || '<div class="note">'+t('noData')+'</div>';
-  }catch(e){ console.error('history', e); }
+  }catch(e){
+    console.error('history', e);
+    $('historyList').innerHTML = '<div class="note">'+t('loadFail')+'</div>';
+    $('leaderboard').innerHTML = '<div class="note">'+t('loadFail')+'</div>';
+  }
 }
 async function approve(){
   await sendTx(CFG.token, '0x'+SEL.approve+encAddr(CFG.CONTRACT)+encUint(TICKET*BigInt(buyN)));
