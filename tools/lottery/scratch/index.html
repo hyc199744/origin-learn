@@ -26,13 +26,25 @@ body{font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei
 .tier .p{font-size:11px;opacity:.7;margin-top:2px}
 .buy{display:block;width:100%;background:linear-gradient(135deg,#C9A86A,#a8823f);border:none;border-radius:14px;color:#fff;font-size:17px;font-weight:800;padding:14px;cursor:pointer;letter-spacing:2px;margin-bottom:6px}
 .buy:disabled{opacity:.45;cursor:default}
-.cardwrap{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 4px 18px rgba(92,26,39,.18);display:none;margin-bottom:6px}
+.cardwrap{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 4px 18px rgba(92,26,39,.18);display:none;margin-bottom:6px;background:#fff;padding:14px}
 .cardwrap.show{display:block}
-.cardph{height:190px}
-.result{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#FAF7F0}
-.result .amt{font-size:44px;font-weight:800;color:#b8912f}
-.result .msg{font-size:15px;color:#5C1A27;margin-top:6px}
-canvas#cover{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:pointer}
+.drum{position:absolute;inset:0;background:rgba(250,247,240,.95);display:flex;align-items:center;justify-content:center;z-index:5;font-size:17px;font-weight:800;color:#5C1A27;gap:8px}
+.grid6{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 6px}
+.cell{position:relative;aspect-ratio:.92;background:#fff8ee;border:1px solid #e8dcc0;border-radius:12px;overflow:hidden}
+.cell .sym{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:40px}
+.cell canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:pointer}
+.cell.open canvas{display:none}
+.cell.pop .sym{animation:cellpop .35s ease}
+@keyframes cellpop{0%{transform:scale(.3)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.cardbar{display:flex;align-items:center;justify-content:space-between;margin:2px 0 4px}
+.opencount{font-size:13px;color:#a08c6a}
+.openall{background:#fff;border:1px solid #C9A86A;border-radius:10px;color:#5C1A27;font-size:13px;font-weight:700;padding:7px 14px;cursor:pointer}
+.sndbtn{background:none;border:none;font-size:18px;cursor:pointer;padding:4px}
+.result2{text-align:center;padding:8px 0 2px;display:none}
+.result2.show{display:block}
+.result2 .amt{font-size:40px;font-weight:800;color:#b8912f;min-height:48px}
+.result2 .msg{font-size:15px;color:#5C1A27;margin-top:4px;font-weight:700}
+.result2.jackpot .amt{color:#e74c3c;animation:cellpop .6s ease infinite alternate}
 .hint{text-align:center;font-size:12px;color:#a08c6a;margin:8px 0;display:none}
 .again{display:none;width:100%;background:#fff;border:1px solid #C9A86A;border-radius:12px;color:#5C1A27;font-size:14px;padding:11px;cursor:pointer;margin-bottom:4px}
 .ptable{background:#fff;border:1px solid #e8dcc0;border-radius:12px;padding:12px 14px;font-size:13px;margin:12px 0}
@@ -89,9 +101,14 @@ canvas#cover{position:absolute;inset:0;width:100%;height:100%;touch-action:none;
   </div>
 
   <div class="cardwrap" id="cardwrap">
-    <div class="cardph"></div>
-    <div class="result"><div class="amt" id="v-amt"></div><div class="msg" id="v-msg"></div></div>
-    <canvas id="cover"></canvas>
+    <div class="drum" id="drum" style="display:none">🎰 <span data-i18n="drumroll">开奖中…</span></div>
+    <div class="cardbar">
+      <span class="opencount" id="openCount"></span>
+      <span><button class="openall" id="openAllBtn"></button>
+      <button class="sndbtn" id="sndBtn">🔊</button></span>
+    </div>
+    <div class="grid6" id="grid6"></div>
+    <div class="result2" id="result2"><div class="amt" id="v-amt"></div><div class="msg" id="v-msg"></div></div>
   </div>
   <div class="hint" id="hint"></div>
   <button class="again" id="againBtn"></button>
@@ -141,7 +158,8 @@ const I18N = {
     ownerPanel:'管理员',seed:'注资奖池',skim:'提取利润',setReserve:'设保留线',pause:'暂停',unpause:'恢复',reserveLb:'保留线',
     dailyLink:'← 每日彩票',contract:'合约',needPool:'奖池不足',paused:'已暂停',insufficient:'LGNS 余额不足',
     freeTitle:'🎁 每日免费刮',freeBtn:'免费刮一张',freeUsedUp:'今日免费名额已用完',freeClaimed:'明天再来',freeLeft:'今日剩余',
-    freeHow:'每地址每天 1 次 · 奖项同 1 LGNS 档 · 奖金从奖池出'},
+    freeHow:'每地址每天 1 次 · 奖项同 1 LGNS 档 · 奖金从奖池出',
+    drumroll:'开奖中…',openAll:'一键全开',gridHint:'刮开 6 个格子，3 个相同图案即中奖',opened:'已刮开 '},
   en: {brand:'⚡ Instant Scratch',connect:'Connect Wallet',pool:'Prize Pool',poolLow:'Pool low, waiting for funding',poolOk:'Pool healthy, scratch away',
     buy:'Buy ticket',approve:'Approve LGNS',processing:'Processing…',stepConnect:'Connect wallet to play',txSent:'Tx sent, confirming…',txReverted:'Tx failed',
     scratchHint:'👆 Swipe to scratch',again:'Play again',lose:'No luck this time',winS:'Small win!',winB:'🎉 JACKPOT!!',
@@ -149,7 +167,8 @@ const I18N = {
     ownerPanel:'Owner',seed:'Seed pool',skim:'Withdraw profit',setReserve:'Set reserve',pause:'Pause',unpause:'Unpause',reserveLb:'Reserve',
     dailyLink:'← Daily lottery',contract:'Contract',needPool:'Pool too low',paused:'Paused',insufficient:'Insufficient LGNS',
     freeTitle:'🎁 Free daily scratch',freeBtn:'Scratch free',freeUsedUp:'No free plays left today',freeClaimed:'Come back tomorrow',freeLeft:'left today',
-    freeHow:'1 per address per day · same prizes as 1 LGNS tier · paid from pool'}
+    freeHow:'1 per address per day · same prizes as 1 LGNS tier · paid from pool',
+    drumroll:'Drawing…',openAll:'Reveal all',gridHint:'Scratch all 6 — match 3 symbols to win',opened:'Revealed '}
 };
 let LANG = 'zh';
 const t = k => (I18N[LANG] && I18N[LANG][k]) || I18N.zh[k] || k;
@@ -332,67 +351,160 @@ async function doPlay(){
   showCard(prize);
 }
 
-/* ===== 刮刮卡 ===== */
-let cv=$('cover'), ctx=cv.getContext('2d'), W=0,H=0, down=false, strokes=0, revealed=false, lastPrize=0n, lastBet=0n;
-function sizeCanvas(){
-  const r=$('cardwrap').getBoundingClientRect();
-  W=cv.width=Math.floor(r.width*2); H=cv.height=380; cv.style.height='190px';
+/* ===== 六宫格对对乐 ===== */
+let lastPrize=0n, lastBet=0n, grid=[], opened=0, cells=[], MUTED=false, AC=null, finaleDone=false;
+const FILLERS=['🍒','🍋','⭐','🔔','🎰','🍀'];
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function genGrid(prize,tier){
+  const out=new Array(6), pos=shuffle([0,1,2,3,4,5]);
+  if(prize>0n){
+    const ws=prize>=tier.bigPrize?'👑':'💰';
+    out[pos[0]]=out[pos[1]]=out[pos[2]]=ws;
+    const f=shuffle([...FILLERS]), rest=shuffle([f[0],f[0],f[1]]);
+    pos.slice(3).forEach((p,i)=>out[p]=rest[i]);
+  }else{
+    const f=shuffle([...FILLERS]), picks=shuffle([f[0],f[0],f[1],f[1],f[2],f[3]]);
+    for(let i=0;i<6;i++)out[i]=picks[i];
+  }
+  return out;
 }
-function paintCover(){
+/* --- 音效(Web Audio 现场合成,无外部文件) --- */
+function beep(fr,dur,type,vol,when){
+  if(MUTED)return;
+  try{
+    AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==='suspended')AC.resume();
+    const o=AC.createOscillator(),g=AC.createGain(),t0=AC.currentTime+(when||0);
+    o.type=type||'triangle';o.frequency.value=fr;
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime(vol||0.15,t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g);g.connect(AC.destination);o.start(t0);o.stop(t0+dur+0.05);
+  }catch(e){}
+}
+function sndReveal(i){beep(320+i*90,0.12,'triangle',0.16);}
+function sndWin(big){const s=big?[523,659,784,1047,1319,1568]:[523,659,784,1047];s.forEach((f,i)=>beep(f,0.28,'triangle',0.18,i*0.11));}
+function sndLose(){beep(220,0.25,'sine',0.1);beep(165,0.4,'sine',0.1,0.16);}
+function sndDrum(){for(let i=0;i<9;i++)beep(110+Math.random()*70,0.07,'square',0.05,i*0.14);}
+function vibrate(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
+/* --- 流程 --- */
+function showCard(prize){
+  lastPrize=prize;lastBet=TIERS[tierIdx].bet;finaleDone=false;
+  const tier=TIERS[tierIdx];
+  grid=genGrid(prize,tier);opened=0;cells=[];
+  $('result2').classList.remove('show','jackpot');
+  $('v-amt').textContent='';$('v-msg').textContent='';
+  $('cardwrap').classList.add('show');
+  $('againBtn').style.display='none';
+  buildGrid(false);
+  drumPhase();
+  $('cardwrap').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function buildGrid(cover){
+  const g=$('grid6');g.innerHTML='';cells=[];
+  $('openCount').textContent=t('opened')+'0/6';
+  $('openAllBtn').textContent=t('openAll');
+  grid.forEach((sym,i)=>{
+    const el=document.createElement('div');el.className='cell';
+    const sm=document.createElement('div');sm.className='sym';sm.textContent=cover?sym:'❔';el.appendChild(sm);
+    const cv=document.createElement('canvas');el.appendChild(cv);
+    g.appendChild(el);
+    const cell={el,cv,ctx:cv.getContext('2d'),open:false,down:false,strokes:0};
+    cells.push(cell);
+    if(cover){sizeCell(cell);paintCell(cell);bindCell(cell,i);}
+  });
+  if(cover){
+    $('hint').style.display='block';$('hint').textContent=t('gridHint');
+  }
+}
+function drumPhase(){
+  const d=$('drum');d.style.display='flex';sndDrum();
+  const iv=setInterval(()=>{
+    const sms=document.querySelectorAll('#'+($('grid6').id)+' .sym');
+    sms.forEach(s=>{s.textContent=FILLERS[Math.floor(Math.random()*FILLERS.length)];});
+  },90);
+  setTimeout(()=>{clearInterval(iv);d.style.display='none';buildGrid(true);},1400);
+}
+function sizeCell(cell){
+  const r=cell.el.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  cell.W=cell.cv.width=Math.max(2,Math.floor(r.width*dpr));
+  cell.H=cell.cv.height=Math.max(2,Math.floor(r.height*dpr));
+}
+function paintCell(cell){
+  const{ctx,W,H}=cell;
   ctx.globalCompositeOperation='source-over';
   const g=ctx.createLinearGradient(0,0,W,H);
   g.addColorStop(0,'#d9b96e');g.addColorStop(.5,'#c39a4a');g.addColorStop(1,'#a8823f');
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='rgba(255,255,255,.92)';ctx.textAlign='center';
-  ctx.font='700 44px serif';
-  ctx.fillText(LANG==='zh'?'刮开见分晓':'SCRATCH TO REVEAL',W/2,H/2+8);
-  ctx.font='28px serif';ctx.fillStyle='rgba(255,255,255,.7)';
-  ctx.fillText(LANG==='zh'?'👆 滑动刮开':'👆 swipe to scratch',W/2,H/2+58);
+  ctx.fillStyle='rgba(255,255,255,.85)';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font=Math.floor(H*0.32)+'px serif';
+  ctx.fillText('✦',W/2,H/2);
 }
-function showCard(prize){
-  lastPrize=prize; lastBet=TIERS[tierIdx].bet; revealed=false; strokes=0;
-  $('v-amt').textContent=''; $('v-msg').textContent='';
-  $('cardwrap').classList.add('show');
-  sizeCanvas(); paintCover();
-  $('hint').style.display='block'; $('hint').textContent=t('scratchHint');
-  $('againBtn').style.display='none';
-  $('cardwrap').scrollIntoView({behavior:'smooth',block:'center'});
+function bindCell(cell,i){
+  const cv=cell.cv;
+  const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*(cell.W/r.width),(e.clientY-r.top)*(cell.H/r.height)];};
+  cv.addEventListener('pointerdown',e=>{cell.down=true;const[x,y]=pos(e);erase(cell,x,y);e.preventDefault();});
+  window.addEventListener('pointermove',e=>{if(!cell.down||cell.open)return;const[x,y]=pos(e);erase(cell,x,y);});
+  window.addEventListener('pointerup',()=>{if(cell.down){cell.down=false;checkCell(cell);}});
 }
-function eraseAt(cx,cy){
+function erase(cell,x,y){
+  const{ctx}=cell;
   ctx.globalCompositeOperation='destination-out';
-  ctx.beginPath();ctx.arc(cx,cy,46,0,7);ctx.fill();
+  ctx.beginPath();ctx.arc(x,y,cell.W*0.16,0,7);ctx.fill();
   ctx.globalCompositeOperation='source-over';
-  if(++strokes%6===0)checkDone();
+  if(++cell.strokes%5===0)checkCell(cell);
 }
-cv.addEventListener('pointerdown',e=>{down=true;const r=cv.getBoundingClientRect();eraseAt((e.clientX-r.left)*(W/r.width),(e.clientY-r.top)*(H/r.height));e.preventDefault();});
-window.addEventListener('pointermove',e=>{if(!down)return;const r=cv.getBoundingClientRect();eraseAt((e.clientX-r.left)*(W/r.width),(e.clientY-r.top)*(H/r.height));});
-window.addEventListener('pointerup',()=>{if(down){down=false;checkDone();}});
-function checkDone(){
-  if(revealed||!W)return;
-  const d=ctx.getImageData(0,0,W,H).data;let clear=0,total=0;
-  for(let i=3;i<d.length;i+=32){total++;if(d[i]===0)clear++;}
-  if(clear/total>0.4)reveal();
+function checkCell(cell){
+  if(cell.open||!cell.W)return;
+  const d=cell.ctx.getImageData(0,0,cell.W,cell.H).data;
+  let clear=0,total=0;
+  for(let i=3;i<d.length;i+=40){total++;if(d[i]===0)clear++;}
+  if(clear/total>0.35)openCell(cell);
 }
-function reveal(){
-  revealed=true;ctx.clearRect(0,0,W,H);
+function openCell(cell,silent){
+  if(cell.open)return;cell.open=true;
+  cell.el.classList.add('open','pop');
+  opened++;
+  if(!silent){sndReveal(opened);vibrate(25);}
+  $('openCount').textContent=t('opened')+opened+'/6';
+  if(opened>=6&&!finaleDone)setTimeout(finale,500);
+}
+function countUp(el,target){
+  const t0=performance.now(),dur=900,tn=Number(target);
+  (function fr(now){
+    const p=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-p,3);
+    el.textContent='+'+fmt(BigInt(Math.floor(tn*e)))+' LGNS';
+    if(p<1)requestAnimationFrame(fr);
+  })(t0);
+}
+function finale(){
+  finaleDone=true;
+  const big=lastPrize>=lastBet*4n;
   if(lastPrize>0n){
-    $('v-amt').textContent='+'+fmt(lastPrize)+' LGNS';
-    $('v-msg').textContent = lastPrize>=lastBet*4n ? t('winB') : t('winS');
-    boom();
-  }else{ $('v-amt').textContent='0'; $('v-msg').textContent=t('lose'); }
+    countUp($('v-amt'),lastPrize);
+    $('v-msg').textContent=big?t('winB'):t('winS');
+    $('result2').classList.add('show');if(big)$('result2').classList.add('jackpot');
+    sndWin(big);vibrate(big?[120,60,120,60,250]:[90,40,90]);
+    boom(big?90:45);
+  }else{
+    $('v-amt').textContent='';$('v-msg').textContent=t('lose');
+    $('result2').classList.add('show');sndLose();
+  }
   $('hint').style.display='none';
   const ab=$('againBtn');ab.style.display='block';ab.textContent=t('again');
 }
-function boom(){
+function boom(n){
   const w=$('cardwrap'),cols=['#C9A86A','#5C1A27','#F5E9C8','#e74c3c','#2ecc71'];
-  for(let i=0;i<36;i++){
+  for(let i=0;i<n;i++){
     const s=document.createElement('div');s.className='cfetti';
     s.style.left=(Math.random()*100)+'%';s.style.background=cols[i%cols.length];
-    s.style.animationDelay=(Math.random()*0.5)+'s';w.appendChild(s);
-    setTimeout(()=>s.remove(),2400);
+    s.style.animationDelay=(Math.random()*0.6)+'s';w.appendChild(s);
+    setTimeout(()=>s.remove(),2600);
   }
 }
 $('againBtn').onclick=()=>{ if(!busy) mainAction(); };
+$('openAllBtn').onclick=()=>{ cells.forEach((c,i)=>setTimeout(()=>openCell(c),i*130)); };
+$('sndBtn').onclick=()=>{ MUTED=!MUTED; $('sndBtn').textContent=MUTED?'🔇':'🔊'; };
 
 /* ===== 免费刮 ===== */
 function updateFreeBtn(){
