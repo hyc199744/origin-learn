@@ -225,13 +225,18 @@ async function refresh(){
       const perDay = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.freePerDay));
       const used = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.freeUsed));
       FREE_LEFT = (perDay - used).toString();
-      FREE_OK = false; FREE_REASON = t('freeUsedUp');
-      if(myAddr && !PAUSED && TIERS.length && POOL >= TIERS[0].bigPrize && used < perDay){
-        const last = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastFreePlay+encAddr(myAddr)));
-        const now = BigInt(Math.floor(Date.now()/1000));
-        if(last === 0n || now >= last + 86400n){ FREE_OK = true; FREE_REASON=''; }
-        else FREE_REASON = t('freeClaimed');
+      FREE_OK = false; FREE_REASON = '';
+      if (TIERS.length && !PAUSED) {
+        if (POOL < TIERS[0].bigPrize) FREE_REASON = t('needPool');
+        else if (used >= perDay) FREE_REASON = t('freeUsedUp');
+        else if (myAddr) {
+          const last = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastFreePlay+encAddr(myAddr)));
+          const now = BigInt(Math.floor(Date.now()/1000));
+          if (last === 0n || now >= last + 86400n) { FREE_OK = true; }
+          else FREE_REASON = t('freeClaimed');
+        }
       }
+      if (!FREE_OK && !FREE_REASON) FREE_REASON = t('freeUsedUp');
     }catch(e){ console.log('free err', e); }
   }catch(e){ console.log('refresh err', e); }
   $('contractLink').href = CFG.explorer + '/address/' + CFG.CONTRACT;
@@ -244,7 +249,7 @@ function render(){
   $('poolAmt').textContent = fmt(POOL);
   const tier = TIERS[tierIdx];
   const poolOk = tier && POOL >= tier.bigPrize && !PAUSED;
-  $('poolSub').textContent = PAUSED ? t('paused') : (!tier ? '' : (POOL >= tier.bigPrize ? t('poolOk') : t('poolLow')));
+  $('poolSub').textContent = PAUSED ? t('paused') : (!tier ? '' : (POOL >= tier.bigPrize ? t('poolOk') : t('poolLow') + (LANG==='zh' ? '（需奖池≥'+fmt(tier.bigPrize)+' LGNS）' : ' (need pool ≥'+fmt(tier.bigPrize)+' LGNS)')));
   $('poolCard').classList.toggle('paused', PAUSED);
   // 档位按钮
   const te = $('tiers'); te.innerHTML='';
