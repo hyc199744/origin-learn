@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小白必看 · 区块链60问 | Web3Origin</title>
+<meta name="description" content="区块链60问：62集从零讲透区块链，新手入门必看。基础认知、技术科普、数字货币、行业历史、区块链应用，一站式补课。">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f1115;color:#e8e8e8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#f5c518}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 60px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 0}
+.topbar a.home{color:#aaa;text-decoration:none;font-size:14px}
+.topbar a.home:hover{color:#f5c518}
+.langbtn{background:#1a1d23;border:1px solid #333;color:#ccc;border-radius:20px;padding:6px 14px;font-size:13px;cursor:pointer}
+.langbtn:hover{border-color:#f5c518;color:#f5c518}
+.hero{text-align:center;padding:26px 10px 8px}
+.hero h1{font-size:30px;letter-spacing:2px;color:#f5c518;margin-bottom:8px}
+.hero .sub{color:#999;font-size:14px;line-height:1.9;max-width:640px;margin:0 auto}
+.hero .count{display:inline-block;margin-top:12px;background:#1a1d23;border:1px solid #2c313a;border-radius:20px;padding:6px 18px;font-size:13px;color:#ccc}
+.hero .count b{color:#f5c518;font-size:16px}
+.player-sec{margin:26px 0 8px}
+.player{position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:14px;overflow:hidden;border:1px solid #2c313a}
+.player iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.now{margin:12px 2px 0;font-size:15px;color:#ddd;min-height:24px}
+.now b{color:#f5c518}
+.chapter{margin-top:34px}
+.ch-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.ch-head .num{font-size:13px;color:#f5c518;border:1px solid #f5c51855;border-radius:6px;padding:1px 8px;white-space:nowrap}
+.ch-head h2{font-size:20px;letter-spacing:1px}
+.ch-head .en{font-size:13px;color:#777}
+.ch-desc{font-size:13.5px;color:#999;margin:0 0 14px;line-height:1.8}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{background:#161a20;border:1px solid #262b33;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-2px);border-color:#f5c51888}
+.card.active{border-color:#f5c518;box-shadow:0 0 0 1px #f5c518}
+.thumb{position:relative;width:100%;padding-top:56.25%;background:#000}
+.thumb img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+.thumb .ep{position:absolute;left:6px;bottom:6px;background:#000c;color:#fff;font-size:11px;padding:1px 7px;border-radius:4px}
+.thumb .play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:#000a;display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;opacity:.92}
+.card.active .thumb .play{background:#f5c518;color:#111}
+.card .t{padding:8px 10px;font-size:12.5px;line-height:1.6;color:#ccc;min-height:58px}
+.credit{margin-top:44px;padding:20px;background:#161a20;border:1px solid #262b33;border-radius:12px;font-size:13.5px;color:#999;line-height:2}
+.credit b{color:#ddd}
+.foot{text-align:center;color:#666;font-size:12px;margin-top:30px;line-height:2}
+.foot a{color:#888}
+@media(max-width:600px){.hero h1{font-size:24px}.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="home" href="/">← Web3Origin 首页</a>
+    <button class="langbtn" id="langBtn">EN / 中文</button>
+  </div>
+  <div class="hero">
+    <h1 id="hTitle">📺 小白必看 · 区块链60问</h1>
+    <p class="sub" id="hSub">62 集从零讲透区块链：从"区块链是什么"到密码学、共识机制，从比特币历史到真实应用。<br>每天看几集，一周补完区块链基础课。</p>
+    <div class="count"><b>62</b> <span id="hCount">集 · 6 大章节 · 全部免费</span></div>
+  </div>
+
+  <div class="player-sec">
+    <div class="player"><iframe id="player" src="" title="区块链60问" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+    <div class="now" id="nowPlaying"></div>
+  </div>
+
+  <div id="chapters"></div>
+
+  <div class="credit" id="creditBox">
+    <b>📢 内容来源说明</b><br>
+    本专区 62 集视频全部来自 YouTube 频道「<b>社團法人中華亞太區塊鏈應用推廣協會</b>」的《區塊鏈60問》系列。
+    本站采用 YouTube 官方嵌入方式播放，<b>视频版权归原作者所有</b>，播放量计入原频道；本站不下载、不转载视频文件。<br>
+    <a href="https://www.youtube.com/playlist?list=PL1RZCdZX2xNKuDt7Ck0ndLwUL7CI9lKkx" target="_blank" rel="noopener">→ 在 YouTube 上观看完整播放列表</a>
+  </div>
+
+  <div class="foot">Web3Origin · 小白必看专区<br><a href="/">返回首页</a></div>
+</div>
+
+<script>
+var CHAPTERS = [{"name": "基礎認知篇", "en": "Basics", "from": 1, "to": 9, "desc": "從零認識區塊鏈：它是什麼、為什麼叫這個名字、去中心化是什麼意思。", "desc_en": "What is blockchain, why it's called that, and what decentralization means."}, {"name": "技術科普篇", "en": "How It Works", "from": 10, "to": 28, "desc": "密碼學、共識機制、智能合約……把底層技術掰開揉碎講清楚。", "desc_en": "Cryptography, consensus, smart contracts — the tech behind it, explained simply."}, {"name": "數字貨幣篇", "en": "Digital Currency", "from": 29, "to": 35, "desc": "比特幣、以太坊、萊特幣：這些幣跟區塊鏈到底是什麼關係？", "desc_en": "Bitcoin, Ethereum, Litecoin: how are these coins related to blockchain?"}, {"name": "行業歷史篇", "en": "Industry History", "from": 36, "to": 52, "desc": "從中本聰到礦機大戰，一部濃縮的區塊鏈江湖史。", "desc_en": "From Satoshi to the mining wars — a compact history of the industry."}, {"name": "區塊鏈應用篇", "en": "Real-world Uses", "from": 53, "to": 60, "desc": "發票、物流、遊戲、金融……區塊鏈到底能用在哪？", "desc_en": "Invoices, logistics, gaming, finance — where is blockchain actually used?"}, {"name": "番外篇", "en": "Bonus", "from": 61, "to": 62, "desc": "貨幣的演變與數字貨幣：兩集番外，加深理解。", "desc_en": "The evolution of money and digital currency — two bonus episodes."}];
+var EPISODES = [{"n": 1, "id": "scVrnsfVKqc", "title": "區塊鏈60講｜第1集｜基礎認知篇：區塊鏈是什麼？"}, {"n": 2, "id": "a8EFC76iZkw", "title": "區塊鏈60講｜第2集｜基礎認知篇 ：區塊鏈為什麼叫區塊鏈？"}, {"n": 3, "id": "_4BP9SuYAjM", "title": "區塊鏈60講｜第3集｜基礎認知篇 ：區塊鏈的特點：去中心化"}, {"n": 4, "id": "nxojXdvjwzg", "title": "區塊鏈60講｜第4集｜基礎認知篇 ：區塊鏈的運行原理"}, {"n": 5, "id": "FglFVkfqnBc", "title": "區塊鏈60講｜第5集｜基礎認知篇 ：挖礦是什麼意思"}, {"n": 6, "id": "OU51rCZGUWQ", "title": "區塊鏈60講｜第6集｜基礎認知篇 ：比特幣的挖礦原理"}, {"n": 7, "id": "XLUMJRye_uQ", "title": "區塊鏈60講｜第7集｜基礎認知篇 ：區塊鏈的分叉是什麼意思？"}, {"n": 8, "id": "T3V_SuyhPV0", "title": "區塊鏈60講｜第8集｜基礎認知篇 ：區塊鏈的分類"}, {"n": 9, "id": "SWnLWZTe1gw", "title": "區塊鏈60講｜第9集｜基礎認知篇 ：區塊鏈的核心技術"}, {"n": 10, "id": "kaCJAnh9a70", "title": "區塊鏈60講｜第10集｜技術科普篇 ：區塊鏈技術的誕生"}, {"n": 11, "id": "X6YrL25vMzg", "title": "區塊鏈60講｜第11集 ｜技術科普篇：區塊鏈中的密碼學（上）"}, {"n": 12, "id": "nlW0m3-2FlY", "title": "區塊鏈60講｜第12集｜技術科普篇：區塊鏈中的密碼學（下）"}, {"n": 13, "id": "Qoco16DYk0k", "title": "區塊鏈60講｜第13集｜技術科普篇：什麼是分散式帳本？"}, {"n": 14, "id": "dssNLcAKwoY", "title": "區塊鏈60講｜第14集｜技術科普篇：什麼是拜占庭將軍問題？"}, {"n": 15, "id": "XCcGJS_-9h8", "title": "區塊鏈60講｜第15集｜技術科普篇：什麼是共識機制？"}, {"n": 16, "id": "3mXYPJK0roU", "title": "區塊鏈60講｜第16集｜技術科普篇：什麼是PoW共識機制？"}, {"n": 17, "id": "GcKxDkVzZfI", "title": "區塊鏈60講｜第17集｜技術科普篇：什麼是PoS共識機制？"}, {"n": 18, "id": "VKIr9g_b07Q", "title": "區塊鏈60講｜第18集｜技術科普篇：什麼是智能合約？"}, {"n": 19, "id": "lYB_SBv26Ao", "title": "區塊鏈60講｜第19集｜技術科普篇：四大核心技術的作用是什麼？"}, {"n": 20, "id": "fMdV7XTMZYk", "title": "區塊鏈60講｜第20集｜技術科普篇：什麼是雙花問題？"}, {"n": 21, "id": "jRaUkm5yi88", "title": "區塊鏈60講｜第21集 ｜技術科普篇：什麼是UTXO帳戶模型？"}, {"n": 22, "id": "bxhG64OU4S4", "title": "區塊鏈60講｜第22集 ｜技術科普篇：什麼是時間戳記？"}, {"n": 23, "id": "omL0n5xicgM", "title": "區塊鏈60講｜第23集 ｜技術科普篇：什麼是側鏈技術？"}, {"n": 24, "id": "_2_6ROp7SGE", "title": "區塊鏈60講｜第24集 ｜技術科普篇：什麼是跨鏈技術？"}, {"n": 25, "id": "6ySsADYENs8", "title": "區塊鏈60講｜第25集｜技術科普篇：什麼是閃電網路？"}, {"n": 26, "id": "sCn5C9mYzLY", "title": "區塊鏈60講｜第26集｜技術科普篇：什麼是隔離見證技術？"}, {"n": 27, "id": "xMc2nTadsMo", "title": "區塊鏈60講｜第27集｜技術科普篇：什麼是分片技術？"}, {"n": 28, "id": "qIm_Y4AgeN0", "title": "區塊鏈60講｜第28集｜技術科普篇：區塊鏈技術帶來了什麼樣的影響？"}, {"n": 29, "id": "i6VPstnnAbg", "title": "區塊鏈60講｜第29集｜數字貨幣篇：什麼是比特幣？"}, {"n": 30, "id": "7uA4hU8bU9U", "title": "區塊鏈60講｜第30集｜數字貨幣篇：比特幣跟區塊鏈有什麼關係？"}, {"n": 31, "id": "7qFX5lHdo8I", "title": "區塊鏈60講｜第31集｜數字貨幣篇 ：什麼是數字貨幣的減半？"}, {"n": 32, "id": "c8lZTv2RGsM", "title": "區塊鏈60講｜第32集｜數字貨幣篇 ：什麼是萊特幣？"}, {"n": 33, "id": "kSS2uj2q9Ro", "title": "區塊鏈60講｜第33集｜數字貨幣篇 ：什麼是以太坊？"}, {"n": 34, "id": "VqSgri6eNSQ", "title": "區塊鏈60講｜第34集｜數字貨幣篇 ：以太坊帶來了什麼影響？"}, {"n": 35, "id": "FAUTF5d-fho", "title": "區塊鏈60講｜第35集｜數字貨幣篇 ：數字貨幣給我們帶來了什麼影響？"}, {"n": 36, "id": "nE_3Enf6-YI", "title": "區塊鏈60講｜第36集｜行業歷史篇 ：比特幣的起源"}, {"n": 37, "id": "oZB1CjfJt08", "title": "區塊鏈60講｜第37集｜行業歷史篇：比特幣的亞父：哈爾•芬尼"}, {"n": 38, "id": "Dad0n9VQ8DM", "title": "區塊鏈60講｜第38集｜行業歷史篇：比特幣披薩節"}, {"n": 39, "id": "kHuS7ac3Aq8", "title": "區塊鏈60講｜第39集｜行業歷史篇：中本聰的消失"}, {"n": 40, "id": "HGNOrCIiJXc", "title": "區塊鏈60講｜第40集｜行業歷史篇：區塊鏈是如何進入中國的？"}, {"n": 41, "id": "Ikc9RMwE72Y", "title": "區塊鏈60講｜第41集｜行業歷史篇：礦圈的興起（上）ASIC礦機的誕生"}, {"n": 42, "id": "Nuwhy04ezB4", "title": "區塊鏈60講｜第42集｜行業歷史篇：礦圈的興起（中）礦機爭霸"}, {"n": 43, "id": "vuQyavveahY", "title": "區塊鏈60講｜第43集｜行業歷史篇：礦圈的興起（下）比特大陸的崛起"}, {"n": 44, "id": "JxOuJ2A5bPQ", "title": "區塊鏈60講｜第44集｜行業歷史篇：車庫咖啡：中國區塊鏈發源地"}, {"n": 45, "id": "3SD-0FX_ACo", "title": "區塊鏈60講｜第45集｜行業歷史篇：比特幣與區塊鏈的發展"}, {"n": 46, "id": "veiaQozfoBo", "title": "區塊鏈60講｜第46集｜行業歷史篇：V神與以太坊的誕生"}, {"n": 47, "id": "GZUASsTCmx8", "title": "區塊鏈60講｜第47集｜行業歷史篇：2017年“區塊鏈革命”"}, {"n": 48, "id": "pjhfjQgPatk", "title": "區塊鏈60講｜第48集｜行業歷史篇：比特幣分叉往事"}, {"n": 49, "id": "dEGRbHsTVJE", "title": "區塊鏈60講｜第49集｜行業歷史篇：2018年，區塊鏈的去泡沫化"}, {"n": 50, "id": "6h38ww_CRe8", "title": "區塊鏈60講｜第50集｜行業歷史篇：比特幣二次分叉算力大戰"}, {"n": 51, "id": "_9lgWLf0pgs", "title": "區塊鏈60講｜第51集｜行業歷史篇：2019年巨頭入場—Facebook的數位貨幣夢"}, {"n": 52, "id": "5bRFOysjYn8", "title": "區塊鏈60講｜第52集｜行業歷史篇：區塊鏈新篇章"}, {"n": 53, "id": "6Nsbx7PqhMk", "title": "區塊鏈60講｜第53集｜區塊鏈應用篇：什麼是區塊鏈發票"}, {"n": 54, "id": "l5CadBZRGmo", "title": "區塊鏈60講｜第54集｜區塊鏈應用篇：什麼是區塊鏈物流"}, {"n": 55, "id": "2PNiw_qkiWo", "title": "區塊鏈60講｜第55集｜區塊鏈應用篇：什麼是區塊鏈遊戲"}, {"n": 56, "id": "TWqtaalpZDE", "title": "區塊鏈60講｜第56集｜區塊鏈應用篇：什麼是區塊鏈+跨境支付"}, {"n": 57, "id": "nAh_Dhk0HyE", "title": "區塊鏈60講｜第57集｜區塊鏈應用篇：什麼是區塊鏈+司法取證"}, {"n": 58, "id": "pvhaRZPVp6c", "title": "區塊鏈60講｜第58集｜區塊鏈應用篇：什麼是區塊鏈+藝術領域"}, {"n": 59, "id": "8YAKi0mu0Ak", "title": "區塊鏈60講｜第59集｜區塊鏈應用篇：什麼是區塊鏈+金融"}, {"n": 60, "id": "Vg167XF-axM", "title": "區塊鏈60講｜第60集｜區塊鏈應用篇：最終總結：如何理解區塊鏈？"}, {"n": 61, "id": "2DuFXpgb7sA", "title": "區塊鏈60講番外篇｜第1集｜貨幣的演變與數位貨幣"}, {"n": 62, "id": "AxkSnhcv2bw", "title": "區塊鏈60講番外篇｜第2集｜什麼是數字貨幣？"}];
+var LANG = 'zh';
+var T = {
+  zh: { now: '正在播放', ep: '第', ep2: '集', count: '集 · 6 大章节 · 全部免费',
+        title: '📺 小白必看 · 区块链60问',
+        sub: '62 集从零讲透区块链：从"区块链是什么"到密码学、共识机制，从比特币历史到真实应用。<br>每天看几集，一周补完区块链基础课。' },
+  en: { now: 'Now playing', ep: 'Ep ', ep2: '', count: 'episodes · 6 chapters · all free',
+        title: '📺 Must-Watch · 60 Blockchain Questions',
+        sub: '62 episodes from zero to hero: what blockchain is, cryptography, consensus, Bitcoin history and real uses.<br>A few episodes a day and you will finish the basics in a week.' }
+};
+function thumb(id){ return 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg'; }
+function play(n){
+  var e = EPISODES[n-1];
+  document.getElementById('player').src = 'https://www.youtube-nocookie.com/embed/' + e.id + '?rel=0&autoplay=1';
+  document.getElementById('nowPlaying').innerHTML = '<b>' + T[LANG].now + '：</b>' + T[LANG].ep + e.n + T[LANG].ep2 + '｜' + e.title;
+  var cards = document.querySelectorAll('.card');
+  for (var i=0;i<cards.length;i++) cards[i].classList.toggle('active', cards[i].dataset.n == n);
+  document.querySelector('.player-sec').scrollIntoView({behavior:'smooth'});
+}
+function render(){
+  var box = document.getElementById('chapters');
+  box.innerHTML = '';
+  CHAPTERS.forEach(function(c, ci){
+    var sec = document.createElement('div');
+    sec.className = 'chapter';
+    var head = '<div class="ch-head"><span class="num">' + (ci+1) + '/6</span><h2>' + (LANG==='zh'?c.name:c.en) + '</h2><span class="en">' + (LANG==='zh'?c.en:c.name) + '</span></div>';
+    head += '<p class="ch-desc">' + (LANG==='zh'?c.desc:c.desc_en) + '</p>';
+    var grid = '<div class="grid">';
+    for (var n=c.from; n<=c.to; n++){
+      var e = EPISODES[n-1];
+      grid += '<div class="card" data-n="'+n+'" onclick="play('+n+')">'
+        + '<div class="thumb"><img loading="lazy" src="'+thumb(e.id)+'" alt=""><span class="ep">'+T[LANG].ep+n+T[LANG].ep2+'</span><span class="play">▶</span></div>'
+        + '<div class="t">'+e.title+'</div></div>';
+    }
+    grid += '</div>';
+    sec.innerHTML = head + grid;
+    box.appendChild(sec);
+  });
+  document.getElementById('hTitle').textContent = T[LANG].title;
+  document.getElementById('hSub').innerHTML = T[LANG].sub;
+  document.getElementById('hCount').textContent = T[LANG].count;
+  play(1);
+}
+document.getElementById('langBtn').onclick = function(){
+  LANG = (LANG==='zh') ? 'en' : 'zh';
+  render();
+};
+render();
+</script>
+</body>
+</html>
