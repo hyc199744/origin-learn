@@ -55,6 +55,12 @@ canvas#cover{position:absolute;inset:0;width:100%;height:100%;touch-action:none;
 .foot a{color:#b8912f}
 .cfetti{position:absolute;width:8px;height:12px;top:-14px;pointer-events:none;animation:fall 1.6s ease-in forwards;z-index:5}
 @keyframes fall{to{transform:translateY(230px) rotate(540deg);opacity:0}}
+.freebox{background:#fff;border:1px solid #e8dcc0;border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.freebox .ftitle{font-size:14px;font-weight:800;color:#5C1A27;margin-bottom:4px}
+.freebox .fsub{font-size:12px;color:#a08c6a;margin-bottom:10px}
+.freebox .fsub b{color:#b8912f}
+.freebtn{display:block;width:100%;background:#fff;border:1px solid #C9A86A;border-radius:12px;color:#5C1A27;font-size:15px;font-weight:700;padding:11px;cursor:pointer}
+.freebtn:disabled{opacity:.45;cursor:default}
 </style>
 </head>
 <body>
@@ -75,6 +81,12 @@ canvas#cover{position:absolute;inset:0;width:100%;height:100%;touch-action:none;
 
   <div class="tiers" id="tiers"></div>
   <button class="buy" id="buyBtn" disabled><span id="buyTxt"></span></button>
+
+  <div class="freebox" id="freeBox">
+    <div class="ftitle" data-i18n="freeTitle">🎁 每日免费刮</div>
+    <div class="fsub"><span data-i18n="freeHow">每地址每天 1 次 · 奖项同 1 LGNS 档 · 奖金从奖池出</span> · <span data-i18n="freeLeft">今日剩余</span> <b id="freeLeftN">-</b></div>
+    <button class="freebtn" id="freeBtn" disabled><span id="freeTxt"></span></button>
+  </div>
 
   <div class="cardwrap" id="cardwrap">
     <div class="cardph"></div>
@@ -102,7 +114,7 @@ canvas#cover{position:absolute;inset:0;width:100%;height:100%;touch-action:none;
 <script>
 /* ===== 配置 ===== */
 const CFG = {
-  CONTRACT: '0x1793C22F7c89Ff0aa0ee1F99b4eADB0e46e7C83b',
+  CONTRACT: '0xEAD5eA0A5B3EcB718CC69821A4EA389927F1c123',
   token: '0x4d1d808a081fdac440703b3765fc61f8028c06b8',
   decimals: 9, chainId: 6714, chainHex: '0x1a3a',
   chainName: 'Anubis', rpcUrl: 'https://rpc.anubispace.org',
@@ -113,9 +125,12 @@ const SEL = {
   play:'6898f82b', seedPool:'025d26bd', skim:'6939aaf5',
   pool:'16f0115b', tiers:'039af9eb', tierCount:'96b55f7d',
   owner:'8da5cb5b', paused:'5c975abb', minReserve:'1b4a2001',
-  setMinReserve:'3deb91c7', setPaused:'16c38b3c'
+  setMinReserve:'3deb91c7', setPaused:'16c38b3c',
+  playFree:'25925e83', lastFreePlay:'1c14f69f', freePerDay:'ea030f22', freeUsed:'6101b37f',
+  setFreePerDay:'40f48752'
 };
 const PLAYED_TOPIC = '0x68c7202a45decf815c2b366df51351accc580243258fedf46ddc86c1c0dd5f2b';
+const PLAYEDFREE_TOPIC = '0xd690b938d530df191a758598ef552cf9f40190f20157a97874cf2d2f9e29e7e0';
 
 /* ===== I18N ===== */
 const I18N = {
@@ -124,13 +139,17 @@ const I18N = {
     scratchHint:'👆 手指划开涂层',again:'再来一张',lose:'谢谢惠顾，再接再厉',winS:'小奖！',winB:'🎉 大奖！！',
     prizeTable:'奖项（返奖率 70%）',recentWins:'最新中奖',loading:'加载中…',noWins:'暂无',loseRow:'未中奖',
     ownerPanel:'管理员',seed:'注资奖池',skim:'提取利润',setReserve:'设保留线',pause:'暂停',unpause:'恢复',reserveLb:'保留线',
-    dailyLink:'← 每日彩票',contract:'合约',needPool:'奖池不足',paused:'已暂停',insufficient:'LGNS 余额不足'},
+    dailyLink:'← 每日彩票',contract:'合约',needPool:'奖池不足',paused:'已暂停',insufficient:'LGNS 余额不足',
+    freeTitle:'🎁 每日免费刮',freeBtn:'免费刮一张',freeUsedUp:'今日免费名额已用完',freeClaimed:'明天再来',freeLeft:'今日剩余',
+    freeHow:'每地址每天 1 次 · 奖项同 1 LGNS 档 · 奖金从奖池出'},
   en: {brand:'⚡ Instant Scratch',connect:'Connect Wallet',pool:'Prize Pool',poolLow:'Pool low, waiting for funding',poolOk:'Pool healthy, scratch away',
     buy:'Buy ticket',approve:'Approve LGNS',processing:'Processing…',stepConnect:'Connect wallet to play',txSent:'Tx sent, confirming…',txReverted:'Tx failed',
     scratchHint:'👆 Swipe to scratch',again:'Play again',lose:'No luck this time',winS:'Small win!',winB:'🎉 JACKPOT!!',
     prizeTable:'Prizes (70% RTP)',recentWins:'Recent wins',loading:'Loading…',noWins:'None yet',loseRow:'No win',
     ownerPanel:'Owner',seed:'Seed pool',skim:'Withdraw profit',setReserve:'Set reserve',pause:'Pause',unpause:'Unpause',reserveLb:'Reserve',
-    dailyLink:'← Daily lottery',contract:'Contract',needPool:'Pool too low',paused:'Paused',insufficient:'Insufficient LGNS'}
+    dailyLink:'← Daily lottery',contract:'Contract',needPool:'Pool too low',paused:'Paused',insufficient:'Insufficient LGNS',
+    freeTitle:'🎁 Free daily scratch',freeBtn:'Scratch free',freeUsedUp:'No free plays left today',freeClaimed:'Come back tomorrow',freeLeft:'left today',
+    freeHow:'1 per address per day · same prizes as 1 LGNS tier · paid from pool'}
 };
 let LANG = 'zh';
 const t = k => (I18N[LANG] && I18N[LANG][k]) || I18N.zh[k] || k;
@@ -155,6 +174,7 @@ async function ethCall(to,d){ return ((await req('eth_call',[{to,data:d},'latest
 
 /* ===== 状态 ===== */
 let myAddr=null, OWNER='', TIERS=[], POOL=0n, PAUSED=false, tierIdx=0, busy=false;
+let FREE_OK=false, FREE_LEFT='-', FREE_REASON='';
 
 /* ===== 钱包 ===== */
 async function connect(){
@@ -200,9 +220,24 @@ async function refresh(){
     }
     const r = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.minReserve));
     $('reserveVal').textContent = fmt(r);
+    // 免费资格
+    try{
+      const perDay = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.freePerDay));
+      const used = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.freeUsed));
+      FREE_LEFT = (perDay - used).toString();
+      FREE_OK = false; FREE_REASON = t('freeUsedUp');
+      if(myAddr && !PAUSED && TIERS.length && POOL >= TIERS[0].bigPrize && used < perDay){
+        const last = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastFreePlay+encAddr(myAddr)));
+        const now = BigInt(Math.floor(Date.now()/1000));
+        if(last === 0n || now >= last + 86400n){ FREE_OK = true; FREE_REASON=''; }
+        else FREE_REASON = t('freeClaimed');
+      }
+    }catch(e){ console.log('free err', e); }
   }catch(e){ console.log('refresh err', e); }
   $('contractLink').href = CFG.explorer + '/address/' + CFG.CONTRACT;
   $('ownerPanel').classList.toggle('show', !!myAddr && myAddr.toLowerCase()===OWNER.toLowerCase());
+  $('freeLeftN').textContent = FREE_LEFT;
+  updateFreeBtn();
   render(); loadWins();
 }
 function render(){
@@ -353,6 +388,34 @@ function boom(){
   }
 }
 $('againBtn').onclick=()=>{ if(!busy) mainAction(); };
+
+/* ===== 免费刮 ===== */
+function updateFreeBtn(){
+  const btn=$('freeBtn'), txt=$('freeTxt');
+  if(busy){ btn.disabled=true; txt.textContent=t('processing'); return; }
+  if(!myAddr){ btn.disabled=true; txt.textContent=t('stepConnect'); return; }
+  if(FREE_OK){ btn.disabled=false; txt.textContent=t('freeBtn'); }
+  else{ btn.disabled=true; txt.textContent=FREE_REASON||t('freeUsedUp'); }
+}
+async function doFreePlay(){
+  const rc = await sendTx(CFG.CONTRACT,'0x'+SEL.playFree);
+  let prize=0n;
+  for(const log of (rc.logs||[])){
+    if(log.address && log.address.toLowerCase()===CFG.CONTRACT.toLowerCase()
+       && log.topics && log.topics[0] && log.topics[0].toLowerCase()===PLAYEDFREE_TOPIC){
+      const data=(log.data||'0x').replace(/^0x/,'');
+      prize=decUint(data.slice(0,64));
+    }
+  }
+  tierIdx=0;
+  showCard(prize);
+}
+$('freeBtn').onclick=async()=>{
+  if(busy||!FREE_OK) return;
+  try{ busy=true; updateFreeBtn(); await doFreePlay(); }
+  catch(e){ toast(e.message); }
+  finally{ busy=false; updateFreeBtn(); refresh(); }
+};
 
 /* ===== 最新中奖 ===== */
 async function loadWins(){
