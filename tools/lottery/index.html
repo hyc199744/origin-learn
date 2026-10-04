@@ -87,6 +87,15 @@
   .winner:last-child{border-bottom:none}
   .tag{display:inline-block;font-size:11px;background:var(--wine);color:#F3E9D2;border-radius:4px;padding:1px 6px;margin-right:6px;font-weight:700;white-space:nowrap}
   .t2 .tag{background:#3E6B4F;color:#fff}.t3 .tag{background:#4A5D7E;color:#fff}
+  .rcard{border:1px solid var(--line);border-radius:14px;padding:12px 12px 6px;margin-bottom:12px;background:#fff}
+  .rcard:last-child{margin-bottom:0}
+  .rcard .rhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px}
+  .rcard .rhead b{font-size:14px}
+  .rcard .rhead span{font-size:12.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+  .rcard .kv{padding:7px 0;font-size:13px}
+  .rbar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:3px 0 9px}
+  .rbar i{display:block;height:100%;background:var(--wine);border-radius:3px}
+  .rbar i.gold{background:#C9A86A}.rbar i.blue{background:#4A5D7E}.rbar i.gray{background:var(--muted)}
   .bottomnav{display:flex;border-top:1px solid var(--line);margin-top:26px;padding:16px 0 6px}
   .bottomnav a{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted);text-decoration:none;font-size:13.5px;font-weight:600;transition:color .15s}
   .bottomnav a svg{width:19px;height:19px;flex:none}
@@ -265,6 +274,8 @@ zh: {
   noHistory: '暂无历史开奖', noData: '暂无数据', loadFail: '加载失败，请稍后刷新重试',
   roundN: '第 {n} 期', totalPaid: '共发出 {amt} LGNS', wonTimes: '中 {n} 次 · <b>{amt}</b> LGNS',
   prize1: '一等奖', prize2: '二等奖', prize3: '三等奖',
+  reportTitle: '开奖战报', reportPool: '奖池构成', reportSalesPart: '票款可分配', reportRolloverIn: '上期滚存',
+  reportUnwon: '未中出滚入下期', reportMeta: '售票 {sold} 张 · 平台费 {fee} LGNS',
   ownerTitle: '房主管理', ownerNote: '冷启动：往当期奖池里加钱，奖金更诱人，吸引第一批玩家。加进去的钱就回不来了，算营销成本。',
   seedPh: '注入多少 LGNS', approveSeedBtn: '1. 授权', seedBtn: '2. 注入奖池', setPriceBtn: '票价改成 3 LGNS',
   drawing: '开奖中', drawPreparing: '准备开奖…', drawClose: '关闭',
@@ -313,6 +324,8 @@ en: {
   noHistory: 'No draw history yet', noData: 'No data', loadFail: 'Load failed, please refresh and retry',
   roundN: 'Round {n}', totalPaid: 'Paid out {amt} LGNS', wonTimes: 'Won {n}× · <b>{amt}</b> LGNS',
   prize1: '1st Prize', prize2: '2nd Prize', prize3: '3rd Prize',
+  reportTitle: 'Draw Report', reportPool: 'Pool breakdown', reportSalesPart: 'Sales share', reportRolloverIn: 'Rollover in',
+  reportUnwon: 'Unwon → next round', reportMeta: '{sold} tickets · fee {fee} LGNS',
   ownerTitle: 'Owner Panel', ownerNote: 'Cold start: seed the current prize pool to attract the first players. Seeded funds cannot be withdrawn — treat as marketing cost.',
   seedPh: 'Amount to seed (LGNS)', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Pool', setPriceBtn: 'Set price to 3 LGNS',
   drawing: 'Drawing…', drawPreparing: 'Preparing…', drawClose: 'Close',
@@ -646,6 +659,15 @@ async function loadHistory(){
       const offW = Number(BigInt('0x'+d.slice(0,64)))*2;
       const offA = Number(BigInt('0x'+d.slice(64,128)))*2;
       const winners = decAddrArray(d, offW), amounts = decUintArray(d, offA);
+      // 读该期售票数据，拼开奖战报
+      let sold = 0, sales = 0n, jackpot = 0n;
+      try{
+        const rh = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid));
+        const w2 = i => rh.slice(i*64,(i+1)*64);
+        sold = Number(decUint(w2(2))); sales = decUint(w2(3)); jackpot = decUint(w2(4));
+      }catch(e){ console.error('round '+rid, e); }
+      const feeAmt = sales*FEE/10000n, dist = sales - feeAmt, pool = dist + jackpot;
+      const pct = v => pool > 0n ? (Number(v*1000n/pool)/10).toFixed(1) : '0.0';
       let sum = 0n;
       let wh = '';
       for(let i=0;i<winners.length;i++){
@@ -654,9 +676,24 @@ async function loadHistory(){
         if(!total[k]) total[k] = {n:0, amt:0n};
         total[k].n++; total[k].amt += amounts[i];
         const pz = i===0?t('prize1'):(i<4?t('prize2'):t('prize3'));
-        wh += '<div class="winner"><span><span class="tag">'+pz+'</span>'+short(winners[i])+'</span><span><b>'+fmt(amounts[i])+'</b></span></div>';
+        const cls = i===0?'':(i<4?'t2':'t3');
+        const bar = i===0?'':(i<4?'gold':'blue');
+        wh += '<div class="winner '+cls+'"><span><span class="tag">'+pz+'</span>'+short(winners[i])+'</span><span><b>'+fmt(amounts[i])+'</b> LGNS</span></div>'
+            + '<div class="rbar"><i class="'+bar+'" style="width:'+pct(amounts[i])+'%"></i></div>';
       }
-      hhtml = '<div style="margin-bottom:10px"><div class="row"><span class="k"><b>'+t('roundN',{n:rid})+'</b></span><span class="v">'+t('totalPaid',{amt:fmt(sum)})+'</span></div>'+wh+'</div>' + hhtml;
+      const roll = pool - sum;
+      const card = '<div class="rcard">'
+        + '<div class="rhead"><b>'+t('roundN',{n:rid})+' · '+t('reportTitle')+'</b><span>'+t('totalPaid',{amt:fmt(sum)})+'</span></div>'
+        + '<div class="kv"><span class="k">'+t('reportPool')+'</span><span class="v">'+fmt(pool)+' LGNS</span></div>'
+        + '<div class="kv"><span class="k">'+t('reportSalesPart')+' + '+t('reportRolloverIn')+'</span><span class="v">'+fmt(dist)+' + '+fmt(jackpot)+'</span></div>'
+        + wh
+        + (roll > 0n
+            ? '<div class="kv"><span class="k">'+t('reportUnwon')+'</span><span class="v">'+fmt(roll)+' LGNS</span></div>'
+              + '<div class="rbar"><i class="gray" style="width:'+pct(roll)+'%"></i></div>'
+            : '')
+        + '<div class="note" style="margin-top:4px">'+t('reportMeta',{sold:sold, fee:fmt(feeAmt)})+'</div>'
+        + '</div>';
+      hhtml = card + hhtml;
     }
     $('historyList').innerHTML = hhtml || '<div class="note">'+t('noHistory')+'</div>';
     // 累计榜
