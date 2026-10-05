@@ -121,14 +121,16 @@ en:{bal:'Balance',feed:'Live',hist:'History',rank:'Board',ref:'Referral',bet:'Pl
  demo:'🧪 DEMO · Test FCB only (not real assets) · Data resets at official launch'}
 };
 var T=function(k){return I18N[LANG][k];};
-// ---- 状态 ----
-var balance=parseFloat(localStorage.getItem('crash_demo_bal')||'10000');
+// ---- 状态（localStorage 读写加保护，某些内置浏览器会抛异常） ----
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v===null?d:v;}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+var balance=parseFloat(lsGet('crash_demo_bal','10000'))||10000;
 var phase='waiting', phaseT=0, crashPoint=2, flyT=0, myBet=0, myOut=false, myAuto=0;
-var history=[], BET_MS=5000, PAUSE_MS=3000, GROWTH=0.14;
+var history=[], BET_MS=10000, PAUSE_MS=3000, GROWTH=0.14;
 var NAMES=['火箭🚀','梭哈王','稳如狗','0x3f…a2','钻石手','梭哈是一种智慧','佛系玩家','0x88…41','追梦人','韭菜根','0xab…09','稳中带皮','ALL IN','0x5c…77','快乐源泉','翻倍大师'];
 var bots=[];
 function fmt(n){return n.toLocaleString('en-US',{maximumFractionDigits:2});}
-function saveBal(){localStorage.setItem('crash_demo_bal',balance);}
+function saveBal(){lsSet('crash_demo_bal',balance);}
 function setBal(){$('balance').textContent=fmt(balance);saveBal();}
 function $(id){return document.getElementById(id);}
 // ---- 爆点 ----
