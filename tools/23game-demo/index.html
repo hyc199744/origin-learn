@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>三分之二博弈 · 演示版</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#0d0a06;color:#f3e6c8;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+.wrap{max-width:520px;margin:0 auto;padding:16px 14px 40px}
+.demo-tag{background:#3a2b12;border:1px solid #c9a227;color:#ffd76a;font-size:12px;text-align:center;padding:8px;border-radius:8px;margin-bottom:12px}
+h1{font-size:22px;text-align:center;color:#ffd76a;margin:8px 0 2px}
+.sub{text-align:center;color:#a68b5b;font-size:13px;margin-bottom:16px}
+.card{background:#171208;border:1px solid #4a3a1c;border-radius:12px;padding:16px;margin-bottom:12px}
+.btn{display:block;width:100%;padding:14px;margin:8px 0;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}
+.btn-gold{background:linear-gradient(180deg,#e8c35a,#b98a1e);color:#241a05}
+.btn-ghost{background:transparent;border:1px solid #c9a227;color:#ffd76a}
+.btn:disabled{opacity:.4}
+.row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:14px}
+.num-big{font-size:44px;text-align:center;color:#ffd76a;font-weight:800;margin:8px 0}
+input[type=range]{width:100%;margin:12px 0}
+.opp{display:flex;justify-content:space-between;padding:8px 10px;background:#100c07;border-radius:8px;margin:6px 0;font-size:14px;border:1px solid #2c2312}
+.opp .n{color:#c9b98a}.opp .v{color:#ffd76a;font-weight:700;min-width:64px;text-align:right}
+.opp.me{border-color:#c9a227;background:#1d1608}
+.opp.win{border-color:#ffd76a;background:#241b08}
+.hist{font-size:12px;color:#a68b5b}
+.bar{height:8px;background:#2c2312;border-radius:4px;overflow:hidden;margin:4px 0}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#b98a1e,#ffd76a)}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.lang{font-size:12px;color:#ffd76a;background:none;border:1px solid #4a3a1c;border-radius:6px;padding:4px 10px}
+.kv{font-size:13px;color:#c9b98a}
+.prize{color:#7dff9a;font-weight:700}
+.screen{display:none}.screen.on{display:block}
+.rule{font-size:13px;color:#d8c491;line-height:1.7}
+.rule b{color:#ffd76a}
+.reveal-anim{animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="demo-tag" id="t-demoTag"></div>
+  <div class="topbar">
+    <span class="kv" id="t-balance"></span>
+    <button class="lang" onclick="toggleLang()">中 / EN</button>
+  </div>
+
+  <!-- 主页 -->
+  <div class="screen on" id="s-home">
+    <h1 id="t-title"></h1>
+    <div class="sub" id="t-subtitle"></div>
+    <div class="card rule" id="t-rule"></div>
+    <div class="card">
+      <div class="row"><span id="t-practiceTimes" class="kv"></span><span class="kv" id="t-arenaInfo"></span></div>
+    </div>
+    <button class="btn btn-ghost" onclick="startGame('practice')" id="b-practice"></button>
+    <button class="btn btn-gold" onclick="startGame('arena')" id="b-arena"></button>
+    <div class="card"><div class="kv" id="t-myStats" style="white-space:pre-line"></div></div>
+  </div>
+
+  <!-- 选数字 -->
+  <div class="screen" id="s-pick">
+    <h1 id="t-pickTitle"></h1>
+    <div class="sub" id="t-pickSub"></div>
+    <div class="card">
+      <div class="num-big"><span id="numShow">33.00</span></div>
+      <input type="range" id="numRange" min="0" max="10000" value="3300" oninput="numShow.innerText=(this.value/100).toFixed(2)">
+      <div class="row"><span class="kv">0.00</span><span class="kv" id="t-lastAvg"></span><span class="kv">100.00</span></div>
+      <div class="kv" id="t-tip" style="margin-top:8px;line-height:1.6"></div>
+    </div>
+    <button class="btn btn-gold" onclick="commit()" id="b-commit"></button>
+    <button class="btn btn-ghost" onclick="show('s-home')" id="b-back1"></button>
+  </div>
+
+  <!-- 揭示 -->
+  <div class="screen" id="s-reveal">
+    <h1 id="t-revealTitle"></h1>
+    <div class="sub" id="t-revealSub"></div>
+    <div class="card" id="oppList"></div>
+  </div>
+
+  <!-- 结算 -->
+  <div class="screen" id="s-settle">
+    <h1 id="t-settleTitle"></h1>
+    <div class="card">
+      <div class="row"><span class="kv" id="t-avgL"></span><b id="r-avg" style="color:#ffd76a"></b></div>
+      <div class="row"><span class="kv" id="t-targetL"></span><b id="r-target" style="color:#ffd76a"></b></div>
+      <div class="row"><span class="kv" id="t-youL"></span><b id="r-you"></b></div>
+      <div class="row"><span class="kv" id="t-rankL"></span><b id="r-rank" style="color:#ffd76a"></b></div>
+      <div class="row"><span class="kv" id="t-prizeL"></span><b id="r-prize" class="prize"></b></div>
+    </div>
+    <div class="card" id="rankList"></div>
+    <button class="btn btn-gold" onclick="show('s-home');renderHome()" id="b-again"></button>
+  </div>
+</div>
+
+<script>
+const I18N={
+zh:{demoTag:"⚠️ 演示版：对手为模拟 AI，合约未部署，不涉及真实 LGNS",title:"三分之二博弈",subtitle:"猜中「平均数的 2/3」，纯心理战 · 零运气",
+rule:"<b>规则（30 秒看懂）：</b><br>1️⃣ 每轮 8~12 人，每人提交一个 0~100 的数字<br>2️⃣ 目标值 = 所有人平均数的 <b>2/3</b><br>3️⃣ 离目标最近者 <b>冠军（奖池 50%）</b>，亚军 30%，季军 20%<br>4️⃣ 竞技场报名费 5 LGNS，平台抽水 10%",
+practice:"🎯 练习场（免费）",arena:"⚔️ 竞技场（5 LGNS/轮）",balance:"演示余额",practiceTimes:"今日免费练习",arenaInfo:"竞技场：真奖金",
+pickTitle:"提交你的数字",pickSub:"提交后锁定，本轮不可更改",tip:"💡 新手直觉选 50；但大家都往下猜时，30 左右更接近目标。多看看上轮平均数。",
+commit:"🔒 提交（Commit）",back:"返回",
+revealTitle:"揭示中…",revealSub:"对手正在公开数字",
+settleTitle:"结算",avgL:"本轮平均数",targetL:"目标值（平均数×2/3）",youL:"你的数字",rankL:"你的名次",prizeL:"奖金",again:"再来一轮",
+lastAvg:"上轮平均",champion:"冠军",you:"你",stats:"📊 我的战绩\n竞技场：{a} 轮 · 获奖 {b} 次 · 净盈亏 {c} LGNS\n练习场：{d} 轮 · 平均名次 {e}"},
+en:{demoTag:"⚠️ DEMO: opponents are simulated AI, contract not deployed, no real LGNS",title:"Two-Thirds Arena",subtitle:"Hit 2/3 of the average. Pure mind game · zero luck",
+rule:"<b>Rules (30s):</b><br>1️⃣ 8–12 players per round, each submits a number 0–100<br>2️⃣ Target = <b>2/3 of the average</b> of all numbers<br>3️⃣ Closest wins: <b>Champion 50%</b>, 2nd 30%, 3rd 20% of the pool<br>4️⃣ Arena entry 5 LGNS, 10% platform fee",
+practice:"🎯 Practice (Free)",arena:"⚔️ Arena (5 LGNS/round)",balance:"Demo balance",practiceTimes:"Free practice today",arenaInfo:"Arena: real prizes",
+pickTitle:"Submit your number",pickSub:"Locked after submit",tip:"💡 Beginners pick 50; but when everyone guesses low, ~30 is closer. Check last round's average.",
+commit:"🔒 Commit",back:"Back",
+revealTitle:"Revealing…",revealSub:"Opponents are revealing their numbers",
+settleTitle:"Settled",avgL:"Round average",targetL:"Target (avg × 2/3)",youL:"Your number",rankL:"Your rank",prizeL:"Prize",again:"Play again",
+lastAvg:"Last avg",champion:"Champion",you:"You",stats:"📊 My stats\nArena: {a} rounds · won {b} · net {c} LGNS\nPractice: {d} rounds · avg rank {e}"}};
+let lang=localStorage.getItem("g23_lang")||"zh";
+let bal=parseFloat(localStorage.getItem("g23_bal")||"1000");
+let pracLeft=10, lastAvg=null;
+let stats=JSON.parse(localStorage.getItem("g23_stats")||'{"a":0,"b":0,"c":0,"d":0,"e":[]}');
+const NAMES={zh:["阿哲","老K","小鱼","大刘","Momo","阿ken","七七","大壮","Leo","Nana","阿超","萍萍"],en:["Alex","Kai","Mia","Leo","Zoe","Max","Ivy","Owen","Nina","Ray","Tara","Finn"]};
+const PERSONA={zh:["新手","跟风者","老手","鲨鱼"],en:["Rookie","Follower","Veteran","Shark"]};
+function t(k){return I18N[lang][k]}
+function toggleLang(){lang=lang==="zh"?"en":"zh";localStorage.setItem("g23_lang",lang);renderAll()}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));document.getElementById(id).classList.add("on");window.scrollTo(0,0)}
+function fmt(n){return (n/100).toFixed(2)}
+function aiNumber(p){const r=Math.random(); // p: 0新手 1跟风 2老手 3鲨鱼
+  if(p===0)return 2000+Math.random()*4000; if(p===1)return 2500+Math.random()*1500;
+  if(p===2)return 1500+Math.random()*1300; return 1000+Math.random()*1200;}
+function startGame(mode){
+  if(mode==="arena"){if(bal<5){alert(lang==="zh"?"演示余额不足":"Insufficient demo balance");return;}bal-=5;}
+  else{if(pracLeft<=0){alert(lang==="zh"?"今日免费次数用完":"No free tries left");return;}pracLeft--;}
+  const n=8+Math.floor(Math.random()*4), opps=[];
+  for(let i=0;i<n;i++){const p=Math.random()<.3?0:Math.random()<.55?1:Math.random()<.8?2:3;
+    opps.push({name:NAMES[lang][i],persona:PERSONA[lang][p],num:Math.round(aiNumber(p))});}
+  window.G={mode,opps,you:3300};
+  document.getElementById("numRange").value=3300;document.getElementById("numShow").innerText="33.00";
+  renderPick();show("s-pick");
+}
+function renderPick(){
+  document.getElementById("t-lastAvg").innerText=t("lastAvg")+": "+(lastAvg===null?"—":fmt(lastAvg));
+}
+function commit(){
+  G.you=parseInt(document.getElementById("numRange").value);
+  const all=[{name:t("you"),num:G.you,me:true}].concat(G.opps);
+  const avg=all.reduce((s,o)=>s+o.num,0)/all.length, target=avg*2/3;
+  all.forEach(o=>o.d=Math.abs(o.num-target)); all.sort((a,b)=>a.d-b.d);
+  G.all=all;G.avg=avg;G.target=target;
+  const pool=G.mode==="arena"?Math.round(all.length*450):0; // 4.5 LGNS/人，单位：分
+  const prizes=all.length>=3?[.5,.3,.2]:[1,0,0]; G.pool=pool;G.prizes=prizes;
+  // 揭示动画
+  show("s-reveal");const box=document.getElementById("oppList");box.innerHTML="";
+  const seq=G.opps.slice();
+  let i=0;const step=()=>{
+    if(i<seq.length){const o=seq[i];
+      box.innerHTML+='<div class="opp reveal-anim"><span class="n">'+o.name+' <small style="color:#6b5a3a">'+o.persona+'</small></span><span class="v">'+fmt(o.num)+'</span></div>';
+      i++;setTimeout(step,260);
+    }else{setTimeout(settle,600);}
+  };step();
+}
+function settle(){
+  const all=G.all,prizes=G.prizes,pool=G.pool;
+  const rank=all.findIndex(o=>o.me)+1;
+  let prize=0;
+  if(G.mode==="arena"&&rank<=3){prize=Math.round(pool*prizes[rank-1]);bal+=prize/100;}
+  // 统计
+  if(G.mode==="arena"){stats.a++;if(rank<=3)stats.b++;stats.c+=prize/100-5;}
+  else{stats.d++;stats.e.push(rank);}
+  localStorage.setItem("g23_stats",JSON.stringify(stats));
+  localStorage.setItem("g23_bal",bal);
+  lastAvg=Math.round(G.avg);
+  document.getElementById("r-avg").innerText=fmt(Math.round(G.avg));
+  document.getElementById("r-target").innerText=fmt(Math.round(G.target));
+  document.getElementById("r-you").innerText=fmt(G.you);
+  document.getElementById("r-rank").innerText="#"+rank+" / "+all.length+(rank===1?" 🏆":"");
+  document.getElementById("r-prize").innerText=G.mode==="arena"?(prize/100).toFixed(2)+" LGNS":"—";
+  const rl=document.getElementById("rankList");rl.innerHTML="";
+  all.slice(0,6).forEach((o,i)=>{
+    const pz=G.mode==="arena"&&i<3?'<span class="prize">+'+(Math.round(pool*prizes[i])/100).toFixed(2)+'</span>':"";
+    rl.innerHTML+='<div class="opp'+(o.me?" me":"")+(i===0?" win":"")+'"><span class="n">#'+(i+1)+" "+o.name+'</span><span class="v">'+fmt(o.num)+' '+pz+'</span></div>';});
+  show("s-settle");
+}
+function renderHome(){
+  const avgRank=stats.e.length?(stats.e.reduce((a,b)=>a+b,0)/stats.e.length).toFixed(1):"—";
+  document.getElementById("t-myStats").innerText=t("stats").replace("{a}",stats.a).replace("{b}",stats.b).replace("{c}",stats.c.toFixed(1)).replace("{d}",stats.d).replace("{e}",avgRank);
+  document.getElementById("t-practiceTimes").innerText=t("practiceTimes")+": "+pracLeft;
+  document.getElementById("t-balance").innerText=t("balance")+": "+bal.toFixed(1)+" LGNS";
+}
+function renderAll(){
+  document.documentElement.lang=lang;
+  ["demoTag","title","subtitle","rule","practiceTimes","arenaInfo","pickTitle","pickSub","tip","revealTitle","revealSub","settleTitle","avgL","targetL","youL","rankL","prizeL"].forEach(id=>{const el=document.getElementById("t-"+id);if(el)el.innerHTML=t(id);});
+  document.getElementById("b-practice").innerText=t("practice");
+  document.getElementById("b-arena").innerText=t("arena");
+  document.getElementById("b-commit").innerText=t("commit");
+  document.getElementById("b-back1").innerText=t("back");
+  document.getElementById("b-again").innerText=t("again");
+  renderHome();renderPick();
+}
+renderAll();
+</script>
+</body>
+</html>
