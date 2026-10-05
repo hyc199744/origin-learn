@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>FCB Crash 体验版 | Web3Origin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0e14;color:#e8e8e8;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+.demobar{background:linear-gradient(90deg,#7a5c00,#a8842c);color:#fff8e1;text-align:center;font-size:12.5px;padding:8px 12px;letter-spacing:1px}
+.wrap{max-width:1080px;margin:0 auto;padding:14px 14px 50px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:8px 2px 14px}
+.logo{font-size:18px;font-weight:800;color:#f5c518;letter-spacing:1px}
+.bal{background:#141922;border:1px solid #2a3140;border-radius:12px;padding:8px 16px;font-size:14px}
+.bal b{color:#f5c518;font-size:17px}
+.langbtn{background:#141922;border:1px solid #2a3140;color:#aaa;border-radius:20px;padding:6px 14px;font-size:12.5px;cursor:pointer;margin-left:8px}
+.main{display:grid;gap:14px}
+@media(min-width:900px){.main{grid-template-columns:1fr 340px;align-items:start}}
+.stage{background:#10141c;border:1px solid #232b3a;border-radius:16px;overflow:hidden;position:relative}
+canvas#cv{width:100%;height:300px;display:block;background:radial-gradient(600px 300px at 50% 120%,#14202f,#0b0e14)}
+.mult{position:absolute;top:34px;left:0;right:0;text-align:center;pointer-events:none}
+.mult .m{font-size:52px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.mult .m.fly{color:#3ddc84}.mult .m.crash{color:#ff5c5c}.mult .m.wait{color:#8b94a3}
+.mult .st{font-size:13px;color:#8b94a3;margin-top:6px;letter-spacing:2px}
+.betpanel{padding:16px;border-top:1px solid #232b3a}
+.row{display:flex;gap:10px;margin-bottom:10px}
+.row label{font-size:12.5px;color:#8b94a3;display:block;margin-bottom:5px}
+.field{flex:1}
+input[type=number]{width:100%;background:#0b0e14;border:1.5px solid #2a3140;border-radius:10px;color:#fff;padding:11px 12px;font-size:15px;font-family:inherit}
+input[type=number]:focus{border-color:#f5c518;outline:none}
+.qbtns{display:flex;gap:8px;margin-bottom:12px}
+.qbtn{flex:1;background:#141922;border:1px solid #2a3140;color:#aaa;border-radius:8px;padding:8px 0;font-size:13px;cursor:pointer}
+.qbtn:hover{border-color:#f5c518;color:#f5c518}
+.bigbtn{width:100%;border:none;border-radius:12px;padding:15px;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .1s}
+.bigbtn:active{transform:scale(.98)}
+.bigbtn.bet{background:linear-gradient(180deg,#f5c518,#d9a410);color:#1a1405}
+.bigbtn.cash{background:linear-gradient(180deg,#3ddc84,#22a85e);color:#06130c}
+.bigbtn:disabled{opacity:.45;cursor:not-allowed}
+.side{background:#10141c;border:1px solid #232b3a;border-radius:16px;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid #232b3a}
+.tab{flex:1;text-align:center;padding:12px 4px;font-size:13px;color:#8b94a3;cursor:pointer;border-bottom:2px solid transparent}
+.tab.on{color:#f5c518;border-bottom-color:#f5c518;font-weight:700}
+.pane{display:none;max-height:430px;overflow-y:auto;padding:10px 12px}
+.pane.on{display:block}
+.feed-item{display:flex;justify-content:space-between;font-size:12.5px;padding:7px 4px;border-bottom:1px dashed #1d2430;color:#b9c0cc}
+.feed-item .win{color:#3ddc84;font-weight:700}
+.feed-item .time{color:#5a6472;font-size:11px}
+.hist{display:flex;flex-wrap:wrap;gap:8px;padding:6px 2px}
+.pill{font-size:13px;font-weight:700;padding:5px 12px;border-radius:20px;font-variant-numeric:tabular-nums}
+.pill.low{background:#2a1518;color:#ff7b7b}.pill.mid{background:#12291c;color:#3ddc84}.pill.high{background:#2c230f;color:#f5c518}
+.lb-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:9px 4px;border-bottom:1px dashed #1d2430}
+.lb-row .rk{width:26px;font-weight:800;color:#f5c518}
+.lb-row.me{background:#1a1d23;border-radius:8px;padding:9px 8px}
+.refbox{font-size:13.5px;line-height:2;color:#b9c0cc;padding:6px 2px}
+.refbox b{color:#f5c518}
+.reflink{background:#0b0e14;border:1px dashed #2a3140;border-radius:8px;padding:10px;font-size:12px;color:#8b94a3;word-break:break-all;margin:8px 0}
+.copybtn{background:#1c2330;border:1px solid #f5c518;color:#f5c518;border-radius:8px;padding:8px 18px;font-size:13px;cursor:pointer;width:100%}
+.note{font-size:12px;color:#5a6472;line-height:1.9;margin-top:14px;padding:0 2px}
+.foot{text-align:center;color:#4a5261;font-size:12px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="demobar" id="demoBar">🧪 体验版 · 使用测试 FCB（非真实资产）· 正式版上线后数据清零</div>
+<div class="wrap">
+  <div class="top">
+    <div class="logo">🚀 FCB Crash</div>
+    <div>
+      <span class="bal"><span id="tBal">余额</span> <b id="balance">10,000</b> FCB</span>
+      <button class="langbtn" id="langBtn">EN</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="stage">
+      <canvas id="cv"></canvas>
+      <div class="mult">
+        <div class="m wait" id="multNum">1.00x</div>
+        <div class="st" id="roundStatus">等待下注</div>
+      </div>
+      <div class="betpanel">
+        <div class="row">
+          <div class="field"><label id="lAmt">下注金额 (FCB)</label><input type="number" id="betAmt" value="100" min="1"></div>
+          <div class="field"><label id="lAuto">自动提现倍数 (留空=手动)</label><input type="number" id="autoOut" placeholder="如 2.00" min="1.01" step="0.01"></div>
+        </div>
+        <div class="qbtns">
+          <button class="qbtn" data-a="10">10</button>
+          <button class="qbtn" data-a="50">50</button>
+          <button class="qbtn" data-a="100">100</button>
+          <button class="qbtn" data-a="500">500</button>
+          <button class="qbtn" data-a="half">½</button>
+          <button class="qbtn" data-a="max">MAX</button>
+        </div>
+        <button class="bigbtn bet" id="actionBtn">下注</button>
+      </div>
+    </div>
+    <div class="side">
+      <div class="tabs">
+        <div class="tab on" data-p="feed">🔴 <span id="tFeed">实时</span></div>
+        <div class="tab" data-p="hist">📊 <span id="tHist">历史</span></div>
+        <div class="tab" data-p="rank">🏆 <span id="tRank">排行</span></div>
+        <div class="tab" data-p="ref">🎁 <span id="tRef">推广</span></div>
+      </div>
+      <div class="pane on" id="p-feed"></div>
+      <div class="pane" id="p-hist"><div class="hist" id="histList"></div></div>
+      <div class="pane" id="p-rank"></div>
+      <div class="pane" id="p-ref"></div>
+    </div>
+  </div>
+  <div class="note" id="ruleNote"></div>
+  <div class="foot">FCB Crash · 体验版 · Web3Origin</div>
+</div>
+<script>
+var LANG='zh';
+var I18N={
+zh:{bal:'余额',feed:'实时',hist:'历史',rank:'排行',ref:'推广',bet:'下注',betting:'下注中',flying:'飞行中 · 点提现落袋',crashed:'💥 爆了',waiting:'等待下注',cashout:'提现',amt:'下注金额 (FCB)',auto:'自动提现倍数 (留空=手动)',
+ rule:'玩法：15 秒一局，倍数从 1.00x 上涨，随时提现落袋，爆点一到本金归零。每局平台抽水 4%（2% 归平台 · 1% 直推奖励 · 0.5% 日榜奖池 · 0.5% 连胜补贴）。推广只做两级，奖励全部来自平台抽水。',
+ refTitle:'🎁 我的推广',invited:'已邀请',earned:'累计返佣',rate:'直推 1% · 间推 0.5%（来自平台抽水，不扣玩家）',copy:'复制邀请链接',copied:'已复制！',
+ demo:'🧪 体验版 · 使用测试 FCB（非真实资产）· 正式版上线后数据清零'},
+en:{bal:'Balance',feed:'Live',hist:'History',rank:'Board',ref:'Referral',bet:'Place Bet',betting:'Betting open',flying:'Flying · cash out anytime',crashed:'💥 CRASHED',waiting:'Waiting',cashout:'Cash Out',amt:'Bet amount (FCB)',auto:'Auto cash-out (blank=manual)',
+ rule:'How it works: 15s rounds, multiplier climbs from 1.00x, cash out anytime before the crash. 4% house edge per round (2% platform · 1% direct referral · 0.5% daily leaderboard · 0.5% streak bonus). Two-level referral only, rewards from house edge.',
+ refTitle:'🎁 My Referrals',invited:'Invited',earned:'Total commission',rate:'Direct 1% · 2nd-level 0.5% (from house edge, players pay nothing extra)',copy:'Copy invite link',copied:'Copied!',
+ demo:'🧪 DEMO · Test FCB only (not real assets) · Data resets at official launch'}
+};
+var T=function(k){return I18N[LANG][k];};
+// ---- 状态 ----
+var balance=parseFloat(localStorage.getItem('crash_demo_bal')||'10000');
+var phase='waiting', phaseT=0, crashPoint=2, flyT=0, myBet=0, myOut=false, myAuto=0;
+var history=[], BET_MS=5000, PAUSE_MS=3000, GROWTH=0.14;
+var NAMES=['火箭🚀','梭哈王','稳如狗','0x3f…a2','钻石手','梭哈是一种智慧','佛系玩家','0x88…41','追梦人','韭菜根','0xab…09','稳中带皮','ALL IN','0x5c…77','快乐源泉','翻倍大师'];
+var bots=[];
+function fmt(n){return n.toLocaleString('en-US',{maximumFractionDigits:2});}
+function saveBal(){localStorage.setItem('crash_demo_bal',balance);}
+function setBal(){$('balance').textContent=fmt(balance);saveBal();}
+function $(id){return document.getElementById(id);}
+// ---- 爆点 ----
+function genCrash(){
+  var r=Math.random();
+  if(r<0.03) return 1.00;
+  return Math.min(0.98/(1-r),120);
+}
+// ---- 机器人 ----
+function genBots(){
+  bots=[];var n=5+Math.floor(Math.random()*8);
+  for(var i=0;i<n;i++){
+    bots.push({name:NAMES[Math.floor(Math.random()*NAMES.length)],
+      bet:Math.round((10+Math.random()*490)),target:1.2+Math.random()*8.8,out:false});
+  }
+}
+// ---- 画布 ----
+var cv=$('cv'),ctx=cv.getContext('2d');
+function sizeCanvas(){var r=cv.getBoundingClientRect();cv.width=r.width*2;cv.height=300*2;}
+window.addEventListener('resize',sizeCanvas);sizeCanvas();
+function drawCurve(){
+  var W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#1d2430';ctx.lineWidth=1;
+  for(var i=1;i<5;i++){ctx.beginPath();ctx.moveTo(0,H*i/5);ctx.lineTo(W,H*i/5);ctx.stroke();}
+  if(phase!=='flying'&&phase!=='crashed')return;
+  var tEnd=phase==='flying'?flyT:Math.log(crashPoint)/GROWTH;
+  ctx.beginPath();ctx.lineWidth=5;
+  ctx.strokeStyle=phase==='crashed'?'#ff5c5c':'#3ddc84';
+  ctx.shadowColor=ctx.strokeStyle;ctx.shadowBlur=18;
+  var steps=Math.max(2,Math.floor(tEnd*30));
+  for(var s=0;s<=steps;s++){
+    var t=tEnd*s/steps,m=Math.exp(GROWTH*t);
+    var x=Math.min(W*0.92,(t/ (Math.log(120)/GROWTH))*W*0.92+W*0.04);
+    var y=H-((Math.log(m)/Math.log(120))*H*0.82)-H*0.06;
+    if(s===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }
+  ctx.stroke();ctx.shadowBlur=0;
+  // 当前点
+  if(phase==='flying'){
+    var m=Math.exp(GROWTH*flyT);
+    var x=Math.min(W*0.92,(flyT/(Math.log(120)/GROWTH))*W*0.92+W*0.04);
+    var y=H-((Math.log(m)/Math.log(120))*H*0.82)-H*0.06;
+    ctx.beginPath();ctx.arc(x,y,10,0,7);ctx.fillStyle='#fff';ctx.fill();
+  }
+}
+// ---- 动态 ----
+function feed(html){
+  var p=$('p-feed');var d=document.createElement('div');d.className='feed-item';d.innerHTML=html;
+  p.prepend(d);while(p.children.length>30)p.removeChild(p.lastChild);
+}
+function feedBet(b){feed('<span>🎲 '+b.name+' 下注 <b>'+fmt(b.bet)+'</b> FCB</span><span class="time">'+nowT()+'</span>');}
+function feedWin(b,m){feed('<span>💰 '+b.name+' 以 <b>'+m.toFixed(2)+'x</b> 提现 <span class="win">+'+fmt(b.bet*m)+'</span></span><span class="time">'+nowT()+'</span>');}
+function nowT(){var d=new Date();return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2);}
+// ---- 历史 ----
+function renderHist(){
+  var h='';for(var i=history.length-1;i>=0;i--){
+    var c=history[i],cls=c<2?'low':(c<10?'mid':'high');
+    h+='<span class="pill '+cls+'">'+c.toFixed(2)+'x</span>';
+  }
+  $('histList').innerHTML=h||'<span style="color:#5a6472;font-size:13px">暂无</span>';
+}
+// ---- 排行（模拟）----
+function renderRank(){
+  var rows=[['火箭🚀',12840],['钻石手',8930],['0x3f…a2',6210],['梭哈王',4150],['稳如狗',2870],['追梦人',1930],['佛系玩家',940]];
+  var myProfit=balance-10000;
+  rows.push(['你 (体验)',myProfit]);rows.sort(function(a,b){return b[1]-a[1];});
+  var h='';
+  rows.forEach(function(r,i){
+    var me=r[0].indexOf('你')===0;
+    h+='<div class="lb-row'+(me?' me':'')+'"><span class="rk">'+(i+1)+'</span><span>'+r[0]+'</span><span style="color:'+(r[1]>=0?'#3ddc84':'#ff7b7b')+'">'+(r[1]>=0?'+':'')+fmt(r[1])+'</span></div>';
+  });
+  $('p-rank').innerHTML=h+'<div style="font-size:11.5px;color:#5a6472;margin-top:8px">日榜 Top10 按盈利瓜分奖池（体验版为模拟数据）</div>';
+}
+// ---- 推广（模拟）----
+function renderRef(){
+  $('p-ref').innerHTML='<div class="refbox"><b>'+T('refTitle')+'</b><br>'+T('invited')+'：<b>12</b> 人<br>'+T('earned')+'：<b>345.60</b> FCB<br><span style="font-size:12px;color:#8b94a3">'+T('rate')+'</span>'
+  +'<div class="reflink">https://web3origin.com/tools/crash/?ref=DEMO1234</div>'
+  +'<button class="copybtn" onclick="copyRef()">'+T('copy')+'</button></div>';
+}
+function copyRef(){navigator.clipboard&&navigator.clipboard.writeText('https://web3origin.com/tools/crash/?ref=DEMO1234');alert(T('copied'));}
+// ---- 回合引擎 ----
+var lastTs=0;
+function loop(ts){
+  var dt=Math.min(0.1,(ts-lastTs)/1000||0);lastTs=ts;
+  if(phase==='betting'){
+    phaseT-=dt*1000;
+    $('roundStatus').textContent=T('betting')+' '+Math.ceil(phaseT/1000)+'s';
+    if(phaseT<=0){startFly();}
+  }else if(phase==='flying'){
+    flyT+=dt;
+    var m=Math.exp(GROWTH*flyT);
+    var mn=$('multNum');mn.textContent=m.toFixed(2)+'x';mn.className='m fly';
+    $('roundStatus').textContent=T('flying');
+    // 自动提现
+    if(myBet>0&&!myOut&&myAuto>0&&m>=myAuto)doCashout();
+    // 机器人提现
+    bots.forEach(function(b){if(!b.out&&m>=b.target){b.out=true;feedWin(b,m);}});
+    if(flyT>=Math.log(crashPoint)/GROWTH){doCrash();}
+  }else if(phase==='crashed'){
+    phaseT-=dt*1000;
+    if(phaseT<=0){startBetting();}
+  }
+  drawCurve();
+  requestAnimationFrame(loop);
+}
+function startBetting(){
+  phase='betting';phaseT=BET_MS;myBet=0;myOut=false;
+  crashPoint=genCrash();genBots();
+  var mn=$('multNum');mn.textContent='1.00x';mn.className='m wait';
+  $('roundStatus').textContent=T('betting');
+  var btn=$('actionBtn');btn.textContent=T('bet');btn.className='bigbtn bet';btn.disabled=false;
+  bots.forEach(feedBet);
+}
+function startFly(){
+  phase='flying';flyT=0;
+  var btn=$('actionBtn');
+  if(myBet>0){btn.textContent=T('cashout')+' '+fmt(myBet*1)+' FCB';btn.className='bigbtn cash';btn.disabled=false;}
+  else{btn.disabled=true;btn.textContent=T('betting')+'…';}
+}
+function doCrash(){
+  phase='crashed';phaseT=PAUSE_MS;
+  var mn=$('multNum');mn.textContent=crashPoint.toFixed(2)+'x';mn.className='m crash';
+  $('roundStatus').textContent=T('crashed')+' @ '+crashPoint.toFixed(2)+'x';
+  history.push(crashPoint);if(history.length>20)history.shift();renderHist();
+  if(myBet>0&&!myOut){feed('<span>😭 你在 <b>'+crashPoint.toFixed(2)+'x</b> 爆仓，<span style="color:#ff7b7b">-'+fmt(myBet)+'</span></span><span class="time">'+nowT()+'</span>');}
+  var btn=$('actionBtn');btn.disabled=true;
+}
+function doCashout(){
+  var m=Math.exp(GROWTH*flyT);
+  var win=myBet*m;balance+=win;myOut=true;setBal();
+  feed('<span>💰 你以 <b>'+m.toFixed(2)+'x</b> 提现 <span class="win">+'+fmt(win)+'</span></span><span class="time">'+nowT()+'</span>');
+  var btn=$('actionBtn');btn.disabled=true;btn.textContent='✅ +'+fmt(win)+' FCB';
+  renderRank();
+}
+$('actionBtn').onclick=function(){
+  if(phase==='betting'&&myBet===0){
+    var amt=parseFloat($('betAmt').value);
+    if(!(amt>0)){$('betAmt').focus();return;}
+    if(amt>balance){alert(LANG==='zh'?'余额不足':'Insufficient balance');return;}
+    myBet=Math.floor(amt);balance-=myBet;setBal();
+    myAuto=parseFloat($('autoOut').value)||0;
+    feed('<span>🎲 你下注 <b>'+fmt(myBet)+'</b> FCB'+(myAuto>0?'（自动 '+myAuto.toFixed(2)+'x）':'')+'</span><span class="time">'+nowT()+'</span>');
+    var btn=$('actionBtn');btn.textContent='✅ '+(LANG==='zh'?'已下注 ':'Bet placed ')+fmt(myBet)+' FCB';btn.disabled=true;
+  }else if(phase==='flying'&&myBet>0&&!myOut){
+    doCashout();
+  }
+};
+document.querySelectorAll('.qbtn').forEach(function(b){
+  b.onclick=function(){
+    var a=b.dataset.a,cur=parseFloat($('betAmt').value)||0;
+    if(a==='half')$('betAmt').value=Math.max(1,Math.floor(cur/2));
+    else if(a==='max')$('betAmt').value=Math.floor(balance);
+    else $('betAmt').value=a;
+  };
+});
+document.querySelectorAll('.tab').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
+    document.querySelectorAll('.pane').forEach(function(x){x.classList.remove('on');});
+    t.classList.add('on');$('p-'+t.dataset.p).classList.add('on');
+  };
+});
+function applyLang(){
+  $('tBal').textContent=T('bal');$('tFeed').textContent=T('feed');$('tHist').textContent=T('hist');
+  $('tRank').textContent=T('rank');$('tRef').textContent=T('ref');$('lAmt').textContent=T('amt');
+  $('lAuto').textContent=T('auto');$('ruleNote').textContent=T('rule');$('demoBar').textContent=T('demo');
+  $('langBtn').textContent=LANG==='zh'?'EN':'中文';
+  renderRef();renderRank();
+  if(phase==='betting'&&myBet===0)$('actionBtn').textContent=T('bet');
+}
+$('langBtn').onclick=function(){LANG=LANG==='zh'?'en':'zh';applyLang();};
+// ---- 启动 ----
+setBal();applyLang();renderHist();
+feed('<span>🎉 欢迎来到 FCB Crash 体验版！每局 15 秒，祝好运 🍀</span><span class="time">'+nowT()+'</span>');
+startBetting();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
