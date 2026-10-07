@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>店铺 | Web3Origin</title>
-<meta name="description" content="Web3Origin 店铺：书、国外 Apple ID、VPN，统一 10 LGNS 一件，钱包直付。">
+<title>起源商城 | Web3Origin</title>
+<meta name="description" content="Web3Origin 起源商城：书、国外 Apple ID、VPN，统一 10 LGNS 一件，钱包直付。">
 <style>
 :root{
 --bg:#F6F3EC; --card:#FFFFFF; --wine:#5C1A27; --wine-d:#43121C;
@@ -70,6 +70,9 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragi
 .codebox{background:#FFFBF0;border:1.5px solid var(--gold);border-radius:14px;padding:16px;margin-top:12px;font-size:13.5px;line-height:2;text-align:center}
 .codebox b{font-size:20px;letter-spacing:2px;color:var(--wine)}
 #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#2A2622;color:#F7F1E3;padding:11px 20px;border-radius:12px;font-size:13.5px;z-index:99;display:none;max-width:88vw;text-align:center}
+.news{padding:10px 2px;border-bottom:1px dashed var(--line);font-size:13.5px;line-height:1.8}
+.news:last-child{border-bottom:none}
+.news .nd{color:var(--muted);font-size:12px;margin-right:8px;white-space:nowrap}
 .foot{text-align:center;font-size:12px;color:var(--muted);margin-top:24px;line-height:2}
 .foot a{color:var(--wine);text-decoration:none;font-weight:600}
 @media(max-width:480px){.prod.prow{flex-wrap:wrap}.prod.pr{text-align:left}.prod.pr small{text-align:left}}
@@ -87,6 +90,11 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragi
 <div class="brand-name" data-i18n="shopName">店 铺</div>
 <div class="brand-sub" data-i18n="shopSub">书 · 国外 Apple ID · VPN —— 统一 10 LGNS 一件，钱包直付</div>
 </div>
+
+<section class="card" id="sec-news">
+<div class="sec-head"><h2 data-i18n="newsTitle">📢 最新资讯</h2></div>
+<div id="newsList"></div>
+</section>
 
 <section class="card" id="sec-books">
 <div class="sec-head"><h2 data-i18n="catBooks">📚 书</h2><span class="r" data-i18n="payLGNS">LGNS 支付</span></div>
@@ -142,6 +150,16 @@ CONTACT: '',
 FB_API: 'https://count.web3origin.com/fb/submit',
 FB_PAGE: '/feedback/'
 };
+var NEWS = [
+  {d:'2026-10-07', zh:'🎉 起源商城开张！《起源小白操作手册》正式上架，商品页有 5 张介绍图可以看。', en:'🎉 Origin Mall is open! "Origin Xiaobai Manual" is now available — see the 5 preview images on the product page.'},
+  {d:'2026-10-07', zh:'📢 全场统一 10 LGNS 一件，Anubis 链上钱包直付，不用注册。', en:'📢 Everything is 10 LGNS flat — pay straight from your wallet on Anubis, no sign-up needed.'}
+];
+function renderNews(){
+  var host = $('newsList'); if(!host) return;
+  host.innerHTML = NEWS.map(function(n){
+    return '<div class="news"><span class="nd">'+n.d+'</span>'+esc(lang==='zh'?n.zh:n.en)+'</div>';
+  }).join('');
+}
 var BOOK_B64 = ["img/book1.b64", "img/book2.b64", "img/book3.b64", "img/book4.b64", "img/book5.b64"];
 var BOOK_DATA = [];
 function loadBookImgs(){
@@ -184,13 +202,13 @@ den:'High-speed nodes, multi-device support, billed monthly.'}
 /* ================= 多语言 ================= */
 var I18N = {
 zh: {
-shopName:'店 铺', shopSub:'书 · 国外 Apple ID · VPN —— 统一 10 LGNS 一件，钱包直付',
+shopName:'起源商城', shopSub:'书 · 国外 Apple ID · VPN —— 统一 10 LGNS 一件，钱包直付',
 connect:'连接钱包', catBooks:'📚 书', catApple:'🍎 国外 Apple ID', catVpn:'🛡️ VPN',
 payLGNS:'LGNS 支付', payLGNS2:'LGNS 支付', payLGNS3:'LGNS 支付',
 booksDesc:'纸质书，付款后填写收货信息，卖家发货，快递单号会回复在你的订单下。',
 appleDesc:'海外区 Apple ID，付款后留个联系方式，卖家把账号密码发你。收到后请第一时间改密码和密保。',
 vpnDesc:'高速节点，付款后留个联系方式，卖家发你订阅链接 / 客户端配置。',
-buy:'购买', buying:'支付中…', perPiece:'10 LGNS / 件', imgLoading:'图片加载中…',
+buy:'购买', buying:'支付中…', perPiece:'10 LGNS / 件', imgLoading:'图片加载中…', newsTitle:'📢 最新资讯',
 myOrders:'🧾 我的订单', noOrders:'还没有订单，买点什么吧。', ordersN:'共 {n} 笔',
 howTitle:'💳 怎么付款', payToken:'付款代币', payChain:'付款链', sellerAddr:'卖家收款地址',
 payNote:'点「购买」后钱包会弹出确认，直接转 <b>10 LGNS</b> 到卖家地址。纸质书付款后填收货信息，卖家发货后把快递单号回复在订单下，凭查询码到留言区查看；虚拟商品（Apple ID / VPN）留联系方式，卖家一般 24 小时内发货。',
@@ -213,13 +231,13 @@ copyCode:'复制查询码', copied:'已复制',
 txFail:'支付失败：', userCancel:'已取消支付'
 },
 en: {
-shopName:'SHOP', shopSub:'Books · Foreign Apple IDs · VPN — 10 LGNS each, pay with wallet',
+shopName:'ORIGIN MALL', shopSub:'Books · Foreign Apple IDs · VPN — 10 LGNS each, pay with wallet',
 connect:'Connect', catBooks:'📚 Books', catApple:'🍎 Foreign Apple IDs', catVpn:'🛡️ VPN',
 payLGNS:'Pay in LGNS', payLGNS2:'Pay in LGNS', payLGNS3:'Pay in LGNS',
 booksDesc:'Physical book. Fill in shipping info after payment; the seller ships and replies with the tracking number under your order.',
 appleDesc:'Foreign-region Apple IDs. Leave contact info after payment and the seller sends login and password. Change password and security info immediately.',
 vpnDesc:'High-speed nodes. Leave contact info after payment and the seller sends the subscription link / client config.',
-buy:'Buy', buying:'Paying…', perPiece:'10 LGNS / item', imgLoading:'Loading images…',
+buy:'Buy', buying:'Paying…', perPiece:'10 LGNS / item', imgLoading:'Loading images…', newsTitle:'📢 Latest News',
 myOrders:'🧾 My Orders', noOrders:'No orders yet.', ordersN:'{n} orders',
 howTitle:'💳 How to pay', payToken:'Token', payChain:'Chain', sellerAddr:'Seller address',
 payNote:'Tap "Buy" and confirm in your wallet: <b>10 LGNS</b> goes straight to the seller. For physical books, fill in shipping info after payment; the tracking number will be replied under your order (check with the query code in the feedback board). For digital goods leave contact info; delivery usually within 24h.',
@@ -464,7 +482,7 @@ host.appendChild(d);
 function applyLang(){
 document.querySelectorAll('[data-i18n]').forEach(function(el){ el.innerHTML = t(el.dataset.i18n);});
 $('langBtn').textContent = lang === 'zh'? 'EN': '中文';
-renderProducts(); renderOrders(); loadBookImgs();
+renderNews(); renderProducts(); renderOrders(); loadBookImgs();
 $('sellerLink').textContent = short(CFG.SELLER);
 $('sellerLink').href = CFG.explorer + '/address/' + CFG.SELLER;
 }
