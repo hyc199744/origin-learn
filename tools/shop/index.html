@@ -6,338 +6,464 @@
 <title>店铺 | Web3Origin</title>
 <meta name="description" content="Web3Origin 店铺：书、国外 Apple ID、VPN，统一 10 LGNS 一件，钱包直付。">
 <style>
-  :root{
-    --bg:#F6F3EC; --card:#FFFFFF; --wine:#5C1A27; --wine-d:#43121C;
-    --gold:#C9A86A; --ink:#2A2622; --muted:#8B8577; --line:#E9E2D2; --radius:18px;
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:860px;margin:0 auto;padding:14px 16px 40px}
-  .topbar{display:flex;justify-content:flex-end;gap:8px;padding:6px 2px}
-  .pill{background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
-  .pill:hover{border-color:var(--gold);color:var(--wine)}
-  .pill.on{background:var(--wine);border-color:var(--wine);color:#F7F1E3}
-  .brand{text-align:center;padding:14px 4px 20px}
-  .brand .logo{font-size:44px}
-  .brand-name{font-size:24px;font-weight:800;letter-spacing:8px;margin-top:6px}
-  .brand-sub{font-size:12.5px;color:var(--muted);margin-top:6px;letter-spacing:1px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-top:16px}
-  .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
-  .sec-head h2{font-size:18px;font-weight:800;margin:0}
-  .sec-head .r{font-size:12.5px;color:var(--muted)}
-  .sec-desc{font-size:13px;color:var(--muted);margin:0 0 8px;line-height:1.7}
-  .prod{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:10px;background:#FFFDF8}
-  .prod .ic{font-size:34px;flex:none}
-  .prod .mid{flex:1;min-width:0}
-  .prod .nm{font-size:15.5px;font-weight:800}
-  .prod .ds{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.6}
-  .prod .pr{font-size:15px;font-weight:800;color:var(--wine);white-space:nowrap}
-  .prod .pr small{display:block;font-size:11px;color:var(--muted);font-weight:400;text-align:right}
-  .btn{background:var(--wine);color:#F7F1E3;border:none;border-radius:12px;padding:11px 22px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
-  .btn:hover{background:var(--wine-d)}
-  .btn:disabled{opacity:.55;cursor:wait}
-  .btn.ghost{background:#fff;border:1.5px solid var(--wine);color:var(--wine)}
-  .coming{border:1.5px dashed var(--line);border-radius:14px;padding:22px;text-align:center;color:var(--muted);font-size:13.5px;margin-top:10px;line-height:1.8}
-  .order{border-bottom:1px dashed var(--line);padding:10px 0;font-size:13px}
-  .order:last-child{border-bottom:none}
-  .order .oh{display:flex;justify-content:space-between;gap:8px}
-  .order .ot{color:var(--muted);font-size:12px;margin-top:3px}
-  .order a{color:var(--wine);font-weight:700;text-decoration:none;word-break:break-all}
-  .empty{color:var(--muted);font-size:13px;text-align:center;padding:14px}
-  .note{font-size:12.5px;color:var(--muted);line-height:1.9;margin-top:12px}
-  .note b{color:var(--wine)}
-  .kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;font-size:13px}
-  .kv .k{color:var(--muted);flex:none}
-  .kv .v{font-weight:700;text-align:right;word-break:break-all}
-  .kv a{color:var(--wine);text-decoration:none}
-  .okbox{background:#F2FBF5;border:1px solid #bfe6cd;border-radius:14px;padding:16px;margin-top:12px;font-size:13.5px;line-height:1.9}
-  .okbox b{color:#1e7a3c}
-  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#2A2622;color:#F7F1E3;padding:11px 20px;border-radius:12px;font-size:13.5px;z-index:99;display:none;max-width:88vw;text-align:center}
-  .foot{text-align:center;font-size:12px;color:var(--muted);margin-top:24px;line-height:2}
-  .foot a{color:var(--wine);text-decoration:none;font-weight:600}
-  @media(max-width:480px){.prod{flex-wrap:wrap}.prod .pr{text-align:left}.prod .pr small{text-align:left}}
+:root{
+--bg:#F6F3EC; --card:#FFFFFF; --wine:#5C1A27; --wine-d:#43121C;
+--gold:#C9A86A; --ink:#2A2622; --muted:#8B8577; --line:#E9E2D2; --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:14px 16px 40px}
+.topbar{display:flex;justify-content:flex-end;gap:8px;padding:6px 2px}
+.pill{background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+.pill:hover{border-color:var(--gold);color:var(--wine)}
+.pill.on{background:var(--wine);border-color:var(--wine);color:#F7F1E3}
+.brand{text-align:center;padding:14px 4px 20px}
+.brand.logo{font-size:44px}
+.brand-name{font-size:24px;font-weight:800;letter-spacing:8px;margin-top:6px}
+.brand-sub{font-size:12.5px;color:var(--muted);margin-top:6px;letter-spacing:1px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-top:16px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.sec-head h2{font-size:18px;font-weight:800;margin:0}
+.sec-head.r{font-size:12.5px;color:var(--muted)}
+.sec-desc{font-size:13px;color:var(--muted);margin:0 0 8px;line-height:1.7}
+.prod{border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:10px;background:#FFFDF8}
+.prod.prow{display:flex;gap:14px;align-items:center}
+.prod.ic{font-size:34px;flex:none}
+.prod.mid{flex:1;min-width:0}
+.prod.nm{font-size:15.5px;font-weight:800}
+.prod.ds{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.6}
+.prod.pr{font-size:15px;font-weight:800;color:var(--wine);white-space:nowrap}
+.prod.pr small{display:block;font-size:11px;color:var(--muted);font-weight:400;text-align:right}
+.btn{background:var(--wine);color:#F7F1E3;border:none;border-radius:12px;padding:11px 22px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn:hover{background:var(--wine-d)}
+.btn:disabled{opacity:.55;cursor:wait}
+.gal{margin-bottom:12px}
+.gal-main{width:100%;border-radius:12px;display:block;aspect-ratio:1/1;object-fit:cover;background:#eee}
+.gal-thumbs{display:flex;gap:8px;margin-top:8px;overflow-x:auto}
+.gal-thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;flex:none}
+.gal-thumbs img.on{border-color:var(--wine)}
+.coming{border:1.5px dashed var(--line);border-radius:14px;padding:22px;text-align:center;color:var(--muted);font-size:13.5px;margin-top:10px;line-height:1.8}
+.order{border-bottom:1px dashed var(--line);padding:10px 0;font-size:13px}
+.order:last-child{border-bottom:none}
+.order.oh{display:flex;justify-content:space-between;gap:8px}
+.order.ot{color:var(--muted);font-size:12px;margin-top:3px}
+.order a{color:var(--wine);font-weight:700;text-decoration:none;word-break:break-all}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:14px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.9;margin-top:12px}
+.note b{color:var(--wine)}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;font-size:13px}
+.kv.k{color:var(--muted);flex:none}
+.kv.v{font-weight:700;text-align:right;word-break:break-all}
+.kv a{color:var(--wine);text-decoration:none}
+.okbox{background:#F2FBF5;border:1px solid #bfe6cd;border-radius:14px;padding:16px;margin-top:12px;font-size:13.5px;line-height:1.9}
+.okbox b{color:#1e7a3c}
+.okbox a{color:var(--wine);font-weight:700;word-break:break-all}
+.fform{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}
+.fform h3{font-size:15px;margin:0 0 8px}
+.fform label{display:block;font-size:12.5px;color:var(--muted);margin:8px 0 2px}
+.fform input,.fform textarea{width:100%;padding:11px;background:#fff;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;color:var(--ink)}
+.fform input:focus,.fform textarea:focus{border-color:var(--wine);outline:none}
+.fform.caprow{display:flex;align-items:center;gap:8px;margin-top:10px}
+.fform.caprow input{width:90px}
+.fform.warn{display:none;color:#b3261e;font-size:12.5px;margin-top:8px}
+.codebox{background:#FFFBF0;border:1.5px solid var(--gold);border-radius:14px;padding:16px;margin-top:12px;font-size:13.5px;line-height:2;text-align:center}
+.codebox b{font-size:20px;letter-spacing:2px;color:var(--wine)}
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#2A2622;color:#F7F1E3;padding:11px 20px;border-radius:12px;font-size:13.5px;z-index:99;display:none;max-width:88vw;text-align:center}
+.foot{text-align:center;font-size:12px;color:var(--muted);margin-top:24px;line-height:2}
+.foot a{color:var(--wine);text-decoration:none;font-weight:600}
+@media(max-width:480px){.prod.prow{flex-wrap:wrap}.prod.pr{text-align:left}.prod.pr small{text-align:left}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="topbar">
-    <button class="pill" id="langBtn">EN</button>
-    <button class="pill" id="walletBtn"><span id="walletBtnTxt">连接钱包</span></button>
-  </div>
+<div class="topbar">
+<button class="pill" id="langBtn">EN</button>
+<button class="pill" id="walletBtn"><span id="walletBtnTxt">连接钱包</span></button>
+</div>
 
-  <div class="brand">
-    <div class="logo">🛒</div>
-    <div class="brand-name" data-i18n="shopName">店 铺</div>
-    <div class="brand-sub" data-i18n="shopSub">书 · 国外 Apple ID · VPN —— 统一 10 LGNS 一件，钱包直付</div>
-  </div>
+<div class="brand">
+<div class="logo">🛒</div>
+<div class="brand-name" data-i18n="shopName">店 铺</div>
+<div class="brand-sub" data-i18n="shopSub">书 · 国外 Apple ID · VPN —— 统一 10 LGNS 一件，钱包直付</div>
+</div>
 
-  <section class="card" id="sec-books">
-    <div class="sec-head"><h2 data-i18n="catBooks">📚 书</h2><span class="r" data-i18n="payLGNS">LGNS 支付</span></div>
-    <p class="sec-desc" data-i18n="booksDesc">好书推荐，付款后联系卖家发货（纸质 / 电子版按商品说明）。</p>
-    <div id="bookList"></div>
-  </section>
+<section class="card" id="sec-books">
+<div class="sec-head"><h2 data-i18n="catBooks">📚 书</h2><span class="r" data-i18n="payLGNS">LGNS 支付</span></div>
+<p class="sec-desc" data-i18n="booksDesc">纸质书，付款后填写收货信息，卖家发货，快递单号会回复在你的订单下。</p>
+<div id="bookList"></div>
+</section>
 
-  <section class="card" id="sec-apple">
-    <div class="sec-head"><h2 data-i18n="catApple">🍎 国外 Apple ID</h2><span class="r" data-i18n="payLGNS2">LGNS 支付</span></div>
-    <p class="sec-desc" data-i18n="appleDesc">海外区 Apple ID，付款后卖家把账号密码发你。收到后请第一时间改密码和密保。</p>
-    <div id="appleList"></div>
-  </section>
+<section class="card" id="sec-apple">
+<div class="sec-head"><h2 data-i18n="catApple">🍎 国外 Apple ID</h2><span class="r" data-i18n="payLGNS2">LGNS 支付</span></div>
+<p class="sec-desc" data-i18n="appleDesc">海外区 Apple ID，付款后留个联系方式，卖家把账号密码发你。收到后请第一时间改密码和密保。</p>
+<div id="appleList"></div>
+</section>
 
-  <section class="card" id="sec-vpn">
-    <div class="sec-head"><h2 data-i18n="catVpn">🛡️ VPN</h2><span class="r" data-i18n="payLGNS3">LGNS 支付</span></div>
-    <p class="sec-desc" data-i18n="vpnDesc">高速节点，付款后卖家发你订阅链接 / 客户端配置。</p>
-    <div id="vpnList"></div>
-  </section>
+<section class="card" id="sec-vpn">
+<div class="sec-head"><h2 data-i18n="catVpn">🛡️ VPN</h2><span class="r" data-i18n="payLGNS3">LGNS 支付</span></div>
+<p class="sec-desc" data-i18n="vpnDesc">高速节点，付款后留个联系方式，卖家发你订阅链接 / 客户端配置。</p>
+<div id="vpnList"></div>
+</section>
 
-  <section class="card" id="sec-orders">
-    <div class="sec-head"><h2 data-i18n="myOrders">🧾 我的订单</h2><span class="r" id="orderCount"></span></div>
-    <div id="orderList"><div class="empty" data-i18n="noOrders">还没有订单，买点什么吧。</div></div>
-  </section>
+<section class="card" id="sec-orders">
+<div class="sec-head"><h2 data-i18n="myOrders">🧾 我的订单</h2><span class="r" id="orderCount"></span></div>
+<div id="orderList"><div class="empty" data-i18n="noOrders">还没有订单，买点什么吧。</div></div>
+</section>
 
-  <section class="card">
-    <div class="sec-head"><h2 data-i18n="howTitle">💳 怎么付款</h2></div>
-    <div class="kv"><span class="k" data-i18n="payToken">付款代币</span><span class="v">LGNS</span></div>
-    <div class="kv"><span class="k" data-i18n="payChain">付款链</span><span class="v">Anubis</span></div>
-    <div class="kv"><span class="k" data-i18n="sellerAddr">卖家收款地址</span><span class="v"><a id="sellerLink" href="#" target="_blank" rel="noopener">-</a></span></div>
-    <div class="note" data-i18n="payNote">点「购买」后钱包会弹出确认，直接转 <b>10 LGNS</b> 到卖家地址。交易上链后凭交易哈希找卖家发货，虚拟商品（Apple ID / VPN）一般 24 小时内交付。</div>
-    <div id="okBox"></div>
-  </section>
+<section class="card">
+<div class="sec-head"><h2 data-i18n="howTitle">💳 怎么付款</h2></div>
+<div class="kv"><span class="k" data-i18n="payToken">付款代币</span><span class="v">LGNS</span></div>
+<div class="kv"><span class="k" data-i18n="payChain">付款链</span><span class="v">Anubis</span></div>
+<div class="kv"><span class="k" data-i18n="sellerAddr">卖家收款地址</span><span class="v"><a id="sellerLink" href="#" target="_blank" rel="noopener">-</a></span></div>
+<div class="note" data-i18n="payNote">点「购买」后钱包会弹出确认，直接转 <b>10 LGNS</b> 到卖家地址。纸质书付款后填收货信息，卖家发货后把快递单号回复在订单下，凭查询码到留言区查看；虚拟商品（Apple ID / VPN）留联系方式，卖家一般 24 小时内发货。</div>
+<div id="okBox"></div>
+</section>
 
-  <div class="foot">
-    <a href="/">Web3Origin</a> · <a href="/tools/origin-monitor/" data-i18n="toolbox">起源百宝箱</a><br>
-    <span data-i18n="footRisk">虚拟商品一经发货不退不换；Apple ID 请遵守苹果用户协议使用。</span>
-  </div>
+<div class="foot">
+<a href="/">Web3Origin</a> · <a href="/tools/origin-monitor/" data-i18n="toolbox">起源百宝箱</a> · <a href="/feedback/" data-i18n="fbLink">留言区（查订单）</a><br>
+<span data-i18n="footRisk">虚拟商品一经发货不退不换；Apple ID 请遵守苹果用户协议使用。</span>
+</div>
 </div>
 <div id="toast"></div>
 
 <script>
 "use strict";
-/* ================= 店铺配置（改这里就行） ================= */
+/* ================= 店铺配置 ================= */
 var CFG = {
-  chainId: 6714, chainHex: '0x1A3A', chainName: 'Anubis',
-  rpcUrl: 'https://rpc.anubispace.org',
-  explorer: 'https://browser.anubispace.org',
-  LGNS: '0x4d1d808a081fdac440703b3765fc61f8028c06b8', // LGNS，9 位精度
-  DECIMALS: 9,
-  SELLER: '0x4a5f8dd04c54f0971db6619d5d68a31735e6afe7', // 卖家收款地址
-  PRICE: 10,              // 统一定价：10 LGNS / 件
-  CONTACT: ''             // 卖家联系方式（微信/Telegram），填上后显示在付款成功页
+chainId: 6714, chainHex: '0x1A3A', chainName: 'Anubis',
+rpcUrl: 'https://rpc.anubispace.org',
+explorer: 'https://browser.anubispace.org',
+LGNS: '0x4d1d808a081fdac440703b3765fc61f8028c06b8',
+DECIMALS: 9,
+SELLER: '0xbd06474ddc68e7cac60d1db70ba1056da8a1f220',
+PRICE: 10,
+CONTACT: '',
+FB_API: 'https://count.web3origin.com/fb/submit',
+FB_PAGE: '/feedback/'
 };
-/* 商品：id / 分类 / 中英文名 / 中英文描述。加商品往对应数组里加一行。 */
+var BOOK_IMGS = ["img/book1.webp", "img/book2.webp", "img/book3.webp", "img/book4.webp", "img/book5.webp"];
 var PRODUCTS = {
-  books: [ /* {id:'book1', zh:'书名', en:'Title', dzh:'描述', den:'desc'} —— 书名等老板发来再填 */ ],
-  apple: [
-    {id:'apple_us', zh:'美区 Apple ID（独享）', en:'US Apple ID (exclusive)', dzh:'一人一号，含账号密码，收到后可自行修改密码和密保。', den:'One account per buyer, includes login and password. Change password and security info after receipt.'}
-  ],
-  vpn: [
-    {id:'vpn_month', zh:'VPN 月卡', en:'VPN monthly plan', dzh:'高速节点，支持手机电脑多设备同时在线，月付。', den:'High-speed nodes, multi-device support, billed monthly.'}
-  ]
+books: [
+{id:'book_origin', ship:true, imgs:BOOK_IMGS,
+zh:'起源小白操作手册', en:'Origin Beginner Operation Manual',
+dzh:'起源生态新人操作指南：从注册到实操，图文结合一步步讲清。纸质书，包邮发货。',
+den:'Beginner operation guide for the Origin ecosystem: illustrated step-by-step from signup to real operations. Physical book, free shipping.'}
+],
+apple: [
+{id:'apple_us', ship:false,
+zh:'美区 Apple ID（独享）', en:'US Apple ID (exclusive)',
+dzh:'一人一号，含账号密码，收到后可自行修改密码和密保。',
+den:'One account per buyer, includes login and password. Change password and security info after receipt.'}
+],
+vpn: [
+{id:'vpn_month', ship:false,
+zh:'VPN 月卡', en:'VPN monthly plan',
+dzh:'高速节点，支持手机电脑多设备同时在线，月付。',
+den:'High-speed nodes, multi-device support, billed monthly.'}
+]
 };
 /* ================= 多语言 ================= */
 var I18N = {
-  zh: {
-    shopName:'店 铺', shopSub:'书 · 国外 Apple ID · VPN —— 统一 10 LGNS 一件，钱包直付',
-    connect:'连接钱包', catBooks:'📚 书', catApple:'🍎 国外 Apple ID', catVpn:'🛡️ VPN',
-    payLGNS:'LGNS 支付', payLGNS2:'LGNS 支付', payLGNS3:'LGNS 支付',
-    booksDesc:'好书推荐，付款后联系卖家发货（纸质 / 电子版按商品说明）。',
-    appleDesc:'海外区 Apple ID，付款后卖家把账号密码发你。收到后请第一时间改密码和密保。',
-    vpnDesc:'高速节点，付款后卖家发你订阅链接 / 客户端配置。',
-    booksSoon:'更多好书正在上架中，敬请期待。',
-    buy:'购买', buying:'支付中…', perPiece:'10 LGNS / 件',
-    myOrders:'🧾 我的订单', noOrders:'还没有订单，买点什么吧。', ordersN:'共 {n} 笔',
-    howTitle:'💳 怎么付款', payToken:'付款代币', payChain:'付款链', sellerAddr:'卖家收款地址',
-    payNote:'点「购买」后钱包会弹出确认，直接转 <b>10 LGNS</b> 到卖家地址。交易上链后凭交易哈希找卖家发货，虚拟商品（Apple ID / VPN）一般 24 小时内交付。',
-    toolbox:'起源百宝箱', footRisk:'虚拟商品一经发货不退不换；Apple ID 请遵守苹果用户协议使用。',
-    needWallet:'请先连接钱包', switchChain:'请切换到 Anubis 链后再购买',
-    balLow:'LGNS 余额不足（需要 10 LGNS）', confirmBuy:'确认购买吗？\n\n商品：{p}\n价格：10 LGNS\n\n钱包确认后直接转账，虚拟商品不退不换。',
-    payOk:'支付成功！', payOkBody:'交易哈希：<br><a href="{u}" target="_blank" rel="noopener">{h}</a><br>请截图保存，凭此哈希联系卖家发货。{c}',
-    contactLine:'卖家联系方式：<b>{c}</b>', contactEmpty:'（卖家联系方式稍后补充，请先保存交易哈希）',
-    txFail:'支付失败：', userCancel:'已取消支付', copy:'复制哈希'
-  },
-  en: {
-    shopName:'SHOP', shopSub:'Books · Foreign Apple IDs · VPN — 10 LGNS each, pay with wallet',
-    connect:'Connect', catBooks:'📚 Books', catApple:'🍎 Foreign Apple IDs', catVpn:'🛡️ VPN',
-    payLGNS:'Pay in LGNS', payLGNS2:'Pay in LGNS', payLGNS3:'Pay in LGNS',
-    booksDesc:'Recommended books. Seller ships after payment (physical / digital per item).',
-    appleDesc:'Foreign-region Apple IDs. Seller sends login and password after payment. Change password and security info immediately.',
-    vpnDesc:'High-speed nodes. Seller sends subscription link / client config after payment.',
-    booksSoon:'More books coming soon.',
-    buy:'Buy', buying:'Paying…', perPiece:'10 LGNS / item',
-    myOrders:'🧾 My Orders', noOrders:'No orders yet.', ordersN:'{n} orders',
-    howTitle:'💳 How to pay', payToken:'Token', payChain:'Chain', sellerAddr:'Seller address',
-    payNote:'Tap "Buy" and confirm in your wallet: <b>10 LGNS</b> goes straight to the seller. After the tx confirms, contact the seller with the tx hash for delivery (digital goods usually within 24h).',
-    toolbox:'Toolbox', footRisk:'Digital goods are non-refundable once delivered; use Apple IDs per Apple\u2019s terms.',
-    needWallet:'Connect your wallet first', switchChain:'Switch to the Anubis chain first',
-    balLow:'Insufficient LGNS (need 10 LGNS)', confirmBuy:'Confirm purchase?\n\nItem: {p}\nPrice: 10 LGNS\n\nThe wallet transfer is final; digital goods are non-refundable.',
-    payOk:'Payment successful!', payOkBody:'Tx hash:<br><a href="{u}" target="_blank" rel="noopener">{h}</a><br>Screenshot this and contact the seller for delivery. {c}',
-    contactLine:'Seller contact: <b>{c}</b>', contactEmpty:'(Seller contact coming soon — save your tx hash first)',
-    txFail:'Payment failed: ', userCancel:'Payment cancelled', copy:'Copy hash'
-  }
+zh: {
+shopName:'店 铺', shopSub:'书 · 国外 Apple ID · VPN —— 统一 10 LGNS 一件，钱包直付',
+connect:'连接钱包', catBooks:'📚 书', catApple:'🍎 国外 Apple ID', catVpn:'🛡️ VPN',
+payLGNS:'LGNS 支付', payLGNS2:'LGNS 支付', payLGNS3:'LGNS 支付',
+booksDesc:'纸质书，付款后填写收货信息，卖家发货，快递单号会回复在你的订单下。',
+appleDesc:'海外区 Apple ID，付款后留个联系方式，卖家把账号密码发你。收到后请第一时间改密码和密保。',
+vpnDesc:'高速节点，付款后留个联系方式，卖家发你订阅链接 / 客户端配置。',
+buy:'购买', buying:'支付中…', perPiece:'10 LGNS / 件',
+myOrders:'🧾 我的订单', noOrders:'还没有订单，买点什么吧。', ordersN:'共 {n} 笔',
+howTitle:'💳 怎么付款', payToken:'付款代币', payChain:'付款链', sellerAddr:'卖家收款地址',
+payNote:'点「购买」后钱包会弹出确认，直接转 <b>10 LGNS</b> 到卖家地址。纸质书付款后填收货信息，卖家发货后把快递单号回复在订单下，凭查询码到留言区查看；虚拟商品（Apple ID / VPN）留联系方式，卖家一般 24 小时内发货。',
+toolbox:'起源百宝箱', fbLink:'留言区（查订单）',
+footRisk:'虚拟商品一经发货不退不换；Apple ID 请遵守苹果用户协议使用。',
+needWallet:'请先连接钱包', switchChain:'请切换到 Anubis 链后再购买',
+balLow:'LGNS 余额不足（需要 10 LGNS）',
+confirmBuy:'确认购买吗？\n\n商品：{p}\n价格：10 LGNS\n\n钱包确认后直接转账。',
+payOk:'支付成功！',
+shipTitle:'📦 填写收货信息', shipName:'姓名', shipPhone:'电话', shipAddr:'收货地址',
+shipNamePh:'收货人姓名', shipPhonePh:'手机号码', shipAddrPh:'省市区 + 详细地址',
+contactTitle:'📨 留个联系方式', contactPh:'微信 / Telegram / 邮箱，卖家凭此发货',
+capQ:'验证：', submitOrder:'提交', submitting:'提交中…',
+errName:'请填写姓名', errPhone:'请填写正确的电话', errAddr:'请填写详细收货地址',
+errContact:'请填写联系方式', errCap:'验证没通过，重算一下',
+orderOk:'订单信息已提交！', codeIs:'查询码：',
+codeNote:'卖家发货后会把快递单号回复在这条订单下。凭查询码到 <a href="/feedback/">留言区</a> → 我的留言/查询码查询，即可看到。',
+codeNoteD:'卖家一般 24 小时内联系你发货。凭查询码到 <a href="/feedback/">留言区</a> 可查进度。',
+copyCode:'复制查询码', copied:'已复制',
+txFail:'支付失败：', userCancel:'已取消支付'
+},
+en: {
+shopName:'SHOP', shopSub:'Books · Foreign Apple IDs · VPN — 10 LGNS each, pay with wallet',
+connect:'Connect', catBooks:'📚 Books', catApple:'🍎 Foreign Apple IDs', catVpn:'🛡️ VPN',
+payLGNS:'Pay in LGNS', payLGNS2:'Pay in LGNS', payLGNS3:'Pay in LGNS',
+booksDesc:'Physical book. Fill in shipping info after payment; the seller ships and replies with the tracking number under your order.',
+appleDesc:'Foreign-region Apple IDs. Leave contact info after payment and the seller sends login and password. Change password and security info immediately.',
+vpnDesc:'High-speed nodes. Leave contact info after payment and the seller sends the subscription link / client config.',
+buy:'Buy', buying:'Paying…', perPiece:'10 LGNS / item',
+myOrders:'🧾 My Orders', noOrders:'No orders yet.', ordersN:'{n} orders',
+howTitle:'💳 How to pay', payToken:'Token', payChain:'Chain', sellerAddr:'Seller address',
+payNote:'Tap "Buy" and confirm in your wallet: <b>10 LGNS</b> goes straight to the seller. For physical books, fill in shipping info after payment; the tracking number will be replied under your order (check with the query code in the feedback board). For digital goods leave contact info; delivery usually within 24h.',
+toolbox:'Toolbox', fbLink:'Feedback (track orders)',
+footRisk:'Digital goods are non-refundable once delivered; use Apple IDs per Apple’s terms.',
+needWallet:'Connect your wallet first', switchChain:'Switch to the Anubis chain first',
+balLow:'Insufficient LGNS (need 10 LGNS)',
+confirmBuy:'Confirm purchase?\n\nItem: {p}\nPrice: 10 LGNS\n\nThe wallet transfer is final.',
+payOk:'Payment successful!',
+shipTitle:'📦 Shipping info', shipName:'Name', shipPhone:'Phone', shipAddr:'Address',
+shipNamePh:'Recipient name', shipPhonePh:'Phone number', shipAddrPh:'Full shipping address',
+contactTitle:'📨 Leave your contact', contactPh:'WeChat / Telegram / email — seller delivers via this',
+capQ:'Verify: ', submitOrder:'Submit', submitting:'Submitting…',
+errName:'Enter your name', errPhone:'Enter a valid phone number', errAddr:'Enter the full shipping address',
+errContact:'Enter your contact info', errCap:'Wrong answer, try again',
+orderOk:'Order submitted!', codeIs:'Query code: ',
+codeNote:'The seller will reply with the tracking number under this order after shipping. Check it in the <a href="/feedback/">feedback board</a> with your query code.',
+codeNoteD:'The seller usually delivers within 24h. Track progress in the <a href="/feedback/">feedback board</a> with your query code.',
+copyCode:'Copy code', copied:'Copied',
+txFail:'Payment failed: ', userCancel:'Payment cancelled'
+}
 };
 var lang = 'zh';
 function t(k, o){
-  var s = (I18N[lang] && I18N[lang][k]) || I18N.zh[k] || k;
-  if(o) Object.keys(o).forEach(function(key){ s = s.replace('{'+key+'}', o[key]); });
-  return s;
+var s = (I18N[lang] && I18N[lang][k]) || I18N.zh[k] || k;
+if(o) Object.keys(o).forEach(function(key){ s = s.replace('{'+key+'}', o[key]);});
+return s;
 }
-function applyLang(){
-  document.querySelectorAll('[data-i18n]').forEach(function(el){
-    el.innerHTML = t(el.dataset.i18n);
-  });
-  document.getElementById('langBtn').textContent = lang === 'zh' ? 'EN' : '中文';
-  renderProducts(); renderOrders();
-  document.getElementById('sellerLink').textContent = short(CFG.SELLER);
-  document.getElementById('sellerLink').href = CFG.explorer + '/address/' + CFG.SELLER;
-}
-document.getElementById('langBtn').addEventListener('click', function(){
-  lang = lang === 'zh' ? 'en' : 'zh';
-  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-  applyLang();
-});
 /* ================= 工具函数 ================= */
-function $(id){ return document.getElementById(id); }
-function short(a){ return a ? a.slice(0,6)+'…'+a.slice(-4) : ''; }
+function $(id){ return document.getElementById(id);}
+function short(a){ return a? a.slice(0,6)+'…'+a.slice(-4): '';}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function toast(s){
-  var el = $('toast'); el.textContent = s; el.style.display = 'block';
-  clearTimeout(el._h); el._h = setTimeout(function(){ el.style.display='none'; }, 3200);
+var el = $('toast'); el.textContent = s; el.style.display = 'block';
+clearTimeout(el._h); el._h = setTimeout(function(){ el.style.display='none';}, 3200);
 }
-function req(m, p){ return window.ethereum.request({method:m, params:p}); }
-function encAddr(a){ return '0'.repeat(24) + a.toLowerCase().replace(/^0x/,''); }
-function encUint(v){ return BigInt(v).toString(16).padStart(64,'0'); }
-var PRICE_RAW = BigInt(CFG.PRICE) * (10n ** BigInt(CFG.DECIMALS)); // 10 LGNS
+function req(m, p){ return window.ethereum.request({method:m, params:p});}
+function encAddr(a){ return '0'.repeat(24) + a.toLowerCase().replace(/^0x/,'');}
+function encUint(v){ return BigInt(v).toString(16).padStart(64,'0');}
+var PRICE_RAW = BigInt(CFG.PRICE) * (10n ** BigInt(CFG.DECIMALS));
 /* ================= 钱包 ================= */
 var myAddr = null;
 async function connect(){
-  if(!window.ethereum){ toast(t('needWallet')); return false; }
-  try{
-    var accs = await req('eth_requestAccounts', []);
-    if(!accs || !accs.length) throw new Error('no account');
-    myAddr = accs[0];
-    var cid = await req('eth_chainId', []);
-    if(parseInt(cid,16) !== CFG.chainId){
-      try{ await req('wallet_switchEthereumChain', [{chainId: CFG.chainHex}]); }
-      catch(e){
-        if(e && e.code === 4902){
-          await req('wallet_addEthereumChain', [{chainId: CFG.chainHex, chainName: CFG.chainName,
-            nativeCurrency: {name:'DAI', symbol:'DAI', decimals:18},
-            rpcUrls: [CFG.rpcUrl], blockExplorerUrls: [CFG.explorer]}]);
-        } else throw e;
-      }
-    }
-    $('walletBtnTxt').textContent = short(myAddr);
-    $('walletBtn').classList.add('on');
-    return true;
-  }catch(e){ toast(t('needWallet')); return false; }
+if(!window.ethereum){ toast(t('needWallet')); return false;}
+try{
+var accs = await req('eth_requestAccounts', []);
+if(!accs ||!accs.length) throw new Error('no account');
+myAddr = accs[0];
+var cid = await req('eth_chainId', []);
+if(parseInt(cid,16)!== CFG.chainId){
+try{ await req('wallet_switchEthereumChain', [{chainId: CFG.chainHex}]);}
+catch(e){
+if(e && e.code === 4902){
+await req('wallet_addEthereumChain', [{chainId: CFG.chainHex, chainName: CFG.chainName,
+nativeCurrency: {name:'DAI', symbol:'DAI', decimals:18},
+rpcUrls: [CFG.rpcUrl], blockExplorerUrls: [CFG.explorer]}]);
+} else throw e;
+}
+}
+$('walletBtnTxt').textContent = short(myAddr);
+$('walletBtn').classList.add('on');
+return true;
+}catch(e){ toast(t('needWallet')); return false;}
 }
 $('walletBtn').addEventListener('click', connect);
 if(window.ethereum){
-  window.ethereum.on('accountsChanged', function(a){ myAddr = (a&&a[0])||null;
-    $('walletBtnTxt').textContent = myAddr ? short(myAddr) : t('connect');
-    $('walletBtn').classList.toggle('on', !!myAddr); });
-  window.ethereum.on('chainChanged', function(){ location.reload(); });
+window.ethereum.on('accountsChanged', function(a){ myAddr = (a&&a[0])||null;
+$('walletBtnTxt').textContent = myAddr? short(myAddr): t('connect');
+$('walletBtn').classList.toggle('on',!!myAddr);});
+window.ethereum.on('chainChanged', function(){ location.reload();});
 }
 /* ================= 商品渲染 ================= */
-function prodName(p){ return lang==='zh' ? p.zh : p.en; }
-function prodDesc(p){ return lang==='zh' ? p.dzh : p.den; }
+function prodName(p){ return lang==='zh'? p.zh: p.en;}
+function prodDesc(p){ return lang==='zh'? p.dzh: p.den;}
 function renderProducts(){
-  var map = {books:'bookList', apple:'appleList', vpn:'vpnList'};
-  Object.keys(map).forEach(function(cat){
-    var host = $(map[cat]), items = PRODUCTS[cat] || [];
-    if(!items.length){
-      host.innerHTML = '<div class="coming">'+t('booksSoon')+'</div>';
-      return;
-    }
-    host.innerHTML = '';
-    items.forEach(function(p){
-      var d = document.createElement('div'); d.className = 'prod';
-      d.innerHTML = '<div class="ic">'+({books:'📕',apple:'🍎',vpn:'🛡️'}[cat])+'</div>'+
-        '<div class="mid"><div class="nm">'+prodName(p)+'</div><div class="ds">'+prodDesc(p)+'</div></div>'+
-        '<div class="pr">'+CFG.PRICE+' LGNS<small>'+t('perPiece')+'</small></div>'+
-        '<div><button class="btn" data-buy="'+p.id+'">'+t('buy')+'</button></div>';
-      host.appendChild(d);
-    });
-  });
-  host_listen();
+var map = {books:'bookList', apple:'appleList', vpn:'vpnList'};
+Object.keys(map).forEach(function(cat){
+var host = $(map[cat]), items = PRODUCTS[cat] || [];
+host.innerHTML = '';
+items.forEach(function(p){
+var d = document.createElement('div'); d.className = 'prod';
+var gal = '';
+if(p.imgs && p.imgs.length){
+gal = '<div class="gal"><img class="gal-main" id="gm_'+p.id+'" src="'+p.imgs[0]+'">'+
+'<div class="gal-thumbs">'+p.imgs.map(function(s,i){
+return '<img src="'+s+'" data-g="'+p.id+'" data-i="'+i+'" class="'+(i===0?'on':'')+'">';}).join('')+'</div></div>';
 }
-function host_listen(){
-  document.querySelectorAll('[data-buy]').forEach(function(b){
-    b.onclick = function(){ buy(b.dataset.buy, b); };
-  });
+d.innerHTML = gal +
+'<div class="prow"><div class="ic">'+({books:'📕',apple:'🍎',vpn:'🛡️'}[cat])+'</div>'+
+'<div class="mid"><div class="nm">'+esc(prodName(p))+'</div><div class="ds">'+esc(prodDesc(p))+'</div></div>'+
+'<div class="pr">'+CFG.PRICE+' LGNS<small>'+t('perPiece')+'</small></div>'+
+'<div><button class="btn" data-buy="'+p.id+'">'+t('buy')+'</button></div></div>';
+host.appendChild(d);
+});
+});
+document.querySelectorAll('[data-buy]').forEach(function(b){
+b.onclick = function(){ buy(b.dataset.buy, b);};
+});
+document.querySelectorAll('.gal-thumbs img').forEach(function(th){
+th.onclick = function(){
+$('gm_'+th.dataset.g).src = PRODUCTS_ALL[th.dataset.g].imgs[+th.dataset.i];
+th.parentNode.querySelectorAll('img').forEach(function(x){ x.classList.remove('on');});
+th.classList.add('on');
+};
+});
 }
-function findProd(id){
-  var all = [].concat(PRODUCTS.books, PRODUCTS.apple, PRODUCTS.vpn);
-  return all.filter(function(p){ return p.id===id; })[0];
-}
+var PRODUCTS_ALL = {};
+['books','apple','vpn'].forEach(function(c){ (PRODUCTS[c]||[]).forEach(function(p){ PRODUCTS_ALL[p.id]=p;});});
+function findProd(id){ return PRODUCTS_ALL[id];}
 /* ================= 购买：LGNS 直接转账 ================= */
 var SEL_TRANSFER = 'a9059cbb', SEL_BAL = '70a08231';
 async function lgnsBalance(addr){
-  var d = '0x'+SEL_BAL+encAddr(addr);
-  var r = await req('eth_call', [{to:CFG.LGNS, data:d}, 'latest']);
-  return BigInt(r);
+var r = await req('eth_call', [{to:CFG.LGNS, data:'0x'+SEL_BAL+encAddr(addr)}, 'latest']);
+return BigInt(r);
 }
 async function sendTx(data){
-  var tx = {from:myAddr, to:CFG.LGNS, data:data, type:'0x0'}; // Anubis 只认 legacy
-  tx.gasPrice = await req('eth_gasPrice', []);
-  var hash = await req('eth_sendTransaction', [tx]);
-  for(var i=0;i<150;i++){
-    await new Promise(function(r){ setTimeout(r,2000); });
-    var rc = await req('eth_getTransactionReceipt', [hash]);
-    if(rc && rc.blockNumber && rc.blockNumber!=='0x0'){
-      if(rc.status==='0x1') return hash;
-      throw new Error('reverted');
-    }
-  }
-  throw new Error('timeout '+hash);
+var tx = {from:myAddr, to:CFG.LGNS, data:data, type:'0x0'};
+tx.gasPrice = await req('eth_gasPrice', []);
+var hash = await req('eth_sendTransaction', [tx]);
+for(var i=0;i<150;i++){
+await new Promise(function(r){ setTimeout(r,2000);});
+var rc = await req('eth_getTransactionReceipt', [hash]);
+if(rc && rc.blockNumber && rc.blockNumber!=='0x0'){
+if(rc.status==='0x1') return hash;
+throw new Error('reverted');
 }
+}
+throw new Error('timeout '+hash);
+}
+var _curOrder = null;
 async function buy(pid, btn){
-  var p = findProd(pid); if(!p) return;
-  if(!myAddr){ if(!await connect()) return; }
-  var cid = await req('eth_chainId', []);
-  if(parseInt(cid,16) !== CFG.chainId){ toast(t('switchChain')); return; }
-  btn.disabled = true; var old = btn.textContent; btn.textContent = t('buying');
-  try{
-    var bal = await lgnsBalance(myAddr);
-    if(bal < PRICE_RAW){ toast(t('balLow')); return; }
-    if(!confirm(t('confirmBuy', {p: prodName(p)}))) return;
-    var data = '0x'+SEL_TRANSFER+encAddr(CFG.SELLER)+encUint(PRICE_RAW);
-    var hash = await sendTx(data);
-    saveOrder({id:'o'+Date.now(), pid:pid, name:prodName(p), price:CFG.PRICE+' LGNS',
-      tx:hash, buyer:myAddr, time:new Date().toLocaleString()});
-    renderOrders();
-    var curl = CFG.explorer + '/tx/' + hash;
-    var c = CFG.CONTACT ? t('contactLine',{c:CFG.CONTACT}) : t('contactEmpty');
-    $('okBox').innerHTML = '<div class="okbox"><b>'+t('payOk')+'</b><br>'+
-      t('payOkBody',{u:curl, h:hash, c:c})+'</div>';
-    $('okBox').scrollIntoView({behavior:'smooth', block:'center'});
-    toast(t('payOk'));
-  }catch(e){
-    var m = String((e&&(e.message||'')));
-    toast(/reject|denied|4001/i.test(m) ? t('userCancel') : t('txFail')+m.slice(0,120));
-  }finally{ btn.disabled = false; btn.textContent = old; }
+var p = findProd(pid); if(!p) return;
+if(!myAddr){ if(!await connect()) return;}
+var cid = await req('eth_chainId', []);
+if(parseInt(cid,16)!== CFG.chainId){ toast(t('switchChain')); return;}
+btn.disabled = true; var old = btn.textContent; btn.textContent = t('buying');
+try{
+if(await lgnsBalance(myAddr) < PRICE_RAW){ toast(t('balLow')); return;}
+if(!confirm(t('confirmBuy', {p: prodName(p)}))) return;
+var hash = await sendTx('0x'+SEL_TRANSFER+encAddr(CFG.SELLER)+encUint(PRICE_RAW));
+var o = {id:'o'+Date.now(), pid:pid, name:prodName(p), price:CFG.PRICE+' LGNS',
+tx:hash, buyer:myAddr, time:new Date().toLocaleString(), code:''};
+saveOrder(o); renderOrders();
+_curOrder = o;
+showFulfill(p, hash);
+toast(t('payOk'));
+}catch(e){
+var m = String((e&&(e.message||'')));
+toast(/reject|denied|4001/i.test(m)? t('userCancel'): t('txFail')+m.slice(0,120));
+}finally{ btn.disabled = false; btn.textContent = old;}
+}
+/* ================= 付款后：收货/联系表单 → 留言后端 ================= */
+var _cap = {q:'', a:0};
+function newCap(){
+var a = 2+Math.floor(Math.random()*8), b = 1+Math.floor(Math.random()*8);
+_cap = {q: a+' + '+b, a: a+b};
+}
+function showFulfill(p, hash){
+newCap();
+var fields = '';
+if(p.ship){
+fields =
+'<label>'+t('shipName')+'</label><input id="ffName" placeholder="'+t('shipNamePh')+'">'+
+'<label>'+t('shipPhone')+'</label><input id="ffPhone" inputmode="tel" placeholder="'+t('shipPhonePh')+'">'+
+'<label>'+t('shipAddr')+'</label><textarea id="ffAddr" rows="2" placeholder="'+t('shipAddrPh')+'"></textarea>';
+}else{
+fields =
+'<label>'+t('contactTitle')+'</label><input id="ffContact" placeholder="'+t('contactPh')+'">';
+}
+$('okBox').innerHTML =
+'<div class="okbox"><b>'+t('payOk')+'</b><br>'+
+'<a href="'+CFG.explorer+'/tx/'+hash+'" target="_blank" rel="noopener">'+hash+'</a></div>'+
+'<div class="fform"><h3>'+(p.ship? t('shipTitle'): t('contactTitle'))+'</h3>'+
+fields +
+'<div class="caprow"><span>'+t('capQ')+'<b id="ffCapQ">'+_cap.q+'</b> = </span>'+
+'<input id="ffCapA" inputmode="numeric"></div>'+
+'<div class="warn" id="ffWarn"></div>'+
+'<div style="margin-top:10px"><button class="btn" id="ffSubmit">'+t('submitOrder')+'</button></div></div>';
+$('ffSubmit').onclick = function(){ submitOrder(p, hash);};
+$('okBox').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function ffFail(m){
+var w = $('ffWarn'); w.textContent = m; w.style.display = 'block';
+}
+async function submitOrder(p, hash){
+var name = '', phone = '', addr = '', contact = '';
+if(p.ship){
+name = $('ffName').value.trim(); phone = $('ffPhone').value.trim(); addr = $('ffAddr').value.trim();
+if(!name) return ffFail(t('errName'));
+if(!/^[0-9+\-\s]{6,20}$/.test(phone)) return ffFail(t('errPhone'));
+if(addr.length < 8) return ffFail(t('errAddr'));
+}else{
+contact = $('ffContact').value.trim();
+if(contact.length < 3) return ffFail(t('errContact'));
+}
+if(String($('ffCapA').value.trim())!== String(_cap.a)) return ffFail(t('errCap'));
+var btn = $('ffSubmit'); btn.disabled = true; btn.textContent = t('submitting');
+try{
+var lines = [''+prodName(p), '买家钱包：'+myAddr, '支付交易：'+hash+'（Anubis）'];
+if(p.ship){ lines.push('收货人：'+name, '电话：'+phone, '收货地址：'+addr);}
+else{ lines.push('买家联系方式：'+contact);}
+var body = {
+cat:'other', title:''+prodName(p), content:lines.join('\n'),
+nick: p.ship? name: '', contact: p.ship? phone: contact, vis:'private', link:'',
+chain:'Anubis Chain', wallet:myAddr, contract:'', tx:hash, block:'', evsrc:'', evnote:'',
+capQ:_cap.q, capA:$('ffCapA').value.trim(), hp:''
+};
+var r = await fetch(CFG.FB_API, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+var d = await r.json();
+if(!d.ok) throw new Error(d.error || d.msg || 'submit failed');
+if(_curOrder){ _curOrder.code = d.code; updateOrder(_curOrder); renderOrders();}
+$('okBox').innerHTML =
+'<div class="codebox"><b>🎉 '+t('orderOk')+'</b><br>'+t('codeIs')+'<b>'+esc(d.code)+'</b> '+
+'<button class="btn" style="padding:8px 16px;font-size:13px" id="copyCodeBtn">'+t('copyCode')+'</button><br>'+
+'<span style="font-size:12.5px;color:var(--muted)">'+(p.ship? t('codeNote'): t('codeNoteD'))+'</span></div>';
+$('copyCodeBtn').onclick = function(){
+if(navigator.clipboard) navigator.clipboard.writeText(d.code).then(function(){ toast(t('copied'));});
+};
+$('okBox').scrollIntoView({behavior:'smooth', block:'center'});
+}catch(e){
+ffFail(t('txFail') + String((e&&(e.message||''))).slice(0,100));
+}finally{ btn.disabled = false; btn.textContent = t('submitOrder');}
 }
 /* ================= 订单（本机保存） ================= */
 function getOrders(){
-  try{ return JSON.parse(localStorage.getItem('shop_orders')||'[]'); }catch(e){ return []; }
+try{ return JSON.parse(localStorage.getItem('shop_orders')||'[]');}catch(e){ return [];}
 }
-function saveOrder(o){
-  var a = getOrders(); a.unshift(o);
-  try{ localStorage.setItem('shop_orders', JSON.stringify(a.slice(0,50))); }catch(e){}
+function persist(a){
+try{ localStorage.setItem('shop_orders', JSON.stringify(a.slice(0,50)));}catch(e){}
+}
+function saveOrder(o){ var a = getOrders(); a.unshift(o); persist(a);}
+function updateOrder(o){
+var a = getOrders();
+for(var i=0;i<a.length;i++) if(a[i].id===o.id){ a[i]=o; break;}
+persist(a);
 }
 function renderOrders(){
-  var a = getOrders(), host = $('orderList');
-  $('orderCount').textContent = a.length ? t('ordersN',{n:a.length}) : '';
-  if(!a.length){ host.innerHTML = '<div class="empty">'+t('noOrders')+'</div>'; return; }
-  host.innerHTML = '';
-  a.forEach(function(o){
-    var d = document.createElement('div'); d.className = 'order';
-    d.innerHTML = '<div class="oh"><b>'+o.name+'</b><b>'+o.price+'</b></div>'+
-      '<div class="ot">'+o.time+' · '+short(o.buyer)+'</div>'+
-      '<div><a href="'+CFG.explorer+'/tx/'+o.tx+'" target="_blank" rel="noopener">'+o.tx+'</a></div>';
-    host.appendChild(d);
-  });
+var a = getOrders(), host = $('orderList');
+$('orderCount').textContent = a.length? t('ordersN',{n:a.length}): '';
+if(!a.length){ host.innerHTML = '<div class="empty">'+t('noOrders')+'</div>'; return;}
+host.innerHTML = '';
+a.forEach(function(o){
+var d = document.createElement('div'); d.className = 'order';
+d.innerHTML = '<div class="oh"><b>'+esc(o.name)+'</b><b>'+esc(o.price)+'</b></div>'+
+'<div class="ot">'+esc(o.time)+' · '+short(o.buyer)+(o.code? ' · 查询码 <b>'+esc(o.code)+'</b>': '')+'</div>'+
+'<div><a href="'+CFG.explorer+'/tx/'+o.tx+'" target="_blank" rel="noopener">'+o.tx+'</a></div>';
+host.appendChild(d);
+});
 }
 /* ================= 启动 ================= */
+function applyLang(){
+document.querySelectorAll('[data-i18n]').forEach(function(el){ el.innerHTML = t(el.dataset.i18n);});
+$('langBtn').textContent = lang === 'zh'? 'EN': '中文';
+renderProducts(); renderOrders();
+$('sellerLink').textContent = short(CFG.SELLER);
+$('sellerLink').href = CFG.explorer + '/address/' + CFG.SELLER;
+}
+$('langBtn').addEventListener('click', function(){
+lang = lang === 'zh'? 'en': 'zh';
+document.documentElement.lang = lang === 'zh'? 'zh-CN': 'en';
+applyLang();
+});
 applyLang();
 </script>
 </body>
