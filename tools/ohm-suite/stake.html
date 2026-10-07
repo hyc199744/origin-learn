@@ -3,90 +3,147 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>质押 · OHM Suite</title>
+<title>sFCB Staking</title>
 <script src="/assets/ethers6.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0d1117;--card:#161b22;--line:#30363d;--txt:#e6edf3;--dim:#8b949e;--gold:#d4a017;--green:#3fb950;--red:#f85149;--mono:ui-monospace,Menlo,Consolas,monospace}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:16px;max-width:720px;margin:0 auto}
-h1{font-size:20px;margin:8px 0 4px}
-.sub{color:var(--dim);font-size:13px;margin-bottom:14px;line-height:1.6}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
-.card h2{font-size:15px;margin-bottom:10px}
-label{display:block;font-size:13px;color:var(--dim);margin:10px 0 4px}
-input{width:100%;background:#0d1117;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:10px;font-size:14px;font-family:var(--mono)}
-input:focus{border-color:var(--gold);outline:none}
-button{width:100%;background:var(--gold);color:#000;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px}
-button:disabled{background:#444;color:#888;cursor:not-allowed}
-button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);font-weight:400;font-size:14px;padding:9px}
-button.small{width:auto;padding:8px 14px;font-size:13px;margin:8px 6px 0 0}
-.hint{font-size:12px;color:var(--dim);margin-top:6px;line-height:1.6}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.stat{background:#0d1117;border:1px solid var(--line);border-radius:10px;padding:12px}
-.stat .k{font-size:12px;color:var(--dim)}
-.stat .v{font-size:18px;font-weight:700;margin-top:4px;font-family:var(--mono)}
-.stat .v small{font-size:11px;color:var(--dim);font-weight:400}
-.status{font-size:13px;margin-top:10px;line-height:1.8;white-space:pre-wrap;word-break:break-all}
-.ok{color:var(--green)}.err{color:var(--red)}.step{color:var(--gold)}
-.topbar{display:flex;justify-content:space-between;align-items:center}
-.lang{font-size:12px;color:var(--dim);background:none;border:1px solid var(--line);border-radius:6px;padding:5px 10px;width:auto;margin:0;cursor:pointer}
-.row2{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
-.maxbtn{width:auto;margin:0 0 1px;padding:10px 12px;font-size:13px}
+:root{
+  --bg:#0D0D0D; --card:#1A1B1F; --lime:#87DB00; --lime-soft:rgba(135,219,0,.10);
+  --txt:#FFFFFF; --muted:rgba(255,255,255,.62); --faint:rgba(255,255,255,.38);
+  --border:rgba(255,255,255,.08); --red:#ff6b6b;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--txt);font-family:"Plus Jakarta Sans",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+.num{font-family:"Space Grotesk",ui-monospace,monospace}
+.wrap{max-width:480px;margin:0 auto;padding:0 18px 70px;position:relative}
+/* nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding:16px 0;position:sticky;top:0;background:rgba(13,13,13,.85);backdrop-filter:blur(12px);z-index:10}
+.brand{display:flex;align-items:center;gap:9px;font-family:"Unbounded",sans-serif;font-weight:700;font-size:15px;letter-spacing:.5px}
+.brand .dot{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#c6ff5e,var(--lime) 60%,#4d8200);box-shadow:0 0 18px rgba(135,219,0,.55)}
+.brand em{font-style:normal;color:var(--lime)}
+.nbtns{display:flex;gap:8px;align-items:center}
+.pill{border:none;cursor:pointer;border-radius:999px;font-weight:700;font-family:"Plus Jakarta Sans",sans-serif}
+#langBtn{background:transparent;color:var(--muted);border:1px solid var(--border);font-size:12px;padding:9px 13px}
+#connectBtn{background:var(--lime);color:#0D0D0D;font-size:13px;padding:10px 18px}
+#connectBtn.on{background:transparent;color:var(--lime);border:1px solid var(--lime)}
+/* hero */
+.hero{position:relative;text-align:center;padding:52px 0 8px;overflow:visible}
+.hero::before{content:"";position:absolute;left:50%;top:6px;transform:translateX(-50%);width:340px;height:340px;background:radial-gradient(circle,rgba(135,219,0,.22) 0%,rgba(135,219,0,.05) 45%,transparent 70%);pointer-events:none}
+.eyebrow{display:inline-block;font-size:11px;letter-spacing:3px;color:var(--lime);border:1px solid rgba(135,219,0,.35);border-radius:999px;padding:7px 16px;margin-bottom:20px;background:rgba(135,219,0,.06)}
+h1{font-family:"Unbounded",sans-serif;font-weight:600;font-size:34px;line-height:1.35;letter-spacing:.5px}
+h1 .l{color:var(--lime)}
+.hero p{color:var(--muted);font-size:14px;margin-top:14px;line-height:1.8}
+.apy-big{margin:26px 0 6px}
+.apy-big .v{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:64px;color:var(--lime);line-height:1;text-shadow:0 0 40px rgba(135,219,0,.35)}
+.apy-big .k{font-size:12px;letter-spacing:2.5px;color:var(--faint);margin-top:8px}
+/* stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:26px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:16px}
+.stat .k{font-size:11px;color:var(--faint);letter-spacing:1.2px;margin-bottom:8px}
+.stat .v{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:21px}
+.stat .v small{font-size:12px;color:var(--muted);font-weight:500}
+/* stake card */
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:22px 18px;margin:14px 0}
+.seg{display:flex;background:#0D0D0D;border:1px solid var(--border);border-radius:999px;padding:4px;margin-bottom:18px}
+.seg button{flex:1;border:none;background:transparent;color:var(--muted);font-weight:700;font-size:14px;padding:11px;border-radius:999px;cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif}
+.seg button.act{background:var(--lime);color:#0D0D0D}
+.balrow{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
+.balrow b{color:var(--txt);font-family:"Space Grotesk",sans-serif;font-weight:600}
+.amtbox{background:#0D0D0D;border:1px solid var(--border);border-radius:18px;padding:6px 6px 6px 18px;display:flex;align-items:center;gap:8px;margin:10px 0 4px}
+.amtbox:focus-within{border-color:rgba(135,219,0,.5)}
+.amtbox input{flex:1;background:transparent;border:none;color:var(--txt);font-size:26px;font-family:"Space Grotesk",sans-serif;font-weight:600;outline:none;min-width:0}
+.amtbox input::placeholder{color:rgba(255,255,255,.22)}
+.maxbtn{background:var(--lime-soft);color:var(--lime);border:1px solid rgba(135,219,0,.3);border-radius:999px;font-size:12px;font-weight:700;padding:9px 16px;cursor:pointer;white-space:nowrap}
+.bigbtn{width:100%;background:var(--lime);color:#0D0D0D;border:none;border-radius:999px;font-size:16px;font-weight:700;padding:16px;margin-top:14px;cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif}
+.bigbtn:disabled{background:#2a2d33;color:#5a5e66;cursor:not-allowed}
+.ghostbtn{width:100%;background:transparent;color:var(--lime);border:1px solid rgba(135,219,0,.4);border-radius:999px;font-size:14px;font-weight:600;padding:13px;margin-top:10px;cursor:pointer}
+.ghostbtn:disabled{opacity:.4;cursor:not-allowed}
+.status{font-size:13px;margin-top:12px;line-height:1.8;word-break:break-all;min-height:20px}
+.ok{color:var(--lime)}.err{color:var(--red)}.stepc{color:var(--lime)}
+.hint{font-size:12px;color:var(--faint);margin-top:10px;line-height:1.8}
+/* distribute */
+.dist-card{text-align:center}
+.dist-card .cd{font-family:"Space Grotesk",sans-serif;font-size:30px;font-weight:600;color:var(--txt);margin:8px 0 2px}
+/* steps */
+.steps3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.steps3 .s{background:#0D0D0D;border:1px solid var(--border);border-radius:16px;padding:14px 8px;text-align:center}
+.steps3 .n{font-family:"Unbounded",sans-serif;color:var(--lime);font-size:13px;display:block;margin-bottom:8px}
+.steps3 .t{font-size:12px;color:var(--muted);line-height:1.7}
+h3.sec{font-family:"Unbounded",sans-serif;font-size:14px;font-weight:600;margin:26px 0 4px;letter-spacing:.5px}
+h3.sec .l{color:var(--lime)}
+.warn{border:1px solid rgba(255,107,107,.25);background:rgba(255,107,107,.05);border-radius:16px;padding:14px;font-size:12px;color:var(--muted);line-height:1.9;margin-top:22px}
+a{color:var(--lime);text-decoration:none}
+.foot{text-align:center;color:var(--faint);font-size:11px;margin-top:26px;letter-spacing:1px}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <h1>🥩 <span data-i="title">质押</span> <span style="font-size:13px;color:var(--dim)">· OHM Suite</span></h1>
-  <button class="lang" id="langBtn">EN</button>
+<div class="wrap">
+<nav>
+  <div class="brand"><span class="dot"></span>sFCB <em>STAKE</em></div>
+  <div class="nbtns">
+    <button class="pill" id="langBtn">EN</button>
+    <button class="pill" id="connectBtn" data-i="connect">连接钱包</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <span class="eyebrow">FCB · STAKING</span>
+  <h1><span data-i="h1a">质押</span> <span class="l">FCB</span><br><span data-i="h1b">坐享</span> <span class="l">sFCB</span> <span data-i="h1c">增长</span></h1>
+  <p data-i="heroSub">每 8 小时分发一次，sFCB 余额自动变多。<br>本金随时可取，无锁仓。</p>
+  <div class="apy-big">
+    <div class="v num" id="apyBig">-</div>
+    <div class="k" data-i="apyK">预估年化 EST. APY</div>
+  </div>
 </div>
-<p class="sub" data-i="intro">把币质押进来拿 sToken，每次分发你的 sToken 余额自动变多——不用领，躺着涨。</p>
+
+<div class="stats">
+  <div class="stat"><div class="k" data-i="kStaked">全网已质押 TOTAL STAKED</div><div class="v num" id="stTotal">-</div></div>
+  <div class="stat"><div class="k" data-i="kIndex">sFCB 指数 INDEX</div><div class="v num" id="stIndex">-</div></div>
+  <div class="stat"><div class="k" data-i="kPool">奖励池 REWARD POOL</div><div class="v num" id="stPool">-</div></div>
+  <div class="stat"><div class="k" data-i="kNext">下次分发 NEXT</div><div class="v num" id="stNext" style="font-size:18px">-</div></div>
+</div>
 
 <div class="card">
-  <h2 data-i="s1">① 连接钱包 & 套件地址</h2>
-  <button id="connectBtn" class="ghost" data-i="connect">连接钱包</button>
-  <div class="hint" id="walletHint" data-i="walletHint">还没连接</div>
-  <label data-i="suiteL">套件地址（部署页会自动记住，也可手填 Token 地址，其余自动识别）</label>
-  <div class="row2">
-    <input id="inToken" placeholder="Token 0x…">
-    <button class="maxbtn ghost" id="loadBtn" data-i="load">读取</button>
+  <div class="seg">
+    <button class="act" id="tabStake" data-i="segStake">质押 Stake</button>
+    <button id="tabUnstake" data-i="segUnstake">解押 Unstake</button>
   </div>
-  <div class="hint" id="suiteHint"></div>
+  <div class="balrow"><span data-i="bFcb">FCB 余额</span><b class="num" id="bFcb">-</b></div>
+  <div class="balrow"><span data-i="bSfcb">sFCB 余额</span><b class="num" id="bSfcb" style="color:var(--lime)">-</b></div>
+  <div class="amtbox">
+    <input id="amt" inputmode="decimal" placeholder="0.0">
+    <button class="maxbtn" id="maxBtn">MAX</button>
+  </div>
+  <div class="hint" id="recvHint"></div>
+  <button class="bigbtn pill" id="goBtn" data-i="goStake">质押 Stake</button>
+  <div class="status" id="status"></div>
 </div>
 
-<div class="card" id="dashCard" style="display:none">
-  <h2 data-i="s2">② 数据看板</h2>
-  <div class="grid">
-    <div class="stat"><div class="k" data-i="kToken">我的币</div><div class="v" id="vToken">-</div></div>
-    <div class="stat"><div class="k" data-i="kStoken">我的 sToken</div><div class="v" id="vSToken">-</div></div>
-    <div class="stat"><div class="k" data-i="kIndex">当前 index</div><div class="v" id="vIndex">-</div></div>
-    <div class="stat"><div class="k" data-i="kTotal">全网已质押</div><div class="v" id="vTotal">-</div></div>
-    <div class="stat"><div class="k" data-i="kApy">预估年化</div><div class="v" id="vApy">-</div></div>
-    <div class="stat"><div class="k" data-i="kNext">下次分发</div><div class="v" id="vNext">-</div></div>
-  </div>
-  <div class="hint" data-i="apyHint">年化按当前分发费率复利估算，仅供参考，不构成承诺。</div>
-  <button class="ghost small" id="refreshBtn" data-i="refresh">刷新</button>
-  <button class="ghost small" id="distBtn" data-i="distribute">触发分发</button>
+<div class="card dist-card">
+  <h3 class="sec" style="margin:0">⚡ <span class="l" data-i="dT">触发分发</span></h3>
+  <div class="cd num" id="cd">--:--:--</div>
+  <div class="hint" data-i="dHint" style="margin-top:2px">到期后任何人可触发，全网 sFCB 同步增长</div>
+  <button class="ghostbtn pill" id="distBtn" data-i="dGo">触发分发 Distribute</button>
 </div>
 
-<div class="card" id="actCard" style="display:none">
-  <h2 data-i="s3">③ 质押 / 解押</h2>
-  <label data-i="amtL">数量</label>
-  <div class="row2">
-    <input id="inAmt" inputmode="decimal" placeholder="0.0">
-    <button class="maxbtn ghost" id="maxBtn" data-i="max">最大</button>
-  </div>
-  <button id="stakeBtn" data-i="stake">质押（拿 sToken）</button>
-  <button id="unstakeBtn" class="ghost" data-i="unstake">解押（取回本币）</button>
-  <div class="status" id="aStatus"></div>
-  <div class="hint" data-i="actHint">质押/解押不收税（税只针对交易对买卖）。解押按当前 index 1:1 折算，rebase 收益自动包含。</div>
+<h3 class="sec">⚙️ <span data-i="howT">玩法</span> <span class="l">HOW IT WORKS</span></h3>
+<div class="steps3">
+  <div class="s"><span class="n">01</span><div class="t" data-i="how1">质押 FCB<br>拿到 sFCB</div></div>
+  <div class="s"><span class="n">02</span><div class="t" data-i="how2">每 8 小时<br>奖励池分发</div></div>
+  <div class="s"><span class="n">03</span><div class="t" data-i="how3">sFCB 自动变多<br>随时解押</div></div>
+</div>
+
+<div class="warn" data-i="risk">⚠️ 奖励来自预存的资金池，不是印钞；池子打空后分发停止。年化按当前费率估算，不构成收益承诺。只拿亏得起的钱参与。</div>
+<div class="foot">sFCB · BUILT ON ANUBIS</div>
 </div>
 
 <script>
 "use strict";
-/* ================= I18N ================= */
+/* ============ I18N ============ */
 var I18N = {
-zh:{title:"质押",intro:"把币质押进来拿 sToken，每次分发你的 sToken 余额自动变多——不用领，躺着涨。",s1:"① 连接钱包 & 套件地址",connect:"连接钱包",walletHint:"还没连接",connected:"已连接",suiteL:"套件地址（部署页会自动记住，也可手填 Token 地址，其余自动识别）",load:"读取",s2:"② 数据看板",kToken:"我的币",kStoken:"我的 sToken",kIndex:"当前 index",kTotal:"全网已质押",kApy:"预估年化",kNext:"下次分发",apyHint:"年化按当前分发费率复利估算，仅供参考，不构成承诺。",refresh:"刷新",distribute:"触发分发",s3:"③ 质押 / 解押",amtL:"数量",max:"最大",stake:"质押（拿 sToken）",unstake:"解押（取回本币）",actHint:"质押/解押不收税（税只针对交易对买卖）。解押按当前 index 1:1 折算，rebase 收益自动包含。",needWallet:"先连接钱包",needSuite:"先读取套件地址",ok:"✓ 成功",rejected:"已取消（钱包拒绝）",failed:"失败：",invalidAmt:"数量填个大于 0 的数字",distOk:"分发已触发，余额稍后上涨",wait:"等待钱包确认…",noRecipient:"分发器暂无质押奖励配置"},
-en:{title:"Stake",intro:"Stake to get sToken. Your sToken balance grows automatically on every distribution — no claiming needed.",s1:"① Connect & Suite",connect:"Connect Wallet",walletHint:"Not connected",connected:"Connected",suiteL:"Suite addresses (auto-filled from deploy page, or paste Token)",load:"Load",s2:"② Dashboard",kToken:"My tokens",kStoken:"My sToken",kIndex:"Index",kTotal:"Total staked",kApy:"Est. APY",kNext:"Next distribution",apyHint:"APY estimated from current rate, compounded. Reference only.",refresh:"Refresh",distribute:"Trigger Distribution",s3:"③ Stake / Unstake",amtL:"Amount",max:"Max",stake:"Stake (get sToken)",unstake:"Unstake (get tokens back)",actHint:"No tax on stake/unstake (tax only applies to pair trades). Unstake converts 1:1 at current index, rebase gains included.",needWallet:"Connect wallet first",needSuite:"Load suite addresses first",ok:"✓ Done",rejected:"Cancelled (wallet rejected)",failed:"Failed: ",invalidAmt:"Enter an amount > 0",distOk:"Distribution triggered, balance will grow shortly",wait:"Waiting for wallet…",noRecipient:"No staking rewards configured"}
+zh:{connect:"连接钱包",connected:"已连接",h1a:"质押",h1b:"坐享",h1c:"增长",heroSub:"每 8 小时分发一次，sFCB 余额自动变多。<br>本金随时可取，无锁仓。",apyK:"预估年化 EST. APY",kStaked:"全网已质押 TOTAL STAKED",kIndex:"sFCB 指数 INDEX",kPool:"奖励池 REWARD POOL",kNext:"下次分发 NEXT",bFcb:"FCB 余额",bSfcb:"sFCB 余额",segStake:"质押 Stake",segUnstake:"解押 Unstake",goStake:"质押 Stake",goUnstake:"解押 Unstake",dT:"触发分发",dHint:"到期后任何人可触发，全网 sFCB 同步增长",dGo:"触发分发 Distribute",howT:"玩法",how1:"质押 FCB<br>拿到 sFCB",how2:"每 8 小时<br>奖励池分发",how3:"sFCB 自动变多<br>随时解押",risk:"⚠️ 奖励来自预存的资金池，不是印钞；池子打空后分发停止。年化按当前费率估算，不构成收益承诺。只拿亏得起的钱参与。",needWallet:"先连接钱包",needSuite:"没找到质押套件地址，先去部署页部署",ok:"✓ 成功",rejected:"已取消（钱包拒绝）",failed:"失败：",wait:"等待钱包确认…",invalidAmt:"填个大于 0 的数字",soon:"即将",recvS:"质押后约得",recvU:"解押后约得"},
+en:{connect:"Connect",connected:"Connected",h1a:"Stake",h1b:"Earn",h1c:"sFCB",heroSub:"Rewards every 8 hours, sFCB grows automatically.<br>Withdraw anytime, no lock-up.",apyK:"EST. APY",kStaked:"TOTAL STAKED",kIndex:"sFCB INDEX",kPool:"REWARD POOL",kNext:"NEXT DISTRIBUTION",bFcb:"FCB balance",bSfcb:"sFCB balance",segStake:"Stake",segUnstake:"Unstake",goStake:"Stake",goUnstake:"Unstake",dT:"Trigger",dHint:"Anyone can trigger after due, all sFCB grows together",dGo:"Distribute",howT:"HOW IT WORKS",how1:"Stake FCB<br>get sFCB",how2:"Every 8h<br>pool pays out",how3:"sFCB grows<br>unstake anytime",risk:"⚠️ Rewards come from a pre-funded pool, not minting; distributions stop when the pool is empty. APY is estimated, not promised.",needWallet:"Connect wallet first",needSuite:"No suite found — deploy from the deploy page first",ok:"✓ Done",rejected:"Cancelled (wallet rejected)",failed:"Failed: ",wait:"Waiting for wallet…",invalidAmt:"Enter amount > 0",soon:"soon",recvS:"≈ receive",recvU:"≈ receive"}
 };
 var LANG = localStorage.getItem("ohmSuiteLang") || "zh";
 function t(k){ return (I18N[LANG] && I18N[LANG][k]) || I18N.zh[k] || k; }
@@ -94,42 +151,49 @@ function applyLang(){
   document.querySelectorAll("[data-i]").forEach(function(el){ el.innerHTML = t(el.getAttribute("data-i")); });
   document.documentElement.lang = LANG === "zh" ? "zh-CN" : "en";
   document.getElementById("langBtn").textContent = LANG === "zh" ? "EN" : "中文";
+  paintMode();
 }
 document.getElementById("langBtn").addEventListener("click", function(){
-  LANG = LANG === "zh" ? "en" : "zh"; localStorage.setItem("ohmSuiteLang", LANG); applyLang();
+  LANG = LANG === "zh" ? "en" : "zh"; localStorage.setItem("ohmSuiteLang", LANG); applyLang(); refresh();
 });
 
-/* ================= 常量 & ABI ================= */
+/* ============ 常量 ============ */
 var ANUBIS = { chainId: 6714, hex: "0x1a3a", rpc: "https://rpc.anubispace.org", explorer: "https://browser.anubispace.org" };
-var TOKEN_ABI = ["function balanceOf(address) view returns (uint256)","function allowance(address,address) view returns (uint256)","function approve(address,uint256) returns (bool)","function symbol() view returns (string)","function decimals() view returns (uint8)"];
-var STOKEN_ABI = ["function balanceOf(address) view returns (uint256)","function totalSupply() view returns (uint256)","function index() view returns (uint256)","function symbol() view returns (string)"];
-var STAKING_ABI = ["function stake(uint256,address)","function unstake(uint256,address)","function epochLength() view returns (uint256)","function epochEnd() view returns (uint256)"];
-var DIST_ABI = ["function distribute()","function nextDistribute() view returns (uint256)","function epochLength() view returns (uint256)","function recipients(uint256) view returns (address recipient,uint256 rate,bool isStaking)","function recipientsLength() view returns (uint256)"];
+var ERC20 = ["function balanceOf(address) view returns (uint256)","function allowance(address,address) view returns (uint256)","function approve(address,uint256) returns (bool)"];
+var STOKEN_ABI = ["function balanceOf(address) view returns (uint256)","function totalSupply() view returns (uint256)","function index() view returns (uint256)"];
+var STAKING_ABI = ["function stake(uint256,address)","function unstake(uint256,address)"];
+var DIST_ABI = ["function distribute()","function nextDistribute() view returns (uint256)","function epochLength() view returns (uint256)","function poolBalance() view returns (uint256)","function recipients(uint256) view returns (address recipient,uint256 rate,bool isStaking)","function recipientsLength() view returns (uint256)"];
+var wallet = null, S = null, MODE = "stake", NEXT = 0;
 
-var wallet = null, S = null; // S = {token,sToken,staking,treasury,distributor}
-var DEC = 18, SYM = "?", SSYM = "?";
 function $(id){ return document.getElementById(id); }
 function isAddr(a){ return /^0x[0-9a-fA-F]{40}$/.test(a); }
-function fmt(v, dec){ try{ var s = ethers.formatUnits(v, dec === undefined ? DEC : dec); var n = s.split("."); return n[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (n[1] ? "." + n[1].slice(0, 4) : ""); }catch(e){ return "-"; } }
+function fmt(v, dec){
+  try{
+    var s = ethers.formatUnits(v, dec === undefined ? 18 : dec).split(".");
+    return s[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (s[1] ? "." + s[1].slice(0, 2) : "");
+  }catch(e){ return "-"; }
+}
+function loadSuite(){
+  try{ S = JSON.parse(localStorage.getItem("ohmSuiteLast") || "null"); }catch(e){ S = null; }
+  if(!S || !isAddr(S.sToken) || !isAddr(S.staking) || !isAddr(S.distributor)) S = null;
+}
 
-/* ================= 钱包 ================= */
+/* ============ 钱包 ============ */
 async function ensureWallet(){
   if(!window.ethereum){ alert("No wallet"); return null; }
-  try{
-    var cur = await window.ethereum.request({ method: "eth_chainId" });
-    if(parseInt(cur, 16) !== ANUBIS.chainId){
-      try{ await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ANUBIS.hex }] }); }
-      catch(e){
-        await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{
-          chainId: ANUBIS.hex, chainName: "Anubis",
-          nativeCurrency: { name: "Anubis", symbol: "ANA", decimals: 18 },
-          rpcUrls: [ANUBIS.rpc], blockExplorerUrls: [ANUBIS.explorer] }]});
-      }
+  var cur = await window.ethereum.request({ method: "eth_chainId" });
+  if(parseInt(cur, 16) !== ANUBIS.chainId){
+    try{ await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ANUBIS.hex }] }); }
+    catch(e){
+      await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{
+        chainId: ANUBIS.hex, chainName: "Anubis",
+        nativeCurrency: { name: "Anubis", symbol: "ANA", decimals: 18 },
+        rpcUrls: [ANUBIS.rpc], blockExplorerUrls: [ANUBIS.explorer] }]});
     }
-    var prov = new ethers.BrowserProvider(window.ethereum);
-    var signer = await prov.getSigner();
-    return { prov: prov, signer: signer, addr: await signer.getAddress() };
-  }catch(e){ return null; }
+  }
+  var prov = new ethers.BrowserProvider(window.ethereum);
+  var signer = await prov.getSigner();
+  return { prov: prov, signer: signer, addr: await signer.getAddress() };
 }
 async function legacyWait(signer, req){
   var fee = await signer.provider.getFeeData();
@@ -141,163 +205,141 @@ $("connectBtn").addEventListener("click", async function(){
   try{
     wallet = await ensureWallet();
     if(!wallet) return;
-    $("walletHint").innerHTML = t("connected") + " <b style='font-family:var(--mono)'>" + wallet.addr.slice(0,6) + "…" + wallet.addr.slice(-4) + "</b>";
-    $("connectBtn").textContent = t("connected"); $("connectBtn").disabled = true;
-    autoLoad();
-  }catch(e){ alert(t("failed") + String((e && (e.shortMessage || e.message)) || "")); }
+    var b = $("connectBtn");
+    b.textContent = t("connected") + " " + wallet.addr.slice(0, 6) + "…";
+    b.classList.add("on");
+    refresh();
+  }catch(e){}
 });
 
-/* ================= 套件地址 ================= */
-function autoLoad(){
-  try{
-    var saved = JSON.parse(localStorage.getItem("ohmSuiteLast") || "null");
-    if(saved && isAddr(saved.token)){
-      S = saved;
-      $("inToken").value = saved.token;
-      onSuite();
-      return;
-    }
-  }catch(e){}
+/* ============ 模式切换 ============ */
+function paintMode(){
+  var staking = MODE === "stake";
+  $("tabStake").classList.toggle("act", staking);
+  $("tabUnstake").classList.toggle("act", !staking);
+  $("goBtn").textContent = t(staking ? "goStake" : "goUnstake");
+  $("recvHint").textContent = "";
+  $("amt").value = "";
 }
-$("loadBtn").addEventListener("click", function(){
-  var a = $("inToken").value.trim();
-  if(!isAddr(a)){ alert("Token address invalid"); return; }
-  // 只填了 token：其余地址需要手填完整套件；这里要求 localStorage 有完整记录
-  try{
-    var saved = JSON.parse(localStorage.getItem("ohmSuiteLast") || "null");
-    if(saved && saved.token && saved.token.toLowerCase() === a.toLowerCase() && isAddr(saved.staking)){
-      S = saved; onSuite(); return;
-    }
-  }catch(e){}
-  alert(LANG === "zh" ? "只认部署页保存的完整套件：请先用部署页部署，或确认地址一致" : "Full suite record not found: deploy via deploy page first");
-});
-async function onSuite(){
-  $("suiteHint").innerHTML = "Token <span style='font-family:var(--mono)'>" + S.token.slice(0,10) + "…</span> · " +
-    "Staking <span style='font-family:var(--mono)'>" + S.staking.slice(0,10) + "…</span>";
-  $("dashCard").style.display = "block"; $("actCard").style.display = "block";
-  await refresh();
-}
-
-/* ================= 看板 ================= */
-function cd(sec){
-  if(sec < 0) return "-";
-  var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = Math.floor(sec % 60);
-  return (h > 0 ? h + "h " : "") + m + "m " + s + "s";
-}
-async function refresh(){
+$("tabStake").addEventListener("click", function(){ MODE = "stake"; paintMode(); });
+$("tabUnstake").addEventListener("click", function(){ MODE = "unstake"; paintMode(); });
+$("maxBtn").addEventListener("click", async function(){
   if(!wallet || !S) return;
+  var c = new ethers.Contract(MODE === "stake" ? S.token : S.sToken, ERC20, wallet.prov);
+  try{ $("amt").value = ethers.formatUnits(await c.balanceOf(wallet.addr), 18); }catch(e){}
+});
+$("amt").addEventListener("input", async function(){
+  $("recvHint").textContent = "";
+  if(!S) return;
+  var v = $("amt").value.trim();
+  if(!/^\d+(\.\d+)?$/.test(v) || parseFloat(v) <= 0) return;
   try{
-    var token = new ethers.Contract(S.token, TOKEN_ABI, wallet.prov);
-    var st = new ethers.Contract(S.sToken, STOKEN_ABI, wallet.prov);
-    var stk = new ethers.Contract(S.staking, STAKING_ABI, wallet.prov);
-    var dist = new ethers.Contract(S.distributor, DIST_ABI, wallet.prov);
+    var prov = wallet ? wallet.prov : new ethers.JsonRpcProvider(ANUBIS.rpc);
+    var st = new ethers.Contract(S.sToken, STOKEN_ABI, prov);
+    var idx = await st.index();
+    var amt = ethers.parseUnits(v, 18);
+    var out = MODE === "stake" ? amt * ethers.parseUnits("1", 18) / idx : amt * idx / ethers.parseUnits("1", 18);
+    $("recvHint").textContent = t(MODE === "stake" ? "recvS" : "recvU") + " ≈ " + fmt(out) + (MODE === "stake" ? " sFCB" : " FCB");
+  }catch(e){}
+});
+
+/* ============ 质押/解押 ============ */
+$("goBtn").addEventListener("click", async function(){
+  if(!wallet){ alert(t("needWallet")); return; }
+  if(!S){ alert(t("needSuite")); return; }
+  var amt;
+  try{ amt = ethers.parseUnits($("amt").value.trim(), 18); }catch(e){ alert(t("invalidAmt")); return; }
+  if(amt <= 0n){ alert(t("invalidAmt")); return; }
+  $("status").innerHTML = '<span class="stepc">⏳ ' + t("wait") + "</span>";
+  try{
+    if(MODE === "stake"){
+      var token = new ethers.Contract(S.token, ERC20, wallet.signer);
+      var allow = await token.allowance(wallet.addr, S.staking);
+      if(allow < amt){
+        await legacyWait(wallet.signer, { to: S.token, data: token.interface.encodeFunctionData("approve", [S.staking, ethers.MaxUint256]) });
+      }
+    }
+    var stk = new ethers.Contract(S.staking, STAKING_ABI, wallet.signer);
+    var fn = MODE === "stake" ? "stake" : "unstake";
+    await legacyWait(wallet.signer, { to: S.staking, data: stk.interface.encodeFunctionData(fn, [amt, wallet.addr]) });
+    $("status").innerHTML = '<span class="ok">' + t("ok") + "</span>";
+    $("amt").value = ""; $("recvHint").textContent = "";
+    refresh();
+  }catch(e){
+    var m = String((e && (e.shortMessage || e.message)) || "");
+    $("status").innerHTML = '<span class="err">' + (/reject|denied|4001/i.test(m) ? t("rejected") : t("failed") + m.slice(0, 150)) + "</span>";
+  }
+});
+
+/* ============ 触发分发 ============ */
+$("distBtn").addEventListener("click", async function(){
+  if(!wallet){ alert(t("needWallet")); return; }
+  if(!S) return;
+  $("status").innerHTML = '<span class="stepc">⏳ ' + t("wait") + "</span>";
+  try{
+    var d = new ethers.Contract(S.distributor, DIST_ABI, wallet.signer);
+    await legacyWait(wallet.signer, { to: S.distributor, data: d.interface.encodeFunctionData("distribute", []) });
+    $("status").innerHTML = '<span class="ok">' + t("ok") + "</span>";
+    refresh();
+  }catch(e){
+    var m = String((e && (e.shortMessage || e.message)) || "");
+    $("status").innerHTML = '<span class="err">' + (/reject|denied|4001/i.test(m) ? t("rejected") : t("failed") + m.slice(0, 150)) + "</span>";
+  }
+});
+
+/* ============ 数据刷新 ============ */
+function tick(){
+  if(!NEXT){ $("cd").textContent = "--:--:--"; $("stNext").textContent = "-"; return; }
+  var s = Math.max(0, NEXT - Math.floor(Date.now() / 1000));
+  var h = String(Math.floor(s / 3600)).padStart(2, "0"),
+      m = String(Math.floor(s % 3600 / 60)).padStart(2, "0"),
+      ss = String(s % 60).padStart(2, "0");
+  $("cd").textContent = h + ":" + m + ":" + ss;
+  $("stNext").textContent = s === 0 ? t("soon") : h + ":" + m + ":" + ss;
+}
+setInterval(tick, 1000);
+
+async function refresh(){
+  loadSuite();
+  if(!S) return;
+  var prov = wallet ? wallet.prov : new ethers.JsonRpcProvider(ANUBIS.rpc);
+  try{
+    var st = new ethers.Contract(S.sToken, STOKEN_ABI, prov);
+    var d = new ethers.Contract(S.distributor, DIST_ABI, prov);
     var r = await Promise.all([
-      token.symbol().catch(function(){ return "?"; }),
-      token.balanceOf(wallet.addr),
-      st.symbol().catch(function(){ return "s?"; }),
-      st.balanceOf(wallet.addr),
-      st.totalSupply(),
-      st.index(),
-      dist.nextDistribute().catch(function(){ return 0n; }),
-      dist.epochLength().catch(function(){ return 0n; })
+      st.totalSupply(), st.index(), d.poolBalance(),
+      d.nextDistribute().catch(function(){ return 0n; })
     ]);
-    SYM = r[0]; SSYM = r[2];
-    $("vToken").innerHTML = fmt(r[1]) + " <small>" + SYM + "</small>";
-    $("vSToken").innerHTML = fmt(r[3]) + " <small>" + SSYM + "</small>";
-    $("vIndex").textContent = fmt(r[5]);
-    $("vTotal").innerHTML = fmt(r[4]) + " <small>" + SYM + "</small>";
-    var now = BigInt(Math.floor(Date.now() / 1000));
-    $("vNext").textContent = r[6] > 0n ? cd(Number(r[6] - now)) : "-";
-    // 年化：取质押接收方费率
-    var apyTxt = "-";
+    $("stTotal").innerHTML = fmt(r[0]) + " <small>FCB</small>";
+    $("stIndex").textContent = fmt(r[1]);
+    $("stPool").innerHTML = fmt(r[2]) + " <small>FCB</small>";
+    NEXT = Number(r[3]); tick();
     try{
-      var len = await dist.recipientsLength();
+      var len = await d.recipientsLength(), apy = "-";
       for(var i = 0; i < Number(len); i++){
-        var rec = await dist.recipients(i);
+        var rec = await d.recipients(i);
         if(rec.isStaking && rec.rate > 0n){
-          var rate = Number(rec.rate) / 100000;
-          var epochH = Number(r[7]) / 3600 || 8;
-          var n = 8760 / epochH;
-          var apy = (Math.pow(1 + rate, n) - 1) * 100;
-          apyTxt = apy >= 1000 ? (apy / 100).toFixed(1) + "x" : apy.toFixed(1) + "%";
+          var ep = await d.epochLength(), n = 8760 / (Number(ep) / 3600);
+          var x = (Math.pow(1 + Number(rec.rate) / 100000, n) - 1) * 100;
+          apy = x >= 1000 ? (x / 100).toFixed(1) + "x" : x.toFixed(1) + "%";
           break;
         }
       }
-      if(apyTxt === "-") apyTxt = t("noRecipient");
-    }catch(e){ apyTxt = "-"; }
-    $("vApy").textContent = apyTxt;
-  }catch(e){ /* 忽略，手动刷新 */ }
-}
-$("refreshBtn").addEventListener("click", refresh);
-setInterval(function(){ if(wallet && S) refresh(); }, 20000);
-
-/* ================= 质押 / 解押 ================= */
-function aStatus(s){ $("aStatus").innerHTML = s; }
-$("maxBtn").addEventListener("click", async function(){
-  if(!wallet || !S) return;
-  var token = new ethers.Contract(S.token, TOKEN_ABI, wallet.prov);
-  var b = await token.balanceOf(wallet.addr);
-  $("inAmt").value = ethers.formatUnits(b, DEC);
-});
-$("stakeBtn").addEventListener("click", async function(){
-  if(!wallet){ alert(t("needWallet")); return; }
-  if(!S){ alert(t("needSuite")); return; }
-  var amt;
-  try{ amt = ethers.parseUnits($("inAmt").value.trim(), DEC); }catch(e){ alert(t("invalidAmt")); return; }
-  if(amt <= 0n){ alert(t("invalidAmt")); return; }
-  aStatus('<span class="step">⏳ ' + t("wait") + "</span>");
-  try{
-    var token = new ethers.Contract(S.token, TOKEN_ABI, wallet.signer);
-    var allow = await token.allowance(wallet.addr, S.staking);
-    if(allow < amt){
-      await legacyWait(wallet.signer, { to: S.token, data: token.interface.encodeFunctionData("approve", [S.staking, ethers.MaxUint256]) });
+      $("apyBig").textContent = apy;
+    }catch(e){}
+    if(wallet){
+      var tk = new ethers.Contract(S.token, ERC20, prov);
+      var b1 = await tk.balanceOf(wallet.addr), b2 = await st.balanceOf(wallet.addr);
+      $("bFcb").textContent = fmt(b1) + " FCB";
+      $("bSfcb").textContent = fmt(b2) + " sFCB";
     }
-    var stk = new ethers.Contract(S.staking, STAKING_ABI, wallet.signer);
-    await legacyWait(wallet.signer, { to: S.staking, data: stk.interface.encodeFunctionData("stake", [amt, wallet.addr]) });
-    aStatus('<span class="ok">' + t("ok") + "</span>");
-    $("inAmt").value = "";
-    refresh();
-  }catch(e){
-    var m = String((e && (e.shortMessage || e.message)) || "");
-    aStatus('<span class="err">' + (/reject|denied|4001/i.test(m) ? t("rejected") : t("failed") + m.slice(0, 150)) + "</span>");
-  }
-});
-$("unstakeBtn").addEventListener("click", async function(){
-  if(!wallet){ alert(t("needWallet")); return; }
-  if(!S){ alert(t("needSuite")); return; }
-  var amt;
-  try{ amt = ethers.parseUnits($("inAmt").value.trim(), DEC); }catch(e){ alert(t("invalidAmt")); return; }
-  if(amt <= 0n){ alert(t("invalidAmt")); return; }
-  aStatus('<span class="step">⏳ ' + t("wait") + "</span>");
-  try{
-    var stk = new ethers.Contract(S.staking, STAKING_ABI, wallet.signer);
-    await legacyWait(wallet.signer, { to: S.staking, data: stk.interface.encodeFunctionData("unstake", [amt, wallet.addr]) });
-    aStatus('<span class="ok">' + t("ok") + "</span>");
-    $("inAmt").value = "";
-    refresh();
-  }catch(e){
-    var m = String((e && (e.shortMessage || e.message)) || "");
-    aStatus('<span class="err">' + (/reject|denied|4001/i.test(m) ? t("rejected") : t("failed") + m.slice(0, 150)) + "</span>");
-  }
-});
+  }catch(e){}
+}
 
-/* ================= 触发分发 ================= */
-$("distBtn").addEventListener("click", async function(){
-  if(!wallet){ alert(t("needWallet")); return; }
-  if(!S){ alert(t("needSuite")); return; }
-  aStatus('<span class="step">⏳ ' + t("wait") + "</span>");
-  try{
-    var dist = new ethers.Contract(S.distributor, DIST_ABI, wallet.signer);
-    await legacyWait(wallet.signer, { to: S.distributor, data: dist.interface.encodeFunctionData("distribute", []) });
-    aStatus('<span class="ok">' + t("distOk") + "</span>");
-    setTimeout(refresh, 3000);
-  }catch(e){
-    var m = String((e && (e.shortMessage || e.message)) || "");
-    aStatus('<span class="err">' + (/reject|denied|4001/i.test(m) ? t("rejected") : t("failed") + m.slice(0, 150)) + "</span>");
-  }
-});
-
+loadSuite();
 applyLang();
+refresh();
+setInterval(function(){ if(S) refresh(); }, 30000);
 </script>
 </body>
 </html>
