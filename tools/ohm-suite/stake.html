@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>质押 · OHM Suite</title>
+<script src="/assets/ethers6.min.js"></script>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--line:#30363d;--txt:#e6edf3;--dim:#8b949e;--gold:#d4a017;--green:#3fb950;--red:#f85149;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:16px;max-width:720px;margin:0 auto}
+h1{font-size:20px;margin:8px 0 4px}
+.sub{color:var(--dim);font-size:13px;margin-bottom:14px;line-height:1.6}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+.card h2{font-size:15px;margin-bottom:10px}
+label{display:block;font-size:13px;color:var(--dim);margin:10px 0 4px}
+input{width:100%;background:#0d1117;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:10px;font-size:14px;font-family:var(--mono)}
+input:focus{border-color:var(--gold);outline:none}
+button{width:100%;background:var(--gold);color:#000;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px}
+button:disabled{background:#444;color:#888;cursor:not-allowed}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);font-weight:400;font-size:14px;padding:9px}
+button.small{width:auto;padding:8px 14px;font-size:13px;margin:8px 6px 0 0}
+.hint{font-size:12px;color:var(--dim);margin-top:6px;line-height:1.6}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.stat{background:#0d1117;border:1px solid var(--line);border-radius:10px;padding:12px}
+.stat .k{font-size:12px;color:var(--dim)}
+.stat .v{font-size:18px;font-weight:700;margin-top:4px;font-family:var(--mono)}
+.stat .v small{font-size:11px;color:var(--dim);font-weight:400}
+.status{font-size:13px;margin-top:10px;line-height:1.8;white-space:pre-wrap;word-break:break-all}
+.ok{color:var(--green)}.err{color:var(--red)}.step{color:var(--gold)}
+.topbar{display:flex;justify-content:space-between;align-items:center}
+.lang{font-size:12px;color:var(--dim);background:none;border:1px solid var(--line);border-radius:6px;padding:5px 10px;width:auto;margin:0;cursor:pointer}
+.row2{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.maxbtn{width:auto;margin:0 0 1px;padding:10px 12px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>🥩 <span data-i="title">质押</span> <span style="font-size:13px;color:var(--dim)">· OHM Suite</span></h1>
+  <button class="lang" id="langBtn">EN</button>
+</div>
+<p class="sub" data-i="intro">把币质押进来拿 sToken，每次分发你的 sToken 余额自动变多——不用领，躺着涨。</p>
+
+<div class="card">
+  <h2 data-i="s1">① 连接钱包 & 套件地址</h2>
+  <button id="connectBtn" class="ghost" data-i="connect">连接钱包</button>
+  <div class="hint" id="walletHint" data-i="walletHint">还没连接</div>
+  <label data-i="suiteL">套件地址（部署页会自动记住，也可手填 Token 地址，其余自动识别）</label>
+  <div class="row2">
+    <input id="inToken" placeholder="Token 0x…">
+    <button class="maxbtn ghost" id="loadBtn" data-i="load">读取</button>
+  </div>
+  <div class="hint" id="suiteHint"></div>
+</div>
+
+<div class="card" id="dashCard" style="display:none">
+  <h2 data-i="s2">② 数据看板</h2>
+  <div class="grid">
+    <div class="stat"><div class="k" data-i="kToken">我的币</div><div class="v" id="vToken">-</div></div>
+    <div class="stat"><div class="k" data-i="kStoken">我的 sToken</div><div class="v" id="vSToken">-</div></div>
+    <div class="stat"><div class="k" data-i="kIndex">当前 index</div><div class="v" id="vIndex">-</div></div>
+    <div class="stat"><div class="k" data-i="kTotal">全网已质押</div><div class="v" id="vTotal">-</div></div>
+    <div class="stat"><div class="k" data-i="kApy">预估年化</div><div class="v" id="vApy">-</div></div>
+    <div class="stat"><div class="k" data-i="kNext">下次分发</div><div class="v" id="vNext">-</div></div>
+  </div>
+  <div class="hint" data-i="apyHint">年化按当前分发费率复利估算，仅供参考，不构成承诺。</div>
+  <button class="ghost small" id="refreshBtn" data-i="refresh">刷新</button>
+  <button class="ghost small" id="distBtn" data-i="distribute">触发分发</button>
+</div>
+
+<div class="card" id="actCard" style="display:none">
+  <h2 data-i="s3">③ 质押 / 解押</h2>
+  <label data-i="amtL">数量</label>
+  <div class="row2">
+    <input id="inAmt" inputmode="decimal" placeholder="0.0">
+    <button class="maxbtn ghost" id="maxBtn" data-i="max">最大</button>
+  </div>
+  <button id="stakeBtn" data-i="stake">质押（拿 sToken）</button>
+  <button id="unstakeBtn" class="ghost" data-i="unstake">解押（取回本币）</button>
+  <div class="status" id="aStatus"></div>
+  <div class="hint" data-i="actHint">质押/解押不收税（税只针对交易对买卖）。解押按当前 index 1:1 折算，rebase 收益自动包含。</div>
+</div>
+
+<script>
+"use strict";
+/* ================= I18N ================= */
+var I18N = {
+zh:{title:"质押",intro:"把币质押进来拿 sToken，每次分发你的 sToken 余额自动变多——不用领，躺着涨。",s1:"① 连接钱包 & 套件地址",connect:"连接钱包",walletHint:"还没连接",connected:"已连接",suiteL:"套件地址（部署页会自动记住，也可手填 Token 地址，其余自动识别）",load:"读取",s2:"② 数据看板",kToken:"我的币",kStoken:"我的 sToken",kIndex:"当前 index",kTotal:"全网已质押",kApy:"预估年化",kNext:"下次分发",apyHint:"年化按当前分发费率复利估算，仅供参考，不构成承诺。",refresh:"刷新",distribute:"触发分发",s3:"③ 质押 / 解押",amtL:"数量",max:"最大",stake:"质押（拿 sToken）",unstake:"解押（取回本币）",actHint:"质押/解押不收税（税只针对交易对买卖）。解押按当前 index 1:1 折算，rebase 收益自动包含。",needWallet:"先连接钱包",needSuite:"先读取套件地址",ok:"✓ 成功",rejected:"已取消（钱包拒绝）",failed:"失败：",invalidAmt:"数量填个大于 0 的数字",distOk:"分发已触发，余额稍后上涨",wait:"等待钱包确认…",noRecipient:"分发器暂无质押奖励配置"},
+en:{title:"Stake",intro:"Stake to get sToken. Your sToken balance grows automatically on every distribution — no claiming needed.",s1:"① Connect & Suite",connect:"Connect Wallet",walletHint:"Not connected",connected:"Connected",suiteL:"Suite addresses (auto-filled from deploy page, or paste Token)",load:"Load",s2:"② Dashboard",kToken:"My tokens",kStoken:"My sToken",kIndex:"Index",kTotal:"Total staked",kApy:"Est. APY",kNext:"Next distribution",apyHint:"APY estimated from current rate, compounded. Reference only.",refresh:"Refresh",distribute:"Trigger Distribution",s3:"③ Stake / Unstake",amtL:"Amount",max:"Max",stake:"Stake (get sToken)",unstake:"Unstake (get tokens back)",actHint:"No tax on stake/unstake (tax only applies to pair trades). Unstake converts 1:1 at current index, rebase gains included.",needWallet:"Connect wallet first",needSuite:"Load suite addresses first",ok:"✓ Done",rejected:"Cancelled (wallet rejected)",failed:"Failed: ",invalidAmt:"Enter an amount > 0",distOk:"Distribution triggered, balance will grow shortly",wait:"Waiting for wallet…",noRecipient:"No staking rewards configured"}
+};
+var LANG = localStorage.getItem("ohmSuiteLang") || "zh";
+function t(k){ return (I18N[LANG] && I18N[LANG][k]) || I18N.zh[k] || k; }
+function applyLang(){
+  document.querySelectorAll("[data-i]").forEach(function(el){ el.innerHTML = t(el.getAttribute("data-i")); });
+  document.documentElement.lang = LANG === "zh" ? "zh-CN" : "en";
+  document.getElementById("langBtn").textContent = LANG === "zh" ? "EN" : "中文";
+}
+document.getElementById("langBtn").addEventListener("click", function(){
+  LANG = LANG === "zh" ? "en" : "zh"; localStorage.setItem("ohmSuiteLang", LANG); applyLang();
+});
+
+/* ================= 常量 & ABI ================= */
+var ANUBIS = { chainId: 6714, hex: "0x1a3a", rpc: "https://rpc.anubispace.org", explorer: "https://browser.anubispace.org" };
+var TOKEN_ABI = ["function balanceOf(address) view returns (uint256)","function allowance(address,address) view returns (uint256)","function approve(address,uint256) returns (bool)","function symbol() view returns (string)","function decimals() view returns (uint8)"];
+var STOKEN_ABI = ["function balanceOf(address) view returns (uint256)","function totalSupply() view returns (uint256)","function index() view returns (uint256)","function symbol() view returns (string)"];
+var STAKING_ABI = ["function stake(uint256,address)","function unstake(uint256,address)","function epochLength() view returns (uint256)","function epochEnd() view returns (uint256)"];
+var DIST_ABI = ["function distribute()","function nextDistribute() view returns (uint256)","function epochLength() view returns (uint256)","function recipients(uint256) view returns (address recipient,uint256 rate,bool isStaking)","function recipientsLength() view returns (uint256)"];
+
+var wallet = null, S = null; // S = {token,sToken,staking,treasury,distributor}
+var DEC = 18, SYM = "?", SSYM = "?";
+function $(id){ return document.getElementById(id); }
+function isAddr(a){ return /^0x[0-9a-fA-F]{40}$/.test(a); }
+function fmt(v, dec){ try{ var s = ethers.formatUnits(v, dec === undefined ? DEC : dec); var n = s.split("."); return n[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (n[1] ? "." + n[1].slice(0, 4) : ""); }catch(e){ return "-"; } }
+
+/* ================= 钱包 ================= */
+async function ensureWallet(){
+  if(!window.ethereum){ alert("No wallet"); return null; }
+  try{
+    var cur = await window.ethereum.request({ method: "eth_chainId" });
+    if(parseInt(cur, 16) !== ANUBIS.chainId){
+      try{ await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ANUBIS.hex }] }); }
+      catch(e){
+        await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{
+          chainId: ANUBIS.hex, chainName: "Anubis",
+          nativeCurrency: { name: "Anubis", symbol: "ANA", decimals: 18 },
+          rpcUrls: [ANUBIS.rpc], blockExplorerUrls: [ANUBIS.explorer] }]});
+      }
+    }
+    var prov = new ethers.BrowserProvider(window.ethereum);
+    var signer = await prov.getSigner();
+    return { prov: prov, signer: signer, addr: await signer.getAddress() };
+  }catch(e){ return null; }
+}
+async function legacyWait(signer, req){
+  var fee = await signer.provider.getFeeData();
+  var gasPrice = fee.gasPrice || ethers.parseUnits("25", "gwei");
+  var tx = await signer.sendTransaction(Object.assign({}, req, { type: 0, gasPrice: gasPrice }));
+  return tx.wait();
+}
+$("connectBtn").addEventListener("click", async function(){
+  try{
+    wallet = await ensureWallet();
+    if(!wallet) return;
+    $("walletHint").innerHTML = t("connected") + " <b style='font-family:var(--mono)'>" + wallet.addr.slice(0,6) + "…" + wallet.addr.slice(-4) + "</b>";
+    $("connectBtn").textContent = t("connected"); $("connectBtn").disabled = true;
+    autoLoad();
+  }catch(e){ alert(t("failed") + String((e && (e.shortMessage || e.message)) || "")); }
+});
+
+/* ================= 套件地址 ================= */
+function autoLoad(){
+  try{
+    var saved = JSON.parse(localStorage.getItem("ohmSuiteLast") || "null");
+    if(saved && isAddr(saved.token)){
+      S = saved;
+      $("inToken").value = saved.token;
+      onSuite();
+      return;
+    }
+  }catch(e){}
+}
+$("loadBtn").addEventListener("click", function(){
+  var a = $("inToken").value.trim();
+  if(!isAddr(a)){ alert("Token address invalid"); return; }
+  // 只填了 token：其余地址需要手填完整套件；这里要求 localStorage 有完整记录
+  try{
+    var saved = JSON.parse(localStorage.getItem("ohmSuiteLast") || "null");
+    if(saved && saved.token && saved.token.toLowerCase() === a.toLowerCase() && isAddr(saved.staking)){
+      S = saved; onSuite(); return;
+    }
+  }catch(e){}
+  alert(LANG === "zh" ? "只认部署页保存的完整套件：请先用部署页部署，或确认地址一致" : "Full suite record not found: deploy via deploy page first");
+});
+async function onSuite(){
+  $("suiteHint").innerHTML = "Token <span style='font-family:var(--mono)'>" + S.token.slice(0,10) + "…</span> · " +
+    "Staking <span style='font-family:var(--mono)'>" + S.staking.slice(0,10) + "…</span>";
+  $("dashCard").style.display = "block"; $("actCard").style.display = "block";
+  await refresh();
+}
+
+/* ================= 看板 ================= */
+function cd(sec){
+  if(sec < 0) return "-";
+  var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = Math.floor(sec % 60);
+  return (h > 0 ? h + "h " : "") + m + "m " + s + "s";
+}
+async function refresh(){
+  if(!wallet || !S) return;
+  try{
+    var token = new ethers.Contract(S.token, TOKEN_ABI, wallet.prov);
+    var st = new ethers.Contract(S.sToken, STOKEN_ABI, wallet.prov);
+    var stk = new ethers.Contract(S.staking, STAKING_ABI, wallet.prov);
+    var dist = new ethers.Contract(S.distributor, DIST_ABI, wallet.prov);
+    var r = await Promise.all([
+      token.symbol().catch(function(){ return "?"; }),
+      token.balanceOf(wallet.addr),
+      st.symbol().catch(function(){ return "s?"; }),
+      st.balanceOf(wallet.addr),
+      st.totalSupply(),
+      st.index(),
+      dist.nextDistribute().catch(function(){ return 0n; }),
+      dist.epochLength().catch(function(){ return 0n; })
+    ]);
+    SYM = r[0]; SSYM = r[2];
+    $("vToken").innerHTML = fmt(r[1]) + " <small>" + SYM + "</small>";
+    $("vSToken").innerHTML = fmt(r[3]) + " <small>" + SSYM + "</small>";
+    $("vIndex").textContent = fmt(r[5]);
+    $("vTotal").innerHTML = fmt(r[4]) + " <small>" + SYM + "</small>";
+    var now = BigInt(Math.floor(Date.now() / 1000));
+    $("vNext").textContent = r[6] > 0n ? cd(Number(r[6] - now)) : "-";
+    // 年化：取质押接收方费率
+    var apyTxt = "-";
+    try{
+      var len = await dist.recipientsLength();
+      for(var i = 0; i < Number(len); i++){
+        var rec = await dist.recipients(i);
+        if(rec.isStaking && rec.rate > 0n){
+          var rate = Number(rec.rate) / 100000;
+          var epochH = Number(r[7]) / 3600 || 8;
+          var n = 8760 / epochH;
+          var apy = (Math.pow(1 + rate, n) - 1) * 100;
+          apyTxt = apy >= 1000 ? (apy / 100).toFixed(1) + "x" : apy.toFixed(1) + "%";
+          break;
+        }
+      }
+      if(apyTxt === "-") apyTxt = t("noRecipient");
+    }catch(e){ apyTxt = "-"; }
+    $("vApy").textContent = apyTxt;
+  }catch(e){ /* 忽略，手动刷新 */ }
+}
+$("refreshBtn").addEventListener("click", refresh);
+setInterval(function(){ if(wallet && S) refresh(); }, 20000);
+
+/* ================= 质押 / 解押 ================= */
+function aStatus(s){ $("aStatus").innerHTML = s; }
+$("maxBtn").addEventListener("click", async function(){
+  if(!wallet || !S) return;
+  var token = new ethers.Contract(S.token, TOKEN_ABI, wallet.prov);
+  var b = await token.balanceOf(wallet.addr);
+  $("inAmt").value = ethers.formatUnits(b, DEC);
+});
+$("stakeBtn").addEventListener("click", async function(){
+  if(!wallet){ alert(t("needWallet")); return; }
+  if(!S){ alert(t("needSuite")); return; }
+  var amt;
+  try{ amt = ethers.parseUnits($("inAmt").value.trim(), DEC); }catch(e){ alert(t("invalidAmt")); return; }
+  if(amt <= 0n){ alert(t("invalidAmt")); return; }
+  aStatus('<span class="step">⏳ ' + t("wait") + "</span>");
+  try{
+    var token = new ethers.Contract(S.token, TOKEN_ABI, wallet.signer);
+    var allow = await token.allowance(wallet.addr, S.staking);
+    if(allow < amt){
+      await legacyWait(wallet.signer, { to: S.token, data: token.interface.encodeFunctionData("approve", [S.staking, ethers.MaxUint256]) });
+    }
+    var stk = new ethers.Contract(S.staking, STAKING_ABI, wallet.signer);
+    await legacyWait(wallet.signer, { to: S.staking, data: stk.interface.encodeFunctionData("stake", [amt, wallet.addr]) });
+    aStatus('<span class="ok">' + t("ok") + "</span>");
+    $("inAmt").value = "";
+    refresh();
+  }catch(e){
+    var m = String((e && (e.shortMessage || e.message)) || "");
+    aStatus('<span class="err">' + (/reject|denied|4001/i.test(m) ? t("rejected") : t("failed") + m.slice(0, 150)) + "</span>");
+  }
+});
+$("unstakeBtn").addEventListener("click", async function(){
+  if(!wallet){ alert(t("needWallet")); return; }
+  if(!S){ alert(t("needSuite")); return; }
+  var amt;
+  try{ amt = ethers.parseUnits($("inAmt").value.trim(), DEC); }catch(e){ alert(t("invalidAmt")); return; }
+  if(amt <= 0n){ alert(t("invalidAmt")); return; }
+  aStatus('<span class="step">⏳ ' + t("wait") + "</span>");
+  try{
+    var stk = new ethers.Contract(S.staking, STAKING_ABI, wallet.signer);
+    await legacyWait(wallet.signer, { to: S.staking, data: stk.interface.encodeFunctionData("unstake", [amt, wallet.addr]) });
+    aStatus('<span class="ok">' + t("ok") + "</span>");
+    $("inAmt").value = "";
+    refresh();
+  }catch(e){
+    var m = String((e && (e.shortMessage || e.message)) || "");
+    aStatus('<span class="err">' + (/reject|denied|4001/i.test(m) ? t("rejected") : t("failed") + m.slice(0, 150)) + "</span>");
+  }
+});
+
+/* ================= 触发分发 ================= */
+$("distBtn").addEventListener("click", async function(){
+  if(!wallet){ alert(t("needWallet")); return; }
+  if(!S){ alert(t("needSuite")); return; }
+  aStatus('<span class="step">⏳ ' + t("wait") + "</span>");
+  try{
+    var dist = new ethers.Contract(S.distributor, DIST_ABI, wallet.signer);
+    await legacyWait(wallet.signer, { to: S.distributor, data: dist.interface.encodeFunctionData("distribute", []) });
+    aStatus('<span class="ok">' + t("distOk") + "</span>");
+    setTimeout(refresh, 3000);
+  }catch(e){
+    var m = String((e && (e.shortMessage || e.message)) || "");
+    aStatus('<span class="err">' + (/reject|denied|4001/i.test(m) ? t("rejected") : t("failed") + m.slice(0, 150)) + "</span>");
+  }
+});
+
+applyLang();
+</script>
+</body>
+</html>
