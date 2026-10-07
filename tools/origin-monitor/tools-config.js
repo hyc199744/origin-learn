@@ -34,7 +34,8 @@
     { id: 'trade-whale',   icon: '🐋', name: '交易与大户', en: {"name":"Trades & Whales","desc":"Large trades, whale changes, fund sources/destinations and wallet alerts."}, desc: '大额交易、大户增减仓、资金来源、资金去向和钱包预警。' },
     { id: 'security-dd',   icon: '🛡️', name: '安全与尽调', en: {"name":"Security & DD","desc":"Full wallet DD, approval checks, anomaly detection and tx translation."}, desc: '钱包综合尽调、授权检查、异常行为识别和交易翻译。' },
     { id: 'price-calc',    icon: '🧮', name: '价格与计算', en: {"name":"Price & Calc","desc":"Live prices, buy calc, sell simulation, cost and yield."}, desc: '实时价格、买入计算、卖出模拟、成本和收益计算。' },
-    { id: 'data-evidence', icon: '📜', name: '资料与证据', en: {"name":"Data & Evidence","desc":"Contract addresses, timeline, backstop logic, treasury and PDF reports."}, desc: '合约地址、发展时间轴、托底逻辑、国库资产和 PDF 报告。' }
+    { id: 'data-evidence', icon: '📜', name: '资料与证据', en: {"name":"Data & Evidence","desc":"Contract addresses, timeline, backstop logic, treasury and PDF reports."}, desc: '合约地址、发展时间轴、托底逻辑、国库资产和 PDF 报告。' },
+    { id: 'shop',          icon: '🛒', name: '店铺', en: {"name":"Shop","desc":"Books, foreign Apple IDs and VPN, paid in LGNS."}, desc: '书、国外 Apple ID、VPN，用 LGNS 购买。' }
   ];
 
   /* ---- 状态样式元信息 ---- */
@@ -247,7 +248,11 @@
     { id: 'token-launcher', number: 41, name: '一键发币', en: {"name":"Token Launcher","description":"Launch your own ERC20 on Anubis in one click: name, symbol, supply, buy/sell tax, mint cap, blacklist, max wallet; then add LP and auto-set the pair."}, category: 'trade-whale', icon: '🚀',
       description: '在 Anubis 上一键发行你自己的代币：名字、简称、总量、买卖税、增发上限、黑名单、持仓上限都能配；发完一键加池建 LP 底池，交易对自动设进合约。模板开局，小白也能当项目方。',
       status: 'live', isPremium: false, route: '/tools/token-launcher/', enabled: true,
-      note: '独立页 /tools/token-launcher/。进阶版 ERC20（AdvancedToken.sol，solc 0.8.20 本地编译，38 项本地 EVM 逻辑测试全过）：买/卖税 0-30%（合约写死上限）、增发上限、黑名单、持仓上限（部署者分发豁免）、owner 管理（调税/设交易对/拉黑/增发/转移管理权）。部署后"一键加池"：approve→Router(0x3E412E02B6157fBE80b6C6697f3Ce1142E629019).addLiquidity(代币+ERC20 DAI 0x83fd…)，LP 归用户，factory.getPair 读 pair 后自动 setPair。Router/Factory/DAI 地址及 addLiquidity 签名已链上验证。2026-10-02 上线。' }
+      note: '独立页 /tools/token-launcher/。进阶版 ERC20（AdvancedToken.sol，solc 0.8.20 本地编译，38 项本地 EVM 逻辑测试全过）：买/卖税 0-30%（合约写死上限）、增发上限、黑名单、持仓上限（部署者分发豁免）、owner 管理（调税/设交易对/拉黑/增发/转移管理权）。部署后"一键加池"：approve→Router(0x3E412E02B6157fBE80b6C6697f3Ce1142E629019).addLiquidity(代币+ERC20 DAI 0x83fd…)，LP 归用户，factory.getPair 读 pair 后自动 setPair。Router/Factory/DAI 地址及 addLiquidity 签名已链上验证。2026-10-02 上线。' },
+    { id: 'shop', number: 42, name: '店铺', en: {"name":"Shop","description":"Books, foreign Apple IDs and VPN — 10 LGNS each, pay straight from your wallet on Anubis."}, category: 'shop', icon: '🛒',
+      description: '卖书、国外 Apple ID、VPN，统一 10 LGNS 一件，Anubis 链上钱包直付。',
+      status: 'live', isPremium: false, route: '/tools/shop/', enabled: true,
+      note: '独立页 /tools/shop/。无外部 JS 依赖（手写 EIP-1193，与彩票页同款，欧易内置浏览器可用）。购买=钱包直接 transfer 10 LGNS（9 位精度）到卖家地址，legacy type-0 交易；订单存 localStorage。2026-10-07 上线。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
