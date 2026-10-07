@@ -168,7 +168,7 @@ payWarn:'⚠️ 务必转 LGNS（9 位精度）。转错代币卖家可能无法
 paidBtn:'我已付款，填写收货信息', backBtn:'← 返回',
 ffBook:'收货信息', ffContact:'联系方式', ffName:'姓名', ffNamePh:'收货人姓名',
 ffPhone:'电话', ffPhonePh:'手机号码', ffAddr:'收货地址', ffAddrPh:'省 / 市 / 区 / 详细地址',
-ffContactPh:'微信号 / 手机号 / 邮箱（卖家联系你用）', ffTx:'交易哈希（可选）', ffTxPh:'钱包里的交易哈希，方便卖家核对',
+ffContactPh:'微信号 / 手机号 / 邮箱（卖家联系你用）', ffEmail:'邮箱', ffEmailPh:'常用邮箱地址', ffApplePhone:'手机号码', ffApplePhonePh:'手机号码', ffTx:'交易哈希（可选）', ffTxPh:'钱包里的交易哈希，方便卖家核对',
 capQ:'验证：', submitOrder:'提交订单', submitting:'提交中…',
 errFill:'请把必填项填完整', errCap:'验证码答错了，再算一次',
 okTitle:'订单提交成功！', okCode:'你的查询码', okTip:'截图保存好这个查询码。卖家发货后会把快递单号回复在订单下，你凭查询码在「留言区」查到。',
@@ -190,7 +190,7 @@ payWarn:'⚠️ Send LGNS only (9 decimals). Wrong tokens may not be recognized 
 paidBtn:'I have paid — fill in info', backBtn:'← Back',
 ffBook:'Shipping info', ffContact:'Contact info', ffName:'Name', ffNamePh:'Recipient name',
 ffPhone:'Phone', ffPhonePh:'Mobile number', ffAddr:'Address', ffAddrPh:'Province / City / District / street address',
-ffContactPh:'WeChat / phone / email (for the seller to reach you)', ffTx:'Tx hash (optional)', ffTxPh:'Transaction hash from your wallet, helps the seller verify',
+ffContactPh:'WeChat / phone / email (for the seller to reach you)', ffEmail:'Email', ffEmailPh:'Your email address', ffApplePhone:'Phone number', ffApplePhonePh:'Mobile number', ffTx:'Tx hash (optional)', ffTxPh:'Transaction hash from your wallet, helps the seller verify',
 capQ:'Verify: ', submitOrder:'Submit order', submitting:'Submitting…',
 errFill:'Please fill in all required fields', errCap:'Wrong answer, try again',
 okTitle:'Order submitted!', okCode:'Your query code', okTip:'Screenshot this query code. After shipping, the seller replies the tracking number under your order — check it in the Feedback section with this code.',
@@ -224,9 +224,9 @@ zh:{name:'《起源小白操作手册》', desc:'纸质书。付款后填写姓�
 en:{name:'"Origin Xiaobai Manual"', desc:'Physical book. Fill in name, phone and shipping address after payment and the seller ships it.'}}
 ],
 apple:[
-{id:'apple_us', ship:false,
-zh:{name:'国外 Apple ID', desc:'付款后留联系方式，卖家发账号密码。'},
-en:{name:'Foreign Apple ID', desc:'Leave contact info after payment; the seller sends the credentials.'}}
+{id:'apple_us', ship:false, form:'apple',
+zh:{name:'国外 Apple ID', desc:'付款后填写邮箱和手机号，提交后加卖家微信领取账号密码。'},
+en:{name:'Foreign Apple ID', desc:'Fill in email and phone number after payment, then add the seller on WeChat to receive the credentials.'}}
 ],
 vpn:[
 {id:'vpn_1', ship:false,
@@ -322,16 +322,19 @@ $('sec-pay').scrollIntoView({behavior:'smooth'});
 /* ================= 收货表单 ================= */
 var _cap = {q:'', a:0};
 function showForm(p){
-var isBook =!!p.ship;
+var isBook =!!p.ship, isApple = p.form==='apple';
 var a = Math.floor(Math.random()*8)+2, b = Math.floor(Math.random()*8)+2;
 _cap = {q: a+' + '+b, a: a+b};
 var fields = isBook
 ? '<label>'+t('ffName')+'</label><input id="ffName" placeholder="'+t('ffNamePh')+'">'+
 '<label>'+t('ffPhone')+'</label><input id="ffPhone" inputmode="tel" placeholder="'+t('ffPhonePh')+'">'+
 '<label>'+t('ffAddr')+'</label><textarea id="ffAddr" rows="2" placeholder="'+t('ffAddrPh')+'"></textarea>'
+: isApple
+? '<label>'+t('ffEmail')+'</label><input id="ffEmail" inputmode="email" placeholder="'+t('ffEmailPh')+'">'+
+'<label>'+t('ffApplePhone')+'</label><input id="ffApplePhone" inputmode="tel" placeholder="'+t('ffApplePhonePh')+'">'
 : '<label>'+t('ffContact')+'</label><input id="ffContact" placeholder="'+t('ffContactPh')+'">';
 $('payBody').innerHTML =
-'<div class="fform"><h3>'+esc(isBook? t('ffBook'): t('ffContact'))+' · '+esc(prodName(p))+'</h3>'+
+'<div class="fform"><h3>'+esc(isBook? t('ffBook'): isApple? t('ffContact') : t('ffContact'))+' · '+esc(prodName(p))+'</h3>'+
 fields+
 '<label>'+t('ffTx')+'</label><input id="ffTx" placeholder="'+t('ffTxPh')+'">'+
 '<div class="caprow"><span>'+t('capQ')+'<b id="ffCapQ" style="color:var(--gold2)">'+_cap.q+'</b> = </span>'+
@@ -360,6 +363,7 @@ async function submitOrder(p, ffFail){
 var v = function(id){ var el=$(id); return el? el.value.trim(): '';};
 var name=v('ffName'), phone=v('ffPhone'), addr=v('ffAddr'), contact=v('ffContact'), txh=v('ffTx');
 if(p.ship){ if(!name ||!phone ||!addr) return ffFail(t('errFill'));}
+else if(p.form==='apple'){ if(!v('ffEmail') ||!v('ffApplePhone')) return ffFail(t('errFill'));}
 else { if(!contact) return ffFail(t('errFill'));}
 if(String(v('ffCapA'))!== String(_cap.a)) return ffFail(t('errCap'));
 var btn=$('ffSubmit'); btn.disabled=true; btn.textContent=t('submitting');
@@ -368,6 +372,7 @@ var lines = [
 (lang==='zh'?'卖家收款地址: ':'Seller: ')+CFG.SELLER
 ];
 if(p.ship){ lines.push((lang==='zh'?'姓名: ':'Name: ')+name, (lang==='zh'?'电话: ':'Phone: ')+phone, (lang==='zh'?'收货地址: ':'Address: ')+addr);}
+else if(p.form==='apple'){ lines.push((lang==='zh'?'邮箱: ':'Email: ')+v('ffEmail'), (lang==='zh'?'手机号码: ':'Phone: ')+v('ffApplePhone'));}
 else { lines.push((lang==='zh'?'联系方式: ':'Contact: ')+contact);}
 if(txh) lines.push((lang==='zh'?'交易哈希: ':'Tx: ')+txh);
 var code='';
