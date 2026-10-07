@@ -1,411 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>起源商城 | Web3Origin</title>
-<meta name="description" content="Web3Origin 起源商城：书、国外 Apple ID、VPN，统一 10 LGNS 一件，扫码付款。">
-<script src="/assets/qrcode.min.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>起源商城 · 升级中</title>
+<meta name="description" content="起源商城正在升级付款系统，升级为链上自动确认到账版，即将重新开放。">
+<meta name="robots" content="noindex">
 <style>
-:root{
---bg:#070806; --panel:#0e100e; --panel2:#141712; --line:rgba(212,175,55,.2);
---gold:#d4af37; --gold2:#e8cf7e; --txt:#e9efea; --dim:#7a857c; --soft:#c3cbc4;
---green:#25C96F; --red:#ff6b5e; --radius:14px;
-}
+:root{--bg:#0d0f0d;--panel:#14160f;--line:#2a2c22;--txt:#efe7d4;--soft:#c9bfa6;--dim:#8a8168;--gold:#d4af37;--gold2:#e8c968}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,rgba(212,175,55,.06),transparent),var(--bg);color:var(--txt);font:15px/1.6 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
-.wrap{max-width:860px;margin:0 auto;padding:14px 16px 40px}
-.topbar{display:flex;justify-content:flex-end;gap:8px;padding:6px 2px}
-.pill{background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600;color:var(--dim);cursor:pointer;font-family:inherit}
-.pill:hover{border-color:var(--gold);color:var(--gold2)}
-.brand{text-align:center;padding:14px 4px 20px}
-.brand.logo{font-size:44px}
-.brand-name{font-size:24px;font-weight:800;letter-spacing:8px;margin-top:6px;color:var(--gold2)}
-.brand-sub{font-size:12.5px;color:var(--dim);margin-top:6px;letter-spacing:1px}
-.card{background:linear-gradient(135deg,rgba(212,175,55,.05),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-top:16px}
-.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
-.sec-head h2{font-size:18px;font-weight:800;margin:0;color:var(--gold2)}
-.sec-head.r{font-size:12.5px;color:var(--dim)}
-.sec-desc{font-size:13px;color:var(--dim);margin:0 0 8px;line-height:1.7}
-.news{padding:10px 2px;border-bottom:1px dashed var(--line);font-size:13.5px;line-height:1.8;color:var(--soft)}
-.news:last-child{border-bottom:none}
-.news.nd{color:var(--dim);font-size:12px;margin-right:8px;white-space:nowrap}
-.prod{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px;background:rgba(255,255,255,.015)}
-.prod.prow{display:flex;gap:14px;align-items:center}
-.prod.ic{font-size:34px;flex:none}
-.prod.mid{flex:1;min-width:0}
-.prod.nm{font-size:15.5px;font-weight:800;color:var(--txt)}
-.prod.ds{font-size:12.5px;color:var(--dim);margin-top:4px;line-height:1.6}
-.prod.pr{font-size:15px;font-weight:800;color:var(--gold);white-space:nowrap}
-.prod.pr small{display:block;font-size:11px;color:var(--dim);font-weight:400;text-align:right}
-.btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1205;border:none;border-radius:10px;padding:11px 22px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
-.btn:hover{filter:brightness(1.07)}
-.btn:disabled{opacity:.55;cursor:wait}
-.btn2{background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:10px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:inherit}
-.btn2:hover{border-color:var(--gold);color:var(--gold2)}
-.gal{margin-bottom:12px}
-.gal-main{width:100%;border-radius:12px;display:block;aspect-ratio:1/1;object-fit:cover;background:#1a1c1a}
-.gal-thumbs{display:flex;gap:8px;margin-top:8px;overflow-x:auto}
-.gal-thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;flex:none}
-.gal-thumbs img.on{border-color:var(--gold)}
-.coming{border:1.5px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--dim);font-size:13.5px;margin-top:10px}
-.det{display:flex;align-items:center;gap:8px}
-.mono{font-family:ui-monospace,Consolas,monospace}
-code.mono{word-break:break-all;color:var(--soft);font-size:11.5px;flex:1}
-.verify{background:transparent;border:1px solid var(--line);color:var(--gold2);border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
-.verify:hover{border-color:var(--gold)}
-.qrbox{text-align:center;margin:14px auto 6px;background:#fff;border-radius:12px;padding:12px;width:204px}
-.qrbox>div{width:180px;height:180px;margin:0 auto}
-.kv{display:flex;justify-content:space-between;gap:10px;padding:8px 0;font-size:13px;align-items:center}
-.kv.k{color:var(--dim);flex:none}
-.kv.v{font-weight:700;text-align:right}
-.warn{font-size:12.5px;line-height:1.8;margin-top:10px;padding:10px 12px;border:1px solid rgba(224,106,106,.5);border-radius:10px;background:rgba(224,106,106,.07);color:#ffb3a8}
-.tip{font-size:12.5px;color:var(--dim);line-height:1.8;margin-top:10px}
-.tip b{color:var(--gold2)}
-.fform{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px}
-.fform h3{font-size:15px;margin:0 0 8px;color:var(--gold2)}
-.fform label{display:block;font-size:12.5px;color:var(--dim);margin:10px 0 3px}
-.fform input,.fform textarea{width:100%;padding:11px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;color:var(--txt)}
-.fform input:focus,.fform textarea:focus{border-color:var(--gold);outline:none}
-.fform.caprow{display:flex;align-items:center;gap:8px;margin-top:12px}
-.fform.caprow input{width:90px}
-.fform.warn2{display:none;color:var(--red);font-size:12.5px;margin-top:8px}
-.okbox{background:rgba(37,201,111,.07);border:1px solid rgba(37,201,111,.4);border-radius:12px;padding:16px;margin-top:12px;font-size:13.5px;line-height:1.9}
-.okbox b{color:#7bffb0}
-.codebox{background:rgba(212,175,55,.06);border:1.5px solid var(--gold);border-radius:12px;padding:16px;margin-top:12px;font-size:13.5px;line-height:2;text-align:center}
-.codebox b{font-size:20px;letter-spacing:2px;color:var(--gold2)}
-.order{border-bottom:1px dashed var(--line);padding:10px 0;font-size:13px}
-.order:last-child{border-bottom:none}
-.order.oh{display:flex;justify-content:space-between;gap:8px}
-.order.ot{color:var(--dim);font-size:12px;margin-top:3px}
-.order a{color:var(--gold2);text-decoration:none;word-break:break-all}
-.empty{color:var(--dim);font-size:13px;text-align:center;padding:14px}
-.foot{text-align:center;font-size:12px;color:var(--dim);margin-top:24px;line-height:2}
-.foot a{color:var(--gold2);text-decoration:none;font-weight:600}
-#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#1c1e1c;color:var(--txt);border:1px solid var(--line);padding:11px 20px;border-radius:12px;font-size:13.5px;z-index:99;display:none;max-width:88vw;text-align:center}
-.paystep{display:flex;gap:6px;margin-top:14px}
-.paystep.s{flex:1;text-align:center;font-size:11.5px;color:var(--dim);padding:8px 2px;border:1px solid var(--line);border-radius:8px}
-.paystep.s.on{border-color:var(--gold);color:var(--gold2)}
-.paystep.s.done{border-color:rgba(37,201,111,.5);color:#7bffb0}
-@media(max-width:480px){.prod.prow{flex-wrap:wrap}.prod.pr small{text-align:left}}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center}
+.card{max-width:460px;width:100%;background:linear-gradient(135deg,rgba(212,175,55,.06),var(--panel));border:1px solid var(--line);border-radius:20px;padding:40px 26px;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.emoji{font-size:54px;line-height:1;margin-bottom:14px}
+h1{font-size:22px;margin:0 0 6px;color:var(--gold2);letter-spacing:.5px}
+.tag{display:inline-block;margin:4px 0 18px;font-size:12.5px;font-weight:700;color:var(--gold);background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.35);border-radius:999px;padding:5px 14px}
+p{font-size:14.5px;line-height:1.9;color:var(--soft);margin:0 0 10px}
+.sub{font-size:12.5px;color:var(--dim);line-height:1.8;margin-top:16px}
+.home{display:inline-block;margin-top:22px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1205;text-decoration:none;font-weight:800;font-size:14.5px;border-radius:12px;padding:12px 26px}
+.lang{position:fixed;top:14px;right:14px;background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:10px;padding:6px 13px;font-size:13px;cursor:pointer;font-family:inherit}
+[data-lang]{display:none}
+html[lang^="zh"] [data-lang="zh"],html:not([lang^="zh"]) [data-lang="en"]{display:revert}
 </style>
 </head>
 <body>
+<button class="lang" id="langBtn">EN</button>
 <div class="wrap">
-<div class="topbar"><button class="pill" id="langBtn">EN</button></div>
-
-<div class="brand">
-<div class="logo">🛒</div>
-<div class="brand-name" data-i18n="shopName">起源商城</div>
-<div class="brand-sub" data-i18n="shopSub">书 · 国外 Apple ID · VPN —— 统一 10 LGNS 一件</div>
+  <div class="card">
+    <div class="emoji">🛠️</div>
+    <h1><span data-lang="zh">起源商城</span><span data-lang="en">Origin Mall</span></h1>
+    <div class="tag"><span data-lang="zh">升级中 · 即将回归</span><span data-lang="en">Upgrading · Back soon</span></div>
+    <p>
+      <span data-lang="zh">商城正在升级付款系统：从现在的固定金额、手动确认，升级为<b style="color:var(--gold2)">每单精确金额 + Polygon / Anubis 双链链上自动确认到账</b>，和「起源百宝箱」一致，更安全、更省心。</span>
+      <span data-lang="en">The mall is upgrading its checkout: from a flat amount with manual confirmation to a <b style="color:var(--gold2)">per-order exact amount with automatic on-chain confirmation on Polygon / Anubis</b> — the same mechanism as the Origin Toolbox, safer and smoother.</span>
+    </p>
+    <p>
+      <span data-lang="zh">升级期间暂停下单，完成后会第一时间重新开放。给你带来的不便敬请谅解。</span>
+      <span data-lang="en">Ordering is paused during the upgrade and will reopen as soon as it's done. Thanks for your patience.</span>
+    </p>
+    <a class="home" href="/"><span data-lang="zh">← 返回主站</span><span data-lang="en">← Back to site</span></a>
+    <div class="sub">
+      <span data-lang="zh">已下单的朋友请保留好你的查询码，发货不受影响。</span>
+      <span data-lang="en">If you already ordered, keep your query code — shipping is unaffected.</span>
+    </div>
+  </div>
 </div>
-
-<section class="card" id="sec-news">
-<div class="sec-head"><h2 data-i18n="newsTitle">📢 最新资讯</h2></div>
-<div id="newsList"></div>
-</section>
-
-<section class="card" id="sec-books">
-<div class="sec-head"><h2 data-i18n="catBooks">📚 书</h2><span class="r">Anubis · LGNS</span></div>
-<p class="sec-desc" data-i18n="booksDesc">纸质书，付款后填写收货信息，卖家发货，快递单号会回复在你的订单下。</p>
-<div id="bookList"></div>
-</section>
-
-<section class="card" id="sec-apple">
-<div class="sec-head"><h2 data-i18n="catApple">🍎 国外 Apple ID</h2><span class="r">Anubis · LGNS</span></div>
-<p class="sec-desc" data-i18n="appleDesc">海外区 Apple ID，付款后留个联系方式，卖家把账号密码发你。收到后请第一时间改密码和密保。</p>
-<div id="appleList"></div>
-</section>
-
-<section class="card" id="sec-vpn">
-<div class="sec-head"><h2 data-i18n="catVpn">🛡️ VPN</h2><span class="r">Anubis · LGNS</span></div>
-<p class="sec-desc" data-i18n="vpnDesc">高速节点，付款后留个联系方式，卖家发你订阅链接 / 客户端配置。</p>
-<div id="vpnList"></div>
-</section>
-
-<section class="card" id="sec-pay" style="display:none">
-<div class="sec-head"><h2 data-i18n="payTitle">💰 付款</h2><span class="r" id="payProd"></span></div>
-<div id="payBody"></div>
-</section>
-
-<section class="card" id="sec-orders">
-<div class="sec-head"><h2 data-i18n="myOrders">🧾 我的订单</h2><span class="r" id="orderCount"></span></div>
-<div id="orderList"></div>
-<p class="tip" data-i18n="orderTip">订单只保存在这台设备上。付款后拿到的查询码请截图保存，凭它找卖家查快递单号。</p>
-</section>
-
-<div class="foot">
-<span data-i18n="footRisk">虚拟商品一经发货不退不换；Apple ID 请遵守苹果用户协议使用。</span><br>
-<span data-i18n="footPay">统一 Anubis 链 LGNS 支付 · 收款地址 </span><a id="sellerLink" href="#"></a>
-</div>
-</div>
-<div id="toast"></div>
-
 <script>
-/* ================= 配置 ================= */
-var CFG = {
-SELLER: '0xbd06474ddc68e7cac60d1db70ba1056da8a1f220',
-LGNS: '0x4d1d808a081fdac440703b3765fc61f8028c06b8',
-CHAIN_ID: 6714,
-PRICE: 10,
-FB_API: 'https://count.web3origin.com/fb/submit'
-};
-var AMOUNT_RAW = '10000000000'; // 10 LGNS, 9 decimals
-
-/* ================= i18n ================= */
-var I18N = {
-zh:{
-shopName:'起源商城', shopSub:'书 · 国外 Apple ID · VPN —— 统一 10 LGNS 一件',
-newsTitle:'📢 最新资讯', catBooks:'📚 书', catApple:'🍎 国外 Apple ID', catVpn:'🛡️ VPN',
-booksDesc:'纸质书，付款后填写收货信息，卖家发货，快递单号会回复在你的订单下。',
-appleDesc:'海外区 Apple ID，付款后留个联系方式，卖家把账号密码发你。收到后请第一时间改密码和密保。',
-vpnDesc:'高速节点，付款后留个联系方式，卖家发你订阅链接 / 客户端配置。',
-buy:'购买', perPiece:'10 LGNS / 件', imgLoading:'图片加载中…',
-payTitle:'💰 付款', copy:'复制', copied:'已复制✓',
-payAmount:'付款金额（务必一分不差）', payTo:'收款地址', payScan:'扫码付款',
-payHow:'用任意钱包 App 扫码，核对是 Anubis 链上的 LGNS、金额无误后确认；也可以复制地址和金额手动转账。',
-payWarn:'⚠️ 务必转 LGNS（9 位精度）。转错代币卖家可能无法识别、也很难退回，付款前请核对。',
-paidBtn:'我已付款，填写收货信息', backBtn:'← 返回',
-ffBook:'收货信息', ffContact:'联系方式', ffName:'姓名', ffNamePh:'收货人姓名',
-ffPhone:'电话', ffPhonePh:'手机号码', ffAddr:'收货地址', ffAddrPh:'省 / 市 / 区 / 详细地址',
-ffContactPh:'微信号 / 手机号 / 邮箱（卖家联系你用）', ffEmail:'邮箱', ffEmailPh:'常用邮箱地址', ffApplePhone:'手机号码', ffApplePhonePh:'手机号码', ffTx:'交易哈希（可选）', ffTxPh:'钱包里的交易哈希，方便卖家核对',
-capQ:'验证：', submitOrder:'提交订单', submitting:'提交中…',
-errFill:'请把必填项填完整', errCap:'验证码答错了，再算一次',
-okTitle:'订单提交成功！', okCode:'你的查询码', okTip:'截图保存好这个查询码。卖家发货后会把快递单号回复在订单下，你凭查询码在「留言区」查到。',
-myOrders:'🧾 我的订单', orderTip:'订单只保存在这台设备上。付款后拿到的查询码请截图保存，凭它找卖家查快递单号。',
-noOrders:'还没有订单', footRisk:'虚拟商品一经发货不退不换；Apple ID 请遵守苹果用户协议使用。',
-footPay:'统一 Anubis 链 LGNS 支付 · 收款地址 ', queryCode:'查询码'
-},
-en:{
-shopName:'ORIGIN MALL', shopSub:'Books · Foreign Apple IDs · VPN — 10 LGNS each',
-newsTitle:'📢 Latest News', catBooks:'📚 Books', catApple:'🍎 Foreign Apple IDs', catVpn:'🛡️ VPN',
-booksDesc:'Physical books. Fill in shipping info after payment; the seller ships and replies the tracking number under your order.',
-appleDesc:'Foreign-region Apple ID. Leave contact info after payment and the seller sends the credentials. Change password & security questions ASAP.',
-vpnDesc:'Fast nodes. Leave contact info after payment and the seller sends the subscription link / client config.',
-buy:'Buy', perPiece:'10 LGNS / item', imgLoading:'Loading images…',
-payTitle:'💰 Pay', copy:'Copy', copied:'Copied ✓',
-payAmount:'Exact amount (must match)', payTo:'Receiving address', payScan:'Scan to pay',
-payHow:'Scan with any wallet app — confirm it is LGNS on Anubis and the amount is correct. Or copy the address and amount and transfer manually.',
-payWarn:'⚠️ Send LGNS only (9 decimals). Wrong tokens may not be recognized and are hard to refund — double-check before paying.',
-paidBtn:'I have paid — fill in info', backBtn:'← Back',
-ffBook:'Shipping info', ffContact:'Contact info', ffName:'Name', ffNamePh:'Recipient name',
-ffPhone:'Phone', ffPhonePh:'Mobile number', ffAddr:'Address', ffAddrPh:'Province / City / District / street address',
-ffContactPh:'WeChat / phone / email (for the seller to reach you)', ffEmail:'Email', ffEmailPh:'Your email address', ffApplePhone:'Phone number', ffApplePhonePh:'Mobile number', ffTx:'Tx hash (optional)', ffTxPh:'Transaction hash from your wallet, helps the seller verify',
-capQ:'Verify: ', submitOrder:'Submit order', submitting:'Submitting…',
-errFill:'Please fill in all required fields', errCap:'Wrong answer, try again',
-okTitle:'Order submitted!', okCode:'Your query code', okTip:'Screenshot this query code. After shipping, the seller replies the tracking number under your order — check it in the Feedback section with this code.',
-myOrders:'🧾 My orders', orderTip:'Orders are saved on this device only. Screenshot your query code and use it to ask the seller for the tracking number.',
-noOrders:'No orders yet', footRisk:'Digital goods are non-refundable once delivered; use Apple IDs per Apple’s terms.',
-footPay:'All payments in LGNS on Anubis · seller address ', queryCode:'Query code'
-}};
-var lang = 'zh';
-function t(k){ return (I18N[lang] && I18N[lang][k]) || I18N.zh[k] || k;}
-function $(id){ return document.getElementById(id);}
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function toast(msg){ var el=$('toast'); el.textContent=msg; el.style.display='block'; clearTimeout(el._t); el._t=setTimeout(function(){ el.style.display='none';}, 1800);}
-function copyText(s, btn){
-function done(){ if(btn){ var o=btn.textContent; btn.textContent=t('copied'); setTimeout(function(){ btn.textContent=o;}, 1200);} else toast(t('copied'));}
-if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(s).then(done, function(){ fallback();});}
-else fallback();
-function fallback(){ var ta=document.createElement('textarea'); ta.value=s; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy');}catch(e){} document.body.removeChild(ta); done();}
-}
-
-/* ================= 商品 ================= */
-var NEWS = [
-{d:'2026-10-07', zh:'🎉 起源商城开张！《起源小白操作手册》正式上架，商品页有 5 张介绍图可以看。', en:'🎉 Origin Mall is open! "Origin Xiaobai Manual" is now available — see the 5 preview images on the product page.'},
-{d:'2026-10-07', zh:'📢 全场统一 10 LGNS 一件，Anubis 链上扫码付款，不用连钱包、不用注册。', en:'📢 Everything is 10 LGNS flat — scan to pay on Anubis, no wallet connection or sign-up needed.'}
-];
-var BOOK_B64 = ["img/book1.b64", "img/book2.b64", "img/book3.b64", "img/book4.b64", "img/book5.b64"];
-var BOOK_DATA = [];
-var PRODUCTS = {
-books:[
-{id:'book_origin', ship:true, imgs:true,
-zh:{name:'《起源小白操作手册》', desc:'纸质书。付款后填写姓名、电话和收货地址，卖家安排发货。'},
-en:{name:'"Origin Xiaobai Manual"', desc:'Physical book. Fill in name, phone and shipping address after payment and the seller ships it.'}}
-],
-apple:[
-{id:'apple_us', ship:false, form:'apple',
-zh:{name:'国外 Apple ID', desc:'付款后填写邮箱和手机号，提交后加卖家微信领取账号密码。'},
-en:{name:'Foreign Apple ID', desc:'Fill in email and phone number after payment, then add the seller on WeChat to receive the credentials.'}}
-],
-vpn:[
-{id:'vpn_1', ship:false,
-zh:{name:'VPN', desc:'付款后留联系方式，卖家发订阅链接 / 配置。'},
-en:{name:'VPN', desc:'Leave contact info after payment; the seller sends the subscription link / config.'}}
-]
-};
-var PRODUCTS_ALL = {};
-['books','apple','vpn'].forEach(function(c){ (PRODUCTS[c]||[]).forEach(function(p){ PRODUCTS_ALL[p.id]=p;});});
-function prodName(p){ return lang==='zh'? p.zh.name: p.en.name;}
-function prodDesc(p){ return lang==='zh'? p.zh.desc: p.en.desc;}
-function findProd(id){ return PRODUCTS_ALL[id];}
-
-/* ================= 渲染 ================= */
-function renderNews(){
-var host = $('newsList'); if(!host) return;
-host.innerHTML = NEWS.map(function(n){
-return '<div class="news"><span class="nd">'+n.d+'</span>'+esc(lang==='zh'?n.zh:n.en)+'</div>';
-}).join('');
-}
-function loadBookImgs(){
-Promise.all(BOOK_B64.map(function(u){ return fetch(u).then(function(r){ return r.text();});}))
-.then(function(ts){
-BOOK_DATA = ts.map(function(x){ return 'data:image/webp;base64,'+x.trim();});
-var g = $('gal_book_origin'); if(!g) return;
-g.innerHTML = '<img class="gal-main" id="gm_book_origin" src="'+BOOK_DATA[0]+'">'+
-'<div class="gal-thumbs">'+BOOK_DATA.map(function(s,i){
-return '<img src="'+s+'" data-i="'+i+'" class="'+(i===0?'on':'')+'">';}).join('')+'</div>';
-g.querySelectorAll('.gal-thumbs img').forEach(function(th){
-th.onclick = function(){
-$('gm_book_origin').src = BOOK_DATA[+th.dataset.i];
-g.querySelectorAll('.gal-thumbs img').forEach(function(x){ x.classList.remove('on');});
-th.classList.add('on');
-};
-});
-}).catch(function(){});
-}
-function renderProducts(){
-var map = {books:'bookList', apple:'appleList', vpn:'vpnList'};
-Object.keys(map).forEach(function(cat){
-var host = $(map[cat]), items = PRODUCTS[cat] || [];
-host.innerHTML = '';
-items.forEach(function(p){
-var d = document.createElement('div'); d.className = 'prod';
-var gal = '';
-if(p.imgs){
-gal = '<div class="gal" id="gal_'+p.id+'"><div class="coming">'+t('imgLoading')+'</div></div>';
-}
-d.innerHTML = gal +
-'<div class="prow"><div class="ic">'+({books:'📕',apple:'🍎',vpn:'🛡️'}[cat])+'</div>'+
-'<div class="mid"><div class="nm">'+esc(prodName(p))+'</div><div class="ds">'+esc(prodDesc(p))+'</div></div>'+
-'<div class="pr">'+CFG.PRICE+' LGNS<small>'+t('perPiece')+'</small></div>'+
-'<div><button class="btn" data-buy="'+p.id+'">'+t('buy')+'</button></div></div>';
-host.appendChild(d);
-});
-});
-document.querySelectorAll('[data-buy]').forEach(function(b){
-b.onclick = function(){ showPay(b.dataset.buy);};
-});
-}
-function short(a){ return a.slice(0,6)+'…'+a.slice(-4);}
-
-/* ================= 付款（扫码，不连钱包） ================= */
-var _payProd = null;
-function ethURI(){
-return 'ethereum:'+CFG.LGNS+'@'+CFG.CHAIN_ID+'/transfer?address='+CFG.SELLER+'&uint256='+AMOUNT_RAW;
-}
-function showPay(pid){
-var p = findProd(pid); if(!p) return;
-_payProd = p;
-$('payProd').textContent = prodName(p);
-var uri = ethURI();
-$('payBody').innerHTML =
-'<div class="kv"><span class="k">'+t('payAmount')+'</span><span class="v" style="color:var(--gold);font-size:17px">'+CFG.PRICE+' LGNS</span></div>'+
-'<div style="text-align:right"><button class="verify" id="cpAmt">'+t('copy')+'</button></div>'+
-'<div class="kv"><span class="k">'+t('payTo')+'</span></div>'+
-'<div class="det"><code class="mono">'+CFG.SELLER+'</code><button class="verify" id="cpAddr">'+t('copy')+'</button></div>'+
-'<div class="qrbox"><div id="payQR"></div><div style="font-size:12px;color:#333;margin-top:6px">'+t('payScan')+'</div></div>'+
-'<div class="tip">'+t('payHow')+'</div>'+
-'<div class="warn">'+t('payWarn')+'</div>'+
-'<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">'+
-'<button class="btn" id="paidBtn" style="flex:1;min-width:200px">'+t('paidBtn')+'</button>'+
-'<button class="btn2" id="payBack">'+t('backBtn')+'</button></div>';
-try{ if(window.QRCode){ new QRCode($('payQR'), {text:uri, width:180, height:180, colorDark:'#000000', colorLight:'#ffffff'});}}catch(e){}
-$('cpAmt').onclick = function(){ copyText(String(CFG.PRICE), $('cpAmt'));};
-$('cpAddr').onclick = function(){ copyText(CFG.SELLER, $('cpAddr'));};
-$('paidBtn').onclick = function(){ showForm(p);};
-$('payBack').onclick = function(){ $('sec-pay').style.display='none';};
-$('sec-pay').style.display = '';
-$('sec-pay').scrollIntoView({behavior:'smooth'});
-}
-
-/* ================= 收货表单 ================= */
-var _cap = {q:'', a:0};
-function showForm(p){
-var isBook =!!p.ship, isApple = p.form==='apple';
-var a = Math.floor(Math.random()*8)+2, b = Math.floor(Math.random()*8)+2;
-_cap = {q: a+' + '+b, a: a+b};
-var fields = isBook
-? '<label>'+t('ffName')+'</label><input id="ffName" placeholder="'+t('ffNamePh')+'">'+
-'<label>'+t('ffPhone')+'</label><input id="ffPhone" inputmode="tel" placeholder="'+t('ffPhonePh')+'">'+
-'<label>'+t('ffAddr')+'</label><textarea id="ffAddr" rows="2" placeholder="'+t('ffAddrPh')+'"></textarea>'
-: isApple
-? '<label>'+t('ffEmail')+'</label><input id="ffEmail" inputmode="email" placeholder="'+t('ffEmailPh')+'">'+
-'<label>'+t('ffApplePhone')+'</label><input id="ffApplePhone" inputmode="tel" placeholder="'+t('ffApplePhonePh')+'">'
-: '<label>'+t('ffContact')+'</label><input id="ffContact" placeholder="'+t('ffContactPh')+'">';
-$('payBody').innerHTML =
-'<div class="fform"><h3>'+esc(isBook? t('ffBook'): isApple? t('ffContact') : t('ffContact'))+' · '+esc(prodName(p))+'</h3>'+
-fields+
-'<label>'+t('ffTx')+'</label><input id="ffTx" placeholder="'+t('ffTxPh')+'">'+
-'<div class="caprow"><span>'+t('capQ')+'<b id="ffCapQ" style="color:var(--gold2)">'+_cap.q+'</b> = </span>'+
-'<input id="ffCapA" inputmode="numeric" placeholder="?"></div>'+
-'<div class="warn2" id="ffWarn"></div>'+
-'<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">'+
-'<button class="btn" id="ffSubmit" style="flex:1;min-width:200px">'+t('submitOrder')+'</button>'+
-'<button class="btn2" id="ffBack">'+t('backBtn')+'</button></div></div>';
-function ffFail(m){ var w=$('ffWarn'); w.textContent=m; w.style.display='block';}
-$('ffSubmit').onclick = function(){ submitOrder(p, ffFail);};
-$('ffBack').onclick = function(){ showPay(p.id);};
-$('sec-pay').scrollIntoView({behavior:'smooth'});
-}
-function loadOrders(){ try{ return JSON.parse(localStorage.getItem('origin_mall_orders')||'[]');}catch(e){ return [];}}
-function saveOrder(o){ try{ var a=loadOrders(); a.unshift(o); localStorage.setItem('origin_mall_orders', JSON.stringify(a.slice(0,50)));}catch(e){}}
-function renderOrders(){
-var host=$('orderList'), arr=loadOrders();
-$('orderCount').textContent = arr.length? '('+arr.length+')': '';
-if(!arr.length){ host.innerHTML='<div class="empty">'+t('noOrders')+'</div>'; return;}
-host.innerHTML = arr.map(function(o){
-return '<div class="order"><div class="oh"><b>'+esc(o.prod)+'</b><span style="color:var(--gold)">'+o.price+' LGNS</span></div>'+
-'<div class="ot">'+esc(o.time)+' · '+t('queryCode')+': <b style="color:var(--gold2)">'+esc(o.code)+'</b></div></div>';
-}).join('');
-}
-async function submitOrder(p, ffFail){
-var v = function(id){ var el=$(id); return el? el.value.trim(): '';};
-var name=v('ffName'), phone=v('ffPhone'), addr=v('ffAddr'), contact=v('ffContact'), txh=v('ffTx');
-if(p.ship){ if(!name ||!phone ||!addr) return ffFail(t('errFill'));}
-else if(p.form==='apple'){ if(!v('ffEmail') ||!v('ffApplePhone')) return ffFail(t('errFill'));}
-else { if(!contact) return ffFail(t('errFill'));}
-if(String(v('ffCapA'))!== String(_cap.a)) return ffFail(t('errCap'));
-var btn=$('ffSubmit'); btn.disabled=true; btn.textContent=t('submitting');
-var lines = [
-''+CFG.PRICE+' LGNS',
-(lang==='zh'?'卖家收款地址: ':'Seller: ')+CFG.SELLER
-];
-if(p.ship){ lines.push((lang==='zh'?'姓名: ':'Name: ')+name, (lang==='zh'?'电话: ':'Phone: ')+phone, (lang==='zh'?'收货地址: ':'Address: ')+addr);}
-else if(p.form==='apple'){ lines.push((lang==='zh'?'邮箱: ':'Email: ')+v('ffEmail'), (lang==='zh'?'手机号码: ':'Phone: ')+v('ffApplePhone'));}
-else { lines.push((lang==='zh'?'联系方式: ':'Contact: ')+contact);}
-if(txh) lines.push((lang==='zh'?'交易哈希: ':'Tx: ')+txh);
-var code='';
-try{
-var r = await fetch(CFG.FB_API, {method:'POST', headers:{'Content-Type':'application/json'},
-body: JSON.stringify({cat:'other', vis:'private', title:'['+(lang==='zh'?'商城订单':'Mall order')+'] '+prodName(p),
-content:lines.join('\n'), capQ:_cap.q, capA:v('ffCapA'), hp:''})});
-var j = await r.json();
-if(j && (j.code || j.id)) code = j.code || j.id;
-}catch(e){}
-if(!code) code = 'M' + Date.now().toString(36).toUpperCase();
-saveOrder({prod:prodName(p), price:CFG.PRICE, time:new Date().toLocaleString(), code:code});
-renderOrders();
-$('payBody').innerHTML =
-'<div class="okbox"><b>'+t('okTitle')+'</b><br>'+esc(prodName(p))+' · '+CFG.PRICE+' LGNS</div>'+
-'<div class="codebox">'+t('okCode')+'<br><b>'+esc(code)+'</b><br><span style="font-size:12.5px;color:var(--dim)">'+t('okTip')+'</span></div>'+
-'<div style="margin-top:14px"><button class="btn2" id="okBack">'+t('backBtn')+'</button></div>';
-$('okBack').onclick = function(){ $('sec-pay').style.display='none';};
-$('sec-pay').scrollIntoView({behavior:'smooth'});
-}
-
-/* ================= 启动 ================= */
-function applyLang(){
-document.querySelectorAll('[data-i18n]').forEach(function(el){ el.textContent = t(el.dataset.i18n);});
-document.documentElement.lang = lang==='zh'? 'zh-CN': 'en';
-$('langBtn').textContent = lang==='zh'? 'EN': '中文';
-renderNews(); renderProducts(); renderOrders();
-if(_payProd && $('sec-pay').style.display!== 'none'){ showPay(_payProd.id);}
-$('sellerLink').textContent = short(CFG.SELLER);
-$('sellerLink').href = 'https://browser.anubispace.org/address/'+CFG.SELLER;
-}
-$('langBtn').onclick = function(){ lang = lang==='zh'? 'en': 'zh'; applyLang(); loadBookImgs();};
-applyLang(); loadBookImgs();
+(function(){
+  try{var l=localStorage.getItem("web3origin_locale");if(l)document.documentElement.lang=l;}catch(e){}
+  function sync(){document.getElementById("langBtn").textContent=(document.documentElement.lang||"zh").toLowerCase().indexOf("zh")===0?"EN":"中文";}
+  document.getElementById("langBtn").onclick=function(){
+    var zh=(document.documentElement.lang||"zh").toLowerCase().indexOf("zh")===0;
+    var next=zh?"en":"zh-CN";document.documentElement.lang=next;
+    try{localStorage.setItem("web3origin_locale",next);}catch(e){}sync();
+  };
+  sync();
+})();
 </script>
 </body>
 </html>

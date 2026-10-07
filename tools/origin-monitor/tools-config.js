@@ -251,8 +251,8 @@
       note: '独立页 /tools/token-launcher/。进阶版 ERC20（AdvancedToken.sol，solc 0.8.20 本地编译，38 项本地 EVM 逻辑测试全过）：买/卖税 0-30%（合约写死上限）、增发上限、黑名单、持仓上限（部署者分发豁免）、owner 管理（调税/设交易对/拉黑/增发/转移管理权）。部署后"一键加池"：approve→Router(0x3E412E02B6157fBE80b6C6697f3Ce1142E629019).addLiquidity(代币+ERC20 DAI 0x83fd…)，LP 归用户，factory.getPair 读 pair 后自动 setPair。Router/Factory/DAI 地址及 addLiquidity 签名已链上验证。2026-10-02 上线。' },
     { id: 'shop', number: 42, name: '起源商城', en: {"name":"Origin Mall","description":"Books, foreign Apple IDs and VPN — 10 LGNS each, pay straight from your wallet on Anubis."}, category: 'shop', icon: '🛒',
       description: '卖书、国外 Apple ID、VPN，统一 10 LGNS 一件，Anubis 链上钱包直付。',
-      status: 'live', isPremium: false, route: '/tools/shop/', enabled: true,
-      note: '独立页 /tools/shop/。无外部 JS 依赖（手写 EIP-1193，与彩票页同款，欧易内置浏览器可用）。购买=钱包直接 transfer 10 LGNS（9 位精度）到卖家地址，legacy type-0 交易；订单存 localStorage。2026-10-07 上线。' }
+      status: 'soon', isPremium: false, route: '', enabled: false,
+      note: '2026-10-08 临时下架升级：付款改为「精确金额指纹 + 双链(Polygon+Anubis)链上自动确认到账」版（对齐百宝箱 /mon 机制），完成后重新上线。原钱包直付版代码保留在 git 历史。' }
   ];
 
   /* ---- 会员套餐 / 定价（占位，待老板确认后修改；本页不接入任何收款）----
