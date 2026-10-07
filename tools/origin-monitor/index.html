@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>try{var _l=localStorage.getItem("web3origin_locale");if(_l)document.documentElement.lang=_l;}catch(e){}</script>
 <script>window.isZh=function(){return (document.documentElement.lang||'zh').toLowerCase().indexOf('zh')===0;};window.L=function(z,e){return window.isZh()?z:e;};window.SP=function(z,e){return '<span data-lang="zh">'+z+'</span><span data-lang="en">'+e+'</span>';};</script>
+<script>/* 本页付款卡/弹窗等用 L() 即时渲染,不随 data-lang 的 CSS 切换;在中文↔非中文之间切换语言时自动刷新本页一次,使其按新语言重渲染(付费令牌存本地,刷新后仍解锁) */
+(function(){try{var h=document.documentElement;var zh=window.isZh();new MutationObserver(function(){var n=window.isZh();if(n!==zh){zh=n;location.reload();}}).observe(h,{attributes:true,attributeFilter:['lang']});}catch(e){}})();</script>
 <meta name="robots" content="index,follow">
 <title>起源百宝箱 · Origin Toolbox · 一个地址查全起源 · Web3Origin</title>
 <meta property="og:site_name" content="Web3Origin">
