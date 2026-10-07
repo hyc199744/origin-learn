@@ -142,10 +142,28 @@ CONTACT: '',
 FB_API: 'https://count.web3origin.com/fb/submit',
 FB_PAGE: '/feedback/'
 };
-var BOOK_IMGS = ["img/book1.webp", "img/book2.webp", "img/book3.webp", "img/book4.webp", "img/book5.webp"];
+var BOOK_B64 = ["img/book1.b64", "img/book2.b64", "img/book3.b64", "img/book4.b64", "img/book5.b64"];
+var BOOK_DATA = [];
+function loadBookImgs(){
+  Promise.all(BOOK_B64.map(function(u){ return fetch(u).then(function(r){ return r.text(); }); }))
+  .then(function(ts){
+    BOOK_DATA = ts.map(function(x){ return 'data:image/webp;base64,'+x.trim(); });
+    var g = $('gal_book_origin'); if(!g) return;
+    g.innerHTML = '<img class="gal-main" id="gm_book_origin" src="'+BOOK_DATA[0]+'">'+
+      '<div class="gal-thumbs">'+BOOK_DATA.map(function(s,i){
+        return '<img src="'+s+'" data-i="'+i+'" class="'+(i===0?'on':'')+'">'; }).join('')+'</div>';
+    g.querySelectorAll('.gal-thumbs img').forEach(function(th){
+      th.onclick = function(){
+        $('gm_book_origin').src = BOOK_DATA[+th.dataset.i];
+        g.querySelectorAll('.gal-thumbs img').forEach(function(x){ x.classList.remove('on'); });
+        th.classList.add('on');
+      };
+    });
+  }).catch(function(){});
+}
 var PRODUCTS = {
 books: [
-{id:'book_origin', ship:true, imgs:BOOK_IMGS,
+{id:'book_origin', ship:true, imgs:true,
 zh:'起源小白操作手册', en:'Origin Beginner Operation Manual',
 dzh:'起源生态新人操作指南：从注册到实操，图文结合一步步讲清。纸质书，包邮发货。',
 den:'Beginner operation guide for the Origin ecosystem: illustrated step-by-step from signup to real operations. Physical book, free shipping.'}
@@ -172,7 +190,7 @@ payLGNS:'LGNS 支付', payLGNS2:'LGNS 支付', payLGNS3:'LGNS 支付',
 booksDesc:'纸质书，付款后填写收货信息，卖家发货，快递单号会回复在你的订单下。',
 appleDesc:'海外区 Apple ID，付款后留个联系方式，卖家把账号密码发你。收到后请第一时间改密码和密保。',
 vpnDesc:'高速节点，付款后留个联系方式，卖家发你订阅链接 / 客户端配置。',
-buy:'购买', buying:'支付中…', perPiece:'10 LGNS / 件',
+buy:'购买', buying:'支付中…', perPiece:'10 LGNS / 件', imgLoading:'图片加载中…',
 myOrders:'🧾 我的订单', noOrders:'还没有订单，买点什么吧。', ordersN:'共 {n} 笔',
 howTitle:'💳 怎么付款', payToken:'付款代币', payChain:'付款链', sellerAddr:'卖家收款地址',
 payNote:'点「购买」后钱包会弹出确认，直接转 <b>10 LGNS</b> 到卖家地址。纸质书付款后填收货信息，卖家发货后把快递单号回复在订单下，凭查询码到留言区查看；虚拟商品（Apple ID / VPN）留联系方式，卖家一般 24 小时内发货。',
@@ -201,7 +219,7 @@ payLGNS:'Pay in LGNS', payLGNS2:'Pay in LGNS', payLGNS3:'Pay in LGNS',
 booksDesc:'Physical book. Fill in shipping info after payment; the seller ships and replies with the tracking number under your order.',
 appleDesc:'Foreign-region Apple IDs. Leave contact info after payment and the seller sends login and password. Change password and security info immediately.',
 vpnDesc:'High-speed nodes. Leave contact info after payment and the seller sends the subscription link / client config.',
-buy:'Buy', buying:'Paying…', perPiece:'10 LGNS / item',
+buy:'Buy', buying:'Paying…', perPiece:'10 LGNS / item', imgLoading:'Loading images…',
 myOrders:'🧾 My Orders', noOrders:'No orders yet.', ordersN:'{n} orders',
 howTitle:'💳 How to pay', payToken:'Token', payChain:'Chain', sellerAddr:'Seller address',
 payNote:'Tap "Buy" and confirm in your wallet: <b>10 LGNS</b> goes straight to the seller. For physical books, fill in shipping info after payment; the tracking number will be replied under your order (check with the query code in the feedback board). For digital goods leave contact info; delivery usually within 24h.',
@@ -284,10 +302,8 @@ host.innerHTML = '';
 items.forEach(function(p){
 var d = document.createElement('div'); d.className = 'prod';
 var gal = '';
-if(p.imgs && p.imgs.length){
-gal = '<div class="gal"><img class="gal-main" id="gm_'+p.id+'" src="'+p.imgs[0]+'">'+
-'<div class="gal-thumbs">'+p.imgs.map(function(s,i){
-return '<img src="'+s+'" data-g="'+p.id+'" data-i="'+i+'" class="'+(i===0?'on':'')+'">';}).join('')+'</div></div>';
+if(p.imgs){
+gal = '<div class="gal" id="gal_'+p.id+'"><div class="coming">'+t('imgLoading')+'</div></div>';
 }
 d.innerHTML = gal +
 '<div class="prow"><div class="ic">'+({books:'📕',apple:'🍎',vpn:'🛡️'}[cat])+'</div>'+
@@ -299,13 +315,6 @@ host.appendChild(d);
 });
 document.querySelectorAll('[data-buy]').forEach(function(b){
 b.onclick = function(){ buy(b.dataset.buy, b);};
-});
-document.querySelectorAll('.gal-thumbs img').forEach(function(th){
-th.onclick = function(){
-$('gm_'+th.dataset.g).src = PRODUCTS_ALL[th.dataset.g].imgs[+th.dataset.i];
-th.parentNode.querySelectorAll('img').forEach(function(x){ x.classList.remove('on');});
-th.classList.add('on');
-};
 });
 }
 var PRODUCTS_ALL = {};
@@ -455,7 +464,7 @@ host.appendChild(d);
 function applyLang(){
 document.querySelectorAll('[data-i18n]').forEach(function(el){ el.innerHTML = t(el.dataset.i18n);});
 $('langBtn').textContent = lang === 'zh'? 'EN': '中文';
-renderProducts(); renderOrders();
+renderProducts(); renderOrders(); loadBookImgs();
 $('sellerLink').textContent = short(CFG.SELLER);
 $('sellerLink').href = CFG.explorer + '/address/' + CFG.SELLER;
 }
