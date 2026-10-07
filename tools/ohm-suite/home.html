@@ -187,6 +187,15 @@ function fmt(v, d){ try{ var s = ethers.formatUnits(v, d === undefined ? 18 : d)
 function loadCfg(){
   try{ CFG = JSON.parse(localStorage.getItem("ohmSuiteHome") || "null"); }catch(e){ CFG = null; }
   try{ SUITE = JSON.parse(localStorage.getItem("ohmSuiteLast") || "null"); }catch(e){ SUITE = null; }
+  if(!SUITE || !isAddr(SUITE.sToken)){
+    // 默认：官方 sFCB 套件（2026-10-07 部署）
+    SUITE = {
+      token: "0x9B3F8c231C40ffC7d3669419dbD24495df84d303",
+      sToken: "0x375B23F86E5725340749F54BC2373233654E9fC7",
+      staking: "0x17CEcdA60bACA87f7b5A9bBFeEC7c65bA9A85c5E",
+      distributor: "0x25F8A866B85c5d9c248352F10D8C3604d36818cC"
+    };
+  }
   if(CFG && isAddr(CFG.token)){ $("cfgToken").value = CFG.token; if(CFG.pair) $("cfgPair").value = CFG.pair; }
   else if(SUITE && isAddr(SUITE.token)){ CFG = { token: SUITE.token, pair: "" }; $("cfgToken").value = SUITE.token; }
 }
