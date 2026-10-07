@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>OHM Suite · 官网</title>
+<script src="/assets/ethers6.min.js"></script>
+<style>
+:root{--bg:#0b0e13;--card:#141a23;--line:#2a3340;--txt:#eef2f7;--dim:#8b949e;--gold:#d4a017;--gold2:#f5c518;--green:#3fb950;--red:#f85149;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+.wrap{max-width:760px;margin:0 auto;padding:16px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 0}
+.logo{font-size:18px;font-weight:800}.logo span{color:var(--gold)}
+.hbtns{display:flex;gap:8px}
+.lang,.conn{font-size:12px;background:#1a2230;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:8px 12px;cursor:pointer;width:auto;margin:0}
+.conn.on{border-color:var(--green);color:var(--green)}
+nav{display:flex;gap:8px;margin:12px 0;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+nav button{flex:1;background:var(--card);border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:12px;font-size:15px;font-weight:700;cursor:pointer;margin:0}
+nav button.act{background:var(--gold);color:#000;border-color:var(--gold)}
+.tab{display:none}.tab.act{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:12px 0}
+.hero{text-align:center;padding:36px 18px;background:radial-gradient(ellipse at 50% 0%,#2a2410 0%,var(--card) 65%);border:1px solid var(--line);border-radius:16px;margin:12px 0}
+.hero .sym{font-size:44px;font-weight:900;color:var(--gold2);letter-spacing:2px}
+.hero .tag{color:var(--dim);font-size:14px;margin:10px 0 18px;line-height:1.7}
+.hero .cta{display:flex;gap:10px;justify-content:center}
+.hero .cta button{width:auto;padding:13px 34px;font-size:16px;margin:0}
+.btn{background:var(--gold);color:#000;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;cursor:pointer;width:100%;margin-top:12px}
+.btn:disabled{background:#444;color:#888;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);font-weight:400;font-size:14px;padding:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.stat{background:#0d1117;border:1px solid var(--line);border-radius:10px;padding:14px}
+.stat .k{font-size:12px;color:var(--dim)}
+.stat .v{font-size:19px;font-weight:800;margin-top:5px;font-family:var(--mono)}
+.stat .v small{font-size:11px;color:var(--dim);font-weight:400}
+label{display:block;font-size:13px;color:var(--dim);margin:12px 0 4px}
+input{width:100%;background:#0d1117;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:11px;font-size:14px;font-family:var(--mono)}
+input:focus{border-color:var(--gold);outline:none}
+.hint{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.7}
+.steps3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+.steps3 .s{background:#0d1117;border:1px solid var(--line);border-radius:10px;padding:14px 10px;text-align:center;font-size:12px;line-height:1.7;color:var(--dim)}
+.steps3 .s b{display:block;color:var(--gold);font-size:14px;margin-bottom:6px}
+.status{font-size:13px;margin-top:10px;line-height:1.8;white-space:pre-wrap;word-break:break-all}
+.ok{color:var(--green)}.err{color:var(--red)}.stepc{color:var(--gold)}
+.warn{background:#2a1f00;border:1px solid #6b5200;border-radius:10px;padding:12px;font-size:12px;color:#ffd97a;margin-top:12px;line-height:1.8}
+.row2{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.maxbtn{width:auto;margin:0 0 1px;padding:11px 14px;font-size:13px}
+h3{font-size:15px;margin:4px 0 6px}
+.addrline{font-family:var(--mono);font-size:11px;color:var(--dim);word-break:break-all;margin-top:8px}
+a{color:var(--gold)}
+@media(max-width:520px){.steps3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="logo">🏛️ <span>OHM</span> Suite</div>
+  <div class="hbtns">
+    <button class="lang" id="langBtn">EN</button>
+    <button class="conn" id="connectBtn" data-i="connect">连接钱包</button>
+  </div>
+</header>
+
+<nav>
+  <button class="act" data-tab="home" data-i="tabHome">首页</button>
+  <button data-tab="buy" data-i="tabBuy">买入</button>
+  <button data-tab="stake" data-i="tabStake">质押</button>
+</nav>
+
+<!-- ================= 首页 ================= -->
+<div class="tab act" id="tab-home">
+  <div class="hero">
+    <div class="sym" id="heroSym">—</div>
+    <div class="tag" data-i="heroTag">质押即挖矿 · 每次分发余额自动增长<br>国库印钞有终身上限 · 税率合约硬顶 20%</div>
+    <div class="cta">
+      <button class="btn" data-goto="buy" data-i="ctaBuy">买入</button>
+      <button class="btn ghost" data-goto="stake" data-i="ctaStake" style="color:var(--gold);border-color:var(--gold)">去质押</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 data-i="cfgT">⚙️ 合约配置</h3>
+    <label data-i="cfgToken">Token 地址</label>
+    <input id="cfgToken" placeholder="0x…">
+    <label data-i="cfgPair">交易对地址（DAI 池，选填：不填则买入/价格不可用）</label>
+    <input id="cfgPair" placeholder="0x…">
+    <button class="btn ghost" id="saveCfg" data-i="save">保存</button>
+    <div class="hint" data-i="cfgHint">配置保存在本机浏览器。部署页部署成功后会自动填入。</div>
+  </div>
+
+  <div class="card">
+    <h3 data-i="statsT">📊 实时数据</h3>
+    <div class="grid">
+      <div class="stat"><div class="k" data-i="kPrice">价格</div><div class="v" id="hPrice">-</div></div>
+      <div class="stat"><div class="k" data-i="kStaked">全网已质押</div><div class="v" id="hStaked">-</div></div>
+      <div class="stat"><div class="k" data-i="kApy">预估年化</div><div class="v" id="hApy">-</div></div>
+      <div class="stat"><div class="k" data-i="kIndex">sToken 指数</div><div class="v" id="hIndex">-</div></div>
+    </div>
+    <div class="hint"><span data-i="kMinted">国库已印</span> <span id="hMinted" style="font-family:var(--mono)">-</span> / <span id="hCap" style="font-family:var(--mono)">-</span></div>
+  </div>
+
+  <div class="card">
+    <h3 data-i="howT">💡 怎么玩</h3>
+    <div class="steps3">
+      <div class="s"><b data-i="how1t">1 · 买入</b><span data-i="how1d">在买入页用 DAI 换币，有池子就能买</span></div>
+      <div class="s"><b data-i="how2t">2 · 质押</b><span data-i="how2d">质押拿 sToken，本金随时可取</span></div>
+      <div class="s"><b data-i="how3t">3 · 吃分发</b><span data-i="how3d">每周期国库印奖励，sToken 余额自动变多</span></div>
+    </div>
+  </div>
+
+  <div class="warn" data-i="risk">⚠️ 风险提示：质押奖励来自增发，币价可能波动；年化是按当前费率估算的，不构成收益承诺。玩之前先看懂机制，只拿亏得起的钱参与。</div>
+</div>
+
+<!-- ================= 买入 ================= -->
+<div class="tab" id="tab-buy">
+  <div class="card">
+    <h3 data-i="buyT">💱 买入</h3>
+    <div class="hint"><span data-i="daiBal">DAI 余额</span> <span id="daiBal" style="font-family:var(--mono)">-</span> · <span data-i="priceL">价格</span> <span id="bPrice" style="font-family:var(--mono)">-</span></div>
+    <label>DAI（ERC20）</label>
+    <div class="row2">
+      <input id="buyAmt" inputmode="decimal" placeholder="0.0">
+      <button class="maxbtn btn ghost" id="buyMax" data-i="max">最大</button>
+    </div>
+    <div class="hint"><span data-i="expect">预计得到</span> <span id="buyQuote" style="font-family:var(--mono)">-</span></div>
+    <button class="btn" id="buyBtn" data-i="buyNow">立即买入</button>
+    <div class="status" id="bStatus"></div>
+    <div class="hint" data-i="buyHint">走 RocketSwap 路由，兼容收税币种。滑点按 5% 保护，买税会计入实际到账（到账少于预期是税，不是 bug）。</div>
+  </div>
+</div>
+
+<!-- ================= 质押 ================= -->
+<div class="tab" id="tab-stake">
+  <div class="card">
+    <h3 data-i="stT">🥩 质押</h3>
+    <div class="grid">
+      <div class="stat"><div class="k" data-i="kToken">我的币</div><div class="v" id="sTokenBal">-</div></div>
+      <div class="stat"><div class="k" data-i="kStoken">我的 sToken</div><div class="v" id="sSTokenBal">-</div></div>
+    </div>
+    <label data-i="amtL">数量</label>
+    <div class="row2">
+      <input id="stAmt" inputmode="decimal" placeholder="0.0">
+      <button class="maxbtn btn ghost" id="stMax" data-i="max">最大</button>
+    </div>
+    <button class="btn" id="stBtn" data-i="stake">质押（拿 sToken）</button>
+    <button class="btn ghost" id="unstBtn" data-i="unstake">解押（取回本币）</button>
+    <div class="status" id="sStatus"></div>
+    <div class="hint"><a href="stake.html" data-i="fullDapp">→ 打开完整质押 DAPP（含年化/倒计时/触发分发）</a></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+"use strict";
+/* ================= I18N ================= */
+var I18N = {
+zh:{connect:"连接钱包",connected:"已连接",tabHome:"首页",tabBuy:"买入",tabStake:"质押",heroTag:"质押即挖矿 · 每次分发余额自动增长<br>国库印钞有终身上限 · 税率合约硬顶 20%",ctaBuy:"买入",ctaStake:"去质押",cfgT:"⚙️ 合约配置",cfgToken:"Token 地址",cfgPair:"交易对地址（DAI 池，选填：不填则买入/价格不可用）",save:"保存",cfgHint:"配置保存在本机浏览器。部署页部署成功后会自动填入。",saved:"已保存",statsT:"📊 实时数据",kPrice:"价格",kStaked:"全网已质押",kApy:"预估年化",kIndex:"sToken 指数",kMinted:"国库已印",howT:"💡 怎么玩",how1t:"1 · 买入",how1d:"在买入页用 DAI 换币，有池子就能买",how2t:"2 · 质押",how2d:"质押拿 sToken，本金随时可取",how3t:"3 · 吃分发",how3d:"每周期国库印奖励，sToken 余额自动变多",risk:"⚠️ 风险提示：质押奖励来自增发，币价可能波动；年化是按当前费率估算的，不构成收益承诺。玩之前先看懂机制，只拿亏得起的钱参与。",buyT:"💱 买入",daiBal:"DAI 余额",priceL:"价格",max:"最大",expect:"预计得到",buyNow:"立即买入",buyHint:"走 RocketSwap 路由，兼容收税币种。滑点按 5% 保护，买税会计入实际到账（到账少于预期是税，不是 bug）。",stT:"🥩 质押",kToken:"我的币",kStoken:"我的 sToken",amtL:"数量",stake:"质押（拿 sToken）",unstake:"解押（取回本币）",fullDapp:"→ 打开完整质押 DAPP（含年化/倒计时/触发分发）",needWallet:"先连接钱包",needCfg:"先在首页配置 Token 地址",needPool:"还没配置交易对，买入不可用",needSuite:"质押需要完整套件地址（用部署页部署后自动记住）",ok:"✓ 成功",rejected:"已取消（钱包拒绝）",failed:"失败：",wait:"等待钱包确认…",invalidAmt:"数量填个大于 0 的数字",noPool:"未配置"},
+en:{connect:"Connect",connected:"Connected",tabHome:"Home",tabBuy:"Buy",tabStake:"Stake",heroTag:"Stake to earn · sToken balance auto-grows every epoch<br>Treasury mint capped · tax hard-capped at 20%",ctaBuy:"Buy",ctaStake:"Stake",cfgT:"⚙️ Config",cfgToken:"Token address",cfgPair:"Pair address (DAI pool, optional)",save:"Save",cfgHint:"Saved in this browser. Auto-filled after deploying via deploy page.",saved:"Saved",statsT:"📊 Live Stats",kPrice:"Price",kStaked:"Total staked",kApy:"Est. APY",kIndex:"sToken index",kMinted:"Treasury minted",howT:"💡 How it works",how1t:"1 · Buy",how1d:"Swap DAI for tokens on the Buy tab",how2t:"2 · Stake",how2d:"Stake to get sToken, withdraw anytime",how3t:"3 · Earn",how3d:"Treasury mints rewards each epoch, sToken grows",risk:"⚠️ Risk: rewards come from minting; price can be volatile. APY is estimated, not promised. Only play with what you can afford to lose.",buyT:"💱 Buy",daiBal:"DAI balance",priceL:"Price",max:"Max",expect:"You get ≈",buyNow:"Buy Now",buyHint:"Via RocketSwap router, fee-on-transfer compatible. 5% slippage protection; buy tax reduces received amount.",stT:"🥩 Stake",kToken:"My tokens",kStoken:"My sToken",amtL:"Amount",stake:"Stake (get sToken)",unstake:"Unstake (withdraw)",fullDapp:"→ Open full staking DAPP (APY / countdown / trigger)",needWallet:"Connect wallet first",needCfg:"Configure Token address on Home first",needPool:"No pair configured, buy unavailable",needSuite:"Staking needs full suite addresses (auto-saved by deploy page)",ok:"✓ Done",rejected:"Cancelled (wallet rejected)",failed:"Failed: ",wait:"Waiting for wallet…",invalidAmt:"Enter amount > 0",noPool:"n/a"}
+};
+var LANG = localStorage.getItem("ohmSuiteLang") || "zh";
+function t(k){ return (I18N[LANG] && I18N[LANG][k]) || I18N.zh[k] || k; }
+function applyLang(){
+  document.querySelectorAll("[data-i]").forEach(function(el){ el.innerHTML = t(el.getAttribute("data-i")); });
+  document.documentElement.lang = LANG === "zh" ? "zh-CN" : "en";
+  document.getElementById("langBtn").textContent = LANG === "zh" ? "EN" : "中文";
+}
+document.getElementById("langBtn").addEventListener("click", function(){
+  LANG = LANG === "zh" ? "en" : "zh"; localStorage.setItem("ohmSuiteLang", LANG); applyLang(); refreshAll();
+});
+
+/* ================= 常量 ================= */
+var ANUBIS = { chainId: 6714, hex: "0x1a3a", rpc: "https://rpc.anubispace.org", explorer: "https://browser.anubispace.org" };
+var DAI = "0x83fd06f0846d9d90b3016bf670efe2e0b11cde14";
+var ROUTER = "0x3E412E02B6157fBE80b6C6697f3Ce1142E629019";
+var ERC20_ABI = ["function balanceOf(address) view returns (uint256)","function allowance(address,address) view returns (uint256)","function approve(address,uint256) returns (bool)","function symbol() view returns (string)","function decimals() view returns (uint8)","function name() view returns (string)"];
+var STOKEN_ABI = ["function balanceOf(address) view returns (uint256)","function totalSupply() view returns (uint256)","function index() view returns (uint256)"];
+var STAKING_ABI = ["function stake(uint256,address)","function unstake(uint256,address)"];
+var DIST_ABI = ["function nextDistribute() view returns (uint256)","function epochLength() view returns (uint256)","function recipients(uint256) view returns (address recipient,uint256 rate,bool isStaking)","function recipientsLength() view returns (uint256)"];
+var TREASURY_ABI = ["function mintCap() view returns (uint256)","function totalMinted() view returns (uint256)"];
+var ROUTER_ABI = ["function getAmountsOut(uint256,address[]) view returns (uint256[])","function swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)"];
+var PAIR_ABI = ["function getReserves() view returns (uint112,uint112,uint32)","function token0() view returns (address)"];
+
+var wallet = null, CFG = null, SUITE = null, SYM = "?";
+function $(id){ return document.getElementById(id); }
+function isAddr(a){ return /^0x[0-9a-fA-F]{40}$/.test(a); }
+function fmt(v, d){ try{ var s = ethers.formatUnits(v, d === undefined ? 18 : d); var p = s.split("."); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (p[1] ? "." + p[1].slice(0, 4) : ""); }catch(e){ return "-"; } }
+function loadCfg(){
+  try{ CFG = JSON.parse(localStorage.getItem("ohmSuiteHome") || "null"); }catch(e){ CFG = null; }
+  try{ SUITE = JSON.parse(localStorage.getItem("ohmSuiteLast") || "null"); }catch(e){ SUITE = null; }
+  if(CFG && isAddr(CFG.token)){ $("cfgToken").value = CFG.token; if(CFG.pair) $("cfgPair").value = CFG.pair; }
+  else if(SUITE && isAddr(SUITE.token)){ CFG = { token: SUITE.token, pair: "" }; $("cfgToken").value = SUITE.token; }
+}
+$("saveCfg").addEventListener("click", function(){
+  var tk = $("cfgToken").value.trim(), pr = $("cfgPair").value.trim();
+  if(!isAddr(tk)){ alert("Token address invalid"); return; }
+  if(pr && !isAddr(pr)){ alert("Pair address invalid"); return; }
+  CFG = { token: tk, pair: pr || "" };
+  localStorage.setItem("ohmSuiteHome", JSON.stringify(CFG));
+  alert(t("saved")); refreshAll();
+});
+
+/* ================= 钱包 ================= */
+async function ensureWallet(){
+  if(!window.ethereum){ alert("No wallet"); return null; }
+  try{
+    var cur = await window.ethereum.request({ method: "eth_chainId" });
+    if(parseInt(cur, 16) !== ANUBIS.chainId){
+      try{ await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: ANUBIS.hex }] }); }
+      catch(e){
+        await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{
+          chainId: ANUBIS.hex, chainName: "Anubis",
+          nativeCurrency: { name: "Anubis", symbol: "ANA", decimals: 18 },
+          rpcUrls: [ANUBIS.rpc], blockExplorerUrls: [ANUBIS.explorer] }]});
+      }
+    }
+    var prov = new ethers.BrowserProvider(window.ethereum);
+    var signer = await prov.getSigner();
+    return { prov: prov, signer: signer, addr: await signer.getAddress() };
+  }catch(e){ return null; }
+}
+async function legacyWait(signer, req){
+  var fee = await signer.provider.getFeeData();
+  var gasPrice = fee.gasPrice || ethers.parseUnits("25", "gwei");
+  var tx = await signer.sendTransaction(Object.assign({}, req, { type: 0, gasPrice: gasPrice }));
+  return tx.wait();
+}
+$("connectBtn").addEventListener("click", async function(){
+  try{
+    wallet = await ensureWallet();
+    if(!wallet) return;
+    var b = $("connectBtn");
+    b.textContent = t("connected") + " " + wallet.addr.slice(0,6) + "…";
+    b.classList.add("on");
+    refreshAll();
+  }catch(e){}
+});
+
+/* ================= tabs ================= */
+document.querySelectorAll("nav button").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll("nav button").forEach(function(x){ x.classList.remove("act"); });
+    b.classList.add("act");
+    document.querySelectorAll(".tab").forEach(function(x){ x.classList.remove("act"); });
+    $("tab-" + b.getAttribute("data-tab")).classList.add("act");
+  });
+});
+document.querySelectorAll("[data-goto]").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelector('nav button[data-tab="' + b.getAttribute("data-goto") + '"]').click();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+});
+
+/* ================= 数据 ================= */
+async function refreshAll(){
+  loadCfg();
+  if(!CFG || !isAddr(CFG.token)) return;
+  var prov = wallet ? wallet.prov : new ethers.JsonRpcProvider(ANUBIS.rpc);
+  try{
+    var token = new ethers.Contract(CFG.token, ERC20_ABI, prov);
+    SYM = await token.symbol().catch(function(){ return "?"; });
+    $("heroSym").textContent = SYM;
+    // 价格
+    if(CFG.pair && isAddr(CFG.pair)){
+      try{
+        var pair = new ethers.Contract(CFG.pair, PAIR_ABI, prov);
+        var r = await pair.getReserves(), t0 = await pair.token0();
+        var rd = t0.toLowerCase() === DAI.toLowerCase() ? r[0] : r[1];
+        var rt = t0.toLowerCase() === DAI.toLowerCase() ? r[1] : r[0];
+        var price = rt > 0n ? Number(rd) / Number(rt) : 0;
+        var ps = price > 0 ? (price < 0.01 ? price.toExponential(2) : price.toFixed(4)) : "-";
+        $("hPrice").textContent = ps + " DAI";
+        $("bPrice").textContent = ps + " DAI";
+      }catch(e){ $("hPrice").textContent = "-"; }
+    } else { $("hPrice").textContent = t("noPool"); $("bPrice").textContent = t("noPool"); }
+    // 质押数据（需要完整套件）
+    if(SUITE && SUITE.token && SUITE.token.toLowerCase() === CFG.token.toLowerCase() && isAddr(SUITE.staking)){
+      var st = new ethers.Contract(SUITE.sToken, STOKEN_ABI, prov);
+      var dist = new ethers.Contract(SUITE.distributor, DIST_ABI, prov);
+      var tre = new ethers.Contract(SUITE.treasury, TREASURY_ABI, prov);
+      var d = await Promise.all([st.totalSupply(), st.index(), tre.totalMinted(), tre.mintCap()]);
+      $("hStaked").innerHTML = fmt(d[0]) + " <small>" + SYM + "</small>";
+      $("hIndex").textContent = fmt(d[1]);
+      $("hMinted").textContent = fmt(d[2]);
+      $("hCap").textContent = fmt(d[3]);
+      try{
+        var len = await dist.recipientsLength(), apy = "-";
+        for(var i = 0; i < Number(len); i++){
+          var rec = await dist.recipients(i);
+          if(rec.isStaking && rec.rate > 0n){
+            var ep = await dist.epochLength(), n = 8760 / (Number(ep) / 3600);
+            var r2 = (Math.pow(1 + Number(rec.rate) / 100000, n) - 1) * 100;
+            apy = r2 >= 1000 ? (r2 / 100).toFixed(1) + "x" : r2.toFixed(1) + "%";
+            break;
+          }
+        }
+        $("hApy").textContent = apy;
+      }catch(e){ $("hApy").textContent = "-"; }
+      if(wallet){
+        var b1 = await token.balanceOf(wallet.addr);
+        var b2 = await st.balanceOf(wallet.addr);
+        $("sTokenBal").innerHTML = fmt(b1) + " <small>" + SYM + "</small>";
+        $("sSTokenBal").textContent = fmt(b2);
+        var db = new ethers.Contract(DAI, ERC20_ABI, prov);
+        $("daiBal").textContent = fmt(await db.balanceOf(wallet.addr));
+      }
+    }
+  }catch(e){}
+}
+
+/* ================= 买入 ================= */
+var quoteTimer = null;
+$("buyAmt").addEventListener("input", function(){
+  clearTimeout(quoteTimer);
+  quoteTimer = setTimeout(quote, 500);
+});
+async function quote(){
+  $("buyQuote").textContent = "-";
+  if(!CFG || !isAddr(CFG.pair)) return;
+  var v = $("buyAmt").value.trim();
+  if(!/^\d+(\.\d+)?$/.test(v) || parseFloat(v) <= 0) return;
+  try{
+    var prov = wallet ? wallet.prov : new ethers.JsonRpcProvider(ANUBIS.rpc);
+    var router = new ethers.Contract(ROUTER, ROUTER_ABI, prov);
+    var amtIn = ethers.parseUnits(v, 18);
+    var out = await router.getAmountsOut(amtIn, [DAI, CFG.token]);
+    $("buyQuote").textContent = "≈ " + fmt(out[1]) + " " + SYM;
+    return { amtIn: amtIn, out: out[1] };
+  }catch(e){ return null; }
+}
+$("buyMax").addEventListener("click", async function(){
+  if(!wallet) return;
+  var db = new ethers.Contract(DAI, ERC20_ABI, wallet.prov);
+  $("buyAmt").value = ethers.formatUnits(await db.balanceOf(wallet.addr), 18);
+  quote();
+});
+$("buyBtn").addEventListener("click", async function(){
+  if(!wallet){ alert(t("needWallet")); return; }
+  if(!CFG || !isAddr(CFG.token)){ alert(t("needCfg")); return; }
+  if(!CFG.pair || !isAddr(CFG.pair)){ alert(t("needPool")); return; }
+  var q = await quote();
+  if(!q){ alert(t("invalidAmt")); return; }
+  if(!confirm("Buy ≈ " + fmt(q.out) + " " + SYM + " ?")) return;
+  $("bStatus").innerHTML = '<span class="stepc">⏳ ' + t("wait") + "</span>";
+  try{
+    var dai = new ethers.Contract(DAI, ERC20_ABI, wallet.signer);
+    var allow = await dai.allowance(wallet.addr, ROUTER);
+    if(allow < q.amtIn){
+      await legacyWait(wallet.signer, { to: DAI, data: dai.interface.encodeFunctionData("approve", [ROUTER, ethers.MaxUint256]) });
+    }
+    var router = new ethers.Contract(ROUTER, ROUTER_ABI, wallet.signer);
+    var minOut = q.out * 95n / 100n;
+    var deadline = BigInt(Math.floor(Date.now() / 1000) + 600);
+    var data = router.interface.encodeFunctionData("swapExactTokensForTokensSupportingFeeOnTransferTokens", [q.amtIn, minOut, [DAI, CFG.token], wallet.addr, deadline]);
+    await legacyWait(wallet.signer, { to: ROUTER, data: data });
+    $("bStatus").innerHTML = '<span class="ok">' + t("ok") + "</span>";
+    $("buyAmt").value = ""; $("buyQuote").textContent = "-";
+    refreshAll();
+  }catch(e){
+    var m = String((e && (e.shortMessage || e.message)) || "");
+    $("bStatus").innerHTML = '<span class="err">' + (/reject|denied|4001/i.test(m) ? t("rejected") : t("failed") + m.slice(0, 150)) + "</span>";
+  }
+});
+
+/* ================= 质押（精简版，完整版去 stake.html） ================= */
+function suiteOk(){
+  return SUITE && SUITE.token && CFG && CFG.token &&
+    SUITE.token.toLowerCase() === CFG.token.toLowerCase() &&
+    isAddr(SUITE.staking) && isAddr(SUITE.sToken);
+}
+$("stMax").addEventListener("click", async function(){
+  if(!wallet || !suiteOk()) return;
+  var token = new ethers.Contract(SUITE.token, ERC20_ABI, wallet.prov);
+  $("stAmt").value = ethers.formatUnits(await token.balanceOf(wallet.addr), 18);
+});
+async function stakeDo(kind){
+  if(!wallet){ alert(t("needWallet")); return; }
+  if(!suiteOk()){ alert(t("needSuite")); return; }
+  var amt;
+  try{ amt = ethers.parseUnits($("stAmt").value.trim(), 18); }catch(e){ alert(t("invalidAmt")); return; }
+  if(amt <= 0n){ alert(t("invalidAmt")); return; }
+  $("sStatus").innerHTML = '<span class="stepc">⏳ ' + t("wait") + "</span>";
+  try{
+    if(kind === "stake"){
+      var token = new ethers.Contract(SUITE.token, ERC20_ABI, wallet.signer);
+      var allow = await token.allowance(wallet.addr, SUITE.staking);
+      if(allow < amt){
+        await legacyWait(wallet.signer, { to: SUITE.token, data: token.interface.encodeFunctionData("approve", [SUITE.staking, ethers.MaxUint256]) });
+      }
+    }
+    var stk = new ethers.Contract(SUITE.staking, STAKING_ABI, wallet.signer);
+    var fn = kind === "stake" ? "stake" : "unstake";
+    await legacyWait(wallet.signer, { to: SUITE.staking, data: stk.interface.encodeFunctionData(fn, [amt, wallet.addr]) });
+    $("sStatus").innerHTML = '<span class="ok">' + t("ok") + "</span>";
+    $("stAmt").value = "";
+    refreshAll();
+  }catch(e){
+    var m = String((e && (e.shortMessage || e.message)) || "");
+    $("sStatus").innerHTML = '<span class="err">' + (/reject|denied|4001/i.test(m) ? t("rejected") : t("failed") + m.slice(0, 150)) + "</span>";
+  }
+}
+$("stBtn").addEventListener("click", function(){ stakeDo("stake"); });
+$("unstBtn").addEventListener("click", function(){ stakeDo("unstake"); });
+
+loadCfg();
+applyLang();
+refreshAll();
+setInterval(function(){ if(CFG && isAddr(CFG.token)) refreshAll(); }, 30000);
+</script>
+</body>
+</html>
