@@ -352,7 +352,11 @@
   else { document.addEventListener('WeixinJSBridgeReady', wxUnmutePlay, false); }
 
   function probe(cb){
-    fetch(SRC+'?p='+Date.now(),{cache:'no-store'}).then(function(r){cb(r.ok);}).catch(function(){cb(false);});
+    var done=false, ac=(typeof AbortController!=='undefined')?new AbortController():null;
+    var to=setTimeout(function(){ if(!done){done=true; if(ac){try{ac.abort();}catch(e){}} cb(false);} },7000); // 7秒探测超时,服务器挂了也不卡"连接中"
+    fetch(SRC+'?p='+Date.now(),{cache:'no-store',signal:ac?ac.signal:undefined})
+      .then(function(r){ if(!done){done=true;clearTimeout(to);cb(r.ok);} })
+      .catch(function(){ if(!done){done=true;clearTimeout(to);cb(false);} });
   }
   // ==== 第一顺位:WebRTC(约1秒延迟) ====
   var rtcpc=null;
