@@ -24,61 +24,67 @@
 {"@context":"https://schema.org","@type":"WebPage","name":"木火夜聊","alternateName":"起源线上直播 · 木火夜聊","url":"https://web3origin.com/live-cloud/","description":"木火夜聊 · 起源社区线上语音直播。","isPartOf":{"@id":"https://web3origin.com/#website"},"publisher":{"@id":"https://web3origin.com/#org"}}
 </script>
 <style>
+  /* ===== 配色/字体：与 /live 线上直播统一（暗金直播间风） ===== */
   :root{
-    --obsidian:#050303;--temple:#210507;--blood:#7A0B12;--blood-lt:#c0272d;
-    --gold:#D6A84B;--gold-lt:#f0d48a;--bone:#F1DFC0;--ink:#e8d9be;--soft:#b79c74;
-    --muted:#7c6a4f;--line:#3a2313;--green:#37e0a0;
+    --g:#D6A84B;--glt:#f0d48a;--grn:#76FF36;--grn2:#25c96f;
+    --bg:#070A08;--pnl:#0e0b07;--bone:#E9EFEA;--ink:#E9EFEA;
+    --soft:#b79c74;--muted:#7c6a4f;--line:#3a2313;
     --serif:"STZhongsong","Songti SC","SimSun",Georgia,serif;
-    --sans:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+    --sans:system-ui,-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--obsidian);color:var(--ink);font-family:var(--sans);overflow-x:hidden}
-  body{min-height:100vh;background:radial-gradient(1100px 600px at 50% -8%,#2a0709 0%,var(--obsidian) 62%)}
-  a{color:var(--gold-lt);text-decoration:none}
+  html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);overflow-x:hidden}
+  body{min-height:100vh;background:radial-gradient(1200px 600px at 50% -10%,rgba(214,168,75,.08),transparent),var(--bg)}
+  a{color:var(--glt);text-decoration:none}
 
+  /* ===== 顶部导航 ===== */
   nav.nav{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 18px;
-    border-bottom:1px solid var(--line);background:rgba(8,5,4,.72);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);background:rgba(8,8,6,.72);backdrop-filter:blur(6px);
     position:sticky;top:0;z-index:50}
   nav.nav .brand{display:flex;align-items:center;gap:9px;font-family:var(--serif);font-size:18px;color:var(--bone)}
   nav.nav .brand img{width:26px;height:26px}
-  nav.nav .brand b{color:var(--gold)}
+  nav.nav .brand b{color:var(--g)}
   nav.nav .links{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-left:auto}
   nav.nav .links a{color:var(--soft);font-size:14px;font-weight:600}
-  nav.nav .links a:hover{color:var(--gold-lt)}
+  nav.nav .links a:hover{color:var(--glt)}
   #langBtn{font:inherit;font-size:13px;cursor:pointer;background:transparent;border:1px solid var(--line);
-    color:var(--gold-lt);border-radius:6px;padding:5px 13px}
+    color:var(--glt);border-radius:6px;padding:5px 13px}
 
-  .wrap{max-width:900px;margin:0 auto;padding:30px 16px 60px}
-  .eyebrow{text-align:center;color:var(--gold);letter-spacing:3px;font-size:12px;font-weight:700;margin-bottom:8px}
-  h1.title{text-align:center;font-family:var(--serif);font-size:34px;color:var(--bone);letter-spacing:2px;margin-bottom:6px}
-  .subline{text-align:center;color:var(--soft);font-size:14px;margin-bottom:22px}
+  /* ===== 头部标题 ===== */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 0 60px}
+  .lv-head{max-width:1180px;margin:0 auto;padding:40px 20px 6px;text-align:center}
+  .lv-eyebrow{font-size:12px;letter-spacing:.4em;color:var(--g);text-transform:uppercase;margin-bottom:12px}
+  h1.title{font-family:var(--serif);font-weight:400;font-size:clamp(28px,5vw,44px);color:var(--glt);
+    letter-spacing:.06em;text-shadow:0 0 30px rgba(214,168,75,.35);margin:0}
+  .lv-sub{color:var(--soft);font-size:14px;margin-top:12px}
 
-  .stage{position:relative;background:#0b0705;border:1px solid var(--line);border-radius:16px;overflow:hidden;
-    box-shadow:0 24px 70px rgba(0,0,0,.6)}
+  /* ===== 两栏主区 ===== */
+  .lv-main{max-width:1180px;margin:26px auto 0;padding:0 20px;display:grid;
+    grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px;align-items:start}
+  .lv-playercol{min-width:0;position:relative}
+  .lv-infocol{min-width:0;display:flex;flex-direction:column;gap:16px}
+
+  /* ===== 播放器舞台 ===== */
+  .stage{position:relative;width:100%;background:#000;border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
   video{width:100%;display:block;background:#000;aspect-ratio:16/9}
-  /* 全屏观看:视频铺满整屏(等比不拉伸),控件浮在底部 */
-  .stage:fullscreen{background:#000;width:100vw;height:100vh}
+  .stage:fullscreen{background:#000;width:100vw;height:100vh;border-radius:0;border:0;box-shadow:none}
   .stage:fullscreen video{aspect-ratio:auto;width:100vw;height:100vh;object-fit:contain}
-  .stage:fullscreen .bar{display:none}
   .stage:fullscreen .ctrl{position:absolute;left:0;right:0;bottom:0;border:none;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent)}
-  .stage:-webkit-full-screen{background:#000;width:100vw;height:100vh}
+  .stage:-webkit-full-screen{background:#000;width:100vw;height:100vh;border-radius:0;border:0}
   .stage:-webkit-full-screen video{aspect-ratio:auto;width:100vw;height:100vh;object-fit:contain}
-  .stage:-webkit-full-screen .bar{display:none}
   .stage:-webkit-full-screen .ctrl{position:absolute;left:0;right:0;bottom:0;border:none;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent)}
-  .badge{position:absolute;top:12px;left:12px;display:none;align-items:center;gap:6px;background:var(--blood);
-    color:#fff;font-size:12px;font-weight:800;letter-spacing:1px;padding:5px 11px;border-radius:6px}
+  .badge{position:absolute;top:12px;left:12px;display:none;align-items:center;gap:6px;background:#ff5a5a;
+    color:#fff;font-size:12px;font-weight:800;letter-spacing:1px;padding:5px 11px;border-radius:6px;z-index:6}
   .badge.on{display:inline-flex}
   .badge i{width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 1.3s infinite}
   @keyframes blink{50%{opacity:.25}}
   .cover-tip{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:16px;background:rgba(5,3,3,.55);backdrop-filter:blur(2px)}
-  .bigplay{background:var(--gold);color:#241505;border:none;border-radius:12px;padding:14px 30px;font-size:16px;
-    font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(214,168,75,.35)}
-  .bigplay:hover{background:var(--gold-lt)}
+    gap:16px;background:linear-gradient(180deg,rgba(7,10,8,.55),rgba(7,10,8,.82));backdrop-filter:blur(2px)}
   .cover-tip .st{color:var(--bone);font-size:14px}
-  .unmute{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:6;background:var(--gold);
-    color:#241505;border:none;border-radius:22px;padding:10px 20px;font-size:14px;font-weight:800;cursor:pointer;
-    box-shadow:0 8px 22px rgba(0,0,0,.5);animation:unpulse 1.6s infinite}
+  .unmute{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:6;
+    background:linear-gradient(90deg,var(--g),#b8842f);color:#1a1206;border:none;border-radius:22px;
+    padding:10px 20px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.5);animation:unpulse 1.6s infinite}
   .unmute[hidden]{display:none}
   @keyframes unpulse{50%{transform:translateX(-50%) scale(1.06)}}
 
@@ -87,79 +93,116 @@
   video::-webkit-media-controls-current-time-display,
   video::-webkit-media-controls-time-remaining-display{display:none!important}
   .ctrl{display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:1px solid var(--line);
-    background:rgba(8,5,4,.6)}
-  .cbtn{background:transparent;border:1px solid var(--line);color:var(--gold-lt);border-radius:9px;
-    width:40px;height:36px;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
-  .cbtn:hover{border-color:var(--gold);background:rgba(214,168,75,.1)}
-  .vol{width:96px;accent-color:var(--gold)}
-  .livepill{display:none;align-items:center;gap:6px;color:var(--blood-lt);font-size:13px;font-weight:800;letter-spacing:.5px}
+    background:rgba(8,8,6,.6)}
+  .cbtn{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--glt);border-radius:9px;
+    width:40px;height:36px;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:.2s}
+  .cbtn:hover{border-color:var(--g);background:rgba(214,168,75,.1)}
+  .vol{width:96px;accent-color:var(--g)}
+  .livepill{display:none;align-items:center;gap:6px;color:#ff5a5a;font-size:13px;font-weight:800;letter-spacing:.5px}
   .livepill.on{display:inline-flex}
-  .livepill i{width:8px;height:8px;border-radius:50%;background:var(--blood-lt);animation:blink 1.3s infinite}
+  .livepill i{width:8px;height:8px;border-radius:50%;background:#ff5a5a;animation:blink 1.3s infinite}
   .ctrl .sp{flex:1}
 
-  .bar{display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--line)}
-  .bar .t{font-weight:700;color:var(--bone)}
-  .bar .s{font-size:12px;color:var(--soft);margin-top:2px}
-  .bar .sp{flex:1}
-  .tg{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);border-radius:10px;
-    padding:9px 15px;font-size:14px;font-weight:700;white-space:nowrap}
+  /* ===== 右栏信息卡 ===== */
+  .lv-card{background:var(--pnl);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .lv-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:999px;
+    font-size:13px;font-weight:700;border:1px solid}
+  .lv-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+  .b-live{color:#ff5a5a;border-color:rgba(255,90,90,.5);background:rgba(255,90,90,.1)}
+  .b-live .lv-dot{animation:lvpulse 1.2s infinite}
+  @keyframes lvpulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .b-upcoming{color:var(--soft);border-color:var(--line);background:rgba(255,255,255,.02)}
+  .b-ended{color:#8fa0a6;border-color:rgba(143,160,166,.4);background:rgba(143,160,166,.08)}
+  .lv-ctitle{font-family:var(--serif);font-size:20px;color:var(--glt);line-height:1.4;word-break:break-word;margin-top:12px}
+  .lv-meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px;font-size:13.5px;color:var(--soft)}
+  .lv-meta b{color:var(--bone);font-weight:600}
+  .lv-stats{display:flex;gap:10px;margin-top:14px}
+  .lv-stat{flex:1;text-align:center;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:10px;padding:12px 8px}
+  .lv-stat .n{font-size:22px;font-weight:700;color:var(--grn2);font-variant-numeric:tabular-nums}
+  .lv-stat .l{font-size:11.5px;color:var(--muted);margin-top:3px;letter-spacing:.05em}
+  .tg{display:block;width:100%;margin-top:14px;background:transparent;border:1px solid var(--g);color:var(--glt);
+    border-radius:10px;padding:11px 15px;font-size:14px;font-weight:700;cursor:pointer;text-align:center;transition:.2s}
   .tg:hover{background:rgba(214,168,75,.12)}
 
-  .wxmask{position:fixed;inset:0;z-index:9998;background:rgba(3,2,2,.72);backdrop-filter:blur(3px);
+  .relaynote{color:var(--soft);font-size:13px;line-height:1.6;border:1px solid var(--line);border-radius:12px;
+    padding:11px 16px;background:rgba(214,168,75,.06)}
+  .relaynote b{color:var(--glt)}
+
+  /* ===== 公屏（右栏，样式对齐 /live） ===== */
+  .lv-chat{background:var(--pnl);border:1px solid var(--line);border-radius:14px;display:flex;
+    flex-direction:column;overflow:hidden;height:380px}
+  .chat-h{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);
+    color:var(--g);font-weight:700;font-size:14px}
+  .chat-h .cnt{margin-left:auto;color:var(--grn2);font-weight:700;font-size:13px}
+  .chat-list{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:7px}
+  .chat-list .m{font-size:14px;line-height:1.5;word-break:break-word}
+  .chat-list .m .nm{color:var(--glt);font-weight:700}
+  .chat-list .m .tx{color:var(--ink)}
+  .chat-list .sys{color:var(--muted);font-size:12px;text-align:center;padding:2px 0}
+  .chat-in{display:flex;gap:8px;padding:9px;border-top:1px solid var(--line);background:rgba(8,8,6,.5)}
+  .chat-in input{background:#0b0906;border:1px solid var(--line);color:var(--ink);border-radius:8px;
+    padding:9px 12px;font:inherit;font-size:14px;outline:none;min-width:0}
+  .chat-in #cmsg{flex:1}
+  .chat-in .nick{width:88px;flex:none;font-size:12px}
+  .chat-in input:focus{border-color:var(--g)}
+  .chat-in .send{background:linear-gradient(90deg,var(--g),#b8842f);color:#1a1206;border:none;border-radius:8px;
+    padding:0 16px;font-weight:800;cursor:pointer;white-space:nowrap}
+  .chat-in .send:hover{filter:brightness(1.08)}
+
+  /* ===== 往期回放（全宽段） ===== */
+  .lv-section{max-width:1180px;margin:34px auto 0;padding:0 20px}
+  .replays{border:1px solid var(--line);border-radius:14px;background:var(--pnl);overflow:hidden}
+  .rep-h{padding:13px 16px;border-bottom:1px solid var(--line);color:var(--glt);font-weight:700;font-size:15px;
+    font-family:var(--serif);letter-spacing:.06em}
+  .rep-list{max-height:320px;overflow-y:auto;padding:6px}
+  .rep-item{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:12px;cursor:pointer;transition:.2s}
+  .rep-item:hover{background:rgba(214,168,75,.06)}
+  .rep-item .ic{width:42px;height:42px;flex:none;border-radius:50%;
+    background:linear-gradient(135deg,var(--glt),#b8842f);color:#1a1206;display:flex;align-items:center;
+    justify-content:center;font-size:16px;box-shadow:0 6px 16px rgba(214,168,75,.3)}
+  .rep-item.playing .ic{background:var(--grn2);color:#06130b}
+  .rep-item .info{flex:1;min-width:0}
+  .rep-item .tt{color:var(--bone);font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rep-item .mt{color:var(--muted);font-size:12px;margin-top:3px;font-variant-numeric:tabular-nums}
+  .rep-item .pc{flex:none;color:var(--g);font-size:12px;font-weight:700;white-space:nowrap}
+  #repAudio{width:calc(100% - 28px);margin:10px 14px 14px;display:none}
+  #repAudio.on{display:block}
+
+  /* ===== 二维码弹层 ===== */
+  .wxmask{position:fixed;inset:0;z-index:9998;background:rgba(3,5,4,.82);backdrop-filter:blur(4px);
     display:flex;align-items:center;justify-content:center;padding:20px}
   .wxmask[hidden]{display:none}
-  .wxcard{position:relative;background:#0d0806;border:1px solid var(--gold);border-radius:16px;
-    padding:24px 26px;text-align:center;max-width:320px;box-shadow:0 24px 70px rgba(0,0,0,.7)}
+  .wxcard{position:relative;background:var(--pnl);border:1px solid var(--g);border-radius:16px;
+    padding:24px 26px;text-align:center;max-width:320px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
   .wxclose{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--soft);font-size:24px;cursor:pointer}
-  .wxtitle{color:var(--gold-lt);font-weight:800;font-size:16px;margin-bottom:14px}
+  .wxtitle{color:var(--glt);font-weight:800;font-size:16px;margin-bottom:14px}
   .wxcard img{width:220px;max-width:70vw;border-radius:10px;background:#fff;padding:8px}
   .wxsub{color:var(--soft);font-size:13px;margin-top:12px}
 
-  .online{color:var(--green);font-size:13px;font-weight:700;white-space:nowrap}
-  .relaynote{max-width:900px;margin:12px auto 0;text-align:center;color:var(--soft);font-size:13px;line-height:1.6;
-    border:1px solid var(--line);border-radius:12px;padding:11px 16px;background:rgba(214,168,75,.06)}
-  .relaynote b{color:var(--gold-lt)}
-  .replays{margin:18px auto 0;max-width:900px;border:1px solid var(--line);border-radius:14px;background:#0b0705;overflow:hidden}
-  .rep-h{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--gold-lt);font-weight:700;font-size:14px}
-  .rep-list{max-height:300px;overflow-y:auto}
-  .rep-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid #17100a;cursor:pointer}
-  .rep-item:last-child{border-bottom:none}
-  .rep-item:hover{background:rgba(214,168,75,.07)}
-  .rep-item .ic{width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--gold);color:var(--gold-lt);display:flex;align-items:center;justify-content:center;font-size:14px}
-  .rep-item.playing .ic{background:var(--gold);color:#241505}
-  .rep-item .info{flex:1;min-width:0}
-  .rep-item .tt{color:var(--ink);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .rep-item .mt{color:var(--muted);font-size:12px;margin-top:2px}
-  .rep-item .pc{flex:none;color:var(--green);font-size:12px;font-weight:700;white-space:nowrap}
-  #repAudio{width:calc(100% - 28px);margin:12px 14px 14px;display:none}
-  #repAudio.on{display:block}
-  .chat{margin:18px auto 0;max-width:900px;border:1px solid var(--line);border-radius:14px;background:#0b0705;overflow:hidden}
-  .chat-h{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);color:var(--gold-lt);font-weight:700;font-size:14px}
-  .chat-h .cnt{margin-left:auto;color:var(--green);font-weight:700;font-size:13px}
-  .chat-list{height:300px;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:7px}
-  .chat-list .m{font-size:14px;line-height:1.5;word-break:break-word}
-  .chat-list .m .nm{color:var(--gold-lt);font-weight:700}
-  .chat-list .m .tx{color:var(--ink)}
-  .chat-list .sys{color:var(--muted);font-size:12px;text-align:center;padding:2px 0}
-  .chat-in{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:rgba(8,5,4,.5)}
-  .chat-in input{background:#120b07;border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:9px 12px;font:inherit;font-size:14px;outline:none;min-width:0}
-  .chat-in #cmsg{flex:1}
-  .chat-in .nick{width:92px;flex:none}
-  .chat-in input:focus{border-color:var(--gold)}
-  .chat-in .send{background:var(--gold);color:#241505;border:none;border-radius:9px;padding:0 18px;font-weight:800;cursor:pointer;white-space:nowrap}
-  .chat-in .send:hover{background:var(--gold-lt)}
-  .chat-tip{color:var(--muted);font-size:12px;padding:0 14px 11px;line-height:1.5}
-  .chat-tip b{color:var(--blood-lt)}
-
-  .safe{margin:20px auto 0;max-width:640px;text-align:center;color:var(--soft);font-size:13px;line-height:1.7;
-    border:1px solid var(--line);border-radius:12px;padding:14px 18px;background:rgba(122,11,18,.06)}
-  .safe b{color:var(--blood-lt)}
+  /* ===== 安全声明 / 页脚 ===== */
+  .safe{max-width:1180px;margin:30px auto 0;padding:0 20px}
+  .safe-in{text-align:center;color:var(--soft);font-size:13px;line-height:1.7;border:1px solid var(--line);
+    border-radius:12px;padding:14px 18px;background:rgba(255,90,90,.05);max-width:720px;margin:0 auto}
+  .safe-in b{color:#ff8a8a}
   .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+
+  @media(max-width:860px){
+    .lv-main{grid-template-columns:1fr;gap:16px}
+    .lv-head{padding-top:30px}
+    .lv-chat{height:340px}
+  }
+  /* 窄屏:导航链接整行换行,避免横向溢出被裁 */
+  @media(max-width:600px){
+    nav.nav{gap:8px 14px;padding:10px 16px}
+    nav.nav .brand{font-size:16px}
+    nav.nav .links{margin-left:0;width:100%;gap:10px 16px}
+    nav.nav .links a{font-size:13px}
+  }
 </style>
 </head>
 <body>
 <script>if(/[?&]embed=1/.test(location.search)){document.body.classList.add('embed');}</script>
-<style>body.embed nav.nav{display:none!important}body.embed .foot{display:none!important}body.embed .wrap{padding-top:12px}</style>
+<style>body.embed nav.nav{display:none!important}body.embed .foot{display:none!important}body.embed .lv-head{padding-top:12px}</style>
 
 <nav class="nav">
   <a class="brand" href="/"><img src="/assets/logo.png" alt=""><span>起源 · <b>木火夜聊</b></span></a>
@@ -174,70 +217,88 @@
 </nav>
 
 <div class="wrap">
-  <div class="eyebrow">ORIGIN LIVE · 木火夜聊</div>
-  <h1 class="title">木火夜聊</h1>
-  <div class="subline" id="subline">起源社区 · 会议音频转播</div>
+  <div class="lv-head">
+    <div class="lv-eyebrow">ORIGIN LIVE · 木火夜聊</div>
+    <h1 class="title">木火夜聊</h1>
+    <div class="lv-sub" id="subline">起源社区 · 会议音频转播</div>
+  </div>
 
-  <div class="stage">
-    <div class="badge" id="badge"><i></i> LIVE</div>
-    <video id="v" playsinline preload="none" poster="https://live.web3origin.com/cover.png?v=2"></video>
-    <div class="cover-tip" id="tip">
-      <div class="st" id="tipst">正在检测直播状态…</div>
-      <button class="bigplay" id="play">▶ 收听直播</button>
-    </div>
-    <button class="unmute" id="unmute" hidden>🔊 点击开启声音</button>
-    <div class="ctrl">
-      <button class="cbtn" id="pp" aria-label="播放/暂停" title="播放/暂停">▶</button>
-      <button class="cbtn" id="mute" aria-label="静音" title="静音">🔊</button>
-      <input class="vol" id="vol" type="range" min="0" max="1" step="0.05" value="1" aria-label="音量">
-      <span class="livepill" id="pill"><i></i> 直播中</span>
-      <span class="sp"></span>
-      <button class="cbtn" id="full" aria-label="全屏" title="全屏">⛶</button>
-    </div>
-    <div class="bar">
-      <div>
-        <div class="t">起源 · 木火夜聊</div>
-        <div class="s" id="status">连接中…</div>
+  <div class="lv-main">
+    <!-- 左栏：大播放器 -->
+    <div class="lv-playercol">
+      <div class="stage">
+        <div class="badge" id="badge"><i></i> LIVE</div>
+        <video id="v" playsinline preload="none" poster="https://live.web3origin.com/cover.png?v=2"></video>
+        <div class="cover-tip" id="tip">
+          <div class="st" id="tipst">正在接入直播…</div>
+        </div>
+        <button class="unmute" id="unmute" hidden>🔊 点击开启声音</button>
+        <div class="ctrl">
+          <button class="cbtn" id="pp" aria-label="播放/暂停" title="播放/暂停">▶</button>
+          <button class="cbtn" id="mute" aria-label="静音" title="静音">🔊</button>
+          <input class="vol" id="vol" type="range" min="0" max="1" step="0.05" value="1" aria-label="音量">
+          <span class="livepill" id="pill"><i></i> 直播中</span>
+          <span class="sp"></span>
+          <button class="cbtn" id="full" aria-label="全屏" title="全屏">⛶</button>
+        </div>
       </div>
-      <div class="sp"></div>
-      <span id="cnt2" class="online">👥 --</span>
-      <button class="tg" id="wxbtn" type="button">💬 进群互动</button>
+    </div>
+
+    <!-- 右栏：状态 + 在线 + 公屏 -->
+    <div class="lv-infocol">
+      <div class="lv-card">
+        <span class="lv-badge b-upcoming" id="livebadge"><i class="lv-dot"></i> <span id="status">连接中…</span></span>
+        <div class="lv-ctitle">起源 · 木火夜聊</div>
+        <div class="lv-meta"><span>📻 会议音频转播</span></div>
+        <div class="lv-stats">
+          <div class="lv-stat"><div class="n" id="cnt2">--</div><div class="l">当前在线</div></div>
+          <div class="lv-stat"><div class="n" id="statreplays">--</div><div class="l">往期回放</div></div>
+        </div>
+        <button class="tg" id="wxbtn" type="button">💬 进群互动</button>
+      </div>
+
+      <div class="relaynote">📻 本场为<b>会议音频转播</b>，仅同步声音；画面为固定封面，<b>不同步会议画面</b>。</div>
+
+      <div class="lv-chat">
+        <div class="chat-h">💬 公屏互动 <span class="cnt" id="cnt">👥 -- 在线</span></div>
+        <div class="chat-list" id="clist"></div>
+        <div class="chat-in">
+          <input class="nick" id="nick" maxlength="16" placeholder="昵称">
+          <input id="cmsg" maxlength="200" placeholder="说点什么…文明发言">
+          <button class="send" id="csend">发送</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="relaynote">📻 本场为<b>会议音频转播</b>，仅同步声音；画面为固定封面，<b>不同步会议画面</b>。</div>
-
-  <div class="chat">
-    <div class="chat-h">💬 公屏互动 <span class="cnt" id="cnt">👥 -- 在线</span></div>
-    <div class="chat-list" id="clist"></div>
-    <div class="chat-in">
-      <input class="nick" id="nick" maxlength="16" placeholder="昵称">
-      <input id="cmsg" maxlength="200" placeholder="说点什么…文明发言">
-      <button class="send" id="csend">发送</button>
+  <!-- 往期回放（全宽） -->
+  <div class="lv-section">
+    <div class="replays" id="replays" hidden>
+      <div class="rep-h">🎧 往期回放</div>
+      <div class="rep-list" id="repList"></div>
+      <audio id="repAudio" controls></audio>
     </div>
   </div>
 
-  <div class="replays" id="replays" hidden>
-    <div class="rep-h">🎧 往期回放</div>
-    <div class="rep-list" id="repList"></div>
-    <audio id="repAudio" controls></audio>
-  </div>
-
-  <div class="wxmask" id="wxmask" hidden>
-    <div class="wxcard">
-      <button class="wxclose" id="wxclose" aria-label="关闭">×</button>
-      <div class="wxtitle">微信扫码 · 进群互动</div>
-      <img src="/assets/wechat-qr.png" alt="微信加好友二维码">
-      <div class="wxsub">📲 打开微信「扫一扫」，加好友进群一起聊</div>
-    </div>
-  </div>
-
+  <!-- 安全声明 -->
   <div class="safe">
-    ⚠️ <b>安全提醒</b>：起源官方及主播<b>绝不会</b>在直播中或私信里向你索要助记词、私钥或让你转账"验证"。<br>
-    凡是要这些的，一律是骗子，请立即拉黑举报。
+    <div class="safe-in">
+      ⚠️ <b>安全提醒</b>：起源官方及主播<b>绝不会</b>在直播中或私信里向你索要助记词、私钥或让你转账"验证"。<br>
+      凡是要这些的，一律是骗子，请立即拉黑举报。
+    </div>
   </div>
 
   <div class="foot">Origin Web3 · <a href="https://web3origin.com">web3origin.com</a></div>
+</div>
+
+<!-- 进群二维码弹层 -->
+<div class="wxmask" id="wxmask" hidden>
+  <div class="wxcard">
+    <button class="wxclose" id="wxclose" aria-label="关闭">×</button>
+    <div class="wxtitle">微信扫码 · 进群互动</div>
+    <img src="/assets/wechat-qr.png" alt="微信加好友二维码">
+    <div class="wxsub">📲 打开微信「扫一扫」，加好友进群一起聊</div>
+  </div>
 </div>
 
 <script src="/assets/flv.min.js"></script>
@@ -250,14 +311,16 @@
   var RTC_URL="webrtc://live.web3origin.com/live/yeliao";
   var v=document.getElementById('v'), badge=document.getElementById('badge'),
       status=document.getElementById('status'), tip=document.getElementById('tip'),
-      tipst=document.getElementById('tipst'), play=document.getElementById('play'),
+      tipst=document.getElementById('tipst'),
       pp=document.getElementById('pp'), mute=document.getElementById('mute'),
       vol=document.getElementById('vol'), full=document.getElementById('full'),
-      pill=document.getElementById('pill'),
-      started=false, hls=null;
+      pill=document.getElementById('pill'), livebadge=document.getElementById('livebadge'),
+      started=false, hls=null, pollTimer=null;
 
-  function online(){badge.classList.add('on');pill.classList.add('on');status.textContent='● 直播中';}
-  function offline(t){badge.classList.remove('on');pill.classList.remove('on');status.textContent=t||'○ 暂未开播';}
+  function online(){badge.classList.add('on');pill.classList.add('on');
+    if(status)status.textContent='直播中'; if(livebadge)livebadge.className='lv-badge b-live';}
+  function offline(t){badge.classList.remove('on');pill.classList.remove('on');
+    if(status)status.textContent=t||'暂未开播'; if(livebadge)livebadge.className='lv-badge b-ended';}
 
   // ==== 自定义控件(无进度条) ====
   pp.onclick=function(){ if(!started){start();return;} if(v.paused)v.play().catch(function(){}); else v.pause(); };
@@ -344,7 +407,13 @@
     else if(window.flvjs && flvjs.isSupported()){ startFlv(); }
     else { startHls(false); }
   }
-  play.onclick=start;
+  // 未开播时自动轮询探测,一开播自动播(无需用户点任何按钮)
+  function startPoll(){
+    if(pollTimer) return;
+    pollTimer=setInterval(function(){
+      probe(function(ok){ if(ok){ clearInterval(pollTimer); pollTimer=null; online(); tip.style.display='none'; start(); } });
+    },9000);
+  }
 
   // ==== 进群互动:微信二维码弹层 ====
   var wxbtn=document.getElementById('wxbtn'), wxmask=document.getElementById('wxmask'),
@@ -356,10 +425,10 @@
     document.addEventListener('keydown',function(e){if(e.key==='Escape')wxmask.hidden=true;});
   }
 
-  // 初始探测:在播就自动开播,不用点收听
+  // 进页面直接自动接入:在播即自动播放(带声优先),未开播则自动轮询等待开播
   probe(function(ok){
     if(ok){ online(); tip.style.display='none'; start(); }
-    else{ offline(); tipst.textContent='主播暂未开播，开播后自动播放'; play.textContent='🔄 刷新看看'; play.onclick=function(){location.reload();}; }
+    else{ offline(); tip.style.display='flex'; tipst.textContent='主播暂未开播，开播后将自动播放…'; startPoll(); }
   });
 })();
 </script>
@@ -386,7 +455,7 @@
     if(atBottom) list.scrollTop=list.scrollHeight;
   }
   function sys(t){var d=document.createElement('div');d.className='sys';d.textContent=t;list.appendChild(d);list.scrollTop=list.scrollHeight;}
-  function setCount(n){ if(cnt)cnt.textContent='👥 '+n+' 在线'; if(cnt2)cnt2.textContent='👥 '+n; }
+  function setCount(n){ if(cnt)cnt.textContent='👥 '+n+' 在线'; if(cnt2)cnt2.textContent=n; }
   function connect(){
     try{ws=new WebSocket(WS);}catch(e){reconn=setTimeout(connect,3000);return;}
     ws.onmessage=function(ev){
@@ -426,11 +495,13 @@
   var PLAYS="https://live.web3origin.com/chat/plays";
   var HIT="https://live.web3origin.com/chat/play?f=";
   var box=document.getElementById('replays'), list=document.getElementById('repList'), au=document.getElementById('repAudio');
+  var statrep=document.getElementById('statreplays');
   if(!box) return;
   var counted={}, pcEls={};
   function fmt(s){ s=s|0; var m=(s/60)|0, ss=s%60; return m+':'+(ss<10?'0':'')+ss; }
   function setPc(file,n){ if(pcEls[file]) pcEls[file].textContent='🎧 '+(n||0)+' 次'; }
   fetch(IDX+'?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():[];}).then(function(arr){
+    if(statrep) statrep.textContent=(arr&&arr.length)||0;
     if(!arr||!arr.length) return;
     box.hidden=false;
     arr.forEach(function(it){
@@ -453,7 +524,7 @@
     fetch(PLAYS+'?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():{};}).then(function(pm){
       for(var f in pcEls){ setPc(f, (pm&&pm[f])||0); }
     }).catch(function(){ for(var f in pcEls){ setPc(f,0);} });
-  }).catch(function(){});
+  }).catch(function(){ if(statrep) statrep.textContent='0'; });
 })();
 </script>
 <script defer src="/assets/analytics.js"></script>
