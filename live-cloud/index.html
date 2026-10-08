@@ -82,11 +82,15 @@
   .cover-tip{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:16px;background:linear-gradient(180deg,rgba(7,10,8,.55),rgba(7,10,8,.82));backdrop-filter:blur(2px)}
   .cover-tip .st{color:var(--bone);font-size:14px}
-  .unmute{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:6;
-    background:linear-gradient(90deg,var(--g),#b8842f);color:#1a1206;border:none;border-radius:22px;
-    padding:10px 20px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.5);animation:unpulse 1.6s infinite}
+  /* 被浏览器拦了带声自动播时:整屏大提示,点画面任意处即出声 */
+  .unmute{position:absolute;inset:0;z-index:7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    background:linear-gradient(180deg,rgba(7,10,8,.45),rgba(7,10,8,.8));backdrop-filter:blur(2px);
+    border:none;color:var(--glt);font-family:inherit;cursor:pointer}
   .unmute[hidden]{display:none}
-  @keyframes unpulse{50%{transform:translateX(-50%) scale(1.06)}}
+  .unmute .unmute-ic{font-size:clamp(40px,10vw,60px);animation:unpulse 1.4s infinite}
+  .unmute .unmute-tx{font-size:17px;font-weight:800;letter-spacing:.04em}
+  .unmute .unmute-sub{font-size:13px;color:var(--soft);font-weight:400}
+  @keyframes unpulse{50%{transform:scale(1.12);opacity:.75}}
 
   /* 直播:去掉原生进度条,用自定义控件 */
   video::-webkit-media-controls-timeline,
@@ -232,7 +236,7 @@
         <div class="cover-tip" id="tip">
           <div class="st" id="tipst">正在接入直播…</div>
         </div>
-        <button class="unmute" id="unmute" hidden>🔊 点击开启声音</button>
+        <button class="unmute" id="unmute" hidden><span class="unmute-ic">🔊</span><span class="unmute-tx">点击开启声音</span><span class="unmute-sub">轻触画面任意处即可收听</span></button>
         <div class="ctrl">
           <button class="cbtn" id="pp" aria-label="播放/暂停" title="播放/暂停">▶</button>
           <button class="cbtn" id="mute" aria-label="静音" title="静音">🔊</button>
@@ -341,6 +345,11 @@
     var p=v.play();
     if(p && p.catch){ p.catch(function(){ v.muted=true; mute.textContent='🔇'; v.play().then(showUnmute,showUnmute); }); }
   }
+
+  // ==== 微信内置浏览器:WeixinJSBridgeReady 后允许带声播放 ====
+  function wxUnmutePlay(){ try{ v.muted=false; mute.textContent='🔊'; if(v.volume===0){v.volume=1;vol.value=1;} if(unmute)unmute.hidden=true; var p=v.play(); if(p&&p.catch)p.catch(function(){}); }catch(e){} }
+  if(typeof window.WeixinJSBridge!=='undefined' && window.WeixinJSBridge.invoke){ wxUnmutePlay(); }
+  else { document.addEventListener('WeixinJSBridgeReady', wxUnmutePlay, false); }
 
   function probe(cb){
     fetch(SRC+'?p='+Date.now(),{cache:'no-store'}).then(function(r){cb(r.ok);}).catch(function(){cb(false);});
