@@ -2,410 +2,247 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>🧧 LGNS 红包接龙</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧧 红包接龙 · FCB Relay</title>
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { margin: 0; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #b71c1c; color: #333; min-height: 100vh; }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 12px 12px 60px; }
-  .topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px; color: #fff; }
-  .topbar h1 { margin: 0; font-size: 20px; }
-  .card { background: #fff8f0; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.25); }
-  .card h3 { margin: 0 0 10px; font-size: 16px; color: #b71c1c; }
-  .btn { display: inline-block; border: none; border-radius: 10px; padding: 12px 18px; font-size: 15px; font-weight: 700; cursor: pointer; background: #d32f2f; color: #fff; width: 100%; margin-top: 8px; }
-  .btn:active { transform: scale(.98); }
-  .btn:disabled { background: #ccc; cursor: not-allowed; }
-  .btn.ghost { background: #fff; color: #d32f2f; border: 2px solid #d32f2f; }
-  .btn.small { width: auto; padding: 8px 14px; font-size: 13px; margin-top: 0; }
-  .row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-  .row label { width: 86px; flex-shrink: 0; font-size: 14px; color: #666; }
-  .row input { flex: 1; padding: 10px; border: 1.5px solid #e0c9a6; border-radius: 8px; font-size: 15px; background: #fff; }
-  .packet { border: 2px solid #e8b4b8; border-radius: 12px; padding: 12px; margin-bottom: 10px; background: #fff; }
-  .packet .pid { font-weight: 800; color: #b71c1c; font-size: 15px; }
-  .packet .meta { font-size: 13px; color: #666; margin: 6px 0; line-height: 1.7; }
-  .packet .meta b { color: #333; }
-  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 20px; background: #ffebee; color: #c62828; margin-left: 6px; vertical-align: middle; }
-  .tag.green { background: #e8f5e9; color: #2e7d32; }
-  .tag.gray { background: #f5f5f5; color: #999; }
-  .timer { font-variant-numeric: tabular-nums; font-weight: 700; color: #e65100; }
-  .addr { font-family: monospace; font-size: 12px; }
-  .notice { background: #fff3e0; border: 1px solid #ffcc80; border-radius: 10px; padding: 10px 12px; font-size: 13px; color: #8d5a00; margin-bottom: 12px; line-height: 1.6; }
-  .rules { font-size: 13px; color: #fff; opacity: .92; line-height: 1.8; padding: 0 4px 12px; }
-  .rules b { color: #ffe082; }
-  #walletBtn { width: auto; margin-top: 0; padding: 9px 16px; font-size: 14px; }
-  .status { font-size: 12px; color: #ffe082; }
-  .relay-form { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e0c9a6; }
-  .hidden { display: none; }
+:root{--gold:#d4a017;--gold2:#f5c542;--bg:#0d0b08;--card:#161310;--line:#3a2f1a;--txt:#e8dcc0;--dim:#9a8a6a;--green:#4caf7d;--red:#e05c5c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1200px 600px at 50% -10%,#2a1210 0%,var(--bg) 60%);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.top a{color:var(--gold2);text-decoration:none;font-size:14px}
+h1{font-size:22px;color:var(--gold2)}
+button{cursor:pointer;border:none;border-radius:10px;font-size:15px}
+.btn{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#231a05;font-weight:700;padding:12px 26px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold2);padding:10px 20px}
+.btn.small{padding:7px 12px;font-size:13px}
+.btn.red{background:linear-gradient(180deg,#e05c5c,#b93a3a);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+.card h2{font-size:16px;color:var(--gold2);margin-bottom:12px}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stat .v{font-size:15px;color:var(--gold2);font-weight:700}
+.stat .k{font-size:11px;color:var(--dim);margin-top:4px}
+input[type=number],input[type=text]{width:100%;background:#0f0d09;border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:12px;font-size:16px;outline:none}
+label{font-size:12px;color:var(--dim);display:block;margin:10px 0 6px}
+.info{background:#0f0d09;border-radius:10px;padding:12px;margin-top:12px;font-size:14px;line-height:2}
+.info b{color:var(--gold2)}
+.hint{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.7}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#000;border:1px solid var(--gold);color:var(--gold2);padding:12px 22px;border-radius:10px;font-size:14px;display:none;z-index:99;max-width:90vw}
+.big{font-size:52px;text-align:center;margin:6px 0}
+.packetrow{display:flex;gap:8px;align-items:center;justify-content:space-between;background:#0f0d09;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;font-size:13px}
+.langbtn{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:8px;padding:6px 10px;font-size:12px}
+.rule{font-size:13px;color:var(--dim);line-height:1.9}
+.rule b{color:var(--gold2)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="topbar">
-    <h1>🧧 LGNS 红包接龙</h1>
-    <div>
-      <div class="status" id="netStatus">未连接</div>
-      <button class="btn" id="walletBtn">连接钱包</button>
-    </div>
-  </div>
+<div class="top"><a href="../">← <span data-i="back">发财游戏平台</span></a><span><button class="langbtn" id="langBtn">EN</button> <button class="btn small" id="connBtn" data-i="connect">连接钱包</button></span></div>
+<h1>🧧 <span data-i="title">红包接龙</span></h1>
+<div style="font-size:12px;color:var(--dim)" data-i="subtitle">抢包 → 手气最佳当龙头 → 龙头等额续发，链条不断</div>
 
-  <div class="notice hidden" id="noContract">
-    合约还没部署：请先按 <b>DEPLOY.md</b> 部署 RedPacketRelay 合约，再把地址填到本页顶部的 <b>CONTRACT</b> 配置里。
-  </div>
-
-  <div class="rules">
-    📜 玩法：发红包 → 抢（每人每包限抢1份，金额随机）→ <b>手气最佳者当龙头</b> →
-    24小时内续发 <b>≥1.1倍</b> 的新包。龙头超时没续发，押金被瓜分，任何人可续龙顶替拿奖励。<br>
-    💰 平台抽成 2%，每份金额的 20% 暂扣（结算后退还，龙头的转为接龙押金）。
-  </div>
-
-  <div class="card">
-    <h3>🧧 发红包</h3>
-    <div class="row"><label>金额 (LGNS)</label><input id="inAmount" type="number" min="10" placeholder="最少 10"></div>
-    <div class="row"><label>份数</label><input id="inShares" type="number" min="2" max="100" value="10"></div>
-    <div class="row" style="margin-bottom:0">
-      <button class="btn ghost" id="approveBtn" style="flex:1">1️⃣ 授权 LGNS</button>
-      <button class="btn" id="createBtn" style="flex:1">2️⃣ 发红包</button>
-    </div>
-    <div class="meta" style="font-size:12px;color:#999;margin-top:8px" id="myBal"></div>
-  </div>
-
-  <div class="card hidden" id="adminBox" style="border-color:#e65100">
-    <h3>🛠 管理 <span style="font-size:12px;color:#999">（仅 owner 可见）</span></h3>
-    <div class="meta" style="font-size:12px;color:#666;margin-bottom:8px" id="adminInfo"></div>
-    <div class="row" style="margin-bottom:0">
-      <button class="btn ghost" id="setTokenBtn" style="flex:1">换成 LGNS 奖励币</button>
-      <button class="btn ghost" id="setMinBtn" style="flex:1">最小发包改成 10</button>
-    </div>
-    <div class="row" style="margin-bottom:0;margin-top:8px">
-      <button class="btn" id="rescueBtn" style="flex:1;background:#c62828;color:#fff">💰 提取合约全部余额到我钱包</button>
-    </div>
-    <div style="font-size:12px;color:#999;margin-top:6px">把合约里剩的 LGNS（押金等）一次性提回 owner 钱包。提完这个游戏就彻底结束了，点之前想清楚。</div>
-  </div>
-
-  <div class="card">
-    <h3>🔥 红包广场 <button class="btn small ghost" id="refreshBtn" style="float:right">刷新</button></h3>
-    <div id="packetList"><div style="color:#999;font-size:14px">连接钱包后加载…</div></div>
-  </div>
-
-  <div class="card">
-    <h3>🏆 我的记录</h3>
-    <div id="myList" style="font-size:14px;color:#666">连接钱包后加载…</div>
-  </div>
+<div class="stats">
+<div class="stat"><div class="v" id="sMine">-</div><div class="k" data-i="myfcb">我的 FCB</div></div>
+<div class="stat"><div class="v" id="sCur">-</div><div class="k" data-i="curpacket">当前红包</div></div>
+<div class="stat"><div class="v" id="sLeft">-</div><div class="k" data-i="left">剩余份数</div></div>
 </div>
 
+<div class="card">
+<h2 data-i="cur">当前红包</h2>
+<div class="big">🧧</div>
+<div class="info" id="pktInfo" data-i="loading">加载中…</div>
+<div style="display:flex;gap:10px;margin-top:12px">
+<button class="btn" id="grabBtn" style="flex:1" data-i="grab">抢红包</button>
+<button class="btn ghost small" id="settleBtn" style="display:none" data-i="settle">结算</button>
+</div>
+<div class="hint" id="grabHint"></div>
+</div>
+
+<div class="card" id="relayCard" style="display:none">
+<h2 data-i="relayT">👑 我是龙头：续发</h2>
+<div class="info" id="relayInfo"></div>
+<label data-i="relayShares">新包份数（2–100）</label>
+<input type="number" id="relayShares" value="10" min="2" max="100">
+<div style="display:flex;gap:10px;margin-top:12px">
+<button class="btn ghost small" id="apprRelayBtn" style="display:none" data-i="approve">授权 FCB</button>
+<button class="btn" id="relayBtn" style="flex:1" data-i="relay">等额续发</button>
+</div>
+<div class="hint" data-i="relayHint">续发金额 = 你抢到的金额（等额 1x），合约自动从你钱包收回。</div>
+</div>
+
+<div class="card" id="takeoverCard" style="display:none">
+<h2 data-i="takeT">⏰ 龙头超时：接替续链</h2>
+<div class="info" id="takeInfo"></div>
+<label data-i="takeAmt">出资金额（FCB，不低于余量）</label>
+<input type="number" id="takeAmt" placeholder="0.0" min="0" step="any">
+<label data-i="takeShares">新包份数（2–100）</label>
+<input type="number" id="takeShares" value="10" min="2" max="100">
+<div style="display:flex;gap:10px;margin-top:12px">
+<button class="btn ghost small" id="apprTakeBtn" style="display:none" data-i="approve">授权 FCB</button>
+<button class="btn red" id="takeBtn" style="flex:1" data-i="takeover">接替并发包</button>
+</div>
+<div class="hint" data-i="takeHint">接替者拿走合约余量作为奖励，并成为新链的发起人。</div>
+</div>
+
+<div class="card">
+<h2 data-i="createT">发红包</h2>
+<label data-i="cAmt">金额（FCB，最低 100）</label>
+<input type="number" id="cAmt" placeholder="0.0" min="0" step="any">
+<label data-i="cShares">份数（2–100）</label>
+<input type="number" id="cShares" value="10" min="2" max="100">
+<div style="display:flex;gap:10px;margin-top:12px">
+<button class="btn ghost small" id="apprBtn" style="display:none" data-i="approve">授权 FCB</button>
+<button class="btn" id="createBtn" style="flex:1" data-i="create">发包</button>
+</div>
+<div class="hint" data-i="createHint">平台抽成 2%。每包每人限抢 1 份，金额随机，实时到账。</div>
+</div>
+
+<div class="card">
+<h2 data-i="ruleT">玩法规则</h2>
+<div class="rule" data-i="rules">
+<b>1.</b> 发包：设定金额和份数（2–100 份），每人限抢 1 份，拼手气随机金额。<br>
+<b>2.</b> 龙头：抢完后手气最佳者成为龙头，须在 24 小时内等额（1x）续发新包。<br>
+<b>3.</b> 续发：龙头授权后，合约自动收回其抢到的金额作为新包本金，不断链。<br>
+<b>4.</b> 接替：龙头超时未续，任何人可出资接替发新包，并拿走合约余量作奖励。
+</div>
+</div>
+
+<div class="card">
+<h2 data-i="myT">我的记录</h2>
+<div id="myList" style="font-size:13px;color:var(--dim)" data-i="connFirst">连接钱包后查看</div>
+</div>
+</div>
+<div id="toast"></div>
 <script>
-/* 无外部依赖：钱包直连 + 最小 ABI 编解码（2026-10-02） */
-// ================= 配置 =================
-const CFG = {
-  chainId: 6714,
-  chainHex: '0x1A3A',
-  chainName: 'Anubis',
-  rpcUrl: 'https://rpc.anubispace.org',
-  explorer: 'https://browser.anubispace.org',
-  rewardToken: '0x4d1d808a081fdac440703b3765fc61f8028c06b8', // LGNS (Longinus)，9 位精度
-  rewardSymbol: 'LGNS',
-  decimals: 9,
-  CONTRACT: '0xb4838C2EA00D007EB1478cFf4e80DA464C2B7680' // 2026-10-01 已部署
+"use strict";
+const FCB="0x9B3F8c231C40ffC7d3669419dbD24495df84d303";
+const RELAY="0x89F98A1aDe5dd5472098bBa800A90770BA284f9B";
+const S={balanceOf:"0x70a08231",approve:"0x095ea7b3",allowance:"0xdd62ed3e",
+ createPacket:"0x8a394fa8",grab:"0x0895c229",settle:"0x8df82800",relay:"0x5f3eaf36",
+ takeover:"0x88a7d854",refund:"0x278ecde1",getPacket:"0xa59455dc",packetCount:"0x6de56271",
+ hasGrabbed:"0x1c2c47df",grabbedOf:"0xaa1052d7"};
+const $=id=>document.getElementById(id);
+let ACCT=null, LANG="zh";
+const I18N={
+ zh:{back:"发财游戏平台",connect:"连接钱包",title:"红包接龙",subtitle:"抢包 → 手气最佳当龙头 → 龙头等额续发，链条不断",myfcb:"我的 FCB",curpacket:"当前红包",left:"剩余份数",cur:"当前红包",loading:"加载中…",grab:"抢红包",settle:"结算",relayT:"👑 我是龙头：续发",relayShares:"新包份数（2–100）",approve:"授权 FCB",relay:"等额续发",relayHint:"续发金额 = 你抢到的金额（等额 1x），合约自动从你钱包收回。",takeT:"⏰ 龙头超时：接替续链",takeAmt:"出资金额（FCB，不低于余量）",takeShares:"新包份数（2–100）",takeover:"接替并发包",takeHint:"接替者拿走合约余量作为奖励，并成为新链的发起人。",createT:"发红包",cAmt:"金额（FCB，最低 100）",cShares:"份数（2–100）",create:"发包",createHint:"平台抽成 2%。每包每人限抢 1 份，金额随机，实时到账。",ruleT:"玩法规则",myT:"我的记录",connFirst:"连接钱包后查看"},
+ en:{back:"FCB Arcade",connect:"Connect",title:"Red Packet Relay",subtitle:"Grab → luckiest becomes leader → leader relays 1x, chain never breaks",myfcb:"My FCB",curpacket:"Current packet",left:"Left",cur:"Current packet",loading:"Loading…",grab:"Grab",settle:"Settle",relayT:"👑 I'm the leader: relay",relayShares:"New packet shares (2–100)",approve:"Approve FCB",relay:"Relay 1x",relayHint:"Relay amount = what you grabbed (1x). Contract pulls it from your wallet.",takeT:"⏰ Leader timed out: take over",takeAmt:"Fund amount (FCB)",takeShares:"New packet shares (2–100)",takeover:"Take over & create",takeHint:"Taker gets leftover as reward and becomes the new chain head.",createT:"Create packet",cAmt:"Amount (FCB, min 100)",cShares:"Shares (2–100)",create:"Create",createHint:"2% platform fee. One grab per person per packet, random amounts, instant.",ruleT:"Rules",myT:"My history",connFirst:"Connect wallet to view"}
 };
-
-// 合约函数 selector（keccak256(签名)前4字节，本地算好写死，页面零外部依赖）
-const SEL = {
-  approve:          '095ea7b3',
-  allowance:        'dd62ed3e',
-  balanceOf:        '70a08231',
-  createPacket:     '8a394fa8',
-  grab:             '0895c229',
-  relay:            '612ca561',
-  takeoverRelay:    'a0c1be48',
-  settleUnfinished: '037be37b',
-  sweepDeposit:     'bc8d07ca',
-  packetCount:      '6de56271',
-  packets:          'd0a9e0c0',
-  hasGrabbed:       '1c2c47df',
-  getGrabbers:      'bbd6c33b',
-  relayBps:         '8ea1c312',
-  minPacket:        '05fd9cdb',
-  owner:            '8da5cb5b',
-  getRewardToken:   'f7c618c1',
-  setRewardToken:   '8aee8127',
-  setMinPacket:     '3f44febe',
-  rescueTokens:     '57376198'
-};
-
-// ---- 最小 ABI 编解码（只覆盖本页用到的类型：uint/bool/address/address[]） ----
-function encUint(v) { return BigInt(v).toString(16).padStart(64, '0'); }
-function encAddr(a) { return '0'.repeat(24) + a.toLowerCase().replace(/^0x/, ''); }
-function txData(sel, words) { return '0x' + sel + words.join(''); }
-function decUint(h) { return BigInt('0x' + h); }
-function decAddr(h) { return '0x' + h.slice(-40); }
-function decBool(h) { return BigInt('0x' + h) !== 0n; }
-function decodePacket(h) {
-  const w = i => h.slice(i * 64, (i + 1) * 64);
-  return {
-    creator: decAddr(w(0)), totalAmount: decUint(w(1)), netAmount: decUint(w(2)),
-    shares: Number(decUint(w(3))), grabbed: Number(decUint(w(4))),
-    distributed: decUint(w(5)), luckiest: decAddr(w(6)), best: decUint(w(7)),
-    relayDeposit: decUint(w(8)), grabDeadline: Number(decUint(w(9))),
-    relayDeadline: Number(decUint(w(10))), relayed: decBool(w(11)), closed: decBool(w(12))
-  };
+I18N.zh.rules=document.querySelector('[data-i="rules"]').innerHTML;
+I18N.en.rules="<b>1.</b> Create: set amount and shares (2–100). One grab per person, random amounts.<br><b>2.</b> Leader: the luckiest grabber becomes leader and must relay an equal (1x) packet within 24h.<br><b>3.</b> Relay: after approval, the contract pulls the grabbed amount as the new packet.<br><b>4.</b> Takeover: if the leader times out, anyone can fund a new packet and take the leftover as reward.";
+function setLang(l){LANG=l;document.querySelectorAll("[data-i]").forEach(e=>{const k=e.getAttribute("data-i");if(I18N[l][k]!==undefined)e.innerHTML=I18N[l][k];});$("langBtn").textContent=l==="zh"?"EN":"中文";}
+$("langBtn").onclick=()=>setLang(LANG==="zh"?"en":"zh");
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(t._h);t._h=setTimeout(()=>t.style.display="none",3500);}
+const eth=(m,p)=>window.ethereum.request({method:m,params:p});
+const call=(to,data)=>eth("eth_call",[{to,data},"latest"]);
+const pAddr=a=>"0".repeat(24)+a.slice(2).toLowerCase();
+const pUint=n=>BigInt(n).toString(16).padStart(64,"0");
+const pU8=n=>BigInt(n).toString(16).padStart(64,"0");
+function dec(hex){hex=hex.slice(2);const r=[];for(let i=0;i<hex.length;i+=64)r.push(BigInt("0x"+hex.slice(i,i+64)));return r;}
+const fmtF=b=>{const neg=b<0n;b=neg?-b:b;let s=b.toString().padStart(19,"0");let ip=s.slice(0,-18),fp=s.slice(-18).replace(/0+$/,"").slice(0,4);return (neg?"-":"")+ip+(fp?"."+fp:"");};
+const toWei=v=>BigInt(Math.floor(Number(v)*1e18));
+async function sendTx(to,data){
+  const gas=await eth("eth_estimateGas",[{from:ACCT,to,data}]);
+  const gasPrice=await eth("eth_gasPrice",[]);
+  return eth("eth_sendTransaction",[{from:ACCT,to,data,gas:"0x"+(BigInt(gas)*13n/10n).toString(16),gasPrice,type:"0x0"}]);
 }
-function parseUnits(str, dec) {
-  dec = dec || CFG.decimals;
-  str = String(str).trim();
-  if (!/^\d+(\.\d+)?$/.test(str)) throw new Error('金额格式不对');
-  const parts = str.split('.'), f = parts[1] || '';
-  if (f.length > dec) throw new Error('小数位太多');
-  return BigInt(parts[0] + (f + '0'.repeat(dec)).slice(0, dec));
+async function needApprove(spender,amt){
+  const [al]=dec(await call(FCB,S.allowance+pAddr(ACCT)+pAddr(spender)));
+  return al<amt;
 }
-function formatUnits(v, dec) {
-  dec = dec || CFG.decimals;
-  const s = BigInt(v).toString().padStart(dec + 1, '0');
-  const i = s.slice(0, -dec), f = s.slice(-dec).replace(/0+$/, '');
-  return i + (f ? '.' + f : '');
-}
-
-// ---- 基础 ----
-let myAddr = null;
-const $ = id => document.getElementById(id);
-const short = a => a ? a.slice(0, 6) + '…' + a.slice(-4) : '';
-const fmt = v => Number(formatUnits(v)).toLocaleString('zh-CN', { maximumFractionDigits: 2 });
-function toast(msg) { alert(msg); }
-function req(method, params) { return window.ethereum.request({ method, params }); }
-
-async function ethCall(to, d) {
-  const r = await req('eth_call', [{ to, data: d }, 'latest']);
-  return (r || '0x').replace(/^0x/, '');
-}
-async function sendTx(to, d) {
-  const hash = await req('eth_sendTransaction', [{ from: myAddr, to, data: d }]);
-  toast('交易已发送，等待确认…');
-  for (let i = 0; i < 150; i++) {
-    await new Promise(r => setTimeout(r, 2000));
-    const rc = await req('eth_getTransactionReceipt', [hash]);
-    if (rc && rc.blockNumber && rc.blockNumber !== '0x0') {
-      if (rc.status === '0x1') return rc;
-      throw new Error('交易执行失败（被 revert）');
+let CUR=0;
+async function loadPacket(){
+  try{
+    const [n]=dec(await call(RELAY,S.packetCount));
+    CUR=Number(n);
+    $("sCur").textContent=n===0n?"-":"#"+n;
+    if(n===0n){$("pktInfo").innerHTML=LANG==="zh"?"还没有红包，来发第一个吧！":"No packets yet — create the first one!";$("grabBtn").disabled=true;return;}
+    const r=dec(await call(RELAY,S.getPacket+pUint(n)));
+    const [creator,net,shares,grabbed,dist,luckiest,best,leftover,grabDl,relayDl,settled,relayed]=r;
+    const left=Number(shares)-Number(grabbed);
+    $("sLeft").textContent=settled?(relayed?"-":(LANG==="zh"?"已结算":"settled")):left;
+    const now=Math.floor(Date.now()/1000);
+    let h=`${LANG==="zh"?"总额":"Total"}: <b>${fmtF(net)} FCB</b> · ${shares}${LANG==="zh"?"份":"shares"} · ${LANG==="zh"?"已抢":"grabbed"} ${grabbed}/${shares}`;
+    if(!settled){
+      const ddl=Number(grabDl)-now;
+      h+=`<br>${LANG==="zh"?"抢包截止":"Grab until"}: ${ddl>0?Math.floor(ddl/3600)+"h"+Math.floor(ddl%3600/60)+"m":(LANG==="zh"?"已过（可结算）":"over (settleable)")}`;
+      $("grabBtn").disabled=false;$("settleBtn").style.display=(left>0&&ddl<=0)?"":"none";
+      $("relayCard").style.display="none";$("takeoverCard").style.display="none";
+    }else if(!relayed){
+      const rdl=Number(relayDl)-now;
+      h+=`<br>👑 ${LANG==="zh"?"龙头":"Leader"}: <b>${luckiest.slice(0,10)}…</b> · ${LANG==="zh"?"押金":"deposit"} ${fmtF(best+leftover)} FCB`;
+      h+=`<br>${LANG==="zh"?"续发截止":"Relay until"}: ${rdl>0?Math.floor(rdl/3600)+"h"+Math.floor(rdl%3600/60)+"m":(LANG==="zh"?"已超时（可接替）":"timed out (takeoverable)")}`;
+      $("grabBtn").disabled=true;$("settleBtn").style.display="none";
+      const isMe=ACCT&&luckiest.toLowerCase()===ACCT.toLowerCase();
+      $("relayCard").style.display=(isMe&&rdl>0)?"":"none";
+      $("takeoverCard").style.display=(rdl<=0)?"":"none";
+      if(isMe&&rdl>0)$("relayInfo").innerHTML=`${LANG==="zh"?"你抢到的金额":"You grabbed"}: <b>${fmtF(best)} FCB</b>${leftover>0n?` · ${LANG==="zh"?"余量":"leftover"} ${fmtF(leftover)}`:""}`;
+      if(rdl<=0)$("takeInfo").innerHTML=`${LANG==="zh"?"合约余量":"Leftover"}: <b>${fmtF(leftover)} FCB</b>（${LANG==="zh"?"接替者拿走":"goes to taker"}）`;
+    }else{
+      h+=`<br>${LANG==="zh"?"本包已接龙完成":"Relayed"}`;
+      $("grabBtn").disabled=true;
     }
-  }
-  throw new Error('等太久没确认，请稍后去浏览器查：' + hash);
+    $("pktInfo").innerHTML=h;
+  }catch(e){$("pktInfo").textContent="ERR: "+e.message;}
 }
-
-async function connect() {
-  if (!window.ethereum) return toast('没检测到钱包：手机请用钱包 App（MetaMask/OKX/TP/imToken）自带的浏览器打开本页面，电脑请安装钱包插件');
-  try {
-    const accs = await req('eth_requestAccounts', []);
-    if (!accs || !accs.length) throw new Error('没拿到钱包地址');
-    myAddr = accs[0];
-    const chainId = await req('eth_chainId', []);
-    if (parseInt(chainId, 16) !== CFG.chainId) {
-      try {
-        await req('wallet_switchEthereumChain', [{ chainId: CFG.chainHex }]);
-      } catch (e) {
-        if (e.code === 4902) {
-          await req('wallet_addEthereumChain', [{
-            chainId: CFG.chainHex, chainName: CFG.chainName, rpcUrls: [CFG.rpcUrl],
-            nativeCurrency: { name: 'DAI', symbol: 'DAI', decimals: 18 },
-            blockExplorerUrls: [CFG.explorer]
-          }]);
-        } else throw e;
+async function refresh(){
+  await loadPacket();
+  if(!ACCT)return;
+  try{
+    const [m]=dec(await call(FCB,S.balanceOf+pAddr(ACCT)));$("sMine").textContent=fmtF(m);
+    // 我的记录：查最近包的抢包情况
+    let html="";
+    for(let id=CUR;id>=Math.max(1,CUR-5);id--){
+      const [g]=dec(await call(RELAY,S.hasGrabbed+pUint(id)+pAddr(ACCT)));
+      if(g===1n){
+        const [amt]=dec(await call(RELAY,S.grabbedOf+pUint(id)+pAddr(ACCT)));
+        html+=`<div class="packetrow"><span>#${id} · ${LANG==="zh"?"抢到":"grabbed"} <b style="color:var(--gold2)">${fmtF(amt)} FCB</b></span></div>`;
       }
     }
-    $('walletBtn').textContent = short(myAddr);
-    $('netStatus').textContent = '✅ Anubis (chainId 6714)';
-    if (CFG.CONTRACT) {
-      const bal = await ethCall(CFG.rewardToken, txData(SEL.balanceOf, [encAddr(myAddr)]));
-      $('myBal').textContent = '我的 LGNS 余额：' + fmt(decUint(bal));
-      try {
-        const ow = decAddr(await ethCall(CFG.CONTRACT, txData(SEL.owner, [])));
-        if (ow.toLowerCase() === myAddr.toLowerCase()) {
-          $('adminBox').classList.remove('hidden');
-          const rt = decAddr(await ethCall(CFG.CONTRACT, txData(SEL.getRewardToken, [])));
-          const mp = decUint(await ethCall(CFG.CONTRACT, txData(SEL.minPacket, [])));
-          $('adminInfo').textContent = '链上奖励币：' + rt + ' ｜ 最小发包：' + formatUnits(mp) + ' LGNS';
-        }
-      } catch (e) { /* 读不到就跳过 */ }
-    } else {
-      $('noContract').classList.remove('hidden');
-    }
-    loadPackets();
-  } catch (e) { toast('连接失败：' + (e.message || e)); }
+    $("myList").innerHTML=html||(LANG==="zh"?"暂无记录":"No history");
+  }catch(e){}
 }
-
-function needContract() {
-  if (!CFG.CONTRACT) { toast('合约地址还没配置'); return false; }
-  if (!myAddr) { toast('请先点右上角「连接钱包」'); return false; }
-  return true;
-}
-
-async function doApprove() {
-  if (!needContract()) return;
-  let amt;
-  try { amt = parseUnits($('inAmount').value); }
-  catch (e) { return toast('先填写发包金额'); }
-  if (amt <= 0n) return toast('先填写发包金额');
-  try {
-    await sendTx(CFG.rewardToken, txData(SEL.approve, [encAddr(CFG.CONTRACT), encUint(amt)]));
-    toast('✅ 授权成功，可以发红包了');
-  } catch (e) { toast('授权失败：' + (e.message || e)); }
-}
-
-async function doCreate() {
-  if (!needContract()) return;
-  let amt;
-  try { amt = parseUnits($('inAmount').value); }
-  catch (e) { return toast(e.message); }
-  const shares = Number($('inShares').value);
-  if (amt < parseUnits('10')) return toast('金额最少 10 LGNS');
-  if (!shares || shares < 2 || shares > 100) return toast('份数 2~100');
-  try {
-    const allow = decUint(await ethCall(CFG.rewardToken, txData(SEL.allowance, [encAddr(myAddr), encAddr(CFG.CONTRACT)])));
-    if (allow < amt) return toast('额度不够，请先点"授权 LGNS"');
-    await sendTx(CFG.CONTRACT, txData(SEL.createPacket, [encUint(amt), encUint(shares)]));
-    toast('🧧 红包发出去了！');
-    loadPackets();
-  } catch (e) { toast('发包失败：' + (e.message || e)); }
-}
-
-async function doSetRewardToken() {
-  if (!needContract()) return;
-  try {
-    await sendTx(CFG.CONTRACT, txData(SEL.setRewardToken, [encAddr(CFG.rewardToken)]));
-    toast('✅ 奖励币已换成 LGNS');
-    connect();
-  } catch (e) { toast('失败：' + (e.message || e)); }
-}
-
-async function doSetMinPacket() {
-  if (!needContract()) return;
-  try {
-    await sendTx(CFG.CONTRACT, txData(SEL.setMinPacket, [encUint(parseUnits('10'))]));
-    toast('✅ 最小发包已改成 10 LGNS');
-    connect();
-  } catch (e) { toast('失败：' + (e.message || e)); }
-}
-
-async function doRescue() {
-  if (!needContract()) return;
-  try {
-    const bal = decUint(await ethCall(CFG.rewardToken, txData(SEL.balanceOf, [encAddr(CFG.CONTRACT)])));
-    if (bal <= 0n) return toast('合约里没钱了，不用提');
-    if (!confirm('把合约里剩的 ' + formatUnits(bal) + ' LGNS 全部提到你钱包？提完这游戏就结束了。')) return;
-    await sendTx(CFG.CONTRACT, txData(SEL.rescueTokens, [encAddr(myAddr), encUint(bal)]));
-    toast('✅ 已提取 ' + formatUnits(bal) + ' LGNS');
-    connect();
-  } catch (e) { toast('失败：' + (e.message || e)); }
-}
-
-async function doGrab(id) {
-  if (!needContract()) return;
-  try {
-    await sendTx(CFG.CONTRACT, txData(SEL.grab, [encUint(id)]));
-    toast('🧧 抢到啦！20% 会暂扣，结算后退还');
-    loadPackets();
-  } catch (e) { toast('抢包失败：' + (e.message || e)); }
-}
-
-async function doRelay(id, isTakeover) {
-  if (!needContract()) return;
-  let amt;
-  try { amt = parseUnits($('relayAmt' + id).value); }
-  catch (e) { return toast('填写续发金额'); }
-  const shares = Number($('relaySh' + id).value);
-  if (amt <= 0n) return toast('填写续发金额');
-  if (!shares || shares < 2 || shares > 100) return toast('份数 2~100');
-  try {
-    const allow = decUint(await ethCall(CFG.rewardToken, txData(SEL.allowance, [encAddr(myAddr), encAddr(CFG.CONTRACT)])));
-    if (allow < amt) return toast('额度不够，请先在发包区点"授权 LGNS"');
-    await sendTx(CFG.CONTRACT, txData(isTakeover ? SEL.takeoverRelay : SEL.relay, [encUint(id), encUint(amt), encUint(shares)]));
-    toast(isTakeover ? '🔥 续龙成功！' : '🐲 接龙成功，押金已退还！');
-    loadPackets();
-  } catch (e) { toast('失败：' + (e.message || e)); }
-}
-
-async function doSettle(id) {
-  if (!needContract()) return;
-  try {
-    await sendTx(CFG.CONTRACT, txData(SEL.settleUnfinished, [encUint(id)]));
-    toast('已结算');
-    loadPackets();
-  } catch (e) { toast('失败：' + (e.message || e)); }
-}
-
-function cd(ts) {
-  const s = Math.max(0, Math.floor(ts - Date.now() / 1000));
-  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60;
-  return (h > 0 ? h + '小时' : '') + m + '分' + ss + '秒';
-}
-
-async function loadPackets() {
-  if (!CFG.CONTRACT) { $('packetList').innerHTML = '<div style="color:#999">合约未配置</div>'; return; }
-  $('packetList').innerHTML = '<div style="color:#999">加载中…</div>';
-  try {
-    const n = Number(decUint(await ethCall(CFG.CONTRACT, txData(SEL.packetCount, []))));
-    if (n === 0) { $('packetList').innerHTML = '<div style="color:#999">还没有红包，快来发第一个！</div>'; $('myList').innerHTML = '—'; return; }
-    const from = Math.max(1, n - 29);
-    let html = '', myHtml = '';
-    const relayBps = decUint(await ethCall(CFG.CONTRACT, txData(SEL.relayBps, [])));
-    for (let id = n; id >= from; id--) {
-      const p = decodePacket(await ethCall(CFG.CONTRACT, txData(SEL.packets, [encUint(id)])));
-      const grabbed = myAddr ? decBool(await ethCall(CFG.CONTRACT, txData(SEL.hasGrabbed, [encUint(id), encAddr(myAddr)]))) : false;
-      const open = !p.closed;
-      const needRelay = p.closed && !p.relayed && p.relayDeadline > 0;
-      const relayDue = needRelay && Date.now() / 1000 > p.relayDeadline;
-      const minRelay = fmt(p.totalAmount * relayBps / 10000n);
-      const tag = open ? '<span class="tag">抢包中</span>'
-        : needRelay ? (relayDue ? '<span class="tag">龙头超时</span>' : '<span class="tag green">待接龙</span>')
-        : '<span class="tag gray">已结束</span>';
-      html += '<div class="packet"><div><span class="pid">🧧 #' + id + '</span>' + tag + '</div>'
-        + '<div class="meta">总额 <b>' + fmt(p.totalAmount) + ' LGNS</b> ｜ ' + p.grabbed + '/' + p.shares + ' 份'
-        + (open ? ' ｜ 抢包倒计时 <span class="timer" data-dl="' + p.grabDeadline + '"></span>' : '')
-        + (needRelay && !relayDue ? ' ｜ 接龙倒计时 <span class="timer" data-dl="' + p.relayDeadline + '"></span>' : '')
-        + '<br>房主 <span class="addr">' + short(p.creator) + '</span>'
-        + (p.luckiest !== '0x0000000000000000000000000000000000000000'
-          ? ' ｜ 龙头 <span class="addr">' + short(p.luckiest) + '</span>' + (myAddr && p.luckiest.toLowerCase() === myAddr.toLowerCase() ? ' <b>👈 就是你！</b>' : '')
-          : '')
-        + '</div>';
-      if (open) {
-        html += grabbed
-          ? '<button class="btn" disabled>已抢过 ✅</button>'
-          : '<button class="btn" onclick="doGrab(' + id + ')">抢！</button>';
-        html += '<button class="btn ghost small" style="width:100%;margin-top:6px" onclick="doSettle(' + id + ')">份数没抢完？超时后点我结算</button>';
-      } else if (needRelay && !relayDue && myAddr && p.luckiest.toLowerCase() === myAddr.toLowerCase()) {
-        html += '<div class="relay-form"><div style="font-size:13px;color:#c62828;margin-bottom:6px">🐲 你是龙头！续发 ≥ ' + minRelay + ' LGNS 可拿回押金</div>'
-          + '<div class="row"><label>金额</label><input id="relayAmt' + id + '" type="number" placeholder="≥ ' + minRelay + '"></div>'
-          + '<div class="row"><label>份数</label><input id="relaySh' + id + '" type="number" value="10" min="2" max="100"></div>'
-          + '<button class="btn" onclick="doRelay(' + id + ',false)">续发接龙</button></div>';
-      } else if (needRelay && relayDue) {
-        html += '<div class="relay-form"><div style="font-size:13px;color:#c62828;margin-bottom:6px">🔥 龙头超时，续发 ≥ ' + minRelay + ' LGNS 可顶替并拿一半押金奖励</div>'
-          + '<div class="row"><label>金额</label><input id="relayAmt' + id + '" type="number" placeholder="≥ ' + minRelay + '"></div>'
-          + '<div class="row"><label>份数</label><input id="relaySh' + id + '" type="number" value="10" min="2" max="100"></div>'
-          + '<button class="btn" onclick="doRelay(' + id + ',true)">续龙顶替</button></div>';
-      }
-      html += '</div>';
-      if (grabbed) myHtml += '<div>#' + id + ' 已抢 ✅</div>';
-    }
-    $('packetList').innerHTML = html;
-    $('myList').innerHTML = myHtml || '还没抢过红包';
-    tick();
-  } catch (e) { $('packetList').innerHTML = '<div style="color:#c62828">加载失败：' + (e.message || e) + '</div>'; }
-}
-
-function tick() {
-  document.querySelectorAll('[data-dl]').forEach(el => {
-    el.textContent = cd(Number(el.dataset.dl));
-  });
-}
-setInterval(tick, 1000);
-
-$('walletBtn').onclick = connect;
-$('approveBtn').onclick = doApprove;
-$('createBtn').onclick = doCreate;
-$('refreshBtn').onclick = loadPackets;
-$('setTokenBtn').onclick = doSetRewardToken;
-$('setMinBtn').onclick = doSetMinPacket;
-$('rescueBtn').onclick = doRescue;
-if (window.ethereum) connect();
-
+$("connBtn").onclick=async()=>{
+  if(!window.ethereum)return toast("No wallet");
+  const [a]=await eth("eth_requestAccounts",[]);
+  ACCT=a;$("connBtn").textContent=a.slice(0,6)+"…"+a.slice(-4);
+  refresh();setInterval(refresh,15000);
+};
+$("grabBtn").onclick=async()=>{try{await sendTx(RELAY,S.grab+pUint(CUR));toast("✓");setTimeout(refresh,3000);}catch(e){toast("ERR: "+(e.message||e));}};
+$("settleBtn").onclick=async()=>{try{await sendTx(RELAY,S.settle+pUint(CUR));toast("✓");setTimeout(refresh,3000);}catch(e){toast("ERR: "+(e.message||e));}};
+$("createBtn").onclick=async()=>{
+  try{
+    const amt=toWei($("cAmt").value),sh=Number($("cShares").value);
+    if(amt<=0n||sh<2||sh>100)return toast("BAD INPUT");
+    if(await needApprove(RELAY,amt)){$("apprBtn").style.display="";toast(LANG==="zh"?"先点授权":"Approve first");return;}
+    $("apprBtn").style.display="none";
+    await sendTx(RELAY,S.createPacket+pUint(amt)+pU8(sh));toast("✓");setTimeout(refresh,3000);
+  }catch(e){toast("ERR: "+(e.message||e));}
+};
+$("apprBtn").onclick=async()=>{try{await sendTx(FCB,S.approve+pAddr(RELAY)+pUint(BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")));toast("✓");$("apprBtn").style.display="none";}catch(e){toast("ERR: "+(e.message||e));}};
+$("relayBtn").onclick=async()=>{
+  try{
+    const sh=Number($("relayShares").value);
+    const r=dec(await call(RELAY,S.getPacket+pUint(CUR)));
+    const best=r[6];
+    if(await needApprove(RELAY,best)){$("apprRelayBtn").style.display="";toast(LANG==="zh"?"先点授权":"Approve first");return;}
+    $("apprRelayBtn").style.display="none";
+    await sendTx(RELAY,S.relay+pUint(CUR)+pU8(sh));toast("✓");setTimeout(refresh,3000);
+  }catch(e){toast("ERR: "+(e.message||e));}
+};
+$("apprRelayBtn").onclick=$("apprBtn").onclick;
+$("takeBtn").onclick=async()=>{
+  try{
+    const amt=toWei($("takeAmt").value),sh=Number($("takeShares").value);
+    if(amt<=0n||sh<2||sh>100)return toast("BAD INPUT");
+    if(await needApprove(RELAY,amt)){$("apprTakeBtn").style.display="";toast(LANG==="zh"?"先点授权":"Approve first");return;}
+    $("apprTakeBtn").style.display="none";
+    await sendTx(RELAY,S.takeover+pUint(CUR)+pU8(sh)+pUint(amt));toast("✓");setTimeout(refresh,3000);
+  }catch(e){toast("ERR: "+(e.message||e));}
+};
+$("apprTakeBtn").onclick=$("apprBtn").onclick;
+setLang("zh");loadPacket();
 </script>
 </body>
 </html>
