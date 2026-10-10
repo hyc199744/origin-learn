@@ -263,7 +263,7 @@ zh: {
   closeBtn: '关闭本期', drawBtn: '开奖',
   drawNote: '本期已截止：先点「关闭本期」锁定开奖区块，再等约 50 个块后点「开奖」。任何人都可以点，Gas 谁点谁出。',
   prizeTitle: '🏆 奖项说明', p1: '一等奖 × 1 名', p1v: '奖池 50%', p2: '二等奖 × 3 名', p2v: '每人奖池 10%', p3: '三等奖 × 10 名', p3v: '每人奖池 2%',
-  poolFormula: '· 奖池 = 本期票款 × {pct}% + 上期滚存 + 已解锁注资<br>· 注资先锁进注资池：每卖出 1 张票释放 0.6 LGNS（一期最多 30），没人买票一分不释放<br>· 没人中的奖项自动滚入下期，奖池越滚越大<br>· 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>· 票数不够 14 张时按实际票数开奖，剩下的全滚存',
+  poolFormula: '· 奖池 = 本期票款 + 上期滚存 + 已解锁注资（显示为总额，开奖时扣除 10% 平台费）<br>· 注资先锁进注资池：每卖出 1 张票释放 0.6 LGNS（一期最多 30），没人买票一分不释放<br>· 没人中的奖项自动滚入下期，奖池越滚越大<br>· 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>· 票数不够 14 张时按实际票数开奖，剩下的全滚存',
   lastDraw: '上期开奖', lastRound: '(第 {n} 期)', noRecord: '暂无开奖记录', rolloverNext: '滚入下期',
   board: '累计中奖榜', history: '历史开奖', loading: '加载中…',
   noHistory: '暂无历史开奖', noData: '暂无数据', loadFail: '加载失败，请稍后刷新重试',
@@ -297,7 +297,7 @@ zh: {
   prizeDist: '奖项分配', max14: '最多 14 张中奖票',
   tier1: '一等奖', tier1n: '1 张', tier2: '二等奖', tier2n: '3 张', tier3: '三等奖', tier3n: '10 张',
   poolShare: '奖池占比', perTicketShare: '每张奖池占比',
-  prizeNote: '奖池为扣除平台费后的可分配金额。按票抽奖，同一钱包可多次中奖。',
+  prizeNote: '奖池显示为票款总额，开奖时扣除 10% 平台费后按比例派奖。按票抽奖，同一钱包可多次中奖。',
   navHistory: '历史开奖', navMyTickets: '我的票据', navRules: '规则与合约',
   myAddrLabel: '我的地址', myBalLabel: 'LGNS 余额',
   contractLottery: '彩票合约', contractToken: '票币合约', viewContract: '在浏览器查看合约'
@@ -312,7 +312,7 @@ en: {
   closeBtn: 'Close Round', drawBtn: 'Draw',
   drawNote: 'Round closed: tap "Close Round" first to lock the draw block, then wait ~50 blocks and tap "Draw". Anyone can do it, caller pays gas.',
   prizeTitle: '🏆 Prizes', p1: '1st Prize × 1', p1v: '50% of pool', p2: '2nd Prize × 3', p2v: '10% of pool each', p3: '3rd Prize × 10', p3v: '2% of pool each',
-  poolFormula: '· Pool = round sales × {pct}% + rollover + unlocked seed<br>· Seeds go into a locked vault: 0.6 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
+  poolFormula: '· Pool = round sales + rollover + unlocked seed (gross; 10% platform fee deducted at draw)<br>· Seeds go into a locked vault: 0.6 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
   lastDraw: 'Last Draw', lastRound: '(Round {n})', noRecord: 'No draw records yet', rolloverNext: 'Rollover to next',
   board: 'Leaderboard', history: 'History', loading: 'Loading…',
   noHistory: 'No draw history yet', noData: 'No data', loadFail: 'Load failed, please refresh and retry',
@@ -346,7 +346,7 @@ en: {
   prizeDist: 'Prize Distribution', max14: 'Up to 14 winning tickets',
   tier1: '1st Prize', tier1n: '1 ticket', tier2: '2nd Prize', tier2n: '3 tickets', tier3: '3rd Prize', tier3n: '10 tickets',
   poolShare: 'of pool', perTicketShare: 'of pool per ticket',
-  prizeNote: 'Pool is the distributable amount after the platform fee. Drawn per ticket; one wallet can win multiple times.',
+  prizeNote: 'Pool shows gross ticket sales; 10% platform fee is deducted at draw before prizes are paid. Drawn per ticket; one wallet can win multiple times.',
   navHistory: 'History', navMyTickets: 'My Tickets', navRules: 'Rules & Contract',
   myAddrLabel: 'My Address', myBalLabel: 'LGNS Balance',
   contractLottery: 'Lottery Contract', contractToken: 'Token Contract', viewContract: 'View contract on explorer'
@@ -569,7 +569,7 @@ async function refresh(){
     const w = i => h.slice(i*64,(i+1)*64);
     const endTime=Number(decUint(w(0))), drawBlock=Number(decUint(w(1))),
           sold=Number(decUint(w(2))), sales=decUint(w(3)), jackpot=decUint(w(4));
-    const pool = sales*(10000n-FEE)/10000n + jackpot;
+    const pool = sales + jackpot; // 显示总额（含未扣的平台费），开奖时再扣 10%
     const pp = $('prizePool'); pp.textContent = fmt2(pool); pp.classList.remove('skel');
     try{
       const locked = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lockedJackpot));
