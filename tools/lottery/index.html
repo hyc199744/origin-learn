@@ -31,6 +31,8 @@
   .jackpot{background:linear-gradient(160deg,#471420 0%,#5C1A27 55%,#6B2130 100%);border-radius:22px;padding:22px 22px 18px;color:#F5EFE2;position:relative;overflow:hidden}
   .jackpot::after{content:'';position:absolute;right:-70px;top:-70px;width:230px;height:230px;border:1px solid #ffffff14;border-radius:50%;pointer-events:none}
   .jackpot::before{content:'';position:absolute;right:-28px;top:-28px;width:150px;height:150px;border:1px solid #ffffff0d;border-radius:50%;pointer-events:none}
+  .jk-locked{margin-top:8px;font-size:13px;opacity:.88}
+  .jk-locked b{font-size:16px}
   .jk-top{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;position:relative;z-index:1}
   .jk-label{color:#EDE4D0}
   .jk-round{color:var(--gold);font-weight:600}
@@ -146,6 +148,7 @@
         </div>
         <div class="jk-amt skel" id="prizePool">--</div>
         <div class="jk-unit">LGNS</div>
+        <div class="jk-locked"><span data-i18n="lockedLabel">🔒 待解锁注资</span> <b id="lockedPool">-</b> LGNS</div>
         <div class="jk-div"></div>
         <div class="jk-bottom">
           <span class="jk-label" data-i18n="saleEndsIn">距售票截止</span>
@@ -221,7 +224,7 @@
     <div class="kv"><span class="k" data-i18n="contractToken">票币合约</span><span class="v"><a id="contractTokenAddr" target="_blank" rel="noopener">-</a></span></div>
     <div id="ownerPanel" style="margin-top:14px">
       <div class="sec-title"><h2 data-i18n="ownerTitle">房主管理</h2></div>
-      <div class="note" data-i18n="ownerNote" style="margin-top:0">冷启动：往当期奖池里加钱，奖金更诱人，吸引第一批玩家。加进去的钱就回不来了，算营销成本。</div>
+      <div class="note" data-i18n="ownerNote" style="margin-top:0">冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.6 LGNS 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。</div>
       <input id="seedAmt" type="number" min="1" data-i18n-ph="seedPh" placeholder="注入多少 LGNS">
       <div class="btn-row">
         <button class="btn-ghost" onclick="approveSeed()" data-i18n="approveSeedBtn">1. 授权</button>
@@ -260,14 +263,15 @@ zh: {
   closeBtn: '关闭本期', drawBtn: '开奖',
   drawNote: '本期已截止：先点「关闭本期」锁定开奖区块，再等约 50 个块后点「开奖」。任何人都可以点，Gas 谁点谁出。',
   prizeTitle: '🏆 奖项说明', p1: '一等奖 × 1 名', p1v: '奖池 50%', p2: '二等奖 × 3 名', p2v: '每人奖池 10%', p3: '三等奖 × 10 名', p3v: '每人奖池 2%',
-  poolFormula: '· 奖池 = 本期票款 × {pct}% + 上期滚存<br>· 没人中的奖项自动滚入下期，奖池越滚越大<br>· 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>· 票数不够 14 张时按实际票数开奖，剩下的全滚存',
+  poolFormula: '· 奖池 = 本期票款 × {pct}% + 上期滚存 + 已解锁注资<br>· 注资先锁进注资池：每卖出 1 张票释放 0.6 LGNS（一期最多 30），没人买票一分不释放<br>· 没人中的奖项自动滚入下期，奖池越滚越大<br>· 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>· 票数不够 14 张时按实际票数开奖，剩下的全滚存',
   lastDraw: '上期开奖', lastRound: '(第 {n} 期)', noRecord: '暂无开奖记录', rolloverNext: '滚入下期',
   board: '累计中奖榜', history: '历史开奖', loading: '加载中…',
   noHistory: '暂无历史开奖', noData: '暂无数据', loadFail: '加载失败，请稍后刷新重试',
   roundN: '第 {n} 期', totalPaid: '共发出 {amt} LGNS', wonTimes: '中 {n} 次 · <b>{amt}</b> LGNS',
   prize1: '一等奖', prize2: '二等奖', prize3: '三等奖',
-  ownerTitle: '房主管理', ownerNote: '冷启动：往当期奖池里加钱，奖金更诱人，吸引第一批玩家。加进去的钱就回不来了，算营销成本。',
-  seedPh: '注入多少 LGNS', approveSeedBtn: '1. 授权', seedBtn: '2. 注入奖池', setPriceBtn: '票价改成 3 LGNS',
+  ownerTitle: '房主管理', ownerNote: '冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.6 LGNS 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。',
+  seedPh: '注入多少 LGNS', approveSeedBtn: '1. 授权', seedBtn: '2. 注入锁定池', setPriceBtn: '票价改成 3 LGNS',
+  lockedLabel: '🔒 待解锁注资',
   drawing: '开奖中', drawPreparing: '准备开奖…', drawClose: '关闭',
   selling: '⏳ 售票中，{t} 后截止', closedWaiting: '⏰ 已截止，等待关闭本期', waitingDraw: '🎲 等待开奖（目标块 {b}）',
   noBuyers: '本期无人购票，奖池全额滚存',
@@ -279,8 +283,8 @@ zh: {
   drawSuccess: '开奖成功！正在揭晓中奖者…', drawDone: '本期开奖完成，奖金已自动打到中奖者钱包',
   drawFail: '开奖失败：{m}', firstBorn: '一等奖诞生！',
   approveOk: '授权成功，再点「买票」', buyOk: '买票成功，祝中大奖！', closedOk: '本期已关闭，等约 50 个块后点开奖',
-  enterAmt: '先填注入金额', seedApproveOk: '授权成功，再点「注入奖池」',
-  seedConfirm: '往奖池注入 {amt} LGNS？这钱就回不来了，算营销成本。', seedDone: '注入成功！',
+  enterAmt: '先填注入金额', seedApproveOk: '授权成功，再点「注入锁定池」',
+  seedConfirm: '往注资锁定池注入 {amt} LGNS？按票释放进奖池，锁定的可随时取回。', seedDone: '注入成功！',
   priceConfirm: '把票价改成 3 LGNS / 张？', priceDone: '票价已改成 3 LGNS！',
   amtBad: '金额格式不对', decTooMany: '小数位太多',
   notConnected: '未连接', onchainLottery: '链上彩票',
@@ -308,14 +312,15 @@ en: {
   closeBtn: 'Close Round', drawBtn: 'Draw',
   drawNote: 'Round closed: tap "Close Round" first to lock the draw block, then wait ~50 blocks and tap "Draw". Anyone can do it, caller pays gas.',
   prizeTitle: '🏆 Prizes', p1: '1st Prize × 1', p1v: '50% of pool', p2: '2nd Prize × 3', p2v: '10% of pool each', p3: '3rd Prize × 10', p3v: '2% of pool each',
-  poolFormula: '· Pool = round sales × {pct}% + rollover<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
+  poolFormula: '· Pool = round sales × {pct}% + rollover + unlocked seed<br>· Seeds go into a locked vault: 0.6 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
   lastDraw: 'Last Draw', lastRound: '(Round {n})', noRecord: 'No draw records yet', rolloverNext: 'Rollover to next',
   board: 'Leaderboard', history: 'History', loading: 'Loading…',
   noHistory: 'No draw history yet', noData: 'No data', loadFail: 'Load failed, please refresh and retry',
   roundN: 'Round {n}', totalPaid: 'Paid out {amt} LGNS', wonTimes: 'Won {n}× · <b>{amt}</b> LGNS',
   prize1: '1st Prize', prize2: '2nd Prize', prize3: '3rd Prize',
-  ownerTitle: 'Owner Panel', ownerNote: 'Cold start: seed the current prize pool to attract the first players. Seeded funds cannot be withdrawn — treat as marketing cost.',
-  seedPh: 'Amount to seed (LGNS)', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Pool', setPriceBtn: 'Set price to 3 LGNS',
+  ownerTitle: 'Owner Panel', ownerNote: 'Cold-start seeding: funds go into a locked vault, 0.6 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming. Locked funds can be withdrawn anytime.',
+  seedPh: 'Amount to seed (LGNS)', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Locked Vault', setPriceBtn: 'Set price to 3 LGNS',
+  lockedLabel: '🔒 Locked seed (unlocking)',
   drawing: 'Drawing…', drawPreparing: 'Preparing…', drawClose: 'Close',
   selling: '⏳ Selling, closes in {t}', closedWaiting: '⏰ Closed, waiting to lock round', waitingDraw: '🎲 Waiting for draw (target block {b})',
   noBuyers: 'No tickets sold, full pool rolls over',
@@ -327,8 +332,8 @@ en: {
   drawSuccess: 'Draw successful! Revealing winners…', drawDone: 'Draw complete, prizes sent to winners automatically',
   drawFail: 'Draw failed: {m}', firstBorn: '1st Prize winner!',
   approveOk: 'Approved, now tap "Buy Tickets"', buyOk: 'Tickets bought, good luck!', closedOk: 'Round closed, wait ~50 blocks then draw',
-  enterAmt: 'Enter an amount first', seedApproveOk: 'Approved, now tap "Seed Pool"',
-  seedConfirm: 'Seed {amt} LGNS into the pool? This cannot be withdrawn — marketing cost.', seedDone: 'Seeded successfully!',
+  enterAmt: 'Enter an amount first', seedApproveOk: 'Approved, now tap "Seed Locked Vault"',
+  seedConfirm: 'Seed {amt} LGNS into the locked vault? Unlocks per ticket sold; locked funds can be withdrawn anytime.', seedDone: 'Seeded successfully!',
   priceConfirm: 'Set ticket price to 3 LGNS?', priceDone: 'Ticket price set to 3 LGNS!',
   amtBad: 'Invalid amount format', decTooMany: 'Too many decimals',
   notConnected: 'Not connected', onchainLottery: 'On-chain Lottery',
@@ -391,7 +396,7 @@ const CHAINS = {
     explorer: 'https://browser.anubispace.org',
     token: '0x4d1d808a081fdac440703b3765fc61f8028c06b8', // LGNS 9 位精度
     decimals: 9,
-    CONTRACT: '0x0E1e458F1e2fD60364D1906Dc058760070D43902', // 2026-10-02 部署
+    CONTRACT: '0x12FA8694e8b97B3E024fFb2e4618C929f599959e', // 2026-10-10 V2 防薅版部署
     native: {name:'DAI', symbol:'DAI', decimals:18},
     deployBlock: 15440000 // 2026-10-02 前后，历史事件从这里开始扫
   },
@@ -414,7 +419,8 @@ const SEL = {
   setTicketPrice: '15981650',
   ticketPrice: '1209b1f6', feeBps: '24a9d853', currentRound: '8a19c8bc',
   rounds: '8c65c81f', lastDrawnRound: '9fe8862a', lastRollover: '953523e8',
-  getLastWinners: '95690936', getTicketOwners: '36a65e80', owner: '8da5cb5b'
+  getLastWinners: '95690936', getTicketOwners: '36a65e80', owner: '8da5cb5b',
+  lockedJackpot: '975008a3', winnableJackpot: 'eb111f91'
 };
 function encUint(v){ return BigInt(v).toString(16).padStart(64,'0'); }
 function encAddr(a){ return '0'.repeat(24) + a.toLowerCase().replace(/^0x/,''); }
@@ -565,6 +571,10 @@ async function refresh(){
           sold=Number(decUint(w(2))), sales=decUint(w(3)), jackpot=decUint(w(4));
     const pool = sales*(10000n-FEE)/10000n + jackpot;
     const pp = $('prizePool'); pp.textContent = fmt2(pool); pp.classList.remove('skel');
+    try{
+      const locked = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lockedJackpot));
+      $('lockedPool').textContent = fmt(locked);
+    }catch(e){ $('lockedPool').textContent='-'; }
     $('sold').textContent = sold + t('ticketsUnit');
     $('sales').textContent = fmt(sales)+' LGNS';
     $('jackpot').textContent = fmt(jackpot)+' LGNS';
