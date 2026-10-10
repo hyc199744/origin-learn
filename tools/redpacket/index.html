@@ -125,6 +125,19 @@ const S={balanceOf:"0x70a08231",approve:"0x095ea7b3",allowance:"0xdd62ed3e",
  hasGrabbed:"0x1c2c47df",grabbedOf:"0xaa1052d7"};
 const $=id=>document.getElementById(id);
 let ACCT=null, LANG="zh";
+const CHAIN={id:6714,hex:"0x1A3A",name:"Anubis",rpc:"https://rpc.anubispace.org",explorer:"https://browser.anubispace.org",native:{name:"DAI",symbol:"DAI",decimals:18}};
+async function ensureChain(){
+  const cid=await eth("eth_chainId",[]);
+  if(parseInt(cid,16)===CHAIN.id)return true;
+  try{await eth("wallet_switchEthereumChain",[{chainId:CHAIN.hex}]);return true;}
+  catch(e){
+    if(e.code===4902){
+      await eth("wallet_addEthereumChain",[{chainId:CHAIN.hex,chainName:CHAIN.name,rpcUrls:[CHAIN.rpc],nativeCurrency:CHAIN.native,blockExplorerUrls:[CHAIN.explorer]}]);
+      return true;
+    }
+    throw e;
+  }
+}
 const I18N={
  zh:{back:"发财游戏平台",connect:"连接钱包",title:"红包接龙",subtitle:"抢包 → 手气最佳当龙头 → 龙头等额续发，链条不断",myfcb:"我的 FCB",curpacket:"当前红包",left:"剩余份数",cur:"当前红包",loading:"加载中…",grab:"抢红包",settle:"结算",relayT:"👑 我是龙头：续发",relayShares:"新包份数（2–100）",approve:"授权 FCB",relay:"等额续发",relayHint:"续发金额 = 你抢到的金额（等额 1x），合约自动从你钱包收回。",takeT:"⏰ 龙头超时：接替续链",takeAmt:"出资金额（FCB，不低于余量）",takeShares:"新包份数（2–100）",takeover:"接替并发包",takeHint:"接替者拿走合约余量作为奖励，并成为新链的发起人。",createT:"发红包",cAmt:"金额（FCB，最低 100）",cShares:"份数（2–100）",create:"发包",createHint:"平台抽成 2%。每包每人限抢 1 份，金额随机，实时到账。",ruleT:"玩法规则",myT:"我的记录",connFirst:"连接钱包后查看"},
  en:{back:"FCB Arcade",connect:"Connect",title:"Red Packet Relay",subtitle:"Grab → luckiest becomes leader → leader relays 1x, chain never breaks",myfcb:"My FCB",curpacket:"Current packet",left:"Left",cur:"Current packet",loading:"Loading…",grab:"Grab",settle:"Settle",relayT:"👑 I'm the leader: relay",relayShares:"New packet shares (2–100)",approve:"Approve FCB",relay:"Relay 1x",relayHint:"Relay amount = what you grabbed (1x). Contract pulls it from your wallet.",takeT:"⏰ Leader timed out: take over",takeAmt:"Fund amount (FCB)",takeShares:"New packet shares (2–100)",takeover:"Take over & create",takeHint:"Taker gets leftover as reward and becomes the new chain head.",createT:"Create packet",cAmt:"Amount (FCB, min 100)",cShares:"Shares (2–100)",create:"Create",createHint:"2% platform fee. One grab per person per packet, random amounts, instant.",ruleT:"Rules",myT:"My history",connFirst:"Connect wallet to view"}
@@ -139,26 +152,28 @@ const call=(to,data)=>eth("eth_call",[{to,data},"latest"]);
 const pAddr=a=>"0".repeat(24)+a.slice(2).toLowerCase();
 const pUint=n=>BigInt(n).toString(16).padStart(64,"0");
 const pU8=n=>BigInt(n).toString(16).padStart(64,"0");
-function dec(hex){hex=hex.slice(2);const r=[];for(let i=0;i<hex.length;i+=64)r.push(BigInt("0x"+hex.slice(i,i+64)));return r;}
+function dec(hex){if(!hex||hex==="0x")return null;hex=hex.slice(2);const r=[];for(let i=0;i<hex.length;i+=64)r.push(BigInt("0x"+hex.slice(i,i+64)));return r;}
+const dec1=async(to,data)=>{const h=await call(to,data);const r=dec(h);if(!r)throw new Error(LANG==="zh"?"读取失败：请切换到 Anubis 网络":"Read failed: switch to Anubis");return r;};
 const fmtF=b=>{const neg=b<0n;b=neg?-b:b;let s=b.toString().padStart(19,"0");let ip=s.slice(0,-18),fp=s.slice(-18).replace(/0+$/,"").slice(0,4);return (neg?"-":"")+ip+(fp?"."+fp:"");};
-const toWei=v=>BigInt(Math.floor(Number(v)*1e18));
+const toWei=v=>{const num=Number(v);if(!isFinite(num)||num<=0)throw new Error(LANG==="zh"?"请输入有效金额":"Enter a valid amount");return BigInt(Math.floor(num*1e18));};
+const toShares=v=>{const n=Math.floor(Number(v));if(!isFinite(n)||n<2||n>100)throw new Error(LANG==="zh"?"份数填 2–100":"Shares must be 2–100");return n;};
 async function sendTx(to,data){
   const gas=await eth("eth_estimateGas",[{from:ACCT,to,data}]);
   const gasPrice=await eth("eth_gasPrice",[]);
   return eth("eth_sendTransaction",[{from:ACCT,to,data,gas:"0x"+(BigInt(gas)*13n/10n).toString(16),gasPrice,type:"0x0"}]);
 }
 async function needApprove(spender,amt){
-  const [al]=dec(await call(FCB,S.allowance+pAddr(ACCT)+pAddr(spender)));
+  const [al]=await dec1(FCB,S.allowance+pAddr(ACCT)+pAddr(spender));
   return al<amt;
 }
 let CUR=0;
 async function loadPacket(){
   try{
-    const [n]=dec(await call(RELAY,S.packetCount));
+    const [n]=await dec1(RELAY,S.packetCount);
     CUR=Number(n);
     $("sCur").textContent=n===0n?"-":"#"+n;
     if(n===0n){$("pktInfo").innerHTML=LANG==="zh"?"还没有红包，来发第一个吧！":"No packets yet — create the first one!";$("grabBtn").disabled=true;return;}
-    const r=dec(await call(RELAY,S.getPacket+pUint(n)));
+    const r=await dec1(RELAY,S.getPacket+pUint(n));
     const [creator,net,shares,grabbed,dist,luckiest,best,leftover,grabDl,relayDl,settled,relayed]=r;
     const left=Number(shares)-Number(grabbed);
     $("sLeft").textContent=settled?(relayed?"-":(LANG==="zh"?"已结算":"settled")):left;
@@ -190,13 +205,13 @@ async function refresh(){
   await loadPacket();
   if(!ACCT)return;
   try{
-    const [m]=dec(await call(FCB,S.balanceOf+pAddr(ACCT)));$("sMine").textContent=fmtF(m);
+    const [m]=await dec1(FCB,S.balanceOf+pAddr(ACCT));$("sMine").textContent=fmtF(m);
     // 我的记录：查最近包的抢包情况
     let html="";
     for(let id=CUR;id>=Math.max(1,CUR-5);id--){
-      const [g]=dec(await call(RELAY,S.hasGrabbed+pUint(id)+pAddr(ACCT)));
+      const [g]=await dec1(RELAY,S.hasGrabbed+pUint(id)+pAddr(ACCT));
       if(g===1n){
-        const [amt]=dec(await call(RELAY,S.grabbedOf+pUint(id)+pAddr(ACCT)));
+        const [amt]=await dec1(RELAY,S.grabbedOf+pUint(id)+pAddr(ACCT));
         html+=`<div class="packetrow"><span>#${id} · ${LANG==="zh"?"抢到":"grabbed"} <b style="color:var(--gold2)">${fmtF(amt)} FCB</b></span></div>`;
       }
     }
@@ -205,41 +220,42 @@ async function refresh(){
 }
 $("connBtn").onclick=async()=>{
   if(!window.ethereum)return toast("No wallet");
-  const [a]=await eth("eth_requestAccounts",[]);
-  ACCT=a;$("connBtn").textContent=a.slice(0,6)+"…"+a.slice(-4);
-  refresh();setInterval(refresh,15000);
+  try{
+    const [a]=await eth("eth_requestAccounts",[]);
+    await ensureChain();
+    ACCT=a;$("connBtn").textContent=a.slice(0,6)+"…"+a.slice(-4);
+    refresh();setInterval(refresh,15000);
+  }catch(e){toast((LANG==="zh"?"请切换到 Anubis 网络：":"Switch to Anubis: ")+(e.message||e));}
 };
-$("grabBtn").onclick=async()=>{try{await sendTx(RELAY,S.grab+pUint(CUR));toast("✓");setTimeout(refresh,3000);}catch(e){toast("ERR: "+(e.message||e));}};
-$("settleBtn").onclick=async()=>{try{await sendTx(RELAY,S.settle+pUint(CUR));toast("✓");setTimeout(refresh,3000);}catch(e){toast("ERR: "+(e.message||e));}};
+$("grabBtn").onclick=async()=>{try{await ensureChain();await sendTx(RELAY,S.grab+pUint(CUR));toast("✓");setTimeout(refresh,3000);}catch(e){toast((e.message||e).toString().replace(/^ERR: /,""));}};
+$("settleBtn").onclick=async()=>{try{await ensureChain();await sendTx(RELAY,S.settle+pUint(CUR));toast("✓");setTimeout(refresh,3000);}catch(e){toast((e.message||e).toString().replace(/^ERR: /,""));}};
 $("createBtn").onclick=async()=>{
   try{
-    const amt=toWei($("cAmt").value),sh=Number($("cShares").value);
-    if(amt<=0n||sh<2||sh>100)return toast("BAD INPUT");
+    const amt=toWei($("cAmt").value),sh=toShares($("cShares").value);
     if(await needApprove(RELAY,amt)){$("apprBtn").style.display="";toast(LANG==="zh"?"先点授权":"Approve first");return;}
     $("apprBtn").style.display="none";
     await sendTx(RELAY,S.createPacket+pUint(amt)+pU8(sh));toast("✓");setTimeout(refresh,3000);
-  }catch(e){toast("ERR: "+(e.message||e));}
+  }catch(e){toast((e.message||e).toString().replace(/^ERR: /,""));}
 };
 $("apprBtn").onclick=async()=>{try{await sendTx(FCB,S.approve+pAddr(RELAY)+pUint(BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")));toast("✓");$("apprBtn").style.display="none";}catch(e){toast("ERR: "+(e.message||e));}};
 $("relayBtn").onclick=async()=>{
   try{
-    const sh=Number($("relayShares").value);
-    const r=dec(await call(RELAY,S.getPacket+pUint(CUR)));
+    const sh=toShares($("relayShares").value);
+    const r=await dec1(RELAY,S.getPacket+pUint(CUR));
     const best=r[6];
     if(await needApprove(RELAY,best)){$("apprRelayBtn").style.display="";toast(LANG==="zh"?"先点授权":"Approve first");return;}
     $("apprRelayBtn").style.display="none";
     await sendTx(RELAY,S.relay+pUint(CUR)+pU8(sh));toast("✓");setTimeout(refresh,3000);
-  }catch(e){toast("ERR: "+(e.message||e));}
+  }catch(e){toast((e.message||e).toString().replace(/^ERR: /,""));}
 };
 $("apprRelayBtn").onclick=$("apprBtn").onclick;
 $("takeBtn").onclick=async()=>{
   try{
-    const amt=toWei($("takeAmt").value),sh=Number($("takeShares").value);
-    if(amt<=0n||sh<2||sh>100)return toast("BAD INPUT");
+    const amt=toWei($("takeAmt").value),sh=toShares($("takeShares").value);
     if(await needApprove(RELAY,amt)){$("apprTakeBtn").style.display="";toast(LANG==="zh"?"先点授权":"Approve first");return;}
     $("apprTakeBtn").style.display="none";
     await sendTx(RELAY,S.takeover+pUint(CUR)+pU8(sh)+pUint(amt));toast("✓");setTimeout(refresh,3000);
-  }catch(e){toast("ERR: "+(e.message||e));}
+  }catch(e){toast((e.message||e).toString().replace(/^ERR: /,""));}
 };
 $("apprTakeBtn").onclick=$("apprBtn").onclick;
 setLang("zh");loadPacket();
