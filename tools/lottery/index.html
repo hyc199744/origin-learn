@@ -230,6 +230,7 @@
         <button class="btn-main" onclick="seed()" data-i18n="seedBtn" style="margin-top:0">2. 注入奖池</button>
       </div>
       <div style="margin-top:10px"><button class="btn-ghost" onclick="doSetTicketPrice()" data-i18n="setPriceBtn">票价改成 3 LGNS</button></div>
+      <div style="margin-top:10px"><button class="btn-ghost" onclick="doSetRoundDuration()" data-i18n="setDurationBtn">轮次改成 1 小时一期</button></div>
     </div>
   </section>
 
@@ -269,7 +270,7 @@ zh: {
   roundN: '第 {n} 期', totalPaid: '共发出 {amt} LGNS', wonTimes: '中 {n} 次 · <b>{amt}</b> LGNS',
   prize1: '一等奖', prize2: '二等奖', prize3: '三等奖',
   ownerTitle: '房主管理', ownerNote: '冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.6 LGNS 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。',
-  seedPh: '注入多少 LGNS', approveSeedBtn: '1. 授权', seedBtn: '2. 注入锁定池', setPriceBtn: '票价改成 3 LGNS',
+  seedPh: '注入多少 LGNS', approveSeedBtn: '1. 授权', seedBtn: '2. 注入锁定池', setPriceBtn: '票价改成 3 LGNS', setDurationBtn: '轮次改成 1 小时一期',
   lockedLabel: '🔒 待解锁注资',
   drawing: '开奖中', drawPreparing: '准备开奖…', drawClose: '关闭',
   selling: '⏳ 售票中，{t} 后截止', closedWaiting: '⏰ 已截止，等待关闭本期', waitingDraw: '🎲 等待开奖（目标块 {b}）',
@@ -285,6 +286,7 @@ zh: {
   enterAmt: '先填注入金额', seedApproveOk: '授权成功，再点「注入锁定池」',
   seedConfirm: '往注资锁定池注入 {amt} LGNS？按票释放进奖池，锁定的可随时取回。', seedDone: '注入成功！',
   priceConfirm: '把票价改成 3 LGNS / 张？', priceDone: '票价已改成 3 LGNS！',
+  durationConfirm: '把轮次改成 1 小时一期？从第 2 期开始生效。', durationDone: '已改成 1 小时一期！',
   amtBad: '金额格式不对', decTooMany: '小数位太多',
   notConnected: '未连接', onchainLottery: '链上彩票',
   jackpotTitle: '本期奖池', saleEndsIn: '距售票截止',
@@ -318,7 +320,7 @@ en: {
   roundN: 'Round {n}', totalPaid: 'Paid out {amt} LGNS', wonTimes: 'Won {n}× · <b>{amt}</b> LGNS',
   prize1: '1st Prize', prize2: '2nd Prize', prize3: '3rd Prize',
   ownerTitle: 'Owner Panel', ownerNote: 'Cold-start seeding: funds go into a locked vault, 0.6 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming. Locked funds can be withdrawn anytime.',
-  seedPh: 'Amount to seed (LGNS)', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Locked Vault', setPriceBtn: 'Set price to 3 LGNS',
+  seedPh: 'Amount to seed (LGNS)', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Locked Vault', setPriceBtn: 'Set price to 3 LGNS', setDurationBtn: 'Set 1-hour rounds',
   lockedLabel: '🔒 Locked seed (unlocking)',
   drawing: 'Drawing…', drawPreparing: 'Preparing…', drawClose: 'Close',
   selling: '⏳ Selling, closes in {t}', closedWaiting: '⏰ Closed, waiting to lock round', waitingDraw: '🎲 Waiting for draw (target block {b})',
@@ -334,6 +336,7 @@ en: {
   enterAmt: 'Enter an amount first', seedApproveOk: 'Approved, now tap "Seed Locked Vault"',
   seedConfirm: 'Seed {amt} LGNS into the locked vault? Unlocks per ticket sold; locked funds can be withdrawn anytime.', seedDone: 'Seeded successfully!',
   priceConfirm: 'Set ticket price to 3 LGNS?', priceDone: 'Ticket price set to 3 LGNS!',
+  durationConfirm: 'Set round duration to 1 hour? Takes effect from round 2.', durationDone: 'Round duration set to 1 hour!',
   amtBad: 'Invalid amount format', decTooMany: 'Too many decimals',
   notConnected: 'Not connected', onchainLottery: 'On-chain Lottery',
   jackpotTitle: "This Round's Pool", saleEndsIn: 'Sale ends in',
@@ -419,7 +422,7 @@ const SEL = {
   ticketPrice: '1209b1f6', feeBps: '24a9d853', currentRound: '8a19c8bc',
   rounds: '8c65c81f', lastDrawnRound: '9fe8862a', lastRollover: '953523e8',
   getLastWinners: '95690936', getTicketOwners: '36a65e80', owner: '8da5cb5b',
-  lockedJackpot: '975008a3', winnableJackpot: 'eb111f91'
+  lockedJackpot: '975008a3', winnableJackpot: 'eb111f91', setRoundDuration: '36c92c3f'
 };
 function encUint(v){ return BigInt(v).toString(16).padStart(64,'0'); }
 function encAddr(a){ return '0'.repeat(24) + a.toLowerCase().replace(/^0x/,''); }
@@ -788,6 +791,12 @@ async function doSetTicketPrice(){
   if(!confirm(t('priceConfirm'))) return;
   await sendTx(CFG.CONTRACT,'0x'+SEL.setTicketPrice+encUint(3000000000n));
   toast(t('priceDone'));
+  await refresh();
+}
+async function doSetRoundDuration(){
+  if(!confirm(t('durationConfirm'))) return;
+  await sendTx(CFG.CONTRACT,'0x'+SEL.setRoundDuration+encUint(3600n));
+  toast(t('durationDone'));
   await refresh();
 }
 setInterval(()=>{ if(myAddr) refresh(); }, 15000);
