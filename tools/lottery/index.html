@@ -122,6 +122,18 @@
   @media(max-width:480px){.jk-amt{font-size:44px}.tier .p{font-size:26px}.wrap{padding:10px 12px 32px}}
   #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--wine-d);color:#F7F1E3;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 6px 20px #0004;z-index:120;max-width:88vw;text-align:center;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;line-height:1.5}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .verify-box{background:#FBF8F1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:6px}
+  .verify-box .kv{padding:5px 0}
+  .btn-verify{background:#fff;border:1.5px solid var(--line);color:var(--muted);border-radius:10px;cursor:pointer;font-weight:600;font-family:inherit;padding:6px 13px;font-size:12.5px;transition:border-color .15s,color .15s}
+  .btn-verify:hover{border-color:var(--gold);color:var(--wine)}
+  .trans-pool{background:#FBF8F1;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .trans-pool .tp-head{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;font-weight:800;color:var(--wine);margin-bottom:6px}
+  .trans-pool .tp-head a{font-size:12px;color:var(--gold);text-decoration:none;font-weight:700}
+  .trans-pool .kv{padding:6px 0;font-size:13px}
+  .mystats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mystats .ms{background:#FBF8F1;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .mystats .ms .k{font-size:12px;color:var(--muted);margin-bottom:5px}
+  .mystats .ms .v{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -243,9 +255,10 @@
   </section>
 
   <section class="card" id="sec-my">
-    <div class="sec-title"><h2 data-i18n="navMyTickets">我的票据</h2></div>
+    <div class="sec-title"><h2 data-i18n="navMyTickets">我的票据</h2><span class="r" id="myStatsPool"></span></div>
     <div class="kv"><span class="k" data-i18n="myAddrLabel">我的地址</span><span class="v" id="myAddr" style="font-size:12px">-</span></div>
     <div class="kv"><span class="k" data-i18n="myBalLabel">LGNS 余额</span><span class="v" id="myBal">-</span></div>
+    <div id="myStats" style="margin-top:12px"><div class="note" data-i18n="myStatsConnect">连接钱包后查看你的战绩</div></div>
   </section>
 
   <section class="card" id="sec-rules">
@@ -253,6 +266,11 @@
     <div class="note" id="poolFormula" data-i18n-html="poolFormula" style="margin-top:0"></div>
     <div class="kv" style="margin-top:10px"><span class="k" data-i18n="contractLottery">彩票合约</span><span class="v"><a id="contractLotteryAddr" target="_blank" rel="noopener">-</a></span></div>
     <div class="kv"><span class="k" data-i18n="contractToken">票币合约</span><span class="v"><a id="contractTokenAddr" target="_blank" rel="noopener">-</a></span></div>
+    <div style="margin-top:16px;border-top:1px dashed var(--line);padding-top:14px">
+      <div class="sec-title"><h2 data-i18n="transTitle">📊 数据透明（四池链上实时）</h2></div>
+      <div class="note" data-i18n="transNote" style="margin-top:0"></div>
+      <div id="transPools" style="margin-top:12px"><div class="note" data-i18n="loading">加载中…</div></div>
+    </div>
     <div id="ownerPanel" style="margin-top:14px">
       <div class="sec-title"><h2 data-i18n="ownerTitle">房主管理</h2></div>
       <div class="note" data-i18n="ownerNote" style="margin-top:0">冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.3 {s} 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。</div>
@@ -352,7 +370,13 @@ zh: {
   prizeNote: '奖池显示为票款总额，开奖时扣除 10% 平台费后按比例派奖。按票抽奖，同一钱包可多次中奖。',
   navHistory: '历史开奖', navMyTickets: '我的票据', navRules: '规则与合约',
   myAddrLabel: '我的地址', myBalLabel: '{s} 余额',
+  myStatsConnect: '连接钱包后查看你的战绩', msPool: '（{s} 池）',
+  msTicketsBought: '累计买票', msSpent: '累计花费', msWon: '累计中奖', msWonTimes: '{n} 次', msRefEarned: '返佣收入', msNet: '净盈亏', msSpentNote: '（花费按当前票价估算）',
   contractLottery: '彩票合约', contractToken: '票币合约', viewContract: '在浏览器查看合约',
+  verifyBtn: '🔍 验证本期开奖', verifyLoading: '读取开奖区块…', verifyDrawBlock: '开奖区块', verifyBlockHash: '区块哈希', verifyNoBlock: '该期开奖区块信息读取不到',
+  verifyExplain: '中奖者由上面这个区块的哈希决定。这个区块在本期售票截止之后才产生、哈希公开且无法篡改，所以买票时谁也预知不了、开奖后谁都能来核对，项目方动不了手脚。',
+  transTitle: '📊 数据透明（四池链上实时）', transNote: '以下全部从链上合约实时读取，公开只读，任何人可自行核对。',
+  transTicketPrice: '票价', transFee: '平台抽水', transOwner: '房主', transLocked: '注资锁定池', transCurPool: '本期奖池', transTotalPaid: '累计已派奖', transContract: '合约 ↗',
   refTitle: '邀请返佣', refNote: '把你的邀请链接发给朋友：他买票，你拿他那笔平台费的 30%；他再邀请的人买票，你再拿 10%。返佣从平台费里出，不影响奖池，随时可提。邀请关系第一次买票就定死。',
   myRefLink: '我的邀请链接', copyBtn: '复制', copyOk: '邀请链接已复制，去发给朋友吧',
   myReferrer: '我的邀请人', noReferrer: '无（首次购票时绑定）',
@@ -418,7 +442,13 @@ en: {
   prizeNote: 'Pool shows gross ticket sales; 10% platform fee is deducted at draw before prizes are paid. Drawn per ticket; one wallet can win multiple times.',
   navHistory: 'History', navMyTickets: 'My Tickets', navRules: 'Rules & Contract',
   myAddrLabel: 'My Address', myBalLabel: '{s} Balance',
+  myStatsConnect: 'Connect your wallet to see your stats', msPool: '({s} pool)',
+  msTicketsBought: 'Tickets bought', msSpent: 'Total spent', msWon: 'Total won', msWonTimes: '{n}×', msRefEarned: 'Referral earned', msNet: 'Net P/L', msSpentNote: '(spend est. at current price)',
   contractLottery: 'Lottery Contract', contractToken: 'Token Contract', viewContract: 'View contract on explorer',
+  verifyBtn: '🔍 Verify this draw', verifyLoading: 'Loading draw block…', verifyDrawBlock: 'Draw block', verifyBlockHash: 'Block hash', verifyNoBlock: 'Draw block info unavailable',
+  verifyExplain: 'Winners are determined by the hash of the block above. That block is produced only after sales close; its hash is public and immutable — so it is unpredictable at purchase time and anyone can verify the draw afterwards. The team cannot tamper with it.',
+  transTitle: '📊 Transparency (4 pools, live on-chain)', transNote: 'All values below are read live from on-chain contracts — public, read-only, verifiable by anyone.',
+  transTicketPrice: 'Ticket price', transFee: 'Platform fee', transOwner: 'Owner', transLocked: 'Locked seed vault', transCurPool: 'Current pool', transTotalPaid: 'Total paid out', transContract: 'Contract ↗',
   refTitle: 'Referral Rewards', refNote: 'Share your invite link: earn 30% of the platform fee on your invitees\' ticket purchases, plus 10% on their invitees\'. Paid from the platform fee — the prize pool is untouched. Claim anytime. Referral binds on first purchase, permanently.',
   myRefLink: 'My Invite Link', copyBtn: 'Copy', copyOk: 'Invite link copied, go share it',
   myReferrer: 'My Referrer', noReferrer: 'None (bound on first purchase)',
@@ -888,7 +918,8 @@ async function refresh(force){
         const pz = i===0?t('prize1'):(i<4?t('prize2'):t('prize3'));
         html += '<div class="winner '+(i===0?'':(i<4?'t2':'t3'))+'"><span><span class="tag">'+pz+'</span>'+short(winners[i])+'</span><span><b>'+fmt(amounts[i])+'</b> '+TSYM()+'</span></div>';
       }
-      $('lastWinners').innerHTML = html || '<div class="note">'+t('noBuyers')+'</div>';
+      $('lastWinners').innerHTML = (html || '<div class="note">'+t('noBuyers')+'</div>')
+        + '<div style="margin-top:10px"><button class="btn-verify" onclick="verifyRound('+lr+',\'lastVerify\')">'+t('verifyBtn')+'</button><div id="lastVerify"></div></div>';
       $('lastRollover').textContent = fmt(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastRollover)))+' '+TSYM();
     }
     // 历史开奖 + 累计榜 + 返佣明细：重活儿，节流到约 40 秒一次（或手动触发时强制）
@@ -897,6 +928,8 @@ async function refresh(force){
       lastHeavy = nowMs;
       loadHistory();
       refreshRefStats();
+      renderTransparency();
+      renderMyStats();
     }
   }catch(e){ console.error(e); }
   finally{ refreshing = false; }
@@ -912,6 +945,100 @@ function tickCountdown(){
         ss = String(s%60).padStart(2,'0');
   cd.textContent = hh+' : '+mm+' : '+ss;
 }
+// 开奖可验证：亮出该期开奖用的区块号+区块哈希，谁都能自行核对随机源
+async function verifyRound(rid, elId){
+  const el = $(elId); if(!el) return;
+  el.innerHTML = '<div class="note">'+t('verifyLoading')+'</div>';
+  try{
+    const h = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid));
+    const drawBlock = Number(decUint(h.slice(64,128))); // rounds 结构第 2 个槽 = drawBlock
+    if(!drawBlock){ el.innerHTML = '<div class="note">'+t('verifyNoBlock')+'</div>'; return; }
+    let bh='—';
+    try{ const blk = await req('eth_getBlockByNumber',['0x'+drawBlock.toString(16), false]); bh=(blk&&blk.hash)||'—'; }catch(e){}
+    el.innerHTML = '<div class="verify-box">'
+      +'<div class="kv"><span class="k">'+t('verifyDrawBlock')+'</span><span class="v"><a href="'+CFG.explorer+'/block/'+drawBlock+'" target="_blank" rel="noopener" style="color:var(--wine);text-decoration:none">#'+drawBlock+' ↗</a></span></div>'
+      +'<div class="kv"><span class="k">'+t('verifyBlockHash')+'</span><span class="v" style="font-size:10.5px;word-break:break-all">'+bh+'</span></div>'
+      +'<div class="note" style="margin-top:4px">'+t('verifyExplain')+'</div>'
+      +'</div>';
+  }catch(e){ el.innerHTML='<div class="note">'+t('verifyNoBlock')+'</div>'; }
+}
+// 底部三池透明：全部链上实时读，公开只读
+async function renderTransparency(){
+  const box = $('transPools'); if(!box) return;
+  const fmtD = (v,dec)=> Number(formatUnits(v,dec)).toLocaleString('zh-CN',{maximumFractionDigits:2});
+  try{
+    const cards = await Promise.all(POOLS.map(async (P)=>{
+      try{
+        const [tp, rid] = await Promise.all([
+          ethCall(P.CONTRACT,'0x'+SEL.ticketPrice),
+          ethCall(P.CONTRACT,'0x'+SEL.currentRound)
+        ]);
+        const ridN = Number(decUint(rid));
+        const rh = await ethCall(P.CONTRACT,'0x'+SEL.rounds+encUint(ridN));
+        const curPool = decUint(rh.slice(3*64,4*64)) + decUint(rh.slice(4*64,5*64)); // sales + jackpot
+        let paid = 0n;
+        try{
+          const logs = await scanLogs([EV_WIN], P.CONTRACT, P.deployBlock);
+          for(const lg of logs){
+            const d=(lg.data||'0x').replace(/^0x/,'');
+            const offA=Number(BigInt('0x'+d.slice(64,128)))*2;
+            for(const a of decUintArray(d, offA)) paid += a;
+          }
+        }catch(e){}
+        return '<div class="trans-pool">'
+          +'<div class="tp-head"><span>'+P.sym+' '+(LANG==='zh'?'池':'Pool')+'</span><a href="'+CFG.explorer+'/address/'+P.CONTRACT+'" target="_blank" rel="noopener">'+t('transContract')+'</a></div>'
+          +'<div class="kv"><span class="k">'+t('transTicketPrice')+'</span><span class="v">'+fmtD(decUint(tp),P.decimals)+' '+P.sym+'</span></div>'
+          +'<div class="kv"><span class="k">'+t('transCurPool')+'</span><span class="v">'+fmtD(curPool,P.decimals)+' '+P.sym+'</span></div>'
+          +'<div class="kv"><span class="k">'+t('transTotalPaid')+'</span><span class="v">'+fmtD(paid,P.decimals)+' '+P.sym+'</span></div>'
+          +'</div>';
+      }catch(e){ return '<div class="trans-pool"><div class="tp-head">'+P.sym+'</div><div class="note">'+t('loadFail')+'</div></div>'; }
+    }));
+    box.innerHTML = cards.join('');
+  }catch(e){ console.error('trans', e); }
+}
+// 我的战绩：当前池链上事件算出累计买票/花费/中奖/返佣/净盈亏
+async function renderMyStats(){
+  const box = $('myStats'); if(!box) return;
+  const pl = $('myStatsPool'); if(pl) pl.textContent = myAddr ? t('msPool') : '';
+  if(!myAddr){ box.innerHTML = '<div class="note">'+t('myStatsConnect')+'</div>'; return; }
+  const me = myAddr.toLowerCase();
+  try{
+    const [tLogs, wLogs, rLogs] = await Promise.all([
+      scanLogs([EV_TICKETS]), scanLogs([EV_WIN]), scanLogs([EV_REFREWARD])
+    ]);
+    let tickets = 0n;
+    for(const l of tLogs){
+      if(('0x'+l.topics[2].slice(-40)).toLowerCase()!==me) continue;
+      tickets += BigInt('0x'+(l.data||'0x').replace(/^0x/,'').slice(0,64));
+    }
+    let winCnt=0, winAmt=0n;
+    for(const l of wLogs){
+      const d=(l.data||'0x').replace(/^0x/,'');
+      const offW=Number(BigInt('0x'+d.slice(0,64)))*2, offA=Number(BigInt('0x'+d.slice(64,128)))*2;
+      const ws=decAddrArray(d,offW), as=decUintArray(d,offA);
+      for(let i=0;i<ws.length;i++){ if(ws[i].toLowerCase()===me){ winCnt++; winAmt+=as[i]; } }
+    }
+    let ref=0n;
+    for(const l of rLogs){
+      const d=(l.data||'0x').replace(/^0x/,'');
+      const l1=('0x'+d.slice(0,64).slice(-40)).toLowerCase(), dd1=BigInt('0x'+(d.slice(64,128)||'0'));
+      const l2=('0x'+d.slice(128,192).slice(-40)).toLowerCase(), dd2=BigInt('0x'+(d.slice(192,256)||'0'));
+      if(l1===me) ref+=dd1;
+      if(l2===me) ref+=dd2;
+    }
+    const spent = tickets * TICKET; // 按当前票价估算（事件里没记每次成交价）
+    const net = winAmt + ref - spent;
+    const neg = net<0n, netAbs = neg ? -net : net;
+    const sym = TSYM();
+    box.innerHTML = '<div class="mystats">'
+      +'<div class="ms"><div class="k">'+t('msTicketsBought')+'</div><div class="v">'+tickets.toString()+t('ticketsUnit')+'</div></div>'
+      +'<div class="ms"><div class="k">'+t('msSpent')+'</div><div class="v">≈ '+fmt(spent)+' '+sym+'</div></div>'
+      +'<div class="ms"><div class="k">'+t('msWon')+'</div><div class="v">'+t('msWonTimes',{n:winCnt})+' · '+fmt(winAmt)+' '+sym+'</div></div>'
+      +'<div class="ms"><div class="k">'+t('msRefEarned')+'</div><div class="v">'+fmt(ref)+' '+sym+'</div></div>'
+      +'<div class="ms" style="grid-column:1/-1"><div class="k">'+t('msNet')+' '+t('msSpentNote')+'</div><div class="v" style="color:'+(neg?'var(--wine)':'#3E6B4F')+'">'+(neg?'-':'+')+fmt(netAbs)+' '+sym+'</div></div>'
+      +'</div>';
+  }catch(e){ console.error('myStats',e); box.innerHTML='<div class="note">'+t('loadFail')+'</div>'; }
+}
 // 历史开奖 + 累计榜：从 WinnersDrawn 事件读
 const EV_WIN = '0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627b4';
 // 邀请数据：ReferralBound(buyer,ref) / TicketsBought(roundId,buyer,count,firstTicket) / ReferralRewarded(roundId,buyer,l1,d1,l2,d2)
@@ -922,16 +1049,18 @@ const PADADDR = a => '0x' + '0'.repeat(24) + a.toLowerCase().replace(/^0x/,'');
 // 事件日志缓存：按合约+topic 分桶，只增量扫新块，避免每次刷新全链重扫
 const _logCache = {};
 function resetLogCache(){ for(const k in _logCache) delete _logCache[k]; }
-async function scanLogs(topics){
-  const key = CFG.CONTRACT + '|' + JSON.stringify(topics);
+async function scanLogs(topics, contract, deployFrom){
+  contract = contract || CFG.CONTRACT;
+  const dep = (deployFrom!=null) ? deployFrom : (CFG.deployBlock || 0);
+  const key = contract + '|' + JSON.stringify(topics);
   let c = _logCache[key];
-  if(!c){ c = { next: (CFG.deployBlock || 0), logs: [] }; _logCache[key] = c; }
+  if(!c){ c = { next: dep, logs: [] }; _logCache[key] = c; }
   const latest = Number(BigInt(await req('eth_blockNumber',[])));
   const CHUNK = 4000;
   let from = c.next;
   while(from <= latest){
     const to = Math.min(from + CHUNK - 1, latest);
-    const part = await req('eth_getLogs',[{address:CFG.CONTRACT, topics,
+    const part = await req('eth_getLogs',[{address:contract, topics,
       fromBlock:'0x'+from.toString(16), toBlock:'0x'+to.toString(16)}]);
     if(part && part.length) for(const l of part) c.logs.push(l);
     from = to + 1;
@@ -1023,7 +1152,9 @@ async function loadHistory(){
         const pz = i===0?t('prize1'):(i<4?t('prize2'):t('prize3'));
         wh += '<div class="winner"><span><span class="tag">'+pz+'</span>'+short(winners[i])+'</span><span><b>'+fmt(amounts[i])+'</b></span></div>';
       }
-      hhtml = '<div style="margin-bottom:10px"><div class="row"><span class="k"><b>'+t('roundN',{n:rid})+'</b></span><span class="v">'+t('totalPaid',{amt:fmt(sum)})+'</span></div>'+wh+'</div>' + hhtml;
+      hhtml = '<div style="margin-bottom:10px"><div class="row"><span class="k"><b>'+t('roundN',{n:rid})+'</b></span><span class="v">'+t('totalPaid',{amt:fmt(sum)})+'</span></div>'+wh
+        + '<div style="margin-top:4px"><button class="btn-verify" onclick="verifyRound('+rid+',\'hv'+rid+'\')">'+t('verifyBtn')+'</button><div id="hv'+rid+'"></div></div>'
+        + '</div>' + hhtml;
     }
     $('historyList').innerHTML = hhtml || '<div class="note">'+t('noHistory')+'</div>';
     // 累计榜
