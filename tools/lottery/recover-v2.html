@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>取回旧彩票合约余额</title>
+<style>
+  body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#F6F3EC;color:#2A2622;margin:0;padding:20px}
+  .card{background:#fff;border-radius:16px;padding:20px;max-width:520px;margin:0 auto;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+  h2{margin:0 0 12px;font-size:20px}
+  .note{font-size:13px;color:#8B8577;line-height:1.8;background:#FAF7F0;border-radius:10px;padding:10px 12px;margin:10px 0}
+  .kv{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px dashed #E9E2D2}
+  .kv .v{font-weight:700}
+  button{width:100%;padding:14px;margin-top:10px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer}
+  .b1{background:#5C1A27;color:#fff}
+  .b2{background:#C9A86A;color:#2A2622}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  #log{font-size:13px;margin-top:12px;line-height:1.9;word-break:break-all}
+  .ok{color:#1a7a3a}.err{color:#b3261e}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>取回旧彩票合约里的 1.35 LGNS</h2>
+  <div class="note">
+    旧合约（V2，第 1 期已开完废弃）里还锁着 1.35 LGNS 滚存，正常流程拿不出来。<br>
+    下面两步都是 owner 专属操作，用你房主钱包签名即可：<br>
+    1️⃣ 把票币地址临时切到黑洞地址（旧合约已废弃，无影响）<br>
+    2️⃣ 把 LGNS 提回你钱包
+  </div>
+  <div class="kv"><span>旧合约余额</span><span class="v" id="bal">-</span></div>
+  <div class="kv"><span>我的地址</span><span class="v" id="me" style="font-size:12px">-</span></div>
+  <div class="kv"><span>我是房主</span><span class="v" id="isOwner">-</span></div>
+  <button class="b1" id="btn1" onclick="step1()" disabled>1. 切换票币地址（签名）</button>
+  <button class="b2" id="btn2" onclick="step2()" disabled>2. 提回 1.35 LGNS（签名）</button>
+  <div id="log"></div>
+</div>
+<script>
+const OLD = '0x12FA8694e8b97B3E024fFb2e4618C929f599959e';
+const LGNS = '0x4d1d808a081fdac440703b3765fc61f8028c06b8';
+const DEAD = '0x000000000000000000000000000000000000dEaD';
+const AMOUNT = 1350000000n; // 1.35 LGNS
+const SEL_OWNER = '8da5cb5b', SEL_BAL = '70a08231';
+const SEL_SETTOKEN = '450e9dec', SEL_RESCUE = 'cea9d26f';
+const CHAINHEX = '0x1A3A';
+let me = null;
+const $ = id => document.getElementById(id);
+const encUint = v => BigInt(v).toString(16).padStart(64,'0');
+const encAddr = a => '0'.repeat(24) + a.toLowerCase().replace(/^0x/,'');
+function log(m, cls){ const d=document.createElement('div'); if(cls)d.className=cls; d.textContent=m; $('log').appendChild(d); }
+async function req(m,p){ return window.ethereum.request({method:m, params:p}); }
+async function call(to, data){
+  const r = await req('eth_call',[{to, data},'latest']);
+  return (r||'0x').replace(/^0x/,'');
+}
+async function sendTx(data){
+  const gasPrice = await req('eth_gasPrice',[]);
+  const hash = await req('eth_sendTransaction',[{from:me, to:OLD, data, type:'0x0', gasPrice}]);
+  log('已发送：' + hash);
+  for(let i=0;i<150;i++){
+    await new Promise(r=>setTimeout(r,2000));
+    const rc = await req('eth_getTransactionReceipt',[hash]);
+    if(rc && rc.blockNumber && rc.blockNumber!=='0x0'){
+      if(rc.status==='0x1'){ log('确认成功', 'ok'); return; }
+      throw new Error('交易被 revert');
+    }
+  }
+  throw new Error('等太久没确认');
+}
+async function init(){
+  if(!window.ethereum){ log('没检测到钱包，请用钱包 App 自带浏览器打开', 'err'); return; }
+  const accs = await req('eth_requestAccounts',[]);
+  me = accs[0];
+  $('me').textContent = me.slice(0,6)+'…'+me.slice(-4);
+  const cid = await req('eth_chainId',[]);
+  if(parseInt(cid,16) !== 6714){
+    try{ await req('wallet_switchEthereumChain',[{chainId:CHAINHEX}]); }
+    catch(e){ log('请手动切换到 Anubis 网络', 'err'); return; }
+  }
+  const b = BigInt('0x'+await call(LGNS, '0x'+SEL_BAL+encAddr(OLD)));
+  $('bal').textContent = (Number(b)/1e9).toFixed(2) + ' LGNS';
+  const ow = '0x'+(await call(OLD, '0x'+SEL_OWNER)).slice(-40);
+  const ok = ow.toLowerCase() === me.toLowerCase();
+  $('isOwner').textContent = ok ? '是' : '否（换房主钱包）';
+  $('isOwner').className = 'v ' + (ok?'ok':'err');
+  if(ok && b > 0n){ $('btn1').disabled = false; $('btn2').disabled = false; }
+  else if(b === 0n){ log('余额已空，不用操作', 'ok'); }
+}
+async function step1(){
+  try{
+    $('btn1').disabled = true;
+    await sendTx('0x'+SEL_SETTOKEN+encAddr(DEAD));
+    log('第 1 步完成，再点第 2 步', 'ok');
+  }catch(e){ log('第 1 步失败：'+(e.message||e), 'err'); $('btn1').disabled = false; }
+}
+async function step2(){
+  try{
+    $('btn2').disabled = true;
+    await sendTx('0x'+SEL_RESCUE+encAddr(LGNS)+encAddr(me)+encUint(AMOUNT));
+    log('1.35 LGNS 已提回你钱包，搞定', 'ok');
+    init();
+  }catch(e){ log('第 2 步失败：'+(e.message||e), 'err'); $('btn2').disabled = false; }
+}
+window.addEventListener('load', ()=>{ init().catch(e=>log(e.message||e,'err')); });
+</script>
+</body>
+</html>
