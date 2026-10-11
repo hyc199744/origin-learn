@@ -251,11 +251,19 @@
         <button class="btn-ghost" onclick="approveSeed()" data-i18n="approveSeedBtn">1. 授权</button>
         <button class="btn-main" onclick="seed()" data-i18n="seedBtn" style="margin-top:0">2. 注入奖池</button>
       </div>
-      <div style="margin-top:10px;display:flex;gap:8px">
-        <input id="priceAmt" type="number" min="1" data-i18n-ph="pricePh" placeholder="新票价（LGNS/张）" style="flex:1;min-width:0;color:#2A2622;background:#fff" oninput="updatePriceEcho()">
-        <button class="btn-ghost" onclick="doSetTicketPrice()" data-i18n="setPriceBtn" style="white-space:nowrap">修改票价</button>
+      <div style="margin-top:10px">
+        <div style="display:flex;gap:8px;margin-bottom:8px" id="priceQuickRow">
+          <button class="qbtn" onclick="setPriceQuick(3)">3</button>
+          <button class="qbtn" onclick="setPriceQuick(10)">10</button>
+          <button class="qbtn" onclick="setPriceQuick(20)">20</button>
+          <button class="qbtn" onclick="setPriceQuick(50)">50</button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input id="priceAmt" type="number" min="1" data-i18n-ph="pricePh" placeholder="新票价（LGNS/张）" style="flex:1;min-width:0;color:#2A2622;background:#fff;font-size:17px;font-weight:700" oninput="updatePriceEcho()">
+          <button class="btn-ghost" onclick="doSetTicketPrice()" data-i18n="setPriceBtn" style="white-space:nowrap">修改票价</button>
+        </div>
+        <div id="priceEcho" style="margin:8px 0 0;font-size:18px;font-weight:800;color:#1a1a1a;min-height:26px"></div>
       </div>
-      <div class="note" id="priceEcho" style="margin:4px 0 0;min-height:18px"></div>
       <div style="margin-top:10px"><button class="btn-ghost" onclick="doSetRoundDuration()" data-i18n="setDurationBtn">轮次改成 1 小时一期</button></div>
     </div>
   </section>
@@ -311,7 +319,7 @@ zh: {
   approveOk: '授权成功，再点「买票」', buyOk: '买票成功，祝中大奖！', closedOk: '本期已关闭，等约 50 个块后点开奖',
   enterAmt: '先填注入金额', seedApproveOk: '授权成功，再点「注入锁定池」',
   seedConfirm: '往注资锁定池注入 {amt} LGNS？按票释放进奖池，锁定的可随时取回。', seedDone: '注入成功！',
-  priceConfirm: '把票价改成 {p} LGNS / 张？', priceDone: '票价已改成 {p} LGNS！', priceEcho: '将设为：{p} LGNS / 张',
+  priceConfirm: '把票价改成 {p} LGNS / 张？', priceDone: '票价已改成 {p} LGNS！', priceEcho: '将设为：{p} LGNS / 张', priceCur: '当前票价：{p} LGNS / 张',
   durationConfirm: '把轮次改成 1 小时一期？从第 2 期开始生效。', durationDone: '已改成 1 小时一期！',
   amtBad: '金额格式不对', decTooMany: '小数位太多',
   notConnected: '未连接', onchainLottery: '链上彩票',
@@ -376,7 +384,7 @@ en: {
   approveOk: 'Approved, now tap "Buy Tickets"', buyOk: 'Tickets bought, good luck!', closedOk: 'Round closed, wait ~50 blocks then draw',
   enterAmt: 'Enter an amount first', seedApproveOk: 'Approved, now tap "Seed Locked Vault"',
   seedConfirm: 'Seed {amt} LGNS into the locked vault? Unlocks per ticket sold; locked funds can be withdrawn anytime.', seedDone: 'Seeded successfully!',
-  priceConfirm: 'Set ticket price to {p} LGNS?', priceDone: 'Ticket price set to {p} LGNS!', priceEcho: 'Will set to: {p} LGNS / ticket',
+  priceConfirm: 'Set ticket price to {p} LGNS?', priceDone: 'Ticket price set to {p} LGNS!', priceEcho: 'Will set to: {p} LGNS / ticket', priceCur: 'Current price: {p} LGNS / ticket',
   durationConfirm: 'Set round duration to 1 hour? Takes effect from round 2.', durationDone: 'Round duration set to 1 hour!',
   amtBad: 'Invalid amount format', decTooMany: 'Too many decimals',
   notConnected: 'Not connected', onchainLottery: 'On-chain Lottery',
@@ -741,6 +749,7 @@ async function refresh(){
   try{
     await loadStatic();
     refreshReferral();
+    updatePriceEcho();
     const rid = Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.currentRound)));
     const h = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid));
     const w = i => h.slice(i*64,(i+1)*64);
@@ -1087,9 +1096,16 @@ async function seed(){
   await sendTx(CFG.CONTRACT,'0x'+SEL.seedJackpot+encUint(amt));
   toast(t('seedDone'));
 }
+function setPriceQuick(v){
+  $('priceAmt').value = v;
+  updatePriceEcho();
+}
 function updatePriceEcho(){
   const v = ($('priceAmt').value || '').trim();
-  $('priceEcho').textContent = v ? t('priceEcho', {p: v}) : '';
+  const el = $('priceEcho');
+  if(!el) return;
+  if(v) el.textContent = '👉 ' + t('priceEcho', {p: v});
+  else el.textContent = TICKET > 0n ? t('priceCur', {p: fmt(TICKET)}) : '';
 }
 async function doSetTicketPrice(){
   const v = ($('priceAmt').value || '0').trim();
