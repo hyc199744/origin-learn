@@ -161,6 +161,7 @@
           <button class="qbtn" onclick="setPool(1)" data-i18n="poolTabU">USDT 池</button>
           <button class="qbtn" onclick="setPool(2)" data-i18n="poolTabD">DAI 池</button>
           <button class="qbtn" onclick="setPool(3)" data-i18n="poolTabA">A 池</button>
+          <button class="qbtn" onclick="setPool(4)" data-i18n="poolTabR">RM 池</button>
         </div>
       </div>
       <div class="jackpot">
@@ -267,7 +268,7 @@
     <div class="kv" style="margin-top:10px"><span class="k" data-i18n="contractLottery">彩票合约</span><span class="v"><a id="contractLotteryAddr" target="_blank" rel="noopener">-</a></span></div>
     <div class="kv"><span class="k" data-i18n="contractToken">票币合约</span><span class="v"><a id="contractTokenAddr" target="_blank" rel="noopener">-</a></span></div>
     <div style="margin-top:16px;border-top:1px dashed var(--line);padding-top:14px">
-      <div class="sec-title"><h2 data-i18n="transTitle">📊 数据透明（四池链上实时）</h2></div>
+      <div class="sec-title"><h2 data-i18n="transTitle">📊 数据透明（五池链上实时）</h2></div>
       <div class="note" data-i18n="transNote" style="margin-top:0"></div>
       <div id="transPools" style="margin-top:12px"><div class="note" data-i18n="loading">加载中…</div></div>
     </div>
@@ -355,7 +356,7 @@ zh: {
   jackpotTitle: '本期奖池', saleEndsIn: '距售票截止',
   roundLive: '第 {n} 期 · 购票中', roundClosed: '第 {n} 期 · 已截止', roundWaitDraw: '第 {n} 期 · 待开奖',
   dashClosed: '已截止', waitDrawBlk: '目标块 {b}',
-  poolTabL: 'LGNS 池', poolTabU: 'USDT 池', poolTabD: 'DAI 池', poolTabA: 'A 池',
+  poolTabL: 'LGNS 池', poolTabU: 'USDT 池', poolTabD: 'DAI 池', poolTabA: 'A 池', poolTabR: 'RM 池',
   joinRound: '参与本期', perTicket: '{p} {s} / 张', ticketsCount: '{n} 张', totalCost: '本次票款',
   stepConnect: '连接钱包', stepApprove: '授权 {s}', stepBuyCount: '确认购票 · {n} 张', processing: '处理中…',
   flowHint: '连接钱包 · 授权代币 · 确认购票',
@@ -375,7 +376,7 @@ zh: {
   contractLottery: '彩票合约', contractToken: '票币合约', viewContract: '在浏览器查看合约',
   verifyBtn: '🔍 验证本期开奖', verifyLoading: '读取开奖区块…', verifyDrawBlock: '开奖区块', verifyBlockHash: '区块哈希', verifyNoBlock: '该期开奖区块信息读取不到',
   verifyExplain: '中奖者由上面这个区块的哈希决定。这个区块在本期售票截止之后才产生、哈希公开且无法篡改，所以买票时谁也预知不了、开奖后谁都能来核对，项目方动不了手脚。',
-  transTitle: '📊 数据透明（四池链上实时）', transNote: '以下全部从链上合约实时读取，公开只读，任何人可自行核对。',
+  transTitle: '📊 数据透明（五池链上实时）', transNote: '以下全部从链上合约实时读取，公开只读，任何人可自行核对。',
   transTicketPrice: '票价', transFee: '平台抽水', transOwner: '房主', transLocked: '注资锁定池', transCurPool: '本期奖池', transTotalPaid: '累计已派奖', transContract: '合约 ↗',
   refTitle: '邀请返佣', refNote: '把你的邀请链接发给朋友：他买票，你拿他那笔平台费的 30%；他再邀请的人买票，你再拿 10%。返佣从平台费里出，不影响奖池，随时可提。邀请关系第一次买票就定死。',
   myRefLink: '我的邀请链接', copyBtn: '复制', copyOk: '邀请链接已复制，去发给朋友吧',
@@ -427,7 +428,7 @@ en: {
   jackpotTitle: "This Round's Pool", saleEndsIn: 'Sale ends in',
   roundLive: 'Round {n} · Selling', roundClosed: 'Round {n} · Closed', roundWaitDraw: 'Round {n} · Awaiting Draw',
   dashClosed: 'Closed', waitDrawBlk: 'Target block {b}',
-  poolTabL: 'LGNS Pool', poolTabU: 'USDT Pool', poolTabD: 'DAI Pool', poolTabA: 'A Pool',
+  poolTabL: 'LGNS Pool', poolTabU: 'USDT Pool', poolTabD: 'DAI Pool', poolTabA: 'A Pool', poolTabR: 'RM Pool',
   joinRound: 'Join This Round', perTicket: '{p} {s} / ticket', ticketsCount: '{n}', totalCost: 'Total',
   stepConnect: 'Connect Wallet', stepApprove: 'Approve {s}', stepBuyCount: 'Confirm · {n} tickets', processing: 'Processing…',
   flowHint: 'Connect wallet · Approve token · Confirm purchase',
@@ -447,7 +448,7 @@ en: {
   contractLottery: 'Lottery Contract', contractToken: 'Token Contract', viewContract: 'View contract on explorer',
   verifyBtn: '🔍 Verify this draw', verifyLoading: 'Loading draw block…', verifyDrawBlock: 'Draw block', verifyBlockHash: 'Block hash', verifyNoBlock: 'Draw block info unavailable',
   verifyExplain: 'Winners are determined by the hash of the block above. That block is produced only after sales close; its hash is public and immutable — so it is unpredictable at purchase time and anyone can verify the draw afterwards. The team cannot tamper with it.',
-  transTitle: '📊 Transparency (4 pools, live on-chain)', transNote: 'All values below are read live from on-chain contracts — public, read-only, verifiable by anyone.',
+  transTitle: '📊 Transparency (5 pools, live on-chain)', transNote: 'All values below are read live from on-chain contracts — public, read-only, verifiable by anyone.',
   transTicketPrice: 'Ticket price', transFee: 'Platform fee', transOwner: 'Owner', transLocked: 'Locked seed vault', transCurPool: 'Current pool', transTotalPaid: 'Total paid out', transContract: 'Contract ↗',
   refTitle: 'Referral Rewards', refNote: 'Share your invite link: earn 30% of the platform fee on your invitees\' ticket purchases, plus 10% on their invitees\'. Paid from the platform fee — the prize pool is untouched. Claim anytime. Referral binds on first purchase, permanently.',
   myRefLink: 'My Invite Link', copyBtn: 'Copy', copyOk: 'Invite link copied, go share it',
@@ -567,9 +568,16 @@ const POOLS = [
     payTokens:[
       {sym:'A', addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18} // A 池只收 A，直接进奖池
     ] },
+  { sym:'RM',
+    CONTRACT:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',
+    token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', decimals:9,
+    deployBlock:16204394, // RM 池部署块
+    payTokens:[
+      {sym:'RM', addr:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9} // RM 池只收 RM，直接进奖池
+    ] },
 ];
 let poolIdx = 0;
-try{ poolIdx = Number(localStorage.getItem('lottery_pool')||0)||0; if(poolIdx<0||poolIdx>3) poolIdx=0; }catch(e){}
+try{ poolIdx = Number(localStorage.getItem('lottery_pool')||0)||0; if(poolIdx<0||poolIdx>4) poolIdx=0; }catch(e){}
 function TSYM(){ return POOLS[poolIdx].sym; }
 Object.assign(CFG, POOLS[poolIdx]);
 function setPool(i){
