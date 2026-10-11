@@ -267,11 +267,6 @@
     <div class="note" id="poolFormula" data-i18n-html="poolFormula" style="margin-top:0"></div>
     <div class="kv" style="margin-top:10px"><span class="k" data-i18n="contractLottery">彩票合约</span><span class="v"><a id="contractLotteryAddr" target="_blank" rel="noopener">-</a></span></div>
     <div class="kv"><span class="k" data-i18n="contractToken">票币合约</span><span class="v"><a id="contractTokenAddr" target="_blank" rel="noopener">-</a></span></div>
-    <div style="margin-top:16px;border-top:1px dashed var(--line);padding-top:14px">
-      <div class="sec-title"><h2 data-i18n="transTitle">📊 数据透明（五池链上实时）</h2></div>
-      <div class="note" data-i18n="transNote" style="margin-top:0"></div>
-      <div id="transPools" style="margin-top:12px"><div class="note" data-i18n="loading">加载中…</div></div>
-    </div>
     <div id="ownerPanel" style="margin-top:14px">
       <div class="sec-title"><h2 data-i18n="ownerTitle">房主管理</h2></div>
       <div class="note" data-i18n="ownerNote" style="margin-top:0">冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.3 {s} 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。</div>
@@ -936,7 +931,6 @@ async function refresh(force){
       lastHeavy = nowMs;
       loadHistory();
       refreshRefStats();
-      renderTransparency();
       renderMyStats();
     }
   }catch(e){ console.error(e); }
