@@ -574,7 +574,7 @@ function fmtPay(v, pt){
   const s = formatUnits(v, pt.dec);
   const dot = s.indexOf('.');
   if(dot < 0) return s;
-  const cut = s.slice(dot+1, dot+5).replace(/0+$/, ''); // 最多 4 位小数，去掉多余的 0
+  const cut = s.slice(dot+1, dot+3).replace(/0+$/, ''); // 最多 2 位小数，去掉多余的 0
   return cut ? s.slice(0, dot+1) + cut : s.slice(0, dot);
 }
 function updateTotal(){
