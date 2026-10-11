@@ -217,6 +217,11 @@
         <div class="kv"><span class="k" data-i18n="myReferrer">我的邀请人</span><span class="v" id="myReferrer">-</span></div>
         <div class="kv"><span class="k" data-i18n="myRefRewards">可提返佣</span><span class="v" id="myRefRewards">-</span></div>
         <button class="btn-main" id="claimRefBtn" onclick="claimReferral()" style="margin-top:8px;display:none"><span data-i18n="claimRefBtn">提取返佣</span></button>
+        <div id="refStats" style="display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px">
+          <div class="kv"><span class="k" data-i18n="refDirectLine">直推</span><span class="v" id="refDirectStat">-</span></div>
+          <div class="kv"><span class="k" data-i18n="refIndirectLine">间推</span><span class="v" id="refIndirectStat">-</span></div>
+          <div id="refDetailList" style="margin-top:6px"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -332,7 +337,12 @@ zh: {
   myRefLink: '我的邀请链接', copyBtn: '复制', copyOk: '邀请链接已复制，去发给朋友吧',
   myReferrer: '我的邀请人', noReferrer: '无（首次购票时绑定）',
   myRefRewards: '可提返佣', claimRefBtn: '提取返佣', claimOk: '返佣已到账',
-  refVia: '你通过邀请链接进入：本次购票将为邀请人带来返佣，你的奖金不受影响'
+  refVia: '你通过邀请链接进入：本次购票将为邀请人带来返佣，你的奖金不受影响',
+  refDirectLine: '直推', refIndirectLine: '间推',
+  refStatLine: '{n} 人 · 购票 {tk} 张 · 贡献 {amt} LGNS',
+  refTagD: '直推', refTagI: '间推',
+  refRowStat: '买了 {tk} 张 · 贡献 {amt} LGNS',
+  refNoInvite: '还没有邀请任何人，快把链接发给朋友吧'
 },
 en: {
   pageTitle: '{chain} Lottery', docTitle: '{chain} Lottery | LGNS On-chain Lottery',
@@ -392,7 +402,12 @@ en: {
   myRefLink: 'My Invite Link', copyBtn: 'Copy', copyOk: 'Invite link copied, go share it',
   myReferrer: 'My Referrer', noReferrer: 'None (bound on first purchase)',
   myRefRewards: 'Claimable Rewards', claimRefBtn: 'Claim Rewards', claimOk: 'Rewards claimed',
-  refVia: 'You arrived via an invite link: this purchase earns your inviter rewards. Your prizes are unaffected.'
+  refVia: 'You arrived via an invite link: this purchase earns your inviter rewards. Your prizes are unaffected.',
+  refDirectLine: 'Direct', refIndirectLine: 'Indirect',
+  refStatLine: '{n} people · {tk} tickets · earned {amt} LGNS',
+  refTagD: 'Direct', refTagI: 'Indirect',
+  refRowStat: '{tk} tickets · {amt} LGNS earned',
+  refNoInvite: 'No invitees yet — share your link with friends'
 }};
 let LANG = localStorage.getItem('lottery_lang') || 'zh';
 function t(k, p){
@@ -775,6 +790,81 @@ async function refresh(){
 }
 // 历史开奖 + 累计榜：从 WinnersDrawn 事件读
 const EV_WIN = '0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627b4';
+// 邀请数据：ReferralBound(buyer,ref) / TicketsBought(roundId,buyer,count,firstTicket) / ReferralRewarded(roundId,buyer,l1,d1,l2,d2)
+const EV_REFBOUND = '0x8ceb585bfbbc2a8c702024b1d2f212e7ba1caff58b232f071b023d184997b111';
+const EV_TICKETS = '0xc8c5c2b0e44fb6312c0098ec42642058527713d0a1d29a5c6ccbfe34d714d41e';
+const EV_REFREWARD = '0xbfcb51139629056da37f44a10daa7f67e6ce0b9083e03a7408b3ad1a456ce097';
+const PADADDR = a => '0x' + '0'.repeat(24) + a.toLowerCase().replace(/^0x/,'');
+async function scanLogs(topics){
+  const CHUNK = 4000;
+  const latest = Number(BigInt(await req('eth_blockNumber',[])));
+  let from = CFG.deployBlock || 0;
+  const out = [];
+  while(from <= latest){
+    const to = Math.min(from + CHUNK - 1, latest);
+    const part = await req('eth_getLogs',[{address:CFG.CONTRACT, topics,
+      fromBlock:'0x'+from.toString(16), toBlock:'0x'+to.toString(16)}]);
+    if(part && part.length) for(const l of part) out.push(l);
+    from = to + 1;
+  }
+  return out;
+}
+// 我的邀请数据：直推/间推人数、他们买了多少票、每人为我赚了多少返佣
+async function refreshRefStats(){
+  const box = $('refStats');
+  if(!box) return;
+  if(!myAddr){ box.style.display='none'; return; }
+  const me = myAddr.toLowerCase();
+  try{
+    const [bLogs, tLogs, rLogs] = await Promise.all([
+      scanLogs([EV_REFBOUND]), scanLogs([EV_TICKETS]), scanLogs([EV_REFREWARD])
+    ]);
+    const boundRef = {}; // buyer => ref
+    for(const l of bLogs){
+      const buyer = ('0x'+l.topics[1].slice(-40)).toLowerCase();
+      const ref = ('0x'+l.topics[2].slice(-40)).toLowerCase();
+      boundRef[buyer] = ref;
+    }
+    const direct = Object.keys(boundRef).filter(b => boundRef[b]===me);
+    const dset = new Set(direct);
+    const indirect = Object.keys(boundRef).filter(b => !dset.has(b) && b!==me && dset.has(boundRef[b]));
+    const ticketsBy = {};
+    for(const l of tLogs){
+      const buyer = ('0x'+l.topics[2].slice(-40)).toLowerCase();
+      const n = BigInt('0x'+(l.data||'0x').replace(/^0x/,'').slice(0,64));
+      ticketsBy[buyer] = (ticketsBy[buyer]||0n) + n;
+    }
+    const earnBy = {}; // buyer => {e1: 我做直推拿的, e2: 我做间推拿的}
+    for(const l of rLogs){
+      const d = (l.data||'0x').replace(/^0x/,'');
+      const buyer = ('0x'+l.topics[2].slice(-40)).toLowerCase();
+      const l1 = ('0x'+d.slice(0,64).slice(-40)).toLowerCase();
+      const dd1 = BigInt('0x'+(d.slice(64,128)||'0'));
+      const l2 = ('0x'+d.slice(128,192).slice(-40)).toLowerCase();
+      const dd2 = BigInt('0x'+(d.slice(192,256)||'0'));
+      if(!earnBy[buyer]) earnBy[buyer] = {e1:0n, e2:0n};
+      if(l1===me) earnBy[buyer].e1 += dd1;
+      if(l2===me) earnBy[buyer].e2 += dd2;
+    }
+    const sum = (arr, f) => arr.reduce((a,b)=>a+f(b), 0n);
+    const dTk = sum(direct, b => ticketsBy[b]||0n);
+    const iTk = sum(indirect, b => ticketsBy[b]||0n);
+    const dEarn = sum(direct, b => (earnBy[b]||{e1:0n}).e1);
+    const iEarn = sum(indirect, b => (earnBy[b]||{e2:0n}).e2);
+    $('refDirectStat').textContent = t('refStatLine', {n: direct.length, tk: dTk.toString(), amt: fmt(dEarn)});
+    $('refIndirectStat').textContent = t('refStatLine', {n: indirect.length, tk: iTk.toString(), amt: fmt(iEarn)});
+    let html = '';
+    const row = (b, tag) => {
+      const e = earnBy[b]||{e1:0n,e2:0n};
+      const amt = tag==='d' ? e.e1 : e.e2;
+      html += '<div class="winner"><span><span class="tag">'+t(tag==='d'?'refTagD':'refTagI')+'</span>'+short(b)+'</span><span>'+t('refRowStat',{tk:(ticketsBy[b]||0n).toString(), amt:fmt(amt)})+'</span></div>';
+    };
+    direct.forEach(b => row(b,'d'));
+    indirect.forEach(b => row(b,'i'));
+    $('refDetailList').innerHTML = html || '<div class="note">'+t('refNoInvite')+'</div>';
+    box.style.display='';
+  }catch(e){ console.error('refStats', e); box.style.display='none'; }
+}
 async function loadHistory(){
   try{
     // RPC 单次最多查 5000 块，从部署块开始分段扫
@@ -886,6 +976,7 @@ async function refreshReferral(){
     $('myRefRewards').textContent = fmt(rw)+' LGNS';
     $('claimRefBtn').style.display = rw>0n ? '' : 'none';
   }catch(e){ $('myRefRewards').textContent='-'; }
+  refreshRefStats();
 }
 async function closeRound(){ await sendTx(CFG.CONTRACT,'0x'+SEL.closeRound); toast(t('closedOk')); }
 async function sendTxQuiet(to,d){
