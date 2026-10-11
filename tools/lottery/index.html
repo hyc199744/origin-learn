@@ -502,7 +502,13 @@ async function mainAction(){
   }
 }
 function toast(m){ alert(m); }
-function req(m,p){ return window.ethereum.request({method:m, params:p}); }
+function req(m,p){
+  if(window.ethereum) return window.ethereum.request({method:m, params:p});
+  // 无钱包时只读请求走公共 RPC，新访客也能看到奖池/倒计时；写操作到不了这里
+  return fetch(CFG.rpcUrl,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({jsonrpc:'2.0',id:Date.now(),method:m,params:p})})
+    .then(r=>r.json()).then(j=>{ if(j.error) throw new Error(j.error.message); return j.result; });
+}
 async function ethCall(to,d){ return ((await req('eth_call',[{to,data:d},'latest']))||'0x').replace(/^0x/,''); }
 async function sendTx(to,d){
   const tx = {from:myAddr,to,data:d};
