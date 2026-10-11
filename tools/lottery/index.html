@@ -570,7 +570,13 @@ async function quotePay(){
   quoteInMax = amtIn * 105n / 100n;
   return quoteInMax;
 }
-function fmtPay(v, pt){ return formatUnits(v, pt.dec); }
+function fmtPay(v, pt){
+  const s = formatUnits(v, pt.dec);
+  const dot = s.indexOf('.');
+  if(dot < 0) return s;
+  const cut = s.slice(dot+1, dot+5).replace(/0+$/, ''); // 最多 4 位小数，去掉多余的 0
+  return cut ? s.slice(0, dot+1) + cut : s.slice(0, dot);
+}
 function updateTotal(){
   const tc = $('totalCost'); if(!tc) return;
   if(TICKET<=0n){ tc.textContent='-'; return; }
