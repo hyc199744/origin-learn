@@ -251,7 +251,10 @@
         <button class="btn-ghost" onclick="approveSeed()" data-i18n="approveSeedBtn">1. 授权</button>
         <button class="btn-main" onclick="seed()" data-i18n="seedBtn" style="margin-top:0">2. 注入奖池</button>
       </div>
-      <div style="margin-top:10px"><button class="btn-ghost" onclick="doSetTicketPrice()" data-i18n="setPriceBtn">票价改成 3 LGNS</button></div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <input id="priceAmt" type="number" min="1" data-i18n-ph="pricePh" placeholder="新票价（LGNS/张）" style="flex:1;min-width:0">
+        <button class="btn-ghost" onclick="doSetTicketPrice()" data-i18n="setPriceBtn" style="white-space:nowrap">修改票价</button>
+      </div>
       <div style="margin-top:10px"><button class="btn-ghost" onclick="doSetRoundDuration()" data-i18n="setDurationBtn">轮次改成 1 小时一期</button></div>
     </div>
   </section>
@@ -292,7 +295,7 @@ zh: {
   roundN: '第 {n} 期', totalPaid: '共发出 {amt} LGNS', wonTimes: '中 {n} 次 · <b>{amt}</b> LGNS',
   prize1: '一等奖', prize2: '二等奖', prize3: '三等奖',
   ownerTitle: '房主管理', ownerNote: '冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.3 LGNS 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。',
-  seedPh: '注入多少 LGNS', approveSeedBtn: '1. 授权', seedBtn: '2. 注入锁定池', setPriceBtn: '票价改成 3 LGNS', setDurationBtn: '轮次改成 1 小时一期',
+  seedPh: '注入多少 LGNS', approveSeedBtn: '1. 授权', seedBtn: '2. 注入锁定池', pricePh: '新票价（LGNS/张）', setPriceBtn: '修改票价', setDurationBtn: '轮次改成 1 小时一期',
   lockedLabel: '🔒 待解锁注资',
   drawing: '开奖中', drawPreparing: '准备开奖…', drawClose: '关闭',
   selling: '⏳ 售票中，{t} 后截止', closedWaiting: '⏰ 已截止，等待关闭本期', waitingDraw: '🎲 等待开奖（目标块 {b}）',
@@ -307,7 +310,7 @@ zh: {
   approveOk: '授权成功，再点「买票」', buyOk: '买票成功，祝中大奖！', closedOk: '本期已关闭，等约 50 个块后点开奖',
   enterAmt: '先填注入金额', seedApproveOk: '授权成功，再点「注入锁定池」',
   seedConfirm: '往注资锁定池注入 {amt} LGNS？按票释放进奖池，锁定的可随时取回。', seedDone: '注入成功！',
-  priceConfirm: '把票价改成 3 LGNS / 张？', priceDone: '票价已改成 3 LGNS！',
+  priceConfirm: '把票价改成 {p} LGNS / 张？', priceDone: '票价已改成 {p} LGNS！',
   durationConfirm: '把轮次改成 1 小时一期？从第 2 期开始生效。', durationDone: '已改成 1 小时一期！',
   amtBad: '金额格式不对', decTooMany: '小数位太多',
   notConnected: '未连接', onchainLottery: '链上彩票',
@@ -357,7 +360,7 @@ en: {
   roundN: 'Round {n}', totalPaid: 'Paid out {amt} LGNS', wonTimes: 'Won {n}× · <b>{amt}</b> LGNS',
   prize1: '1st Prize', prize2: '2nd Prize', prize3: '3rd Prize',
   ownerTitle: 'Owner Panel', ownerNote: 'Cold-start seeding: funds go into a locked vault, 0.3 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming. Locked funds can be withdrawn anytime.',
-  seedPh: 'Amount to seed (LGNS)', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Locked Vault', setPriceBtn: 'Set price to 3 LGNS', setDurationBtn: 'Set 1-hour rounds',
+  seedPh: 'Amount to seed (LGNS)', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Locked Vault', pricePh: 'New price (LGNS/ticket)', setPriceBtn: 'Set Price', setDurationBtn: 'Set 1-hour rounds',
   lockedLabel: '🔒 Locked seed (unlocking)',
   drawing: 'Drawing…', drawPreparing: 'Preparing…', drawClose: 'Close',
   selling: '⏳ Selling, closes in {t}', closedWaiting: '⏰ Closed, waiting to lock round', waitingDraw: '🎲 Waiting for draw (target block {b})',
@@ -372,7 +375,7 @@ en: {
   approveOk: 'Approved, now tap "Buy Tickets"', buyOk: 'Tickets bought, good luck!', closedOk: 'Round closed, wait ~50 blocks then draw',
   enterAmt: 'Enter an amount first', seedApproveOk: 'Approved, now tap "Seed Locked Vault"',
   seedConfirm: 'Seed {amt} LGNS into the locked vault? Unlocks per ticket sold; locked funds can be withdrawn anytime.', seedDone: 'Seeded successfully!',
-  priceConfirm: 'Set ticket price to 3 LGNS?', priceDone: 'Ticket price set to 3 LGNS!',
+  priceConfirm: 'Set ticket price to {p} LGNS?', priceDone: 'Ticket price set to {p} LGNS!',
   durationConfirm: 'Set round duration to 1 hour? Takes effect from round 2.', durationDone: 'Round duration set to 1 hour!',
   amtBad: 'Invalid amount format', decTooMany: 'Too many decimals',
   notConnected: 'Not connected', onchainLottery: 'On-chain Lottery',
@@ -1078,9 +1081,13 @@ async function seed(){
   toast(t('seedDone'));
 }
 async function doSetTicketPrice(){
-  if(!confirm(t('priceConfirm'))) return;
-  await sendTx(CFG.CONTRACT,'0x'+SEL.setTicketPrice+encUint(3000000000n));
-  toast(t('priceDone'));
+  const v = ($('priceAmt').value || '0').trim();
+  let amt = 0n;
+  try{ amt = parseUnits(v); }catch(e){ return toast(t('amtBad')); }
+  if(amt <= 0n) return toast(t('enterAmt'));
+  if(!confirm(t('priceConfirm', {p: v}))) return;
+  await sendTx(CFG.CONTRACT,'0x'+SEL.setTicketPrice+encUint(amt));
+  toast(t('priceDone', {p: v}));
   await refresh();
 }
 async function doSetRoundDuration(){
