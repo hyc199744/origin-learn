@@ -179,11 +179,7 @@
         <div id="buyBox">
           <div class="note" id="refViaBanner" style="display:none;margin:0 0 8px;color:var(--gold,#e8b64c)" data-i18n="refVia"></div>
           <div id="payLabel" style="font-size:12px;color:var(--muted);margin-bottom:6px" data-i18n="payWith">付款币种</div>
-          <div class="quick" id="payRow" style="margin-bottom:10px">
-            <button class="qbtn sel" data-p="0" onclick="setPay(0)">LGNS</button>
-            <button class="qbtn" data-p="1" onclick="setPay(1)">DAI</button>
-            <button class="qbtn" data-p="2" onclick="setPay(2)">USDT</button>
-          </div>
+          <div class="quick" id="payRow" style="margin-bottom:10px"><!-- 付款币种按钮由 renderPayRow 按 payTokens 动态生成 --></div>
           <div class="stepper">
             <button onclick="setBuyN(buyN-1)" aria-label="-">&minus;</button>
             <div class="num" id="stepperNum">1 张</div>
@@ -325,7 +321,7 @@ zh: {
   quoteFail: '询价失败：池子可能没深度，请稍后重试',
   stepPayApprove: '授权 {sym}', stepSwap: '兑换成 LGNS',
   swapOk: '兑换成功，继续点按钮完成购票',
-  swapNote: '用 DAI/USDT 按池子实时价换成 LGNS 再买票：输入上限按报价上浮 5% 防滑点，实际只扣买票所需的金额。',
+  swapNote: '用 DAI / USDT / A 按池子实时价换成 LGNS 再买票：A 走 A→DAI→LGNS 两跳兑换。输入上限按报价上浮 5% 防滑点，实际只扣买票所需的金额。',
   prizeDist: '奖项分配', max14: '最多 14 张中奖票',
   tier1: '一等奖', tier1n: '1 张', tier2: '二等奖', tier2n: '3 张', tier3: '三等奖', tier3n: '10 张',
   poolShare: '奖池占比', perTicketShare: '每张奖池占比',
@@ -390,7 +386,7 @@ en: {
   quoteFail: 'Quote failed: pool may be too shallow, please retry later',
   stepPayApprove: 'Approve {sym}', stepSwap: 'Swap to LGNS',
   swapOk: 'Swapped! Tap the button again to finish buying',
-  swapNote: 'Pay with DAI/USDT: swapped to LGNS at the live pool price. Input cap is quote + 5% for slippage; only the exact ticket cost is taken.',
+  swapNote: 'Pay with DAI / USDT / A, swapped to LGNS at the live pool price (A routes A→DAI→LGNS). Input cap is quote + 5% for slippage; only the exact ticket cost is taken.',
   prizeDist: 'Prize Distribution', max14: 'Up to 14 winning tickets',
   tier1: '1st Prize', tier1n: '1 ticket', tier2: '2nd Prize', tier2n: '3 tickets', tier3: '3rd Prize', tier3n: '10 tickets',
   poolShare: 'of pool', perTicketShare: 'of pool per ticket',
@@ -456,10 +452,12 @@ const CHAINS = {
     decimals: 9,
     CONTRACT: '0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7', // 2026-10-11 V3 返佣版部署（1小时一期/返佣/0.3补贴）
     router: '0x3E412E02B6157fBE80b6C6697f3Ce1142E629019', // RocketSwap V2 路由
-    payTokens: [ // 付款币种：LGNS 直接买，DAI/USDT 走路由按池价换成 LGNS 再买
+    payTokens: [ // 付款币种：LGNS 直接买，其他走路由按池价换成 LGNS 再买
       {sym:'LGNS', addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9},
       {sym:'DAI', addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18},
-      {sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6}
+      {sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6},
+      // A 直兑 LGNS 的池子是空池，走 A->DAI->LGNS 两跳（A/DAI 池深约 507 万 DAI）
+      {sym:'A', addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18, via:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14'}
     ],
     native: {name:'DAI', symbol:'DAI', decimals:18},
     deployBlock: 16182340 // 2026-10-11 V3 部署块，历史事件从这里开始扫
@@ -541,6 +539,13 @@ function setBuyN(n){
   updateBuyBtn();
 }
 function payToken(){ return (CFG.payTokens && CFG.payTokens[payIdx]) || CFG.payTokens[0]; }
+// 兑换路径：默认 [付款币, LGNS]；带 via 的走两跳 [付款币, via, LGNS]（如 A->DAI->LGNS）
+function payPath(pt){ return pt.via ? [pt.addr, pt.via, CFG.token] : [pt.addr, CFG.token]; }
+// 付款币种按钮按 payTokens 动态生成，加新币种只改配置不用动 HTML
+function renderPayRow(){
+  const pr = $('payRow'); if(!pr || !CFG.payTokens) return;
+  pr.innerHTML = CFG.payTokens.map((p,i)=>'<button class="qbtn'+(i===payIdx?' sel':'')+'" data-p="'+i+'" onclick="setPay('+i+')">'+p.sym+'</button>').join('');
+}
 function setPay(i){
   if(!CFG.payTokens || !CFG.payTokens[i]) return;
   payIdx = i; quoteInMax = 0n;
@@ -556,7 +561,7 @@ async function quotePay(){
   if(payIdx===0 || TICKET<=0n) return 0n;
   const pt = payToken();
   const need = TICKET * BigInt(buyN);
-  const h = await ethCall(CFG.router, '0x'+SEL.getAmountsIn+encUint(need)+encAddrArray([pt.addr, CFG.token]));
+  const h = await ethCall(CFG.router, '0x'+SEL.getAmountsIn+encUint(need)+encAddrArray(payPath(pt)));
   const amtIn = decUint(h.slice(128, 192)); // uint[] amounts，amounts[0] 在第 3 个 slot
   quoteInMax = amtIn * 105n / 100n;
   return quoteInMax;
@@ -625,7 +630,7 @@ async function doSwap(){
   if(quoteInMax<=0n) throw new Error(t('quoteFail'));
   const deadline = BigInt(Math.floor(Date.now()/1000) + 1200);
   const data = '0x'+SEL.swapTokensForExactTokens+encUint(need)+encUint(quoteInMax)
-    +encAddrArray([pt.addr, CFG.token])+encAddr(myAddr)+encUint(deadline);
+    +encAddrArray(payPath(pt))+encAddr(myAddr)+encUint(deadline);
   await sendTx(CFG.router, data);
   toast(t('swapOk'));
 }
@@ -713,6 +718,7 @@ async function loadStatic(){
   const pr = $('payRow'), pl = $('payLabel');
   if(pr) pr.style.display = hasPay ? '' : 'none';
   if(pl) pl.style.display = hasPay ? '' : 'none';
+  if(hasPay) renderPayRow();
   if(!hasPay && payIdx!==0) setPay(0);
   const pt = $('perTicket'); if(pt) pt.textContent = t('perTicket', {p: fmt(TICKET)});
   updateTotal(); updateBuyBtn();
