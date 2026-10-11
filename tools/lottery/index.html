@@ -141,14 +141,20 @@
 
   <div class="grid">
     <div class="col-main">
+      <div class="card tight" style="margin-bottom:12px">
+        <div class="quick" id="poolTabs" style="margin-bottom:0">
+          <button class="qbtn" onclick="setPool(0)" data-i18n="poolTabL">LGNS 池</button>
+          <button class="qbtn" onclick="setPool(1)" data-i18n="poolTabU">USDT 池</button>
+        </div>
+      </div>
       <div class="jackpot">
         <div class="jk-top">
           <span class="jk-label" data-i18n="jackpotTitle">本期奖池</span>
           <span class="jk-round" id="roundId">-</span>
         </div>
         <div class="jk-amt skel" id="prizePool">--</div>
-        <div class="jk-unit">LGNS</div>
-        <div class="jk-locked"><span data-i18n="lockedLabel">🔒 待解锁注资</span> <b id="lockedPool">-</b> LGNS</div>
+        <div class="jk-unit" id="poolUnit">LGNS</div>
+        <div class="jk-locked"><span data-i18n="lockedLabel">🔒 待解锁注资</span> <b id="lockedPool">-</b> <span id="lockedPoolSym">LGNS</span></div>
         <div class="jk-div"></div>
         <div class="jk-bottom">
           <span class="jk-label" data-i18n="saleEndsIn">距售票截止</span>
@@ -245,7 +251,7 @@
     <div class="kv"><span class="k" data-i18n="contractToken">票币合约</span><span class="v"><a id="contractTokenAddr" target="_blank" rel="noopener">-</a></span></div>
     <div id="ownerPanel" style="margin-top:14px">
       <div class="sec-title"><h2 data-i18n="ownerTitle">房主管理</h2></div>
-      <div class="note" data-i18n="ownerNote" style="margin-top:0">冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.6 LGNS 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。</div>
+      <div class="note" data-i18n="ownerNote" style="margin-top:0">冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.3 {s} 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。</div>
       <input id="seedAmt" type="number" min="1" data-i18n-ph="seedPh" placeholder="注入多少 LGNS">
       <div class="btn-row">
         <button class="btn-ghost" onclick="approveSeed()" data-i18n="approveSeedBtn">1. 授权</button>
@@ -288,23 +294,23 @@
 /* ===== I18N ===== */
 const I18N = {
 zh: {
-  pageTitle: '{chain} 彩票', docTitle: '{chain} 彩票 | LGNS 链上彩票',
-  roundTitle: '🎟️ 本期', priceSub: '{p} LGNS / 张 · 1 小时一期',
+  pageTitle: '{chain} 彩票', docTitle: '{chain} 彩票',
+  roundTitle: '🎟️ 本期', priceSub: '{p} {s} / 张 · 1 小时一期',
   connect: '连接钱包', connected: '已连接 {addr}',
-  prizePool: 'LGNS 奖池', sold: '已售票数', sales: '本期票款', jackpot: '上期滚存',
-  myTickets: '我的票数', myBal: '我的 LGNS', ticketsUnit: ' 张',
-  buyPh: '买几张（1-200）', approveBtn: '1. 授权 LGNS', buyBtn: '2. 买票',
+  prizePool: '{s} 奖池', sold: '已售票数', sales: '本期票款', jackpot: '上期滚存',
+  myTickets: '我的票数', myBal: '我的 {s}', ticketsUnit: ' 张',
+  buyPh: '买几张（1-200）', approveBtn: '1. 授权 {s}', buyBtn: '2. 买票',
   closeBtn: '关闭本期', drawBtn: '开奖',
   drawNote: '本期已截止：先点「关闭本期」锁定开奖区块，再等约 50 个块后点「开奖」。任何人都可以点，Gas 谁点谁出。',
   prizeTitle: '🏆 奖项说明', p1: '一等奖 × 1 名', p1v: '奖池 50%', p2: '二等奖 × 3 名', p2v: '每人奖池 10%', p3: '三等奖 × 10 名', p3v: '每人奖池 2%',
-  poolFormula: '· 奖池 = 本期票款 + 上期滚存 + 已解锁注资（显示为总额，开奖时扣除 10% 平台费）<br>· 注资先锁进注资池：每卖出 1 张票释放 0.3 LGNS（一期最多 30），没人买票一分不释放<br>· 邀请返佣：朋友通过你的链接买票，你拿他那笔平台费的 30%，他再邀请的人买票你再拿 10%（两代，返佣从平台费里出）<br>· 没人中的奖项自动滚入下期，奖池越滚越大<br>· 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>· 票数不够 14 张时按实际票数开奖，剩下的全滚存',
+  poolFormula: '· 奖池 = 本期票款 + 上期滚存 + 已解锁注资（显示为总额，开奖时扣除 10% 平台费）<br>· 注资先锁进注资池：每卖出 1 张票释放 0.3 {s}（一期最多 30），没人买票一分不释放<br>· 邀请返佣：朋友通过你的链接买票，你拿他那笔平台费的 30%，他再邀请的人买票你再拿 10%（两代，返佣从平台费里出）<br>· 没人中的奖项自动滚入下期，奖池越滚越大<br>· 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>· 票数不够 14 张时按实际票数开奖，剩下的全滚存',
   lastDraw: '上期开奖', lastRound: '(第 {n} 期)', noRecord: '暂无开奖记录', rolloverNext: '滚入下期',
   board: '累计中奖榜', history: '历史开奖', loading: '加载中…',
   noHistory: '暂无历史开奖', noData: '暂无数据', loadFail: '加载失败，请稍后刷新重试',
-  roundN: '第 {n} 期', totalPaid: '共发出 {amt} LGNS', wonTimes: '中 {n} 次 · <b>{amt}</b> LGNS',
+  roundN: '第 {n} 期', totalPaid: '共发出 {amt} {s}', wonTimes: '中 {n} 次 · <b>{amt}</b> {s}',
   prize1: '一等奖', prize2: '二等奖', prize3: '三等奖',
-  ownerTitle: '房主管理', ownerNote: '冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.3 LGNS 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。',
-  seedPh: '注入多少 LGNS', approveSeedBtn: '1. 授权', seedBtn: '2. 注入锁定池', pricePh: '新票价（LGNS/张）', setPriceBtn: '修改票价', setDurationBtn: '轮次改成 1 小时一期',
+  ownerTitle: '房主管理', ownerNote: '冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.3 {s} 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。',
+  seedPh: '注入多少 {s}', approveSeedBtn: '1. 授权', seedBtn: '2. 注入锁定池', pricePh: '新票价（{s}/张）', setPriceBtn: '修改票价', setDurationBtn: '轮次改成 1 小时一期',
   lockedLabel: '🔒 待解锁注资',
   drawing: '开奖中', drawPreparing: '准备开奖…', drawClose: '关闭',
   selling: '⏳ 售票中，{t} 后截止', closedWaiting: '⏰ 已截止，等待关闭本期', waitingDraw: '🎲 等待开奖（目标块 {b}）',
@@ -318,20 +324,21 @@ zh: {
   drawFail: '开奖失败：{m}', firstBorn: '一等奖诞生！',
   approveOk: '授权成功，再点「买票」', buyOk: '买票成功，祝中大奖！', closedOk: '本期已关闭，等约 50 个块后点开奖',
   enterAmt: '先填注入金额', seedApproveOk: '授权成功，再点「注入锁定池」',
-  seedConfirm: '往注资锁定池注入 {amt} LGNS？按票释放进奖池，锁定的可随时取回。', seedDone: '注入成功！',
-  priceConfirm: '把票价改成 {p} LGNS / 张？', priceDone: '票价已改成 {p} LGNS！', priceEcho: '将设为：{p} LGNS / 张', priceCur: '当前票价：{p} LGNS / 张',
+  seedConfirm: '往注资锁定池注入 {amt} {s}？按票释放进奖池，锁定的可随时取回。', seedDone: '注入成功！',
+  priceConfirm: '把票价改成 {p} {s} / 张？', priceDone: '票价已改成 {p} {s}！', priceEcho: '将设为：{p} {s} / 张', priceCur: '当前票价：{p} {s} / 张',
   durationConfirm: '把轮次改成 1 小时一期？从第 2 期开始生效。', durationDone: '已改成 1 小时一期！',
   amtBad: '金额格式不对', decTooMany: '小数位太多',
   notConnected: '未连接', onchainLottery: '链上彩票',
   jackpotTitle: '本期奖池', saleEndsIn: '距售票截止',
   roundLive: '第 {n} 期 · 购票中', roundClosed: '第 {n} 期 · 已截止', roundWaitDraw: '第 {n} 期 · 待开奖',
   dashClosed: '已截止', waitDrawBlk: '目标块 {b}',
-  joinRound: '参与本期', perTicket: '{p} LGNS / 张', ticketsCount: '{n} 张', totalCost: '本次票款',
-  stepConnect: '连接钱包', stepApprove: '授权 LGNS', stepBuyCount: '确认购票 · {n} 张', processing: '处理中…',
+  poolTabL: 'LGNS 池', poolTabU: 'USDT 池',
+  joinRound: '参与本期', perTicket: '{p} {s} / 张', ticketsCount: '{n} 张', totalCost: '本次票款',
+  stepConnect: '连接钱包', stepApprove: '授权 {s}', stepBuyCount: '确认购票 · {n} 张', processing: '处理中…',
   flowHint: '连接钱包 · 授权代币 · 确认购票',
   payWith: '付款币种', payBal: '付款币余额', quoting: '询价中…',
   quoteFail: '询价失败：池子可能没深度，请稍后重试',
-  stepPayApprove: '授权 {sym}', stepSwap: '兑换成 LGNS',
+  stepPayApprove: '授权 {sym}', stepSwap: '兑换成 {s}',
   swapOk: '兑换成功，继续点按钮完成购票',
   swapNote: '用 DAI / USDT / A 按池子实时价换成 LGNS 再买票：USDT、A 走 USDT/A→DAI→LGNS 两跳兑换，跟 DAI 同价。输入上限按报价上浮 5% 防滑点，实际只扣买票所需的金额。',
   prizeDist: '奖项分配', max14: '最多 14 张中奖票',
@@ -339,7 +346,7 @@ zh: {
   poolShare: '奖池占比', perTicketShare: '每张奖池占比',
   prizeNote: '奖池显示为票款总额，开奖时扣除 10% 平台费后按比例派奖。按票抽奖，同一钱包可多次中奖。',
   navHistory: '历史开奖', navMyTickets: '我的票据', navRules: '规则与合约',
-  myAddrLabel: '我的地址', myBalLabel: 'LGNS 余额',
+  myAddrLabel: '我的地址', myBalLabel: '{s} 余额',
   contractLottery: '彩票合约', contractToken: '票币合约', viewContract: '在浏览器查看合约',
   refTitle: '邀请返佣', refNote: '把你的邀请链接发给朋友：他买票，你拿他那笔平台费的 30%；他再邀请的人买票，你再拿 10%。返佣从平台费里出，不影响奖池，随时可提。邀请关系第一次买票就定死。',
   myRefLink: '我的邀请链接', copyBtn: '复制', copyOk: '邀请链接已复制，去发给朋友吧',
@@ -347,29 +354,29 @@ zh: {
   myRefRewards: '可提返佣', claimRefBtn: '提取返佣', claimOk: '返佣已到账',
   refVia: '你通过邀请链接进入：本次购票将为邀请人带来返佣，你的奖金不受影响',
   refDirectLine: '直推', refIndirectLine: '间推',
-  refStatLine: '{n} 人 · 购票 {tk} 张 · 贡献 {amt} LGNS',
+  refStatLine: '{n} 人 · 购票 {tk} 张 · 贡献 {amt} {s}',
   refTagD: '直推', refTagI: '间推',
-  refRowStat: '买了 {tk} 张 · 贡献 {amt} LGNS',
+  refRowStat: '买了 {tk} 张 · 贡献 {amt} {s}',
   refNoInvite: '还没有邀请任何人，快把链接发给朋友吧'
 },
 en: {
-  pageTitle: '{chain} Lottery', docTitle: '{chain} Lottery | LGNS On-chain Lottery',
-  roundTitle: '🎟️ Round', priceSub: '{p} LGNS / ticket · 1h per round',
+  pageTitle: '{chain} Lottery', docTitle: '{chain} Lottery',
+  roundTitle: '🎟️ Round', priceSub: '{p} {s} / ticket · 1h per round',
   connect: 'Connect Wallet', connected: 'Connected {addr}',
-  prizePool: 'LGNS Prize Pool', sold: 'Tickets Sold', sales: 'Round Sales', jackpot: 'Rollover',
-  myTickets: 'My Tickets', myBal: 'My LGNS', ticketsUnit: '',
-  buyPh: 'How many (1-200)', approveBtn: '1. Approve LGNS', buyBtn: '2. Buy Tickets',
+  prizePool: '{s} Prize Pool', sold: 'Tickets Sold', sales: 'Round Sales', jackpot: 'Rollover',
+  myTickets: 'My Tickets', myBal: 'My {s}', ticketsUnit: '',
+  buyPh: 'How many (1-200)', approveBtn: '1. Approve {s}', buyBtn: '2. Buy Tickets',
   closeBtn: 'Close Round', drawBtn: 'Draw',
   drawNote: 'Round closed: tap "Close Round" first to lock the draw block, then wait ~50 blocks and tap "Draw". Anyone can do it, caller pays gas.',
   prizeTitle: '🏆 Prizes', p1: '1st Prize × 1', p1v: '50% of pool', p2: '2nd Prize × 3', p2v: '10% of pool each', p3: '3rd Prize × 10', p3v: '2% of pool each',
-  poolFormula: '· Pool = round sales + rollover + unlocked seed (gross; 10% platform fee deducted at draw)<br>· Seeds go into a locked vault: 0.3 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming<br>· Referral: earn 30% of the platform fee on your invitees\' purchases, 10% on their invitees\' (2 levels, paid from the fee)<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
+  poolFormula: '· Pool = round sales + rollover + unlocked seed (gross; 10% platform fee deducted at draw)<br>· Seeds go into a locked vault: 0.3 {s} unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming<br>· Referral: earn 30% of the platform fee on your invitees\' purchases, 10% on their invitees\' (2 levels, paid from the fee)<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
   lastDraw: 'Last Draw', lastRound: '(Round {n})', noRecord: 'No draw records yet', rolloverNext: 'Rollover to next',
   board: 'Leaderboard', history: 'History', loading: 'Loading…',
   noHistory: 'No draw history yet', noData: 'No data', loadFail: 'Load failed, please refresh and retry',
-  roundN: 'Round {n}', totalPaid: 'Paid out {amt} LGNS', wonTimes: 'Won {n}× · <b>{amt}</b> LGNS',
+  roundN: 'Round {n}', totalPaid: 'Paid out {amt} {s}', wonTimes: 'Won {n}× · <b>{amt}</b> {s}',
   prize1: '1st Prize', prize2: '2nd Prize', prize3: '3rd Prize',
-  ownerTitle: 'Owner Panel', ownerNote: 'Cold-start seeding: funds go into a locked vault, 0.3 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming. Locked funds can be withdrawn anytime.',
-  seedPh: 'Amount to seed (LGNS)', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Locked Vault', pricePh: 'New price (LGNS/ticket)', setPriceBtn: 'Set Price', setDurationBtn: 'Set 1-hour rounds',
+  ownerTitle: 'Owner Panel', ownerNote: 'Cold-start seeding: funds go into a locked vault, 0.3 {s} unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming. Locked funds can be withdrawn anytime.',
+  seedPh: 'Amount to seed ({s})', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Locked Vault', pricePh: 'New price ({s}/ticket)', setPriceBtn: 'Set Price', setDurationBtn: 'Set 1-hour rounds',
   lockedLabel: '🔒 Locked seed (unlocking)',
   drawing: 'Drawing…', drawPreparing: 'Preparing…', drawClose: 'Close',
   selling: '⏳ Selling, closes in {t}', closedWaiting: '⏰ Closed, waiting to lock round', waitingDraw: '🎲 Waiting for draw (target block {b})',
@@ -383,20 +390,21 @@ en: {
   drawFail: 'Draw failed: {m}', firstBorn: '1st Prize winner!',
   approveOk: 'Approved, now tap "Buy Tickets"', buyOk: 'Tickets bought, good luck!', closedOk: 'Round closed, wait ~50 blocks then draw',
   enterAmt: 'Enter an amount first', seedApproveOk: 'Approved, now tap "Seed Locked Vault"',
-  seedConfirm: 'Seed {amt} LGNS into the locked vault? Unlocks per ticket sold; locked funds can be withdrawn anytime.', seedDone: 'Seeded successfully!',
-  priceConfirm: 'Set ticket price to {p} LGNS?', priceDone: 'Ticket price set to {p} LGNS!', priceEcho: 'Will set to: {p} LGNS / ticket', priceCur: 'Current price: {p} LGNS / ticket',
+  seedConfirm: 'Seed {amt} {s} into the locked vault? Unlocks per ticket sold; locked funds can be withdrawn anytime.', seedDone: 'Seeded successfully!',
+  priceConfirm: 'Set ticket price to {p} {s}?', priceDone: 'Ticket price set to {p} {s}!', priceEcho: 'Will set to: {p} {s} / ticket', priceCur: 'Current price: {p} {s} / ticket',
   durationConfirm: 'Set round duration to 1 hour? Takes effect from round 2.', durationDone: 'Round duration set to 1 hour!',
   amtBad: 'Invalid amount format', decTooMany: 'Too many decimals',
   notConnected: 'Not connected', onchainLottery: 'On-chain Lottery',
   jackpotTitle: "This Round's Pool", saleEndsIn: 'Sale ends in',
   roundLive: 'Round {n} · Selling', roundClosed: 'Round {n} · Closed', roundWaitDraw: 'Round {n} · Awaiting Draw',
   dashClosed: 'Closed', waitDrawBlk: 'Target block {b}',
-  joinRound: 'Join This Round', perTicket: '{p} LGNS / ticket', ticketsCount: '{n}', totalCost: 'Total',
-  stepConnect: 'Connect Wallet', stepApprove: 'Approve LGNS', stepBuyCount: 'Confirm · {n} tickets', processing: 'Processing…',
+  poolTabL: 'LGNS Pool', poolTabU: 'USDT Pool',
+  joinRound: 'Join This Round', perTicket: '{p} {s} / ticket', ticketsCount: '{n}', totalCost: 'Total',
+  stepConnect: 'Connect Wallet', stepApprove: 'Approve {s}', stepBuyCount: 'Confirm · {n} tickets', processing: 'Processing…',
   flowHint: 'Connect wallet · Approve token · Confirm purchase',
   payWith: 'Pay with', payBal: 'Pay token balance', quoting: 'Quoting…',
   quoteFail: 'Quote failed: pool may be too shallow, please retry later',
-  stepPayApprove: 'Approve {sym}', stepSwap: 'Swap to LGNS',
+  stepPayApprove: 'Approve {sym}', stepSwap: 'Swap to {s}',
   swapOk: 'Swapped! Tap the button again to finish buying',
   swapNote: 'Pay with DAI / USDT / A, swapped to LGNS at the live pool price (USDT and A route via DAI→LGNS, same price as DAI). Input cap is quote + 5% for slippage; only the exact ticket cost is taken.',
   prizeDist: 'Prize Distribution', max14: 'Up to 14 winning tickets',
@@ -404,7 +412,7 @@ en: {
   poolShare: 'of pool', perTicketShare: 'of pool per ticket',
   prizeNote: 'Pool shows gross ticket sales; 10% platform fee is deducted at draw before prizes are paid. Drawn per ticket; one wallet can win multiple times.',
   navHistory: 'History', navMyTickets: 'My Tickets', navRules: 'Rules & Contract',
-  myAddrLabel: 'My Address', myBalLabel: 'LGNS Balance',
+  myAddrLabel: 'My Address', myBalLabel: '{s} Balance',
   contractLottery: 'Lottery Contract', contractToken: 'Token Contract', viewContract: 'View contract on explorer',
   refTitle: 'Referral Rewards', refNote: 'Share your invite link: earn 30% of the platform fee on your invitees\' ticket purchases, plus 10% on their invitees\'. Paid from the platform fee — the prize pool is untouched. Claim anytime. Referral binds on first purchase, permanently.',
   myRefLink: 'My Invite Link', copyBtn: 'Copy', copyOk: 'Invite link copied, go share it',
@@ -412,15 +420,16 @@ en: {
   myRefRewards: 'Claimable Rewards', claimRefBtn: 'Claim Rewards', claimOk: 'Rewards claimed',
   refVia: 'You arrived via an invite link: this purchase earns your inviter rewards. Your prizes are unaffected.',
   refDirectLine: 'Direct', refIndirectLine: 'Indirect',
-  refStatLine: '{n} people · {tk} tickets · earned {amt} LGNS',
+  refStatLine: '{n} people · {tk} tickets · earned {amt} {s}',
   refTagD: 'Direct', refTagI: 'Indirect',
-  refRowStat: '{tk} tickets · {amt} LGNS earned',
+  refRowStat: '{tk} tickets · {amt} {s} earned',
   refNoInvite: 'No invitees yet — share your link with friends'
 }};
 let LANG = localStorage.getItem('lottery_lang') || 'zh';
 function t(k, p){
   let s = (I18N[LANG] && I18N[LANG][k]) || I18N.zh[k] || k;
-  if(p) for(const key in p) s = s.split('{'+key+'}').join(p[key]);
+  p = Object.assign({s: TSYM()}, p||{});
+  for(const key in p) s = s.split('{'+key+'}').join(p[key]);
   return s;
 }
 function applyLang(){
@@ -489,6 +498,47 @@ const CHAINS = {
 };
 let chainKey = 'anubis';
 let CFG = CHAINS.anubis;
+// 双奖池：LGNS 池 / USDT 池，各自独立合约、独立开奖；切换时整体并入 CFG
+const POOLS = [
+  { sym:'LGNS',
+    CONTRACT:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',
+    token:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', decimals:9,
+    deployBlock:16182340, // V3 部署块
+    payTokens:[
+      {sym:'LGNS', addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9},
+      {sym:'DAI', addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18},
+      {sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,
+       via:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14'}, // USDT 直兑 LGNS 池太浅，走 USDT->DAI->LGNS 两跳，跟 DAI 同价
+      {sym:'A', addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18, via:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14'} // A 走 A->DAI->LGNS 两跳
+    ] },
+  { sym:'USDT',
+    CONTRACT:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',
+    token:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', decimals:6,
+    deployBlock:16196737, // USDT 池部署块
+    payTokens:[
+      {sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6} // USDT 池只收 USDT，直接进奖池
+    ] },
+];
+let poolIdx = 0;
+try{ poolIdx = Number(localStorage.getItem('lottery_pool')||0)||0; if(poolIdx<0||poolIdx>1) poolIdx=0; }catch(e){}
+function TSYM(){ return POOLS[poolIdx].sym; }
+Object.assign(CFG, POOLS[poolIdx]);
+function setPool(i){
+  if(i===poolIdx) return;
+  poolIdx = i;
+  try{ localStorage.setItem('lottery_pool', String(i)); }catch(e){}
+  Object.assign(CFG, POOLS[poolIdx]);
+  payIdx = 0; buyN = 1;
+  renderPoolTabs(); applyLang(); updateContractInfo();
+  if($('payRow')) renderPayRow();
+  const sn = $('swapNote'); if(sn) sn.style.display='none';
+  refresh();
+}
+function renderPoolTabs(){
+  document.querySelectorAll('#poolTabs .qbtn').forEach((b,idx)=> b.classList.toggle('sel', idx===poolIdx));
+  const pu = $('poolUnit'); if(pu) pu.textContent = TSYM();
+  const lp = $('lockedPoolSym'); if(lp) lp.textContent = TSYM();
+}
 const SEL = {
   approve: '095ea7b3', allowance: 'dd62ed3e', balanceOf: '70a08231',
   buyTickets: '2f366637', buyTicketsWithRef: 'f93afa09', claimReferral: 'e02f1ebd',
@@ -590,7 +640,7 @@ function fmtPay(v, pt){
 function updateTotal(){
   const tc = $('totalCost'); if(!tc) return;
   if(TICKET<=0n){ tc.textContent='-'; return; }
-  if(payIdx===0){ tc.textContent = fmt(TICKET*BigInt(buyN)) + ' LGNS'; return; }
+  if(payIdx===0){ tc.textContent = fmt(TICKET*BigInt(buyN)) + ' '+TSYM(); return; }
   const pt = payToken();
   tc.textContent = t('quoting');
   quotePay().then(q=>{
@@ -764,8 +814,8 @@ async function refresh(){
       $('lockedPool').textContent = fmt(locked);
     }catch(e){ $('lockedPool').textContent='-'; }
     $('sold').textContent = sold + t('ticketsUnit');
-    $('sales').textContent = fmt(sales)+' LGNS';
-    $('jackpot').textContent = fmt(jackpot)+' LGNS';
+    $('sales').textContent = fmt(sales)+' '+TSYM();
+    $('jackpot').textContent = fmt(jackpot)+' '+TSYM();
     const now = Math.floor(Date.now()/1000);
     const cd = $('countdown'); cd.classList.remove('skel');
     if (now <= endTime){
@@ -788,7 +838,7 @@ async function refresh(){
     }
     if (myAddr){
       const bal = decUint(await ethCall(CFG.token,'0x'+SEL.balanceOf+encAddr(myAddr)));
-      $('myBal').textContent = fmt(bal)+' LGNS';
+      $('myBal').textContent = fmt(bal)+' '+TSYM();
       updatePayBal();
       try{
         const th = await ethCall(CFG.CONTRACT,'0x'+SEL.getTicketOwners+encUint(rid));
@@ -807,10 +857,10 @@ async function refresh(){
       let html='';
       for(let i=0;i<winners.length;i++){
         const pz = i===0?t('prize1'):(i<4?t('prize2'):t('prize3'));
-        html += '<div class="winner '+(i===0?'':(i<4?'t2':'t3'))+'"><span><span class="tag">'+pz+'</span>'+short(winners[i])+'</span><span><b>'+fmt(amounts[i])+'</b> LGNS</span></div>';
+        html += '<div class="winner '+(i===0?'':(i<4?'t2':'t3'))+'"><span><span class="tag">'+pz+'</span>'+short(winners[i])+'</span><span><b>'+fmt(amounts[i])+'</b> '+TSYM()+'</span></div>';
       }
       $('lastWinners').innerHTML = html || '<div class="note">'+t('noBuyers')+'</div>';
-      $('lastRollover').textContent = fmt(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastRollover)))+' LGNS';
+      $('lastRollover').textContent = fmt(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastRollover)))+' '+TSYM();
     }
     loadHistory();
   }catch(e){ console.error(e); }
@@ -1000,7 +1050,7 @@ async function refreshReferral(){
   }catch(e){ $('myReferrer').textContent='-'; }
   try{
     const rw = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.referralRewards+encAddr(myAddr)));
-    $('myRefRewards').textContent = fmt(rw)+' LGNS';
+    $('myRefRewards').textContent = fmt(rw)+' '+TSYM();
     $('claimRefBtn').style.display = rw>0n ? '' : 'none';
   }catch(e){ $('myRefRewards').textContent='-'; }
   refreshRefStats();
@@ -1070,7 +1120,7 @@ async function drawVisual(){
       const b=balls[bi++]; b.dataset.done='1';
       b.className='ball '+o.t; b.textContent=o.label[0];
       const row=document.createElement('div'); row.className='wrow';
-      row.innerHTML='<span><span class="tag">'+o.label+'</span><span class="wa">'+short(winners[o.i])+'</span></span><span class="wamt">'+fmt(amounts[o.i])+' LGNS</span>';
+      row.innerHTML='<span><span class="tag">'+o.label+'</span><span class="wa">'+short(winners[o.i])+'</span></span><span class="wamt">'+fmt(amounts[o.i])+' '+TSYM()+'</span>';
       res.appendChild(row);
       if(o.t==='t1'){ st.textContent=t('firstBorn'); }
       await sleep(o.t==='t1'?1200:650);
@@ -1127,7 +1177,7 @@ async function doSetRoundDuration(){
   await refresh();
 }
 setInterval(()=>{ if(myAddr) refresh(); }, 15000);
-window.addEventListener('load', ()=>{ applyLang(); updateChainBtn(); updateWalletBtn(); setBuyN(1); loadStatic().then(refresh).catch(()=>{}); });
+window.addEventListener('load', ()=>{ applyLang(); renderPoolTabs(); updateChainBtn(); updateWalletBtn(); setBuyN(1); loadStatic().then(refresh).catch(()=>{}); });
 </script>
 </body>
 </html>
