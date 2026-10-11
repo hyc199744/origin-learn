@@ -177,6 +177,7 @@
       <div class="card tight">
         <div class="buy-head"><span class="buy-title" data-i18n="joinRound">参与本期</span><span class="buy-price" id="perTicket">-</span></div>
         <div id="buyBox">
+          <div class="note" id="refViaBanner" style="display:none;margin:0 0 8px;color:var(--gold,#e8b64c)" data-i18n="refVia"></div>
           <div id="payLabel" style="font-size:12px;color:var(--muted);margin-bottom:6px" data-i18n="payWith">付款币种</div>
           <div class="quick" id="payRow" style="margin-bottom:10px">
             <button class="qbtn sel" data-p="0" onclick="setPay(0)">LGNS</button>
@@ -204,6 +205,18 @@
           <button class="btn-main" id="drawBtn" onclick="drawVisual()" data-i18n="drawBtn" style="margin-top:10px">开奖</button>
           <div class="note" data-i18n="drawNote">本期已截止：先点「关闭本期」锁定开奖区块，再等约 50 个块后点「开奖」。任何人都可以点，Gas 谁点谁出。</div>
         </div>
+      </div>
+      <div class="card tight" style="margin-top:12px">
+        <div class="sec-title"><h2 data-i18n="refTitle">邀请返佣</h2></div>
+        <div class="note" data-i18n="refNote" style="margin-top:0"></div>
+        <div class="kv" style="margin-top:8px"><span class="k" data-i18n="myRefLink">我的邀请链接</span></div>
+        <div style="display:flex;gap:8px;margin:6px 0">
+          <input id="refLink" readonly style="flex:1;min-width:0" onclick="this.select()">
+          <button class="btn-ghost" onclick="copyRefLink()" data-i18n="copyBtn" style="white-space:nowrap">复制</button>
+        </div>
+        <div class="kv"><span class="k" data-i18n="myReferrer">我的邀请人</span><span class="v" id="myReferrer">-</span></div>
+        <div class="kv"><span class="k" data-i18n="myRefRewards">可提返佣</span><span class="v" id="myRefRewards">-</span></div>
+        <button class="btn-main" id="claimRefBtn" onclick="claimReferral()" style="margin-top:8px;display:none"><span data-i18n="claimRefBtn">提取返佣</span></button>
       </div>
     </div>
   </div>
@@ -263,7 +276,7 @@
 const I18N = {
 zh: {
   pageTitle: '{chain} 彩票', docTitle: '{chain} 彩票 | LGNS 链上彩票',
-  roundTitle: '🎟️ 本期', priceSub: '{p} LGNS / 张 · 24 小时一期',
+  roundTitle: '🎟️ 本期', priceSub: '{p} LGNS / 张 · 1 小时一期',
   connect: '连接钱包', connected: '已连接 {addr}',
   prizePool: 'LGNS 奖池', sold: '已售票数', sales: '本期票款', jackpot: '上期滚存',
   myTickets: '我的票数', myBal: '我的 LGNS', ticketsUnit: ' 张',
@@ -271,13 +284,13 @@ zh: {
   closeBtn: '关闭本期', drawBtn: '开奖',
   drawNote: '本期已截止：先点「关闭本期」锁定开奖区块，再等约 50 个块后点「开奖」。任何人都可以点，Gas 谁点谁出。',
   prizeTitle: '🏆 奖项说明', p1: '一等奖 × 1 名', p1v: '奖池 50%', p2: '二等奖 × 3 名', p2v: '每人奖池 10%', p3: '三等奖 × 10 名', p3v: '每人奖池 2%',
-  poolFormula: '· 奖池 = 本期票款 + 上期滚存 + 已解锁注资（显示为总额，开奖时扣除 10% 平台费）<br>· 注资先锁进注资池：每卖出 1 张票释放 0.6 LGNS（一期最多 30），没人买票一分不释放<br>· 没人中的奖项自动滚入下期，奖池越滚越大<br>· 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>· 票数不够 14 张时按实际票数开奖，剩下的全滚存',
+  poolFormula: '· 奖池 = 本期票款 + 上期滚存 + 已解锁注资（显示为总额，开奖时扣除 10% 平台费）<br>· 注资先锁进注资池：每卖出 1 张票释放 0.3 LGNS（一期最多 30），没人买票一分不释放<br>· 邀请返佣：朋友通过你的链接买票，你拿他那笔平台费的 30%，他再邀请的人买票你再拿 10%（两代，返佣从平台费里出）<br>· 没人中的奖项自动滚入下期，奖池越滚越大<br>· 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>· 票数不够 14 张时按实际票数开奖，剩下的全滚存',
   lastDraw: '上期开奖', lastRound: '(第 {n} 期)', noRecord: '暂无开奖记录', rolloverNext: '滚入下期',
   board: '累计中奖榜', history: '历史开奖', loading: '加载中…',
   noHistory: '暂无历史开奖', noData: '暂无数据', loadFail: '加载失败，请稍后刷新重试',
   roundN: '第 {n} 期', totalPaid: '共发出 {amt} LGNS', wonTimes: '中 {n} 次 · <b>{amt}</b> LGNS',
   prize1: '一等奖', prize2: '二等奖', prize3: '三等奖',
-  ownerTitle: '房主管理', ownerNote: '冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.6 LGNS 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。',
+  ownerTitle: '房主管理', ownerNote: '冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.3 LGNS 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。',
   seedPh: '注入多少 LGNS', approveSeedBtn: '1. 授权', seedBtn: '2. 注入锁定池', setPriceBtn: '票价改成 3 LGNS', setDurationBtn: '轮次改成 1 小时一期',
   lockedLabel: '🔒 待解锁注资',
   drawing: '开奖中', drawPreparing: '准备开奖…', drawClose: '关闭',
@@ -314,11 +327,16 @@ zh: {
   prizeNote: '奖池显示为票款总额，开奖时扣除 10% 平台费后按比例派奖。按票抽奖，同一钱包可多次中奖。',
   navHistory: '历史开奖', navMyTickets: '我的票据', navRules: '规则与合约',
   myAddrLabel: '我的地址', myBalLabel: 'LGNS 余额',
-  contractLottery: '彩票合约', contractToken: '票币合约', viewContract: '在浏览器查看合约'
+  contractLottery: '彩票合约', contractToken: '票币合约', viewContract: '在浏览器查看合约',
+  refTitle: '邀请返佣', refNote: '把你的邀请链接发给朋友：他买票，你拿他那笔平台费的 30%；他再邀请的人买票，你再拿 10%。返佣从平台费里出，不影响奖池，随时可提。邀请关系第一次买票就定死。',
+  myRefLink: '我的邀请链接', copyBtn: '复制', copyOk: '邀请链接已复制，去发给朋友吧',
+  myReferrer: '我的邀请人', noReferrer: '无（首次购票时绑定）',
+  myRefRewards: '可提返佣', claimRefBtn: '提取返佣', claimOk: '返佣已到账',
+  refVia: '你通过邀请链接进入：本次购票将为邀请人带来返佣，你的奖金不受影响'
 },
 en: {
   pageTitle: '{chain} Lottery', docTitle: '{chain} Lottery | LGNS On-chain Lottery',
-  roundTitle: '🎟️ Round', priceSub: '{p} LGNS / ticket · 24h per round',
+  roundTitle: '🎟️ Round', priceSub: '{p} LGNS / ticket · 1h per round',
   connect: 'Connect Wallet', connected: 'Connected {addr}',
   prizePool: 'LGNS Prize Pool', sold: 'Tickets Sold', sales: 'Round Sales', jackpot: 'Rollover',
   myTickets: 'My Tickets', myBal: 'My LGNS', ticketsUnit: '',
@@ -326,13 +344,13 @@ en: {
   closeBtn: 'Close Round', drawBtn: 'Draw',
   drawNote: 'Round closed: tap "Close Round" first to lock the draw block, then wait ~50 blocks and tap "Draw". Anyone can do it, caller pays gas.',
   prizeTitle: '🏆 Prizes', p1: '1st Prize × 1', p1v: '50% of pool', p2: '2nd Prize × 3', p2v: '10% of pool each', p3: '3rd Prize × 10', p3v: '2% of pool each',
-  poolFormula: '· Pool = round sales + rollover + unlocked seed (gross; 10% platform fee deducted at draw)<br>· Seeds go into a locked vault: 0.6 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
+  poolFormula: '· Pool = round sales + rollover + unlocked seed (gross; 10% platform fee deducted at draw)<br>· Seeds go into a locked vault: 0.3 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming<br>· Referral: earn 30% of the platform fee on your invitees\' purchases, 10% on their invitees\' (2 levels, paid from the fee)<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
   lastDraw: 'Last Draw', lastRound: '(Round {n})', noRecord: 'No draw records yet', rolloverNext: 'Rollover to next',
   board: 'Leaderboard', history: 'History', loading: 'Loading…',
   noHistory: 'No draw history yet', noData: 'No data', loadFail: 'Load failed, please refresh and retry',
   roundN: 'Round {n}', totalPaid: 'Paid out {amt} LGNS', wonTimes: 'Won {n}× · <b>{amt}</b> LGNS',
   prize1: '1st Prize', prize2: '2nd Prize', prize3: '3rd Prize',
-  ownerTitle: 'Owner Panel', ownerNote: 'Cold-start seeding: funds go into a locked vault, 0.6 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming. Locked funds can be withdrawn anytime.',
+  ownerTitle: 'Owner Panel', ownerNote: 'Cold-start seeding: funds go into a locked vault, 0.3 LGNS unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming. Locked funds can be withdrawn anytime.',
   seedPh: 'Amount to seed (LGNS)', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Locked Vault', setPriceBtn: 'Set price to 3 LGNS', setDurationBtn: 'Set 1-hour rounds',
   lockedLabel: '🔒 Locked seed (unlocking)',
   drawing: 'Drawing…', drawPreparing: 'Preparing…', drawClose: 'Close',
@@ -369,7 +387,12 @@ en: {
   prizeNote: 'Pool shows gross ticket sales; 10% platform fee is deducted at draw before prizes are paid. Drawn per ticket; one wallet can win multiple times.',
   navHistory: 'History', navMyTickets: 'My Tickets', navRules: 'Rules & Contract',
   myAddrLabel: 'My Address', myBalLabel: 'LGNS Balance',
-  contractLottery: 'Lottery Contract', contractToken: 'Token Contract', viewContract: 'View contract on explorer'
+  contractLottery: 'Lottery Contract', contractToken: 'Token Contract', viewContract: 'View contract on explorer',
+  refTitle: 'Referral Rewards', refNote: 'Share your invite link: earn 30% of the platform fee on your invitees\' ticket purchases, plus 10% on their invitees\'. Paid from the platform fee — the prize pool is untouched. Claim anytime. Referral binds on first purchase, permanently.',
+  myRefLink: 'My Invite Link', copyBtn: 'Copy', copyOk: 'Invite link copied, go share it',
+  myReferrer: 'My Referrer', noReferrer: 'None (bound on first purchase)',
+  myRefRewards: 'Claimable Rewards', claimRefBtn: 'Claim Rewards', claimOk: 'Rewards claimed',
+  refVia: 'You arrived via an invite link: this purchase earns your inviter rewards. Your prizes are unaffected.'
 }};
 let LANG = localStorage.getItem('lottery_lang') || 'zh';
 function t(k, p){
@@ -416,7 +439,7 @@ const CHAINS = {
     explorer: 'https://browser.anubispace.org',
     token: '0x4d1d808a081fdac440703b3765fc61f8028c06b8', // LGNS 9 位精度
     decimals: 9,
-    CONTRACT: '0x12FA8694e8b97B3E024fFb2e4618C929f599959e', // 2026-10-10 V2 防薅版部署
+    CONTRACT: '0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7', // 2026-10-11 V3 返佣版部署（1小时一期/返佣/0.3补贴）
     router: '0x3E412E02B6157fBE80b6C6697f3Ce1142E629019', // RocketSwap V2 路由
     payTokens: [ // 付款币种：LGNS 直接买，DAI/USDT 走路由按池价换成 LGNS 再买
       {sym:'LGNS', addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9},
@@ -424,7 +447,7 @@ const CHAINS = {
       {sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6}
     ],
     native: {name:'DAI', symbol:'DAI', decimals:18},
-    deployBlock: 15440000 // 2026-10-02 前后，历史事件从这里开始扫
+    deployBlock: 16182340 // 2026-10-11 V3 部署块，历史事件从这里开始扫
   },
   polygon: {
     chainId: 137, chainHex: '0x89', chainName: 'Polygon',
@@ -441,7 +464,9 @@ let chainKey = 'anubis';
 let CFG = CHAINS.anubis;
 const SEL = {
   approve: '095ea7b3', allowance: 'dd62ed3e', balanceOf: '70a08231',
-  buyTickets: '2f366637', seedJackpot: '02950fb9', closeRound: 'e278fe6f', draw: '0eecae21',
+  buyTickets: '2f366637', buyTicketsWithRef: 'f93afa09', claimReferral: 'e02f1ebd',
+  referrer: '2cf003c2', referralRewards: '53aaa63b',
+  seedJackpot: '02950fb9', closeRound: 'e278fe6f', draw: '0eecae21',
   setTicketPrice: '15981650',
   getAmountsIn: '1f00ca74', swapTokensForExactTokens: '4a25d94a', // RocketSwap 路由
   ticketPrice: '1209b1f6', feeBps: '24a9d853', currentRound: '8a19c8bc',
@@ -684,6 +709,7 @@ async function loadStatic(){
 async function refresh(){
   try{
     await loadStatic();
+    refreshReferral();
     const rid = Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.currentRound)));
     const h = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid));
     const w = i => h.slice(i*64,(i+1)*64);
@@ -810,8 +836,56 @@ async function approve(){
   toast(t('approveOk'));
 }
 async function buy(){
-  await sendTx(CFG.CONTRACT, '0x'+SEL.buyTickets+encUint(buyN));
+  const ref = getRef();
+  if(ref) await sendTx(CFG.CONTRACT, '0x'+SEL.buyTicketsWithRef+encUint(buyN)+encAddr(ref));
+  else await sendTx(CFG.CONTRACT, '0x'+SEL.buyTickets+encUint(buyN));
   toast(t('buyOk'));
+}
+// 邀请人：从 URL ?ref=0x... 读取；自己邀请自己无效（合约层也会拒绝）
+function getRef(){
+  try{
+    const r = new URLSearchParams(location.search).get('ref');
+    if(r && /^0x[0-9a-fA-F]{40}$/.test(r)){
+      if(myAddr && r.toLowerCase()===myAddr.toLowerCase()) return null;
+      return r;
+    }
+  }catch(e){}
+  return null;
+}
+function copyRefLink(){
+  const el = $('refLink');
+  if(!el || !el.value) return;
+  el.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  if(navigator.clipboard) navigator.clipboard.writeText(el.value).catch(()=>{});
+  toast(t('copyOk'));
+}
+async function claimReferral(){
+  await sendTx(CFG.CONTRACT, '0x'+SEL.claimReferral);
+  toast(t('claimOk'));
+}
+async function refreshReferral(){
+  const link = $('refLink');
+  if(link) link.value = myAddr ? (location.origin + location.pathname + '?ref=' + myAddr) : '';
+  if(link) link.placeholder = myAddr ? '' : t('notConnected');
+  const banner = $('refViaBanner');
+  if(banner) banner.style.display = getRef() ? '' : 'none';
+  if(!myAddr){
+    if($('myReferrer')) $('myReferrer').textContent='-';
+    if($('myRefRewards')) $('myRefRewards').textContent='-';
+    if($('claimRefBtn')) $('claimRefBtn').style.display='none';
+    return;
+  }
+  try{
+    const r = decAddr(await ethCall(CFG.CONTRACT,'0x'+SEL.referrer+encAddr(myAddr)));
+    $('myReferrer').textContent =
+      (r==='0x0000000000000000000000000000000000000000') ? t('noReferrer') : short(r);
+  }catch(e){ $('myReferrer').textContent='-'; }
+  try{
+    const rw = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.referralRewards+encAddr(myAddr)));
+    $('myRefRewards').textContent = fmt(rw)+' LGNS';
+    $('claimRefBtn').style.display = rw>0n ? '' : 'none';
+  }catch(e){ $('myRefRewards').textContent='-'; }
 }
 async function closeRound(){ await sendTx(CFG.CONTRACT,'0x'+SEL.closeRound); toast(t('closedOk')); }
 async function sendTxQuiet(to,d){
