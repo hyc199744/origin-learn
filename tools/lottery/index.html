@@ -145,6 +145,7 @@
         <div class="quick" id="poolTabs" style="margin-bottom:0">
           <button class="qbtn" onclick="setPool(0)" data-i18n="poolTabL">LGNS 池</button>
           <button class="qbtn" onclick="setPool(1)" data-i18n="poolTabU">USDT 池</button>
+          <button class="qbtn" onclick="setPool(2)" data-i18n="poolTabD">DAI 池</button>
         </div>
       </div>
       <div class="jackpot">
@@ -332,7 +333,7 @@ zh: {
   jackpotTitle: '本期奖池', saleEndsIn: '距售票截止',
   roundLive: '第 {n} 期 · 购票中', roundClosed: '第 {n} 期 · 已截止', roundWaitDraw: '第 {n} 期 · 待开奖',
   dashClosed: '已截止', waitDrawBlk: '目标块 {b}',
-  poolTabL: 'LGNS 池', poolTabU: 'USDT 池',
+  poolTabL: 'LGNS 池', poolTabU: 'USDT 池', poolTabD: 'DAI 池',
   joinRound: '参与本期', perTicket: '{p} {s} / 张', ticketsCount: '{n} 张', totalCost: '本次票款',
   stepConnect: '连接钱包', stepApprove: '授权 {s}', stepBuyCount: '确认购票 · {n} 张', processing: '处理中…',
   flowHint: '连接钱包 · 授权代币 · 确认购票',
@@ -398,7 +399,7 @@ en: {
   jackpotTitle: "This Round's Pool", saleEndsIn: 'Sale ends in',
   roundLive: 'Round {n} · Selling', roundClosed: 'Round {n} · Closed', roundWaitDraw: 'Round {n} · Awaiting Draw',
   dashClosed: 'Closed', waitDrawBlk: 'Target block {b}',
-  poolTabL: 'LGNS Pool', poolTabU: 'USDT Pool',
+  poolTabL: 'LGNS Pool', poolTabU: 'USDT Pool', poolTabD: 'DAI Pool',
   joinRound: 'Join This Round', perTicket: '{p} {s} / ticket', ticketsCount: '{n}', totalCost: 'Total',
   stepConnect: 'Connect Wallet', stepApprove: 'Approve {s}', stepBuyCount: 'Confirm · {n} tickets', processing: 'Processing…',
   flowHint: 'Connect wallet · Approve token · Confirm purchase',
@@ -518,9 +519,16 @@ const POOLS = [
     payTokens:[
       {sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6} // USDT 池只收 USDT，直接进奖池
     ] },
+  { sym:'DAI',
+    CONTRACT:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',
+    token:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', decimals:18,
+    deployBlock:16200709, // DAI 池部署块
+    payTokens:[
+      {sym:'DAI', addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18} // DAI 池只收 DAI，直接进奖池
+    ] },
 ];
 let poolIdx = 0;
-try{ poolIdx = Number(localStorage.getItem('lottery_pool')||0)||0; if(poolIdx<0||poolIdx>1) poolIdx=0; }catch(e){}
+try{ poolIdx = Number(localStorage.getItem('lottery_pool')||0)||0; if(poolIdx<0||poolIdx>2) poolIdx=0; }catch(e){}
 function TSYM(){ return POOLS[poolIdx].sym; }
 Object.assign(CFG, POOLS[poolIdx]);
 function setPool(i){
