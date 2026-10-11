@@ -333,7 +333,7 @@ zh: {
   quoteFail: '询价失败：池子可能没深度，请稍后重试',
   stepPayApprove: '授权 {sym}', stepSwap: '兑换成 LGNS',
   swapOk: '兑换成功，继续点按钮完成购票',
-  swapNote: '用 DAI / USDT / A 按池子实时价换成 LGNS 再买票：A 走 A→DAI→LGNS 两跳兑换。输入上限按报价上浮 5% 防滑点，实际只扣买票所需的金额。',
+  swapNote: '用 DAI / USDT / A 按池子实时价换成 LGNS 再买票：USDT、A 走 USDT/A→DAI→LGNS 两跳兑换，跟 DAI 同价。输入上限按报价上浮 5% 防滑点，实际只扣买票所需的金额。',
   prizeDist: '奖项分配', max14: '最多 14 张中奖票',
   tier1: '一等奖', tier1n: '1 张', tier2: '二等奖', tier2n: '3 张', tier3: '三等奖', tier3n: '10 张',
   poolShare: '奖池占比', perTicketShare: '每张奖池占比',
@@ -398,7 +398,7 @@ en: {
   quoteFail: 'Quote failed: pool may be too shallow, please retry later',
   stepPayApprove: 'Approve {sym}', stepSwap: 'Swap to LGNS',
   swapOk: 'Swapped! Tap the button again to finish buying',
-  swapNote: 'Pay with DAI / USDT / A, swapped to LGNS at the live pool price (A routes A→DAI→LGNS). Input cap is quote + 5% for slippage; only the exact ticket cost is taken.',
+  swapNote: 'Pay with DAI / USDT / A, swapped to LGNS at the live pool price (USDT and A route via DAI→LGNS, same price as DAI). Input cap is quote + 5% for slippage; only the exact ticket cost is taken.',
   prizeDist: 'Prize Distribution', max14: 'Up to 14 winning tickets',
   tier1: '1st Prize', tier1n: '1 ticket', tier2: '2nd Prize', tier2n: '3 tickets', tier3: '3rd Prize', tier3n: '10 tickets',
   poolShare: 'of pool', perTicketShare: 'of pool per ticket',
@@ -467,7 +467,9 @@ const CHAINS = {
     payTokens: [ // 付款币种：LGNS 直接买，其他走路由按池价换成 LGNS 再买
       {sym:'LGNS', addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9},
       {sym:'DAI', addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18},
-      {sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6},
+      {sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,
+       // USDT 直兑 LGNS 池太浅价格失真，走 USDT->DAI->LGNS 两跳，跟 DAI 同价
+       via:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14'},
       // A 直兑 LGNS 的池子是空池，走 A->DAI->LGNS 两跳（A/DAI 池深约 507 万 DAI）
       {sym:'A', addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18, via:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14'}
     ],
