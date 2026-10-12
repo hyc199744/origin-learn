@@ -125,9 +125,8 @@ var LOGO_SVG = '<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/20
 var NAV_ITEMS = [
   { k:'nav_home',   href:'' },
   { k:'nav_games',  href:'games/' },
-  { k:'nav_hot',    href:'#hot-games', hot:true },
-  { k:'nav_assets', href:'assets/' },
   { k:'nav_profile',href:'profile/' },
+  { k:'nav_help',   href:'#how', help:true },
   { k:'nav_news',   href:'news/' }
 ];
 var SiteNav = {
@@ -136,7 +135,7 @@ var SiteNav = {
     var nav = document.createElement('nav'); nav.className='nav';
     var homeHref = R || './';
     var links = NAV_ITEMS.map(function(it){
-      var href = it.hot ? (R||'./')+'#hot-games' : R + it.href;
+      var href = it.help ? (R||'./')+'#how' : R + it.href;
       var cls = (active===it.k) ? 'on' : '';
       return '<a data-nav="'+it.k+'" class="'+cls+'" href="'+href+'" data-i18n="'+it.k+'">'+I18n.t(it.k)+'</a>';
     }).join('');
@@ -181,23 +180,57 @@ var SiteNav = {
 };
 window.SiteNav = SiteNav;
 
+/* ---------------- lottery pools (mirror of on-chain V3 pools) ---------------- */
+window.LOTTERY_POOLS = [
+  { sym:'LGNS', contract:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7', dec:9,  deploy:16182340 },
+  { sym:'USDT', contract:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859', dec:6,  deploy:16196737 },
+  { sym:'DAI',  contract:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0', dec:18, deploy:16200709 },
+  { sym:'A',    contract:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb', dec:18, deploy:16202660 },
+  { sym:'RM',   contract:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3', dec:9,  deploy:16204394 }
+];
+window.LOTTERY_SEL = { ticketPrice:'1209b1f6', currentRound:'8a19c8bc', rounds:'8c65c81f' };
+window.EV_WINNERS = '0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627b4'; // WinnersDrawn
+window.EV_TICKETS = '0xc8c5c2b0e44fb6312c0098ec42642058527713d0a1d29a5c6ccbfe34d714d41e'; // TicketsBought
+
+/* unified SVG game covers (same ratio, same light) */
+window.gameCover = function(id){
+  var gold1='#f5d67b', gold2='#8a6d1f', bg1='#141019', bg2='#0a0a10';
+  var inner = '';
+  if(id==='lottery') inner = '<rect x="28" y="30" width="104" height="52" rx="8" fill="none" stroke="'+gold1+'" stroke-width="3"/>'
+    +'<circle cx="80" cy="56" r="10" fill="none" stroke="'+gold1+'" stroke-width="3"/>'
+    +'<path d="M28 42h20M28 70h20M132 42h-20M132 70h-20" stroke="'+gold1+'" stroke-width="3"/>';
+  else if(id==='dragon-tiger') inner = '<path d="M80 22 L102 62 L58 62 Z" fill="none" stroke="'+gold1+'" stroke-width="3"/>'
+    +'<path d="M80 98 L58 58 L102 58 Z" fill="none" stroke="#35e0ff" stroke-width="3" opacity=".8"/>'
+    +'<circle cx="80" cy="60" r="6" fill="'+gold1+'"/>';
+  else if(id==='wheel') inner = '<circle cx="80" cy="60" r="34" fill="none" stroke="'+gold1+'" stroke-width="3"/>'
+    +'<path d="M80 26v68M46 60h68M56 36l48 48M104 36l-48 48" stroke="'+gold1+'" stroke-width="2" opacity=".7"/>'
+    +'<circle cx="80" cy="60" r="6" fill="'+gold1+'"/><path d="M80 60 L80 30" stroke="#35e0ff" stroke-width="4"/>';
+  else inner = '<path d="M52 88 L100 40 M108 88 L60 40" stroke="'+gold1+'" stroke-width="5" stroke-linecap="round"/>'
+    +'<path d="M52 88l-8 8M108 88l8 8" stroke="'+gold1+'" stroke-width="5" stroke-linecap="round"/>';
+  return '<svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">'
+    +'<defs><linearGradient id="g'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+bg1+'"/><stop offset="1" stop-color="'+bg2+'"/></linearGradient></defs>'
+    +'<rect width="160" height="120" fill="url(#g'+id+')"/>'
+    +'<path d="M0 118h160" stroke="'+gold2+'" stroke-width="1" opacity=".5"/>'
+    + inner + '</svg>';
+};
+
 /* ---------------- games registry ----------------
    Add a new game: 1) add entry here  2) create directory <path>/index.html. Done. */
 window.GAMES = [
   { id:'lottery', status:'live',
-    path:'games/lottery/', icon:'🎟️',
+    path:'games/lottery/',
     name:{ zh:'安努比斯彩票', en:'ANUBIS LOTTERY' },
-    desc:{ zh:'链上彩票 · 五大奖池每小时开奖，邀请返佣，资金全程链上可查', en:'On-chain lottery · 5 pools drawn hourly, referral rewards, fully verifiable' } },
+    desc:{ zh:'五大奖池每小时开奖，邀请返佣，资金全程链上可查', en:'5 pools drawn hourly, referral rewards, fully verifiable on-chain' } },
   { id:'dragon-tiger', status:'soon',
-    path:'games/dragon-tiger/', icon:'🐉',
+    path:'games/dragon-tiger/',
     name:{ zh:'龙虎斗', en:'DRAGON TIGER' },
-    desc:{ zh:'经典龙虎对决即将登陆 Anubis，敬请期待', en:'Classic Dragon-Tiger showdown coming to Anubis. Stay tuned.' } },
+    desc:{ zh:'经典龙虎对决，合约开发中', en:'Classic Dragon-Tiger showdown. Contracts in development.' } },
   { id:'wheel', status:'soon',
-    path:'games/wheel/', icon:'🎡',
+    path:'games/wheel/',
     name:{ zh:'幸运转盘', en:'LUCKY WHEEL' },
-    desc:{ zh:'转动幸运，链上转盘即将上线', en:'Spin for luck. On-chain wheel coming soon.' } },
+    desc:{ zh:'链上转盘，合约开发中', en:'On-chain wheel. Contracts in development.' } },
   { id:'arena', status:'soon',
-    path:'games/arena/', icon:'⚔️',
+    path:'games/arena/',
     name:{ zh:'竞技场', en:'ARENA BATTLE' },
     desc:{ zh:'玩家对战竞技场，开发中', en:'Player-vs-player arena. In development.' } }
 ];
@@ -213,7 +246,7 @@ window.renderGameCards = function(elId, onlyLive){
       ? '<span class="go">'+(lang==='zh'?'立即进入 →':'Enter now →')+'</span>'
       : '<span class="go">'+(lang==='zh'?'敬请期待':'Coming soon')+'</span>';
     var inner = '<div class="float-orb"></div>'+badge
-      +'<div class="gicon">'+g.icon+'</div>'
+      +'<div class="gcover">'+window.gameCover(g.id)+'</div>'
       +'<h3>'+g.name[lang]+'</h3><p>'+g.desc[lang]+'</p>'+btn;
     return live
       ? '<a class="gcard live" href="'+R+g.path+'">'+inner+'</a>'
@@ -246,21 +279,28 @@ window.initParticles = function(canvasId){
   var cv = document.getElementById(canvasId); if(!cv) return;
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var ctx = cv.getContext('2d'), W, H, ps=[];
-  var N = window.innerWidth < 700 ? 36 : 70;
-  function size(){ W = cv.width = cv.offsetWidth; H = cv.height = cv.offsetHeight; }
+  var N = window.innerWidth < 700 ? 22 : 42;
+  function size(){
+    var w = cv.clientWidth || (cv.parentElement && cv.parentElement.clientWidth) || window.innerWidth;
+    var h = cv.clientHeight || (cv.parentElement && cv.parentElement.clientHeight) || 400;
+    if(w < 10 || h < 10) return; // 布局未完成时跳过，下次 resize 重试
+    W = cv.width = w; H = cv.height = h;
+  }
   size(); window.addEventListener('resize', size);
-  for(var i=0;i<N;i++) ps.push({ x:Math.random(), y:Math.random(), vx:(Math.random()-.5)*.0009, vy:(Math.random()-.5)*.0009,
-    r:Math.random()*1.8+.6, c: Math.random()<.28 ? '53,224,255' : '212,175,55' });
+  setTimeout(size, 500); // 字体/布局稳定后再校准一次
+  for(var i=0;i<N;i++) ps.push({ x:Math.random(), y:Math.random(), vx:(Math.random()-.5)*.0007, vy:(Math.random()-.5)*.0007,
+    r:Math.random()*1.5+.5, c: Math.random()<.25 ? '53,224,255' : '212,175,55' });
   (function tick(){
+    if(!W || !H){ requestAnimationFrame(tick); return; }
     ctx.clearRect(0,0,W,H);
     for(var i=0;i<ps.length;i++){ var p=ps[i];
       p.x+=p.vx; p.y+=p.vy;
       if(p.x<0||p.x>1) p.vx*=-1; if(p.y<0||p.y>1) p.vy*=-1;
       var x=p.x*W, y=p.y*H;
-      ctx.beginPath(); ctx.arc(x,y,p.r,0,7); ctx.fillStyle='rgba('+p.c+',.75)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(x,y,p.r,0,7); ctx.fillStyle='rgba('+p.c+',.45)'; ctx.fill();
       for(var j=i+1;j<ps.length;j++){ var q=ps[j], dx=(p.x-q.x)*W, dy=(p.y-q.y)*H, d=Math.sqrt(dx*dx+dy*dy);
-        if(d<130){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(q.x*W,q.y*H);
-          ctx.strokeStyle='rgba('+p.c+','+(0.14*(1-d/130))+')'; ctx.lineWidth=1; ctx.stroke(); } }
+        if(d<110){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(q.x*W,q.y*H);
+          ctx.strokeStyle='rgba('+p.c+','+(0.08*(1-d/110))+')'; ctx.lineWidth=1; ctx.stroke(); } }
     }
     requestAnimationFrame(tick);
   })();
