@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的资产 · ANUBIS PLAY</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
+.hero{padding:118px 0 20px}
+.tokens{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:22px}
+.token{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r);padding:22px;box-shadow:var(--shadow)}
+.token .th{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.token .sym{font-weight:800;font-size:17px;letter-spacing:.04em}
+.token .bal{font-family:var(--font-num);font-size:24px;font-weight:700;margin:6px 0}
+.token .note{color:var(--muted);font-size:13px}
+.token .addr{font-family:var(--font-num);font-size:11.5px;color:var(--faint);margin-top:10px;word-break:break-all;cursor:pointer}
+.soon{background:var(--card2);border:1.5px dashed var(--line);border-radius:var(--r);padding:22px;color:var(--muted)}
+.soon .sym{font-weight:700}
+</style>
+</head>
+<body>
+<script>window.SITE_ROOT='../';</script>
+<script>
+window.PAGE_I18N = {
+zh:{
+  nav_games:'游戏大厅', nav_records:'我的记录', nav_help:'帮助', nav_news:'公告',
+  connect:'连接钱包', no_wallet:'请先安装钱包', conn_fail:'连接失败',
+  foot_data:'链上数据以浏览器为准', foot_risk:'链上游戏存在智能合约风险，请理性参与。',
+  kicker:'MY ASSETS',
+  h_title:'我的资产', h_sub:'已核实合约地址的代币余额 · 点击地址可复制',
+  not_conn:'连接钱包后查看代币余额',
+  verified:'已核实', soon:'即将支持', copied:'已复制'
+},
+en:{
+  nav_games:'Games', nav_records:'Records', nav_help:'Help', nav_news:'News',
+  connect:'Connect Wallet', no_wallet:'Please install a wallet first', conn_fail:'Connection failed',
+  foot_data:'On-chain data as shown in explorer', foot_risk:'On-chain games carry smart contract risk.',
+  kicker:'MY ASSETS',
+  h_title:'My Assets', h_sub:'Balances of verified tokens · click address to copy',
+  not_conn:'Connect wallet to view balances',
+  verified:'Verified', soon:'Coming soon', copied:'Copied'
+}};
+window.VERIFIED_TOKENS = [
+  { sym:'LGNS',  addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9 },
+  { sym:'USDT',  addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6 },
+  { sym:'DAI',   addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18 },
+  { sym:'A',     addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18 },
+  { sym:'RM',    addr:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9 },
+  { sym:'AiLGNS',addr:'0x256edb652db43e721ec6a12b6b51b6967d3bb8cb', dec:18 }
+];
+window.SOON_TOKENS = ['fLGNS','gLGNS','AUG','VST','USDC','BNB'];
+</script>
+<script src="../shared/site.js"></script>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="sec-kicker" data-i18n="kicker">MY ASSETS</div>
+    <h1 class="sec-title" data-i18n="h_title">我的资产</h1>
+    <p class="sec-sub" data-i18n="h_sub"></p>
+    <div style="margin-top:18px"><button class="btn btn-green btn-sm wallet-btn" data-i18n="connect">连接钱包</button></div>
+  </div>
+</header>
+
+<section class="sec" style="padding-top:10px">
+  <div class="wrap">
+    <div id="needConn"><div class="empty" style="color:var(--faint);text-align:center;padding:34px;border:1.5px dashed var(--line);border-radius:var(--r)" data-i18n="not_conn">连接钱包后查看代币余额</div></div>
+    <div class="tokens" id="tokenGrid" style="display:none"></div>
+    <h2 class="sec-title" style="font-size:20px;margin:34px 0 16px" data-i18n="soon">即将支持</h2>
+    <div class="tokens" id="soonGrid"></div>
+  </div>
+</section>
+
+<script>
+SiteNav.render('nav_games');
+I18n.set(PAGE_I18N); I18n.apply();
+renderFooter();
+function balCall(token, addr){
+  var data = '0x70a08231' + addr.toLowerCase().replace(/^0x/,'').padStart(64,'0');
+  return apRpc('eth_call',[{to:token.addr,data:data},'latest']).then(function(r){ return BigInt(r); });
+}
+function paintSoon(){
+  document.getElementById('soonGrid').innerHTML = window.SOON_TOKENS.map(function(s){
+    return '<div class="soon"><div class="sym">'+s+'</div><div class="small" style="margin-top:6px">'+t('soon')+'</div></div>';
+  }).join('');
+}
+async function loadBalances(addr){
+  var g = document.getElementById('tokenGrid');
+  g.style.display='grid';
+  g.innerHTML = window.VERIFIED_TOKENS.map(function(tk){
+    return '<div class="token"><div class="th"><span class="sym">'+tk.sym+'</span>'
+      +'<span class="badge live">'+t('verified')+'</span></div>'
+      +'<div class="bal num" id="b-'+tk.sym+'">…</div>'
+      +'<div class="note">'+tk.sym+'</div>'
+      +'<div class="addr" data-copy="'+tk.addr+'" title="'+tk.addr+'">'+tk.addr+'</div></div>';
+  }).join('');
+  document.querySelectorAll('[data-copy]').forEach(function(el){
+    el.onclick=function(){
+      var v=el.getAttribute('data-copy');
+      if(navigator.clipboard) navigator.clipboard.writeText(v).then(function(){ toast(t('copied')); });
+    };
+  });
+  for(var i=0;i<window.VERIFIED_TOKENS.length;i++){
+    (function(tk){
+      balCall(tk, addr).then(function(b){
+        var el=document.getElementById('b-'+tk.sym);
+        if(el) el.textContent = apFmt(b, tk.dec);
+      }).catch(function(){
+        var el=document.getElementById('b-'+tk.sym);
+        if(el) el.textContent = '—';
+      });
+    })(window.VERIFIED_TOKENS[i]);
+  }
+}
+document.addEventListener('ap-account', function(e){
+  if(e.detail.addr){
+    document.getElementById('needConn').style.display='none';
+    document.querySelector('.wallet-btn').style.display='none';
+    loadBalances(e.detail.addr);
+  }
+});
+if(Wallet.addr){
+  document.getElementById('needConn').style.display='none';
+  loadBalances(Wallet.addr);
+}
+paintSoon();
+window.onLangChange=function(){
+  paintSoon();
+  var f=document.querySelector('footer'); if(f) f.remove(); renderFooter();
+};
+</script>
+</body>
+</html>
