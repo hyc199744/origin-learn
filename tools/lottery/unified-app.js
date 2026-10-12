@@ -186,6 +186,8 @@ function applyLang(){
   document.querySelectorAll('[data-i18n-html]').forEach(el=>{ el.innerHTML = t(el.getAttribute('data-i18n-html'), {pct: el.dataset.pct || ''}); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.getAttribute('data-i18n-ph')); });
   $('langBtn').textContent = LANG==='zh' ? 'EN' : '中文';
+  var tabTxt={home:['首页','Home'],play:['彩票','Lottery'],records:['记录','Records'],invite:['邀请','Invite']};
+  document.querySelectorAll('.ptab-txt[data-tab]').forEach(function(el){ var k=el.getAttribute('data-tab'); if(tabTxt[k]) el.textContent = LANG==='zh' ? tabTxt[k][0] : tabTxt[k][1]; });
   updateChainText();
   document.querySelectorAll('.qbtn[data-n]').forEach(b=>{ b.textContent = t('ticketsCount', {n: b.dataset.n}); });
   const sn = $('stepperNum'); if(sn) sn.textContent = t('ticketsCount', {n: buyN});
