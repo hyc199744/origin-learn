@@ -121,7 +121,7 @@ en:{
   s1:'Learn the rules', s2:'Pick a pool', s3:'Try buying'
 }};
 </script>
-<script src="shared/site.js"></script>
+<script src="shared/site.js?v=3"></script>
 
 <header class="hero">
   <div class="wrap hero-grid">
@@ -207,8 +207,9 @@ en:{
 </section>
 
 <script>
-SiteNav.render('nav_home');
+
 I18n.set(PAGE_I18N); I18n.apply();
+SiteNav.render('nav_home');
 renderFooter();
 
 var selPool = 0;
