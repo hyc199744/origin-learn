@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>帮助 · ANUBIS PLAY</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
+.hero{padding:118px 0 20px}
+.faq{margin-top:8px}
+.faq-item{border-bottom:1px solid var(--line-soft)}
+.faq-q{width:100%;background:none;border:none;text-align:left;padding:20px 4px;font-size:16px;font-weight:700;
+  color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:56px;
+  font-family:var(--font-body)}
+.faq-q::after{content:'+';font-size:22px;color:var(--gold);font-weight:300}
+.faq-item.open .faq-q::after{content:'−'}
+.faq-a{display:none;padding:0 4px 22px;color:var(--muted);font-size:14.5px;max-width:760px}
+.faq-item.open .faq-a{display:block}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:24px}
+.step{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r);padding:24px;box-shadow:var(--shadow)}
+.step .n{font-family:var(--font-num);font-size:28px;color:var(--green);font-weight:300}
+.step h4{margin:10px 0 8px;font-size:16px}
+.step p{color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<script>window.SITE_ROOT='../';</script>
+<script>
+window.PAGE_I18N = {
+zh:{
+  nav_games:'游戏大厅', nav_records:'我的记录', nav_help:'帮助', nav_news:'公告',
+  connect:'连接钱包', no_wallet:'请先安装钱包', conn_fail:'连接失败',
+  foot_data:'链上数据以浏览器为准', foot_risk:'链上游戏存在智能合约风险，请理性参与。',
+  kicker:'HELP CENTER',
+  h_title:'新手指南', h_sub:'四步开始，清楚明白',
+  s1t:'准备钱包', s1d:'在手机上安装 OKX / TokenPocket / MetaMask，创建或导入钱包。平台不保管私钥，所有交易都由你的钱包签名确认。',
+  s2t:'切换网络', s2d:'连接后按提示切换到 Anubis 网络（Chain ID 6714）。网络 Gas 用 DAI 支付，记得留一点 DAI。',
+  s3t:'准备代币', s3d:'把想玩的代币转入钱包：LGNS / USDT / DAI / A / RM 五个彩票奖池各收一种代币，奖金也用同种代币结算。',
+  s4t:'开始游戏', s4d:'进游戏大厅选奖池，按提示授权并购票。每小时开奖一次，中奖后奖金自动发放到钱包。',
+  faq_t:'常见问题',
+  q1:'购票要花多少手续费？', a1:'每期票款扣 10% 平台费后进入奖金分配。邀请返佣从平台费里出，不影响奖池。除此之外没有其他费用。',
+  q2:'什么时候开奖？', a2:'每小时一期。售票截止后，用未来区块哈希做随机源开奖，约 50 个块后可开奖。开奖由自动化程序执行，也可在页面手动触发。',
+  q3:'中奖后怎么领奖？', a3:'不需要手动领奖。开奖后奖金自动打到中奖彩票对应的钱包地址。',
+  q4:'什么是已解锁注资？', a4:'项目方可以往奖池注资，注资先锁定，每卖出 1 张票释放 0.3 到奖池（一期最多 30）。没人买票就不释放，防止被薅走。',
+  q5:'邀请返佣怎么算？', a5:'朋友通过你的邀请链接买票，你拿他那笔平台费的 30%；他再邀请的人买票，你再拿 10%。返佣随时可以提取。',
+  q6:'为什么授权？安全吗？', a6:'购票前需要授权彩票合约使用你的代币，这是 ERC20 标准流程。授权额度建议按实际购买数量，平台不会动用你未授权的资金。',
+  q7:'记录在哪里看？', a7:'“我的记录”页面会从链上读取你的购票和中奖记录，每条都带交易链接，可到浏览器验证。'
+},
+en:{
+  nav_games:'Games', nav_records:'Records', nav_help:'Help', nav_news:'News',
+  connect:'Connect Wallet', no_wallet:'Please install a wallet first', conn_fail:'Connection failed',
+  foot_data:'On-chain data as shown in explorer', foot_risk:'On-chain games carry smart contract risk.',
+  kicker:'HELP CENTER',
+  h_title:'Getting Started', h_sub:'Four steps, crystal clear',
+  s1t:'Get a wallet', s1d:'Install OKX / TokenPocket / MetaMask on your phone. We never hold your keys; every transaction is signed by your wallet.',
+  s2t:'Switch network', s2d:'Switch to Anubis (Chain ID 6714) when prompted. Gas is paid in DAI — keep some.',
+  s3t:'Fund tokens', s3d:'Send tokens to your wallet: LGNS / USDT / DAI / A / RM. Each lottery pool takes one token; prizes settle in the same token.',
+  s4t:'Play', s4d:'Pick a pool in the lobby, approve and buy tickets as prompted. Draws run hourly; winnings auto-payout.',
+  faq_t:'FAQ',
+  q1:'What are the fees?', a1:'10% platform fee is taken from each round ticket sales before prizes. Referral rewards come from the fee, not the pool. No other fees.',
+  q2:'When are draws?', a2:'Hourly. After sales close, a future block hash is used as randomness (~50 blocks later). An automated bot draws, or trigger manually on the page.',
+  q3:'How do I claim winnings?', a3:'No claiming needed. Prizes are sent automatically to the winning ticket wallet.',
+  q4:'What is unlocked seed funding?', a4:'The team can seed the jackpot; seeds lock first and release 0.3 per ticket sold (max 30/round). Nothing releases with zero sales.',
+  q5:'How do referral rewards work?', a5:'30% of the platform fee from direct referrals, 10% from second level. Claim anytime.',
+  q6:'Why approve? Is it safe?', a6:'Buying requires approving the lottery contract to use your tokens (standard ERC20). Approve only what you plan to spend.',
+  q7:'Where are my records?', a7:'The Records page reads your on-chain purchases and winnings, each with a transaction link for verification.'
+}};
+</script>
+<script src="../shared/site.js"></script>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="sec-kicker" data-i18n="kicker">HELP CENTER</div>
+    <h1 class="sec-title" data-i18n="h_title">新手指南</h1>
+    <p class="sec-sub" data-i18n="h_sub"></p>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><h4 data-i18n="s1t"></h4><p data-i18n="s1d"></p></div>
+      <div class="step"><div class="n">02</div><h4 data-i18n="s2t"></h4><p data-i18n="s2d"></p></div>
+      <div class="step"><div class="n">03</div><h4 data-i18n="s3t"></h4><p data-i18n="s3d"></p></div>
+      <div class="step"><div class="n">04</div><h4 data-i18n="s4t"></h4><p data-i18n="s4d"></p></div>
+    </div>
+  </div>
+</header>
+
+<section class="sec" style="padding-top:20px">
+  <div class="wrap">
+    <h2 class="sec-title" style="font-size:24px" data-i18n="faq_t">常见问题</h2>
+    <div class="faq card" style="margin-top:20px" id="faq"></div>
+  </div>
+</section>
+
+<script>
+SiteNav.render('nav_help');
+I18n.set(PAGE_I18N); I18n.apply();
+renderFooter();
+function paintFaq(){
+  var el=document.getElementById('faq');
+  var html='';
+  for(var i=1;i<=7;i++){
+    html+='<div class="faq-item"><button class="faq-q" aria-expanded="false">'+t('q'+i)+'</button>'
+      +'<div class="faq-a">'+t('a'+i)+'</div></div>';
+  }
+  el.innerHTML=html;
+  el.querySelectorAll('.faq-q').forEach(function(b){
+    b.onclick=function(){
+      var it=b.parentElement, open=it.classList.contains('open');
+      el.querySelectorAll('.faq-item').forEach(function(x){ x.classList.remove('open'); });
+      if(!open){ it.classList.add('open'); b.setAttribute('aria-expanded','true'); }
+    };
+  });
+}
+paintFaq();
+window.onLangChange=function(){
+  paintFaq();
+  var f=document.querySelector('footer'); if(f) f.remove(); renderFooter();
+};
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') document.querySelectorAll('.faq-item.open').forEach(function(x){x.classList.remove('open');});
+});
+</script>
+</body>
+</html>
