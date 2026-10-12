@@ -5,7 +5,7 @@
   document.querySelectorAll('img[data-uimg]').forEach(function(img){
     var name=img.getAttribute('data-uimg');
     var prm=(name==='uimg-hero')?loadMulti('uimg-hero',5):load(name);
-    var mime=(name==='uimg-hero')?'webp':'jpeg';
+    var mime=(name==='uimg-hero'||name==='uimg-logo')?'webp':'jpeg';
     prm.then(function(b64){ img.src='data:image/'+mime+';base64,'+b64; img.removeAttribute('data-uimg'); }).catch(function(){});
   });
   Promise.all(['uimg-g1','uimg-g2','uimg-g3'].map(load)).then(function(arr){
