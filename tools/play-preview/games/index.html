@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>游戏大厅 · ANUBIS PLAY</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
+.hero{padding:118px 0 10px}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--green-deep);border-radius:22px;
+  overflow:hidden;color:#F2EFE4;box-shadow:var(--shadow-lg);margin-bottom:16px}
+.big .bl{padding:40px 42px}
+.big .bl h2{font-family:var(--font);font-size:30px;letter-spacing:.06em;margin:14px 0 10px}
+.big .bl p{color:rgba(242,239,228,.72);font-size:14.5px;max-width:420px}
+.big-stats{display:flex;gap:30px;margin:24px 0;flex-wrap:wrap}
+.big-stats .k{font-size:12px;letter-spacing:.16em;color:rgba(242,239,228,.55)}
+.big-stats .v{font-family:var(--font-num);font-size:22px;font-weight:700;color:#F5E9C8;margin-top:6px}
+.big .br{background:var(--green-soft);min-height:280px;position:relative}
+.big .br img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pools{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.pool{background:var(--card);border:1.5px solid var(--line-soft);border-radius:var(--r);padding:18px;
+  transition:.2s;display:block}
+.pool:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow)}
+.pool .pb{width:40px;height:40px;border-radius:50%;background:var(--green-soft);color:var(--green);
+  display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:10px}
+.pool h4{font-size:15.5px}
+.pool .pp{color:var(--muted);font-size:12.5px;margin-top:4px;font-family:var(--font-num)}
+.dev3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px}
+@media(max-width:900px){
+  .big{grid-template-columns:1fr}
+  .big .br{min-height:200px;position:relative;height:200px}
+  .pools{grid-template-columns:repeat(2,1fr)}
+  .dev3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<script>window.SITE_ROOT='../';</script>
+<script>
+window.PAGE_I18N = {
+zh:{
+  nav_games:'游戏大厅', nav_records:'我的记录', nav_help:'帮助', nav_news:'公告',
+  connect:'连接钱包', no_wallet:'请先安装钱包', conn_fail:'连接失败',
+  foot_data:'链上数据以浏览器为准', foot_risk:'链上游戏存在智能合约风险，请理性参与。',
+  kicker:'GAME LOBBY',
+  lot_live:'运行中', lot_name:'安努比斯彩票',
+  lot_desc:'五大奖池每小时开奖。邀请好友买票拿返佣，没人中的奖项自动滚入下期。',
+  st_pool:'主池奖池', st_price:'主池票价', st_end:'本期截止',
+  enter:'进入彩票 →', pick:'选择奖池直达',
+  loading:'加载中…', dev_t:'开发进度', dev_s:'新游戏，正在路上', dev:'开发中'
+},
+en:{
+  nav_games:'Games', nav_records:'Records', nav_help:'Help', nav_news:'News',
+  connect:'Connect Wallet', no_wallet:'Please install a wallet first', conn_fail:'Connection failed',
+  foot_data:'On-chain data as shown in explorer', foot_risk:'On-chain games carry smart contract risk.',
+  kicker:'GAME LOBBY',
+  lot_live:'LIVE', lot_name:'ANUBIS LOTTERY',
+  lot_desc:'Five pools drawn hourly. Refer friends for rewards. Unwon prizes roll over.',
+  st_pool:'Main jackpot', st_price:'Ticket price', st_end:'Round ends',
+  enter:'Enter →', pick:'Jump to a pool',
+  loading:'Loading…', dev_t:'In Development', dev_s:'New games on the way', dev:'In Dev'
+}};
+</script>
+<script src="../shared/site.js"></script>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="sec-kicker" data-i18n="kicker">GAME LOBBY</div>
+    <div class="big">
+      <div class="bl">
+        <span class="badge live" style="background:rgba(255,255,255,.14);color:#F5E9C8" data-i18n="lot_live">运行中</span>
+        <h2 data-i18n="lot_name">安努比斯彩票</h2>
+        <p data-i18n="lot_desc"></p>
+        <div class="big-stats">
+          <div><div class="k" data-i18n="st_pool">主池奖池</div><div class="v" id="lbPool" data-i18n="loading">加载中…</div></div>
+          <div><div class="k" data-i18n="st_price">主池票价</div><div class="v" id="lbPrice" data-i18n="loading">加载中…</div></div>
+          <div><div class="k" data-i18n="st_end">本期截止</div><div class="v" id="lbEnd" data-i18n="loading">加载中…</div></div>
+        </div>
+        <a class="btn btn-ivory" href="lottery/" data-i18n="enter">进入彩票 →</a>
+      </div>
+      <div class="br"><img data-img="hero-anubis" alt="Anubis"></div>
+    </div>
+    <div class="small muted" style="margin:18px 0 4px" data-i18n="pick">选择奖池直达</div>
+    <div class="pools" id="poolGrid"></div>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <h2 class="sec-title" style="font-size:24px" data-i18n="dev_t">开发进度</h2>
+    <p class="sec-sub" data-i18n="dev_s"></p>
+    <div class="dev3" id="dev3" style="margin-top:24px"></div>
+  </div>
+</section>
+
+<script>
+SiteNav.render('nav_games');
+I18n.set(PAGE_I18N); I18n.apply();
+renderFooter();
+function pad64(n){ return BigInt(n).toString(16).padStart(64,'0'); }
+async function loadLobby(){
+  var P=window.LOTTERY_POOLS[0], S=window.LOTTERY_SEL;
+  try{
+    var tp=await apRpc('eth_call',[{to:P.contract,data:'0x'+S.ticketPrice},'latest']);
+    var rid=await apRpc('eth_call',[{to:P.contract,data:'0x'+S.currentRound},'latest']);
+    var rh=await apRpc('eth_call',[{to:P.contract,data:'0x'+S.rounds+pad64(parseInt(rid,16))},'latest']);
+    var d=rh.slice(2);
+    var pool=BigInt('0x'+d.slice(192,256))+BigInt('0x'+d.slice(256,320));
+    var el=document.getElementById('lbPool'); if(el) el.textContent=apFmt(pool,P.dec)+' '+P.sym;
+    el=document.getElementById('lbPrice'); if(el) el.textContent=apFmt(BigInt(tp),P.dec)+' '+P.sym;
+    el=document.getElementById('lbEnd');
+    if(el){ (function tick(){ var ms=parseInt(d.slice(0,64),16)*1000-Date.now();
+      if(ms<=0){el.textContent=I18n.lang==='zh'?'已截止':'Ended';return;}
+      var s=Math.floor(ms/1000);
+      el.textContent=Math.floor(s/3600)+':'+String(Math.floor(s%3600/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+      setTimeout(tick,1000); })(); }
+  }catch(e){}
+  var g=document.getElementById('poolGrid');
+  g.innerHTML=window.LOTTERY_POOLS.map(function(p,i){
+    return '<a class="pool" href="lottery/?pool='+p.sym.toLowerCase()+'"><div class="pb">'+p.badge+'</div>'
+      +'<h4>'+p.sym+' 池</h4><div class="pp" id="pp'+i+'">'+t('loading')+'</div></a>';
+  }).join('');
+  window.LOTTERY_POOLS.forEach(function(p,i){
+    apRpc('eth_call',[{to:p.contract,data:'0x'+S.ticketPrice},'latest']).then(function(tp){
+      var el=document.getElementById('pp'+i);
+      if(el) el.textContent=apFmt(BigInt(tp),p.dec)+' '+p.sym+' / '+(I18n.lang==='zh'?'张':'ticket');
+    }).catch(function(){});
+  });
+}
+function paintDev(){
+  var el=document.getElementById('dev3');
+  el.innerHTML=window.GAMES.filter(function(g){return g.status!=='live';}).map(function(g){
+    return '<div class="card" style="padding:0;overflow:hidden"><div style="aspect-ratio:16/10;overflow:hidden;background:var(--green-soft)">'
+      +'<img class="img-cover" data-img="'+g.cover+'" alt="" loading="lazy" style="height:100%">'
+      +'</div><div style="padding:20px 22px"><span class="badge soon">'+t('dev')+'</span>'
+      +'<h3 style="margin-top:10px">'+g.name[I18n.lang]+'</h3><p class="muted small">'+g.desc[I18n.lang]+'</p></div></div>';
+  }).join('');
+  paintImgs();
+}
+loadLobby(); paintDev();
+window.onLangChange=function(){
+  paintDev();
+  var f=document.querySelector('footer'); if(f) f.remove(); renderFooter();
+};
+</script>
+</body>
+</html>
