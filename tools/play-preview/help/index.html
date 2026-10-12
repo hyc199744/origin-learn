@@ -66,7 +66,7 @@ en:{
   q7:'Where are my records?', a7:'The Records page reads your on-chain purchases and winnings, each with a transaction link for verification.'
 }};
 </script>
-<script src="../shared/site.js"></script>
+<script src="../shared/site.js?v=3"></script>
 
 <header class="hero">
   <div class="wrap">
@@ -90,8 +90,9 @@ en:{
 </section>
 
 <script>
-SiteNav.render('nav_help');
+
 I18n.set(PAGE_I18N); I18n.apply();
+SiteNav.render('nav_help');
 renderFooter();
 function paintFaq(){
   var el=document.getElementById('faq');
