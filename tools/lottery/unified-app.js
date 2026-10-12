@@ -77,6 +77,8 @@ zh: {
   refTitle: '邀请返佣', refNote: '把你的邀请链接发给朋友：他买票，你拿他那笔平台费的 30%；他再邀请的人买票，你再拿 10%。返佣从平台费里出，不影响奖池，随时可提。邀请关系第一次买票就定死。',
   myRefLink: '我的邀请链接', copyBtn: '复制', copyOk: '邀请链接已复制，去发给朋友吧',
   myReferrer: '我的邀请人', noReferrer: '无（首次购票时绑定）',
+  joinBtn: '加入', joinOk: '已加入！首次购票时将永久绑定邀请关系',
+  joinPrompt: '邀请人 {addr} 邀请你加入，点加入确认绑定', joinedMsg: '已加入，邀请人 {addr}，首次购票时永久绑定',
   myRefRewards: '可提返佣', claimRefBtn: '提取返佣', claimOk: '返佣已到账',
   refVia: '你通过邀请链接进入：本次购票将为邀请人带来返佣，你的奖金不受影响',
   refDirectLine: '直推', refIndirectLine: '间推',
@@ -160,6 +162,8 @@ en: {
   refTitle: 'Referral Rewards', refNote: 'Share your invite link: earn 30% of the platform fee on your invitees\' ticket purchases, plus 10% on their invitees\'. Paid from the platform fee — the prize pool is untouched. Claim anytime. Referral binds on first purchase, permanently.',
   myRefLink: 'My Invite Link', copyBtn: 'Copy', copyOk: 'Invite link copied, go share it',
   myReferrer: 'My Referrer', noReferrer: 'None (bound on first purchase)',
+  joinBtn: 'Join', joinOk: 'Joined! Referral will bind permanently on first purchase',
+  joinPrompt: '{addr} invited you. Tap Join to confirm.', joinedMsg: 'Joined. Inviter {addr}, binds permanently on first purchase',
   myRefRewards: 'Claimable Rewards', claimRefBtn: 'Claim Rewards', claimOk: 'Rewards claimed',
   refVia: 'You arrived via an invite link: this purchase earns your inviter rewards. Your prizes are unaffected.',
   refDirectLine: 'Direct', refIndirectLine: 'Indirect',
@@ -921,6 +925,11 @@ async function buy(){
 }
 function getRef(){
   try{
+    const saved = localStorage.getItem('anubis_joined_ref');
+    if(saved && /^0x[0-9a-fA-F]{40}$/.test(saved)){
+      if(myAddr && saved.toLowerCase()===myAddr.toLowerCase()) return null;
+      return saved;
+    }
     const r = new URLSearchParams(location.search).get('ref');
     if(r && /^0x[0-9a-fA-F]{40}$/.test(r)){
       if(myAddr && r.toLowerCase()===myAddr.toLowerCase()) return null;
@@ -928,6 +937,31 @@ function getRef(){
     }
   }catch(e){}
   return null;
+}
+function joinRef(){
+  const r = new URLSearchParams(location.search).get('ref');
+  if(r && /^0x[0-9a-fA-F]{40}$/.test(r)){
+    try{ localStorage.setItem('anubis_joined_ref', r); }catch(e){}
+    renderJoinBanner();
+    toast(t('joinOk'));
+  }
+}
+function renderJoinBanner(){
+  const banner = $('joinBanner');
+  if(!banner) return;
+  const urlRef = (()=>{ try{ return new URLSearchParams(location.search).get('ref'); }catch(e){ return null; } })();
+  const saved = (()=>{ try{ return localStorage.getItem('anubis_joined_ref'); }catch(e){ return null; } })();
+  const validUrl = urlRef && /^0x[0-9a-fA-F]{40}$/.test(urlRef);
+  if(saved && /^0x[0-9a-fA-F]{40}$/.test(saved)){
+    banner.style.display = '';
+    banner.innerHTML = '<span>'+t('joinedMsg',{addr: short(saved)})+'</span>';
+  } else if(validUrl){
+    if(myAddr && urlRef.toLowerCase()===myAddr.toLowerCase()){ banner.style.display='none'; return; }
+    banner.style.display = '';
+    banner.innerHTML = '<span>'+t('joinPrompt',{addr: short(urlRef)})+'</span> <button class="btn-join" onclick="joinRef()">'+t('joinBtn')+'</button>';
+  } else {
+    banner.style.display = 'none';
+  }
 }
 function copyRefLink(){
   const el = $('refLink');
@@ -1273,6 +1307,7 @@ function routeFromHash(){
   return (h==='home'||h==='play'||h==='invite'||h==='records') ? h : 'home';
 }
 function showView(v, fromHash){
+  if(window.renderJoinBanner) renderJoinBanner();
   var home=$('view-home'),play=$('view-play'),inv=$('view-invite'),rec=$('view-records'),pb=$('pback');
   if(home)home.hidden=(v!=='home');
   if(play)play.hidden=(v!=='play');
