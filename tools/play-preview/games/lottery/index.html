@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='14' width='52' height='36' rx='7' fill='%23641E2D'/%3E%3Cpath d='M6 26a6 6 0 0 0 6 6 6 6 0 0 0-6 6M58 26a6 6 0 0 1-6 6 6 6 0 0 1 6 6' fill='%23F6F3EB'/%3E%3Ccircle cx='32' cy='32' r='7' fill='none' stroke='%23C6A46A' stroke-width='3'/%3E%3C/svg%3E">
+<title>Anubis 彩票</title>
+<style>
+:root{
+--bg:#F5F5EF; --card:#FFFFFF; --wine:#1E5541; --wine-d:#143D2E; --wine-dd:#0F2E23;
+--gold:#B49A63; --gold-soft:#EFE3CB; --ink:#133B30; --muted:#667365; --line:rgba(19,59,48,.13); --line-soft:rgba(19,59,48,.07);
+--radius:16px; --radius-lg:20px;
+--shadow:0 2px 10px rgba(100,30,45,.06), 0 10px 28px rgba(100,30,45,.07);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.55;
+background-image:repeating-linear-gradient(45deg,rgba(100,30,45,.012) 0 2px,transparent 2px 7px);}
+button{font-family:inherit}
+.wrap{max-width:1200px;margin:0 auto;padding:0 20px 48px}
+/* ===== 顶栏导航 ===== */
+.nav{position:sticky;top:0;z-index:50;background:rgba(246,243,235,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0;text-decoration:none;color:var(--ink)}
+.brand-logo{width:38px;height:38px;flex:none}
+.brand-name{font-size:17px;font-weight:800;letter-spacing:3px;white-space:nowrap}
+.brand-sub{font-size:11px;color:var(--muted);letter-spacing:2px;white-space:nowrap}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;padding:9px 12px;border-radius:10px;white-space:nowrap}
+.nav-link:hover{color:var(--wine);background:#fff}
+.pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:border-color .18s,color .18s;min-height:38px}
+/* 平台导航条（ANUBIS PLAY 统一入口） */
+.ap-strip{display:flex;align-items:center;justify-content:space-between;background:#FFFEFA;color:#133B30;padding:0 16px;height:44px;font-size:13px;border-bottom:1px solid rgba(19,59,48,.1)}
+.ap-brand{display:flex;align-items:center;gap:8px;color:#133B30;font-weight:800;letter-spacing:.12em;text-decoration:none}
+.ap-brand b{color:#1E5541;font-weight:800}
+.ap-brand .sub{font-size:9px;letter-spacing:.24em;color:#667365;font-weight:500}
+.ap-back{color:#1E5541;text-decoration:none;font-weight:600;white-space:nowrap;min-height:44px;display:inline-flex;align-items:center}
+.ap-back:hover{color:#B49A63}
+.retry-btn{background:#fff;border:1px solid var(--gold);border-radius:8px;padding:4px 12px;font-size:12.5px;font-weight:700;color:var(--wine);cursor:pointer;margin-left:6px}
+.retry-btn:hover{background:var(--gold-soft)}
+.pill:hover{border-color:var(--gold);color:var(--wine)}
+.pill svg{width:14px;height:14px;flex:none}
+.pill.wallet{border-color:var(--wine);color:var(--wine)}
+/* ===== 奖池选择条 ===== */
+.poolbar{margin:18px 0 16px}
+.poolbar-head{display:flex;align-items:baseline;gap:10px;margin:0 2px 10px}
+.poolbar-label{font-size:14px;font-weight:800;letter-spacing:1px}
+.poolbar-hint{font-size:12px;color:var(--muted)}
+.pool-tabs{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.ptab{flex:1 0 auto;min-width:150px;display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:10px 14px;cursor:pointer;text-align:left;transition:border-color .15s,box-shadow .15s;min-height:56px}
+.ptab:hover{border-color:var(--gold)}
+.ptab .check{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;color:transparent;transition:all .15s}
+.ptab .t{flex:1;min-width:0}
+.ptab .sym{font-size:15px;font-weight:800;display:block}
+.ptab .price{font-size:11.5px;color:var(--muted);display:block;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ptab.sel{background:var(--wine);border-color:var(--wine);color:#F7F1E3;box-shadow:var(--shadow)}
+.ptab.sel .price{color:#D9C9A8}
+.ptab.sel .check{background:var(--gold);border-color:var(--gold);color:var(--wine-dd)}
+/* ===== 首屏双栏 ===== */
+.hero{display:grid;gap:18px;align-items:start}
+@media(min-width:1024px){.hero{grid-template-columns:minmax(0,1.58fr) minmax(0,1fr)}.hero-side{position:sticky;top:76px}}
+.hero-main,.hero-side{display:flex;flex-direction:column;gap:18px;min-width:0}
+/* ===== 奖池主卡（票券风） ===== */
+.jackpot{background:linear-gradient(155deg,#3d101b 0%,#1E5541 55%,#752a3a 100%);border-radius:var(--radius-lg);color:#F5EFE2;position:relative;overflow:hidden;box-shadow:var(--shadow);padding:22px 24px 18px}
+.jackpot::before{content:'';position:absolute;inset:0;pointer-events:none;
+background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.022) 0 2px,transparent 2px 6px)}
+.jk-wm{position:absolute;right:-46px;top:-46px;width:230px;height:230px;opacity:.07;pointer-events:none}
+.jk-head{display:flex;align-items:center;gap:10px;position:relative;z-index:1;flex-wrap:wrap}
+.jk-title{font-size:13px;letter-spacing:3px;color:#EDE4D0;font-weight:700}
+.jk-round{font-size:13px;color:var(--gold);font-weight:700;margin-right:auto;font-variant-numeric:tabular-nums}
+.status-pill{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#F5EFE2;border-radius:999px;padding:5px 12px;white-space:nowrap}
+.status-pill .dot{width:8px;height:8px;border-radius:50%;background:#9a938a;flex:none}
+.status-pill.live .dot{background:#7FD6A4;box-shadow:0 0 8px #7FD6A4}
+.status-pill.closed .dot,.status-pill.wait .dot{background:#F0C46C;box-shadow:0 0 8px #F0C46C}
+.status-pill.drawable .dot{background:#7FD6A4;box-shadow:0 0 8px #7FD6A4;animation:pulse 1.6s infinite}
+.status-pill.err .dot{background:#E88}
+@keyframes pulse{50%{opacity:.45}}
+.jk-amount{position:relative;z-index:1;margin:12px 0 0;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;min-height:78px}
+.jk-amt{font-family:Georgia,'Songti SC','STSong',serif;font-size:clamp(40px,7vw,62px);line-height:1.08;color:var(--gold);font-variant-numeric:tabular-nums;letter-spacing:1px;overflow-wrap:anywhere;word-break:break-all;min-width:0}
+.jk-amt.long{font-size:clamp(28px,4.6vw,44px)}
+.jk-unit{font-size:15px;font-weight:800;letter-spacing:4px;color:#E8DCC2;white-space:nowrap}
+.jk-cap{position:relative;z-index:1;font-size:12px;color:#CBBFA8;margin-top:6px}
+.jk-div{position:relative;z-index:1;border-top:2px dashed rgba(255,255,255,.28);margin:16px -24px 0}
+.jk-div::before,.jk-div::after{content:'';position:absolute;top:-13px;width:24px;height:24px;border-radius:50%;background:var(--bg)}
+.jk-div::before{left:-12px}.jk-div::after{right:-12px}
+.jk-count{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:14px;flex-wrap:wrap}
+.jk-count .k{font-size:13px;color:#EDE4D0}
+.jk-cd{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:2px;min-width:170px;text-align:right}
+.jk-exact{position:relative;z-index:1;font-size:12px;color:#CBBFA8;margin-top:6px;text-align:right;font-variant-numeric:tabular-nums}
+.jk-sub{position:relative;z-index:1;margin-top:12px;border-top:1px solid rgba(255,255,255,.14);padding-top:6px}
+.jk-kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;font-size:13px}
+.jk-kv .k{color:#D9CDB4;flex:none}
+.jk-kv .v{font-weight:700;font-variant-numeric:tabular-nums;text-align:right;overflow-wrap:anywhere}
+.pool-error{position:relative;z-index:1;display:none;margin-top:12px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:12px 14px;font-size:13.5px}
+.pool-error.show{display:block}
+.pool-error .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pool-error button{background:var(--gold);color:var(--wine-dd);border:none;border-radius:10px;padding:8px 18px;font-weight:800;cursor:pointer;font-size:13.5px}
+/* 骨架屏 */
+.skel{color:transparent!important;background:linear-gradient(90deg,rgba(255,255,255,.08) 25%,rgba(255,255,255,.2) 50%,rgba(255,255,255,.08) 75%);background-size:200% 100%;animation:shimmer 1.3s infinite;border-radius:8px;pointer-events:none;user-select:none}
+.skel.light{background:linear-gradient(90deg,#eee7d4 25%,#f7f2e4 50%,#eee7d4 75%);background-size:200% 100%}
+@keyframes shimmer{to{background-position:-200% 0}}
+/* ===== 数据条 ===== */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.stat{padding:14px 8px;text-align:center;min-width:0}
+.stat+.stat{border-left:1px solid var(--line-soft)}
+.stat .k{font-size:12px;color:var(--muted);margin-bottom:5px;white-space:nowrap}
+.stat .v{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ===== 通用卡片 ===== */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+.sec-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 0 6px;flex-wrap:wrap}
+.sec-title h2{font-size:20px;font-weight:800;margin:0}
+.sec-title .r{font-size:12.5px;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);line-height:1.8}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--muted);flex:none}
+.kv .v{font-weight:700;text-align:right;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.kv a{color:var(--wine);text-decoration:none;font-weight:700}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:4px 0}
+.row .k{font-weight:700}
+.row .v{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+/* ===== 奖项分配 ===== */
+.tier1{background:linear-gradient(150deg,#FBF6EA,#F7ECD4);border:1.5px solid var(--gold);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-top:12px;flex-wrap:wrap}
+.tier1 .medal{font-size:30px;flex:none}
+.tier1 .ti{flex:1;min-width:140px}
+.tier1 .tn{font-size:15px;font-weight:800}
+.tier1 .tc{font-size:12.5px;color:var(--muted)}
+.tier1 .pct{font-size:38px;font-weight:800;color:var(--wine);font-variant-numeric:tabular-nums}
+.tier1 .est{text-align:right;min-width:120px}
+.tier1 .est .e{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tier1 .est .l{font-size:11.5px;color:var(--muted)}
+.tiers2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.tier{background:#FCFAF4;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center;min-width:0}
+.tier .tn{font-size:13.5px;font-weight:700}
+.tier .tc{font-size:11.5px;color:var(--muted)}
+.tier .pct{font-size:30px;font-weight:800;color:var(--wine);margin:6px 0 4px;font-variant-numeric:tabular-nums}
+.tier .est{font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tier .estl{font-size:11px;color:var(--muted)}
+/* ===== 购票卡 ===== */
+.buy{padding:22px}
+.buy-pool{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.buy-title{font-size:20px;font-weight:800}
+.buy-price{font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pay-label{font-size:13px;font-weight:700;margin:14px 0 8px;display:flex;align-items:center;gap:8px}
+.pay-label .tag-cur{font-size:11px;background:var(--gold-soft);color:var(--wine);border-radius:6px;padding:2px 8px;font-weight:700}
+.pay-row{display:grid;gap:8px;margin-bottom:4px}
+.pay-row.cols2{grid-template-columns:1fr 1fr}.pay-row.cols3{grid-template-columns:repeat(3,1fr)}.pay-row.cols4{grid-template-columns:repeat(4,1fr)}
+.paybtn{position:relative;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:10px 6px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;min-height:46px;display:flex;align-items:center;justify-content:center;gap:6px}
+.paybtn .tick{display:none;width:18px;height:18px;border-radius:50%;background:var(--wine);color:#fff;font-size:11px;align-items:center;justify-content:center;flex:none}
+.paybtn.sel{border-color:var(--wine);color:var(--wine);background:#FDF9F1}
+.paybtn.sel .tick{display:inline-flex}
+.stepper{display:flex;align-items:center;background:#F8F4E9;border-radius:14px;padding:6px;margin-top:12px}
+.stepper button{width:56px;height:48px;border:none;background:#fff;border-radius:10px;font-size:22px;line-height:1;color:var(--ink);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.08);flex:none}
+.stepper button:active{transform:scale(.94)}
+.stepper .num{flex:1;text-align:center;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.qbtn{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:11px 0;font-size:14px;color:var(--muted);cursor:pointer;font-weight:700;transition:all .15s;min-height:46px}
+.qbtn.sel{border-color:var(--wine);color:var(--wine);background:#FDF9F1}
+.total-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:14px 0 4px}
+.total-row .k{font-size:13.5px;color:var(--muted);flex:none}
+.total-row .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right;overflow-wrap:anywhere}
+.total-row.small .v{font-size:16px;font-weight:700}
+.swap-note{font-size:12.5px;color:var(--muted);line-height:1.7;background:#FCFAF4;border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-top:10px}
+.btn-main{width:100%;background:var(--wine);color:#F7F1E3;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:background .18s,transform .12s;min-height:54px;margin-top:14px}
+.btn-main:hover{background:var(--wine-d)}
+.btn-main:active{transform:scale(.985)}
+.btn-main:disabled{opacity:.55;cursor:wait}
+.btn-main svg{width:19px;height:19px;flex:none}
+.btn-ghost{width:100%;background:#fff;border:1.5px solid var(--wine);color:var(--wine);border-radius:14px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s;min-height:50px}
+.btn-ghost:hover{background:#FDF9F1}
+.btn-ghost:disabled{opacity:.5;cursor:wait}
+.flow-hint{text-align:center;font-size:12px;color:var(--muted);margin-top:12px;letter-spacing:1px}
+.fee-link{display:block;text-align:center;font-size:12.5px;margin-top:10px;color:var(--wine);font-weight:600;text-decoration:none}
+/* ===== 上期开奖 ===== */
+.lastdraw{margin-top:18px}
+.winner{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13.5px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.winner:last-child{border-bottom:none}
+.winner .wa{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.winner .wamt{font-weight:800;color:var(--wine);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tag{display:inline-block;font-size:11px;background:var(--wine);color:#F3E9D2;border-radius:4px;padding:2px 7px;margin-right:7px;font-weight:700;white-space:nowrap}
+.t2 .tag{background:#3E6B4F;color:#fff}.t3 .tag{background:#4A5D7E;color:#fff}
+.verify-box{background:#FCFAF4;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px}
+.verify-box .kv{padding:5px 0;font-size:13px}
+.btn-verify{background:#fff;border:1.5px solid var(--line);color:var(--muted);border-radius:10px;cursor:pointer;font-weight:600;padding:7px 14px;font-size:12.5px;transition:all .15s;min-height:36px}
+.btn-verify:hover{border-color:var(--gold);color:var(--wine)}
+/* 尾号老虎机 */
+.da-bar{display:flex;align-items:center;gap:8px;margin:10px 0 4px;flex-wrap:wrap}
+.da-title{font-size:13px;font-weight:800;color:var(--wine)}
+.tailchip{font-size:12px;font-weight:700;color:var(--wine);background:#FBF6E9;border:1px dashed var(--gold);border-radius:20px;padding:5px 12px;font-variant-numeric:tabular-nums}
+.tailchip b{color:#8a6a2a;letter-spacing:2px}
+.slots{display:inline-flex;gap:3px;margin:0 8px 0 2px;vertical-align:middle}
+.slots i{font-style:normal;font-weight:800;font-size:15px;min-width:22px;height:28px;padding:0 2px;display:inline-flex;align-items:center;justify-content:center;background:#2A1218;color:#7d6f5c;border:1px solid #4a2c33;border-radius:6px;font-variant-numeric:tabular-nums;transition:color .18s,border-color .18s,transform .18s,box-shadow .18s}
+.slots i.lock{color:var(--gold);border-color:var(--gold);background:#3A1A24;transform:scale(1.08);box-shadow:0 0 10px rgba(198,164,106,.4)}
+.winner.tailhit{background:#FDF8EC;border-radius:8px;outline:1.5px dashed var(--gold);outline-offset:-1.5px}
+.tailhit-tag{font-size:11px;color:#8a6a2a;font-weight:800;margin-left:6px;white-space:nowrap}
+/* ===== 标签页 ===== */
+.tabs{margin-top:18px}
+.tabbar{display:flex;gap:8px;border-bottom:2px solid var(--line);margin-bottom:0;overflow-x:auto}
+.tabbtn{background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:12px 18px;font-size:15px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;min-height:48px}
+.tabbtn.active{color:var(--wine);border-bottom-color:var(--wine)}
+.tabpanel{display:none}
+.tabpanel.active{display:block;animation:fadein .25s}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.tabcard{background:var(--card);border:1px solid var(--line);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:22px;box-shadow:var(--shadow)}
+.mystats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.mystats .ms{background:#FCFAF4;border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.mystats .ms .k{font-size:12px;color:var(--muted);margin-bottom:5px}
+.mystats .ms .v{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+input{width:100%;padding:12px;background:#fff;border:1.5px solid var(--line);border-radius:12px;color:var(--ink);margin:8px 0;font-size:15px;font-family:inherit}
+input:focus{border-color:var(--wine);outline:none}
+.btn-row{display:flex;gap:8px}.btn-row>*{flex:1}
+#ownerPanel{display:none}
+/* ===== 页尾 ===== */
+.footer{margin-top:18px;display:grid;gap:18px}
+@media(min-width:1024px){.footer-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}}
+.trans-grid{display:grid;gap:10px;margin-top:12px}
+@media(min-width:700px){.trans-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1024px){.trans-grid{grid-template-columns:repeat(3,1fr)}}
+.trans-pool{background:#FCFAF4;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.trans-pool .tp-head{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;font-weight:800;color:var(--wine);margin-bottom:6px}
+.trans-pool .tp-head a{font-size:12px;color:var(--gold);text-decoration:none;font-weight:700}
+.trans-pool .kv{padding:6px 0;font-size:13px}
+.foot{text-align:center;font-size:12px;color:var(--muted);margin-top:24px;line-height:1.9}
+.foot a{color:var(--wine);text-decoration:none;font-weight:600}
+/* ===== 开奖遮罩（保留原逻辑） ===== */
+#drawOverlay{position:fixed;inset:0;background:rgba(43,10,17,.97);z-index:99;display:none;flex-direction:column;align-items:center;padding:26px 14px 40px;overflow-y:auto}
+#drawOverlay.show{display:flex}
+#drawOverlay h2{margin:0 0 4px;font-size:22px;color:var(--gold)}
+#drawStatus{color:#EDE4D0;font-size:13px;margin-bottom:6px;text-align:center}
+#ballStage{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:480px;margin:16px 0;min-height:130px;align-content:flex-start}
+.ball{width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffffcc,#E8D5A8 55%,#a8842f);color:#4a3208;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:15px;animation:bounce 1s infinite ease-in-out;box-shadow:0 4px 10px #0006}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-24px)}}
+.ball.t1{background:radial-gradient(circle at 35% 30%,#ffffffcc,#e08a95 55%,#7a1f2b);color:#fff;animation:none;transform:scale(1.3);font-size:20px}
+.ball.t2{background:radial-gradient(circle at 35% 30%,#ffffffcc,#9fd4b4 55%,#2c6b4a);color:#06281a;animation:none;font-size:18px}
+.ball.t3{background:radial-gradient(circle at 35% 30%,#ffffffcc,#a9bedd 55%,#3c557f);color:#fff;animation:none}
+.ball.out{opacity:.15;animation:none}
+#drawResults{width:100%;max-width:460px;background:#fffdf7;border-radius:12px;padding:10px 14px}
+.wrow{display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 4px;border-bottom:1px dashed var(--line);font-size:14px;animation:fadein .4s;gap:8px}
+.wrow .wa{color:var(--muted);font-size:12px}
+.wrow .wamt{font-weight:800;color:var(--wine);white-space:nowrap}
+#drawClose{display:none;margin-top:18px;background:var(--wine);color:#F7F1E3;border:none;border-radius:14px;padding:12px 44px;font-size:16px;font-weight:800;cursor:pointer;min-height:50px}
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--wine-d);color:#F7F1E3;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:120;max-width:88vw;text-align:center;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;line-height:1.5}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ===== 移动端悬浮购票入口 ===== */
+#fabBuy{display:none;position:fixed;left:16px;right:16px;bottom:16px;z-index:60;background:var(--wine);color:#F7F1E3;border:none;border-radius:16px;padding:15px;font-size:16px;font-weight:800;box-shadow:0 10px 30px rgba(100,30,45,.4);cursor:pointer;min-height:54px}
+#fabBuy.show{display:block}
+/* ===== 手机端 ===== */
+@media(max-width:1023px){
+.hero{display:flex;flex-direction:column}
+.hero-main,.hero-side{display:contents}
+.jackpot{order:1}.stats{order:2}.buy{order:3}.prizes{order:4}
+}
+@media(max-width:640px){
+.wrap{padding:0 16px 90px}
+.nav-inner{padding:8px 16px;flex-wrap:wrap}
+.brand-name{font-size:15px;letter-spacing:2px}
+.nav-links{order:3;width:100%;justify-content:flex-start;border-top:1px solid var(--line);padding-top:6px}
+.pool-tabs{margin:0 -16px;padding:4px 16px 10px}
+.pool-tabs::after{content:'';flex:none;width:24px}
+.ptab{min-width:132px}
+.card{padding:18px}
+.jk-cd{font-size:21px;min-width:0}
+.tiers2{grid-template-columns:1fr 1fr}
+.mystats{grid-template-columns:1fr 1fr}
+.stepper button{width:52px}
+.pay-row.cols4{grid-template-columns:repeat(2,1fr)}
+}
+@media (prefers-reduced-motion: reduce){
+*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="ap-strip">
+<a class="ap-brand" href="../../" title="ANUBIS PLAY">
+<svg viewBox="0 0 48 48" width="22" height="22" fill="none"><path d="M24 3 42 13.5v17L24 45 6 30.5v-17L24 3z" stroke="#1E5541" stroke-width="3"/><path d="M24 12l5 9-5 9-5-9z" fill="#B49A63"/></svg>
+<span>ANUBIS <b>PLAY</b><span class="sub">ANUBIS CHAIN GAMING</span></span>
+</a>
+<a class="ap-back" href="../" data-i18n="apBack">← 返回游戏大厅</a>
+</div>
+<div class="nav">
+<div class="nav-inner">
+<a class="brand" href="#">
+<svg class="brand-logo" viewBox="0 0 64 64" aria-hidden="true"><rect x="6" y="14" width="52" height="36" rx="7" fill="#1E5541"/><path d="M6 26a6 6 0 0 0 6 6 6 6 0 0 0-6 6M58 26a6 6 0 0 1-6 6 6 6 0 0 1 6 6" fill="#F6F3EB"/><circle cx="32" cy="32" r="7" fill="none" stroke="#B49A63" stroke-width="3"/></svg>
+<span><span class="brand-name" id="chainBigName">ANUBIS</span><br><span class="brand-sub" data-i18n="onchainLottery">链上彩票</span></span>
+</a>
+<nav class="nav-links">
+<a class="nav-link" href="#sec-history" data-i18n="navHistory">开奖记录</a>
+<a class="nav-link" href="#sec-rules" data-i18n="navRules">规则与合约</a>
+<button class="pill" id="langBtn" onclick="toggleLang()">EN</button>
+<button class="pill wallet" id="walletBtn" onclick="connect()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/></svg><span id="walletBtnTxt">连接钱包</span></button>
+</nav>
+</div>
+</div>
+<div class="wrap">
+
+<!-- 选择奖池 -->
+<div class="poolbar">
+<div class="poolbar-head">
+<span class="poolbar-label" data-i18n="poolSelect">选择奖池</span>
+<span class="poolbar-hint" data-i18n="poolHint">五个独立奖池 · 独立轮次 · 独立开奖</span>
+</div>
+<div class="pool-tabs" id="poolTabs" role="tablist">
+<button class="ptab sel" role="tab" aria-selected="true" onclick="setPool(0)"><span class="check">✓</span><span class="t"><span class="sym">LGNS</span><span class="price" data-pp="0">--</span></span></button>
+<button class="ptab" role="tab" aria-selected="false" onclick="setPool(1)"><span class="check">✓</span><span class="t"><span class="sym">USDT</span><span class="price" data-pp="1">--</span></span></button>
+<button class="ptab" role="tab" aria-selected="false" onclick="setPool(2)"><span class="check">✓</span><span class="t"><span class="sym">DAI</span><span class="price" data-pp="2">--</span></span></button>
+<button class="ptab" role="tab" aria-selected="false" onclick="setPool(3)"><span class="check">✓</span><span class="t"><span class="sym">A</span><span class="price" data-pp="3">--</span></span></button>
+<button class="ptab" role="tab" aria-selected="false" onclick="setPool(4)"><span class="check">✓</span><span class="t"><span class="sym">RM</span><span class="price" data-pp="4">--</span></span></button>
+</div>
+</div>
+
+<!-- 首屏双栏 -->
+<div class="hero">
+<div class="hero-main">
+
+<!-- 奖池主卡 -->
+<section class="jackpot" aria-label="jackpot">
+<svg class="jk-wm" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="88" fill="none" stroke="#B49A63" stroke-width="2"/><circle cx="100" cy="100" r="64" fill="none" stroke="#B49A63" stroke-width="1.5"/><path d="M100 40l12 34 36 4-27 24 8 36-29-18-29 18 8-36-27-24 36-4z" fill="none" stroke="#B49A63" stroke-width="2"/></svg>
+<div class="jk-head">
+<span class="jk-title" data-i18n="jackpotTitle">本期奖池</span>
+<span class="jk-round" id="roundId">-</span>
+<span class="status-pill" id="poolStatus"><span class="dot"></span><span id="poolStatusTxt">…</span></span>
+</div>
+<div class="jk-amount">
+<span class="jk-amt skel" id="prizePool">--</span>
+<span class="jk-unit" id="jkUnit">LGNS</span>
+</div>
+<div class="jk-cap" data-i18n="totalGrossNote">总额（含未扣平台费）</div>
+<div class="jk-div"></div>
+<div class="jk-count">
+<span class="k" data-i18n="saleEndsIn">距售票截止</span>
+<span class="jk-cd skel" id="countdown">--</span>
+</div>
+<div class="jk-exact" id="cutoffTime"></div>
+<div class="jk-sub">
+<div class="jk-kv"><span class="k" data-i18n="jackpot">上期滚存</span><span class="v" id="jackpot">-</span></div>
+<div class="jk-kv"><span class="k" data-i18n="lockedLabel2">待解锁注资（独立于奖金）</span><span class="v"><span id="lockedPool">-</span> <span id="lockedSym">LGNS</span></span></div>
+<div class="jk-kv"><span class="k" data-i18n="jkBaseLabel">可分配基数（估算用）</span><span class="v" id="jkBase">-</span></div>
+</div>
+<div class="pool-error" id="poolError">
+<div class="row"><span>⚠️</span><span id="poolErrorMsg"></span><button onclick="refresh(true)" data-i18n="retry">重试</button></div>
+</div>
+</section>
+
+<!-- 售票统计 -->
+<div class="stats">
+<div class="stat"><div class="k" data-i18n="sold">已售票数</div><div class="v skel light" id="sold">-</div></div>
+<div class="stat"><div class="k" data-i18n="sales">本期票款</div><div class="v skel light" id="sales">-</div></div>
+<div class="stat"><div class="k" data-i18n="myTickets">我的票数</div><div class="v" id="myTickets">-</div></div>
+</div>
+
+<!-- 奖项分配 -->
+<section class="card prizes">
+<div class="sec-title"><h2 data-i18n="prizeDist">奖项分配</h2><span class="r" data-i18n="max14">最多 14 张中奖票</span></div>
+<div class="tier1">
+<span class="medal">🥇</span>
+<div class="ti"><div class="tn"><span data-i18n="tier1">一等奖</span> · <span data-i18n="tier1n">1 张</span></div><div class="tc" data-i18n="tier1d">分配基数的 50%</div></div>
+<div class="pct">50%</div>
+<div class="est"><div class="e" id="estT1">-</div><div class="l" data-i18n="estTag">估算</div></div>
+</div>
+<div class="tiers2">
+<div class="tier"><div class="tn"><span data-i18n="tier2">二等奖</span> · <span data-i18n="tier2n">3 张</span></div><div class="pct">10%</div><div class="tc" data-i18n="tier2d">每张为分配基数的 10%</div><div class="est" id="estT2">-</div><div class="estl" data-i18n="estTag">估算</div></div>
+<div class="tier"><div class="tn"><span data-i18n="tier3">三等奖</span> · <span data-i18n="tier3n">10 张</span></div><div class="pct">2%</div><div class="tc" data-i18n="tier3d">每张为分配基数的 2%</div><div class="est" id="estT3">-</div><div class="estl" data-i18n="estTag">估算</div></div>
+</div>
+<div class="note" id="prizeBaseNote" style="margin-top:12px"></div>
+</section>
+</div>
+
+<div class="hero-side">
+<!-- 购票卡 -->
+<section class="card buy" id="buyCard">
+<div class="buy-pool"><span class="buy-title" data-i18n="joinRound">参与本期</span><span class="buy-price" id="perTicket">-</span></div>
+<div class="note" id="refViaBanner" style="display:none;margin:0 0 4px" data-i18n="refVia"></div>
+<div id="buyBox">
+<div class="pay-label"><span data-i18n="payWith">付款币种</span><span class="tag-cur" id="payCurTag" style="display:none"></span></div>
+<div class="pay-row" id="payRow"></div>
+<div class="stepper">
+<button onclick="setBuyN(buyN-1)" aria-label="-">&minus;</button>
+<div class="num" id="stepperNum">1 张</div>
+<button onclick="setBuyN(buyN+1)" aria-label="+">＋</button>
+</div>
+<div class="quick" id="ticketRow">
+<button class="qbtn sel" data-n="1" onclick="setBuyN(1)">1 张</button>
+<button class="qbtn" data-n="5" onclick="setBuyN(5)">5 张</button>
+<button class="qbtn" data-n="10" onclick="setBuyN(10)">10 张</button>
+</div>
+<div class="total-row"><span class="k" data-i18n="totalCost">本次票款</span><span class="v" id="totalCost">-</span></div>
+<div class="total-row small" id="payBalRow" style="display:none;margin-top:2px"><span class="k" data-i18n="payBal">付款币余额</span><span class="v" id="payBal">-</span></div>
+<div class="swap-note" id="swapNote" style="display:none"></div>
+<button class="btn-main" id="buyMainBtn" onclick="mainAction()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M16.5 14.5h.01"/></svg><span id="buyMainTxt" data-i18n="stepConnect">连接钱包</span></button>
+<a class="fee-link" href="#footFees" data-i18n="feeLink">费用说明 ↗</a>
+<div class="flow-hint" data-i18n="flowHint">连接钱包 · 授权代币 · 确认购票</div>
+</div>
+<div id="drawBox" style="display:none">
+<button class="btn-ghost" id="closeBtn" onclick="closeRound()" data-i18n="closeBtn">关闭本期</button>
+<button class="btn-main" id="drawBtn" onclick="drawVisual()" data-i18n="drawBtn" style="margin-top:10px">开奖</button>
+<div class="note" id="drawNote" style="margin-top:10px" data-i18n="drawNote"></div>
+</div>
+</section>
+</div>
+</div>
+
+<!-- 上期开奖摘要 -->
+<section class="card lastdraw">
+<div class="sec-title"><h2><span data-i18n="lastDraw">上期开奖</span> <span id="lastRound" style="color:var(--muted);font-size:13px;font-weight:400"></span></h2><span class="r" id="lastDrawTime"></span></div>
+<div id="lastWinners"><div class="note" data-i18n="noRecord">暂无开奖记录</div></div>
+<div class="da-bar" id="daBar" style="display:none">
+<span class="da-title" data-i18n="drawAnimTitle">🎰 尾号开奖</span>
+<span class="tailchip" id="myTailChip" style="display:none"></span>
+<button class="btn-verify" id="replayAnimBtn" onclick="replayDrawAnim()"><span data-i18n="replay">↻ 重播</span></button>
+</div>
+<div class="note" id="animNote" style="display:none;margin-top:4px"><span data-i18n="animNote">🎰 数字滚动为视觉效果，实际中奖以完整地址为准；尾号相同不代表中奖</span></div>
+<div class="kv" style="margin-top:6px"><span class="k" data-i18n="rolloverNext">滚入下期</span><span class="v" id="lastRollover">-</span></div>
+<div style="margin-top:8px"><button class="btn-verify" id="lastVerifyBtn" style="display:none" onclick="verifyLastDraw()"><span data-i18n="verifyBtn">验证本期开奖</span></button><div id="lastVerify"></div></div>
+</section>
+
+<!-- 标签页 -->
+<div class="tabs" id="sec-history">
+<div class="tabbar" role="tablist">
+<button class="tabbtn active" role="tab" data-tab="history" onclick="switchTab('history')" data-i18n="tabHistory">开奖记录</button>
+<button class="tabbtn" role="tab" data-tab="my" onclick="switchTab('my')" data-i18n="tabMy">我的票据</button>
+<button class="tabbtn" role="tab" data-tab="ref" onclick="switchTab('ref')" data-i18n="tabRef">邀请奖励</button>
+</div>
+<div class="tabcard tabpanel active" id="panel-history" role="tabpanel">
+<div class="sec-title"><h2 data-i18n="history">历史开奖</h2></div>
+<div id="historyList"><div class="note" data-i18n="loading">加载中…</div></div>
+<div class="sec-title" style="margin-top:20px"><h2 data-i18n="board">累计中奖榜</h2></div>
+<div id="leaderboard"><div class="note" data-i18n="loading">加载中…</div></div>
+</div>
+<div class="tabcard tabpanel" id="panel-my" role="tabpanel">
+<div class="sec-title"><h2 data-i18n="navMyTickets">我的票据</h2><span class="r" id="myStatsPool"></span></div>
+<div class="kv"><span class="k" data-i18n="myAddrLabel">我的地址</span><span class="v" id="myAddr" style="font-size:12px">-</span></div>
+<div class="kv"><span class="k" data-i18n="myBalLabel">余额</span><span class="v" id="myBal">-</span></div>
+<div id="myStats" style="margin-top:12px"><div class="note" data-i18n="myStatsConnect">连接钱包后查看你的战绩</div></div>
+</div>
+<div class="tabcard tabpanel" id="panel-ref" role="tabpanel">
+<div class="sec-title"><h2 data-i18n="refTitle">邀请返佣</h2></div>
+<div class="note" data-i18n="refNote" style="margin-top:0"></div>
+<div class="kv" style="margin-top:8px"><span class="k" data-i18n="myRefLink">我的邀请链接</span></div>
+<div style="display:flex;gap:8px;margin:6px 0">
+<input id="refLink" readonly style="flex:1;min-width:0" onclick="this.select()">
+<button class="btn-ghost" onclick="copyRefLink()" style="white-space:nowrap;width:auto;flex:none;min-height:46px"><span data-i18n="copyBtn">复制</span></button>
+</div>
+<div class="kv"><span class="k" data-i18n="myReferrer">我的邀请人</span><span class="v" id="myReferrer">-</span></div>
+<div class="kv"><span class="k" data-i18n="myRefRewards">可提返佣</span><span class="v" id="myRefRewards">-</span></div>
+<button class="btn-main" id="claimRefBtn" onclick="claimReferral()" style="margin-top:8px;display:none"><span data-i18n="claimRefBtn">提取返佣</span></button>
+<div id="refStats" style="display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px">
+<div class="kv"><span class="k" data-i18n="refDirectLine">直推</span><span class="v" id="refDirectStat">-</span></div>
+<div class="kv"><span class="k" data-i18n="refIndirectLine">间推</span><span class="v" id="refIndirectStat">-</span></div>
+<div id="refDetailList" style="margin-top:6px"></div>
+</div>
+</div>
+</div>
+
+<!-- 页尾 -->
+<div class="footer" id="sec-rules">
+<div class="footer-cols">
+<section class="card">
+<div class="sec-title"><h2 data-i18n="navRules">规则与合约</h2></div>
+<div class="note" id="poolFormula" data-i18n-html="poolFormula" style="margin-top:0"></div>
+<div class="kv" style="margin-top:10px"><span class="k" data-i18n="contractLottery">彩票合约</span><span class="v"><a id="contractLotteryAddr" target="_blank" rel="noopener">-</a></span></div>
+<div class="kv"><span class="k" data-i18n="contractToken">票币合约</span><span class="v"><a id="contractTokenAddr" target="_blank" rel="noopener">-</a></span></div>
+<div id="ownerPanel" style="margin-top:14px">
+<div class="sec-title"><h2 data-i18n="ownerTitle">房主管理</h2></div>
+<div class="note" data-i18n="ownerNote" style="margin-top:0"></div>
+<input id="seedAmt" type="number" min="1" data-i18n-ph="seedPh" placeholder="注入多少">
+<div class="btn-row">
+<button class="btn-ghost" onclick="approveSeed()" data-i18n="approveSeedBtn">1. 授权</button>
+<button class="btn-main" onclick="seed()" data-i18n="seedBtn" style="margin-top:0">2. 注入奖池</button>
+</div>
+<div style="margin-top:10px">
+<div style="display:flex;gap:8px;margin-bottom:8px" id="priceQuickRow">
+<button class="qbtn" onclick="setPriceQuick(3)">3</button>
+<button class="qbtn" onclick="setPriceQuick(10)">10</button>
+<button class="qbtn" onclick="setPriceQuick(20)">20</button>
+<button class="qbtn" onclick="setPriceQuick(50)">50</button>
+</div>
+<div style="display:flex;gap:8px">
+<input id="priceAmt" type="number" min="1" data-i18n-ph="pricePh" placeholder="新票价" style="flex:1;min-width:0;font-size:17px;font-weight:700" oninput="updatePriceEcho()">
+<button class="btn-ghost" onclick="doSetTicketPrice()" style="white-space:nowrap;width:auto;flex:none"><span data-i18n="setPriceBtn">修改票价</span></button>
+</div>
+<div id="priceEcho" style="margin:8px 0 0;font-size:18px;font-weight:800;min-height:26px"></div>
+</div>
+<div style="margin-top:10px"><button class="btn-ghost" onclick="doSetRoundDuration()" data-i18n="setDurationBtn">轮次改成 1 小时一期</button></div>
+</div>
+</section>
+<section class="card" id="footFees">
+<div class="sec-title"><h2 data-i18n="feeTitle">费用说明</h2></div>
+<div class="note" data-i18n-html="feeBody" style="margin-top:0"></div>
+</section>
+</div>
+<section class="card">
+<div class="sec-title"><h2 data-i18n="transTitle">数据透明</h2><span class="r" data-i18n="transLive">链上实时</span></div>
+<div class="note" data-i18n="transNote" style="margin-top:0"></div>
+<div class="trans-grid" id="transPools"><div class="note" data-i18n="loading">加载中…</div></div>
+</section>
+</div>
+
+<div class="foot">
+<div data-i18n="footRisk">链上彩票存在智能合约风险，请理性参与，勿投入无法承受损失的资金。</div>
+<div style="margin-top:6px"><a id="footExplorer" target="_blank" rel="noopener" data-i18n="viewContract">在浏览器查看合约</a> · Anubis Chain</div>
+</div>
+
+</div><!-- /wrap -->
+<div id="toast"></div>
+<div id="drawOverlay">
+<h2 data-i18n="drawing">开奖中</h2>
+<div id="drawStatus" data-i18n="drawPreparing">准备开奖…</div>
+<div id="ballStage"></div>
+<div id="drawResults"></div>
+<button id="drawClose" onclick="closeDraw()" data-i18n="drawClose">关闭</button>
+</div>
+<button id="fabBuy" onclick="scrollToBuy()"><span data-i18n="viewBuy">查看购票</span> ↓</button>
+<script>
+/* 无外部依赖：钱包直连 + 最小 ABI 编解码 */
+/* ===== I18N ===== */
+const I18N = {
+zh: {
+pageTitle: '{chain} 彩票', docTitle: '{chain} 彩票',
+roundTitle: '🎟️ 本期', priceSub: '{p} {s} / 张 · 1 小时一期',
+connect: '连接钱包', connected: '已连接 {addr}',
+prizePool: '{s} 奖池', sold: '已售票数', sales: '本期票款', jackpot: '上期滚存',
+myTickets: '我的票数', myBal: '我的 {s}', ticketsUnit: ' 张',
+buyPh: '买几张（1-200）', approveBtn: '1. 授权 {s}', buyBtn: '2. 买票',
+closeBtn: '关闭本期', drawBtn: '开奖',
+drawNote: '本期已截止：先点「关闭本期」锁定开奖区块，再等约 50 个块后点「开奖」。任何人都可以点，Gas 谁点谁出。',
+prizeTitle: '🏆 奖项说明', p1: '一等奖 × 1 名', p1v: '奖池 50%', p2: '二等奖 × 3 名', p2v: '每人奖池 10%', p3: '三等奖 × 10 名', p3v: '每人奖池 2%',
+poolFormula: '· 奖池 = 本期票款 + 上期滚存 + 已解锁注资（显示为总额；开奖时只从本期票款扣 {pct}% 平台费，滚存不重复扣费）<br>· 注资先锁进注资池：每卖出 1 张票释放 0.3 {s}（一期最多 30），没人买票一分不释放<br>· 邀请返佣：朋友通过你的链接买票，你拿他那笔平台费的 30%，他再邀请的人买票你再拿 10%（两代，返佣从平台费里出）<br>· 没人中的奖项自动滚入下期，奖池越滚越大<br>· 开奖用截止后未来区块的哈希做随机源，买票时谁也预知不了<br>· 票数不够 14 张时按实际票数开奖，剩下的全滚存',
+lastDraw: '上期开奖', lastRound: '(第 {n} 期)', noRecord: '暂无开奖记录', rolloverNext: '滚入下期',
+board: '累计中奖榜', history: '历史开奖', loading: '加载中…',
+noHistory: '暂无历史开奖', noData: '暂无数据', loadFail: '加载失败，请稍后刷新重试',
+retry: '重试', priceFail: '票价读取失败', apBack: '← 返回游戏大厅',
+botNote: '🤖 自动开奖服务运行中：到期自动关闭，约 50 个块后自动开奖，无需手动操作。',
+blkLeft: '（当前块 {c}，还差 {l} 块）',
+priceChanged: '票价有变化，已刷新显示，请确认后重试', wrongNetwork: '网络不对，请先切换到 Anubis',
+roundN: '第 {n} 期', totalPaid: '共发出 {amt} {s}', wonTimes: '中 {n} 次 · <b>{amt}</b> {s}',
+prize1: '一等奖', prize2: '二等奖', prize3: '三等奖',
+drawAnimTitle: '🎰 尾号开奖', replay: '↻ 重播', yourTail: '你的尾号', tailHit: '✨ 尾号相同',
+animNote: '🎰 数字滚动为视觉效果，实际中奖以完整地址为准；尾号相同不代表中奖',
+ownerTitle: '房主管理', ownerNote: '冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.3 {s} 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。',
+seedPh: '注入多少 {s}', approveSeedBtn: '1. 授权', seedBtn: '2. 注入锁定池', pricePh: '新票价（{s}/张）', setPriceBtn: '修改票价', setDurationBtn: '轮次改成 1 小时一期',
+lockedLabel: '🔒 待解锁注资',
+drawing: '开奖中', drawPreparing: '准备开奖…', drawClose: '关闭',
+selling: '⏳ 售票中，{t} 后截止', closedWaiting: '⏰ 已截止，等待关闭本期', waitingDraw: '🎲 等待开奖（目标块 {b}）',
+noBuyers: '本期无人购票，奖池全额滚存',
+txSent: '交易已发送，等待确认…', txReverted: '交易执行失败（被 revert）', txTimeout: '等太久没确认，请去浏览器查：{h}',
+noWallet: '没检测到钱包：手机请用钱包 App 自带浏览器打开本页面，电脑请装钱包插件',
+noAddr: '没拿到地址', connectFail: '连接失败：{m}',
+needWallet: '请先连接钱包', waitingConfirm: '等待钱包确认开奖交易…',
+hashExpired: '开奖区块太久没人开奖、哈希过期了，已自动重新锁定，再等约 50 个块后重试',
+drawSuccess: '开奖成功！正在揭晓中奖者…', drawDone: '本期开奖完成，奖金已自动打到中奖者钱包',
+drawFail: '开奖失败：{m}', firstBorn: '一等奖诞生！',
+approveOk: '授权成功，再点「买票」', buyOk: '买票成功，祝中大奖！', closedOk: '本期已关闭，等约 50 个块后点开奖',
+enterAmt: '先填注入金额', seedApproveOk: '授权成功，再点「注入锁定池」',
+seedConfirm: '往注资锁定池注入 {amt} {s}？按票释放进奖池，锁定的可随时取回。', seedDone: '注入成功！',
+priceConfirm: '把票价改成 {p} {s} / 张？', priceDone: '票价已改成 {p} {s}！', priceEcho: '将设为：{p} {s} / 张', priceCur: '当前票价：{p} {s} / 张',
+durationConfirm: '把轮次改成 1 小时一期？从第 2 期开始生效。', durationDone: '已改成 1 小时一期！',
+amtBad: '金额格式不对', decTooMany: '小数位太多',
+notConnected: '未连接', onchainLottery: '链上彩票',
+jackpotTitle: '本期奖池', saleEndsIn: '距售票截止',
+roundLive: '第 {n} 期 · 购票中', roundClosed: '第 {n} 期 · 已截止', roundWaitDraw: '第 {n} 期 · 待开奖',
+dashClosed: '已截止', waitDrawBlk: '目标块 {b}',
+poolTabL: 'LGNS 池', poolTabU: 'USDT 池', poolTabD: 'DAI 池', poolTabA: 'A 池', poolTabR: 'RM 池',
+poolSelect: '选择奖池', poolTotalNote: ' · 总额（含未扣平台费）', buyPoolNote: '奖池结算币种',
+tabHistory: '开奖记录', tabMy: '我的票据', tabRef: '邀请奖励', viewAll: '查看全部 >',
+prizeBaseNote: '按“本期票款−平台费+上期滚存+已解锁注资”为基数分配；没人中的奖项自动滚入下期。',
+footerNote: '每期 1 小时，截止后约 50 个块自动开奖', viewContract: '查看合约', footerRisk: '链上游戏有风险，理性参与。',
+joinRound: '参与本期', perTicket: '{p} {s} / 张', ticketsCount: '{n} 张', totalCost: '本次票款',
+stepConnect: '连接钱包', stepApprove: '授权 {s}', stepBuyCount: '确认购票 · {n} 张', processing: '处理中…',
+flowHint: '连接钱包 · 授权代币 · 确认购票',
+payWith: '付款币种', payBal: '付款币余额', quoting: '询价中…',
+quoteFail: '询价失败：池子可能没深度，请稍后重试',
+stepPayApprove: '授权 {sym}', stepSwap: '兑换成 {s}',
+swapOk: '兑换成功，继续点按钮完成购票',
+swapNote: '用 DAI / USDT / A 按池子实时价换成 LGNS 再买票：USDT、A 走 USDT/A→DAI→LGNS 两跳兑换，跟 DAI 同价。输入上限按报价上浮 5% 防滑点，实际只扣买票所需的金额。',
+prizeDist: '奖项分配', max14: '最多 14 张中奖票',
+tier1: '一等奖', tier1n: '1 张', tier2: '二等奖', tier2n: '3 张', tier3: '三等奖', tier3n: '10 张',
+poolShare: '奖池占比', perTicketShare: '每张奖池占比',
+prizeNote: '奖池显示为票款总额，开奖时扣除 10% 平台费后按比例派奖。按票抽奖，同一钱包可多次中奖。',
+navHistory: '历史开奖', navMyTickets: '我的票据', navRules: '规则与合约',
+myAddrLabel: '我的地址', myBalLabel: '{s} 余额',
+myStatsConnect: '连接钱包后查看你的战绩', msPool: '（{s} 池）',
+msTicketsBought: '累计买票', msSpent: '累计花费', msWon: '累计中奖', msWonTimes: '{n} 次', msRefEarned: '返佣收入', msNet: '净盈亏', msSpentNote: '（花费按当前票价估算）',
+contractLottery: '彩票合约', contractToken: '票币合约', viewContract: '在浏览器查看合约',
+verifyBtn: '🔍 验证本期开奖', verifyLoading: '读取开奖区块…', verifyDrawBlock: '开奖区块', verifyBlockHash: '区块哈希', verifyNoBlock: '该期开奖区块信息读取不到',
+verifyExplain: '中奖者由上面这个区块的哈希决定。这个区块在本期售票截止之后才产生、哈希公开且无法篡改，所以买票时谁也预知不了、开奖后谁都能来核对，项目方动不了手脚。',
+transTitle: '📊 数据透明（五池链上实时）', transNote: '以下全部从链上合约实时读取，公开只读，任何人可自行核对。',
+transTicketPrice: '票价', transFee: '平台抽水', transOwner: '房主', transLocked: '注资锁定池', transCurPool: '本期奖池', transTotalPaid: '累计已派奖', transContract: '合约 ↗',
+refTitle: '邀请返佣', refNote: '把你的邀请链接发给朋友：他买票，你拿他那笔平台费的 30%；他再邀请的人买票，你再拿 10%。返佣从平台费里出，不影响奖池，随时可提。邀请关系第一次买票就定死。',
+myRefLink: '我的邀请链接', copyBtn: '复制', copyOk: '邀请链接已复制，去发给朋友吧',
+myReferrer: '我的邀请人', noReferrer: '无（首次购票时绑定）',
+myRefRewards: '可提返佣', claimRefBtn: '提取返佣', claimOk: '返佣已到账',
+refVia: '你通过邀请链接进入：本次购票将为邀请人带来返佣，你的奖金不受影响',
+refDirectLine: '直推', refIndirectLine: '间推',
+refStatLine: '{n} 人 · 购票 {tk} 张 · 贡献 {amt} {s}',
+refTagD: '直推', refTagI: '间推',
+refRowStat: '买了 {tk} 张 · 贡献 {amt} {s}',
+refNoInvite: '还没有邀请任何人，快把链接发给朋友吧'
+},
+en: {
+pageTitle: '{chain} Lottery', docTitle: '{chain} Lottery',
+roundTitle: '🎟️ Round', priceSub: '{p} {s} / ticket · 1h per round',
+connect: 'Connect Wallet', connected: 'Connected {addr}',
+prizePool: '{s} Prize Pool', sold: 'Tickets Sold', sales: 'Round Sales', jackpot: 'Rollover',
+myTickets: 'My Tickets', myBal: 'My {s}', ticketsUnit: '',
+buyPh: 'How many (1-200)', approveBtn: '1. Approve {s}', buyBtn: '2. Buy Tickets',
+closeBtn: 'Close Round', drawBtn: 'Draw',
+drawNote: 'Round closed: tap "Close Round" first to lock the draw block, then wait ~50 blocks and tap "Draw". Anyone can do it, caller pays gas.',
+prizeTitle: '🏆 Prizes', p1: '1st Prize × 1', p1v: '50% of pool', p2: '2nd Prize × 3', p2v: '10% of pool each', p3: '3rd Prize × 10', p3v: '2% of pool each',
+poolFormula: '· Pool = round sales + rollover + unlocked seed (gross; {pct}% platform fee taken from round sales only at draw, rollover is never fee\'d twice)<br>· Seeds go into a locked vault: 0.3 {s} unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming<br>· Referral: earn 30% of the platform fee on your invitees\' purchases, 10% on their invitees\' (2 levels, paid from the fee)<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
+lastDraw: 'Last Draw', lastRound: '(Round {n})', noRecord: 'No draw records yet', rolloverNext: 'Rollover to next',
+drawAnimTitle: '🎰 Tail Reveal', replay: '↻ Replay', yourTail: 'Your last 4', tailHit: '✨ Tail match',
+animNote: '🎰 The digit roll is a visual effect — the full address is the official result; a matching tail alone is not a win',
+board: 'Leaderboard', history: 'History', loading: 'Loading…',
+noHistory: 'No draw history yet', noData: 'No data', loadFail: 'Load failed, please refresh and retry',
+retry: 'Retry', priceFail: 'Failed to read ticket price', apBack: '← Back to Lobby',
+botNote: '🤖 Auto-draw service is running: rounds close automatically at expiry and draw ~50 blocks later. No manual action needed.',
+blkLeft: ' (current block {c}, {l} to go)',
+priceChanged: 'Ticket price changed, refreshed. Please confirm and retry.', wrongNetwork: 'Wrong network, please switch to Anubis',
+roundN: 'Round {n}', totalPaid: 'Paid out {amt} {s}', wonTimes: 'Won {n}× · <b>{amt}</b> {s}',
+prize1: '1st Prize', prize2: '2nd Prize', prize3: '3rd Prize',
+ownerTitle: 'Owner Panel', ownerNote: 'Cold-start seeding: funds go into a locked vault, 0.3 {s} unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming. Locked funds can be withdrawn anytime.',
+seedPh: 'Amount to seed ({s})', approveSeedBtn: '1. Approve', seedBtn: '2. Seed Locked Vault', pricePh: 'New price ({s}/ticket)', setPriceBtn: 'Set Price', setDurationBtn: 'Set 1-hour rounds',
+lockedLabel: '🔒 Locked seed (unlocking)',
+drawing: 'Drawing…', drawPreparing: 'Preparing…', drawClose: 'Close',
+selling: '⏳ Selling, closes in {t}', closedWaiting: '⏰ Closed, waiting to lock round', waitingDraw: '🎲 Waiting for draw (target block {b})',
+noBuyers: 'No tickets sold, full pool rolls over',
+txSent: 'Transaction sent, waiting for confirmation…', txReverted: 'Transaction reverted', txTimeout: 'Confirmation timed out, check in explorer: {h}',
+noWallet: 'No wallet detected: open this page in your wallet app browser on mobile, or install a wallet extension on desktop',
+noAddr: 'No address received', connectFail: 'Connection failed: {m}',
+needWallet: 'Please connect your wallet first', waitingConfirm: 'Waiting for wallet confirmation…',
+hashExpired: 'Draw block hash expired (nobody drew in time), re-locked automatically. Wait ~50 blocks and retry.',
+drawSuccess: 'Draw successful! Revealing winners…', drawDone: 'Draw complete, prizes sent to winners automatically',
+drawFail: 'Draw failed: {m}', firstBorn: '1st Prize winner!',
+approveOk: 'Approved, now tap "Buy Tickets"', buyOk: 'Tickets bought, good luck!', closedOk: 'Round closed, wait ~50 blocks then draw',
+enterAmt: 'Enter an amount first', seedApproveOk: 'Approved, now tap "Seed Locked Vault"',
+seedConfirm: 'Seed {amt} {s} into the locked vault? Unlocks per ticket sold; locked funds can be withdrawn anytime.', seedDone: 'Seeded successfully!',
+priceConfirm: 'Set ticket price to {p} {s}?', priceDone: 'Ticket price set to {p} {s}!', priceEcho: 'Will set to: {p} {s} / ticket', priceCur: 'Current price: {p} {s} / ticket',
+durationConfirm: 'Set round duration to 1 hour? Takes effect from round 2.', durationDone: 'Round duration set to 1 hour!',
+amtBad: 'Invalid amount format', decTooMany: 'Too many decimals',
+notConnected: 'Not connected', onchainLottery: 'On-chain Lottery',
+jackpotTitle: "This Round's Pool", saleEndsIn: 'Sale ends in',
+roundLive: 'Round {n} · Selling', roundClosed: 'Round {n} · Closed', roundWaitDraw: 'Round {n} · Awaiting Draw',
+dashClosed: 'Closed', waitDrawBlk: 'Target block {b}',
+poolTabL: 'LGNS Pool', poolTabU: 'USDT Pool', poolTabD: 'DAI Pool', poolTabA: 'A Pool', poolTabR: 'RM Pool',
+poolSelect: 'Select Pool', poolTotalNote: ' · gross (fee not yet deducted)', buyPoolNote: 'Pool settles in',
+tabHistory: 'Draw History', tabMy: 'My Tickets', tabRef: 'Referral', viewAll: 'View all >',
+prizeBaseNote: 'Prizes split from (round sales \u2212 platform fee + rollover + unlocked seed); unwon prizes roll over.',
+footerNote: '1-hour rounds, auto-draw ~50 blocks after cutoff', viewContract: 'View contract', footerRisk: 'On-chain games carry risk. Play responsibly.',
+joinRound: 'Join This Round', perTicket: '{p} {s} / ticket', ticketsCount: '{n}', totalCost: 'Total',
+stepConnect: 'Connect Wallet', stepApprove: 'Approve {s}', stepBuyCount: 'Confirm · {n} tickets', processing: 'Processing…',
+flowHint: 'Connect wallet · Approve token · Confirm purchase',
+payWith: 'Pay with', payBal: 'Pay token balance', quoting: 'Quoting…',
+quoteFail: 'Quote failed: pool may be too shallow, please retry later',
+stepPayApprove: 'Approve {sym}', stepSwap: 'Swap to {s}',
+swapOk: 'Swapped! Tap the button again to finish buying',
+swapNote: 'Pay with DAI / USDT / A, swapped to LGNS at the live pool price (USDT and A route via DAI→LGNS, same price as DAI). Input cap is quote + 5% for slippage; only the exact ticket cost is taken.',
+prizeDist: 'Prize Distribution', max14: 'Up to 14 winning tickets',
+tier1: '1st Prize', tier1n: '1 ticket', tier2: '2nd Prize', tier2n: '3 tickets', tier3: '3rd Prize', tier3n: '10 tickets',
+poolShare: 'of pool', perTicketShare: 'of pool per ticket',
+prizeNote: 'Pool shows gross ticket sales; 10% platform fee is deducted at draw before prizes are paid. Drawn per ticket; one wallet can win multiple times.',
+navHistory: 'History', navMyTickets: 'My Tickets', navRules: 'Rules & Contract',
+myAddrLabel: 'My Address', myBalLabel: '{s} Balance',
+myStatsConnect: 'Connect your wallet to see your stats', msPool: '({s} pool)',
+msTicketsBought: 'Tickets bought', msSpent: 'Total spent', msWon: 'Total won', msWonTimes: '{n}×', msRefEarned: 'Referral earned', msNet: 'Net P/L', msSpentNote: '(spend est. at current price)',
+contractLottery: 'Lottery Contract', contractToken: 'Token Contract', viewContract: 'View contract on explorer',
+verifyBtn: '🔍 Verify this draw', verifyLoading: 'Loading draw block…', verifyDrawBlock: 'Draw block', verifyBlockHash: 'Block hash', verifyNoBlock: 'Draw block info unavailable',
+verifyExplain: 'Winners are determined by the hash of the block above. That block is produced only after sales close; its hash is public and immutable — so it is unpredictable at purchase time and anyone can verify the draw afterwards. The team cannot tamper with it.',
+transTitle: '📊 Transparency (5 pools, live on-chain)', transNote: 'All values below are read live from on-chain contracts — public, read-only, verifiable by anyone.',
+transTicketPrice: 'Ticket price', transFee: 'Platform fee', transOwner: 'Owner', transLocked: 'Locked seed vault', transCurPool: 'Current pool', transTotalPaid: 'Total paid out', transContract: 'Contract ↗',
+refTitle: 'Referral Rewards', refNote: 'Share your invite link: earn 30% of the platform fee on your invitees\' ticket purchases, plus 10% on their invitees\'. Paid from the platform fee — the prize pool is untouched. Claim anytime. Referral binds on first purchase, permanently.',
+myRefLink: 'My Invite Link', copyBtn: 'Copy', copyOk: 'Invite link copied, go share it',
+myReferrer: 'My Referrer', noReferrer: 'None (bound on first purchase)',
+myRefRewards: 'Claimable Rewards', claimRefBtn: 'Claim Rewards', claimOk: 'Rewards claimed',
+refVia: 'You arrived via an invite link: this purchase earns your inviter rewards. Your prizes are unaffected.',
+refDirectLine: 'Direct', refIndirectLine: 'Indirect',
+refStatLine: '{n} people · {tk} tickets · earned {amt} {s}',
+refTagD: 'Direct', refTagI: 'Indirect',
+refRowStat: '{tk} tickets · {amt} {s} earned',
+refNoInvite: 'No invitees yet — share your link with friends'
+}};
+let LANG = localStorage.getItem('lottery_lang') || 'zh';
+function t(k, p){
+let s = (I18N[LANG] && I18N[LANG][k]) || I18N.zh[k] || k;
+p = Object.assign({s: TSYM()}, p||{});
+for(const key in p) s = s.split('{'+key+'}').join(p[key]);
+return s;
+}
+function applyLang(){
+document.documentElement.lang = LANG==='zh' ? 'zh-CN' : 'en';
+document.title = t('docTitle', {chain: CFG.chainName});
+document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.getAttribute('data-i18n')); });
+document.querySelectorAll('[data-i18n-html]').forEach(el=>{ el.innerHTML = t(el.getAttribute('data-i18n-html'), {pct: el.dataset.pct || ''}); });
+document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+$('langBtn').textContent = LANG==='zh' ? 'EN' : '中文';
+updateChainText();
+document.querySelectorAll('.qbtn[data-n]').forEach(b=>{ b.textContent = t('ticketsCount', {n: b.dataset.n}); });
+const sn = $('stepperNum'); if(sn) sn.textContent = t('ticketsCount', {n: buyN});
+updateTotal(dataVer);
+updateBuyBtn();
+renderPoolTabs();
+renderEstimates();
+updateStatusPill(pillState);
+}
+function toggleLang(){
+LANG = LANG==='zh' ? 'en' : 'zh';
+localStorage.setItem('lottery_lang', LANG);
+applyLang(); updateWalletBtn();
+refresh();
+}
+function updateChainText(){
+const bt = $('chainBtnTxt'); if(bt) bt.textContent = CFG.chainName;
+const bn = $('chainBigName'); if(bn) bn.textContent = CFG.chainName.toUpperCase();
+const sn = $('chainSubName'); if(sn) sn.textContent = CFG.chainName + ' Chain';
+document.title = t('docTitle', {chain: CFG.chainName});
+}
+function updateChainBtn(){ updateChainText(); updateContractInfo(); }
+function updateContractInfo(){
+const la = $('contractLotteryAddr'), ta = $('contractTokenAddr'), fe = $('footExplorer');
+if(la){ la.textContent = short(CFG.CONTRACT); la.href = CFG.explorer + '/address/' + CFG.CONTRACT; }
+if(ta){ ta.textContent = short(CFG.token); ta.href = CFG.explorer + '/address/' + CFG.token; }
+if(fe){ fe.href = CFG.explorer + '/address/' + CFG.CONTRACT; }
+}
+const CHAINS = {
+anubis: {
+chainId: 6714, chainHex: '0x1A3A', chainName: 'Anubis',
+rpcUrl: 'https://rpc.anubispace.org',
+explorer: 'https://browser.anubispace.org',
+token: '0x4d1d808a081fdac440703b3765fc61f8028c06b8', // LGNS 9 位精度
+decimals: 9,
+CONTRACT: '0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7', // 2026-10-11 V3 返佣版部署（1小时一期/返佣/0.3补贴）
+router: '0x3E412E02B6157fBE80b6C6697f3Ce1142E629019', // RocketSwap V2 路由
+payTokens: [ // 付款币种：LGNS 直接买，其他走路由按池价换成 LGNS 再买
+{sym:'LGNS', addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9},
+{sym:'DAI', addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18},
+{sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,
+// USDT 直兑 LGNS 池太浅价格失真，走 USDT->DAI->LGNS 两跳，跟 DAI 同价
+via:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14'},
+// A 直兑 LGNS 的池子是空池，走 A->DAI->LGNS 两跳（A/DAI 池深约 507 万 DAI）
+{sym:'A', addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18, via:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14'}
+],
+native: {name:'DAI', symbol:'DAI', decimals:18},
+deployBlock: 16182340 // 2026-10-11 V3 部署块，历史事件从这里开始扫
+},
+polygon: {
+chainId: 137, chainHex: '0x89', chainName: 'Polygon',
+rpcUrl: 'https://polygon-bor-rpc.publicnode.com',
+explorer: 'https://polygonscan.com',
+token: '0xeB51D9A39AD5EEF215dC0Bf39a8821ff804A0F01', // Polygon LGNS 9 位精度
+decimals: 9,
+CONTRACT: '0x4f528929fc0663280f63b342f60af945f44f644f', // 2026-10-04 部署
+native: {name:'POL', symbol:'POL', decimals:18},
+deployBlock: 94920000 // 2026-10-04 前后，历史事件从这里开始扫
+}
+};
+let chainKey = 'anubis';
+let CFG = CHAINS.anubis;
+// 双奖池：LGNS 池 / USDT 池，各自独立合约、独立开奖；切换时整体并入 CFG
+const POOLS = [
+{ sym:'LGNS',
+CONTRACT:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',
+token:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', decimals:9,
+deployBlock:16182340, // V3 部署块
+payTokens:[
+{sym:'LGNS', addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9},
+{sym:'DAI', addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18},
+{sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,
+via:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14'}, // USDT 直兑 LGNS 池太浅，走 USDT->DAI->LGNS 两跳，跟 DAI 同价
+{sym:'A', addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18, via:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14'} // A 走 A->DAI->LGNS 两跳
+] },
+{ sym:'USDT',
+CONTRACT:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',
+token:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', decimals:6,
+deployBlock:16196737, // USDT 池部署块
+payTokens:[
+{sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6} // USDT 池只收 USDT，直接进奖池
+] },
+{ sym:'DAI',
+CONTRACT:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',
+token:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', decimals:18,
+deployBlock:16200709, // DAI 池部署块
+payTokens:[
+{sym:'DAI', addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18} // DAI 池只收 DAI，直接进奖池
+] },
+{ sym:'A',
+CONTRACT:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',
+token:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', decimals:18,
+deployBlock:16202660, // A 池部署块
+payTokens:[
+{sym:'A', addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18} // A 池只收 A，直接进奖池
+] },
+{ sym:'RM',
+CONTRACT:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',
+token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', decimals:9,
+deployBlock:16204394, // RM 池部署块
+payTokens:[
+{sym:'RM', addr:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9} // RM 池只收 RM，直接进奖池
+] },
+];
+let poolIdx = 0;
+try{
+  // URL ?pool= 优先（平台游戏大厅深链直达指定奖池）：支持序号 0-4 或币种名 lgns/usdt/dai/a/rm
+  const _qp = new URLSearchParams(location.search).get('pool');
+  if(_qp !== null && _qp !== ''){
+    const _qi = /^\d+$/.test(_qp.trim()) ? Number(_qp.trim()) : ['lgns','usdt','dai','a','rm'].indexOf(_qp.trim().toLowerCase());
+    if(_qi >= 0 && _qi <= 4) poolIdx = _qi;
+  }else{
+    poolIdx = Number(localStorage.getItem('lottery_pool')||0)||0;
+  }
+  if(poolIdx<0||poolIdx>4) poolIdx=0;
+}catch(e){}
+function TSYM(){ return POOLS[poolIdx].sym; }
+Object.assign(CFG, POOLS[poolIdx]);
+let priceOk = true; // 票价读取是否成功；失败时禁止购票
+function setPool(i){
+if(i===poolIdx) return;
+poolIdx = i;
+dataVer++; // 旧池的异步响应全部作废
+TICKET = 0n; priceOk = true; // 旧票价失效，防止"旧价格×新精度"
+lastSales = 0n; lastJackpot = 0n; // 旧池金额作废，防止"旧金额×新币种"混用
+try{ history.replaceState(null,'',location.pathname); }catch(e){} // 深链 ?pool= 只用一次，避免刷新后锁死旧池
+const _pt = $('perTicket'); if(_pt) _pt.textContent = t('loading'); // 票价先显示加载中，不保留旧池价格
+try{ localStorage.setItem('lottery_pool', String(i)); }catch(e){}
+Object.assign(CFG, POOLS[poolIdx]);
+payIdx = 0; buyN = 1;
+renderPoolTabs(); applyLang(); updateContractInfo();
+if($('payRow')) renderPayRow();
+const sn = $('swapNote'); if(sn) sn.style.display='none';
+showPoolLoading();
+refresh(true);
+}
+function switchTab(i){
+document.querySelectorAll('.tabbar button').forEach((b,idx)=>b.classList.toggle('sel',idx===i));
+document.querySelectorAll('.tabpanel').forEach((p,idx)=>p.classList.toggle('sel',idx===i));
+}
+function renderPoolTabs(){
+const suf = LANG==='zh' ? ' 池' : ' Pool';
+document.querySelectorAll('#poolTabs .ptab').forEach((b,idx)=>{
+b.classList.toggle('sel', idx===poolIdx);
+b.setAttribute('aria-selected', idx===poolIdx?'true':'false');
+const sm = b.querySelector('.sym'); if(sm) sm.textContent = POOLS[idx].sym + suf;
+const pr = b.querySelector('.price');
+if(pr){
+const cp = POOL_PRICES[idx];
+pr.textContent = cp ? t('perTicket',{p: thou(cutDec(formatUnits(cp, POOLS[idx].decimals),2)), s: POOLS[idx].sym}) : '…';
+}
+});
+const ju = $('jkUnit'); if(ju) ju.textContent = TSYM();
+const ls = $('lockedSym'); if(ls) ls.textContent = TSYM();
+}
+const SEL = {
+approve: '095ea7b3', allowance: 'dd62ed3e', balanceOf: '70a08231',
+buyTickets: '2f366637', buyTicketsWithRef: 'f93afa09', claimReferral: 'e02f1ebd',
+referrer: '2cf003c2', referralRewards: '53aaa63b',
+seedJackpot: '02950fb9', closeRound: 'e278fe6f', draw: '0eecae21',
+setTicketPrice: '15981650',
+getAmountsIn: '1f00ca74', swapTokensForExactTokens: '4a25d94a', // RocketSwap 路由
+ticketPrice: '1209b1f6', feeBps: '24a9d853', currentRound: '8a19c8bc',
+rounds: '8c65c81f', lastDrawnRound: '9fe8862a', lastRollover: '953523e8',
+getLastWinners: '95690936', getTicketOwners: '36a65e80', owner: '8da5cb5b',
+lockedJackpot: '975008a3', winnableJackpot: 'eb111f91', setRoundDuration: '36c92c3f'
+};
+function encUint(v){ return BigInt(v).toString(16).padStart(64,'0'); }
+function encAddr(a){ return '0'.repeat(24) + a.toLowerCase().replace(/^0x/,''); }
+function encAddrArray(arr){ // address[] 编码：offset(0x40) + 长度 + 地址
+return encUint(64) + encUint(arr.length) + arr.map(encAddr).join('');
+}
+function decUint(h){ return BigInt('0x'+h); }
+function decAddr(h){ return '0x'+h.slice(-40); }
+function decBool(h){ return BigInt('0x'+h) !== 0n; }
+function decAddrArray(h, off){ // off: hex 字符偏移
+const n = Number(decUint(h.slice(off, off+64)));
+const a = [];
+for (let i=0;i<n;i++) a.push(decAddr(h.slice(off+64*(i+1), off+64*(i+2))));
+return a;
+}
+function decUintArray(h, off){
+const n = Number(decUint(h.slice(off, off+64)));
+const a = [];
+for (let i=0;i<n;i++) a.push(decUint(h.slice(off+64*(i+1), off+64*(i+2))));
+return a;
+}
+function parseUnits(str, dec){
+dec = dec || CFG.decimals; str = String(str).trim();
+if (!/^\d+(\.\d+)?$/.test(str)) throw new Error(t('amtBad'));
+const p = str.split('.'), f = p[1] || '';
+if (f.length > dec) throw new Error(t('decTooMany'));
+return BigInt(p[0] + (f + '0'.repeat(dec)).slice(0, dec));
+}
+function formatUnits(v, dec){
+dec = dec || CFG.decimals;
+const s = BigInt(v).toString().padStart(dec+1,'0');
+const i = s.slice(0,-dec), f = s.slice(-dec).replace(/0+$/,'');
+return i + (f ? '.'+f : '');
+}
+let myAddr = null, TICKET = 0n, FEE = 1000n, OWNER = '';
+const $ = id => document.getElementById(id);
+const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '';
+function updateWalletBtn(){
+const el = $('walletBtnTxt');
+if(el) el.textContent = myAddr ? short(myAddr) : t('connect');
+if(typeof renderTailChip==='function') renderTailChip();
+}
+const thou = s => { // 千分位（纯字符串，不经 Number，无精度损失）
+s = String(s); const neg = s[0]==='-'; if(neg) s = s.slice(1);
+const dot = s.indexOf('.'); let ip = dot<0?s:s.slice(0,dot); const fp = dot<0?'':s.slice(dot);
+ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+return (neg?'-':'') + ip + fp;
+};
+const cutDec = (s, n) => { // 最多保留 n 位小数，去掉多余的 0
+s = String(s); const dot = s.indexOf('.'); if(dot<0) return s;
+const f = s.slice(dot+1, dot+1+n).replace(/0+$/,'');
+return f ? s.slice(0,dot+1)+f : s.slice(0,dot);
+};
+const fmt = v => thou(cutDec(formatUnits(v), 2));
+const fmt2 = v => { // 固定 2 位小数
+let s = String(formatUnits(v)); const dot = s.indexOf('.');
+if(dot<0) s += '.00'; else s = s.slice(0,dot+1) + (s.slice(dot+1)+'00').slice(0,2);
+return thou(s);
+};
+// 数据版本号：切池时 +1，所有异步回调写 DOM 前先核对，旧池的响应直接丢弃
+let dataVer = 0;
+const stale = v => v!==undefined && v!==dataVer; // 不传版本号的老调用视为永不过期
+let buyN = 1, busy = false;
+const POOL_PRICES = {};
+let lastSales = 0n, lastJackpot = 0n, lastDrawnRoundNum = 0, pillState = 'loading';
+let payIdx = 0, quoteInMax = 0n; // 付款币种下标（0=LGNS），quoteInMax=按当前票数换足 LGNS 所需的付款币上限（含 5% 浮动）
+function setBuyN(n){
+buyN = Math.max(1, Math.min(200, n));
+const sn = $('stepperNum'); if(sn) sn.textContent = t('ticketsCount', {n: buyN});
+document.querySelectorAll('#ticketRow .qbtn').forEach(b=> b.classList.toggle('sel', Number(b.dataset.n)===buyN));
+updateTotal(dataVer);
+updateBuyBtn();
+}
+function payToken(){ return (CFG.payTokens && CFG.payTokens[payIdx]) || CFG.payTokens[0]; }
+// 兑换路径：默认 [付款币, LGNS]；带 via 的走两跳 [付款币, via, LGNS]（如 A->DAI->LGNS）
+function payPath(pt){ return pt.via ? [pt.addr, pt.via, CFG.token] : [pt.addr, CFG.token]; }
+// 付款币种按钮按 payTokens 动态生成，加新币种只改配置不用动 HTML
+function renderPayRow(){
+const pr = $('payRow'); if(!pr || !CFG.payTokens) return;
+const n = CFG.payTokens.length;
+pr.className = 'pay-row cols' + Math.min(n, 4);
+pr.innerHTML = CFG.payTokens.map((p,i)=>'<button class="paybtn'+(i===payIdx?' sel':'')+'" data-p="'+i+'" onclick="setPay('+i+')"><span class="tick">\u2713</span>'+p.sym+'</button>').join('');
+const pct = $('payCurTag'); if(pct){ pct.textContent = t('settleIn', {s: TSYM()}); pct.style.display = ''; }
+}
+function setPay(i){
+if(!CFG.payTokens || !CFG.payTokens[i]) return;
+payIdx = i; quoteInMax = 0n;
+document.querySelectorAll('#payRow .paybtn').forEach(b=> b.classList.toggle('sel', Number(b.dataset.p)===payIdx));
+const showPay = payIdx > 0;
+$('payBalRow').style.display = showPay ? '' : 'none';
+$('swapNote').style.display = showPay ? '' : 'none';
+updateTotal(dataVer); updatePayBal(dataVer); updateBuyBtn();
+}
+// 按路由实时询价：买 buyN 张票需要多少付款币（精确输出 LGNS，输入上浮 5% 防滑点）
+async function quotePay(myVer, P){
+quoteInMax = 0n;
+if(payIdx===0 || TICKET<=0n || !priceOk) return 0n;
+const pt = payToken();
+const need = TICKET * BigInt(buyN);
+const h = await ethCall(CFG.router, '0x'+SEL.getAmountsIn+encUint(need)+encAddrArray(payPath(pt)));
+if(stale(myVer)) return 0n;
+const amtIn = decUint(h.slice(128, 192)); // uint[] amounts，amounts[0] 在第 3 个 slot
+quoteInMax = amtIn * 105n / 100n;
+return quoteInMax;
+}
+function fmtPay(v, pt){
+const s = formatUnits(v, pt.dec);
+const dot = s.indexOf('.');
+if(dot < 0) return s;
+const cut = s.slice(dot+1, dot+3).replace(/0+$/, ''); // 最多 2 位小数，去掉多余的 0
+return cut ? s.slice(0, dot+1) + cut : s.slice(0, dot);
+}
+function updateTotal(myVer, P){
+P = P || POOLS[poolIdx];
+const tc = $('totalCost'); if(!tc) return;
+if(TICKET<=0n || !priceOk){ tc.textContent = priceOk ? '-' : t('priceFail'); return; }
+if(payIdx===0){
+tc.textContent = thou(cutDec(formatUnits(TICKET*BigInt(buyN),P.decimals),2)) + ' '+P.sym;
+return;
+}
+const pt = payToken();
+tc.textContent = t('quoting');
+quotePay(myVer, P).then(q=>{
+if(stale(myVer)) return;
+if(q>0n) tc.textContent = '≈ ' + fmtPay(q, pt) + ' ' + pt.sym;
+else tc.textContent = '-';
+}).catch(()=>{ if(!stale(myVer)) tc.textContent='-'; });
+}
+async function updatePayBal(myVer){
+const row = $('payBalRow'); if(!row || row.style.display==='none') return;
+try{
+const pt = payToken();
+const b = decUint(await ethCall(pt.addr,'0x'+SEL.balanceOf+encAddr(myAddr)));
+if(stale(myVer)) return;
+$('payBal').textContent = fmtPay(b, pt) + ' ' + pt.sym;
+}catch(e){ if(!stale(myVer)) $('payBal').textContent='-'; }
+}
+// 下一步该点什么：connect / payApprove / swap / approve / buy
+async function nextBuyStep(){
+if(!myAddr) return 'connect';
+if(payIdx>0 && CFG.router){
+const pt = payToken(), need = TICKET*BigInt(buyN);
+await quotePay(); // 报价失败直接抛出去，mainAction 会 toast 提示
+const al = decUint(await ethCall(pt.addr,'0x'+SEL.allowance+encAddr(myAddr)+encAddr(CFG.router)));
+if(al < quoteInMax) return 'payApprove';
+const lb = decUint(await ethCall(CFG.token,'0x'+SEL.balanceOf+encAddr(myAddr)));
+if(lb < need) return 'swap';
+}
+try{ return (await needApprove()) ? 'approve' : 'buy'; }
+catch(e){ return 'approve'; }
+}
+async function needApprove(){
+if(!myAddr || TICKET<=0n) return false;
+try{
+const al = decUint(await ethCall(CFG.token,'0x'+SEL.allowance+encAddr(myAddr)+encAddr(CFG.CONTRACT)));
+return al < TICKET*BigInt(buyN);
+}catch(e){ return true; }
+}
+async function updateBuyBtn(){
+const btn = $('buyMainBtn'), txt = $('buyMainTxt');
+if(!btn || !txt) return;
+if(busy){ btn.disabled = true; txt.textContent = t('processing'); return; }
+if(!priceOk || TICKET<=0n){ btn.disabled = true; txt.textContent = t('priceFail'); return; }
+btn.disabled = false;
+try{
+const s = await nextBuyStep();
+const pt = payToken();
+txt.textContent =
+s==='connect' ? t('stepConnect') :
+s==='payApprove' ? t('stepPayApprove', {sym: pt.sym}) :
+s==='swap' ? t('stepSwap', {sym: pt.sym}) :
+s==='approve' ? t('stepApprove') :
+t('stepBuyCount', {n: buyN});
+}catch(e){ txt.textContent = t('stepApprove'); }
+}
+async function doSwap(){
+// 付款币 -> LGNS：精确输出（正好够买票），输入上限为报价上浮 5%
+const pt = payToken(), need = TICKET*BigInt(buyN);
+await quotePay();
+if(quoteInMax<=0n) throw new Error(t('quoteFail'));
+const deadline = BigInt(Math.floor(Date.now()/1000) + 1200);
+const data = '0x'+SEL.swapTokensForExactTokens+encUint(need)+encUint(quoteInMax)
++encAddrArray(payPath(pt))+encAddr(myAddr)+encUint(deadline);
+await sendTx(CFG.router, data);
+toast(t('swapOk'));
+}
+async function mainAction(){
+if(busy) return;
+busy = true; updateBuyBtn();
+try{
+if(!myAddr){ await connect(); return; }
+await preflight(); // 重读票价+确认网络，防止旧价格/串池
+const step = await nextBuyStep();
+if(step==='payApprove'){
+const pt = payToken();
+await quotePay(dataVer); // 刷新报价，按实际需要授权，不用无限额度
+const amt = quoteInMax > 0n ? quoteInMax : TICKET*BigInt(buyN);
+await sendTx(pt.addr, '0x'+SEL.approve+encAddr(CFG.router)+encUint(amt));
+toast(t('approveOk'));
+return;
+}
+if(step==='swap'){ await doSwap(); }
+if(await needApprove()) await approve(); else await buy();
+}catch(e){ toast(e.message || e); }
+finally{
+busy = false; updateBuyBtn(); refresh(true);
+}
+}
+// 发起授权/购票前二次确认：当前链、当前池、票价一致，任一对不上就停手
+async function preflight(){
+if(!priceOk || TICKET<=0n) throw new Error(t('priceFail'));
+const cid = await req('eth_chainId',[]);
+if(parseInt(cid,16)!==CFG.chainId) throw new Error(t('wrongNetwork'));
+const P = POOLS[poolIdx];
+const tp = decUint(await ethCall(P.CONTRACT,'0x'+SEL.ticketPrice));
+if(tp !== TICKET){
+TICKET = tp; dataVer++;
+await loadStatic(dataVer, P);
+throw new Error(t('priceChanged'));
+}
+}
+let _toastTimer=null;
+function toast(m){
+const el=$('toast'); if(!el){ alert(m); return; }
+el.textContent=m; el.classList.add('show');
+if(_toastTimer) clearTimeout(_toastTimer);
+_toastTimer=setTimeout(()=>el.classList.remove('show'), 3200);
+}
+const RPC_TIMEOUT = 15000; // RPC 15 秒超时，超时直接报错，不让页面"加载中"卡死
+function req(m,p){
+const timeout = new Promise((_,rej)=>setTimeout(()=>rej(new Error('RPC timeout')), RPC_TIMEOUT));
+if(window.ethereum){
+return Promise.race([window.ethereum.request({method:m, params:p}), timeout]);
+}
+// 无钱包时只读请求走公共 RPC，新访客也能看到奖池/倒计时；写操作到不了这里
+const call = fetch(CFG.rpcUrl,{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({jsonrpc:'2.0',id:Date.now(),method:m,params:p})})
+.then(r=>r.json()).then(j=>{ if(j.error) throw new Error(j.error.message); return j.result; });
+return Promise.race([call, timeout]);
+}
+async function ethCall(to,d){ return ((await req('eth_call',[{to,data:d},'latest']))||'0x').replace(/^0x/,''); }
+async function sendTx(to,d){
+const tx = {from:myAddr,to,data:d};
+// Anubis 只认 legacy type-0，OKX 处理不了 type-2；Polygon 用默认 EIP-1559
+if (chainKey === 'anubis'){
+tx.type = '0x0';
+const gp = await req('eth_gasPrice',[]);
+tx.gasPrice = gp;
+}
+const hash = await req('eth_sendTransaction',[tx]);
+toast(t('txSent'));
+for (let i=0;i<150;i++){
+await new Promise(r=>setTimeout(r,2000));
+const rc = await req('eth_getTransactionReceipt',[hash]);
+if (rc && rc.blockNumber && rc.blockNumber!=='0x0'){
+if (rc.status==='0x1'){ await refresh(true); return rc; }
+throw new Error(t('txReverted'));
+}
+}
+throw new Error(t('txTimeout', {h: hash}));
+}
+async function connect(){
+if (!window.ethereum) return toast(t('noWallet'));
+try{
+const accs = await req('eth_requestAccounts',[]);
+if(!accs||!accs.length) throw new Error(t('noAddr'));
+myAddr = accs[0];
+const cid = await req('eth_chainId',[]);
+if (parseInt(cid,16)!==CFG.chainId){
+try{ await req('wallet_switchEthereumChain',[{chainId:CFG.chainHex}]); }
+catch(e){
+if(e.code===4902) await req('wallet_addEthereumChain',[{chainId:CFG.chainHex,chainName:CFG.chainName,rpcUrls:[CFG.rpcUrl],nativeCurrency:CFG.native,blockExplorerUrls:[CFG.explorer]}]);
+else throw e;
+}
+}
+$('myAddr').textContent = myAddr;
+updateBuyBtn(); updateWalletBtn();
+// 监听钱包切换
+if(window.ethereum && !window._lotteryListeners){
+window._lotteryListeners = true;
+window.ethereum.on('accountsChanged', accs=>{
+myAddr = (accs&&accs[0])||null;
+$('myAddr').textContent = myAddr || '-';
+updateBuyBtn(); updateWalletBtn();
+refresh();
+});
+window.ethereum.on('chainChanged', ()=> location.reload());
+}
+await refresh(true);
+}catch(e){ toast(t('connectFail', {m: e.message||e})); }
+}
+async function loadTicketPriceRetry(P, okVer){
+  let lastErr = null;
+  for(let a=0; a<2; a++){
+    try{ return decUint(await ethCall(P.CONTRACT,'0x'+SEL.ticketPrice)); }
+    catch(e){ lastErr = e; if(a===0 && okVer()) await new Promise(r=>setTimeout(r,1500)); }
+  }
+  throw lastErr || new Error('price load failed');
+}
+async function loadStatic(myVer, P){
+P = P || POOLS[poolIdx];
+const okVer = () => !stale(myVer);
+// 票价：先显示加载中；失败自动重试一次；仍失败才显示失败态+重试按钮，不拿旧价格凑数
+try{
+TICKET = await loadTicketPriceRetry(P, okVer);
+if(!okVer()) return;
+if(TICKET<=0n) throw new Error('bad price');
+priceOk = true;
+POOL_PRICES[poolIdx] = TICKET; renderPoolTabs();
+}catch(e){
+priceOk = false; TICKET = 0n;
+if(okVer()){
+const pt = $('perTicket');
+if(pt){
+pt.innerHTML = '<span>'+t('priceFail')+'</span> <button class="retry-btn" id="priceRetryBtn">'+t('retry')+'</button>';
+const rb = $('priceRetryBtn'); if(rb) rb.onclick = ()=>refresh(true);
+}
+updateBuyBtn();
+}
+return;
+}
+const hasPay = !!(P.payTokens && CFG.router);
+const pr = $('payRow'), pl = $('payLabel');
+if(pr) pr.style.display = hasPay ? '' : 'none';
+if(pl) pl.style.display = hasPay ? '' : 'none';
+if(hasPay) renderPayRow();
+if(!hasPay && payIdx!==0) setPay(0);
+if(okVer()){
+const pt = $('perTicket');
+if(pt) pt.textContent = t('perTicket', {p: thou(cutDec(formatUnits(TICKET,P.decimals),2)), s: P.sym});
+}
+updateTotal(myVer, P); updateBuyBtn();
+try{
+FEE = decUint(await ethCall(P.CONTRACT,'0x'+SEL.feeBps));
+if(!okVer()) return;
+const pf = $('poolFormula');
+if(pf){ pf.dataset.pct = Number(FEE)/100; pf.innerHTML = t('poolFormula', {pct: pf.dataset.pct, s: P.sym}); }
+}catch(e){}
+try{
+OWNER = decAddr(await ethCall(P.CONTRACT,'0x'+SEL.owner));
+if(okVer() && myAddr && myAddr.toLowerCase()===OWNER.toLowerCase()) $('ownerPanel').style.display='block';
+}catch(e){}
+}
+let refreshing = false, pendingRefresh = false, pendingForce = false, lastHeavy = 0, roundEndTime = 0, roundPhase = '';
+let refreshGen = 0;
+async function refresh(force){
+// 切池发生在刷新中途：不等旧池跑完，记一笔，旧轮次结束后立刻重跑新池
+if(refreshing){ pendingRefresh = true; if(force) pendingForce = true; return; }
+refreshing = true;
+const myGen = ++refreshGen;
+// 看门狗：30 秒还没跑完就结束无限等待，给出失败态 + 重试入口
+setTimeout(()=>{ if(refreshing && myGen===refreshGen) showPoolError(new Error(t('errTimeout'))); }, 30000);
+try{
+do{ const f = force || pendingForce; pendingRefresh = false; pendingForce = false; force = false; await _refresh(f); }
+while(pendingRefresh);
+}finally{ refreshing = false; refreshGen++; }
+}
+async function _refresh(force){
+const myVer = dataVer, P = POOLS[poolIdx]; // 锁死本轮的池配置，之后只用 P，不读可变的 CFG
+try{
+await loadStatic(myVer, P); if(stale(myVer)) return;
+refreshReferral(myVer, P);
+updatePriceEcho();
+const rid = Number(decUint(await ethCall(P.CONTRACT,'0x'+SEL.currentRound)));
+if(stale(myVer)) return;
+const h = await ethCall(P.CONTRACT,'0x'+SEL.rounds+encUint(rid));
+if(stale(myVer)) return;
+const w = i => h.slice(i*64,(i+1)*64);
+const endTime=Number(decUint(w(0))), drawBlock=Number(decUint(w(1))),
+sold=Number(decUint(w(2))), sales=decUint(w(3)), jackpot=decUint(w(4));
+const pool = sales + jackpot; // 显示总额（含未扣的平台费），开奖时只从本期票款扣平台费
+const pp = $('prizePool'); pp.textContent = fmt2(pool); pp.classList.remove('skel');
+pp.classList.toggle('long', pp.textContent.replace(/,/g,'').length > 14);
+pp.title = formatUnits(pool) + ' ' + P.sym;
+hidePoolError();
+lastSales = sales; lastJackpot = jackpot;
+const jb = $('jkBase'); if(jb) jb.textContent = fmt(sales - sales*FEE/10000n + jackpot) + ' ' + P.sym;
+renderEstimates();
+try{
+const locked = decUint(await ethCall(P.CONTRACT,'0x'+SEL.lockedJackpot));
+if(stale(myVer)) return;
+$('lockedPool').textContent = fmt(locked);
+}catch(e){ if(!stale(myVer)) $('lockedPool').textContent='-'; }
+const soldEl=$('sold'); if(soldEl){ soldEl.textContent = sold + t('ticketsUnit'); soldEl.classList.remove('skel','light'); }
+const salesEl=$('sales'); if(salesEl){ salesEl.textContent = fmt(sales)+' '+P.sym; salesEl.classList.remove('skel','light'); }
+$('jackpot').textContent = fmt(jackpot)+' '+P.sym;
+const now = Math.floor(Date.now()/1000);
+const cd = $('countdown'); cd.classList.remove('skel');
+const drawNote = $('drawNote');
+if (now <= endTime){
+roundEndTime = endTime; roundPhase = 'live';
+$('roundId').textContent = t('roundN', {n: rid});
+updateStatusPill('live');
+const ct0 = $('cutoffTime'); if(ct0) ct0.textContent = t('cutoffExact', {d: fmtDateTime(endTime)});
+tickCountdown();
+$('buyBox').style.display='block'; $('drawBox').style.display='none';
+updateBuyBtn();
+} else if (drawBlock===0){
+roundPhase = 'closed';
+$('roundId').textContent = t('roundN', {n: rid});
+updateStatusPill('closed');
+cd.textContent = t('dashClosed');
+const ct2 = $('cutoffTime'); if(ct2) ct2.textContent = t('dashClosed');
+$('buyBox').style.display='none'; $('drawBox').style.display='block';
+$('closeBtn').disabled = false;
+$('drawBtn').disabled = true;
+if(drawNote) drawNote.textContent = t('botNote');
+} else {
+roundPhase = 'waitdraw';
+$('roundId').textContent = t('roundN', {n: rid});
+let curBn = 0;
+try{ curBn = Number(BigInt(await req('eth_blockNumber',[]))); }catch(e){}
+if(stale(myVer)) return;
+const left = drawBlock - curBn;
+cd.textContent = t('waitDrawBlk', {b: drawBlock}) + (curBn ? t('blkLeft', {c: curBn, l: Math.max(0,left)}) : '');
+updateStatusPill(curBn && curBn > drawBlock ? 'drawable' : 'wait');
+const ct3 = $('cutoffTime'); if(ct3) ct3.textContent = t('drawAtBlock', {b: drawBlock});
+$('buyBox').style.display='none'; $('drawBox').style.display='block';
+$('closeBtn').disabled = true;
+$('drawBtn').disabled = !(curBn && curBn > drawBlock);
+if(drawNote) drawNote.textContent = t('botNote');
+}
+if (myAddr){
+const bal = decUint(await ethCall(P.token,'0x'+SEL.balanceOf+encAddr(myAddr)));
+if(stale(myVer)) return;
+$('myBal').textContent = fmt(bal)+' '+P.sym;
+updatePayBal(myVer, P);
+try{
+const th = await ethCall(P.CONTRACT,'0x'+SEL.getTicketOwners+encUint(rid));
+if(stale(myVer)) return;
+const off = Number(decUint(th.slice(0,64)))*2;
+const owners = decAddrArray(th, off);
+$('myTickets').textContent = owners.filter(a=>a.toLowerCase()===myAddr.toLowerCase()).length + t('ticketsUnit');
+}catch(e){ if(!stale(myVer)) $('myTickets').textContent='-'; }
+}
+// 上期开奖
+const lr = Number(decUint(await ethCall(P.CONTRACT,'0x'+SEL.lastDrawnRound)));
+if(stale(myVer)) return;
+if (lr<=0){
+$('lastRound').textContent = '';
+$('lastWinners').innerHTML = '<div class="note">'+t('noRecord')+'</div>';
+$('lastRollover').textContent = '-';
+} else {
+$('lastRound').textContent = t('lastRound', {n: lr});
+const wh = await ethCall(P.CONTRACT,'0x'+SEL.getLastWinners);
+if(stale(myVer)) return;
+const offW = Number(decUint(wh.slice(0,64)))*2, offA = Number(decUint(wh.slice(64,128)))*2;
+const winners = decAddrArray(wh, offW), amounts = decUintArray(wh, offA);
+let html='';
+for(let i=0;i<winners.length;i++){
+const pz = i===0?t('prize1'):(i<4?t('prize2'):t('prize3'));
+const tail = (winners[i]||'').slice(-4).toUpperCase() || '????';
+html += '<div class="winner '+(i===0?'':(i<4?'t2':'t3'))+'" data-tail="'+tail+'"><span><span class="tag">'+pz+'</span><span class="slots" data-tail="'+tail+'"><i>·</i><i>·</i><i>·</i><i>·</i></span><span class="wa">'+short(winners[i])+'</span></span><span class="wamt"><b>'+fmt(amounts[i])+'</b> '+P.sym+'</span></div>';
+}
+$('lastWinners').innerHTML = (html || '<div class="note">'+t('noBuyers')+'</div>');
+lastDrawnRoundNum = lr;
+// 尾号开奖动画：有中奖者才展示
+const hasW = winners.length>0;
+$('daBar').style.display = hasW?'':'none';
+$('animNote').style.display = hasW?'':'none';
+renderTailChip();
+if(hasW) runDrawAnim(); else animToken++;
+const lvb = $('lastVerifyBtn'); if(lvb) lvb.style.display = '';
+const lv = $('lastVerify'); if(lv) lv.innerHTML = '';
+$('lastRollover').textContent = fmt(decUint(await ethCall(P.CONTRACT,'0x'+SEL.lastRollover)))+' '+P.sym;
+}
+// 历史开奖 + 累计榜 + 返佣明细：重活儿，节流到约 40 秒一次（或手动触发时强制）
+const nowMs = Date.now();
+if(force || nowMs - lastHeavy > 40000){
+lastHeavy = nowMs;
+loadHistory(myVer, P);
+refreshRefStats(myVer, P);
+renderMyStats(myVer, P);
+}
+}catch(e){ console.error(e); if(!stale(myVer)){ showPoolError(e); runHeavy(myVer, P); } }
+}
+function runHeavy(myVer, P){
+const nowMs = Date.now();
+if(nowMs - lastHeavy < 40000 && !stale(myVer)) return;
+lastHeavy = nowMs;
+loadHistory(myVer, P);
+refreshRefStats(myVer, P);
+renderMyStats(myVer, P);
+}
+// 倒计时本地每秒走，不依赖 RPC 刷新
+function tickCountdown(){
+const cd = $('countdown'); if(!cd) return;
+if(roundPhase !== 'live' || !roundEndTime) return;
+cd.classList.remove('skel');
+let s = roundEndTime - Math.floor(Date.now()/1000); if(s < 0) s = 0;
+const hh = String(Math.floor(s/3600)).padStart(2,'0'),
+mm = String(Math.floor(s%3600/60)).padStart(2,'0'),
+ss = String(s%60).padStart(2,'0');
+cd.textContent = hh+' : '+mm+' : '+ss;
+}
+// 开奖可验证：亮出该期开奖用的区块号+区块哈希，谁都能自行核对随机源
+async function verifyRound(rid, elId){
+const el = $(elId); if(!el) return;
+el.innerHTML = '<div class="note">'+t('verifyLoading')+'</div>';
+try{
+const h = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid));
+const drawBlock = Number(decUint(h.slice(64,128))); // rounds 结构第 2 个槽 = drawBlock
+if(!drawBlock){ el.innerHTML = '<div class="note">'+t('verifyNoBlock')+'</div>'; return; }
+let bh='—';
+try{ const blk = await req('eth_getBlockByNumber',['0x'+drawBlock.toString(16), false]); bh=(blk&&blk.hash)||'—'; }catch(e){}
+el.innerHTML = '<div class="verify-box">'
++'<div class="kv"><span class="k">'+t('verifyDrawBlock')+'</span><span class="v"><a href="'+CFG.explorer+'/block/'+drawBlock+'" target="_blank" rel="noopener" style="color:var(--wine);text-decoration:none">#'+drawBlock+' ↗</a></span></div>'
++'<div class="kv"><span class="k">'+t('verifyBlockHash')+'</span><span class="v" style="font-size:10.5px;word-break:break-all">'+bh+'</span></div>'
++'<div class="note" style="margin-top:4px">'+t('verifyExplain')+'</div>'
++'</div>';
+}catch(e){ el.innerHTML='<div class="note">'+t('verifyNoBlock')+'</div>'; }
+}
+// 底部三池透明：全部链上实时读，公开只读
+async function renderTransparency(){
+const box = $('transPools'); if(!box) return;
+const fmtD = (v,dec)=> thou(cutDec(formatUnits(v,dec), 2));
+try{
+const cards = await Promise.all(POOLS.map(async (P)=>{
+try{
+const [tp, rid] = await Promise.all([
+ethCall(P.CONTRACT,'0x'+SEL.ticketPrice),
+ethCall(P.CONTRACT,'0x'+SEL.currentRound)
+]);
+const ridN = Number(decUint(rid));
+const rh = await ethCall(P.CONTRACT,'0x'+SEL.rounds+encUint(ridN));
+const curPool = decUint(rh.slice(3*64,4*64)) + decUint(rh.slice(4*64,5*64)); // sales + jackpot
+let paid = 0n;
+try{
+const logs = await scanLogs([EV_WIN], P.CONTRACT, P.deployBlock);
+for(const lg of logs){
+const d=(lg.data||'0x').replace(/^0x/,'');
+const offA=Number(BigInt('0x'+d.slice(64,128)))*2;
+for(const a of decUintArray(d, offA)) paid += a;
+}
+}catch(e){}
+return '<div class="trans-pool">'
++'<div class="tp-head"><span>'+P.sym+' '+(LANG==='zh'?'池':'Pool')+'</span><a href="'+CFG.explorer+'/address/'+P.CONTRACT+'" target="_blank" rel="noopener">'+t('transContract')+'</a></div>'
++'<div class="kv"><span class="k">'+t('transTicketPrice')+'</span><span class="v">'+fmtD(decUint(tp),P.decimals)+' '+P.sym+'</span></div>'
++'<div class="kv"><span class="k">'+t('transCurPool')+'</span><span class="v">'+fmtD(curPool,P.decimals)+' '+P.sym+'</span></div>'
++'<div class="kv"><span class="k">'+t('transTotalPaid')+'</span><span class="v">'+fmtD(paid,P.decimals)+' '+P.sym+'</span></div>'
++'</div>';
+}catch(e){ return '<div class="trans-pool"><div class="tp-head">'+P.sym+'</div><div class="note">'+t('loadFail')+'</div></div>'; }
+}));
+box.innerHTML = cards.join('');
+}catch(e){ console.error('trans', e); }
+}
+// 我的战绩：当前池链上事件算出累计买票/花费/中奖/返佣/净盈亏
+async function renderMyStats(myVer, P){
+P = P || POOLS[poolIdx];
+const box = $('myStats'); if(!box) return;
+const pl = $('myStatsPool'); if(pl) pl.textContent = myAddr ? t('msPool',{s:P.sym}) : '';
+if(!myAddr){ box.innerHTML = '<div class="note">'+t('myStatsConnect')+'</div>'; return; }
+const me = myAddr.toLowerCase();
+try{
+const [tLogs, wLogs, rLogs] = await Promise.all([
+scanLogs([EV_TICKETS], P.CONTRACT, P.deployBlock),
+scanLogs([EV_WIN], P.CONTRACT, P.deployBlock),
+scanLogs([EV_REFREWARD], P.CONTRACT, P.deployBlock)
+]);
+if(stale(myVer)) return;
+let tickets = 0n;
+for(const l of tLogs){
+if(('0x'+l.topics[2].slice(-40)).toLowerCase()!==me) continue;
+tickets += BigInt('0x'+(l.data||'0x').replace(/^0x/,'').slice(0,64));
+}
+let winCnt=0, winAmt=0n;
+for(const l of wLogs){
+const d=(l.data||'0x').replace(/^0x/,'');
+const offW=Number(BigInt('0x'+d.slice(0,64)))*2, offA=Number(BigInt('0x'+d.slice(64,128)))*2;
+const ws=decAddrArray(d,offW), as=decUintArray(d,offA);
+for(let i=0;i<ws.length;i++){ if(ws[i].toLowerCase()===me){ winCnt++; winAmt+=as[i]; } }
+}
+let ref=0n;
+for(const l of rLogs){
+const d=(l.data||'0x').replace(/^0x/,'');
+const l1=('0x'+d.slice(0,64).slice(-40)).toLowerCase(), dd1=BigInt('0x'+(d.slice(64,128)||'0'));
+const l2=('0x'+d.slice(128,192).slice(-40)).toLowerCase(), dd2=BigInt('0x'+(d.slice(192,256)||'0'));
+if(l1===me) ref+=dd1;
+if(l2===me) ref+=dd2;
+}
+const spent = tickets * TICKET; // 按当前票价估算（事件里没记每次成交价）
+const net = winAmt + ref - spent;
+const neg = net<0n, netAbs = neg ? -net : net;
+const sym = P.sym;
+box.innerHTML = '<div class="mystats">'
++'<div class="ms"><div class="k">'+t('msTicketsBought')+'</div><div class="v">'+tickets.toString()+t('ticketsUnit')+'</div></div>'
++'<div class="ms"><div class="k">'+t('msSpent')+'</div><div class="v">≈ '+fmt(spent)+' '+sym+'</div></div>'
++'<div class="ms"><div class="k">'+t('msWon')+'</div><div class="v">'+t('msWonTimes',{n:winCnt})+' · '+fmt(winAmt)+' '+sym+'</div></div>'
++'<div class="ms"><div class="k">'+t('msRefEarned')+'</div><div class="v">'+fmt(ref)+' '+sym+'</div></div>'
++'<div class="ms" style="grid-column:1/-1"><div class="k">'+t('msNet')+' '+t('msSpentNote')+'</div><div class="v" style="color:'+(neg?'var(--wine)':'#3E6B4F')+'">'+(neg?'-':'+')+fmt(netAbs)+' '+sym+'</div></div>'
++'</div>';
+}catch(e){ console.error('myStats',e); if(!stale(myVer)) box.innerHTML='<div class="note">'+t('loadFail')+'</div>'; }
+}
+// 历史开奖 + 累计榜：从 WinnersDrawn 事件读
+const EV_WIN = '0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627b4';
+// 邀请数据：ReferralBound(buyer,ref) / TicketsBought(roundId,buyer,count,firstTicket) / ReferralRewarded(roundId,buyer,l1,d1,l2,d2)
+const EV_REFBOUND = '0x8ceb585bfbbc2a8c702024b1d2f212e7ba1caff58b232f071b023d184997b111';
+const EV_TICKETS = '0xc8c5c2b0e44fb6312c0098ec42642058527713d0a1d29a5c6ccbfe34d714d41e';
+const EV_REFREWARD = '0xbfcb51139629056da37f44a10daa7f67e6ce0b9083e03a7408b3ad1a456ce097';
+const PADADDR = a => '0x' + '0'.repeat(24) + a.toLowerCase().replace(/^0x/,'');
+// 事件日志缓存：按合约+topic 分桶，只增量扫新块，避免每次刷新全链重扫
+const _logCache = {};
+function resetLogCache(){ for(const k in _logCache) delete _logCache[k]; }
+async function scanLogs(topics, contract, deployFrom){
+contract = contract || CFG.CONTRACT;
+const dep = (deployFrom!=null) ? deployFrom : (CFG.deployBlock || 0);
+const key = contract + '|' + JSON.stringify(topics);
+let c = _logCache[key];
+if(!c){ c = { next: dep, logs: [] }; _logCache[key] = c; }
+const latest = Number(BigInt(await req('eth_blockNumber',[])));
+const CHUNK = 4000;
+let from = c.next;
+while(from <= latest){
+const to = Math.min(from + CHUNK - 1, latest);
+const part = await req('eth_getLogs',[{address:contract, topics,
+fromBlock:'0x'+from.toString(16), toBlock:'0x'+to.toString(16)}]);
+if(part && part.length) for(const l of part) c.logs.push(l);
+from = to + 1;
+}
+if(latest + 1 > c.next) c.next = latest + 1;
+return c.logs;
+}
+// 我的邀请数据：直推/间推人数、他们买了多少票、每人为我赚了多少返佣
+async function refreshRefStats(myVer, P){
+P = P || POOLS[poolIdx];
+const box = $('refStats');
+if(!box) return;
+if(!myAddr){ box.style.display='none'; return; }
+const me = myAddr.toLowerCase();
+try{
+const [bLogs, tLogs, rLogs] = await Promise.all([
+scanLogs([EV_REFBOUND], P.CONTRACT, P.deployBlock),
+scanLogs([EV_TICKETS], P.CONTRACT, P.deployBlock),
+scanLogs([EV_REFREWARD], P.CONTRACT, P.deployBlock)
+]);
+if(stale(myVer)) return;
+const boundRef = {}; // buyer => ref
+for(const l of bLogs){
+const buyer = ('0x'+l.topics[1].slice(-40)).toLowerCase();
+const ref = ('0x'+l.topics[2].slice(-40)).toLowerCase();
+boundRef[buyer] = ref;
+}
+const direct = Object.keys(boundRef).filter(b => boundRef[b]===me);
+const dset = new Set(direct);
+const indirect = Object.keys(boundRef).filter(b => !dset.has(b) && b!==me && dset.has(boundRef[b]));
+const ticketsBy = {};
+for(const l of tLogs){
+const buyer = ('0x'+l.topics[2].slice(-40)).toLowerCase();
+const n = BigInt('0x'+(l.data||'0x').replace(/^0x/,'').slice(0,64));
+ticketsBy[buyer] = (ticketsBy[buyer]||0n) + n;
+}
+const earnBy = {}; // buyer => {e1: 我做直推拿的, e2: 我做间推拿的}
+for(const l of rLogs){
+const d = (l.data||'0x').replace(/^0x/,'');
+const buyer = ('0x'+l.topics[2].slice(-40)).toLowerCase();
+const l1 = ('0x'+d.slice(0,64).slice(-40)).toLowerCase();
+const dd1 = BigInt('0x'+(d.slice(64,128)||'0'));
+const l2 = ('0x'+d.slice(128,192).slice(-40)).toLowerCase();
+const dd2 = BigInt('0x'+(d.slice(192,256)||'0'));
+if(!earnBy[buyer]) earnBy[buyer] = {e1:0n, e2:0n};
+if(l1===me) earnBy[buyer].e1 += dd1;
+if(l2===me) earnBy[buyer].e2 += dd2;
+}
+const sum = (arr, f) => arr.reduce((a,b)=>a+f(b), 0n);
+const dTk = sum(direct, b => ticketsBy[b]||0n);
+const iTk = sum(indirect, b => ticketsBy[b]||0n);
+const dEarn = sum(direct, b => (earnBy[b]||{e1:0n}).e1);
+const iEarn = sum(indirect, b => (earnBy[b]||{e2:0n}).e2);
+$('refDirectStat').textContent = t('refStatLine', {n: direct.length, tk: dTk.toString(), amt: fmt(dEarn)});
+$('refIndirectStat').textContent = t('refStatLine', {n: indirect.length, tk: iTk.toString(), amt: fmt(iEarn)});
+let html = '';
+const row = (b, tag) => {
+const e = earnBy[b]||{e1:0n,e2:0n};
+const amt = tag==='d' ? e.e1 : e.e2;
+html += '<div class="winner"><span><span class="tag">'+t(tag==='d'?'refTagD':'refTagI')+'</span>'+short(b)+'</span><span>'+t('refRowStat',{tk:(ticketsBy[b]||0n).toString(), amt:fmt(amt)})+'</span></div>';
+};
+direct.forEach(b => row(b,'d'));
+indirect.forEach(b => row(b,'i'));
+$('refDetailList').innerHTML = html || '<div class="note">'+t('refNoInvite')+'</div>';
+box.style.display='';
+}catch(e){ console.error('refStats', e); if(!stale(myVer)) box.style.display='none'; }
+}
+async function loadHistory(myVer, P){
+P = P || POOLS[poolIdx];
+const box = $('historyList'), lb = $('leaderboard');
+try{
+const logs = (await scanLogs([EV_WIN], P.CONTRACT, P.deployBlock)).slice();
+if(stale(myVer)) return; // 旧池的响应直接丢弃
+if(!logs.length){
+if(box) box.innerHTML = '<div class="note">'+t('noHistory')+'</div>';
+if(lb) lb.innerHTML = '<div class="note">'+t('noData')+'</div>';
+return;
+}
+const total = {}; // addr -> {count, amount}
+let hhtml = '';
+// 按 roundId 排序（从 topic1 取）
+logs.sort((a,b)=> Number(BigInt(a.topics[1])) - Number(BigInt(b.topics[1])));
+for(const lg of logs){
+const rid = Number(BigInt(lg.topics[1]));
+const d = (lg.data||'0x').replace(/^0x/,'');
+const offW = Number(BigInt('0x'+d.slice(0,64)))*2;
+const offA = Number(BigInt('0x'+d.slice(64,128)))*2;
+const winners = decAddrArray(d, offW), amounts = decUintArray(d, offA);
+let sum = 0n;
+let wh = '';
+for(let i=0;i<winners.length;i++){
+sum += amounts[i];
+const k = winners[i].toLowerCase();
+if(!total[k]) total[k] = {n:0, amt:0n};
+total[k].n++; total[k].amt += amounts[i];
+const pz = i===0?t('prize1'):(i<4?t('prize2'):t('prize3'));
+wh += '<div class="winner"><span><span class="tag">'+pz+'</span>'+short(winners[i])+'</span><span><b>'+fmt(amounts[i])+'</b></span></div>';
+}
+hhtml = '<div style="margin-bottom:10px"><div class="row"><span class="k"><b>'+t('roundN',{n:rid})+'</b></span><span class="v">'+t('totalPaid',{amt:fmt(sum)})+'</span></div>'+wh
++ '<div style="margin-top:4px"><button class="btn-verify" onclick="verifyRound('+rid+',\'hv'+rid+'\')">'+t('verifyBtn')+'</button><div id="hv'+rid+'"></div></div>'
++ '</div>' + hhtml;
+}
+$('historyList').innerHTML = hhtml || '<div class="note">'+t('noHistory')+'</div>';
+// 累计榜
+const arr = Object.entries(total).sort((a,b)=> Number(b[1].amt - a[1].amt)).slice(0,10);
+const medal = ['🥇','🥈','🥉'];
+let lh = '';
+arr.forEach(([addr, st], i)=>{
+lh += '<div class="winner"><span>'+(medal[i]||(i+1)+'.')+' '+short(addr)+'</span><span>'+t('wonTimes',{n:st.n, amt:fmt(st.amt)})+'</span></div>';
+});
+$('leaderboard').innerHTML = lh || '<div class="note">'+t('noData')+'</div>';
+}catch(e){
+console.error('history', e);
+if(stale(myVer)) return;
+const box = $('historyList'), lb = $('leaderboard');
+// 区分"读到了但确实没数据"和"读取失败"：这里是失败，给重试按钮
+if(box) box.innerHTML = '<div class="note">'+t('loadFail')+'</div><div style="margin-top:8px"><button class="btn-ghost" onclick="loadHistory(dataVer)">'+t('retry')+'</button></div>';
+if(lb) lb.innerHTML = '<div class="note">'+t('loadFail')+'</div>';
+}
+}
+async function approve(){
+// 按本次实际购买张数授权，之后加购张数变化需要重新授权（额度最小化）
+await sendTx(CFG.token, '0x'+SEL.approve+encAddr(CFG.CONTRACT)+encUint(TICKET*BigInt(buyN)));
+toast(t('approveOk'));
+}
+async function buy(){
+const ref = getRef();
+if(ref) await sendTx(CFG.CONTRACT, '0x'+SEL.buyTicketsWithRef+encUint(buyN)+encAddr(ref));
+else await sendTx(CFG.CONTRACT, '0x'+SEL.buyTickets+encUint(buyN));
+toast(t('buyOk'));
+}
+// 邀请人：从 URL ?ref=0x... 读取；自己邀请自己无效（合约层也会拒绝）
+function getRef(){
+try{
+const r = new URLSearchParams(location.search).get('ref');
+if(r && /^0x[0-9a-fA-F]{40}$/.test(r)){
+if(myAddr && r.toLowerCase()===myAddr.toLowerCase()) return null;
+return r;
+}
+}catch(e){}
+return null;
+}
+function copyRefLink(){
+const el = $('refLink');
+if(!el || !el.value) return;
+el.select();
+try{ document.execCommand('copy'); }catch(e){}
+if(navigator.clipboard) navigator.clipboard.writeText(el.value).catch(()=>{});
+toast(t('copyOk'));
+}
+async function claimReferral(){
+await sendTx(CFG.CONTRACT, '0x'+SEL.claimReferral);
+toast(t('claimOk'));
+}
+async function refreshReferral(myVer, P){
+P = P || POOLS[poolIdx];
+const link = $('refLink');
+if(link) link.value = myAddr ? (location.origin + location.pathname + '?ref=' + myAddr) : '';
+if(link) link.placeholder = myAddr ? '' : t('notConnected');
+const banner = $('refViaBanner');
+if(banner) banner.style.display = getRef() ? '' : 'none';
+if(!myAddr){
+if($('myReferrer')) $('myReferrer').textContent='-';
+if($('myRefRewards')) $('myRefRewards').textContent='-';
+if($('claimRefBtn')) $('claimRefBtn').style.display='none';
+return;
+}
+try{
+const r = decAddr(await ethCall(P.CONTRACT,'0x'+SEL.referrer+encAddr(myAddr)));
+if(stale(myVer)) return;
+$('myReferrer').textContent =
+(r==='0x0000000000000000000000000000000000000000') ? t('noReferrer') : short(r);
+}catch(e){ if(!stale(myVer)) $('myReferrer').textContent='-'; }
+try{
+const rw = decUint(await ethCall(P.CONTRACT,'0x'+SEL.referralRewards+encAddr(myAddr)));
+if(stale(myVer)) return;
+$('myRefRewards').textContent = fmt(rw)+' '+P.sym;
+$('claimRefBtn').style.display = rw>0n ? '' : 'none';
+}catch(e){ if(!stale(myVer)) $('myRefRewards').textContent='-'; }
+}
+async function closeRound(){ await sendTx(CFG.CONTRACT,'0x'+SEL.closeRound); toast(t('closedOk')); }
+async function sendTxQuiet(to,d){
+const tx = {from:myAddr,to,data:d};
+if (chainKey === 'anubis'){
+tx.type = '0x0';
+tx.gasPrice = await req('eth_gasPrice',[]);
+}
+const hash = await req('eth_sendTransaction',[tx]);
+for (let i=0;i<150;i++){
+await new Promise(r=>setTimeout(r,2000));
+const rc = await req('eth_getTransactionReceipt',[hash]);
+if (rc && rc.blockNumber && rc.blockNumber!=='0x0'){
+if (rc.status==='0x1'){ await refresh(true); return rc; }
+throw new Error(t('txReverted'));
+}
+}
+throw new Error(t('txTimeout', {h: hash}));
+}
+async function drawVisual(){
+const P0 = POOLS[poolIdx]; // 锁死开奖时的池，防止中途切池串币种
+const ov=$('drawOverlay'), stage=$('ballStage'), res=$('drawResults'), st=$('drawStatus');
+ov.classList.add('show'); res.innerHTML=''; $('drawClose').style.display='none';
+stage.innerHTML='';
+const balls=[];
+for(let i=0;i<14;i++){
+const b=document.createElement('div'); b.className='ball'; b.textContent='?';
+b.style.animationDuration=(0.7+Math.random()*0.9).toFixed(2)+'s';
+b.style.animationDelay=(Math.random()*0.6).toFixed(2)+'s';
+stage.appendChild(b); balls.push(b);
+}
+const rnd=setInterval(()=>{ balls.forEach(b=>{ if(!b.dataset.done) b.textContent=Math.floor(Math.random()*99)+1; }); },120);
+const stop=()=>clearInterval(rnd);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+try{
+if(!myAddr) throw new Error(t('needWallet'));
+const ridBefore=Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.currentRound)));
+st.textContent=t('waitingConfirm');
+await sendTxQuiet(CFG.CONTRACT,'0x'+SEL.draw);
+const ridAfter=Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.currentRound)));
+if(ridAfter<=ridBefore){
+stop();
+st.textContent=t('hashExpired');
+$('drawClose').style.display='block';
+return;
+}
+st.textContent=t('drawSuccess');
+const wh=await ethCall(CFG.CONTRACT,'0x'+SEL.getLastWinners);
+const offW=Number(decUint(wh.slice(0,64)))*2, offA=Number(decUint(wh.slice(64,128)))*2;
+const winners=decAddrArray(wh,offW), amounts=decUintArray(wh,offA);
+stop();
+if(!winners.length){
+balls.forEach(b=>{ b.classList.add('out'); b.textContent='-'; });
+st.textContent=t('noBuyers');
+$('drawClose').style.display='block';
+return;
+}
+// 名次:[0]=一等奖,[1..3]=二等奖,[4..13]=三等奖;先揭三等奖,最后揭一等奖
+const order=[];
+for(let i=4;i<winners.length;i++) order.push({i,t:'t3',label:t('prize3')});
+for(let i=1;i<Math.min(4,winners.length);i++) order.push({i,t:'t2',label:t('prize2')});
+order.push({i:0,t:'t1',label:t('prize1')});
+let bi=0;
+for(const o of order){
+const b=balls[bi++]; b.dataset.done='1';
+b.className='ball '+o.t; b.textContent=o.label[0];
+const row=document.createElement('div'); row.className='wrow';
+row.innerHTML='<span><span class="tag">'+o.label+'</span><span class="wa">'+short(winners[o.i])+'</span></span><span class="wamt">'+fmt(amounts[o.i])+' '+P0.sym+'</span>';
+res.appendChild(row);
+if(o.t==='t1'){ st.textContent=t('firstBorn'); }
+await sleep(o.t==='t1'?1200:650);
+}
+balls.slice(bi).forEach(b=>{ b.classList.add('out'); b.textContent='-'; });
+st.textContent=t('drawDone');
+$('drawClose').style.display='block';
+}catch(e){
+stop();
+st.textContent=t('drawFail', {m: e.message||e});
+$('drawClose').style.display='block';
+}
+}
+function closeDraw(){ $('drawOverlay').classList.remove('show'); refresh(true); }
+async function approveSeed(){
+const amt = parseUnits($('seedAmt').value||'0');
+if (amt<=0n) return toast(t('enterAmt'));
+await sendTx(CFG.token,'0x'+SEL.approve+encAddr(CFG.CONTRACT)+encUint(amt));
+toast(t('seedApproveOk'));
+}
+async function seed(){
+const amt = parseUnits($('seedAmt').value||'0');
+if (amt<=0n) return toast(t('enterAmt'));
+if(!confirm(t('seedConfirm', {amt: $('seedAmt').value}))) return;
+await sendTx(CFG.CONTRACT,'0x'+SEL.seedJackpot+encUint(amt));
+toast(t('seedDone'));
+}
+function setPriceQuick(v){
+$('priceAmt').value = v;
+updatePriceEcho();
+}
+function updatePriceEcho(){
+const v = ($('priceAmt').value || '').trim();
+const el = $('priceEcho');
+if(!el) return;
+if(v) el.textContent = '👉 ' + t('priceEcho', {p: v});
+else el.textContent = TICKET > 0n ? t('priceCur', {p: fmt(TICKET)}) : '';
+}
+async function doSetTicketPrice(){
+const v = ($('priceAmt').value || '0').trim();
+let amt = 0n;
+try{ amt = parseUnits(v); }catch(e){ return toast(t('amtBad')); }
+if(amt <= 0n) return toast(t('enterAmt'));
+if(!confirm(t('priceConfirm', {p: v}))) return;
+await sendTx(CFG.CONTRACT,'0x'+SEL.setTicketPrice+encUint(amt));
+$('priceAmt').value=''; updatePriceEcho();
+toast(t('priceDone', {p: v}));
+await refresh();
+}
+async function doSetRoundDuration(){
+if(!confirm(t('durationConfirm'))) return;
+await sendTx(CFG.CONTRACT,'0x'+SEL.setRoundDuration+encUint(3600n));
+toast(t('durationDone'));
+await refresh();
+}
+setInterval(()=>refresh(), 15000);
+setInterval(tickCountdown, 1000);
+window.addEventListener('load', ()=>{ applyLang(); renderPoolTabs(); updateChainBtn(); updateWalletBtn(); setBuyN(1); setupObservers(); loadStatic(dataVer).then(()=>refresh()).catch(()=>{}); });
+
+/* ===== 本次视觉升级新增 ===== */
+function fmtDateTime(ts){
+const d = new Date(ts*1000), p = n => String(n).padStart(2,'0');
+if(LANG==='zh') return (d.getMonth()+1)+'月'+d.getDate()+'日 '+p(d.getHours())+':'+p(d.getMinutes());
+const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+return mon+' '+d.getDate()+', '+p(d.getHours())+':'+p(d.getMinutes());
+}
+function updateStatusPill(st){
+const pill=$('poolStatus'), txt=$('poolStatusTxt'); if(!pill||!txt) return;
+const cls = st==='live'?'live':st==='closed'?'closed':st==='wait'?'wait':st==='drawable'?'drawable':st==='err'?'err':'';
+pill.className = 'status-pill '+cls;
+pillState = st;
+const key = {live:'statusLive',closed:'statusClosed',wait:'statusWaitBlock',drawable:'statusDrawable',err:'statusErr'}[st] || 'loading';
+txt.textContent = t(key);
+}
+function showPoolLoading(){
+hidePoolError();
+const _pt=$('perTicket'); if(_pt) _pt.textContent=t('loading'); // 票价不保留旧池数据
+const pp=$('prizePool'); if(pp){ pp.classList.add('skel'); pp.classList.remove('long'); pp.textContent='--'; }
+const cd=$('countdown'); if(cd){ cd.classList.add('skel'); cd.textContent='--'; }
+['sold','sales'].forEach(id=>{ const el=$(id); if(el){ el.classList.add('skel','light'); el.textContent='-'; }});
+['jackpot','lockedPool','jkBase','myTickets','lastRollover'].forEach(id=>{ const el=$(id); if(el) el.textContent='-'; });
+const lw=$('lastWinners'); if(lw) lw.innerHTML='<div class="note">'+t('loading')+'</div>';
+const hl=$('historyList'); if(hl) hl.innerHTML='<div class="note">'+t('loading')+'</div>';
+const lb=$('leaderboard'); if(lb) lb.innerHTML='<div class="note">'+t('loading')+'</div>';
+const ct=$('cutoffTime'); if(ct) ct.textContent='';
+updateStatusPill('loading');
+const lvb=$('lastVerifyBtn'); if(lvb) lvb.style.display='none';
+const lv=$('lastVerify'); if(lv) lv.innerHTML='';
+['estT1','estT2','estT3'].forEach(id=>{ const el=$(id); if(el) el.textContent='-'; });
+}
+function showPoolError(e){
+const box=$('poolError'); if(!box) return;
+const msg=(e&&e.message)||String(e||'');
+$('poolErrorMsg').textContent=t('errLoad')+'：'+msg;
+box.classList.add('show');
+updateStatusPill('err');
+const cd=$('countdown'); if(cd){ cd.classList.remove('skel'); cd.textContent='--'; }
+const pp=$('prizePool'); if(pp) pp.classList.remove('skel');
+}
+function hidePoolError(){ const box=$('poolError'); if(box) box.classList.remove('show'); }
+// 奖项估算：分配基数 = 本期票款×(1-费率) + 上期滚存 + 已解锁注资（与合约 draw() 一致：jackpot 字段已含已解锁注资），仅供估算
+function renderEstimates(){
+const P=POOLS[poolIdx];
+const fee=FEE||1000n;
+const base=lastSales-lastSales*fee/10000n+lastJackpot;
+const ok=priceOk&&(lastSales>0n||lastJackpot>0n);
+const f=v=>fmt(v)+' '+P.sym;
+const e1=$('estT1'), e2=$('estT2'), e3=$('estT3');
+if(e1) e1.textContent=ok?('≈ '+f(base*5000n/10000n)):'—';
+if(e2) e2.textContent=ok?('≈ '+f(base*1000n/10000n)):'—';
+if(e3) e3.textContent=ok?('≈ '+f(base*200n/10000n)):'—';
+const bn=$('prizeBaseNote');
+if(bn) bn.innerHTML=t('prizeBaseNote',{pct:Number(fee)/100, base:ok?('<b>'+f(base)+'</b>'):'—', s:P.sym});
+}
+// 尾号开奖动画
+let animToken = 0;
+const HEXC = '0123456789ABCDEF';
+function renderTailChip(){
+const chip = $('myTailChip'); if(!chip) return;
+if(myAddr){ chip.style.display=''; chip.innerHTML = t('yourTail')+': <b>'+myAddr.slice(-4).toUpperCase()+'</b>'; }
+else chip.style.display='none';
+}
+function runDrawAnim(){
+animToken++; const tk = animToken;
+const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const myTail = myAddr ? myAddr.slice(-4).toUpperCase() : '';
+document.querySelectorAll('#lastWinners .winner').forEach((row, ri)=>{
+row.classList.remove('tailhit');
+const oldHit = row.querySelector('.tailhit-tag'); if(oldHit) oldHit.remove();
+const box = row.querySelector('.slots'); if(!box) return;
+const tail = (box.dataset.tail||'????').toUpperCase();
+const cells = box.querySelectorAll('i');
+if(myTail && row.dataset.tail===myTail){
+row.classList.add('tailhit');
+const tag = row.querySelector('.tag');
+if(tag){ const s=document.createElement('span'); s.className='tailhit-tag'; s.textContent=t('tailHit'); tag.after(s); }
+}
+if(reduce){ cells.forEach((c,ci)=>{ c.textContent=tail[ci]||'?'; c.classList.add('lock'); }); return; }
+const tier = ri===0?0:(ri<4?1:2);
+const base = tier*1000;
+cells.forEach((c,ci)=>{
+c.classList.remove('lock');
+const iv = setInterval(()=>{ if(tk!==animToken){ clearInterval(iv); return; } c.textContent = HEXC[(Math.random()*16)|0]; }, 70);
+setTimeout(()=>{ if(tk!==animToken){ clearInterval(iv); return; } clearInterval(iv); c.textContent = tail[ci]||'?'; c.classList.add('lock'); }, base+450+ci*300);
+});
+});
+}
+function replayDrawAnim(){
+animToken++;
+document.querySelectorAll('#lastWinners .slots i').forEach(c=>{ c.classList.remove('lock'); c.textContent='·'; });
+document.querySelectorAll('#lastWinners .winner').forEach(r=>{ r.classList.remove('tailhit'); const s=r.querySelector('.tailhit-tag'); if(s) s.remove(); });
+setTimeout(runDrawAnim, 60);
+}
+function verifyLastDraw(){ if(lastDrawnRoundNum>0) verifyRound(lastDrawnRoundNum,'lastVerify'); }
+function switchTab(name){
+document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+document.querySelectorAll('.tabpanel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
+}
+function scrollToBuy(){ const el=$('buyCard'); if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); }
+async function loadAllTabPrices(){
+for(let i=0;i<POOLS.length;i++){
+if(POOL_PRICES[i]) continue;
+try{
+const tp = decUint(await ethCall(POOLS[i].CONTRACT,'0x'+SEL.ticketPrice));
+if(tp>0n) POOL_PRICES[i]=tp;
+}catch(e){}
+}
+renderPoolTabs();
+}
+function setupObservers(){
+loadAllTabPrices();
+try{
+const fab=$('fabBuy'), buy=$('buyCard');
+if(fab&&buy&&'IntersectionObserver' in window){
+new IntersectionObserver(es=>{ es.forEach(en=>{
+fab.classList.toggle('show', !en.isIntersecting && window.innerWidth<1024);
+});},{threshold:0.1}).observe(buy);
+window.addEventListener('resize',()=>{ if(window.innerWidth>=1024) fab.classList.remove('show'); });
+}
+const tp=$('transPools');
+if(tp&&'IntersectionObserver' in window){
+const ob=new IntersectionObserver(es=>{ es.forEach(en=>{ if(en.isIntersecting){ ob.disconnect(); renderTransparency(); } }); },{rootMargin:'200px'});
+ob.observe(tp);
+}else{ renderTransparency(); }
+}catch(e){}
+}
+
+Object.assign(I18N.zh, {
+poolSelect:'选择奖池', poolHint:'五个独立奖池 · 独立轮次 · 独立开奖',
+statusLive:'售票中', statusClosed:'已截止 · 待关闭', statusWaitBlock:'等待开奖区块', statusDrawable:'可开奖', statusErr:'加载失败',
+totalGrossNote:'总额（含未扣平台费）',
+lockedLabel2:'待解锁注资（独立于奖金）', jkBaseLabel:'可分配基数（估算用）',
+cutoffExact:'{d} 截止', drawAtBlock:'目标开奖区块 #{b}',
+estTag:'估算', tier1d:'分配基数的 50%', tier2d:'每张为分配基数的 10%', tier3d:'每张为分配基数的 2%',
+prizeBaseNote:'按当前奖池估算：分配基数 = 本期票款 × (1 - {pct}%) + 上期滚存 + 已解锁注资 ≈ {base}；实际按开奖时刻的基数计算。',
+tabHistory:'开奖记录', tabMy:'我的票据', tabRef:'邀请奖励',
+feeTitle:'费用说明', feeLink:'费用说明 ↗',
+feeBody:'· 平台抽水 10%（房主可调，上限 20%），只从<b>本期票款</b>里扣，上期滚存不重复扣费<br>· 邀请返佣（直推 30% / 间推 10%）从平台费里出，不影响奖池<br>· 用 DAI / USDT / A 付款时按池子实时价兑换，输入上限为报价 +5% 防滑点，实际只扣买票所需金额<br>· 每次链上操作另需支付 Anubis 网络 Gas（约 0.001 DAI/笔）',
+settleIn:'奖金以 {s} 结算', viewBuy:'查看购票',
+errLoad:'数据加载失败', errTimeout:'加载超时，请检查网络后重试',
+transLive:'链上实时', footRisk:'链上彩票存在智能合约风险，请理性参与，勿投入无法承受损失的资金。'
+});
+Object.assign(I18N.en, {
+poolSelect:'Select Pool', poolHint:'5 independent pools · rounds · draws',
+statusLive:'Selling', statusClosed:'Closed · awaiting lock', statusWaitBlock:'Waiting for draw block', statusDrawable:'Ready to draw', statusErr:'Load failed',
+totalGrossNote:'Gross (fee not yet deducted)',
+lockedLabel2:'Locked seed (separate from prizes)', jkBaseLabel:'Distributable base (for estimates)',
+cutoffExact:'Ends {d}', drawAtBlock:'Target draw block #{b}',
+estTag:'est.', tier1d:'50% of distributable base', tier2d:'10% of base per ticket', tier3d:'2% of base per ticket',
+prizeBaseNote:'Estimated on current pool: base = round sales × (1 - {pct}%) + rollover + unlocked seed ≈ {base}; actual base is fixed at draw time.',
+tabHistory:'Draw History', tabMy:'My Tickets', tabRef:'Referrals',
+feeTitle:'Fees', feeLink:'Fee details ↗',
+feeBody:'· 10% platform fee (owner-adjustable, max 20%), taken from <b>round sales only</b> — rollover is never fee\'d twice<br>· Referral rewards (30% direct / 10% indirect) come out of the platform fee, never the pool<br>· Paying with DAI / USDT / A swaps at the live pool price; input cap is quote + 5% for slippage, only the exact ticket cost is taken<br>· Each on-chain action also costs Anubis gas (~0.001 DAI/tx)',
+settleIn:'Prizes paid in {s}', viewBuy:'Buy tickets',
+errLoad:'Failed to load data', errTimeout:'Load timed out, check your connection and retry',
+transLive:'Live on-chain', footRisk:'On-chain lottery carries smart-contract risk. Play responsibly — never stake more than you can afford to lose.'
+});
+
+</script>
+</body>
+</html>
