@@ -175,6 +175,16 @@ background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.022) 0 2px,tr
 .verify-box .kv{padding:5px 0;font-size:13px}
 .btn-verify{background:#fff;border:1.5px solid var(--line);color:var(--muted);border-radius:10px;cursor:pointer;font-weight:600;padding:7px 14px;font-size:12.5px;transition:all .15s;min-height:36px}
 .btn-verify:hover{border-color:var(--gold);color:var(--wine)}
+/* 尾号老虎机 */
+.da-bar{display:flex;align-items:center;gap:8px;margin:10px 0 4px;flex-wrap:wrap}
+.da-title{font-size:13px;font-weight:800;color:var(--wine)}
+.tailchip{font-size:12px;font-weight:700;color:var(--wine);background:#FBF6E9;border:1px dashed var(--gold);border-radius:20px;padding:5px 12px;font-variant-numeric:tabular-nums}
+.tailchip b{color:#8a6a2a;letter-spacing:2px}
+.slots{display:inline-flex;gap:3px;margin:0 8px 0 2px;vertical-align:middle}
+.slots i{font-style:normal;font-weight:800;font-size:15px;min-width:22px;height:28px;padding:0 2px;display:inline-flex;align-items:center;justify-content:center;background:#2A1218;color:#7d6f5c;border:1px solid #4a2c33;border-radius:6px;font-variant-numeric:tabular-nums;transition:color .18s,border-color .18s,transform .18s,box-shadow .18s}
+.slots i.lock{color:var(--gold);border-color:var(--gold);background:#3A1A24;transform:scale(1.08);box-shadow:0 0 10px rgba(198,164,106,.4)}
+.winner.tailhit{background:#FDF8EC;border-radius:8px;outline:1.5px dashed var(--gold);outline-offset:-1.5px}
+.tailhit-tag{font-size:11px;color:#8a6a2a;font-weight:800;margin-left:6px;white-space:nowrap}
 /* ===== 标签页 ===== */
 .tabs{margin-top:18px}
 .tabbar{display:flex;gap:8px;border-bottom:2px solid var(--line);margin-bottom:0;overflow-x:auto}
@@ -380,6 +390,12 @@ html{scroll-behavior:auto}
 <section class="card lastdraw">
 <div class="sec-title"><h2><span data-i18n="lastDraw">上期开奖</span> <span id="lastRound" style="color:var(--muted);font-size:13px;font-weight:400"></span></h2><span class="r" id="lastDrawTime"></span></div>
 <div id="lastWinners"><div class="note" data-i18n="noRecord">暂无开奖记录</div></div>
+<div class="da-bar" id="daBar" style="display:none">
+<span class="da-title" data-i18n="drawAnimTitle">🎰 尾号开奖</span>
+<span class="tailchip" id="myTailChip" style="display:none"></span>
+<button class="btn-verify" id="replayAnimBtn" onclick="replayDrawAnim()"><span data-i18n="replay">↻ 重播</span></button>
+</div>
+<div class="note" id="animNote" style="display:none;margin-top:4px"><span data-i18n="animNote">🎰 数字滚动为视觉效果，实际中奖以完整地址为准；尾号相同不代表中奖</span></div>
 <div class="kv" style="margin-top:6px"><span class="k" data-i18n="rolloverNext">滚入下期</span><span class="v" id="lastRollover">-</span></div>
 <div style="margin-top:8px"><button class="btn-verify" id="lastVerifyBtn" style="display:none" onclick="verifyLastDraw()"><span data-i18n="verifyBtn">验证本期开奖</span></button><div id="lastVerify"></div></div>
 </section>
@@ -505,6 +521,8 @@ blkLeft: '（当前块 {c}，还差 {l} 块）',
 priceChanged: '票价有变化，已刷新显示，请确认后重试', wrongNetwork: '网络不对，请先切换到 Anubis',
 roundN: '第 {n} 期', totalPaid: '共发出 {amt} {s}', wonTimes: '中 {n} 次 · <b>{amt}</b> {s}',
 prize1: '一等奖', prize2: '二等奖', prize3: '三等奖',
+drawAnimTitle: '🎰 尾号开奖', replay: '↻ 重播', yourTail: '你的尾号', tailHit: '✨ 尾号相同',
+animNote: '🎰 数字滚动为视觉效果，实际中奖以完整地址为准；尾号相同不代表中奖',
 ownerTitle: '房主管理', ownerNote: '冷启动注资：钱先锁进注资池，每卖出 1 张票释放 0.3 {s} 到奖池（一期最多 30）。没人买票一分不释放，防薅羊毛。锁定的钱可随时取回。',
 seedPh: '注入多少 {s}', approveSeedBtn: '1. 授权', seedBtn: '2. 注入锁定池', pricePh: '新票价（{s}/张）', setPriceBtn: '修改票价', setDurationBtn: '轮次改成 1 小时一期',
 lockedLabel: '🔒 待解锁注资',
@@ -577,6 +595,8 @@ drawNote: 'Round closed: tap "Close Round" first to lock the draw block, then wa
 prizeTitle: '🏆 Prizes', p1: '1st Prize × 1', p1v: '50% of pool', p2: '2nd Prize × 3', p2v: '10% of pool each', p3: '3rd Prize × 10', p3v: '2% of pool each',
 poolFormula: '· Pool = round sales + rollover + unlocked seed (gross; {pct}% platform fee taken from round sales only at draw, rollover is never fee\'d twice)<br>· Seeds go into a locked vault: 0.3 {s} unlocks per ticket sold (max 30/round). No sales, no unlock — anti-farming<br>· Referral: earn 30% of the platform fee on your invitees\' purchases, 10% on their invitees\' (2 levels, paid from the fee)<br>· Unwon prizes roll over, pool keeps growing<br>· Draw uses a future block hash after cutoff — unpredictable when buying<br>· Fewer than 14 tickets? Drawn pro-rata, remainder rolls over',
 lastDraw: 'Last Draw', lastRound: '(Round {n})', noRecord: 'No draw records yet', rolloverNext: 'Rollover to next',
+drawAnimTitle: '🎰 Tail Reveal', replay: '↻ Replay', yourTail: 'Your last 4', tailHit: '✨ Tail match',
+animNote: '🎰 The digit roll is a visual effect — the full address is the official result; a matching tail alone is not a win',
 board: 'Leaderboard', history: 'History', loading: 'Loading…',
 noHistory: 'No draw history yet', noData: 'No data', loadFail: 'Load failed, please refresh and retry',
 retry: 'Retry', priceFail: 'Failed to read ticket price',
@@ -852,6 +872,7 @@ const short = a => a ? a.slice(0,6)+'…'+a.slice(-4) : '';
 function updateWalletBtn(){
 const el = $('walletBtnTxt');
 if(el) el.textContent = myAddr ? short(myAddr) : t('connect');
+if(typeof renderTailChip==='function') renderTailChip();
 }
 const thou = s => { // 千分位（纯字符串，不经 Number，无精度损失）
 s = String(s); const neg = s[0]==='-'; if(neg) s = s.slice(1);
@@ -1250,10 +1271,17 @@ const winners = decAddrArray(wh, offW), amounts = decUintArray(wh, offA);
 let html='';
 for(let i=0;i<winners.length;i++){
 const pz = i===0?t('prize1'):(i<4?t('prize2'):t('prize3'));
-html += '<div class="winner '+(i===0?'':(i<4?'t2':'t3'))+'"><span><span class="tag">'+pz+'</span>'+short(winners[i])+'</span><span><b>'+fmt(amounts[i])+'</b> '+P.sym+'</span></div>';
+const tail = (winners[i]||'').slice(-4).toUpperCase() || '????';
+html += '<div class="winner '+(i===0?'':(i<4?'t2':'t3'))+'" data-tail="'+tail+'"><span><span class="tag">'+pz+'</span><span class="slots" data-tail="'+tail+'"><i>·</i><i>·</i><i>·</i><i>·</i></span><span class="wa">'+short(winners[i])+'</span></span><span class="wamt"><b>'+fmt(amounts[i])+'</b> '+P.sym+'</span></div>';
 }
 $('lastWinners').innerHTML = (html || '<div class="note">'+t('noBuyers')+'</div>');
 lastDrawnRoundNum = lr;
+// 尾号开奖动画：有中奖者才展示
+const hasW = winners.length>0;
+$('daBar').style.display = hasW?'':'none';
+$('animNote').style.display = hasW?'':'none';
+renderTailChip();
+if(hasW) runDrawAnim(); else animToken++;
 const lvb = $('lastVerifyBtn'); if(lvb) lvb.style.display = '';
 const lv = $('lastVerify'); if(lv) lv.innerHTML = '';
 $('lastRollover').textContent = fmt(decUint(await ethCall(P.CONTRACT,'0x'+SEL.lastRollover)))+' '+P.sym;
@@ -1766,6 +1794,45 @@ if(e2) e2.textContent=ok?('≈ '+f(base*1000n/10000n)):'—';
 if(e3) e3.textContent=ok?('≈ '+f(base*200n/10000n)):'—';
 const bn=$('prizeBaseNote');
 if(bn) bn.innerHTML=t('prizeBaseNote',{pct:Number(fee)/100, base:ok?('<b>'+f(base)+'</b>'):'—', s:P.sym});
+}
+// 尾号开奖动画
+let animToken = 0;
+const HEXC = '0123456789ABCDEF';
+function renderTailChip(){
+const chip = $('myTailChip'); if(!chip) return;
+if(myAddr){ chip.style.display=''; chip.innerHTML = t('yourTail')+': <b>'+myAddr.slice(-4).toUpperCase()+'</b>'; }
+else chip.style.display='none';
+}
+function runDrawAnim(){
+animToken++; const tk = animToken;
+const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const myTail = myAddr ? myAddr.slice(-4).toUpperCase() : '';
+document.querySelectorAll('#lastWinners .winner').forEach((row, ri)=>{
+row.classList.remove('tailhit');
+const oldHit = row.querySelector('.tailhit-tag'); if(oldHit) oldHit.remove();
+const box = row.querySelector('.slots'); if(!box) return;
+const tail = (box.dataset.tail||'????').toUpperCase();
+const cells = box.querySelectorAll('i');
+if(myTail && row.dataset.tail===myTail){
+row.classList.add('tailhit');
+const tag = row.querySelector('.tag');
+if(tag){ const s=document.createElement('span'); s.className='tailhit-tag'; s.textContent=t('tailHit'); tag.after(s); }
+}
+if(reduce){ cells.forEach((c,ci)=>{ c.textContent=tail[ci]||'?'; c.classList.add('lock'); }); return; }
+const tier = ri===0?0:(ri<4?1:2);
+const base = tier*1000;
+cells.forEach((c,ci)=>{
+c.classList.remove('lock');
+const iv = setInterval(()=>{ if(tk!==animToken){ clearInterval(iv); return; } c.textContent = HEXC[(Math.random()*16)|0]; }, 70);
+setTimeout(()=>{ if(tk!==animToken){ clearInterval(iv); return; } clearInterval(iv); c.textContent = tail[ci]||'?'; c.classList.add('lock'); }, base+450+ci*300);
+});
+});
+}
+function replayDrawAnim(){
+animToken++;
+document.querySelectorAll('#lastWinners .slots i').forEach(c=>{ c.classList.remove('lock'); c.textContent='·'; });
+document.querySelectorAll('#lastWinners .winner').forEach(r=>{ r.classList.remove('tailhit'); const s=r.querySelector('.tailhit-tag'); if(s) s.remove(); });
+setTimeout(runDrawAnim, 60);
 }
 function verifyLastDraw(){ if(lastDrawnRoundNum>0) verifyRound(lastDrawnRoundNum,'lastVerify'); }
 function switchTab(name){
