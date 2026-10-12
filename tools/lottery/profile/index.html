@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的记录 · ANUBIS PLAY</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 3 42 13.5v17L24 45 6 30.5v-17L24 3z' fill='none' stroke='%23d4af37' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../shared/theme.css">
+</head>
+<body>
+<script>window.SITE_ROOT='../';</script>
+<script>
+window.PAGE_I18N = {
+zh:{
+  nav_home:'首页', nav_games:'游戏大厅', nav_hot:'热门游戏', nav_assets:'我的资产', nav_profile:'我的记录', nav_news:'平台公告',
+  nav_lottery:'链上彩票', connect:'连接钱包', foot_data:'链上数据以浏览器为准',
+  pt:'我的记录', psub:'连接钱包后查看你的链上身份与游戏入口',
+  w_title:'钱包', w_not:'尚未连接钱包', w_connect:'连接钱包',
+  w_addr:'地址', w_wallet:'钱包', w_chain:'网络', w_bal:'gas 余额',
+  r_title:'我的游戏记录', r_hint:'各游戏的详细历史记录保留在游戏页面内，链上可查：',
+  r_lottery:'🎟️ 彩票购票 / 中奖历史', r_lottery_d:'在彩票页内查看往期开奖与我的票据',
+  r_ref:'🤝 邀请返佣', r_ref_d:'在彩票页内查看邀请关系与可提返佣',
+  go:'进入 →', need_wallet:'请先连接钱包'
+},
+en:{
+  nav_home:'Home', nav_games:'Games', nav_hot:'Hot Games', nav_assets:'Assets', nav_profile:'Records', nav_news:'News',
+  nav_lottery:'Lottery', connect:'Connect Wallet', foot_data:'On-chain data as shown in explorer',
+  pt:'My Records', psub:'Connect your wallet to see your on-chain identity and game entries',
+  w_title:'Wallet', w_not:'Wallet not connected', w_connect:'Connect Wallet',
+  w_addr:'Address', w_wallet:'Wallet', w_chain:'Network', w_bal:'Gas balance',
+  r_title:'My Game History', r_hint:'Detailed per-game histories live inside each game page, verifiable on-chain:',
+  r_lottery:'🎟️ Lottery tickets / wins', r_lottery_d:'View past draws and my tickets on the lottery page',
+  r_ref:'🤝 Referral rewards', r_ref_d:'View referral tree and claimable rewards on the lottery page',
+  go:'Open →', need_wallet:'Please connect your wallet first'
+}};
+</script>
+<script src="../shared/site.js"></script>
+
+<div class="page"><div class="wrap">
+  <h1 class="pt" data-i18n="pt">我的记录</h1>
+  <div class="psub" data-i18n="psub"></div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3 style="margin-bottom:14px">👛 <span data-i18n="w_title">钱包</span></h3>
+      <div id="wBody"><div class="muted" data-i18n="w_not">尚未连接钱包</div>
+        <div class="mt"><button class="btn btn-gold" id="cbtn" data-i18n="w_connect">连接钱包</button></div></div>
+    </div>
+    <div class="panel">
+      <h3 style="margin-bottom:14px" data-i18n="r_title">我的游戏记录</h3>
+      <div class="muted small" style="margin-bottom:12px" data-i18n="r_hint"></div>
+      <a class="news-item" href="../games/lottery/#sec-history">
+        <h3 data-i18n="r_lottery">🎟️ 彩票购票 / 中奖历史</h3>
+        <p><span data-i18n="r_lottery_d"></span> · <span class="neon" data-i18n="go">进入 →</span></p>
+      </a>
+      <a class="news-item" href="../games/lottery/">
+        <h3 data-i18n="r_ref">🤝 邀请返佣</h3>
+        <p><span data-i18n="r_ref_d"></span> · <span class="neon" data-i18n="go">进入 →</span></p>
+      </a>
+    </div>
+  </div>
+</div></div>
+
+<script>
+SiteNav.render('nav_profile'); renderFooter(); I18n.apply();
+document.getElementById('cbtn').onclick = function(){ SiteWallet.connect(); };
+function paintWallet(){
+  var el = document.getElementById('wBody');
+  if(!SiteWallet.connected){
+    el.innerHTML = '<div class="muted">'+t('w_not')+'</div><div class="mt"><button class="btn btn-gold" id="cbtn2">'+t('w_connect')+'</button></div>';
+    document.getElementById('cbtn2').onclick = function(){ SiteWallet.connect(); };
+    return;
+  }
+  var ok = SiteWallet.isAnubis();
+  el.innerHTML =
+    '<div class="kv"><span class="k">'+t('w_addr')+'</span><span class="v addr" data-copy="'+SiteWallet.address+'">'+SiteWallet.short(SiteWallet.address)+' ⧉</span></div>'
+    +'<div class="kv"><span class="k">'+t('w_wallet')+'</span><span class="v">'+(SiteWallet.providerName||'EVM')+'</span></div>'
+    +'<div class="kv"><span class="k">'+t('w_chain')+'</span><span class="v">'+(ok?'<span class="tag ok">ANUBIS 6714</span>':'<span class="tag wait">ID '+SiteWallet.chainId+'</span>')+'</span></div>'
+    +'<div class="kv"><span class="k">'+t('w_bal')+'</span><span class="v" id="wBal">…</span></div>';
+  apRpc('eth_getBalance',[SiteWallet.address,'latest']).then(function(r){
+    var b = document.getElementById('wBal');
+    if(b) b.textContent = apFmt(BigInt(r),18) + ' DAI';
+  }).catch(function(){ var b=document.getElementById('wBal'); if(b) b.textContent='—'; });
+}
+SiteWallet.onChange(paintWallet);
+paintWallet();
+window.onLangChange = function(){ paintWallet(); var f=document.querySelector('footer'); if(f) f.remove(); renderFooter(); };
+</script>
+</body>
+</html>
