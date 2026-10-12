@@ -30,6 +30,14 @@ button{font-family:inherit}
 .nav-link{color:var(--muted);text-decoration:none;font-size:14px;font-weight:600;padding:9px 12px;border-radius:10px;white-space:nowrap}
 .nav-link:hover{color:var(--wine);background:#fff}
 .pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:border-color .18s,color .18s;min-height:38px}
+/* 平台导航条（ANUBIS PLAY 统一入口） */
+.ap-strip{display:flex;align-items:center;justify-content:space-between;background:#0b0b13;color:#f2ede1;padding:0 16px;height:40px;font-size:13px;border-bottom:1px solid rgba(212,175,55,.25)}
+.ap-brand{display:flex;align-items:center;gap:8px;color:#f2ede1;font-weight:800;letter-spacing:.12em;text-decoration:none}
+.ap-brand b{color:#f5d67b;font-weight:800}
+.ap-back{color:#d4af37;text-decoration:none;font-weight:600;white-space:nowrap}
+.ap-back:hover{color:#f5d67b}
+.retry-btn{background:#fff;border:1px solid var(--gold);border-radius:8px;padding:4px 12px;font-size:12.5px;font-weight:700;color:var(--wine);cursor:pointer;margin-left:6px}
+.retry-btn:hover{background:var(--gold-soft)}
 .pill:hover{border-color:var(--gold);color:var(--wine)}
 .pill svg{width:14px;height:14px;flex:none}
 .pill.wallet{border-color:var(--wine);color:var(--wine)}
@@ -264,6 +272,13 @@ html{scroll-behavior:auto}
 </style>
 </head>
 <body>
+<div class="ap-strip">
+<a class="ap-brand" href="../../" title="ANUBIS PLAY">
+<svg viewBox="0 0 48 48" width="20" height="20" fill="none"><path d="M24 3 42 13.5v17L24 45 6 30.5v-17L24 3z" stroke="#d4af37" stroke-width="3"/><path d="M24 12l5 9-5 9-5-9z" fill="#d4af37"/></svg>
+<span>ANUBIS <b>PLAY</b></span>
+</a>
+<a class="ap-back" href="../" data-i18n="apBack">← 返回游戏大厅</a>
+</div>
 <div class="nav">
 <div class="nav-inner">
 <a class="brand" href="#">
@@ -515,7 +530,7 @@ poolFormula: '· 奖池 = 本期票款 + 上期滚存 + 已解锁注资（显示
 lastDraw: '上期开奖', lastRound: '(第 {n} 期)', noRecord: '暂无开奖记录', rolloverNext: '滚入下期',
 board: '累计中奖榜', history: '历史开奖', loading: '加载中…',
 noHistory: '暂无历史开奖', noData: '暂无数据', loadFail: '加载失败，请稍后刷新重试',
-retry: '重试', priceFail: '票价读取失败',
+retry: '重试', priceFail: '票价读取失败', apBack: '← 返回游戏大厅',
 botNote: '🤖 自动开奖服务运行中：到期自动关闭，约 50 个块后自动开奖，无需手动操作。',
 blkLeft: '（当前块 {c}，还差 {l} 块）',
 priceChanged: '票价有变化，已刷新显示，请确认后重试', wrongNetwork: '网络不对，请先切换到 Anubis',
@@ -549,7 +564,7 @@ dashClosed: '已截止', waitDrawBlk: '目标块 {b}',
 poolTabL: 'LGNS 池', poolTabU: 'USDT 池', poolTabD: 'DAI 池', poolTabA: 'A 池', poolTabR: 'RM 池',
 poolSelect: '选择奖池', poolTotalNote: ' · 总额（含未扣平台费）', buyPoolNote: '奖池结算币种',
 tabHistory: '开奖记录', tabMy: '我的票据', tabRef: '邀请奖励', viewAll: '查看全部 >',
-prizeBaseNote: '按“本期票款−平台费+上期滚存”为基数分配；没人中的奖项自动滚入下期。',
+prizeBaseNote: '按“本期票款−平台费+上期滚存+已解锁注资”为基数分配；没人中的奖项自动滚入下期。',
 footerNote: '每期 1 小时，截止后约 50 个块自动开奖', viewContract: '查看合约', footerRisk: '链上游戏有风险，理性参与。',
 joinRound: '参与本期', perTicket: '{p} {s} / 张', ticketsCount: '{n} 张', totalCost: '本次票款',
 stepConnect: '连接钱包', stepApprove: '授权 {s}', stepBuyCount: '确认购票 · {n} 张', processing: '处理中…',
@@ -599,7 +614,7 @@ drawAnimTitle: '🎰 Tail Reveal', replay: '↻ Replay', yourTail: 'Your last 4'
 animNote: '🎰 The digit roll is a visual effect — the full address is the official result; a matching tail alone is not a win',
 board: 'Leaderboard', history: 'History', loading: 'Loading…',
 noHistory: 'No draw history yet', noData: 'No data', loadFail: 'Load failed, please refresh and retry',
-retry: 'Retry', priceFail: 'Failed to read ticket price',
+retry: 'Retry', priceFail: 'Failed to read ticket price', apBack: '← Back to Lobby',
 botNote: '🤖 Auto-draw service is running: rounds close automatically at expiry and draw ~50 blocks later. No manual action needed.',
 blkLeft: ' (current block {c}, {l} to go)',
 priceChanged: 'Ticket price changed, refreshed. Please confirm and retry.', wrongNetwork: 'Wrong network, please switch to Anubis',
@@ -631,7 +646,7 @@ dashClosed: 'Closed', waitDrawBlk: 'Target block {b}',
 poolTabL: 'LGNS Pool', poolTabU: 'USDT Pool', poolTabD: 'DAI Pool', poolTabA: 'A Pool', poolTabR: 'RM Pool',
 poolSelect: 'Select Pool', poolTotalNote: ' · gross (fee not yet deducted)', buyPoolNote: 'Pool settles in',
 tabHistory: 'Draw History', tabMy: 'My Tickets', tabRef: 'Referral', viewAll: 'View all >',
-prizeBaseNote: 'Prizes split from (round sales \u2212 platform fee + rollover); unwon prizes roll over.',
+prizeBaseNote: 'Prizes split from (round sales \u2212 platform fee + rollover + unlocked seed); unwon prizes roll over.',
 footerNote: '1-hour rounds, auto-draw ~50 blocks after cutoff', viewContract: 'View contract', footerRisk: 'On-chain games carry risk. Play responsibly.',
 joinRound: 'Join This Round', perTicket: '{p} {s} / ticket', ticketsCount: '{n}', totalCost: 'Total',
 stepConnect: 'Connect Wallet', stepApprove: 'Approve {s}', stepBuyCount: 'Confirm · {n} tickets', processing: 'Processing…',
@@ -784,7 +799,17 @@ payTokens:[
 ] },
 ];
 let poolIdx = 0;
-try{ poolIdx = Number(localStorage.getItem('lottery_pool')||0)||0; if(poolIdx<0||poolIdx>4) poolIdx=0; }catch(e){}
+try{
+  // URL ?pool= 优先（平台游戏大厅深链直达指定奖池）：支持序号 0-4 或币种名 lgns/usdt/dai/a/rm
+  const _qp = new URLSearchParams(location.search).get('pool');
+  if(_qp !== null && _qp !== ''){
+    const _qi = /^\d+$/.test(_qp.trim()) ? Number(_qp.trim()) : ['lgns','usdt','dai','a','rm'].indexOf(_qp.trim().toLowerCase());
+    if(_qi >= 0 && _qi <= 4) poolIdx = _qi;
+  }else{
+    poolIdx = Number(localStorage.getItem('lottery_pool')||0)||0;
+  }
+  if(poolIdx<0||poolIdx>4) poolIdx=0;
+}catch(e){}
 function TSYM(){ return POOLS[poolIdx].sym; }
 Object.assign(CFG, POOLS[poolIdx]);
 let priceOk = true; // 票价读取是否成功；失败时禁止购票
@@ -793,6 +818,9 @@ if(i===poolIdx) return;
 poolIdx = i;
 dataVer++; // 旧池的异步响应全部作废
 TICKET = 0n; priceOk = true; // 旧票价失效，防止"旧价格×新精度"
+lastSales = 0n; lastJackpot = 0n; // 旧池金额作废，防止"旧金额×新币种"混用
+try{ history.replaceState(null,'',location.pathname); }catch(e){} // 深链 ?pool= 只用一次，避免刷新后锁死旧池
+const _pt = $('perTicket'); if(_pt) _pt.textContent = t('loading'); // 票价先显示加载中，不保留旧池价格
 try{ localStorage.setItem('lottery_pool', String(i)); }catch(e){}
 Object.assign(CFG, POOLS[poolIdx]);
 payIdx = 0; buyN = 1;
@@ -1123,12 +1151,20 @@ window.ethereum.on('chainChanged', ()=> location.reload());
 await refresh(true);
 }catch(e){ toast(t('connectFail', {m: e.message||e})); }
 }
+async function loadTicketPriceRetry(P, okVer){
+  let lastErr = null;
+  for(let a=0; a<2; a++){
+    try{ return decUint(await ethCall(P.CONTRACT,'0x'+SEL.ticketPrice)); }
+    catch(e){ lastErr = e; if(a===0 && okVer()) await new Promise(r=>setTimeout(r,1500)); }
+  }
+  throw lastErr || new Error('price load failed');
+}
 async function loadStatic(myVer, P){
 P = P || POOLS[poolIdx];
 const okVer = () => !stale(myVer);
-// 票价：读不到就明确报错，不拿旧价格凑数
+// 票价：先显示加载中；失败自动重试一次；仍失败才显示失败态+重试按钮，不拿旧价格凑数
 try{
-TICKET = decUint(await ethCall(P.CONTRACT,'0x'+SEL.ticketPrice));
+TICKET = await loadTicketPriceRetry(P, okVer);
 if(!okVer()) return;
 if(TICKET<=0n) throw new Error('bad price');
 priceOk = true;
@@ -1136,7 +1172,11 @@ POOL_PRICES[poolIdx] = TICKET; renderPoolTabs();
 }catch(e){
 priceOk = false; TICKET = 0n;
 if(okVer()){
-const pt = $('perTicket'); if(pt) pt.textContent = t('priceFail');
+const pt = $('perTicket');
+if(pt){
+pt.innerHTML = '<span>'+t('priceFail')+'</span> <button class="retry-btn" id="priceRetryBtn">'+t('retry')+'</button>';
+const rb = $('priceRetryBtn'); if(rb) rb.onclick = ()=>refresh(true);
+}
 updateBuyBtn();
 }
 return;
@@ -1758,6 +1798,7 @@ txt.textContent = t(key);
 }
 function showPoolLoading(){
 hidePoolError();
+const _pt=$('perTicket'); if(_pt) _pt.textContent=t('loading'); // 票价不保留旧池数据
 const pp=$('prizePool'); if(pp){ pp.classList.add('skel'); pp.classList.remove('long'); pp.textContent='--'; }
 const cd=$('countdown'); if(cd){ cd.classList.add('skel'); cd.textContent='--'; }
 ['sold','sales'].forEach(id=>{ const el=$(id); if(el){ el.classList.add('skel','light'); el.textContent='-'; }});
@@ -1781,7 +1822,7 @@ const cd=$('countdown'); if(cd){ cd.classList.remove('skel'); cd.textContent='--
 const pp=$('prizePool'); if(pp) pp.classList.remove('skel');
 }
 function hidePoolError(){ const box=$('poolError'); if(box) box.classList.remove('show'); }
-// 奖项估算：分配基数 = 本期票款×(1-费率) + 上期滚存（与合约 draw() 一致），仅供估算
+// 奖项估算：分配基数 = 本期票款×(1-费率) + 上期滚存 + 已解锁注资（与合约 draw() 一致：jackpot 字段已含已解锁注资），仅供估算
 function renderEstimates(){
 const P=POOLS[poolIdx];
 const fee=FEE||1000n;
@@ -1875,7 +1916,7 @@ totalGrossNote:'总额（含未扣平台费）',
 lockedLabel2:'待解锁注资（独立于奖金）', jkBaseLabel:'可分配基数（估算用）',
 cutoffExact:'{d} 截止', drawAtBlock:'目标开奖区块 #{b}',
 estTag:'估算', tier1d:'分配基数的 50%', tier2d:'每张为分配基数的 10%', tier3d:'每张为分配基数的 2%',
-prizeBaseNote:'按当前奖池估算：分配基数 = 本期票款 × (1 - {pct}%) + 上期滚存 ≈ {base}；实际按开奖时刻的基数计算。',
+prizeBaseNote:'按当前奖池估算：分配基数 = 本期票款 × (1 - {pct}%) + 上期滚存 + 已解锁注资 ≈ {base}；实际按开奖时刻的基数计算。',
 tabHistory:'开奖记录', tabMy:'我的票据', tabRef:'邀请奖励',
 feeTitle:'费用说明', feeLink:'费用说明 ↗',
 feeBody:'· 平台抽水 10%（房主可调，上限 20%），只从<b>本期票款</b>里扣，上期滚存不重复扣费<br>· 邀请返佣（直推 30% / 间推 10%）从平台费里出，不影响奖池<br>· 用 DAI / USDT / A 付款时按池子实时价兑换，输入上限为报价 +5% 防滑点，实际只扣买票所需金额<br>· 每次链上操作另需支付 Anubis 网络 Gas（约 0.001 DAI/笔）',
@@ -1890,7 +1931,7 @@ totalGrossNote:'Gross (fee not yet deducted)',
 lockedLabel2:'Locked seed (separate from prizes)', jkBaseLabel:'Distributable base (for estimates)',
 cutoffExact:'Ends {d}', drawAtBlock:'Target draw block #{b}',
 estTag:'est.', tier1d:'50% of distributable base', tier2d:'10% of base per ticket', tier3d:'2% of base per ticket',
-prizeBaseNote:'Estimated on current pool: base = round sales × (1 - {pct}%) + rollover ≈ {base}; actual base is fixed at draw time.',
+prizeBaseNote:'Estimated on current pool: base = round sales × (1 - {pct}%) + rollover + unlocked seed ≈ {base}; actual base is fixed at draw time.',
 tabHistory:'Draw History', tabMy:'My Tickets', tabRef:'Referrals',
 feeTitle:'Fees', feeLink:'Fee details ↗',
 feeBody:'· 10% platform fee (owner-adjustable, max 20%), taken from <b>round sales only</b> — rollover is never fee\'d twice<br>· Referral rewards (30% direct / 10% indirect) come out of the platform fee, never the pool<br>· Paying with DAI / USDT / A swaps at the live pool price; input cap is quote + 5% for slippage, only the exact ticket cost is taken<br>· Each on-chain action also costs Anubis gas (~0.001 DAI/tx)',
