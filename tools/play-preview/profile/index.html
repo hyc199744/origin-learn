@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的记录 · ANUBIS PLAY</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
+.hero{padding:118px 0 20px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+.filters button{background:var(--card);border:1.5px solid var(--line-soft);color:var(--muted);
+  border-radius:999px;padding:10px 22px;font-size:14px;cursor:pointer;font-weight:600;min-height:44px}
+.filters button.on{border-color:var(--green);color:var(--green);background:var(--green-soft)}
+.rec{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r);padding:18px 22px;
+  margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.rec .t{font-weight:700}
+.rec .m{color:var(--muted);font-size:13px;margin-top:4px}
+.rec .amt{font-family:var(--font-num);font-weight:700;color:var(--green);font-size:17px}
+.empty{color:var(--faint);text-align:center;padding:34px;border:1.5px dashed var(--line);border-radius:var(--r)}
+</style>
+</head>
+<body>
+<script>window.SITE_ROOT='../';</script>
+<script>
+window.PAGE_I18N = {
+zh:{
+  nav_games:'游戏大厅', nav_records:'我的记录', nav_help:'帮助', nav_news:'公告',
+  connect:'连接钱包', no_wallet:'请先安装钱包', conn_fail:'连接失败',
+  foot_data:'链上数据以浏览器为准', foot_risk:'链上游戏存在智能合约风险，请理性参与。',
+  kicker:'MY RECORDS',
+  h_title:'我的记录', h_sub:'钱包地址名下的链上参与与中奖记录',
+  not_conn:'连接钱包后查看你的链上记录',
+  f_all:'全部', sec_buy:'参与记录', sec_win:'中奖记录',
+  buy_t:'第 {r} 期 · 购买 {n} 张', win_t:'第 {r} 期 · 中奖',
+  loading:'正在读取链上记录…', load_fail:'读取失败，', retry:'重试',
+  empty_buy:'该条件下暂无购票记录', empty_win:'该条件下暂无中奖记录',
+  tx:'交易 →'
+},
+en:{
+  nav_games:'Games', nav_records:'Records', nav_help:'Help', nav_news:'News',
+  connect:'Connect Wallet', no_wallet:'Please install a wallet first', conn_fail:'Connection failed',
+  foot_data:'On-chain data as shown in explorer', foot_risk:'On-chain games carry smart contract risk.',
+  kicker:'MY RECORDS',
+  h_title:'My Records', h_sub:'On-chain participation and winnings under your wallet',
+  not_conn:'Connect your wallet to view on-chain records',
+  f_all:'All', sec_buy:'Ticket Purchases', sec_win:'Winnings',
+  buy_t:'Round {r} · {n} tickets', win_t:'Round {r} · Won',
+  loading:'Loading on-chain records…', load_fail:'Load failed. ', retry:'Retry',
+  empty_buy:'No purchase records', empty_win:'No winnings yet',
+  tx:'Tx →'
+}};
+</script>
+<script src="../shared/site.js"></script>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="sec-kicker" data-i18n="kicker">MY RECORDS</div>
+    <h1 class="sec-title" data-i18n="h_title">我的记录</h1>
+    <p class="sec-sub" data-i18n="h_sub"></p>
+    <div style="margin-top:18px"><button class="btn btn-green btn-sm wallet-btn" data-i18n="connect">连接钱包</button>
+    <span class="muted small" id="addrShow" style="margin-left:12px"></span></div>
+  </div>
+</header>
+
+<section class="sec" style="padding-top:10px">
+  <div class="wrap">
+    <div id="needConn"><div class="empty" data-i18n="not_conn">连接钱包后查看你的链上记录</div></div>
+    <div id="recWrap" style="display:none">
+      <div class="filters" id="poolFilter"></div>
+      <h2 class="sec-title" style="font-size:22px;margin:26px 0 16px"><span class="num" style="color:var(--gold);font-size:15px;margin-right:10px">01</span><span data-i18n="sec_buy">参与记录</span></h2>
+      <div id="buyList"><div class="muted" data-i18n="loading">正在读取链上记录…</div></div>
+      <h2 class="sec-title" style="font-size:22px;margin:30px 0 16px"><span class="num" style="color:var(--gold);font-size:15px;margin-right:10px">02</span><span data-i18n="sec_win">中奖记录</span></h2>
+      <div id="winList"><div class="muted" data-i18n="loading">正在读取链上记录…</div></div>
+    </div>
+  </div>
+</section>
+
+<script>
+SiteNav.render('nav_records');
+I18n.set(PAGE_I18N); I18n.apply();
+renderFooter();
+var myAddr=null, poolF='ALL', cache={buy:[],win:[]}, EX='https://browser.anubispace.org';
+function hex(n){ return '0x'+BigInt(n).toString(16); }
+function addrTopic(a){ return '0x'+a.toLowerCase().replace(/^0x/,'').padStart(64,'0'); }
+function decAddr(h){ return '0x'+h.slice(-40); }
+async function scanPool(P, topics, from){
+  var latest=parseInt(await apRpc('eth_blockNumber',[]),16), out=[];
+  for(var f=from; f<=latest; f+=4000){
+    var to=Math.min(f+3999, latest);
+    var part=await apRpc('eth_getLogs',[{address:P.contract,topics:topics,fromBlock:hex(f),toBlock:hex(to)}]);
+    if(part&&part.length) out=out.concat(part.map(function(l){ l._pool=P; return l; }));
+  }
+  return out;
+}
+function blockTime(bn){
+  return apRpc('eth_getBlockByNumber',[hex(bn),false]).then(function(b){
+    var d=new Date(parseInt(b.timestamp,16)*1000);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '
+      +String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  }).catch(function(){ return ''; });
+}
+async function loadRecords(){
+  var bl=document.getElementById('buyList'), wl=document.getElementById('winList');
+  bl.innerHTML='<div class="muted">'+t('loading')+'</div>';
+  wl.innerHTML='<div class="muted">'+t('loading')+'</div>';
+  try{
+    var me=addrTopic(myAddr), buys=[], wins=[];
+    for(var i=0;i<window.LOTTERY_POOLS.length;i++){
+      var P=window.LOTTERY_POOLS[i];
+      var tl=await scanPool(P,[window.EV_TICKETS,null,me],P.deploy);
+      tl.forEach(function(l){
+        var d=(l.data||'0x').slice(2);
+        buys.push({pool:P, round:parseInt(l.topics[1],16), count:parseInt(d.slice(0,64),16),
+          tx:l.transactionHash, bn:parseInt(l.blockNumber,16)});
+      });
+      var wl2=await scanPool(P,[window.EV_WINNERS],P.deploy);
+      wl2.forEach(function(l){
+        var d=(l.data||'0x').slice(2);
+        var offW=parseInt(d.slice(0,64),16)*2, offA=parseInt(d.slice(64,128),16)*2;
+        var nW=parseInt(d.slice(offW,offW+64),16);
+        for(var k=0;k<nW;k++){
+          if(decAddr(d.slice(offW+64*(k+1),offW+64*(k+2))).toLowerCase()===myAddr.toLowerCase()){
+            wins.push({pool:P, round:parseInt(l.topics[1],16),
+              amt:BigInt('0x'+d.slice(offA+64*(k+1),offA+64*(k+2))),
+              tx:l.transactionHash, bn:parseInt(l.blockNumber,16)});
+          }
+        }
+      });
+    }
+    buys.sort(function(a,b){return b.bn-a.bn;}); wins.sort(function(a,b){return b.bn-a.bn;});
+    cache={buy:buys,win:wins};
+    var bns={}; buys.concat(wins).forEach(function(r){ bns[r.bn]=1; });
+    await Promise.all(Object.keys(bns).map(function(k){ return blockTime(Number(k)).then(function(ts){ bns[k]=ts; }); }));
+    cache.buy.forEach(function(r){ r.ts=bns[r.bn]; }); cache.win.forEach(function(r){ r.ts=bns[r.bn]; });
+    paintLists();
+  }catch(e){
+    var html='<div class="muted">'+t('load_fail')+'<a href="javascript:loadRecords()" class="neon">'+t('retry')+'</a></div>';
+    bl.innerHTML=html; wl.innerHTML=html;
+  }
+}
+function paintLists(){
+  var bl=document.getElementById('buyList'), wl=document.getElementById('winList');
+  var buys=cache.buy.filter(function(r){return poolF==='ALL'||r.pool.sym===poolF;});
+  var wins=cache.win.filter(function(r){return poolF==='ALL'||r.pool.sym===poolF;});
+  bl.innerHTML = buys.length ? buys.map(function(r){
+    return '<div class="rec"><div><div class="t">'+r.pool.sym+' · '+t('buy_t').replace('{r}',r.round).replace('{n}',r.count)+'</div>'
+      +'<div class="m">'+(r.ts||'')+'</div></div>'
+      +'<a class="neon small" target="_blank" rel="noopener" href="'+EX+'/tx/'+r.tx+'">'+t('tx')+'</a></div>';
+  }).join('') : '<div class="empty">'+t('empty_buy')+'</div>';
+  wl.innerHTML = wins.length ? wins.map(function(r){
+    return '<div class="rec"><div><div class="t">'+r.pool.sym+' · '+t('win_t').replace('{r}',r.round)+'</div>'
+      +'<div class="m">'+(r.ts||'')+'</div></div>'
+      +'<div><span class="amt num">'+apFmt(r.amt,r.pool.dec)+' '+r.pool.sym+'</span> '
+      +'<a class="neon small" target="_blank" rel="noopener" href="'+EX+'/tx/'+r.tx+'">'+t('tx')+'</a></div></div>';
+  }).join('') : '<div class="empty">'+t('empty_win')+'</div>';
+}
+function paintFilter(){
+  var el=document.getElementById('poolFilter');
+  var opts=['ALL'].concat(window.LOTTERY_POOLS.map(function(p){return p.sym;}));
+  el.innerHTML=opts.map(function(s){
+    return '<button class="'+(s===poolF?'on':'')+'" data-p="'+s+'">'+(s==='ALL'?t('f_all'):s)+'</button>';
+  }).join('');
+  el.querySelectorAll('button').forEach(function(b){
+    b.onclick=function(){ poolF=b.getAttribute('data-p'); paintFilter(); paintLists(); };
+  });
+}
+function showRec(){
+  document.getElementById('needConn').style.display='none';
+  document.getElementById('recWrap').style.display='block';
+  document.querySelector('.wallet-btn').style.display='none';
+  document.getElementById('addrShow').textContent=Wallet.short(myAddr);
+  paintFilter(); loadRecords();
+}
+document.addEventListener('ap-account', function(e){ if(e.detail.addr){ myAddr=e.detail.addr; showRec(); } });
+if(Wallet.addr){ myAddr=Wallet.addr; showRec(); }
+window.onLangChange=function(){
+  paintFilter(); paintLists();
+  var f=document.querySelector('footer'); if(f) f.remove(); renderFooter();
+};
+</script>
+</body>
+</html>
