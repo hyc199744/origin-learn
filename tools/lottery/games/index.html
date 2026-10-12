@@ -4,66 +4,155 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>游戏大厅 · ANUBIS PLAY</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 3 42 13.5v17L24 45 6 30.5v-17L24 3z' fill='none' stroke='%23d4af37' stroke-width='3'/%3E%3Cpath d='M24 12l5 9-5 9-5-9z' fill='%23d4af37'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="../shared/theme.css">
+<style>
+.hero{padding:130px 0 30px}
+.big-card{display:grid;grid-template-columns:300px 1fr;border:1px solid var(--line);border-radius:22px;overflow:hidden;
+  background:linear-gradient(150deg,rgba(212,175,55,.09),rgba(255,255,255,.02));
+  box-shadow:0 24px 70px rgba(0,0,0,.5);margin-bottom:14px}
+.big-card .cover{min-height:100%}
+.big-card .cover svg{height:100%}
+.big-body{padding:30px 32px}
+.big-body h2{font-size:26px;letter-spacing:.05em;margin:10px 0 8px}
+.big-body p{color:var(--muted);font-size:14px;max-width:560px}
+.big-stats{display:flex;gap:26px;margin:18px 0;flex-wrap:wrap}
+.big-stats .st .k{color:var(--faint);font-size:12px}
+.big-stats .st .v{font-size:19px;font-weight:800;margin-top:4px}
+.pool-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.pool-links a{border:1px solid var(--line-soft);border-radius:12px;padding:10px 16px;font-weight:700;font-size:14px;
+  background:rgba(255,255,255,.02);transition:.2s}
+.pool-links a:hover{border-color:var(--gold);color:var(--gold-hi);transform:translateY(-2px)}
+.pool-links a small{display:block;font-weight:400;color:var(--faint);font-size:11.5px;margin-top:2px}
+.dev-sec{margin-top:34px}
+.dev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.dev-card{border:1px solid var(--line-soft);border-radius:16px;overflow:hidden;background:var(--card);opacity:.92}
+.dev-card .dbody{padding:16px 18px}
+.dev-card h4{font-size:15px;margin-bottom:6px}
+.dev-card p{color:var(--faint);font-size:13px}
+@media(max-width:760px){ .big-card{grid-template-columns:1fr} .big-card .cover svg{height:auto} }
+</style>
 </head>
 <body>
 <script>window.SITE_ROOT='../';</script>
 <script>
 window.PAGE_I18N = {
 zh:{
-  nav_home:'首页', nav_games:'游戏大厅', nav_hot:'热门游戏', nav_assets:'我的资产', nav_profile:'我的记录', nav_news:'平台公告',
+  nav_home:'首页', nav_games:'游戏大厅', nav_profile:'我的记录', nav_help:'新手指南', nav_news:'平台公告',
   nav_lottery:'链上彩票', connect:'连接钱包', foot_data:'链上数据以浏览器为准',
-  pt:'游戏大厅', psub:'一个钱包，畅玩 Anubis 链上所有游戏 —— 新游戏持续加入中',
-  sec_live:'正在运行', sec_soon:'即将上线',
-  soon_note:'🎮 更多游戏正在开发中，通过游戏配置文件即插即用，敬请期待。'
+  kicker:'ANUBIS CHAIN · 链上游戏平台',
+  h_title:'游戏大厅', h_sub:'已上线游戏直接玩 · 新游戏持续加入',
+  lot_live:'LIVE · 运行中', lot_name:'安努比斯彩票',
+  lot_desc:'五大奖池每小时开奖。邀请好友买票拿返佣，没人中的奖项自动滚入下期，奖池越滚越大。',
+  st_pool:'主池奖池', st_price:'主池票价', st_end:'本期截止',
+  enter:'进入彩票 →', pick:'选择奖池直达：',
+  per_ticket:'{p} / 张', loading:'加载中…',
+  dev_t:'开发进度', dev_s:'更多游戏持续上线，只展示真实进展'
 },
 en:{
-  nav_home:'Home', nav_games:'Games', nav_hot:'Hot Games', nav_assets:'Assets', nav_profile:'Records', nav_news:'News',
+  nav_home:'Home', nav_games:'Games', nav_profile:'Records', nav_help:'Guide', nav_news:'News',
   nav_lottery:'Lottery', connect:'Connect Wallet', foot_data:'On-chain data as shown in explorer',
-  pt:'Game Lobby', psub:'One wallet for every game on Anubis Chain — more games joining soon',
-  sec_live:'Live Now', sec_soon:'Coming Soon',
-  soon_note:'🎮 More games are in development and plug in via the game config. Stay tuned.'
+  kicker:'ANUBIS CHAIN · On-chain Gaming Hub',
+  h_title:'Game Lobby', h_sub:'Play live games now · more games keep coming',
+  lot_live:'LIVE', lot_name:'ANUBIS LOTTERY',
+  lot_desc:'Five pools drawn hourly. Refer friends for rewards. Unwon prizes roll over — jackpots keep growing.',
+  st_pool:'Main jackpot', st_price:'Ticket price', st_end:'Round ends',
+  enter:'Enter lottery →', pick:'Jump straight to a pool:',
+  per_ticket:'{p} / ticket', loading:'Loading…',
+  dev_t:'In Development', dev_s:'More games keep coming. Only real progress shown.'
 }};
 </script>
 <script src="../shared/site.js"></script>
 
-<div class="page"><div class="wrap">
-  <h1 class="pt" data-i18n="pt">游戏大厅</h1>
-  <div class="psub" data-i18n="psub"></div>
+<header class="hero">
+  <div class="wrap" style="position:relative">
+    <div class="hero-kicker"><span class="pulse"></span><span data-i18n="kicker">ANUBIS CHAIN · 链上游戏平台</span></div>
+    <h1 class="page-title" data-i18n="h_title">游戏大厅</h1>
+    <p class="page-sub" data-i18n="h_sub"></p>
+  </div>
+</header>
 
-  <div class="sec-head" style="margin-top:10px"><span class="sec-num">●</span>
-    <div class="sec-title" style="font-size:20px" data-i18n="sec_live">正在运行</div></div>
-  <div class="cards" id="liveCards"></div>
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="big-card">
+      <div class="cover" id="lotCover"></div>
+      <div class="big-body">
+        <span class="badge live" data-i18n="lot_live">LIVE · 运行中</span>
+        <h2 data-i18n="lot_name">安努比斯彩票</h2>
+        <p data-i18n="lot_desc"></p>
+        <div class="big-stats">
+          <div class="st"><div class="k" data-i18n="st_pool">主池奖池</div><div class="v gold" id="lbPool" data-i18n="loading">加载中…</div></div>
+          <div class="st"><div class="k" data-i18n="st_price">主池票价</div><div class="v" id="lbPrice" data-i18n="loading">加载中…</div></div>
+          <div class="st"><div class="k" data-i18n="st_end">本期截止</div><div class="v" id="lbEnd" data-i18n="loading">加载中…</div></div>
+        </div>
+        <a class="btn btn-gold" href="lottery/" data-i18n="enter">进入彩票 →</a>
+        <div style="margin-top:18px;color:var(--muted);font-size:13px" data-i18n="pick">选择奖池直达：</div>
+        <div class="pool-links" id="poolLinks"></div>
+      </div>
+    </div>
 
-  <div class="sec-head" style="margin-top:38px"><span class="sec-num">○</span>
-    <div class="sec-title" style="font-size:20px" data-i18n="sec_soon">即将上线</div></div>
-  <div class="cards" id="soonCards"></div>
-
-  <div class="panel mt center"><span class="muted" data-i18n="soon_note"></span></div>
-</div></div>
+    <div class="dev-sec">
+      <div class="sec-head"><span class="sec-num">02</span>
+        <div><div class="sec-title" data-i18n="dev_t">开发进度</div>
+        <div class="sec-sub" data-i18n="dev_s"></div></div></div>
+      <div class="dev-grid" id="devGrid"></div>
+    </div>
+  </div>
+</section>
 
 <script>
 SiteNav.render('nav_games');
-function paint(){
-  var lang = I18n.lang, live = window.GAMES.filter(function(g){return g.status==='live';}),
-      soon = window.GAMES.filter(function(g){return g.status!=='live';});
-  function card(g){
-    var isLive = g.status==='live';
-    var badge = isLive ? '<span class="badge live">LIVE</span>'
-      : '<span class="badge soon">'+(lang==='zh'?'即将上线':'COMING SOON')+'</span>';
-    var btn = isLive ? '<span class="go">'+(lang==='zh'?'立即进入 →':'Enter now →')+'</span>'
-      : '<span class="go">'+(lang==='zh'?'敬请期待':'Coming soon')+'</span>';
-    var inner = '<div class="float-orb"></div>'+badge+'<div class="gicon">'+g.icon+'</div>'
-      +'<h3>'+g.name[lang]+'</h3><p>'+g.desc[lang]+'</p>'+btn;
-    return isLive ? '<a class="gcard live" href="../'+g.path+'">'+inner+'</a>'
-                  : '<div class="gcard soon">'+inner+'</div>';
+document.getElementById('lotCover').innerHTML = window.gameCover('lottery');
+renderFooter();
+I18n.apply();
+
+function pad64(n){ return BigInt(n).toString(16).padStart(64,'0'); }
+async function loadLobby(){
+  var P=window.LOTTERY_POOLS[0], S=window.LOTTERY_SEL;
+  try{
+    var tp=await apRpc('eth_call',[{to:P.contract,data:'0x'+S.ticketPrice},'latest']);
+    var rid=await apRpc('eth_call',[{to:P.contract,data:'0x'+S.currentRound},'latest']);
+    var rh=await apRpc('eth_call',[{to:P.contract,data:'0x'+S.rounds+pad64(parseInt(rid,16))},'latest']);
+    var d=rh.slice(2);
+    var pool=BigInt('0x'+d.slice(192,256))+BigInt('0x'+d.slice(256,320));
+    var el=document.getElementById('lbPool'); if(el) el.textContent=apFmt(pool,P.dec)+' '+P.sym;
+    el=document.getElementById('lbPrice'); if(el) el.textContent=apFmt(BigInt(tp),P.dec)+' '+P.sym;
+    el=document.getElementById('lbEnd');
+    if(el){ (function tick(){ var ms=parseInt(d.slice(0,64),16)*1000-Date.now();
+      if(ms<=0){el.textContent=I18n.lang==='zh'?'已截止':'Ended';return;}
+      var s=Math.floor(ms/1000); el.textContent=Math.floor(s/3600)+':'+String(Math.floor(s%3600/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+      setTimeout(tick,1000); })(); }
+  }catch(e){}
+  var pl=document.getElementById('poolLinks');
+  if(pl){
+    var html='';
+    for(var k=0;k<window.LOTTERY_POOLS.length;k++){
+      var pp=window.LOTTERY_POOLS[k];
+      html+='<a href="lottery/?pool='+pp.sym.toLowerCase()+'"><b>'+pp.sym+'</b><small id="pl'+k+'">…</small></a>';
+    }
+    pl.innerHTML=html;
+    window.LOTTERY_POOLS.forEach(function(p,i){
+      apRpc('eth_call',[{to:p.contract,data:'0x'+S.ticketPrice},'latest']).then(function(tp){
+        var e=document.getElementById('pl'+i);
+        if(e) e.textContent=apFmt(BigInt(tp),p.dec)+' '+p.sym;
+      }).catch(function(){});
+    });
   }
-  document.getElementById('liveCards').innerHTML = live.map(card).join('');
-  document.getElementById('soonCards').innerHTML = soon.map(card).join('');
 }
-paint(); renderFooter(); I18n.apply();
-window.onLangChange = function(){ paint(); var f=document.querySelector('footer'); if(f) f.remove(); renderFooter(); };
+function paintDev(){
+  var el=document.getElementById('devGrid'); if(!el) return;
+  var lang=I18n.lang;
+  el.innerHTML=window.GAMES.filter(function(g){return g.status!=='live';}).map(function(g){
+    return '<div class="dev-card"><div style="height:110px;overflow:hidden">'+window.gameCover(g.id)+'</div>'
+      +'<div class="dbody"><span class="badge soon">'+(lang==='zh'?'开发中':'IN DEV')+'</span>'
+      +'<h4 style="margin-top:8px">'+g.name[lang]+'</h4><p>'+g.desc[lang]+'</p>'
+      +'<a class="neon small" style="display:inline-block;margin-top:10px" href="'+g.path+'">'+(lang==='zh'?'查看详情 →':'Details →')+'</a></div></div>';
+  }).join('');
+}
+loadLobby(); paintDev();
+window.onLangChange=function(){
+  paintDev();
+  var f=document.querySelector('footer'); if(f) f.remove(); renderFooter();
+};
 </script>
 </body>
 </html>
