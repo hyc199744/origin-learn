@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>平台公告 · ANUBIS PLAY</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
+.hero{padding:118px 0 20px}
+.news-item{background:var(--card);border:1px solid var(--line-soft);border-radius:var(--r);padding:26px 28px;
+  margin-bottom:16px;box-shadow:var(--shadow)}
+.news-item .date{font-size:13px;color:var(--gold);font-weight:700;letter-spacing:.1em}
+.news-item h3{font-family:var(--font);font-size:20px;margin:10px 0 8px}
+.news-item p{color:var(--muted);font-size:14.5px}
+</style>
+</head>
+<body>
+<script>window.SITE_ROOT='../';</script>
+<script>
+window.PAGE_I18N = {
+zh:{
+  nav_games:'游戏大厅', nav_records:'我的记录', nav_help:'帮助', nav_news:'公告',
+  connect:'连接钱包', no_wallet:'请先安装钱包', conn_fail:'连接失败',
+  foot_data:'链上数据以浏览器为准', foot_risk:'链上游戏存在智能合约风险，请理性参与。',
+  kicker:'ANNOUNCEMENTS',
+  h_title:'平台公告', h_sub:'重要更新与通知',
+  n1d:'2026-10-12', n1t:'ANUBIS PLAY 平台上线', n1c:'anubislottery.com 升级为 Anubis 链游戏聚合平台。彩票已迁移至 /games/lottery/，原地址自动跳转，所有合约与资金不受影响。',
+  n2d:'2026-10-11', n2t:'五奖池同步开奖', n2c:'LGNS / USDT / DAI / A / RM 五个独立奖池已同步开奖节奏，每小时一期，邀请返佣同步上线。',
+  n3d:'2026-10-11', n3t:'彩票 V3 重部署', n3c:'防薅机制升级：注资锁定按票释放，票价 10 LGNS，邀请返佣直推 30% / 间推 10%。'
+},
+en:{
+  nav_games:'Games', nav_records:'Records', nav_help:'Help', nav_news:'News',
+  connect:'Connect Wallet', no_wallet:'Please install a wallet first', conn_fail:'Connection failed',
+  foot_data:'On-chain data as shown in explorer', foot_risk:'On-chain games carry smart contract risk.',
+  kicker:'ANNOUNCEMENTS',
+  h_title:'Announcements', h_sub:'Updates and notices',
+  n1d:'2026-10-12', n1t:'ANUBIS PLAY is live', n1c:'anubislottery.com is now the Anubis gaming hub. Lottery moved to /games/lottery/ with auto-redirect. Contracts and funds unaffected.',
+  n2d:'2026-10-11', n2t:'Five pools synced', n2c:'LGNS / USDT / DAI / A / RM pools now draw on the same hourly schedule. Referral rewards live.',
+  n3d:'2026-10-11', n3t:'Lottery V3 redeployed', n3c:'Anti-farming upgrade: locked seed releases per ticket. 10 LGNS tickets, 30%/10% referral rewards.'
+}};
+</script>
+<script src="../shared/site.js"></script>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="sec-kicker" data-i18n="kicker">ANNOUNCEMENTS</div>
+    <h1 class="sec-title" data-i18n="h_title">平台公告</h1>
+    <p class="sec-sub" data-i18n="h_sub"></p>
+  </div>
+</header>
+
+<section class="sec" style="padding-top:10px">
+  <div class="wrap" id="newsList" style="max-width:800px"></div>
+</section>
+
+<script>
+SiteNav.render('nav_news');
+I18n.set(PAGE_I18N); I18n.apply();
+renderFooter();
+function paintNews(){
+  var html='';
+  for(var i=1;i<=3;i++){
+    html+='<div class="news-item"><div class="date num">'+t('n'+i+'d')+'</div>'
+      +'<h3>'+t('n'+i+'t')+'</h3><p>'+t('n'+i+'c')+'</p></div>';
+  }
+  document.getElementById('newsList').innerHTML=html;
+}
+paintNews();
+window.onLangChange=function(){
+  paintNews();
+  var f=document.querySelector('footer'); if(f) f.remove(); renderFooter();
+};
+</script>
+</body>
+</html>
