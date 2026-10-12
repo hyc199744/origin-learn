@@ -7,103 +7,302 @@
 <meta name="description" content="ANUBIS PLAY — Anubis Chain 综合 Web3 游戏平台：链上彩票、龙虎、转盘，一个钱包畅玩。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 3 42 13.5v17L24 45 6 30.5v-17L24 3z' fill='none' stroke='%23d4af37' stroke-width='3'/%3E%3Cpath d='M24 12l5 9-5 9-5-9z' fill='%23d4af37'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="shared/theme.css">
+<style>
+.hero2{position:relative;padding:120px 0 46px;overflow:hidden}
+.hero2-grid{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center;position:relative}
+.hero2 h1{font-size:clamp(38px,5.5vw,62px);font-weight:900;letter-spacing:.08em;line-height:1.08;
+  background:linear-gradient(180deg,#fff6dd 8%,var(--gold-hi) 38%,var(--gold) 62%,#8a6d1f 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 4px 22px rgba(212,175,55,.25))}
+.hero2 .sub{margin-top:10px;font-size:13px;letter-spacing:.34em;color:var(--neon);font-weight:600}
+.hero2 .zh{margin-top:12px;color:var(--muted);font-size:16px}
+.hero2 .desc{margin-top:14px;color:var(--muted);font-size:14px;max-width:440px}
+.feat-card{border:1px solid var(--line);border-radius:20px;overflow:hidden;
+  background:linear-gradient(160deg,rgba(212,175,55,.08),rgba(255,255,255,.02));
+  box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.feat-card .fc-head{padding:18px 22px 0;display:flex;justify-content:space-between;align-items:center}
+.feat-card h3{font-size:19px;letter-spacing:.06em}
+.feat-rows{padding:16px 22px}
+.feat-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--line-soft);font-size:14px}
+.feat-row:last-child{border:none}
+.feat-row .k{color:var(--muted)}
+.feat-row .v{font-weight:700}
+.feat-cta{padding:6px 22px 22px;display:flex;gap:10px}
+.pool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.pool-card{display:block;border:1px solid var(--line-soft);border-radius:16px;padding:18px;
+  background:linear-gradient(160deg,var(--card2),rgba(255,255,255,.015));transition:.22s}
+.pool-card:hover{transform:translateY(-4px);border-color:var(--line);box-shadow:0 12px 30px rgba(0,0,0,.45)}
+.pool-card .ps{font-size:17px;font-weight:800;letter-spacing:.06em}
+.pool-card .pp{color:var(--gold-hi);font-weight:700;margin-top:6px;font-size:14.5px}
+.pool-card .pm{color:var(--faint);font-size:12px;margin-top:4px}
+.pool-card .go{color:var(--neon);font-size:13px;font-weight:700;margin-top:10px;display:block}
+.result-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px dashed var(--line-soft);font-size:14px;flex-wrap:wrap}
+.result-row:last-child{border:none}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.step{border:1px solid var(--line-soft);border-radius:16px;padding:20px;background:var(--card)}
+.step .n{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold-hi),var(--gold));
+  color:#241a05;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.step h4{margin-bottom:8px;font-size:15px}
+.step p{color:var(--muted);font-size:13.5px}
+.dev-strip{display:flex;gap:14px;flex-wrap:wrap}
+.dev-item{flex:1;min-width:200px;border:1px solid var(--line-soft);border-radius:14px;padding:16px 18px;
+  background:var(--card);display:flex;gap:12px;align-items:center}
+.dev-item .di{font-size:26px}
+.dev-item h4{font-size:14.5px;margin-bottom:4px}
+.dev-item p{color:var(--faint);font-size:12.5px}
+.skel{color:var(--faint)!important}
+@media(max-width:860px){ .hero2-grid{grid-template-columns:1fr} .hero2{padding:100px 0 36px} }
+</style>
 </head>
 <body>
 <script>window.SITE_ROOT='';</script>
 <script>
 window.PAGE_I18N = {
 zh:{
-  nav_home:'首页', nav_games:'游戏大厅', nav_hot:'热门游戏', nav_assets:'我的资产', nav_profile:'我的记录', nav_news:'平台公告',
+  nav_home:'首页', nav_games:'游戏大厅', nav_profile:'我的记录', nav_help:'新手指南', nav_news:'平台公告',
   nav_lottery:'链上彩票', connect:'连接钱包', foot_data:'链上数据以浏览器为准',
-  kicker:'ANUBIS CHAIN · 5 POOLS LIVE',
+  kicker:'ANUBIS CHAIN · 链上游戏平台',
   hero_sub:'THE FUTURE OF ON-CHAIN GAMING',
   hero_zh:'探索 Anubis 链上游戏世界',
-  cta_lottery:'🎟️ 进入原链上彩票',
-  cta_games:'浏览游戏大厅',
-  b1:'<b>5</b> 个彩票奖池运行中', b2:'链上可验证开奖', b3:'非托管 · 钱包直签',
-  hot_num:'01', hot_title:'热门 <span class="gold">游戏</span>',
-  hot_sub:'第一款游戏已上线，其余正在路上 —— 同一个钱包，同一个域名',
-  why_num:'02', why_title:'为什么是 <span class="gold">ANUBIS PLAY</span>',
-  f1t:'⛓️ 链上可验证', f1d:'开奖、派奖、奖池全部链上执行，浏览器可查，不做黑箱。',
-  f2t:'👛 非托管钱包', f2d:'平台不接触私钥、不托管资金，每笔交易都由你自己的钱包签名确认。',
-  f3t:'🎮 一个平台多款游戏', f3d:'彩票、龙虎、转盘……新游戏通过配置文件即插即用，无需换站。',
+  hero_desc:'彩票、龙虎、转盘——一个钱包，一个域名，全部链上可验证。第一款游戏安努比斯彩票已上线，每小时开奖。',
+  cta_lottery:'进入链上彩票', cta_games:'浏览游戏大厅',
+  fc_title:'安努比斯彩票', fc_live:'LIVE',
+  fc_pool:'当前奖池', fc_price:'每张票价', fc_end:'本期截止', fc_sold:'已售票数',
+  fc_view:'查看彩票 →', loading:'加载中…', load_fail:'读取失败，重试',
+  pools_num:'01', pools_title:'奖池 <span class="gold">入口</span>',
+  pools_sub:'五个独立奖池 · 独立轮次 · 独立开奖，点击直达对应奖池',
+  per_ticket:'{p} / 张', go_pool:'进入此池 →',
+  recent_num:'02', recent_title:'近期 <span class="gold">开奖</span>',
+  recent_sub:'链上真实开奖记录，点击验证',
+  recent_round:'第 {r} 期', recent_winners:'{n} 位中奖', recent_paid:'共派发 {a}',
+  verify:'验证 →', no_recent:'暂无开奖记录',
+  how_num:'03', how_title:'新手 <span class="gold">指南</span>',
+  how_sub:'四步开始，只需一个钱包',
+  s1t:'准备钱包', s1d:'在手机上安装 OKX / TokenPocket / MetaMask，创建或导入钱包。',
+  s2t:'切换网络', s2d:'连接后自动提示切换到 Anubis 网络（Chain ID 6714），Gas 用 DAI 支付。',
+  s3t:'准备代币', s3d:'转入想玩的代币（如 LGNS / USDT / DAI / A / RM）到钱包，留一点 DAI 做 Gas。',
+  s4t:'开始游戏', s4d:'进游戏大厅选彩票奖池，按提示授权并购票，开奖后自动派奖。',
+  dev_num:'04', dev_title:'开发 <span class="gold">进度</span>',
+  dev_sub:'更多游戏持续上线，只展示真实进展',
   more:'查看全部游戏 →'
 },
 en:{
-  nav_home:'Home', nav_games:'Games', nav_hot:'Hot Games', nav_assets:'Assets', nav_profile:'Records', nav_news:'News',
+  nav_home:'Home', nav_games:'Games', nav_profile:'Records', nav_help:'Guide', nav_news:'News',
   nav_lottery:'Lottery', connect:'Connect Wallet', foot_data:'On-chain data as shown in explorer',
-  kicker:'ANUBIS CHAIN · 5 POOLS LIVE',
+  kicker:'ANUBIS CHAIN · On-chain Gaming Hub',
   hero_sub:'THE FUTURE OF ON-CHAIN GAMING',
   hero_zh:'Explore the on-chain gaming world of Anubis',
-  cta_lottery:'🎟️ Enter the Lottery',
-  cta_games:'Browse Game Lobby',
-  b1:'<b>5</b> lottery pools live', b2:'Verifiable on-chain draws', b3:'Non-custodial · sign in your wallet',
-  hot_num:'01', hot_title:'Hot <span class="gold">Games</span>',
-  hot_sub:'The first game is live, more are on the way — one wallet, one domain',
-  why_num:'02', why_title:'Why <span class="gold">ANUBIS PLAY</span>',
-  f1t:'⛓️ Verifiable On-Chain', f1d:'Draws, payouts and jackpots all execute on-chain and are explorer-verifiable. No black box.',
-  f2t:'👛 Non-Custodial', f2d:'The platform never touches private keys or holds funds. Every tx is signed in your own wallet.',
-  f3t:'🎮 One Platform, Many Games', f3d:'Lottery, Dragon-Tiger, Wheel… new games plug in via config. No need to switch sites.',
+  hero_desc:'Lottery, Dragon-Tiger, Wheel — one wallet, one domain, all verifiable on-chain. ANUBIS LOTTERY is live with hourly draws.',
+  cta_lottery:'Enter the Lottery', cta_games:'Browse Games',
+  fc_title:'ANUBIS LOTTERY', fc_live:'LIVE',
+  fc_pool:'Current jackpot', fc_price:'Ticket price', fc_end:'Round ends', fc_sold:'Tickets sold',
+  fc_view:'View lottery →', loading:'Loading…', load_fail:'Load failed, retry',
+  pools_num:'01', pools_title:'Pool <span class="gold">Entries</span>',
+  pools_sub:'Five independent pools · rounds · draws. Click to enter a pool directly.',
+  per_ticket:'{p} / ticket', go_pool:'Enter pool →',
+  recent_num:'02', recent_title:'Recent <span class="gold">Draws</span>',
+  recent_sub:'Real on-chain draw records. Click to verify.',
+  recent_round:'Round {r}', recent_winners:'{n} winners', recent_paid:'Paid {a}',
+  verify:'Verify →', no_recent:'No draw records yet',
+  how_num:'03', how_title:'Getting <span class="gold">Started</span>',
+  how_sub:'Four steps. Just one wallet.',
+  s1t:'Get a wallet', s1d:'Install OKX / TokenPocket / MetaMask on your phone. Create or import a wallet.',
+  s2t:'Switch network', s2d:'You will be prompted to switch to Anubis (Chain ID 6714). Gas is paid in DAI.',
+  s3t:'Fund tokens', s3d:'Send the tokens you want to play with (LGNS / USDT / DAI / A / RM). Keep some DAI for gas.',
+  s4t:'Play', s4d:'Pick a lottery pool in the lobby, approve and buy tickets as prompted. Prizes auto-payout.',
+  dev_num:'04', dev_title:'In <span class="gold">Development</span>',
+  dev_sub:'More games keep coming. Only real progress shown here.',
   more:'View all games →'
 }};
 </script>
 <script src="shared/site.js"></script>
 
-<header class="hero">
+<header class="hero2">
   <canvas id="stars"></canvas>
-  <div class="wrap" style="position:relative">
-    <div class="hero-kicker"><span class="pulse"></span><span data-i18n="kicker">ANUBIS CHAIN · 5 POOLS LIVE</span></div>
-    <h1>ANUBIS PLAY</h1>
-    <div class="sub" data-i18n="hero_sub">THE FUTURE OF ON-CHAIN GAMING</div>
-    <div class="zh" data-i18n="hero_zh">探索 Anubis 链上游戏世界</div>
-    <div class="hero-cta">
-      <a class="btn btn-gold" href="games/lottery/" data-i18n="cta_lottery">🎟️ 进入原链上彩票</a>
-      <a class="btn btn-ghost" href="games/" data-i18n="cta_games">浏览游戏大厅</a>
+  <div class="wrap hero2-grid" style="position:relative">
+    <div>
+      <div class="hero-kicker"><span class="pulse"></span><span data-i18n="kicker">ANUBIS CHAIN · 链上游戏平台</span></div>
+      <h1>ANUBIS PLAY</h1>
+      <div class="sub" data-i18n="hero_sub">THE FUTURE OF ON-CHAIN GAMING</div>
+      <div class="zh" data-i18n="hero_zh">探索 Anubis 链上游戏世界</div>
+      <p class="desc" data-i18n="hero_desc"></p>
+      <div class="hero-cta" style="justify-content:flex-start;margin-top:26px">
+        <a class="btn btn-gold" href="games/lottery/" data-i18n="cta_lottery">进入链上彩票</a>
+        <a class="btn btn-ghost" href="games/" data-i18n="cta_games">浏览游戏大厅</a>
+      </div>
     </div>
-    <div class="hero-badges">
-      <span class="hbadge" data-i18n-html="b1"><b>5</b> 个彩票奖池运行中</span>
-      <span class="hbadge" data-i18n="b2">链上可验证开奖</span>
-      <span class="hbadge" data-i18n="b3">非托管 · 钱包直签</span>
+    <div class="feat-card">
+      <div class="fc-head">
+        <h3 data-i18n="fc_title">安努比斯彩票</h3>
+        <span class="badge live" data-i18n="fc_live">LIVE</span>
+      </div>
+      <div id="fcCover"></div>
+      <div class="feat-rows">
+        <div class="feat-row"><span class="k" data-i18n="fc_pool">当前奖池</span><span class="v gold" id="fcJackpot" data-i18n="loading">加载中…</span></div>
+        <div class="feat-row"><span class="k" data-i18n="fc_price">每张票价</span><span class="v" id="fcPrice" data-i18n="loading">加载中…</span></div>
+        <div class="feat-row"><span class="k" data-i18n="fc_end">本期截止</span><span class="v" id="fcEnd" data-i18n="loading">加载中…</span></div>
+        <div class="feat-row"><span class="k" data-i18n="fc_sold">已售票数</span><span class="v" id="fcSold" data-i18n="loading">加载中…</span></div>
+      </div>
+      <div class="feat-cta">
+        <a class="btn btn-gold" style="flex:1;justify-content:center" href="games/lottery/" data-i18n="fc_view">查看彩票 →</a>
+      </div>
     </div>
   </div>
 </header>
 
-<section class="sec" id="hot-games">
+<section class="sec" id="pools">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="sec-num" data-i18n="hot_num">01</span>
-      <div><div class="sec-title" data-i18n-html="hot_title">热门 <span class="gold">游戏</span></div>
-      <div class="sec-sub" data-i18n="hot_sub">第一款游戏已上线，其余正在路上</div></div>
-    </div>
-    <div class="cards" id="hotCards"></div>
-    <div class="center mt"><a href="games/" class="neon" data-i18n="more">查看全部游戏 →</a></div>
+    <div class="sec-head"><span class="sec-num" data-i18n="pools_num">01</span>
+      <div><div class="sec-title" data-i18n-html="pools_title">奖池 <span class="gold">入口</span></div>
+      <div class="sec-sub" data-i18n="pools_sub"></div></div></div>
+    <div class="pool-grid" id="poolGrid"></div>
   </div>
 </section>
 
-<section class="sec">
+<section class="sec" id="recent">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="sec-num" data-i18n="why_num">02</span>
-      <div><div class="sec-title" data-i18n-html="why_title">为什么是 <span class="gold">ANUBIS PLAY</span></div></div>
+    <div class="sec-head"><span class="sec-num" data-i18n="recent_num">02</span>
+      <div><div class="sec-title" data-i18n-html="recent_title">近期 <span class="gold">开奖</span></div>
+      <div class="sec-sub" data-i18n="recent_sub"></div></div></div>
+    <div class="panel" id="recentList"><div class="muted" data-i18n="loading">加载中…</div></div>
+  </div>
+</section>
+
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num" data-i18n="how_num">03</span>
+      <div><div class="sec-title" data-i18n-html="how_title">新手 <span class="gold">指南</span></div>
+      <div class="sec-sub" data-i18n="how_sub"></div></div></div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h4 data-i18n="s1t"></h4><p data-i18n="s1d"></p></div>
+      <div class="step"><div class="n">2</div><h4 data-i18n="s2t"></h4><p data-i18n="s2d"></p></div>
+      <div class="step"><div class="n">3</div><h4 data-i18n="s3t"></h4><p data-i18n="s3d"></p></div>
+      <div class="step"><div class="n">4</div><h4 data-i18n="s4t"></h4><p data-i18n="s4d"></p></div>
     </div>
-    <div class="feats">
-      <div class="feat"><div class="fi">⛓️</div><h4 data-i18n="f1t">⛓️ 链上可验证</h4><p data-i18n="f1d"></p></div>
-      <div class="feat"><div class="fi">👛</div><h4 data-i18n="f2t">👛 非托管钱包</h4><p data-i18n="f2d"></p></div>
-      <div class="feat"><div class="fi">🎮</div><h4 data-i18n="f3t">🎮 一个平台多款游戏</h4><p data-i18n="f3d"></p></div>
-    </div>
+  </div>
+</section>
+
+<section class="sec" id="dev">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-num" data-i18n="dev_num">04</span>
+      <div><div class="sec-title" data-i18n-html="dev_title">开发 <span class="gold">进度</span></div>
+      <div class="sec-sub" data-i18n="dev_sub"></div></div></div>
+    <div class="dev-strip" id="devStrip"></div>
+    <div class="center mt"><a href="games/" class="neon" data-i18n="more">查看全部游戏 →</a></div>
   </div>
 </section>
 
 <script>
 SiteNav.render('nav_home');
-renderGameCards('hotCards');
+document.getElementById('fcCover').innerHTML = window.gameCover('lottery');
 renderFooter();
 initParticles('stars');
 I18n.apply();
+
+/* ---- live data: featured lottery card (LGNS main pool) ---- */
+function hex(n){ return '0x' + BigInt(n).toString(16); }
+function pad64(n){ return BigInt(n).toString(16).padStart(64,'0'); }
+function setT(id, txt, cls){ var el=document.getElementById(id); if(el){ el.textContent=txt; if(cls) el.classList.add(cls); } }
+async function loadFeatured(){
+  var P = window.LOTTERY_POOLS[0], S = window.LOTTERY_SEL;
+  try{
+    var tp = await apRpc('eth_call',[{to:P.contract,data:'0x'+S.ticketPrice},'latest']);
+    var rid = await apRpc('eth_call',[{to:P.contract,data:'0x'+S.currentRound},'latest']);
+    var ridN = parseInt(rid,16);
+    var rh = await apRpc('eth_call',[{to:P.contract,data:'0x'+S.rounds+pad64(ridN)},'latest']);
+    var d = rh.slice(2);
+    var endTime = parseInt(d.slice(0,64),16)*1000;
+    var sold = parseInt(d.slice(128,192),16);
+    var sales = BigInt('0x'+d.slice(192,256)), jackpot = BigInt('0x'+d.slice(256,320));
+    var pool = sales + jackpot;
+    setT('fcJackpot', apFmt(pool, P.dec)+' '+P.sym);
+    setT('fcPrice', apFmt(BigInt(tp), P.dec)+' '+P.sym+' / '+(I18n.lang==='zh'?'张':'ticket'));
+    var el = document.getElementById('fcEnd');
+    if(el){ el.dataset.end = endTime; tickEnd(); }
+    setT('fcSold', sold);
+  }catch(e){
+    ['fcJackpot','fcPrice','fcEnd','fcSold'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.innerHTML = '<a href="javascript:loadFeatured()" class="neon small">'+t('load_fail')+'</a>';
+    });
+  }
+}
+function tickEnd(){
+  var el=document.getElementById('fcEnd'); if(!el||!el.dataset.end) return;
+  var ms = Number(el.dataset.end) - Date.now();
+  if(ms<=0){ el.textContent = I18n.lang==='zh'?'已截止':'Ended'; return; }
+  var s=Math.floor(ms/1000), h=Math.floor(s/3600), m=Math.floor(s%3600/60);
+  el.textContent = h+':'+String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  setTimeout(tickEnd, 1000);
+}
+
+/* ---- pool entries: ticket price per pool ---- */
+async function loadPools(){
+  var g = document.getElementById('poolGrid'); if(!g) return;
+  var S = window.LOTTERY_SEL;
+  g.innerHTML = window.LOTTERY_POOLS.map(function(p,i){
+    return '<a class="pool-card" href="games/lottery/?pool='+p.sym.toLowerCase()+'">'
+      +'<div class="ps">'+p.sym+'</div>'
+      +'<div class="pp" id="pp'+i+'">'+t('loading')+'</div>'
+      +'<div class="pm">'+(I18n.lang==='zh'?'结算币种':'Settles in')+' '+p.sym+' · '+(I18n.lang==='zh'?'独立轮次':'independent rounds')+'</div>'
+      +'<span class="go">'+t('go_pool')+'</span></a>';
+  }).join('');
+  window.LOTTERY_POOLS.forEach(function(p,i){
+    apRpc('eth_call',[{to:p.contract,data:'0x'+S.ticketPrice},'latest']).then(function(tp){
+      var el=document.getElementById('pp'+i);
+      if(el) el.textContent = apFmt(BigInt(tp),p.dec)+' '+p.sym+' / '+(I18n.lang==='zh'?'张':'ticket');
+    }).catch(function(){
+      var el=document.getElementById('pp'+i);
+      if(el) el.innerHTML = '<a href="javascript:loadPools()" class="neon small">'+t('load_fail')+'</a>';
+    });
+  });
+}
+
+/* ---- recent draws: latest WinnersDrawn on LGNS pool ---- */
+function decAddr(h){ return '0x'+h.slice(-40); }
+async function loadRecent(){
+  var box=document.getElementById('recentList'); if(!box) return;
+  var P=window.LOTTERY_POOLS[0], EX='https://browser.anubispace.org';
+  try{
+    var latest=parseInt(await apRpc('eth_blockNumber',[]),16);
+    var from=Math.max(P.deploy, latest-80000), logs=[];
+    for(var f=from; f<=latest; f+=4000){
+      var to=Math.min(f+3999, latest);
+      var part=await apRpc('eth_getLogs',[{address:P.contract,topics:[window.EV_WINNERS],
+        fromBlock:hex(f),toBlock:hex(to)}]);
+      if(part&&part.length) logs=logs.concat(part);
+    }
+    logs.sort(function(a,b){return parseInt(b.blockNumber,16)-parseInt(a.blockNumber,16);});
+    var show=logs.slice(0,3);
+    if(!show.length){ box.innerHTML='<div class="muted">'+t('no_recent')+'</div>'; return; }
+    box.innerHTML=show.map(function(l){
+      var rid=parseInt(l.topics[1],16), d=(l.data||'0x').slice(2);
+      var offW=parseInt(d.slice(0,64),16)*2, offA=parseInt(d.slice(64,128),16)*2;
+      var nW=parseInt(d.slice(offW,offW+64),16), total=0n;
+      var nA=parseInt(d.slice(offA,offA+64),16);
+      for(var i=0;i<nA;i++) total+=BigInt('0x'+d.slice(offA+64*(i+1),offA+64*(i+2)));
+      return '<div class="result-row"><div><b>'+t('recent_round').replace('{r}',rid)+'</b> · '
+        +t('recent_winners').replace('{n}',nW)+' · <span class="gold">'+t('recent_paid').replace('{a}',apFmt(total,P.dec)+' '+P.sym)+'</span></div>'
+        +'<div><a class="neon small" target="_blank" rel="noopener" href="'+EX+'/tx/'+l.transactionHash+'">'+t('verify')+'</a></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="muted"><a href="javascript:loadRecent()" class="neon">'+t('load_fail')+'</a></div>'; }
+}
+
+/* ---- dev progress strip (compact, real info only) ---- */
+function paintDev(){
+  var el=document.getElementById('devStrip'); if(!el) return;
+  var lang=I18n.lang;
+  el.innerHTML=window.GAMES.filter(function(g){return g.status!=='live';}).map(function(g){
+    return '<div class="dev-item"><div class="di">'+window.gameCover(g.id).replace('style="width:100%;display:block"','style="width:64px;display:block;border-radius:8px"')+'</div>'
+      +'<div><h4>'+g.name[lang]+'</h4><p>'+g.desc[lang]+'</p></div></div>';
+  }).join('');
+}
+
+loadFeatured(); loadPools(); loadRecent(); paintDev();
 window.onLangChange = function(){
-  renderGameCards('hotCards');
-  var f = document.querySelector('footer'); if(f) f.remove();
-  renderFooter();
+  paintDev(); loadPools();
+  var f=document.querySelector('footer'); if(f) f.remove(); renderFooter();
+  var el=document.getElementById('fcEnd'); if(el) tickEnd();
 };
 </script>
 </body>
