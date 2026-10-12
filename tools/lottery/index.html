@@ -69,8 +69,8 @@ body{font-size:14.5px}
   }).catch(function(){});
   // 游戏图
   Promise.all(['uimg-g1','uimg-g2','uimg-g3'].map(load)).then(function(arr){
-    if(window.HG){ for(var i=0;i<3;i++) window.HG[i]='data:image/jpeg;base64,'+arr[i]; }
-    if(window.paintHG) window.paintHG();
+    for(var i=0;i<3;i++){ window.HG[i]='data:image/jpeg;base64,'+arr[i]; }
+    if(window.renderHGames) window.renderHGames();
   }).catch(function(){});
 })();
 </script></body></html>
