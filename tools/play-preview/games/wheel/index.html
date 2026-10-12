@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>幸运转盘 · ANUBIS PLAY</title>
+<link rel="stylesheet" href="../../shared/theme.css">
+<style>
+.hero{padding:140px 0 40px;text-align:center}
+.hero img{border-radius:22px;box-shadow:var(--shadow-lg);max-width:640px;width:100%;aspect-ratio:16/10;object-fit:cover}
+</style>
+</head>
+<body>
+<script>window.SITE_ROOT='../../';</script>
+<script>
+window.PAGE_I18N = {
+zh:{ nav_games:'游戏大厅', nav_records:'我的记录', nav_help:'帮助', nav_news:'公告',
+  connect:'连接钱包', no_wallet:'请先安装钱包', conn_fail:'连接失败',
+  foot_data:'链上数据以浏览器为准', foot_risk:'链上游戏存在智能合约风险，请理性参与。',
+  dev:'开发中', back:'← 返回游戏大厅',
+  t_dragon:'龙虎斗', d_dragon:'经典龙虎对决，合约开发中。',
+  t_wheel:'幸运转盘', d_wheel:'链上转盘，合约开发中。' },
+en:{ nav_games:'Games', nav_records:'Records', nav_help:'Help', nav_news:'News',
+  connect:'Connect Wallet', no_wallet:'Please install a wallet first', conn_fail:'Connection failed',
+  foot_data:'On-chain data as shown in explorer', foot_risk:'On-chain games carry smart contract risk.',
+  dev:'In Dev', back:'← Back to Lobby',
+  t_dragon:'Dragon & Tiger', d_dragon:'Classic showdown. In development.',
+  t_wheel:'Fortune Wheel', d_wheel:'On-chain wheel. In development.' }
+};
+window._GKEY='wheel';
+</script>
+<script src="../../shared/site.js"></script>
+<header class="hero"><div class="wrap">
+  <span class="badge soon" data-i18n="dev">开发中</span>
+  <h1 class="sec-title" style="margin:18px 0 10px" data-i18n="t_wheel">GAME</h1>
+  <p class="muted" data-i18n="d_wheel"></p>
+  <div style="margin:26px 0"><img data-img="cover-wheel" alt=""></div>
+  <a class="neon" href="../" data-i18n="back">← 返回游戏大厅</a>
+</div></header>
+<script>
+SiteNav.render('nav_games');
+I18n.set(PAGE_I18N); I18n.apply();
+renderFooter();
+// map game id to title keys
+var _map={ 'dragon-tiger':['t_dragon','d_dragon'], 'wheel':['t_wheel','d_wheel'] };
+var _k=_map[window._GKEY]||_map['dragon-tiger'];
+document.querySelector('[data-i18n="t_wheel"]').setAttribute('data-i18n',_k[0]);
+document.querySelector('[data-i18n="d_wheel"]').setAttribute('data-i18n',_k[1]);
+document.title=t(_k[0])+' · ANUBIS PLAY';
+I18n.apply();
+window.onLangChange=function(){ var f=document.querySelector('footer'); if(f) f.remove(); renderFooter(); };
+</script>
+</body>
+</html>
