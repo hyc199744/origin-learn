@@ -50,7 +50,7 @@ window.VERIFIED_TOKENS = [
 ];
 window.SOON_TOKENS = ['fLGNS','gLGNS','AUG','VST','USDC','BNB'];
 </script>
-<script src="../shared/site.js"></script>
+<script src="../shared/site.js?v=3"></script>
 
 <header class="hero">
   <div class="wrap">
@@ -71,8 +71,9 @@ window.SOON_TOKENS = ['fLGNS','gLGNS','AUG','VST','USDC','BNB'];
 </section>
 
 <script>
-SiteNav.render('nav_games');
+
 I18n.set(PAGE_I18N); I18n.apply();
+SiteNav.render('nav_games');
 renderFooter();
 function balCall(token, addr){
   var data = '0x70a08231' + addr.toLowerCase().replace(/^0x/,'').padStart(64,'0');
