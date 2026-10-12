@@ -47,6 +47,8 @@ zh: {
  invTitle:'邀请好友，一起赢', invSub:'邀请朋友加入 ANUBIS PLAY，他们每一次参与，你都有一份奖励——直推 30%、间推 10%，链上结算，随时提取。', invDetail:'邀请明细', invConnect:'连接钱包后查看你的邀请数据', refGoBtn:'打开邀请奖励页 →',
  invS1:'分享链接', invS1s:'复制你的专属链接发给朋友', invS2:'朋友玩游戏', invS2s:'他首次参与即与你绑定（不可改）', invS3:'赚取返佣', invS3s:'直推 30% · 间推 10%，随时提取', invEarnTitle:'各游戏 / 奖池返佣', invCovers:'覆盖范围', invCoversV:'全部 5 个奖池 · 更多游戏陆续接入', invNone:'暂无',
  recTitle:'我的记录', recSub:'你在各奖池的参与与收益，链上实时统计', recPool:'奖池', recTickets:'买票', recSpent:'花费', recWon:'中奖 (次/额)', recNet:'净盈亏', recConnect:'连接钱包后查看你的记录', recNote:'说明：花费按当前票价估算；盈亏仅统计买票与中奖，不含邀请返佣（返佣见「邀请奖励」页）。',
+  recEst: '估算', recEstNote: '按当前票价估算，实际成本以当时交易为准',
+  hUpdated: '更新于 {t}', refPoolNote: '{n} 个奖池有绑定',
  s2Title:'五大奖池，总有一注属于你', s2Sub:'LGNS · USDT · DAI · A · RM，1 小时一期，链上开奖可验证。', s2Cta:'查看奖池', s3Title:'邀请好友，一起赢', s3Sub:'他们每一次参与，你都有奖励——直推 30% · 间推 10%，随时提取。', s3Cta:'立即邀请', winHdr:'中奖播报',
  barName:'链上彩票', footLine:'链上可查 · 钱包签名 · 理性参与', feat1:'链上可验证', feat1s:'开奖哈希公开', feat2:'5 大奖池', feat2s:'1 小时一期', feat3:'钱包签名', feat3s:'资金不托管',
   poolsTitle:'五大奖池', poolsSub:'点击切换 · 票价链上实时', gamesTitle:'更多游戏', gamesSub:'陆续上线', helpTitle:'新手上路', helpSub:'四步开始', mClose:'知道了',
@@ -128,6 +130,8 @@ en: {
  invTitle:'Invite friends, win together', invSub:'Invite friends to ANUBIS PLAY. Every time they play, you earn — 30% direct, 10% indirect, settled on-chain, claim anytime.', invDetail:'Referral details', invConnect:'Connect your wallet to see your referral data', refGoBtn:'Open referral page →',
  invS1:'Share link', invS1s:'Copy your unique link and send to friends', invS2:'Friend plays', invS2s:'Binds to you on their first play (permanent)', invS3:'Earn rewards', invS3s:'Direct 30% · Indirect 10%, claim anytime', invEarnTitle:'Rewards by game / pool', invCovers:'Coverage', invCoversV:'All 5 pools · more games coming', invNone:'None',
  recTitle:'My Records', recSub:'Your activity and returns across all pools, live on-chain', recPool:'Pool', recTickets:'Tickets', recSpent:'Spent', recWon:'Won (times/amt)', recNet:'Net P/L', recConnect:'Connect your wallet to see your records', recNote:'Note: spend is estimated at current price; P/L counts tickets and winnings only, excluding referral rewards (see the Referral page).',
+  recEst: 'est.', recEstNote: 'Estimated at current ticket price; actual cost per transaction at time of purchase',
+  hUpdated: 'Updated {t}', refPoolNote: '{n} pools bound',
  s2Title:'Five pools, one is yours', s2Sub:'LGNS · USDT · DAI · A · RM — hourly rounds, verifiable on-chain draws.', s2Cta:'View pools', s3Title:'Invite friends, win together', s3Sub:'Every time they play, you earn — 30% direct, 10% indirect, claim anytime.', s3Cta:'Invite now', winHdr:'RECENT WINNER',
  barName:'On-chain Lottery', footLine:'On-chain · Wallet-signed · Play responsibly', feat1:'Verifiable', feat1s:'Public draw hash', feat2:'5 Pools', feat2s:'Hourly rounds', feat3:'Wallet-signed', feat3s:'Non-custodial',
   poolsTitle:'Five Pools', poolsSub:'Tap to switch · live price', gamesTitle:'More Games', gamesSub:'Coming soon', helpTitle:'Getting Started', helpSub:'Four steps', mClose:'Got it',
@@ -184,12 +188,17 @@ function applyLang(){
   updateTotal();
   updateBuyBtn();
   if(typeof renderHome==='function') renderHome();
+  try{
+    if(!$('view-play').hidden){ loadHistory(); renderMyStats(); }
+    if(!$('view-records').hidden){ loadRecords(); }
+    if(!$('view-invite').hidden){ loadInvite(); }
+  }catch(e){}
 }
 function toggleLang(){
   LANG = LANG==='zh' ? 'en' : 'zh';
   localStorage.setItem('lottery_lang', LANG);
   applyLang(); updateWalletBtn();
-  refresh();
+  refresh(true);
 }
 function updateChainText(){
   const bt = $('chainBtnTxt'); if(bt) bt.textContent = CFG.chainName;
@@ -274,16 +283,23 @@ try{ poolIdx = Number(localStorage.getItem('lottery_pool')||0)||0; if(poolIdx<0|
 try{ var _qp=new URLSearchParams(location.search).get('pool'); if(_qp!==null){ var _pn=Number(_qp); if(_pn>=0&&_pn<=4){ poolIdx=_pn; try{localStorage.setItem('lottery_pool',String(_pn));}catch(e){} } } }catch(e){}
 function TSYM(){ return POOLS[poolIdx].sym; }
 Object.assign(CFG, POOLS[poolIdx]);
+let poolReqSeq = 0;
 function setPool(i){
   if(i===poolIdx) return;
   poolIdx = i;
+  poolReqSeq++;
   try{ localStorage.setItem('lottery_pool', String(i)); }catch(e){}
   Object.assign(CFG, POOLS[poolIdx]);
   payIdx = 0; buyN = 1;
   TICKET = 0n; roundPhase = '';
-  ['perTicket','totalCost','sold','sales','jackpot','lockedPool','myTickets'].forEach(function(id){ var e=$(id); if(e) e.textContent='-'; });
+  ['perTicket','totalCost','sold','sales','jackpot','lockedPool','myTickets','myBal'].forEach(function(id){ var e=$(id); if(e) e.textContent='-'; });
   var _pp=$('prizePool'); if(_pp){ _pp.textContent='--'; _pp.classList.add('skel'); }
   var _cd=$('countdown'); if(_cd){ _cd.textContent='--'; _cd.classList.add('skel'); }
+  var _lw=$('lastWinners'); if(_lw){ _lw.innerHTML='<div class="note">'+t('loading')+'</div>'; }
+  var _lr=$('lastRollover'); if(_lr){ _lr.textContent='-'; }
+  var _hl=$('historyList'); if(_hl){ _hl.innerHTML='<div class="note">'+t('loading')+'</div>'; }
+  var _lb=$('leaderboard'); if(_lb){ _lb.innerHTML='<div class="note">'+t('loading')+'</div>'; }
+  var _ri=$('roundId'); if(_ri){ _ri.textContent='-'; }
   renderPoolTabs(); applyLang(); updateContractInfo();
   if($('payRow')) renderPayRow();
   const sn = $('swapNote'); if(sn) sn.style.display='none';
@@ -482,23 +498,47 @@ function toast(m){
 }
 function req(m,p){
   if(window.ethereum) return window.ethereum.request({method:m, params:p});
-  return fetch(CFG.rpcUrl,{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({jsonrpc:'2.0',id:Date.now(),method:m,params:p})})
-    .then(r=>r.json()).then(j=>{ if(j.error) throw new Error(j.error.message); return j.result; });
+  return reqPublic(m,p);
 }
-async function ethCall(to,d){ return ((await req('eth_call',[{to,data:d},'latest']))||'0x').replace(/^0x/,''); }
+var PUBLIC_RPC = 'https://rpc.anubispace.org';
+function reqPublic(m,p,retries){
+  var maxTry = (retries==null)?2:retries, attempt=0;
+  function once(){
+    attempt++;
+    var ctrl=null, timer=null;
+    try{ if(typeof AbortController!=='undefined'){ ctrl=new AbortController(); timer=setTimeout(function(){ try{ctrl.abort();}catch(e){} },10000); } }catch(e){}
+    var opt={method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({jsonrpc:'2.0',id:Date.now()+''+attempt,method:m,params:p})};
+    if(ctrl) opt.signal=ctrl.signal;
+    return fetch(PUBLIC_RPC,opt).then(function(r){
+      if(timer)clearTimeout(timer);
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    }).then(function(j){
+      if(j.error) throw new Error(j.error.message||'rpc error');
+      return j.result;
+    }).catch(function(e){
+      if(timer)clearTimeout(timer);
+      if(attempt<=maxTry) return new Promise(function(res){ setTimeout(res,800*attempt); }).then(once);
+      throw e;
+    });
+  }
+  return once();
+}
+async function ethCall(to,d){ return ((await reqPublic('eth_call',[{to,data:d},'latest']))||'0x').replace(/^0x/,''); }
 async function sendTx(to,d){
   const tx = {from:myAddr,to,data:d};
   if (chainKey === 'anubis'){
     tx.type = '0x0';
-    const gp = await req('eth_gasPrice',[]);
+    const gp = await reqPublic('eth_gasPrice',[]);
     tx.gasPrice = gp;
   }
-  const hash = await req('eth_sendTransaction',[tx]);
+  if(!window.ethereum) throw new Error(t('noWallet'));
+  const hash = await window.ethereum.request({method:'eth_sendTransaction',params:[tx]});
   toast(t('txSent'));
   for (let i=0;i<150;i++){
     await new Promise(r=>setTimeout(r,2000));
-    const rc = await req('eth_getTransactionReceipt',[hash]);
+    const rc = await reqPublic('eth_getTransactionReceipt',[hash]);
     if (rc && rc.blockNumber && rc.blockNumber!=='0x0'){
       if (rc.status==='0x1'){ await refresh(true); return rc; }
       throw new Error(t('txReverted'));
@@ -550,23 +590,25 @@ async function loadStatic(){
   OWNER = decAddr(await ethCall(CFG.CONTRACT,'0x'+SEL.owner));
   if (myAddr && myAddr.toLowerCase()===OWNER.toLowerCase()) $('ownerPanel').style.display='block';
 }
-let refreshing = false, lastHeavy = 0, roundEndTime = 0, roundPhase = '';
+let refreshingFor = -1, lastHeavy = 0, roundEndTime = 0, roundPhase = '';
 async function refresh(force){
-  if(refreshing) return;
-  refreshing = true;
+  const mySeq = (typeof poolReqSeq!=='undefined') ? poolReqSeq : 0;
+  if(refreshingFor === mySeq) return;
+  refreshingFor = mySeq;
+  const alive = () => (typeof poolReqSeq==='undefined') || poolReqSeq===mySeq;
   try{
-    await loadStatic();
+    await loadStatic(); if(!alive()) return;
     refreshReferral();
     updatePriceEcho();
-    const rid = Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.currentRound)));
-    const h = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid));
+    const rid = Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.currentRound))); if(!alive()) return;
+    const h = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid)); if(!alive()) return;
     const w = i => h.slice(i*64,(i+1)*64);
     const endTime=Number(decUint(w(0))), drawBlock=Number(decUint(w(1))),
           sold=Number(decUint(w(2))), sales=decUint(w(3)), jackpot=decUint(w(4));
     const pool = sales + jackpot; 
     const pp = $('prizePool'); pp.textContent = fmt2(pool); pp.classList.remove('skel');
     try{
-      const locked = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lockedJackpot));
+      const locked = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lockedJackpot)); if(!alive()) return;
       $('lockedPool').textContent = fmt(locked);
     }catch(e){ $('lockedPool').textContent='-'; }
     $('sold').textContent = sold + t('ticketsUnit');
@@ -594,20 +636,20 @@ async function refresh(force){
       $('closeBtn').disabled = true;
     }
     if (myAddr){
-      const bal = decUint(await ethCall(CFG.token,'0x'+SEL.balanceOf+encAddr(myAddr)));
+      const bal = decUint(await ethCall(CFG.token,'0x'+SEL.balanceOf+encAddr(myAddr))); if(!alive()) return;
       $('myBal').textContent = fmt(bal)+' '+TSYM();
       updatePayBal();
       try{
-        const th = await ethCall(CFG.CONTRACT,'0x'+SEL.getTicketOwners+encUint(rid));
+        const th = await ethCall(CFG.CONTRACT,'0x'+SEL.getTicketOwners+encUint(rid)); if(!alive()) return;
         const off = Number(decUint(th.slice(0,64)))*2;
         const owners = decAddrArray(th, off);
         $('myTickets').textContent = owners.filter(a=>a.toLowerCase()===myAddr.toLowerCase()).length + t('ticketsUnit');
       }catch(e){ $('myTickets').textContent='-'; }
     }
-    const lr = Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastDrawnRound)));
+    const lr = Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastDrawnRound))); if(!alive()) return;
     if (lr>0){
       $('lastRound').textContent = t('lastRound', {n: lr});
-      const wh = await ethCall(CFG.CONTRACT,'0x'+SEL.getLastWinners);
+      const wh = await ethCall(CFG.CONTRACT,'0x'+SEL.getLastWinners); if(!alive()) return;
       const offW = Number(decUint(wh.slice(0,64)))*2, offA = Number(decUint(wh.slice(64,128)))*2;
       const winners = decAddrArray(wh, offW), amounts = decUintArray(wh, offA);
       let html='';
@@ -617,7 +659,7 @@ async function refresh(force){
       }
       $('lastWinners').innerHTML = (html || '<div class="note">'+t('noBuyers')+'</div>')
         + '<div style="margin-top:10px"><button class="btn-verify" onclick="verifyRound('+lr+',\'lastVerify\')">'+t('verifyBtn')+'</button><div id="lastVerify"></div></div>';
-      $('lastRollover').textContent = fmt(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastRollover)))+' '+TSYM();
+      if(!alive()) return; $('lastRollover').textContent = fmt(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.lastRollover)))+' '+TSYM(); if(!alive()) return;
     }
     const nowMs = Date.now();
     if(force || nowMs - lastHeavy > 40000){
@@ -626,8 +668,8 @@ async function refresh(force){
       refreshRefStats();
       renderMyStats();
     }
-  }catch(e){ console.error(e); }
-  finally{ refreshing = false; }
+  }catch(e){ console.error(e); try{ toast(t('loadFail')); }catch(_){} }
+  finally{ if(refreshingFor===mySeq) refreshingFor=-1; }
 }
 function tickCountdown(){
   const cd = $('countdown'); if(!cd) return;
@@ -643,11 +685,11 @@ async function verifyRound(rid, elId){
   const el = $(elId); if(!el) return;
   el.innerHTML = '<div class="note">'+t('verifyLoading')+'</div>';
   try{
-    const h = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid));
+    const h = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid)); if(!alive()) return;
     const drawBlock = Number(decUint(h.slice(64,128))); 
     if(!drawBlock){ el.innerHTML = '<div class="note">'+t('verifyNoBlock')+'</div>'; return; }
     let bh='—';
-    try{ const blk = await req('eth_getBlockByNumber',['0x'+drawBlock.toString(16), false]); bh=(blk&&blk.hash)||'—'; }catch(e){}
+    try{ const blk = await reqPublic('eth_getBlockByNumber',['0x'+drawBlock.toString(16), false]); bh=(blk&&blk.hash)||'—'; }catch(e){}
     el.innerHTML = '<div class="verify-box">'
       +'<div class="kv"><span class="k">'+t('verifyDrawBlock')+'</span><span class="v"><a href="'+CFG.explorer+'/block/'+drawBlock+'" target="_blank" rel="noopener" style="color:var(--wine);text-decoration:none">#'+drawBlock+' ↗</a></span></div>'
       +'<div class="kv"><span class="k">'+t('verifyBlockHash')+'</span><span class="v" style="font-size:10.5px;word-break:break-all">'+bh+'</span></div>'
@@ -736,24 +778,35 @@ const EV_TICKETS = '0xc8c5c2b0e44fb6312c0098ec42642058527713d0a1d29a5c6ccbfe34d7
 const EV_REFREWARD = '0xbfcb51139629056da37f44a10daa7f67e6ce0b9083e03a7408b3ad1a456ce097';
 const PADADDR = a => '0x' + '0'.repeat(24) + a.toLowerCase().replace(/^0x/,'');
 const _logCache = {};
-function resetLogCache(){ for(const k in _logCache) delete _logCache[k]; }
+const _logPending = {};
+function resetLogCache(){ for(const k in _logCache) delete _logCache[k]; for(const k in _logPending) delete _logPending[k]; }
+function _logId(l){ return (l.transactionHash||'')+':'+(l.logIndex||''); }
 async function scanLogs(topics, contract, deployFrom){
   contract = contract || CFG.CONTRACT;
   const dep = (deployFrom!=null) ? deployFrom : (CFG.deployBlock || 0);
-  const key = contract + '|' + JSON.stringify(topics);
+  const key = chainKey + '|' + contract + '|' + JSON.stringify(topics);
   let c = _logCache[key];
-  if(!c){ c = { next: dep, logs: [] }; _logCache[key] = c; }
-  const latest = Number(BigInt(await req('eth_blockNumber',[])));
-  const CHUNK = 4000;
-  let from = c.next;
-  while(from <= latest){
-    const to = Math.min(from + CHUNK - 1, latest);
-    const part = await req('eth_getLogs',[{address:contract, topics,
-      fromBlock:'0x'+from.toString(16), toBlock:'0x'+to.toString(16)}]);
-    if(part && part.length) for(const l of part) c.logs.push(l);
-    from = to + 1;
-  }
-  if(latest + 1 > c.next) c.next = latest + 1;
+  if(!c){ c = { next: dep, logs: [], seen: {} }; _logCache[key] = c; }
+  if(_logPending[key]){ try{ await _logPending[key]; }catch(e){} return c.logs; }
+  const job = (async ()=>{
+    const latest = Number(BigInt(await reqPublic('eth_blockNumber',[])));
+    const CHUNK = 4000;
+    let from = c.next;
+    while(from <= latest){
+      const to = Math.min(from + CHUNK - 1, latest);
+      const part = await reqPublic('eth_getLogs',[{address:contract, topics,
+        fromBlock:'0x'+from.toString(16), toBlock:'0x'+to.toString(16)}]);
+      if(part && part.length) for(const l of part){
+        const id = _logId(l);
+        if(l.removed){ if(c.seen[id]){ delete c.seen[id]; c.logs = c.logs.filter(function(x){ return _logId(x)!==id; }); } continue; }
+        if(!c.seen[id]){ c.seen[id]=1; c.logs.push(l); }
+      }
+      from = to + 1;
+    }
+    if(latest + 1 > c.next) c.next = latest + 1;
+  })();
+  _logPending[key]=job;
+  try{ await job; }finally{ delete _logPending[key]; }
   return c.logs;
 }
 async function refreshRefStats(){
@@ -1073,6 +1126,7 @@ function renderHFeature(){
     if(hp){hp.classList.remove('skel');hp.innerHTML=fmtD(st.pool,P.decimals)+'<span class="u" id="hUnit">'+P.sym+'</span>';}
     if(e=$('hPrice'))e.textContent=fmtPr(st.price,P.decimals)+' '+P.sym;
     if(e=$('hRound'))e.textContent=(LANG==='zh'?'第 '+st.round+' 期 · ':'Round '+st.round+' · ')+(st.phase==='live'?t('hSelling'):st.phase==='closed'?t('hClosed'):t('hDraw'));
+    var _hu=$('hUpdated'); if(_hu){ var _d=new Date(); _hu.textContent=t('hUpdated',{t:String(_d.getHours()).padStart(2,'0')+':'+String(_d.getMinutes()).padStart(2,'0')+':'+String(_d.getSeconds()).padStart(2,'0')}); _hu.style.display=''; }
     if(e=$('hEnd'))e.textContent=st.phase==='live'?hcd(st.endTime):t('hClosed');
   }else{
     if(hp){hp.classList.add('skel');hp.innerHTML='—<span class="u" id="hUnit">'+P.sym+'</span>';}
@@ -1094,35 +1148,43 @@ async function loadInvite(){
   var ie=$('invEmpty'), mr=$('myReferrer'), pl=$('invPoolList'), d=$('refDirectStat'), g=$('refIndirectStat');
   if(!myAddr){ if(ie)ie.hidden=false; if(mr)mr.textContent='-'; if(pl)pl.innerHTML=''; if(d)d.textContent='-'; if(g)g.textContent='-'; return; }
   if(ie)ie.hidden=true;
-  invClaim={}; var rows='', ref=ZERO;
+  invClaim={}; var rows='', refParts=[];
   for(var i=0;i<POOLS.length;i++){
     var P=POOLS[i], rw=0n;
     try{ rw=decUint(await ethCall(P.CONTRACT,'0x'+SEL.referralRewards+encAddr(myAddr))); }catch(e){}
-    if(ref===ZERO){ try{ var rr=decAddr(await ethCall(P.CONTRACT,'0x'+SEL.referrer+encAddr(myAddr))); if(rr!==ZERO)ref=rr; }catch(e){} }
+    try{ var rr=decAddr(await ethCall(P.CONTRACT,'0x'+SEL.referrer+encAddr(myAddr))); if(rr!==ZERO)refParts.push(P.sym+': '+short(rr)); }catch(e){}
     invClaim[i]=rw; var has=rw>0n;
     rows+='<div class="inv-row"><span class="inv-rn"><span class="inv-dot" style="background:'+POOLMETA[i].c+'"></span>'+P.sym+(LANG==='zh'?' 池':'')+'</span>'
       +'<span class="inv-ra">'+fmtD(rw,P.decimals)+' '+P.sym+'</span>'
       +(has?'<button class="inv-claim" onclick="claimPool('+i+')">'+t('claimRefBtn')+'</button>':'<span class="inv-ra0">'+t('invNone')+'</span>')+'</div>';
   }
-  if(mr)mr.textContent = ref===ZERO ? t('noReferrer') : short(ref);
+  if(mr)mr.textContent = refParts.length ? refParts.join(' · ') : t('noReferrer');
   if(pl)pl.innerHTML=rows;
   loadInviteStats(myAddr.toLowerCase());
 }
 async function loadInviteStats(me){
-  var bound={};
+  var bound={}, poolSyms=[];
   for(var i=0;i<POOLS.length;i++){
-    var P=POOLS[i];
+    var P=POOLS[i]; poolSyms.push(P.sym); bound[P.sym]={};
     try{ var bl=await scanLogs([EV_REFBOUND],P.CONTRACT,P.deployBlock);
-      for(var j=0;j<bl.length;j++){ var l=bl[j]; var buyer=('0x'+l.topics[1].slice(-40)).toLowerCase(); var rf=('0x'+l.topics[2].slice(-40)).toLowerCase(); bound[buyer]=rf; }
+      for(var j=0;j<bl.length;j++){ var l=bl[j]; var buyer=('0x'+l.topics[1].slice(-40)).toLowerCase(); var rf=('0x'+l.topics[2].slice(-40)).toLowerCase(); bound[P.sym][buyer]=rf; }
     }catch(e){}
   }
+  var merged={}, poolsWithBind=0;
+  for(var s=0;s<poolSyms.length;s++){
+    var sym=poolSyms[s], hasAny=false;
+    for(var b in bound[sym]){ hasAny=true; if(!(b in merged)) merged[b]=bound[sym][b]; }
+    if(hasAny) poolsWithBind++;
+  }
   var dset={}, dc=0;
-  for(var b in bound){ if(bound[b]===me){ dset[b]=1; dc++; } }
+  for(var b in merged){ if(merged[b]===me){ dset[b]=1; dc++; } }
   var ic=0;
-  for(var b in bound){ if(!dset[b] && b!==me && dset[bound[b]]) ic++; }
+  for(var b in merged){ if(!dset[b] && b!==me && dset[merged[b]]) ic++; }
   var d=$('refDirectStat'), g=$('refIndirectStat');
   if(d)d.textContent=dc+(LANG==='zh'?' 人':'');
   if(g)g.textContent=ic+(LANG==='zh'?' 人':'');
+  var pn=$('refPoolNote');
+  if(pn) pn.textContent=t('refPoolNote',{n:poolsWithBind});
 }
 function claimPool(i){ sendTx(POOLS[i].CONTRACT,'0x'+SEL.claimReferral).then(function(){ toast(t('claimOk')); loadInvite(); }).catch(function(e){ toast(e.message||e); }); }
 async function loadRecords(){
@@ -1142,9 +1204,9 @@ async function loadRecords(){
     var spent=tickets*price, net=winAmt-spent, neg=net<0n, na=neg?-net:net;
     rows+='<div class="rec-row"><span class="rec-p"><span class="inv-dot" style="background:'+POOLMETA[i].c+'"></span>'+P.sym+(LANG==='zh'?' 池':'')+'</span>'
       +'<span class="rec-c">'+tickets.toString()+(LANG==='zh'?' 张':'')+'</span>'
-      +'<span class="rec-c">≈ '+fmtD(spent,P.decimals)+' '+P.sym+'</span>'
+      +'<span class="rec-c" title="'+t('recEstNote')+'">≈ '+fmtD(spent,P.decimals)+' '+P.sym+'</span>'
       +'<span class="rec-c">'+winCnt+(LANG==='zh'?' 次 / ':'× / ')+fmtD(winAmt,P.decimals)+'</span>'
-      +'<span class="rec-c" style="color:'+(neg?'#B23B3B':'#3E6B4F')+';font-weight:700">'+(neg?'-':'+')+fmtD(na,P.decimals)+' '+P.sym+'</span></div>';
+      +'<span class="rec-c" style="color:'+(neg?'#B23B3B':'#3E6B4F')+';font-weight:700">'+(neg?'-':'+')+fmtD(na,P.decimals)+' '+P.sym+' <small style="font-weight:400;color:#8a8f7d">('+t('recEst')+')</small></span></div>';
   }
   if(box)box.innerHTML=rows;
 }
@@ -1194,27 +1256,59 @@ function apPause(){ if(apTimer){clearInterval(apTimer);apTimer=null;} }
 function apStart(){ apPause(); try{ if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return; }catch(e){} apTimer=setInterval(function(){apShow(apSlide+1);},5000); }
 function renderHome(){renderHPools();renderHFeature();renderHGames();renderHHelp();}
 function loadHome(){POOLS.forEach(function(P,i){loadHPool(i).then(function(){renderHPools();if(i===poolIdx)renderHFeature();});});}
-function showView(v){
+function toggleBurger(forceClose){
+  var m=$('pnavMenu'); if(!m) return;
+  if(forceClose===true){ m.classList.remove('open'); m.hidden=true; return; }
+  var open=m.classList.toggle('open'); m.hidden=!open;
+}
+document.addEventListener('click',function(e){
+  var m=$('pnavMenu'), b=$('burgerBtn');
+  if(!m||m.hidden) return;
+  if(m.contains(e.target)||(b&&b.contains(e.target))) return;
+  toggleBurger(true);
+});
+function routeFromHash(){
+  var h='';
+  try{ h=(''+(location.hash||'')).replace(/^#/,''); }catch(e){}
+  return (h==='home'||h==='play'||h==='invite'||h==='records') ? h : 'home';
+}
+function showView(v, fromHash){
   var home=$('view-home'),play=$('view-play'),inv=$('view-invite'),rec=$('view-records'),pb=$('pback');
   if(home)home.hidden=(v!=='home');
   if(play)play.hidden=(v!=='play');
   if(inv)inv.hidden=(v!=='invite');
   if(rec)rec.hidden=(v!=='records');
   if(pb)pb.hidden=(v==='home');
-  try{location.hash=v;}catch(e){}
+  if(!fromHash){ try{ if((''+location.hash)!=='#'+v) location.hash=v; }catch(e){} }
   if(v==='play'){ refresh(true); }
   else if(v==='invite'){ loadInvite(); }
   else if(v==='records'){ loadRecords(); }
   else{ renderHome(); loadHome(); }
   try{window.scrollTo(0,0);}catch(e){}
 }
+window.addEventListener('hashchange', function(){
+  var v=routeFromHash();
+  showView(v, true);
+});
 document.addEventListener('keydown',function(e){ if(e.key==='Escape')closeHModal(); });
-setInterval(function(){var hm=$('view-home');if(hm&&!hm.hidden){var st=hpool[poolIdx];if(st&&st.ok&&st.phase==='live'){var e=$('hEnd');if(e)e.textContent=hcd(st.endTime);}}},1000);
+var _homeRefreshAt=0;
+setInterval(function(){
+  var hm=$('view-home'); if(!hm||hm.hidden) return;
+  var st=hpool[poolIdx];
+  if(st&&st.ok&&st.phase==='live'){var e=$('hEnd');if(e)e.textContent=hcd(st.endTime);}
+  var nowMs=Date.now();
+  if(nowMs-_homeRefreshAt>30000){ _homeRefreshAt=nowMs; try{ loadHome(); }catch(e){} }
+},1000);
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden) return;
+  var hm=$('view-home');
+  if(hm&&!hm.hidden){ _homeRefreshAt=Date.now(); try{ loadHome(); }catch(e){} }
+});
 window.addEventListener('load', ()=>{
   try{ var _ol=document.querySelector('.brand-logo'); if(_ol&&$('navLogo')) $('navLogo').src=_ol.src; }catch(e){}
   applyLang(); renderPoolTabs(); updateChainBtn(); updateWalletBtn(); setBuyN(1);
-  var sp=false; try{ sp=(location.hash==='#play')||(new URLSearchParams(location.search).get('pool')!==null); }catch(e){}
-  showView(sp?'play':'home');
+  var sp='home'; try{ sp=routeFromHash(); if(sp==='home'&&(new URLSearchParams(location.search).get('pool')!==null)) sp='play'; }catch(e){}
+  showView(sp, true);
   apShow(0); apStart(); updateSndBtn();
   loadWinners().then(winStart).catch(function(){});
 });
