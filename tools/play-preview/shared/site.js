@@ -34,6 +34,7 @@ window.I18n = {
 };
 try{ var _l = localStorage.getItem('ap_lang'); if(_l==='en'||_l==='zh') I18n.lang=_l; }catch(e){}
 function t(k, vars){ return I18n.t(k, vars); }
+window.t = t;
 
 /* ---------- chain config ---------- */
 window.AP_CHAIN = {
