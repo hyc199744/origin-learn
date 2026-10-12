@@ -12,7 +12,7 @@
 <script>
 window.PAGE_I18N = {
 zh:{
-  nav_home:'首页', nav_games:'游戏大厅', nav_hot:'热门游戏', nav_assets:'我的资产', nav_profile:'我的记录', nav_news:'平台公告',
+  nav_home:'首页', nav_games:'游戏大厅', nav_help:'新手指南', nav_assets:'我的资产', nav_profile:'我的记录', nav_news:'平台公告',
   nav_lottery:'链上彩票', connect:'连接钱包', foot_data:'链上数据以浏览器为准',
   pt:'我的资产', psub:'连接钱包查看 Anubis 链上代币余额 · 余额来自链上实时查询',
   need:'请先连接钱包查看余额', connect2:'连接钱包',
@@ -22,7 +22,7 @@ zh:{
   tap_copy:'点击复制地址', loading:'查询中…'
 },
 en:{
-  nav_home:'Home', nav_games:'Games', nav_hot:'Hot Games', nav_assets:'Assets', nav_profile:'Records', nav_news:'News',
+  nav_home:'Home', nav_games:'Games', nav_help:'Guide', nav_assets:'Assets', nav_profile:'Records', nav_news:'News',
   nav_lottery:'Lottery', connect:'Connect Wallet', foot_data:'On-chain data as shown in explorer',
   pt:'My Assets', psub:'Connect your wallet to see token balances on Anubis · balances are read live from chain',
   need:'Connect your wallet to see balances', connect2:'Connect Wallet',
@@ -31,15 +31,16 @@ en:{
   soon_note:'The contract addresses below are still being verified — balances and trading stay disabled until verified:',
   tap_copy:'Tap to copy address', loading:'Loading…'
 }};
-/* 代币清单：只有 full address 已链上核实的才启用余额查询 */
+/* 代币清单：只有 full address 已链上核实的才启用余额查询（前 5 个与彩票奖池代币一致） */
 window.VERIFIED_TOKENS = [
-  { sym:'LGNS',  addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9,  note:{zh:'Longinus',en:'Longinus'} },
-  { sym:'DAI',   addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18, note:{zh:'Dai Stablecoin',en:'Dai Stablecoin'} },
-  { sym:'USDT',  addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,  note:{zh:'Bridged USDT',en:'Bridged USDT'} },
-  { sym:'A',     addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18, note:{zh:'Bridged A',en:'Bridged A'} },
+  { sym:'LGNS',  addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9,  note:{zh:'Longinus · 彩票主池',en:'Longinus · main lottery pool'} },
+  { sym:'USDT',  addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,  note:{zh:'Bridged USDT · 彩票池',en:'Bridged USDT · lottery pool'} },
+  { sym:'DAI',   addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18, note:{zh:'Dai Stablecoin · 彩票池',en:'Dai Stablecoin · lottery pool'} },
+  { sym:'A',     addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18, note:{zh:'Bridged A · 彩票池',en:'Bridged A · lottery pool'} },
+  { sym:'RM',    addr:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9, note:{zh:'Rome · 彩票池',en:'Rome · lottery pool'} },
   { sym:'AiLGNS',addr:'0x256edb652db43e721ec6a12b6b51b6967d3bb8cb', dec:18, note:{zh:'AiLGNS',en:'AiLGNS'} }
 ];
-window.SOON_TOKENS = ['fLGNS','gLGNS','RM','AUG','VST','USDC','BNB'];
+window.SOON_TOKENS = ['fLGNS','gLGNS','AUG','VST','USDC','BNB'];
 </script>
 <script src="../shared/site.js"></script>
 
