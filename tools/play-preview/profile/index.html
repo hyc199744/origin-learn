@@ -50,7 +50,7 @@ en:{
   tx:'Tx →'
 }};
 </script>
-<script src="../shared/site.js"></script>
+<script src="../shared/site.js?v=3"></script>
 
 <header class="hero">
   <div class="wrap">
@@ -76,8 +76,9 @@ en:{
 </section>
 
 <script>
-SiteNav.render('nav_records');
+
 I18n.set(PAGE_I18N); I18n.apply();
+SiteNav.render('nav_records');
 renderFooter();
 var myAddr=null, poolF='ALL', cache={buy:[],win:[]}, EX='https://browser.anubispace.org';
 function hex(n){ return '0x'+BigInt(n).toString(16); }
