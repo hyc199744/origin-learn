@@ -61,7 +61,7 @@ en:{
   loading:'Loading…', dev_t:'In Development', dev_s:'New games on the way', dev:'In Dev'
 }};
 </script>
-<script src="../shared/site.js"></script>
+<script src="../shared/site.js?v=3"></script>
 
 <header class="hero">
   <div class="wrap">
@@ -94,8 +94,9 @@ en:{
 </section>
 
 <script>
-SiteNav.render('nav_games');
+
 I18n.set(PAGE_I18N); I18n.apply();
+SiteNav.render('nav_games');
 renderFooter();
 function pad64(n){ return BigInt(n).toString(16).padStart(64,'0'); }
 async function loadLobby(){
