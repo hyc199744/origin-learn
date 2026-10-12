@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ANUBIS PLAY · Anubis 链上游戏平台</title>
+<meta name="description" content="ANUBIS PLAY — 简洁、清晰的 Anubis 链上游戏体验。从一张彩票开始，发现更多可能。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 3 42 13.5v17L24 45 6 30.5v-17L24 3z' fill='none' stroke='%231E5541' stroke-width='3'/%3E%3Cpath d='M24 12l5 9-5 9-5-9z' fill='%23B49A63'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="shared/theme.css">
+<style>
+.hero{padding:118px 0 30px}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.kicker-en{font-size:12.5px;letter-spacing:.3em;color:var(--green);font-weight:700;margin-bottom:20px}
+.hero h1{font-family:var(--font);font-size:clamp(34px,4.6vw,54px);line-height:1.35;font-weight:700;letter-spacing:.06em}
+.hero h1 .dim{color:var(--muted);font-weight:400}
+.hero-sub{margin-top:22px;color:var(--muted);font-size:16px;line-height:1.8}
+.hero-cta{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:26px;margin-top:34px;color:var(--muted);font-size:13.5px}
+.hero-stats b{color:var(--ink);font-family:var(--font-num)}
+.hero-img{border-radius:26px;overflow:hidden;box-shadow:var(--shadow-lg);aspect-ratio:4/4.4;background:var(--green-soft)}
+.hero-img img{width:100%;height:100%;object-fit:cover;display:block}
+/* 彩票主卡 */
+.feat{background:var(--green-deep);border-radius:22px;color:#F2EFE4;padding:34px 38px;
+  display:grid;grid-template-columns:auto 1fr auto;gap:34px;align-items:center;box-shadow:var(--shadow-lg)}
+.feat .fl{display:flex;gap:18px;align-items:center}
+.feat .fic{width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;flex:none}
+.feat h2{font-family:var(--font);font-size:24px;letter-spacing:.08em}
+.feat .fd{color:rgba(242,239,228,.65);font-size:13.5px;margin-top:6px}
+.feat .fm{text-align:center;border-left:1px solid rgba(255,255,255,.14);border-right:1px solid rgba(255,255,255,.14);padding:0 34px}
+.feat .fk{font-size:12.5px;letter-spacing:.2em;color:rgba(242,239,228,.6)}
+.feat .fv{font-family:var(--font-num);font-size:clamp(34px,4vw,52px);font-weight:700;color:#F5E9C8;margin-top:6px}
+.feat .fv small{font-size:18px;color:rgba(242,239,228,.7)}
+.feat .fr{text-align:right}
+.feat .fp{font-family:var(--font-num);font-size:22px;font-weight:700}
+.feat .fn{font-size:13px;color:rgba(242,239,228,.6);margin-top:4px}
+/* 奖池入口 */
+.pools{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:18px}
+.pool{background:var(--card);border:1.5px solid var(--line-soft);border-radius:var(--r);padding:20px;
+  cursor:pointer;transition:.2s;position:relative;min-height:44px}
+.pool:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow)}
+.pool.sel{border-color:var(--green);background:#fff;box-shadow:var(--shadow)}
+.pool.sel::after{content:'✓';position:absolute;top:14px;right:16px;color:var(--green);font-weight:800}
+.pool .pb{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:17px;margin-bottom:12px;background:var(--green-soft);color:var(--green)}
+.pool h4{font-size:16px}
+.pool .pp{color:var(--muted);font-size:13px;margin-top:4px;font-family:var(--font-num)}
+/* 更多游戏 */
+.games3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.gcard{background:var(--card);border:1px solid var(--line-soft);border-radius:20px;overflow:hidden;
+  box-shadow:var(--shadow);transition:.25s}
+.gcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.gcard .cov{aspect-ratio:16/10;overflow:hidden;position:relative;background:var(--green-soft)}
+.gcard .cov img{width:100%;height:100%;object-fit:cover;display:block}
+.gcard .cbody{padding:22px 24px;display:flex;justify-content:space-between;align-items:center}
+.gcard h3{font-family:var(--font);font-size:20px}
+.gcard .en{font-size:11.5px;letter-spacing:.18em;color:var(--muted);margin-top:4px}
+/* 新手 */
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+.steps{display:flex;gap:34px;margin-top:26px;flex-wrap:wrap}
+.step .n{font-family:var(--font-num);font-size:30px;color:var(--green);font-weight:300}
+.step .t{font-size:14.5px;margin-top:8px;color:var(--ink-soft)}
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-img{aspect-ratio:16/10;order:-1}
+  .feat{grid-template-columns:1fr;text-align:center;gap:22px;padding:28px 24px}
+  .feat .fl{justify-content:center}
+  .feat .fm{border:none;border-top:1px solid rgba(255,255,255,.14);border-bottom:1px solid rgba(255,255,255,.14);padding:18px 0}
+  .feat .fr{text-align:center}
+  .pools{grid-template-columns:repeat(2,1fr)}
+  .games3{grid-template-columns:1fr}
+  .help-grid{grid-template-columns:1fr}
+}
+@media(max-width:420px){ .pools{grid-template-columns:1fr 1fr} }
+</style>
+</head>
+<body>
+<script>window.SITE_ROOT='';</script>
+<script>
+window.PAGE_I18N = {
+zh:{
+  nav_games:'游戏大厅', nav_records:'我的记录', nav_help:'帮助', nav_news:'公告',
+  connect:'连接钱包', no_wallet:'请先安装钱包', conn_fail:'连接失败',
+  foot_data:'链上数据以浏览器为准', foot_risk:'链上游戏存在智能合约风险，请理性参与，勿投入无法承受损失的资金。',
+  kicker:'A LITTLE DISCOVERY. A NEW WORLD.',
+  h1a:'让每一次探索，', h1b:'都有新的期待。',
+  hero_sub:'简洁、清晰的 Anubis 游戏体验。<br>从一张彩票开始，发现更多可能。',
+  cta_lottery:'进入链上彩票', cta_rules:'查看游戏规则',
+  stat_games:'款游戏已展示', stat_pools:'个奖池入口',
+  feat_name:'链上彩票', feat_sub:'每小时一期 · 查看规则后参与',
+  feat_pool:'本期奖池', feat_price:'单张票价', feat_end:'售票截止',
+  feat_view:'查看奖池', feat_demo:'示例',
+  pool_title:'选择你的奖池', pool_en:'CHOOSE YOUR POOL', pool_note:'独立奖池 · 独立轮次',
+  per_ticket:'/ 张', loading:'加载中…', load_fail:'读取失败', retry:'重试',
+  games_title:'发现更多游戏', games_en:'MORE TO EXPLORE', games_note:'新游戏，正在路上',
+  dev:'开发中', games_more:'查看游戏介绍 →',
+  help_title:'第一次来到 Anubis?', help_t:'让每一步，都清楚可见。',
+  help_d:'先了解票价、费用和派奖规则，再决定是否参与。本页数据全部来自链上。',
+  help_guide:'打开新手指南 →',
+  s1:'了解游戏规则', s2:'选择独立奖池', s3:'体验购买流程'
+},
+en:{
+  nav_games:'Games', nav_records:'Records', nav_help:'Help', nav_news:'News',
+  connect:'Connect Wallet', no_wallet:'Please install a wallet first', conn_fail:'Connection failed',
+  foot_data:'On-chain data as shown in explorer', foot_risk:'On-chain games carry smart contract risk. Play responsibly.',
+  kicker:'A LITTLE DISCOVERY. A NEW WORLD.',
+  h1a:'Every discovery,', h1b:'a new expectation.',
+  hero_sub:'A clean, clear Anubis gaming experience.<br>Start with a lottery ticket, discover more.',
+  cta_lottery:'Enter Lottery', cta_rules:'Game Rules',
+  stat_games:'games live', stat_pools:'pool entries',
+  feat_name:'On-chain Lottery', feat_sub:'Hourly rounds · read rules first',
+  feat_pool:'Current jackpot', feat_price:'Ticket price', feat_end:'Sales end',
+  feat_view:'View Pool', feat_demo:'demo',
+  pool_title:'Choose Your Pool', pool_en:'CHOOSE YOUR POOL', pool_note:'Independent pools · rounds',
+  per_ticket:'/ ticket', loading:'Loading…', load_fail:'Failed', retry:'Retry',
+  games_title:'More to Explore', games_en:'MORE TO EXPLORE', games_note:'New games on the way',
+  dev:'In Dev', games_more:'About →',
+  help_title:'New to Anubis?', help_t:'Every step, clearly visible.',
+  help_d:'Learn prices, fees and payout rules before playing. All data on this page is on-chain.',
+  help_guide:'Open guide →',
+  s1:'Learn the rules', s2:'Pick a pool', s3:'Try buying'
+}};
+</script>
+<script src="shared/site.js"></script>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker-en" data-i18n="kicker">A LITTLE DISCOVERY. A NEW WORLD.</div>
+      <h1><span data-i18n="h1a">让每一次探索，</span><br><span class="dim" data-i18n="h1b">都有新的期待。</span></h1>
+      <p class="hero-sub" data-i18n-html="hero_sub"></p>
+      <div class="hero-cta">
+        <a class="btn btn-green" href="games/lottery/"><span data-i18n="cta_lottery">进入链上彩票</span> →</a>
+        <a class="btn btn-ghost" href="games/lottery/#sec-rules" data-i18n="cta_rules">查看游戏规则</a>
+      </div>
+      <div class="hero-stats">
+        <span><b>01</b> <span data-i18n="stat_games">款游戏已展示</span></span>
+        <span style="color:var(--line)">/</span>
+        <span><b>05</b> <span data-i18n="stat_pools">个奖池入口</span></span>
+      </div>
+    </div>
+    <div class="hero-img"><img data-img="hero-anubis" alt="Anubis"></div>
+  </div>
+</header>
+
+<section class="sec" style="padding-top:20px">
+  <div class="wrap">
+    <div class="feat" id="featCard">
+      <div class="fl">
+        <div class="fic">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#F5E9C8" stroke-width="1.8"><rect x="3" y="7" width="18" height="11" rx="2"/><path d="M3 10h6a2 2 0 0 0 0 4H3M21 10h-6a2 2 0 0 1 0 4h6"/></svg>
+        </div>
+        <div>
+          <h2 data-i18n="feat_name">链上彩票</h2>
+          <div class="fd" data-i18n="feat_sub">每小时一期 · 查看规则后参与</div>
+          <div class="fd num" id="featRound">—</div>
+        </div>
+      </div>
+      <div class="fm">
+        <div class="fk"><span data-i18n="feat_pool">本期奖池</span> / <span data-i18n="feat_demo">示例</span></div>
+        <div class="fv" id="featJackpot" data-i18n="loading">加载中…</div>
+        <div class="fd" style="margin-top:8px"><span data-i18n="feat_end">售票截止</span> <span class="num" id="featEnd">—</span></div>
+      </div>
+      <div class="fr">
+        <div class="fp num" id="featPrice" data-i18n="loading">加载中…</div>
+        <div class="fn" id="featSym">—</div>
+        <a class="btn btn-ivory btn-sm" style="margin-top:14px" id="featBtn" href="games/lottery/"><span data-i18n="feat_view">查看奖池</span> →</a>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin:44px 0 6px;flex-wrap:wrap;gap:8px">
+      <h2 class="sec-title" style="font-size:24px"><span data-i18n="pool_title">选择你的奖池</span>
+        <span style="font-size:12px;letter-spacing:.28em;color:var(--muted);font-family:var(--font-body);margin-left:12px" data-i18n="pool_en">CHOOSE YOUR POOL</span></h2>
+      <span class="small muted" data-i18n="pool_note">独立奖池 · 独立轮次</span>
+    </div>
+    <div class="pools" id="poolGrid"></div>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:10px">
+  <div class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:26px;flex-wrap:wrap;gap:8px">
+      <h2 class="sec-title" style="font-size:24px"><span data-i18n="games_title">发现更多游戏</span>
+        <span style="font-size:12px;letter-spacing:.28em;color:var(--muted);font-family:var(--font-body);margin-left:12px" data-i18n="games_en">MORE TO EXPLORE</span></h2>
+      <span class="small muted" data-i18n="games_note">新游戏，正在路上</span>
+    </div>
+    <div class="games3" id="games3"></div>
+  </div>
+</section>
+
+<section class="sec" style="padding-top:10px">
+  <div class="wrap help-grid">
+    <div>
+      <h2 class="sec-title" style="font-size:24px" data-i18n="help_title">第一次来到 Anubis?</h2>
+      <div class="steps">
+        <div class="step"><div class="n">01</div><div class="t" data-i18n="s1">了解游戏规则</div></div>
+        <div class="step"><div class="n">02</div><div class="t" data-i18n="s2">选择独立奖池</div></div>
+        <div class="step"><div class="n">03</div><div class="t" data-i18n="s3">体验购买流程</div></div>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-family:var(--font);font-size:19px;margin-bottom:12px" data-i18n="help_t">让每一步，都清楚可见。</h3>
+      <p class="muted" data-i18n="help_d"></p>
+      <a class="neon" style="display:inline-block;margin-top:14px" href="help/" ><span data-i18n="help_guide">打开新手指南 →</span></a>
+    </div>
+  </div>
+</section>
+
+<script>
+SiteNav.render('nav_home');
+I18n.set(PAGE_I18N); I18n.apply();
+renderFooter();
+
+var selPool = 0;
+try{
+  var qp = new URLSearchParams(location.search).get('pool');
+  if(qp){ var qi=['lgns','usdt','dai','a','rm'].indexOf(qp.toLowerCase()); if(qi>=0) selPool=qi; }
+}catch(e){}
+function pad64(n){ return BigInt(n).toString(16).padStart(64,'0'); }
+
+async function loadPoolData(i){
+  var P = window.LOTTERY_POOLS[i], S = window.LOTTERY_SEL;
+  var tp = await apRpc('eth_call',[{to:P.contract,data:'0x'+S.ticketPrice},'latest']);
+  var rid = await apRpc('eth_call',[{to:P.contract,data:'0x'+S.currentRound},'latest']);
+  var rh = await apRpc('eth_call',[{to:P.contract,data:'0x'+S.rounds+pad64(parseInt(rid,16))},'latest']);
+  var d = rh.slice(2);
+  return {
+    price: BigInt(tp),
+    round: parseInt(rid,16),
+    end: parseInt(d.slice(0,64),16)*1000,
+    pool: BigInt('0x'+d.slice(192,256)) + BigInt('0x'+d.slice(256,320))
+  };
+}
+function paintFeat(P, D){
+  document.getElementById('featJackpot').innerHTML = apFmt(D.pool,P.dec)+' <small>'+P.sym+'</small>';
+  document.getElementById('featPrice').textContent = apFmt(D.price,P.dec)+' '+P.sym+t('per_ticket');
+  document.getElementById('featSym').textContent = (I18n.lang==='zh'?'奖金以 ':'Prizes in ')+P.sym+(I18n.lang==='zh'?' 结算':'');
+  document.getElementById('featRound').textContent = (I18n.lang==='zh'?'第 ':'Round ')+D.round+(I18n.lang==='zh'?' 期':'');
+  document.getElementById('featBtn').href = 'games/lottery/?pool='+P.sym.toLowerCase();
+  var el = document.getElementById('featEnd');
+  (function tick(){
+    var ms = D.end - Date.now();
+    if(ms<=0){ el.textContent = I18n.lang==='zh'?'已截止':'Ended'; return; }
+    var s=Math.floor(ms/1000);
+    el.textContent = Math.floor(s/3600)+':'+String(Math.floor(s%3600/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+    setTimeout(tick,1000);
+  })();
+}
+function failFeat(){
+  ['featJackpot','featPrice'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.innerHTML='<a href="javascript:refreshFeat()" class="neon small" style="color:#F5E9C8">'+t('load_fail')+' · '+t('retry')+'</a>';
+  });
+}
+async function refreshFeat(){
+  var P = window.LOTTERY_POOLS[selPool];
+  try{ paintFeat(P, await loadPoolData(selPool)); }
+  catch(e){ failFeat(); }
+}
+function paintPools(){
+  var g = document.getElementById('poolGrid');
+  g.innerHTML = window.LOTTERY_POOLS.map(function(p,i){
+    return '<div class="pool'+(i===selPool?' sel':'')+'" data-i="'+i+'" role="button" tabindex="0" aria-label="'+p.sym+'">'
+      +'<div class="pb">'+p.badge+'</div><h4>'+p.sym+' 池</h4>'
+      +'<div class="pp" id="pp'+i+'">'+t('loading')+'</div></div>';
+  }).join('');
+  g.querySelectorAll('.pool').forEach(function(el){
+    function go(){ selPool=Number(el.getAttribute('data-i')); paintPools(); refreshFeat(); }
+    el.onclick=go;
+    el.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } };
+  });
+  window.LOTTERY_POOLS.forEach(function(p,i){
+    apRpc('eth_call',[{to:p.contract,data:'0x'+window.LOTTERY_SEL.ticketPrice},'latest']).then(function(tp){
+      var el=document.getElementById('pp'+i);
+      if(el) el.textContent = apFmt(BigInt(tp),p.dec)+' '+p.sym+t('per_ticket');
+    }).catch(function(){
+      var el=document.getElementById('pp'+i);
+      if(el) el.textContent = t('load_fail');
+    });
+  });
+}
+function paintGames(){
+  var el = document.getElementById('games3');
+  el.innerHTML = window.GAMES.filter(function(g){return g.status!=='live';}).map(function(g){
+    return '<div class="gcard"><div class="cov"><img data-img="'+g.cover+'" alt="'+g.name[I18n.lang]+'" loading="lazy">'
+      +'<span class="badge soon" style="position:absolute;top:14px;right:14px;background:rgba(255,254,250,.92)">'+t('dev')+'</span></div>'
+      +'<div class="cbody"><div><h3>'+g.name[I18n.lang]+'</h3><div class="en">'+g.name.en+'</div></div>'
+      +'<a href="'+g.path+'" class="neon" aria-label="'+g.name[I18n.lang]+'">→</a></div></div>';
+  }).join('');
+  paintImgs();
+}
+paintPools(); refreshFeat(); paintGames();
+window.onLangChange = function(){
+  paintPools(); refreshFeat(); paintGames();
+  var f=document.querySelector('footer'); if(f) f.remove(); renderFooter();
+};
+</script>
+</body>
+</html>
