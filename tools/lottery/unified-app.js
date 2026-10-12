@@ -43,7 +43,7 @@ zh: {
   dashClosed: '已截止', waitDrawBlk: '目标块 {b}',
   poolTabL: 'LGNS 池', poolTabU: 'USDT 池', poolTabD: 'DAI 池', poolTabA: 'A 池', poolTabR: 'RM 池', backLobby: '返回游戏大厅',
   eyebrow:'A LITTLE DISCOVERY. A NEW WORLD.', heroTitle:'让每一次探索，<br>都有新的期待。', heroSub:'简洁、清晰的 Anubis 游戏体验。从一张彩票开始，发现更多可能。', heroStat:'<b>01</b> 款游戏已上线 &nbsp;/&nbsp; <b>05</b> 个奖池入口', heroCta1:'进入链上彩票', heroCta2:'查看游戏规则',
-  featTitle:'正在进行 · 链上彩票', featSub:'当前选中奖池 · 数据链上实时', ftLive:'进行中', ftPoolWord:'奖池', ftPoolLabel:'本期奖池', ftPrice:'单张票价', ftEnd:'售票截止', ftEnter:'查看奖池', navLobby:'游戏大厅', navRecords:'我的记录', navHelp:'帮助中心', navNotice:'公告', navInvite:'邀请奖励', noticeT:'公告', noticeB:'暂无新公告。最新动态请关注官方渠道。',
+  featTitle:'正在进行 · 链上彩票', featSub:'当前选中奖池 · 数据链上实时', ftLive:'进行中', ftPoolWord:'奖池', ftPoolLabel:'本期奖池', ftPrice:'单张票价', ftEnd:'售票截止', ftEnter:'查看奖池', navLobby:'游戏大厅', navRecords:'我的记录', navHelp:'帮助中心', navNotice:'公告', navInvite:'邀请奖励', tabHome:'首页', tabPlay:'彩票', tabRecords:'记录', tabInvite:'邀请', noticeT:'公告', noticeB:'暂无新公告。最新动态请关注官方渠道。',
  invTitle:'邀请好友，一起赢', invSub:'邀请朋友加入 ANUBIS PLAY，他们每一次参与，你都有一份奖励——直推 30%、间推 10%，链上结算，随时提取。', invDetail:'邀请明细', invConnect:'连接钱包后查看你的邀请数据', refGoBtn:'打开邀请奖励页 →',
  invS1:'分享链接', invS1s:'复制你的专属链接发给朋友', invS2:'朋友玩游戏', invS2s:'他首次参与即与你绑定（不可改）', invS3:'赚取返佣', invS3s:'直推 30% · 间推 10%，随时提取', invEarnTitle:'各游戏 / 奖池返佣', invCovers:'覆盖范围', invCoversV:'全部 5 个奖池 · 更多游戏陆续接入', invNone:'暂无',
  recTitle:'我的记录', recSub:'你在各奖池的参与与收益，链上实时统计', recPool:'奖池', recTickets:'买票', recSpent:'花费', recWon:'中奖 (次/额)', recNet:'净盈亏', recConnect:'连接钱包后查看你的记录', recNote:'说明：花费按当前票价估算；盈亏仅统计买票与中奖，不含邀请返佣（返佣见「邀请奖励」页）。',
@@ -126,7 +126,7 @@ en: {
   dashClosed: 'Closed', waitDrawBlk: 'Target block {b}',
   poolTabL: 'LGNS Pool', poolTabU: 'USDT Pool', poolTabD: 'DAI Pool', poolTabA: 'A Pool', poolTabR: 'RM Pool', backLobby: 'Back to Lobby',
   eyebrow:'A LITTLE DISCOVERY. A NEW WORLD.', heroTitle:'Every play,<br>a new anticipation.', heroSub:'A clean, clear gaming experience on Anubis. Start with one ticket, discover more.', heroStat:'<b>01</b> game live &nbsp;/&nbsp; <b>05</b> pools', heroCta1:'Enter Lottery', heroCta2:'View Rules',
-  featTitle:'Live · On-chain Lottery', featSub:'Selected pool · live on-chain data', ftLive:'Live', ftPoolWord:'Pool', ftPoolLabel:'Current pool', ftPrice:'Ticket price', ftEnd:'Sales end in', ftEnter:'View pool', navLobby:'Lobby', navRecords:'My Records', navHelp:'Help Center', navNotice:'News', navInvite:'Referral', noticeT:'News', noticeB:'No new announcements. Follow our official channels for updates.',
+  featTitle:'Live · On-chain Lottery', featSub:'Selected pool · live on-chain data', ftLive:'Live', ftPoolWord:'Pool', ftPoolLabel:'Current pool', ftPrice:'Ticket price', ftEnd:'Sales end in', ftEnter:'View pool', navLobby:'Lobby', navRecords:'My Records', navHelp:'Help Center', navNotice:'News', navInvite:'Referral', tabHome:'Home', tabPlay:'Lottery', tabRecords:'Records', tabInvite:'Invite', noticeT:'News', noticeB:'No new announcements. Follow our official channels for updates.',
  invTitle:'Invite friends, win together', invSub:'Invite friends to ANUBIS PLAY. Every time they play, you earn — 30% direct, 10% indirect, settled on-chain, claim anytime.', invDetail:'Referral details', invConnect:'Connect your wallet to see your referral data', refGoBtn:'Open referral page →',
  invS1:'Share link', invS1s:'Copy your unique link and send to friends', invS2:'Friend plays', invS2s:'Binds to you on their first play (permanent)', invS3:'Earn rewards', invS3s:'Direct 30% · Indirect 10%, claim anytime', invEarnTitle:'Rewards by game / pool', invCovers:'Coverage', invCoversV:'All 5 pools · more games coming', invNone:'None',
  recTitle:'My Records', recSub:'Your activity and returns across all pools, live on-chain', recPool:'Pool', recTickets:'Tickets', recSpent:'Spent', recWon:'Won (times/amt)', recNet:'Net P/L', recConnect:'Connect your wallet to see your records', recNote:'Note: spend is estimated at current price; P/L counts tickets and winnings only, excluding referral rewards (see the Referral page).',
@@ -1285,6 +1285,14 @@ function showView(v, fromHash){
   else if(v==='records'){ loadRecords(); }
   else{ renderHome(); loadHome(); }
   try{window.scrollTo(0,0);}catch(e){}
+  try{updateTabs(v);}catch(e){}
+}
+function updateTabs(v){
+  var tabs=document.querySelectorAll('#ptabs a[data-view]');
+  for(var i=0;i<tabs.length;i++){
+    if(tabs[i].getAttribute('data-view')===v) tabs[i].classList.add('active');
+    else tabs[i].classList.remove('active');
+  }
 }
 window.addEventListener('hashchange', function(){
   var v=routeFromHash();
