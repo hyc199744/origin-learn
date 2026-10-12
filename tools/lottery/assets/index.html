@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我的资产 · ANUBIS PLAY</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 3 42 13.5v17L24 45 6 30.5v-17L24 3z' fill='none' stroke='%23d4af37' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../shared/theme.css">
+</head>
+<body>
+<script>window.SITE_ROOT='../';</script>
+<script>
+window.PAGE_I18N = {
+zh:{
+  nav_home:'首页', nav_games:'游戏大厅', nav_hot:'热门游戏', nav_assets:'我的资产', nav_profile:'我的记录', nav_news:'平台公告',
+  nav_lottery:'链上彩票', connect:'连接钱包', foot_data:'链上数据以浏览器为准',
+  pt:'我的资产', psub:'连接钱包查看 Anubis 链上代币余额 · 余额来自链上实时查询',
+  need:'请先连接钱包查看余额', connect2:'连接钱包',
+  gas:'⛽ Gas 余额', tokens:'🪙 代币余额',
+  verified:'已核实地址', soon:'即将支持',
+  soon_note:'以下代币合约地址尚在核实中，核实完成前不启用余额显示与交易：',
+  tap_copy:'点击复制地址', loading:'查询中…'
+},
+en:{
+  nav_home:'Home', nav_games:'Games', nav_hot:'Hot Games', nav_assets:'Assets', nav_profile:'Records', nav_news:'News',
+  nav_lottery:'Lottery', connect:'Connect Wallet', foot_data:'On-chain data as shown in explorer',
+  pt:'My Assets', psub:'Connect your wallet to see token balances on Anubis · balances are read live from chain',
+  need:'Connect your wallet to see balances', connect2:'Connect Wallet',
+  gas:'⛽ Gas balance', tokens:'🪙 Token balances',
+  verified:'Verified address', soon:'Coming soon',
+  soon_note:'The contract addresses below are still being verified — balances and trading stay disabled until verified:',
+  tap_copy:'Tap to copy address', loading:'Loading…'
+}};
+/* 代币清单：只有 full address 已链上核实的才启用余额查询 */
+window.VERIFIED_TOKENS = [
+  { sym:'LGNS',  addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9,  note:{zh:'Longinus',en:'Longinus'} },
+  { sym:'DAI',   addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18, note:{zh:'Dai Stablecoin',en:'Dai Stablecoin'} },
+  { sym:'USDT',  addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,  note:{zh:'Bridged USDT',en:'Bridged USDT'} },
+  { sym:'A',     addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18, note:{zh:'Bridged A',en:'Bridged A'} },
+  { sym:'AiLGNS',addr:'0x256edb652db43e721ec6a12b6b51b6967d3bb8cb', dec:18, note:{zh:'AiLGNS',en:'AiLGNS'} }
+];
+window.SOON_TOKENS = ['fLGNS','gLGNS','RM','AUG','VST','USDC','BNB'];
+</script>
+<script src="../shared/site.js"></script>
+
+<div class="page"><div class="wrap">
+  <h1 class="pt" data-i18n="pt">我的资产</h1>
+  <div class="psub" data-i18n="psub"></div>
+  <div id="aBody"></div>
+
+  <div class="panel mt">
+    <h3 style="margin-bottom:6px">🔜 <span data-i18n="soon">即将支持</span></h3>
+    <div class="muted small" style="margin-bottom:10px" data-i18n="soon_note"></div>
+    <div id="soonList" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+  </div>
+</div></div>
+
+<script>
+SiteNav.render('nav_assets'); renderFooter(); I18n.apply();
+document.getElementById('soonList').innerHTML =
+  window.SOON_TOKENS.map(function(s){ return '<span class="tag wait">'+s+'</span>'; }).join('');
+
+function balOf(token, user){
+  var data = '0x70a08231' + '000000000000000000000000' + user.slice(2).toLowerCase();
+  return apRpc('eth_call',[{to:token, data:data},'latest']).then(function(r){ return BigInt(r); });
+}
+function paint(){
+  var el = document.getElementById('aBody');
+  if(!SiteWallet.connected){
+    el.innerHTML = '<div class="panel center"><div class="muted" style="margin-bottom:14px" data-i18n="need">请先连接钱包查看余额</div>'
+      +'<button class="btn btn-gold" id="abtn">'+t('connect2')+'</button></div>';
+    document.getElementById('abtn').onclick = function(){ SiteWallet.connect(); };
+    return;
+  }
+  var u = SiteWallet.address;
+  el.innerHTML = '<div class="panel"><h3 style="margin-bottom:10px" data-i18n="gas">⛽ Gas 余额</h3>'
+    +'<div class="tokrow"><div class="tsym">GAS</div><div class="tinfo"><div class="tname">Anubis Gas</div>'
+    +'<div class="tmeta">native · 18 decimals</div></div><div class="tbal" id="gasBal">'+t('loading')+'</div></div></div>'
+    +'<div class="panel mt"><h3 style="margin-bottom:10px" data-i18n="tokens">🪙 代币余额</h3><div id="tokRows">'
+    + window.VERIFIED_TOKENS.map(function(tk, i){
+        return '<div class="tokrow"><div class="tsym">'+tk.sym.slice(0,4)+'</div><div class="tinfo">'
+          +'<div class="tname">'+tk.sym+' <span class="tag ok">'+t('verified')+'</span></div>'
+          +'<div class="tmeta"><span class="addr" data-copy="'+tk.addr+'" title="'+t('tap_copy')+'">'+tk.addr.slice(0,10)+'…'+tk.addr.slice(-6)+'</span> · '+tk.note[I18n.lang]+'</div></div>'
+          +'<div class="tbal" id="tb'+i+'">'+t('loading')+'</div></div>';
+      }).join('') + '</div></div>';
+  apRpc('eth_getBalance',[u,'latest']).then(function(r){
+    var b=document.getElementById('gasBal'); if(b) b.textContent = apFmt(BigInt(r),18)+' DAI';
+  }).catch(function(){});
+  window.VERIFIED_TOKENS.forEach(function(tk, i){
+    balOf(tk.addr, u).then(function(v){
+      var b=document.getElementById('tb'+i); if(b) b.textContent = apFmt(v, tk.dec)+' '+tk.sym;
+    }).catch(function(){ var b=document.getElementById('tb'+i); if(b) b.textContent='—'; });
+  });
+}
+SiteWallet.onChange(paint);
+paint();
+window.onLangChange = function(){ paint(); var f=document.querySelector('footer'); if(f) f.remove(); renderFooter(); };
+</script>
+</body>
+</html>
