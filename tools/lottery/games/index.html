@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>游戏大厅 · ANUBIS PLAY</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 3 42 13.5v17L24 45 6 30.5v-17L24 3z' fill='none' stroke='%23d4af37' stroke-width='3'/%3E%3Cpath d='M24 12l5 9-5 9-5-9z' fill='%23d4af37'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../shared/theme.css">
+</head>
+<body>
+<script>window.SITE_ROOT='../';</script>
+<script>
+window.PAGE_I18N = {
+zh:{
+  nav_home:'首页', nav_games:'游戏大厅', nav_hot:'热门游戏', nav_assets:'我的资产', nav_profile:'我的记录', nav_news:'平台公告',
+  nav_lottery:'链上彩票', connect:'连接钱包', foot_data:'链上数据以浏览器为准',
+  pt:'游戏大厅', psub:'一个钱包，畅玩 Anubis 链上所有游戏 —— 新游戏持续加入中',
+  sec_live:'正在运行', sec_soon:'即将上线',
+  soon_note:'🎮 更多游戏正在开发中，通过游戏配置文件即插即用，敬请期待。'
+},
+en:{
+  nav_home:'Home', nav_games:'Games', nav_hot:'Hot Games', nav_assets:'Assets', nav_profile:'Records', nav_news:'News',
+  nav_lottery:'Lottery', connect:'Connect Wallet', foot_data:'On-chain data as shown in explorer',
+  pt:'Game Lobby', psub:'One wallet for every game on Anubis Chain — more games joining soon',
+  sec_live:'Live Now', sec_soon:'Coming Soon',
+  soon_note:'🎮 More games are in development and plug in via the game config. Stay tuned.'
+}};
+</script>
+<script src="../shared/site.js"></script>
+
+<div class="page"><div class="wrap">
+  <h1 class="pt" data-i18n="pt">游戏大厅</h1>
+  <div class="psub" data-i18n="psub"></div>
+
+  <div class="sec-head" style="margin-top:10px"><span class="sec-num">●</span>
+    <div class="sec-title" style="font-size:20px" data-i18n="sec_live">正在运行</div></div>
+  <div class="cards" id="liveCards"></div>
+
+  <div class="sec-head" style="margin-top:38px"><span class="sec-num">○</span>
+    <div class="sec-title" style="font-size:20px" data-i18n="sec_soon">即将上线</div></div>
+  <div class="cards" id="soonCards"></div>
+
+  <div class="panel mt center"><span class="muted" data-i18n="soon_note"></span></div>
+</div></div>
+
+<script>
+SiteNav.render('nav_games');
+function paint(){
+  var lang = I18n.lang, live = window.GAMES.filter(function(g){return g.status==='live';}),
+      soon = window.GAMES.filter(function(g){return g.status!=='live';});
+  function card(g){
+    var isLive = g.status==='live';
+    var badge = isLive ? '<span class="badge live">LIVE</span>'
+      : '<span class="badge soon">'+(lang==='zh'?'即将上线':'COMING SOON')+'</span>';
+    var btn = isLive ? '<span class="go">'+(lang==='zh'?'立即进入 →':'Enter now →')+'</span>'
+      : '<span class="go">'+(lang==='zh'?'敬请期待':'Coming soon')+'</span>';
+    var inner = '<div class="float-orb"></div>'+badge+'<div class="gicon">'+g.icon+'</div>'
+      +'<h3>'+g.name[lang]+'</h3><p>'+g.desc[lang]+'</p>'+btn;
+    return isLive ? '<a class="gcard live" href="../'+g.path+'">'+inner+'</a>'
+                  : '<div class="gcard soon">'+inner+'</div>';
+  }
+  document.getElementById('liveCards').innerHTML = live.map(card).join('');
+  document.getElementById('soonCards').innerHTML = soon.map(card).join('');
+}
+paint(); renderFooter(); I18n.apply();
+window.onLangChange = function(){ paint(); var f=document.querySelector('footer'); if(f) f.remove(); renderFooter(); };
+</script>
+</body>
+</html>
