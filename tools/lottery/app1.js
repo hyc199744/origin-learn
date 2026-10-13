@@ -3,9 +3,13 @@ function b64mime(u){ return u.indexOf('.webp.')>0?'image/webp':'image/jpeg'; }
 function loadB64Imgs(){
   document.querySelectorAll('img[data-b64src]').forEach(function(el){
     var u=el.getAttribute('data-b64src'); if(!u||el.src.indexOf('data:')===0) return;
-    fetch(u).then(function(r){return r.text();}).then(function(b){
-      el.src='data:'+b64mime(u)+';base64,'+b.trim();
-    }).catch(function(){});
+    var tries=0;
+    (function go(){
+      fetch(u).then(function(r){ if(!r.ok) throw 0; return r.text(); }).then(function(b){
+        b=b.trim(); if(b.length<100) throw 0;
+        el.src='data:'+b64mime(u)+';base64,'+b;
+      }).catch(function(){ if(++tries<4) setTimeout(go, 1500*tries); });
+    })();
   });
 }
 function b64ToDataUrl(u){ return fetch(u).then(function(r){return r.text();}).then(function(b){ return 'data:'+b64mime(u)+';base64,'+b.trim(); }); }
