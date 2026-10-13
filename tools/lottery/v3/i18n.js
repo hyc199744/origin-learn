@@ -48,12 +48,33 @@
   '立即邀请 →':['Invite now →','지금 초대 →','今すぐ招待 →','Пригласить →','Mời ngay →','Invitar →'],
   '本期奖池':['Current pool','현재 풀','今期プール','Текущий пул','Pool hiện tại','Pozo actual'],
   '未连接':['Not connected','미연결','未接続','Не подключено','Chưa kết nối','Desconectado'],
-  '已连接':['Connected','연결됨','接続済み','Подключено','Đã kết nối','Conectado']
+  '已连接':['Connected','연결됨','接続済み','Подключено','Đã kết nối','Conectado'],
+  '五大奖池 · 每期 1 小时 · 未来区块哈希开奖，全程链上可查。':['Five pools · 1h per round · drawn by a future block hash, all on-chain.'],
+  '购票':['Buy Tickets'],
+  '1 张':['1 ticket'],'5 张':['5 tickets'],'10 张':['10 tickets'],'50 张':['50 tickets'],
+  '合计':['Total'],
+  '首次用某代币买票需先授权一次，之后直接购票。每期按比例扣少量平台费，其余按奖项派给中奖者。开奖用截止后的未来区块哈希，任何人可触发，结果链上可查。':['First purchase with a token needs one approval, then buy directly. A small platform fee is taken each round; the rest goes to winners by tier. The draw uses a future block hash after cutoff — anyone can trigger it, result is on-chain.'],
+  '奖项设置':['Prize Tiers'],
+  '一等奖':['1st Prize'],'二等奖':['2nd Prize'],'三等奖':['3rd Prize'],
+  '1 名':['1 winner'],'3 名':['3 winners'],'10 名':['10 winners'],
+  '奖池 50%':['50% of pool'],'各 10%':['10% each'],'各 2%':['2% each'],
+  '没人中的奖项自动滚入下期，奖池持续累积。':['Unwon prizes roll over; the pool keeps growing.'],
+  '当前期数':['Round'],
+  '已截止':['Ended'],
+  '授权':['Approve'],'买票':['Buy'],'处理中…':['Processing…'],
+  '奖池数据未就绪':['Pool data not ready'],
+  '授权成功':['Approved'],'购票成功！':['Purchased!'],
+  '交易已发送，等待确认…':['Transaction sent, confirming…'],
+  '交易失败(被合约回退)':['Transaction reverted'],
+  '确认超时，请在浏览器查看':['Confirmation timed out, check the explorer'],
+  '连接失败':['Connection failed'],'未获取到地址':['No address found'],
+  '未检测到钱包，请在 OKX / MetaMask 内置浏览器打开':['No wallet detected. Open in the OKX / MetaMask in-app browser.']
   };
   var LANG='zh';
   try{LANG=localStorage.getItem('aplang')||'zh';}catch(e){}
   function idx(l){return ORDER.indexOf(l);}
   window.tr=function(zh,l){l=l||LANG;if(l==='zh')return zh;var e=D[zh];var i=idx(l);return (e&&i>=0&&e[i])||zh;};
+  window.getLang=function(){return LANG;};
   function collect(){document.querySelectorAll('body *').forEach(function(el){if(el.children.length===0){var t=(el.textContent||'').trim();if(t&&D[t]&&!el.hasAttribute('data-zh'))el.setAttribute('data-zh',t);}});
     var hh=document.getElementById('heroH2');if(hh&&!hh.hasAttribute('data-zh'))hh.setAttribute('data-zh','heroH2');}
   var HERO={zh:'探索游戏宇宙，<em>发现 Anubis 的更多可能</em>',

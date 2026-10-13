@@ -81,13 +81,15 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .foot{display:flex;justify-content:center;gap:16px;margin-top:22px;font-size:10px;color:var(--muted)}
 .foot span{display:inline-flex;align-items:center;gap:5px}.foot .ic{width:13px;height:13px;color:var(--accent)}
 #vtoast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#20292e;color:#eff6f3;border:1px solid #ffffff22;padding:11px 18px;border-radius:10px;font-size:13px;z-index:999;max-width:88%;text-align:center;box-shadow:0 10px 30px #0008;opacity:0;transition:opacity .2s;pointer-events:none}
+.lang-menu{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));right:14px;background:#20292e;border:1px solid var(--line);border-radius:12px;padding:6px;min-width:140px;z-index:200;box-shadow:0 14px 34px #0009;display:flex;flex-direction:column;gap:2px}.lang-menu .lmi{padding:10px 14px;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer}.lang-menu .lmi:hover{background:#ffffff0d}.lang-menu .lmi.on{color:var(--accent);background:#bfee6612}#langCode{color:var(--accent)}
 </style>
+<script src="../i18n.js?v=4"></script>
 </head>
 <body>
 <header class="top">
   <a class="back" href="../"><svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>游戏大厅</a>
   <a class="brand" href="../"><img src="../img/logo.webp?v=2" alt="ANUBIS PLAY"><span><b>ANUBIS PLAY</b><small>链上彩票</small></span></a>
-  <button class="wallet-btn" id="walletBtn" onclick="connectWallet()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h.01"/></svg><span id="walletTxt">连接钱包</span></button>
+  <button class="wallet-btn" id="langBtn" onclick="toggleLangMenu(event)" aria-label="Language" style="padding:10px 12px;background:#131a1e;color:var(--accent);border:1px solid var(--line);box-shadow:none"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span id="langCode" style="font-size:9px;font-weight:700;margin-left:2px">中</span></button><div id="langMenu" class="lang-menu" hidden></div><button class="wallet-btn" id="walletBtn" onclick="connectWallet()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h.01"/></svg><span id="walletTxt">连接钱包</span></button>
 </header>
 
 <main class="wrap">
@@ -176,11 +178,11 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     data[k]={price:price,end:Number(w(0)),pool:w(3)+w(4),round:Number(rid),ok:true};
   }catch(e){data[k]={ok:false};}if(k===sel)render();}
   function cd(end){var s=end-Math.floor(Date.now()/1000);if(s<0)s=0;var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;var p=function(v){return String(v).padStart(2,'0');};return p(h)+':'+p(m)+':'+p(x);}
-  function tickTimer(){var D=data[sel]||{};var e=$('tkTimer');if(e)e.textContent=D.ok?(D.end>Math.floor(Date.now()/1000)?cd(D.end):'已截止'):'—';}
-  function render(){var P=POOLS[sel],D=data[sel]||{};
+  function tickTimer(){var D=data[sel]||{};var e=$('tkTimer');if(e)e.textContent=D.ok?(D.end>Math.floor(Date.now()/1000)?cd(D.end):(window.tr?window.tr('已截止'):'已截止')):'—';}
+  window.__poolRender=render;function render(){var P=POOLS[sel],D=data[sel]||{};
     document.querySelectorAll('#poolTabs .pool-tab').forEach(function(t,i){t.classList.toggle('sel',i===sel);});
-    $('poolEyebrow').textContent='本期奖池 · '+P.sym;$('jkUnit').textContent=P.sym;
-    $('jkRound').textContent=D.ok?('第 '+D.round+' 期'):'—';
+    $('poolEyebrow').textContent=(window.tr?window.tr('本期奖池'):'本期奖池')+' · '+P.sym;$('jkUnit').textContent=P.sym;
+    $('jkRound').textContent=D.ok?((window.getLang&&window.getLang()==='en')?('Round '+D.round):('第 '+D.round+' 期')):'—';
     $('jkAmt').textContent=D.ok?fmt(D.pool,P.d):'—';
     $('tkPrice').textContent=D.ok?(fmt(D.price,P.d)+' '+P.sym):'—';
     tickTimer();updateTotal();updateBuy();}
@@ -192,8 +194,8 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   window.setN=function(v){n=v;$('buyN').value=n;updateTotal();updateBuy();};
   window.normN=function(){var v=parseInt($('buyN').value||'1',10);if(isNaN(v))v=1;n=Math.max(1,Math.min(200,v));$('buyN').value=n;updateTotal();updateBuy();};
   /* 钱包 */
-  function uiWallet(){var x=$('walletTxt');if(x)x.textContent=myAddr?short(myAddr):'连接钱包';var b=$('walletBtn');if(b)b.classList.toggle('connected',!!myAddr);updateBuy();}
-  window.connectWallet=async function(){var eth=window.ethereum;if(!eth){toast('未检测到钱包，请在 OKX / MetaMask 内置浏览器打开');return;}
+  window.__uiWallet=uiWallet;function uiWallet(){var x=$('walletTxt');if(x)x.textContent=myAddr?short(myAddr):'连接钱包';var b=$('walletBtn');if(b)b.classList.toggle('connected',!!myAddr);updateBuy();}
+  window.connectWallet=async function(){var eth=window.ethereum;if(!eth){toast(window.tr?window.tr('未检测到钱包，请在 OKX / MetaMask 内置浏览器打开'):'未检测到钱包，请在 OKX / MetaMask 内置浏览器打开');return;}
     try{var accs=await eth.request({method:'eth_requestAccounts'});if(!accs||!accs.length)return;myAddr=accs[0];
       var cid=await eth.request({method:'eth_chainId'});
       if(parseInt(cid,16)!==ANUBIS.id){try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}}
@@ -203,18 +205,18 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   /* 发交易(Anubis legacy type-0) */
   async function sendTx(to,d){var eth=window.ethereum;var tx={from:myAddr,to:to,data:d,type:'0x0'};
     var gp=await eth.request({method:'eth_gasPrice',params:[]});tx.gasPrice=gp;
-    var hash=await eth.request({method:'eth_sendTransaction',params:[tx]});toast('交易已发送，等待确认…');
+    var hash=await eth.request({method:'eth_sendTransaction',params:[tx]});toast(window.tr?window.tr('交易已发送，等待确认…'):'交易已发送，等待确认…');
     for(var i=0;i<150;i++){await new Promise(function(r){setTimeout(r,2000);});var rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber&&rc.blockNumber!=='0x0'){if(rc.status==='0x1')return rc;throw new Error('交易失败(被合约回退)');}}
     throw new Error('确认超时，请在浏览器查看');}
   async function needApprove(){var P=POOLS[sel],D=data[sel];if(!myAddr||!D||!D.ok)return false;try{var al=BigInt('0x'+((await rcall(P.t,SEL.allowance+encA(myAddr)+encA(P.c)))||'0'));return al<D.price*BigInt(n);}catch(e){return true;}}
-  async function updateBuy(){var b=$('buyBtn'),t=$('buyTxt');if(!b||!t)return;if(busy){b.disabled=true;t.textContent='处理中…';return;}b.disabled=false;
-    if(!myAddr){t.textContent='连接钱包';return;}
-    try{t.textContent=(await needApprove())?('授权 '+POOLS[sel].sym):('买票 '+n+' 张');}catch(e){t.textContent='买票 '+n+' 张';}}
+  window.__updateBuy=function(){updateBuy();};async function updateBuy(){var b=$('buyBtn'),t=$('buyTxt');if(!b||!t)return;if(busy){b.disabled=true;t.textContent=(window.tr?window.tr('处理中…'):'处理中…');return;}b.disabled=false;
+    if(!myAddr){t.textContent=(window.tr?window.tr('连接钱包'):'连接钱包');return;}
+    try{t.textContent=(await needApprove())?((window.tr?window.tr('授权'):'授权')+' '+POOLS[sel].sym):((window.getLang&&window.getLang()==='en')?('Buy '+n+' tickets'):('买票 '+n+' 张'));}catch(e){t.textContent='买票 '+n+' 张';}}
   window.mainAction=async function(){if(busy)return;busy=true;updateBuy();try{
     if(!myAddr){await connectWallet();return;}
-    var P=POOLS[sel],D=data[sel];if(!D||!D.ok){toast('奖池数据未就绪');return;}
-    if(await needApprove()){await sendTx(P.t,'0x'+SEL.approve+encA(P.c)+enc(D.price*200n));toast('授权成功');}
-    else{var ref=getRef();if(ref)await sendTx(P.c,'0x'+SEL.buyRef+enc(n)+encA(ref));else await sendTx(P.c,'0x'+SEL.buy+enc(n));toast('购票成功！');loadPool(sel);}
+    var P=POOLS[sel],D=data[sel];if(!D||!D.ok){toast(window.tr?window.tr('奖池数据未就绪'):'奖池数据未就绪');return;}
+    if(await needApprove()){await sendTx(P.t,'0x'+SEL.approve+encA(P.c)+enc(D.price*200n));toast(window.tr?window.tr('授权成功'):'授权成功');}
+    else{var ref=getRef();if(ref)await sendTx(P.c,'0x'+SEL.buyRef+enc(n)+encA(ref));else await sendTx(P.c,'0x'+SEL.buy+enc(n));toast(window.tr?window.tr('购票成功！'):'购票成功！');loadPool(sel);}
   }catch(e){toast((e&&e.message)||e);}finally{busy=false;updateBuy();}};
   /* init */
   render();POOLS.forEach(function(_,k){loadPool(k);});
