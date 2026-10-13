@@ -140,19 +140,22 @@
 
   <!-- 大厅 -->
   <div class="card" id="lobby" style="margin-top:14px;">
-    <h2>大厅</h2>
+    <h2>开始游戏</h2>
     <div class="row">
-      <button id="btnCreate" disabled>建房开桌</button>
-      <div style="flex:1; min-width:200px;">
-        <div class="row">
-          <input type="number" id="joinId" placeholder="输入房间号" style="max-width:160px;" />
-          <button id="btnJoin" class="ghost" disabled>加入房间</button>
-        </div>
-      </div>
+      <button id="btnQuick" disabled>🎲 快速开始（自动匹配）</button>
+      <span id="matchStatus" class="muted" style="font-size:13px;"></span>
     </div>
     <div class="hint" style="margin-top:10px;">
-      建房 / 加入都会先检查 LGNS 授权，不足时弹一次 approve；加入扣 <b id="hintAnte">10</b> LGNS 底注。
+      自动找一张还在等人的桌子直接坐进去，没空桌就帮你开一桌等人。入桌扣 <b id="hintAnte">10</b> LGNS 底注，授权不足会弹一次 approve。
     </div>
+    <details style="margin-top:12px;">
+      <summary>和朋友约局（建私人房 / 输房号加入）</summary>
+      <div class="row" style="margin-top:10px;">
+        <button id="btnCreate" class="ghost" disabled>建房</button>
+        <input type="number" id="joinId" placeholder="输入房间号" style="max-width:160px;" />
+        <button id="btnJoin" class="ghost" disabled>加入</button>
+      </div>
+    </details>
   </div>
 
   <!-- 牌桌 -->
@@ -392,6 +395,7 @@ async function connect(){
     roGame = new ethers.Contract(CONTRACT, ABI, roProvider);
 
     $("btnConnect").textContent = short(account);
+    $("btnQuick").disabled = false;
     $("btnCreate").disabled = false;
     $("btnJoin").disabled = false;
     await refreshChainBadge();
@@ -463,6 +467,41 @@ async function ensureAllowance(need){
   logLine("approve "+fmt(amt)+" LGNS … "+tx.hash.slice(0,10));
   await tx.wait();
   toast("授权完成","ok");
+}
+
+/* ========== 快速匹配 ========== */
+async function quickMatch(){
+  try{
+    $("btnQuick").disabled = true;
+    $("matchStatus").textContent = "正在找桌…";
+    const next = Number(await roGame.nextRoomId());
+    // 从最近的房往回扫最多 50 个，找还在等人且没满的桌，优先人多的（更快开局）
+    let best = null, bestCount = -1;
+    const start = Math.max(0, next-50);
+    for(let id=next-1; id>=start; id--){
+      let info;
+      try{ info = await roGame.roomInfo(id); }catch(_){ continue; }
+      const state = Number(info.state), pc = Number(info.playerCount);
+      if(state!==0 || pc<1 || pc>=8) continue;
+      // 自己已经在这桌 -> 直接回去
+      let mine=false; try{ mine = await roGame.isPlayer(id, account); }catch(_){}
+      if(mine){ enterRoom(BigInt(id)); return; }
+      if(pc>bestCount){ best=id; bestCount=pc; }
+    }
+    if(best!==null){
+      $("matchStatus").textContent = "找到桌 #"+best+"，加入中…";
+      await ensureAllowance(params.ante);
+      const tx = await game.joinRoom(BigInt(best), overrides());
+      logLine("自动入桌 #"+best+" "+tx.hash.slice(0,10)+" …");
+      await tx.wait();
+      toast("已入桌 #"+best,"ok");
+      enterRoom(BigInt(best));
+    }else{
+      $("matchStatus").textContent = "暂无空桌，帮你开一桌等人…";
+      await createRoom();  // 成功后内部会进房
+    }
+  }catch(e){ toast("匹配失败："+(e.shortMessage||e.message||e),"err"); }
+  finally{ $("btnQuick").disabled = false; $("matchStatus").textContent = ""; }
 }
 
 /* ========== 建房 / 加入 ========== */
@@ -790,6 +829,7 @@ function addPlayer(a){
 
 /* ========== 绑定 ========== */
 $("btnConnect").onclick = connect;
+$("btnQuick").onclick = quickMatch;
 $("btnCreate").onclick = createRoom;
 $("btnJoin").onclick = joinRoom;
 $("btnLeaveView").onclick = leaveView;
