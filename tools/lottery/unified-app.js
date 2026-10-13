@@ -99,7 +99,15 @@ zh: {
   riskTitle: '风险提示', riskBody: '链上游戏存在智能合约风险、代币价格波动风险与网络风险。请理性参与、量力而行，不要投入无法承受损失的资金。本页面数据全部来自链上公开读取，仅供参考，不构成投资建议。未成年人请勿参与。',
   termsTitle: '使用协议', termsBody: '使用本平台即表示你同意：1）以钱包地址作为唯一身份，不收集手机号等个人信息；2）所有游戏规则以链上合约为准，页面展示仅为辅助；3）邀请绑定一经上链永久有效，不可修改；4）平台不对代币价格波动、网络拥堵或第三方钱包问题负责。',
   aboutBody: 'ANUBIS PLAY 是建立在 Anubis 公链上的链上游戏聚合平台，首款游戏为链上彩票（五大奖池）。全部游戏逻辑与资金结算均在链上完成，公开可查。',
-  announceDef: ''
+  announceDef: '',
+  joinTitle: '受邀加入', joinInviter: '邀请人', joinAddr: '-',
+  joinSub: 'Anubis 公链上的链上游戏平台，首款游戏链上彩票已上线：五大奖池、1 小时一期、开奖全程可验证。',
+  joinF1: '链上可验证', joinF1s: '开奖哈希公开，谁都动不了手脚',
+  joinF2: '邀请有返佣', joinF2s: '直推 30% · 间推 10%，随时提取',
+  joinF3: '钱包即账户', joinF3s: '不注册手机号，连接即用',
+  joinGo: '加入平台', joinSkip: '先逛逛，直接进入 →',
+  joinNote: '点击「加入平台」仅记住邀请人；邀请关系在你首次购票时写入链上，永久有效。',
+  qrTitle: '我的邀请二维码', shareBtn: '分享', qrBtn: '二维码',
 },
 en: {
   pageTitle: '{chain} Lottery', docTitle: '{chain} Lottery',
@@ -198,7 +206,15 @@ en: {
   riskTitle: 'Risk Notice', riskBody: 'On-chain games carry smart-contract risk, token price volatility and network risk. Participate rationally and never stake more than you can afford to lose. All data on this page is read from public on-chain sources for reference only, not investment advice. Minors should not participate.',
   termsTitle: 'Terms of Use', termsBody: 'By using this platform you agree: 1) your wallet address is your sole identity; no phone numbers or personal info are collected; 2) game rules follow the on-chain contracts, page displays are auxiliary; 3) referral bindings are permanent once written on-chain; 4) the platform is not liable for token volatility, network congestion or third-party wallet issues.',
   aboutBody: 'ANUBIS PLAY is an on-chain gaming platform on Anubis Chain. The first game is the on-chain lottery (5 pools). All game logic and fund settlement happen on-chain and are publicly verifiable.',
-  announceDef: ''
+  announceDef: '',
+  joinTitle: 'You are invited', joinInviter: 'Inviter', joinAddr: '-',
+  joinSub: 'An on-chain gaming platform on Anubis Chain. The first game — on-chain lottery — is live: 5 pools, hourly rounds, fully verifiable draws.',
+  joinF1: 'Verifiable', joinF1s: 'Public draw hashes, tamper-proof',
+  joinF2: 'Referral rewards', joinF2s: '30% direct · 10% level-2, claim anytime',
+  joinF3: 'Wallet is account', joinF3s: 'No phone signup, just connect',
+  joinGo: 'Join', joinSkip: 'Look around first →',
+  joinNote: 'Tapping "Join" only remembers your inviter; the binding is written on-chain at your first ticket purchase, permanently.',
+  qrTitle: 'My invite QR code', shareBtn: 'Share', qrBtn: 'QR code',
 }};
 let LANG = localStorage.getItem('lottery_lang') || 'zh';
 function t(k, p){
@@ -1010,6 +1026,62 @@ function joinRef(){
     toast(t('joinOk'));
   }
 }
+/* ================= V1.0 邀请落地页逻辑 ================= */
+function pendingRef(){
+  try{
+    var saved=localStorage.getItem('anubis_joined_ref');
+    if(saved && /^0x[0-9a-fA-F]{40}$/.test(saved)) return null; // 已加入
+    var r=new URLSearchParams(location.search).get('ref');
+    if(r && /^0x[0-9a-fA-F]{40}$/.test(r)){
+      if(myAddr && r.toLowerCase()===myAddr.toLowerCase()) return null; // 自邀
+      return r;
+    }
+  }catch(e){}
+  return null;
+}
+function renderJoinView(){
+  var r=pendingRef();
+  var e=$('joinAddr'); if(e) e.textContent=r?short(r):'-';
+}
+async function joinAndEnter(){
+  joinRef();
+  if(!myAddr){ try{ await connect(); }catch(e){} }
+  showView('home');
+}
+/* ================= V1.0 二维码（懒加载，自托管库） ================= */
+var _qrLoaded=false,_qrLoading=null;
+function loadQrLib(){
+  if(_qrLoaded) return Promise.resolve();
+  if(_qrLoading) return _qrLoading;
+  _qrLoading=new Promise(function(res,rej){
+    var s=document.createElement('script'); s.src='qrcode.min.js';
+    s.onload=function(){ _qrLoaded=true; res(); }; s.onerror=rej;
+    document.head.appendChild(s);
+  });
+  return _qrLoading;
+}
+function openQrModal(){
+  var link=$('accLink')&&$('accLink').value;
+  if(!link){ var rl=$('refLink'); link=rl&&rl.value; }
+  if(!link){ toast(t('needWallet')); return; }
+  openHModal({t:t('qrTitle'), b:'<div class="qrbox"><div class="note">'+t('loading')+'</div></div>'});
+  loadQrLib().then(function(){
+    try{
+      var qr=qrcode(0,'M'); qr.addData(link); qr.make();
+      var box=document.querySelector('#hmodal .qrbox');
+      if(box) box.innerHTML=qr.createImgTag(6,8);
+    }catch(e){ var box2=document.querySelector('#hmodal .qrbox'); if(box2) box2.innerHTML='<div class="note">'+t('loadFail')+'</div>'; }
+  }).catch(function(){ var box3=document.querySelector('#hmodal .qrbox'); if(box3) box3.innerHTML='<div class="note">'+t('loadFail')+'</div>'; });
+}
+/* ================= V1.0 原生分享 ================= */
+function shareRef(){
+  var link=$('accLink')&&$('accLink').value;
+  if(!link){ var rl=$('refLink'); link=rl&&rl.value; }
+  if(!link){ toast(t('needWallet')); return; }
+  var data={title:document.title, text:t('invSub'), url:link};
+  if(navigator.share){ navigator.share(data).catch(function(){}); }
+  else{ try{ if(navigator.clipboard) navigator.clipboard.writeText(link); toast(t('copyOk')); }catch(e){} }
+}
 function renderJoinBanner(){
   const banner = $('joinBanner');
   if(!banner) return;
@@ -1457,18 +1529,20 @@ function routeFromHash(){
 }
 function showView(v, fromHash){
   if(window.renderJoinBanner) renderJoinBanner();
-  var home=$('view-home'),play=$('view-play'),inv=$('view-invite'),rec=$('view-records'),acc=$('view-account'),pb=$('pback');
+  var home=$('view-home'),play=$('view-play'),inv=$('view-invite'),rec=$('view-records'),acc=$('view-account'),jn=$('view-join'),pb=$('pback');
   if(home)home.hidden=(v!=='home');
   if(play)play.hidden=(v!=='play');
   if(inv)inv.hidden=(v!=='invite');
   if(rec)rec.hidden=(v!=='records');
   if(acc)acc.hidden=(v!=='account');
-  if(pb)pb.hidden=(v==='home');
+  if(jn)jn.hidden=(v!=='join');
+  if(pb)pb.hidden=(v==='home'||v==='join');
   if(!fromHash){ try{ if((''+location.hash)!=='#'+v) location.hash=v; }catch(e){} }
   if(v==='play'){ refresh(true); }
   else if(v==='invite'){ loadInvite(); }
   else if(v==='records'){ loadRecords(); }
   else if(v==='account'){ loadAccount(); }
+  else if(v==='join'){ renderJoinView(); }
   else{ renderHome(); loadHome(); }
   try{window.scrollTo(0,0);}catch(e){}
   try{updateTabs(v);}catch(e){}
@@ -1501,7 +1575,7 @@ document.addEventListener('visibilitychange', function(){
 window.addEventListener('load', ()=>{
   try{ var _ol=document.querySelector('.brand-logo'); if(_ol&&$('navLogo')) $('navLogo').src=_ol.src; }catch(e){}
   applyLang(); renderPoolTabs(); updateChainBtn(); updateWalletBtn(); setBuyN(1);
-  var sp='home'; try{ sp=routeFromHash(); if(sp==='home'&&(new URLSearchParams(location.search).get('pool')!==null)) sp='play'; }catch(e){}
+  var sp='home'; try{ sp=routeFromHash(); if(sp==='home'&&(new URLSearchParams(location.search).get('pool')!==null)) sp='play'; if(sp==='home'&&pendingRef()) sp='join'; }catch(e){}
   showView(sp, true);
   apShow(0); apStart(); updateSndBtn();
   loadWinners().then(winStart).catch(function(){});
