@@ -195,7 +195,7 @@ function applyLang(){
   updateBuyBtn();
   if(typeof renderHome==='function') renderHome();
   try{
-    if(!$('view-play').hidden){ loadHistory(); renderMyStats(); }
+    if(!$('view-play').hidden){ const _s=(typeof poolReqSeq!=='undefined')?poolReqSeq:0; loadHistory(_s); renderMyStats(_s); }
     if(!$('view-records').hidden){ loadRecords(); }
     if(!$('view-invite').hidden){ loadInvite(); }
   }catch(e){}
@@ -368,7 +368,7 @@ function updateWalletBtn(){
   const el = $('walletBtnTxt');
   if(el) el.textContent = myAddr ? short(myAddr) : t('connect');
 }
-const fmt = v => Number(formatUnits(v)).toLocaleString('zh-CN',{maximumFractionDigits:2});
+const fmt = v => { const s=formatUnits(v); const neg=s[0]==='-'; const a=neg?s.slice(1):s; const parts=a.split('.'); const intPart=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,','); const dec=parts[1]?parts[1].slice(0,2):''; return (neg?'-':'')+intPart+(dec?'.'+dec:''); };
 const fmt2 = v => Number(formatUnits(v)).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
 let buyN = 1, busy = false;
 let payIdx = 0, quoteInMax = 0n; 
@@ -415,9 +415,11 @@ function updateTotal(){
   const tc = $('totalCost'); if(!tc) return;
   if(TICKET<=0n){ tc.textContent='-'; return; }
   if(payIdx===0){ tc.textContent = fmt(TICKET*BigInt(buyN)) + ' '+TSYM(); return; }
+  const _pi=payIdx, _bn=buyN;
   const pt = payToken();
   tc.textContent = t('quoting');
   quotePay().then(q=>{
+    if(_pi!==payIdx||_bn!==buyN) return;
     if(q>0n) tc.textContent = '≈ ' + fmtPay(q, pt) + ' ' + pt.sym;
     else tc.textContent = '-';
   }).catch(()=>{ tc.textContent='-'; });
@@ -604,7 +606,7 @@ async function refresh(force){
   const alive = () => (typeof poolReqSeq==='undefined') || poolReqSeq===mySeq;
   try{
     await loadStatic(); if(!alive()) return;
-    refreshReferral();
+    await refreshReferral(mySeq);
     updatePriceEcho();
     const rid = Number(decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.currentRound))); if(!alive()) return;
     const h = await ethCall(CFG.CONTRACT,'0x'+SEL.rounds+encUint(rid)); if(!alive()) return;
@@ -670,9 +672,9 @@ async function refresh(force){
     const nowMs = Date.now();
     if(force || nowMs - lastHeavy > 40000){
       lastHeavy = nowMs;
-      loadHistory();
-      refreshRefStats();
-      renderMyStats();
+      await loadHistory(mySeq);
+      await refreshRefStats(mySeq);
+      await renderMyStats(mySeq);
     }
   }catch(e){ console.error(e); try{ toast(t('loadFail')); }catch(_){} }
   finally{ if(refreshingFor===mySeq) refreshingFor=-1; }
@@ -736,7 +738,9 @@ async function renderTransparency(){
     box.innerHTML = cards.join('');
   }catch(e){ console.error('trans', e); }
 }
-async function renderMyStats(){
+async function renderMyStats(seq){
+  const alive=()=> (typeof poolReqSeq==='undefined')||poolReqSeq===seq;
+  const _contract=CFG.CONTRACT;
   const box = $('myStats'); if(!box) return;
   const pl = $('myStatsPool'); if(pl) pl.textContent = myAddr ? t('msPool') : '';
   if(!myAddr){ box.innerHTML = '<div class="note">'+t('myStatsConnect')+'</div>'; return; }
@@ -815,7 +819,9 @@ async function scanLogs(topics, contract, deployFrom){
   try{ await job; }finally{ delete _logPending[key]; }
   return c.logs;
 }
-async function refreshRefStats(){
+async function refreshRefStats(seq){
+  const alive=()=> (typeof poolReqSeq==='undefined')||poolReqSeq===seq;
+  const _contract=CFG.CONTRACT;
   const box = $('refStats');
   if(!box) return;
   if(!myAddr){ box.style.display='none'; return; }
@@ -856,8 +862,8 @@ async function refreshRefStats(){
     const iTk = sum(indirect, b => ticketsBy[b]||0n);
     const dEarn = sum(direct, b => (earnBy[b]||{e1:0n}).e1);
     const iEarn = sum(indirect, b => (earnBy[b]||{e2:0n}).e2);
-    $('refDirectStat').textContent = t('refStatLine', {n: direct.length, tk: dTk.toString(), amt: fmt(dEarn)});
-    $('refIndirectStat').textContent = t('refStatLine', {n: indirect.length, tk: iTk.toString(), amt: fmt(iEarn)});
+    if(!alive())return;$('refDirectStat').textContent = t('refStatLine', {n: direct.length, tk: dTk.toString(), amt: fmt(dEarn)});
+    if(!alive())return;$('refIndirectStat').textContent = t('refStatLine', {n: indirect.length, tk: iTk.toString(), amt: fmt(iEarn)});
     let html = '';
     const row = (b, tag) => {
       const e = earnBy[b]||{e1:0n,e2:0n};
@@ -866,16 +872,18 @@ async function refreshRefStats(){
     };
     direct.forEach(b => row(b,'d'));
     indirect.forEach(b => row(b,'i'));
-    $('refDetailList').innerHTML = html || '<div class="note">'+t('refNoInvite')+'</div>';
+    if(!alive())return;$('refDetailList').innerHTML = html || '<div class="note">'+t('refNoInvite')+'</div>';
     box.style.display='';
   }catch(e){ console.error('refStats', e); box.style.display='none'; }
 }
-async function loadHistory(){
+async function loadHistory(seq){
+  const alive=()=> (typeof poolReqSeq==='undefined')||poolReqSeq===seq;
+  const _contract=CFG.CONTRACT;
   try{
     const logs = (await scanLogs([EV_WIN])).slice();
     if(!logs.length){
-      $('historyList').innerHTML = '<div class="note">'+t('noHistory')+'</div>';
-      $('leaderboard').innerHTML = '<div class="note">'+t('noData')+'</div>';
+      if(!alive())return;$('historyList').innerHTML = '<div class="note">'+t('noHistory')+'</div>';
+      if(!alive())return;$('leaderboard').innerHTML = '<div class="note">'+t('noData')+'</div>';
       return;
     }
     const total = {}; 
@@ -901,18 +909,18 @@ async function loadHistory(){
         + '<div style="margin-top:4px"><button class="btn-verify" onclick="verifyRound('+rid+',\'hv'+rid+'\')">'+t('verifyBtn')+'</button><div id="hv'+rid+'"></div></div>'
         + '</div>' + hhtml;
     }
-    $('historyList').innerHTML = hhtml || '<div class="note">'+t('noHistory')+'</div>';
+    if(!alive())return;$('historyList').innerHTML = hhtml || '<div class="note">'+t('noHistory')+'</div>';
     const arr = Object.entries(total).sort((a,b)=> Number(b[1].amt - a[1].amt)).slice(0,10);
     const medal = ['🥇','🥈','🥉'];
     let lh = '';
     arr.forEach(([addr, st], i)=>{
       lh += '<div class="winner"><span>'+(medal[i]||(i+1)+'.')+' '+short(addr)+'</span><span>'+t('wonTimes',{n:st.n, amt:fmt(st.amt)})+'</span></div>';
     });
-    $('leaderboard').innerHTML = lh || '<div class="note">'+t('noData')+'</div>';
+    if(!alive())return;$('leaderboard').innerHTML = lh || '<div class="note">'+t('noData')+'</div>';
   }catch(e){
     console.error('history', e);
-    $('historyList').innerHTML = '<div class="note">'+t('loadFail')+'</div>';
-    $('leaderboard').innerHTML = '<div class="note">'+t('loadFail')+'</div>';
+    if(!alive())return;$('historyList').innerHTML = '<div class="note">'+t('loadFail')+'</div>';
+    if(!alive())return;$('leaderboard').innerHTML = '<div class="note">'+t('loadFail')+'</div>';
   }
 }
 async function approve(){
@@ -977,7 +985,9 @@ async function claimReferral(){
   await sendTx(CFG.CONTRACT, '0x'+SEL.claimReferral);
   toast(t('claimOk'));
 }
-async function refreshReferral(){
+async function refreshReferral(seq){
+  const alive=()=> (typeof poolReqSeq==='undefined')||poolReqSeq===seq;
+  const _contract=CFG.CONTRACT;
   const link = $('refLink');
   if(link) link.value = myAddr ? (location.origin + location.pathname + '?ref=' + myAddr) : '';
   if(link) link.placeholder = myAddr ? '' : t('notConnected');
@@ -990,13 +1000,13 @@ async function refreshReferral(){
     return;
   }
   try{
-    const r = decAddr(await ethCall(CFG.CONTRACT,'0x'+SEL.referrer+encAddr(myAddr)));
-    $('myReferrer').textContent =
+    const r = decAddr(await ethCall(_contract,'0x'+SEL.referrer+encAddr(myAddr)));
+    if(!alive())return;$('myReferrer').textContent =
       (r==='0x0000000000000000000000000000000000000000') ? t('noReferrer') : short(r);
   }catch(e){ $('myReferrer').textContent='-'; }
   try{
-    const rw = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.referralRewards+encAddr(myAddr)));
-    $('myRefRewards').textContent = fmt(rw)+' '+TSYM();
+    const rw = decUint(await ethCall(_contract,'0x'+SEL.referralRewards+encAddr(myAddr)));
+    if(!alive())return;$('myRefRewards').textContent = fmt(rw)+' '+TSYM();
     $('claimRefBtn').style.display = rw>0n ? '' : 'none';
   }catch(e){ $('myRefRewards').textContent='-'; }
 }
@@ -1120,7 +1130,7 @@ async function doSetRoundDuration(){
   toast(t('durationDone'));
   await refresh();
 }
-setInterval(()=>refresh(), 15000);
+setInterval(()=>{ if(!document.hidden) refresh(); }, 15000);
 setInterval(tickCountdown, 1000);
 
 var HG=['','',''];;
