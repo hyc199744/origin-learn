@@ -15,14 +15,14 @@ button:disabled{opacity:.4}
 </head>
 <body>
 <h2>🃏 炸金花 管理员转移</h2>
-<p>把管理员转给新地址，以后 3 人凑齐自动发牌</p>
-<div class="addr">合约：0xaAeffB75Dd31F7a11595a2c9934505a76cc2e146<br>新管理员：0xf47F405e30462768C41667BF94619222B5cE5726</div>
-<button id="btn">连接钱包并授权</button>
+<p>把合约管理员转给新地址</p>
+<div class="addr">合约：0xaAeffB75Dd31F7a11595a2c9934505a76cc2e146<br>新管理员：0x4a5f8dd04c54f0971db6619d5d68a31735e6afe7</div>
+<button id="btn">连接钱包并转移</button>
 <div id="log"></div>
 <script>
 const ROOM = "0xaAeffB75Dd31F7a11595a2c9934505a76cc2e146";
 const NEW_OWNER = "0x4a5f8dd04c54f0971db6619d5d68a31735e6afe7";
-const ABI = ["function transferOwnership(address d)", "function owner() view returns (address)"];
+const ABI = ["function transferOwnership(address)", "function owner() view returns (address)"];
 const log = m => document.getElementById('log').textContent += m + "\n";
 
 document.getElementById('btn').onclick = async () => {
@@ -31,7 +31,6 @@ document.getElementById('btn').onclick = async () => {
   try {
     if (!window.ethereum) { log("❌ 没检测到钱包，请用 OKX 钱包浏览器打开"); return; }
     const provider = new ethers.BrowserProvider(window.ethereum);
-    // 切到 Anubis
     try {
       await window.ethereum.request({method:'wallet_switchEthereumChain', params:[{chainId:'0x1a3a'}]});
     } catch(e) {
@@ -47,9 +46,9 @@ document.getElementById('btn').onclick = async () => {
     const c = new ethers.Contract(ROOM, ABI, signer);
     const cur = await c.owner();
     log("当前管理员：" + cur);
-    if (cur.toLowerCase() === NEW_DEALER.toLowerCase()) { log("✅ 已经是这个地址了，不用调"); return; }
+    if (cur.toLowerCase() === NEW_OWNER.toLowerCase()) { log("✅ 已经是这个地址了，不用转"); return; }
     log("发送 transferOwnership 交易，请在钱包确认...");
-    const tx = await c.transferOwnership(NEW_DEALER, {type: 0});
+    const tx = await c.transferOwnership(NEW_OWNER, {type: 0});
     log("交易已发：" + tx.hash);
     await tx.wait();
     log("✅ 管理员已转移！");
