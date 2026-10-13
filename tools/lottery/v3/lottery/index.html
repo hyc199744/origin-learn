@@ -83,8 +83,17 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 #vtoast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#20292e;color:#eff6f3;border:1px solid #ffffff22;padding:11px 18px;border-radius:10px;font-size:13px;z-index:999;max-width:88%;text-align:center;box-shadow:0 10px 30px #0008;opacity:0;transition:opacity .2s;pointer-events:none}
 .lang-menu[hidden]{display:none!important}.lang-menu{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));right:14px;background:#20292e;border:1px solid var(--line);border-radius:12px;padding:6px;min-width:140px;z-index:200;box-shadow:0 14px 34px #0009;display:flex;flex-direction:column;gap:2px}.lang-menu .lmi{padding:10px 14px;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer}.lang-menu .lmi:hover{background:#ffffff0d}.lang-menu .lmi.on{color:var(--accent);background:#bfee6612}#langCode{color:var(--accent)}
 .flag{display:inline-block;width:20px;height:13px;border-radius:3px;overflow:hidden;flex:none;line-height:0;box-shadow:0 0 0 1px #0004}.flag svg{width:100%;height:100%;display:block}.lang-menu .lmi{display:flex;align-items:center;gap:10px}#langCode{display:inline-flex;align-items:center;margin-left:4px}
+.mstats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ms{background:#0d1215;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.ms .k{font-size:10px;color:var(--muted);margin-bottom:5px}.ms .v{font-size:16px;font-weight:600;font-family:var(--mono)}
+.hround{padding:12px 0;border-bottom:1px dashed var(--line)}.hround:last-child{border-bottom:none}
+.hh{font-size:13px;font-weight:600;margin-bottom:8px}.hh .muted{color:var(--muted);font-weight:400;font-size:11px}
+.lnk{color:var(--accent);text-decoration:none;margin-left:4px}
+.hw{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px}
+.hw .tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--card2);color:var(--accent);margin-right:8px}
+.hw .p{font-family:var(--mono);color:#bacfca}.muted{color:var(--muted)}
 </style>
-<script src="../i18n.js?v=5"></script>
+<script src="../i18n.js?v=6"></script>
 </head>
 <body>
 <header class="top">
@@ -143,6 +152,22 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     <div class="note">没人中的奖项自动滚入下期，奖池持续累积。</div>
   </section>
 
+  <section class="card">
+    <h2>开奖</h2>
+    <div id="drawStatus" class="note">—</div>
+    <button class="btn" id="drawBtn" onclick="doDraw()" hidden style="margin-top:14px"></button>
+  </section>
+
+  <section class="card">
+    <h2>我的票据</h2>
+    <div id="myStats"><div class="note">连接钱包查看你的战绩</div></div>
+  </section>
+
+  <section class="card">
+    <h2>历史开奖</h2>
+    <div id="history"><div class="note">加载中…</div></div>
+  </section>
+
   <div class="foot">
     <span><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/></svg>链上可查</span>
     <span><svg class="ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M7 11V8a5 5 0 0110 0v3"/></svg>钱包签名</span>
@@ -154,13 +179,13 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 (function(){
   var RPC='https://rpc.anubispace.org';
   var ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:RPC,exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
-  var SEL={price:'1209b1f6',round:'8a19c8bc',rounds:'8c65c81f',approve:'095ea7b3',allowance:'dd62ed3e',balanceOf:'70a08231',buy:'2f366637',buyRef:'f93afa09'};
+  var SEL={price:'1209b1f6',round:'8a19c8bc',rounds:'8c65c81f',approve:'095ea7b3',allowance:'dd62ed3e',balanceOf:'70a08231',buy:'2f366637',buyRef:'f93afa09',closeRound:'e278fe6f',draw:'0eecae21'};
   var POOLS=[
-    {sym:'LGNS',c:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',t:'0x4d1d808a081fdac440703b3765fc61f8028c06b8',d:9},
-    {sym:'USDT',c:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',t:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e',d:6},
-    {sym:'DAI', c:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',t:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14',d:18},
-    {sym:'A',   c:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',t:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177',d:18},
-    {sym:'RM',  c:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',t:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d',d:9}
+    {sym:'LGNS',c:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',t:'0x4d1d808a081fdac440703b3765fc61f8028c06b8',d:9,b:16182340},
+    {sym:'USDT',c:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',t:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e',d:6,b:16196737},
+    {sym:'DAI', c:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',t:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14',d:18,b:16200709},
+    {sym:'A',   c:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',t:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177',d:18,b:16202660},
+    {sym:'RM',  c:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',t:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d',d:9,b:16204394}
   ];
   var sel=0, data={}, myAddr=null, n=1, busy=false;
   function $(id){return document.getElementById(id);}
@@ -176,7 +201,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     var price=BigInt('0x'+((await rcall(P.c,SEL.price))||'0'));
     var rid=BigInt('0x'+((await rcall(P.c,SEL.round))||'0'));
     var r=await rcall(P.c,SEL.rounds+enc(rid));var w=function(i){return BigInt('0x'+(r.slice(i*64,i*64+64)||'0'));};
-    data[k]={price:price,end:Number(w(0)),pool:w(3)+w(4),round:Number(rid),ok:true};
+    data[k]={price:price,end:Number(w(0)),drawBlock:Number(w(1)),pool:w(3)+w(4),round:Number(rid),ok:true};
   }catch(e){data[k]={ok:false};}if(k===sel)render();}
   function cd(end){var s=end-Math.floor(Date.now()/1000);if(s<0)s=0;var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;var p=function(v){return String(v).padStart(2,'0');};return p(h)+':'+p(m)+':'+p(x);}
   function tickTimer(){var D=data[sel]||{};var e=$('tkTimer');if(e)e.textContent=D.ok?(D.end>Math.floor(Date.now()/1000)?cd(D.end):(window.tr?window.tr('已截止'):'已截止')):'—';}
@@ -186,8 +211,8 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     $('jkRound').textContent=D.ok?((window.getLang&&window.getLang()==='en')?('Round '+D.round):('第 '+D.round+' 期')):'—';
     $('jkAmt').textContent=D.ok?fmt(D.pool,P.d):'—';
     $('tkPrice').textContent=D.ok?(fmt(D.price,P.d)+' '+P.sym):'—';
-    tickTimer();updateTotal();updateBuy();}
-  window.selPool=function(i){sel=i;render();if(!data[i]||!data[i].ok)loadPool(i);};
+    tickTimer();updateTotal();updateBuy();loadDraw();}
+  window.selPool=function(i){sel=i;render();if(!data[i]||!data[i].ok)loadPool(i);loadMyStats();loadHistory();};
   /* 张数 */
   function updateTotal(){var P=POOLS[sel],D=data[sel]||{};var e=$('totalCost');if(!e)return;if(D.ok){e.textContent=fmt(D.price*BigInt(n),P.d)+' '+P.sym;}else e.textContent='—';
     document.querySelectorAll('.quick .qbtn').forEach(function(b){b.classList.remove('on');});}
@@ -195,7 +220,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   window.setN=function(v){n=v;$('buyN').value=n;updateTotal();updateBuy();};
   window.normN=function(){var v=parseInt($('buyN').value||'1',10);if(isNaN(v))v=1;n=Math.max(1,Math.min(200,v));$('buyN').value=n;updateTotal();updateBuy();};
   /* 钱包 */
-  window.__uiWallet=uiWallet;function uiWallet(){var x=$('walletTxt');if(x)x.textContent=myAddr?short(myAddr):'连接钱包';var b=$('walletBtn');if(b)b.classList.toggle('connected',!!myAddr);updateBuy();}
+  window.__uiWallet=uiWallet;function uiWallet(){var x=$('walletTxt');if(x)x.textContent=myAddr?short(myAddr):'连接钱包';var b=$('walletBtn');if(b)b.classList.toggle('connected',!!myAddr);updateBuy();loadMyStats();}
   window.connectWallet=async function(){var eth=window.ethereum;if(!eth){toast(window.tr?window.tr('未检测到钱包，请在 OKX / MetaMask 内置浏览器打开'):'未检测到钱包，请在 OKX / MetaMask 内置浏览器打开');return;}
     try{var accs=await eth.request({method:'eth_requestAccounts'});if(!accs||!accs.length)return;myAddr=accs[0];
       var cid=await eth.request({method:'eth_chainId'});
@@ -226,6 +251,67 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   /* 从 ?pool=N 选池 */
   try{var qp=new URLSearchParams(location.search).get('pool');if(qp!==null){var pn=parseInt(qp,10);if(pn>=0&&pn<=4)sel=pn;}}catch(e){}
   render();
+
+  var EV_WIN='0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627b4';
+  var EV_TICKETS='0xc8c5c2b0e44fb6312c0098ec42642058527713d0a1d29a5c6ccbfe34d714d41e';
+  var _lc={};
+  function TR(s){return window.tr?window.tr(s):s;}
+  function num(hx){return parseInt(hx,16)||0;}
+  function rpc(m,pr){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:m,params:pr})}).then(function(r){return r.json();}).then(function(j){return j.result;});}
+  async function getLogs(topic,addr,from){
+    var key=addr+'|'+topic;var c=_lc[key]||(_lc[key]={next:from,logs:[]});
+    var latest=num(await rpc('eth_blockNumber',[]));var f=c.next;
+    while(f<=latest){var t=Math.min(f+4999,latest);
+      try{var part=await rpc('eth_getLogs',[{address:addr,topics:[topic],fromBlock:'0x'+f.toString(16),toBlock:'0x'+t.toString(16)}]);if(part&&part.length)for(var i=0;i<part.length;i++)c.logs.push(part[i]);}catch(e){}
+      f=t+1;}
+    if(latest+1>c.next)c.next=latest+1;return c.logs;}
+  function decArr(d,off,isAddr){var n=num(d.slice(off,off+64));var a=[];for(var i=0;i<n;i++){var w=d.slice(off+64*(i+1),off+64*(i+2));a.push(isAddr?('0x'+w.slice(-40)):BigInt('0x'+(w||'0')));}return a;}
+  function fmtN(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
+  async function loadDraw(){
+    var st=document.getElementById('drawStatus'),btn=document.getElementById('drawBtn'),D=data[sel];if(!st||!btn)return;
+    if(!D||!D.ok){st.textContent='—';btn.hidden=true;return;}
+    var now=Math.floor(Date.now()/1000);
+    if(now<=D.end){st.textContent=TR('本期进行中，截止后可开奖');btn.hidden=true;return;}
+    if(!D.drawBlock){st.textContent=TR('已截止，可关期开奖');btn.textContent=TR('关期并锁定开奖');btn.hidden=false;window._dm='close';return;}
+    var cur=num(await rpc('eth_blockNumber',[]));
+    if(cur<D.drawBlock){st.textContent=TR('已关期，等待开奖区块')+' ('+cur+' / '+D.drawBlock+')';btn.hidden=true;}
+    else{st.textContent=TR('可开奖，任何人可触发');btn.textContent=TR('立即开奖');btn.hidden=false;window._dm='draw';}}
+  window.doDraw=async function(){if(!myAddr){await connectWallet();return;}var P=POOLS[sel];try{
+    if(window._dm==='close'){await sendTx(P.c,'0x'+SEL.closeRound);toast(TR('关期成功，等待开奖区块'));}
+    else{await sendTx(P.c,'0x'+SEL.draw);toast(TR('开奖成功！'));}
+    await loadPool(sel);loadDraw();loadHistory();loadMyStats();}catch(e){toast((e&&e.message)||e);}};
+  async function loadMyStats(){
+    var box=document.getElementById('myStats');if(!box)return;
+    if(!myAddr){box.innerHTML='<div class="note">'+TR('连接钱包查看你的战绩')+'</div>';return;}
+    box.innerHTML='<div class="note">'+TR('加载中…')+'</div>';
+    var P=POOLS[sel],me=myAddr.toLowerCase();
+    function cell(k,v,c){return '<div class="ms"><div class="k">'+k+'</div><div class="v"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div></div>';}
+    try{
+      var tl=await getLogs(EV_TICKETS,P.c,P.b);var tk=0n;
+      tl.forEach(function(l){if(('0x'+l.topics[2].slice(-40)).toLowerCase()===me)tk+=BigInt('0x'+((l.data||'0x').replace(/^0x/,'').slice(0,64)||'0'));});
+      var wl=await getLogs(EV_WIN,P.c,P.b);var wc=0,wa=0n;
+      wl.forEach(function(l){var d=(l.data||'0x').replace(/^0x/,'');var ow=num(d.slice(0,64))*2,oa=num(d.slice(64,128))*2;var ws=decArr(d,ow,true),as=decArr(d,oa,false);for(var i=0;i<ws.length;i++){if(ws[i].toLowerCase()===me){wc++;wa+=as[i];}}});
+      var D=data[sel]||{};var spent=(D.price||0n)*tk;var net=wa-spent;var neg=net<0n;var na=neg?(0n-net):net;var S=P.sym;
+      box.innerHTML='<div class="mstats">'+cell(TR('累计买票'),tk.toString())+cell(TR('花费'),'≈ '+fmtN(spent,P.d)+' '+S)+cell(TR('中奖'),wc+'× · '+fmtN(wa,P.d)+' '+S)+cell(TR('净盈亏'),(neg?'-':'+')+fmtN(na,P.d)+' '+S,neg?'#ff8f8f':'var(--accent)')+'</div>';
+    }catch(e){box.innerHTML='<div class="note">'+TR('加载中…')+'</div>';}}
+  async function loadHistory(){
+    var box=document.getElementById('history');if(!box)return;box.innerHTML='<div class="note">'+TR('加载中…')+'</div>';
+    var P=POOLS[sel];
+    try{
+      var wl=(await getLogs(EV_WIN,P.c,P.b)).slice();
+      if(!wl.length){box.innerHTML='<div class="note">'+TR('暂无记录')+'</div>';return;}
+      wl.sort(function(a,b){return num(b.topics[1])-num(a.topics[1]);});
+      var tags=[TR('一等奖'),TR('二等奖'),TR('三等奖')];var en=(window.getLang&&window.getLang()==='en');
+      var html='';
+      wl.slice(0,6).forEach(function(l){var rid=num(l.topics[1]);var d=(l.data||'0x').replace(/^0x/,'');var ow=num(d.slice(0,64))*2,oa=num(d.slice(64,128))*2;var ws=decArr(d,ow,true),as=decArr(d,oa,false);
+        var rows='';var sum=0n;for(var i=0;i<ws.length;i++){sum+=as[i];var tag=i===0?tags[0]:(i<4?tags[1]:tags[2]);rows+='<div class="hw"><span><span class="tag">'+tag+'</span>'+short(ws[i])+'</span><span class="p">'+fmtN(as[i],P.d)+' '+P.sym+'</span></div>';}
+        var lnk='<a class="lnk" href="https://browser.anubispace.org/tx/'+(l.transactionHash||'')+'" target="_blank" rel="noopener">↗</a>';
+        html+='<div class="hround"><div class="hh">'+(en?('Round '+rid):('第 '+rid+' 期'))+' <span class="muted">· '+fmtN(sum,P.d)+' '+P.sym+'</span>'+lnk+'</div>'+(rows||'<div class="note">—</div>')+'</div>';});
+      box.innerHTML=html;
+    }catch(e){box.innerHTML='<div class="note">'+TR('暂无记录')+'</div>';}}
+  window.__loadLotFeat=function(){loadDraw();loadMyStats();loadHistory();};
+  setTimeout(function(){loadMyStats();loadHistory();},300);
+
 })();
 </script>
 </body>

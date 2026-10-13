@@ -70,7 +70,19 @@
   '交易失败(被合约回退)':['Transaction reverted'],
   '确认超时，请在浏览器查看':['Confirmation timed out, check the explorer'],
   '连接失败':['Connection failed'],'未获取到地址':['No address found'],
-  '未检测到钱包，请在 OKX / MetaMask 内置浏览器打开':['No wallet detected. Open in the OKX / MetaMask in-app browser.']
+  '未检测到钱包，请在 OKX / MetaMask 内置浏览器打开':['No wallet detected. Open in the OKX / MetaMask in-app browser.'],
+  '开奖':['Draw'],'我的票据':['My Tickets'],'历史开奖':['Draw History'],
+  '连接钱包查看你的战绩':['Connect your wallet to see your record'],
+  '加载中…':['Loading…'],'暂无记录':['No records yet'],
+  '累计买票':['Tickets bought'],'花费':['Spent'],'中奖':['Won'],'净盈亏':['Net P/L'],
+  '本期进行中，截止后可开奖':['Round in progress; draw available after cutoff'],
+  '已截止，可关期开奖':['Cutoff passed — close to lock the draw'],
+  '已关期，等待开奖区块':['Closed — waiting for the draw block'],
+  '可开奖，任何人可触发':['Ready to draw — anyone can trigger'],
+  '关期并锁定开奖':['Close & lock draw'],'立即开奖':['Draw now'],
+  '关期成功，等待开奖区块':['Closed — waiting for the draw block'],'开奖成功！':['Drawn!'],
+  '第一等奖':['1st'],'二等奖池':['2nd'],
+  '约':['≈']
   };
   var LANG='zh';
   try{LANG=localStorage.getItem('aplang')||'zh';}catch(e){}
