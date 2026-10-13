@@ -449,6 +449,29 @@ input::placeholder{color:#60707a}
 /* 分隔线 */
 .jk-div,.rec-row,.inv-row{border-color:var(--line)!important}
 
+
+/* ===== 桌面左栏布局(纯CSS,不动DOM) ===== */
+:root{--rail:#10161a}
+@media(min-width:900px){
+  body{padding-top:18px!important;padding-left:216px!important;padding-right:24px!important}
+  .pnav{position:fixed!important;top:0!important;left:0!important;bottom:0!important;right:auto!important;
+    width:216px!important;height:auto!important;flex-direction:column!important;align-items:stretch!important;
+    justify-content:flex-start!important;gap:0!important;padding:26px 15px!important;margin:0!important;
+    background:var(--rail)!important;border-right:1px solid var(--line)!important;border-bottom:0!important;
+    border-radius:0!important;overflow-y:auto!important;backdrop-filter:none!important;z-index:60!important}
+  .pnav .pbrand{margin:0 2px 4px!important}
+  .pnav .pbrand-mark{width:42px!important;height:42px!important}
+  .pnav .pbrand-txt{font-size:15px!important}
+  .pnav-links{flex-direction:column!important;align-items:stretch!important;gap:5px!important;margin:24px 0 0!important;flex:none!important}
+  .pnav-links a{padding:12px 13px!important;border-radius:9px!important;font-size:13px!important;width:100%!important}
+  .pnav-links a.on,.pnav-links a:hover{background:#bfee6614!important}
+  .pnav-right{flex-direction:column!important;align-items:stretch!important;gap:9px!important;margin-top:auto!important;padding-top:20px!important;width:100%!important}
+  .pnav-right .lang{width:100%!important;text-align:center!important}
+  .pnav-right .btn-wallet{width:100%!important;justify-content:center!important}
+  .pnav-right .pback{justify-content:center!important}
+  .bottomnav{display:none!important}
+}
+
 </style>
 </head>
 <body>
