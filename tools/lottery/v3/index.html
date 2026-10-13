@@ -261,7 +261,7 @@ html,body{overflow-x:hidden;max-width:100%}
     <a class="active" href="#"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>游戏大厅</span></a>
     <a href="https://rocketswap.org/" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8h13l-4-4M20 16H7l4 4"/></svg><span>Swap</span></a>
     <a href="#"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v18M3 8l9-5 9 5M4 10v7a2 2 0 002 2h12a2 2 0 002-2v-7"/></svg><span>我的资产</span></a>
-    <a href="#"><svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11l2 2 4-4"/></svg><span>邀请奖励</span></a>
+    <a href="invite/"><svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11l2 2 4-4"/></svg><span>邀请奖励</span></a>
     <a href="#"><svg class="ic" viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M4 20h16"/></svg><span>我的记录</span></a>
     <a href="#"><svg class="ic" viewBox="0 0 24 24"><path d="M10 4h4l1 2 2 1 2-1 2 3-1 2v2l1 2-2 3-2-1-2 1-1 2h-4l-1-2-2-1-2 1-2-3 1-2v-2L2 9l2-3 2 1 2-1 1-2Z"/><circle cx="12" cy="12" r="2.5"/></svg><span>平台公告</span></a>
   </nav>
@@ -383,7 +383,7 @@ html,body{overflow-x:hidden;max-width:100%}
       <div class="eyebrow">REFERRAL</div>
       <h2>邀请好友，一起赢</h2>
       <p>好友每次参与，你都能拿返佣——直推 30%、间推 10%，从平台费里出，随时领取。</p>
-      <button class="btn">立即邀请 →</button>
+      <button class="btn" onclick="location.href='invite/'">立即邀请 →</button>
     </div>
   </section>
 
@@ -401,7 +401,7 @@ html,body{overflow-x:hidden;max-width:100%}
 <nav class="bottom-nav" aria-label="底部导航">
   <a class="active" href="#"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>大厅</a>
   <a href="https://rocketswap.org/" target="_blank" rel="noopener"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8h13l-4-4M20 16H7l4 4"/></svg>Swap</a>
-  <a href="#"><svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11l2 2 4-4"/></svg>邀请</a>
+  <a href="invite/"><svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11l2 2 4-4"/></svg>邀请</a>
   <a href="#"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>我的</a>
 </nav>
 
@@ -486,6 +486,6 @@ html,body{overflow-x:hidden;max-width:100%}
   setInterval(function(){POOLS.forEach(function(_,k){loadPool(k);});},30000);
 })();
 </script>
-<script src="i18n.js?v=9"></script>
+<script src="i18n.js?v=10"></script>
 </body>
 </html>

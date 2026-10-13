@@ -97,7 +97,18 @@
   'LIVE · 链上彩票':['LIVE · On-chain Lottery'],
   '款游戏':['games'],'奖池':['pools'],'开发中':['In development'],
   '大厅':['Lobby'],'彩票':['Lottery'],'邀请':['Invite'],'我的':['Me'],
-  '© ANUBIS PLAY · 链上游戏平台 · 参与有风险，请理性对待。':['© ANUBIS PLAY · On-chain gaming platform · Play responsibly, risks apply.']
+  '© ANUBIS PLAY · 链上游戏平台 · 参与有风险，请理性对待。':['© ANUBIS PLAY · On-chain gaming platform · Play responsibly, risks apply.'],
+  '邀请好友赚返佣':['Invite friends, earn rewards'],
+  '把你的专属链接发给好友，他们每次购票你都能拿返佣——直推 30%、间推 10%，从平台费里出，不影响奖池，随时领取。':['Share your link: earn on every ticket your invitees buy — 30% direct, 10% indirect, from the platform fee (the prize pool is untouched), claim anytime.'],
+  '我的邀请链接':['My invite link'],
+  '复制链接':['Copy link'],'已复制':['Copied'],'二维码':['QR code'],'分享':['Share'],
+  '我的上级':['My referrer'],'无，首次购票时绑定':['None — bound on first purchase'],
+  '可领返佣':['Claimable'],'领取':['Claim'],'全部领取':['Claim all'],
+  '直推':['Direct'],'间推':['Indirect'],'累计返佣':['Total earned'],
+  '返佣明细':['Reward details'],'下线':['Downline'],'交易':['Tx'],
+  '连接钱包查看邀请数据':['Connect your wallet to see your referral data'],
+  '领取成功！':['Claimed!'],'没有可领返佣':['Nothing to claim'],
+  '首次购票时永久绑定邀请关系，不可更改。':['Referral binds permanently on first purchase and cannot be changed.']
   };
   var LANG='zh';
   try{LANG=localStorage.getItem('aplang')||'zh';}catch(e){}
