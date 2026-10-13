@@ -3,7 +3,16 @@
   var ORDER=['en','ko','ja','ru','vi','es']; // D 数组顺序
   var FLAG_CN='<span class="flag"><svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#DE2910"/><path fill="#FFDE00" d="M7 3.5 8 6.7 11.3 6.7 8.6 8.6 9.6 11.8 7 9.9 4.4 11.8 5.4 8.6 2.7 6.7 6 6.7z"/><circle cx="13.5" cy="2.6" r=".9" fill="#FFDE00"/><circle cx="15.5" cy="4.6" r=".9" fill="#FFDE00"/><circle cx="15.5" cy="7.6" r=".9" fill="#FFDE00"/><circle cx="13.5" cy="9.6" r=".9" fill="#FFDE00"/></svg></span>';
   var FLAG_US='<span class="flag"><svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#fff"/><g fill="#B22234"><rect width="30" height="1.54"/><rect y="3.08" width="30" height="1.54"/><rect y="6.15" width="30" height="1.54"/><rect y="9.23" width="30" height="1.54"/><rect y="12.31" width="30" height="1.54"/><rect y="15.38" width="30" height="1.54"/><rect y="18.46" width="30" height="1.54"/></g><rect width="13" height="10.77" fill="#3C3B6E"/><g fill="#fff"><circle cx="2.6" cy="2.2" r=".55"/><circle cx="5.2" cy="2.2" r=".55"/><circle cx="7.8" cy="2.2" r=".55"/><circle cx="10.4" cy="2.2" r=".55"/><circle cx="3.9" cy="4.3" r=".55"/><circle cx="6.5" cy="4.3" r=".55"/><circle cx="9.1" cy="4.3" r=".55"/><circle cx="2.6" cy="6.4" r=".55"/><circle cx="5.2" cy="6.4" r=".55"/><circle cx="7.8" cy="6.4" r=".55"/><circle cx="10.4" cy="6.4" r=".55"/><circle cx="3.9" cy="8.5" r=".55"/><circle cx="6.5" cy="8.5" r=".55"/><circle cx="9.1" cy="8.5" r=".55"/></g></svg></span>';
-  var LANGS=[['zh','中文',FLAG_CN],['en','English',FLAG_US]];
+  function fl(inner){return '<span class="flag"><svg viewBox="0 0 30 20">'+inner+'</svg></span>';}
+  var FLAG_KR=fl('<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="5" fill="#CD2E3A"/><path d="M10 10 A5 5 0 0 0 20 10 Z" fill="#0047A0"/>');
+  var FLAG_JP=fl('<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="5.5" fill="#BC002D"/>');
+  var FLAG_RU=fl('<rect width="30" height="6.67" fill="#fff"/><rect y="6.67" width="30" height="6.67" fill="#0039A6"/><rect y="13.33" width="30" height="6.67" fill="#D52B1E"/>');
+  var FLAG_VN=fl('<rect width="30" height="20" fill="#DA251D"/><path fill="#FF0" d="M15 5.2 16.1 8.6 19.6 8.6 16.8 10.7 17.9 14.1 15 12 12.1 14.1 13.2 10.7 10.4 8.6 13.9 8.6z"/>');
+  var FLAG_ES=fl('<rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/>');
+  var FLAG_BR=fl('<rect width="30" height="20" fill="#009739"/><path d="M15 3 27 10 15 17 3 10z" fill="#FEDD00"/><circle cx="15" cy="10" r="3.6" fill="#012169"/>');
+  var FLAG_FR=fl('<rect width="10" height="20" fill="#0055A4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#EF4135"/>');
+  var FLAG_TR=fl('<rect width="30" height="20" fill="#E30A17"/><circle cx="12" cy="10" r="4.6" fill="#fff"/><circle cx="13.6" cy="10" r="3.7" fill="#E30A17"/><path fill="#fff" d="M18.3 7.6 19 9.4 20.9 9.5 19.4 10.7 19.9 12.6 18.3 11.5 16.7 12.6 17.2 10.7 15.7 9.5 17.6 9.4z"/>');
+  var LANGS=[['zh','中文',FLAG_CN,1],['en','English',FLAG_US,1],['ko','한국어',FLAG_KR,0],['ja','日本語',FLAG_JP,0],['ru','Русский',FLAG_RU,0],['vi','Tiếng Việt',FLAG_VN,0],['es','Español',FLAG_ES,0],['pt','Português',FLAG_BR,0],['fr','Français',FLAG_FR,0],['tr','Türkçe',FLAG_TR,0]];
   var D={
   '游戏大厅':['Lobby','게임 로비','ゲームロビー','Лобби','Sảnh game','Lobby'],
   '我的资产':['My Assets','내 자산','マイ資産','Мои активы','Tài sản','Mis activos'],
@@ -118,7 +127,7 @@
   window.setLang=function(l){window.applyLang(l);closeMenu();};
   function build(){
     if(!document.getElementById('langBackdrop')){var _bd=document.createElement('div');_bd.id='langBackdrop';_bd.hidden=true;_bd.style.cssText='position:fixed;inset:0;z-index:199;background:transparent';_bd.onclick=closeMenu;document.body.appendChild(_bd);}
-    var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){return '<a class="lmi" data-l="'+x[0]+'" onclick="setLang(\''+x[0]+'\')">'+x[2]+'<span>'+x[1]+'</span></a>';}).join('');}
+    var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<a class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':'')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</a>';}).join('');}
     collect();applyLang(LANG);
   }
   if(document.readyState!=='loading')build();else document.addEventListener('DOMContentLoaded',build);
