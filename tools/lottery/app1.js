@@ -253,7 +253,6 @@ const CHAINS = {
     token: '0x4d1d808a081fdac440703b3765fc61f8028c06b8', // LGNS 9 位精度
     decimals: 9,
     CONTRACT: '0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7', // 2026-10-11 V3 返佣版部署（1小时一期/返佣/0.3补贴）
-    router: '0x3E412E02B6157fBE80b6C6697f3Ce1142E629019', // RocketSwap V2 路由
     payTokens: [ // LGNS 池只收 LGNS，直接买票
       {sym:'LGNS', addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9}
     ],
@@ -322,15 +321,13 @@ function setPool(i){
   poolIdx = i;
   try{ localStorage.setItem('lottery_pool', String(i)); }catch(e){}
   Object.assign(CFG, POOLS[poolIdx]);
-  payIdx = 0; buyN = 1;
+  buyN = 1;
   // 切池先清掉上一个池的旧数据，避免旧票价/旧奖池/旧倒计时短暂残留
   TICKET = 0n; roundPhase = '';
   ['perTicket','totalCost','sold','sales','jackpot','lockedPool','myTickets'].forEach(function(id){ var e=$(id); if(e) e.textContent='-'; });
   var _pp=$('prizePool'); if(_pp){ _pp.textContent='--'; _pp.classList.add('skel'); }
   var _cd=$('countdown'); if(_cd){ _cd.textContent='--'; _cd.classList.add('skel'); }
   renderPoolTabs(); applyLang(); updateContractInfo();
-  if($('payRow')) renderPayRow();
-  const sn = $('swapNote'); if(sn) sn.style.display='none';
   refresh(true);
 }
 function renderPoolTabs(){
@@ -344,7 +341,6 @@ const SEL = {
   referrer: '2cf003c2', referralRewards: '53aaa63b',
   seedJackpot: '02950fb9', closeRound: 'e278fe6f', draw: '0eecae21',
   setTicketPrice: '15981650',
-  getAmountsIn: '1f00ca74', swapTokensForExactTokens: '4a25d94a', // RocketSwap 路由
   ticketPrice: '1209b1f6', feeBps: '24a9d853', currentRound: '8a19c8bc',
   rounds: '8c65c81f', lastDrawnRound: '9fe8862a', lastRollover: '953523e8',
   getLastWinners: '95690936', getTicketOwners: '36a65e80', owner: '8da5cb5b',
@@ -393,7 +389,6 @@ function updateWalletBtn(){
 const fmt = v => Number(formatUnits(v)).toLocaleString('zh-CN',{maximumFractionDigits:2});
 const fmt2 = v => Number(formatUnits(v)).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
 let buyN = 1, busy = false;
-let payIdx = 0, quoteInMax = 0n; // 付款币种下标（0=LGNS），quoteInMax=按当前票数换足 LGNS 所需的付款币上限（含 5% 浮动）
 function setBuyN(n){
   buyN = Math.max(1, Math.min(200, n));
   const sn = $('stepperNum'); if(sn) sn.textContent = t('ticketsCount', {n: buyN});
@@ -401,71 +396,14 @@ function setBuyN(n){
   updateTotal();
   updateBuyBtn();
 }
-function payToken(){ return (CFG.payTokens && CFG.payTokens[payIdx]) || CFG.payTokens[0]; }
-// 兑换路径：默认 [付款币, LGNS]；带 via 的走两跳 [付款币, via, LGNS]（如 A->DAI->LGNS）
-function payPath(pt){ return pt.via ? [pt.addr, pt.via, CFG.token] : [pt.addr, CFG.token]; }
-// 付款币种按钮按 payTokens 动态生成，加新币种只改配置不用动 HTML
-function renderPayRow(){
-  const pr = $('payRow'); if(!pr || !CFG.payTokens) return;
-  pr.innerHTML = CFG.payTokens.map((p,i)=>'<button class="qbtn'+(i===payIdx?' sel':'')+'" data-p="'+i+'" onclick="setPay('+i+')">'+p.sym+'</button>').join('');
-}
-function setPay(i){
-  if(!CFG.payTokens || !CFG.payTokens[i]) return;
-  payIdx = i; quoteInMax = 0n;
-  document.querySelectorAll('#payRow .qbtn').forEach(b=> b.classList.toggle('sel', Number(b.dataset.p)===payIdx));
-  const showPay = payIdx > 0;
-  $('payBalRow').style.display = showPay ? '' : 'none';
-  $('swapNote').style.display = showPay ? '' : 'none';
-  updateTotal(); updatePayBal(); updateBuyBtn();
-}
-// 按路由实时询价：买 buyN 张票需要多少付款币（精确输出 LGNS，输入上浮 5% 防滑点）
-async function quotePay(){
-  quoteInMax = 0n;
-  if(payIdx===0 || TICKET<=0n) return 0n;
-  const pt = payToken();
-  const need = TICKET * BigInt(buyN);
-  const h = await ethCall(CFG.router, '0x'+SEL.getAmountsIn+encUint(need)+encAddrArray(payPath(pt)));
-  const amtIn = decUint(h.slice(128, 192)); // uint[] amounts，amounts[0] 在第 3 个 slot
-  quoteInMax = amtIn * 105n / 100n;
-  return quoteInMax;
-}
-function fmtPay(v, pt){
-  const s = formatUnits(v, pt.dec);
-  const dot = s.indexOf('.');
-  if(dot < 0) return s;
-  const cut = s.slice(dot+1, dot+3).replace(/0+$/, ''); // 最多 2 位小数，去掉多余的 0
-  return cut ? s.slice(0, dot+1) + cut : s.slice(0, dot);
-}
 function updateTotal(){
   const tc = $('totalCost'); if(!tc) return;
   if(TICKET<=0n){ tc.textContent='-'; return; }
-  if(payIdx===0){ tc.textContent = fmt(TICKET*BigInt(buyN)) + ' '+TSYM(); return; }
-  const pt = payToken();
-  tc.textContent = t('quoting');
-  quotePay().then(q=>{
-    if(q>0n) tc.textContent = '≈ ' + fmtPay(q, pt) + ' ' + pt.sym;
-    else tc.textContent = '-';
-  }).catch(()=>{ tc.textContent='-'; });
+  tc.textContent = fmt(TICKET*BigInt(buyN)) + ' '+TSYM();
 }
-async function updatePayBal(){
-  const row = $('payBalRow'); if(!row || row.style.display==='none') return;
-  try{
-    const pt = payToken();
-    const b = decUint(await ethCall(pt.addr,'0x'+SEL.balanceOf+encAddr(myAddr)));
-    $('payBal').textContent = fmtPay(b, pt) + ' ' + pt.sym;
-  }catch(e){ $('payBal').textContent='-'; }
-}
-// 下一步该点什么：connect / payApprove / swap / approve / buy
+// 下一步该点什么：connect / approve / buy
 async function nextBuyStep(){
   if(!myAddr) return 'connect';
-  if(payIdx>0 && CFG.router){
-    const pt = payToken(), need = TICKET*BigInt(buyN);
-    await quotePay(); // 报价失败直接抛出去，mainAction 会 toast 提示
-    const al = decUint(await ethCall(pt.addr,'0x'+SEL.allowance+encAddr(myAddr)+encAddr(CFG.router)));
-    if(al < quoteInMax) return 'payApprove';
-    const lb = decUint(await ethCall(CFG.token,'0x'+SEL.balanceOf+encAddr(myAddr)));
-    if(lb < need) return 'swap';
-  }
   try{ return (await needApprove()) ? 'approve' : 'buy'; }
   catch(e){ return 'approve'; }
 }
@@ -483,39 +421,17 @@ async function updateBuyBtn(){
   btn.disabled = false;
   try{
     const s = await nextBuyStep();
-    const pt = payToken();
     txt.textContent =
       s==='connect' ? t('stepConnect') :
-      s==='payApprove' ? t('stepPayApprove', {sym: pt.sym}) :
-      s==='swap' ? t('stepSwap', {sym: pt.sym}) :
       s==='approve' ? t('stepApprove') :
       t('stepBuyCount', {n: buyN});
   }catch(e){ txt.textContent = t('stepApprove'); }
-}
-async function doSwap(){
-  // 付款币 -> LGNS：精确输出（正好够买票），输入上限为报价上浮 5%
-  const pt = payToken(), need = TICKET*BigInt(buyN);
-  await quotePay();
-  if(quoteInMax<=0n) throw new Error(t('quoteFail'));
-  const deadline = BigInt(Math.floor(Date.now()/1000) + 1200);
-  const data = '0x'+SEL.swapTokensForExactTokens+encUint(need)+encUint(quoteInMax)
-    +encAddrArray(payPath(pt))+encAddr(myAddr)+encUint(deadline);
-  await sendTx(CFG.router, data);
-  toast(t('swapOk'));
 }
 async function mainAction(){
   if(busy) return;
   busy = true; updateBuyBtn();
   try{
     if(!myAddr){ await connect(); return; }
-    const step = await nextBuyStep();
-    if(step==='payApprove'){
-      const pt = payToken();
-      await sendTx(pt.addr, '0x'+SEL.approve+encAddr(CFG.router)+encUint(2n**256n-1n));
-      toast(t('approveOk'));
-      return;
-    }
-    if(step==='swap'){ await doSwap(); }
     if(await needApprove()) await approve(); else await buy();
   }catch(e){ toast(e.message || e); }
   finally{
@@ -589,12 +505,8 @@ async function connect(){
 }
 async function loadStatic(){
   TICKET = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.ticketPrice));
-  const hasPay = !!(CFG.payTokens && CFG.payTokens.length > 1 && CFG.router);
-  const pr = $('payRow'), pl = $('payLabel');
-  if(pr) pr.style.display = hasPay ? '' : 'none';
-  if(pl) pl.style.display = hasPay ? '' : 'none';
-  if(hasPay) renderPayRow();
-  if(!hasPay && payIdx!==0) setPay(0);
+  // 五池均单币种直接购买，隐藏多币种付款/兑换相关 UI
+  ['payRow','payLabel','payBalRow','swapNote'].forEach(function(id){ var e=$(id); if(e) e.style.display='none'; });
   const pt = $('perTicket'); if(pt) pt.textContent = t('perTicket', {p: fmt(TICKET)});
   updateTotal(); updateBuyBtn();
   FEE = decUint(await ethCall(CFG.CONTRACT,'0x'+SEL.feeBps));
@@ -648,7 +560,6 @@ async function refresh(force){
     if (myAddr){
       const bal = decUint(await ethCall(CFG.token,'0x'+SEL.balanceOf+encAddr(myAddr)));
       $('myBal').textContent = fmt(bal)+' '+TSYM();
-      updatePayBal();
       try{
         const th = await ethCall(CFG.CONTRACT,'0x'+SEL.getTicketOwners+encUint(rid));
         const off = Number(decUint(th.slice(0,64)))*2;
