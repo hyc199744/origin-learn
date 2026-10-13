@@ -82,15 +82,21 @@
   '关期并锁定开奖':['Close & lock draw'],'立即开奖':['Draw now'],
   '关期成功，等待开奖区块':['Closed — waiting for the draw block'],'开奖成功！':['Drawn!'],
   '第一等奖':['1st'],'二等奖池':['2nd'],
-  '约':['≈']
+  '约':['≈'],
+  '链上游戏大厅':['On-chain Game Hub'],
+  '● NOW LIVE · 链上彩票':['● NOW LIVE · On-chain Lottery'],
+  'LIVE · 链上彩票':['LIVE · On-chain Lottery'],
+  '款游戏':['games'],'奖池':['pools'],'开发中':['In development'],
+  '大厅':['Lobby'],'彩票':['Lottery'],'邀请':['Invite'],'我的':['Me'],
+  '© ANUBIS PLAY · 链上游戏平台 · 参与有风险，请理性对待。':['© ANUBIS PLAY · On-chain gaming platform · Play responsibly, risks apply.']
   };
   var LANG='zh';
   try{LANG=localStorage.getItem('aplang')||'zh';}catch(e){}
   function idx(l){return ORDER.indexOf(l);}
   window.tr=function(zh,l){l=l||LANG;if(l==='zh')return zh;var e=D[zh];var i=idx(l);return (e&&i>=0&&e[i])||zh;};
   window.getLang=function(){return LANG;};
-  function collect(){document.querySelectorAll('body *').forEach(function(el){if(el.children.length===0){var t=(el.textContent||'').trim();if(t&&D[t]&&!el.hasAttribute('data-zh'))el.setAttribute('data-zh',t);}});
-    var hh=document.getElementById('heroH2');if(hh&&!hh.hasAttribute('data-zh'))hh.setAttribute('data-zh','heroH2');}
+  var _tn=[];
+  function collect(){_tn=[];try{var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,null,false),n;while(n=w.nextNode()){var v=n.nodeValue;if(!v)continue;var t=v.trim();if(t&&D[t]){var at=v.indexOf(t);_tn.push({node:n,zh:t,pre:v.slice(0,at),post:v.slice(at+t.length)});}}}catch(e){}}
   var HERO={zh:'探索游戏宇宙，<em>发现 Anubis 的更多可能</em>',
     en:'Explore the game universe, <em>discover more of Anubis</em>',
     ko:'게임 우주를 탐험하고, <em>Anubis의 더 많은 가능성을</em>',
@@ -100,9 +106,8 @@
     es:'Explora el universo del juego, <em>descubre más de Anubis</em>'};
   window.applyLang=function(l){LANG=l;try{localStorage.setItem('aplang',l);}catch(e){}
     document.documentElement.setAttribute('lang',l==='zh'?'zh-CN':l);
-    document.querySelectorAll('[data-zh]').forEach(function(el){var k=el.getAttribute('data-zh');
-      if(k==='heroH2'){el.innerHTML=HERO[l]||HERO.zh;return;}
-      el.textContent=window.tr(k,l);});
+    for(var _i=0;_i<_tn.length;_i++){var o=_tn[_i];try{o.node.nodeValue=o.pre+window.tr(o.zh,l)+o.post;}catch(e){}}
+    var hh=document.getElementById('heroH2');if(hh)hh.innerHTML=HERO[l]||HERO.zh;
     var lc=document.getElementById('langCode');if(lc){lc.innerHTML='';}
     document.querySelectorAll('#langMenu .lmi').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-l')===l);});
     try{if(window.__uiWallet)window.__uiWallet();}catch(e){}
