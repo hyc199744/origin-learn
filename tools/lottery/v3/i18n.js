@@ -1,7 +1,7 @@
 /* ANUBIS PLAY 多语言 i18n：按中文原文作为 key，DOM 叶子节点扫描替换 */
 (function(){
   var ORDER=['en','ko','ja','ru','vi','es']; // D 数组顺序
-  var LANGS=[['zh','中文'],['en','English'],['ko','한국어'],['ja','日本語'],['ru','Русский'],['vi','Tiếng Việt'],['es','Español']];
+  var LANGS=[['zh','中文'],['en','English']];
   var D={
   '游戏大厅':['Lobby','게임 로비','ゲームロビー','Лобби','Sảnh game','Lobby'],
   '我的资产':['My Assets','내 자산','マイ資産','Мои активы','Tài sản','Mis activos'],
