@@ -753,8 +753,13 @@ window.addEventListener('load', ()=>{
   var jr=pendingRef();
   if(jr){ renderJoinView(); showView('join'); }
   else{
-    var sp=false; try{ sp=(location.hash==='#play')||(new URLSearchParams(location.search).get('pool')!==null); }catch(e){}
-    showView(sp?'play':'home');
+    var v='home';
+    try{
+      var hs=(location.hash||'').replace('#','');
+      if(new URLSearchParams(location.search).get('pool')!==null) v='play';
+      else if(hs==='play'||hs==='invite'||hs==='records'||hs==='account'||hs==='home') v=hs;
+    }catch(e){}
+    showView(v);
   }
   apShow(0); apStart(); updateSndBtn();
   loadWinners().then(winStart).catch(function(){});

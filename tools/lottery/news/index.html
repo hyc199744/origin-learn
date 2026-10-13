@@ -1,58 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
+<html lang="zh-CN"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>平台公告 · ANUBIS PLAY</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 3 42 13.5v17L24 45 6 30.5v-17L24 3z' fill='none' stroke='%23d4af37' stroke-width='3'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="../shared/theme.css">
-</head>
-<body>
-<script>window.SITE_ROOT='../';</script>
-<script>
-window.PAGE_I18N = {
-zh:{
-  nav_home:'首页', nav_games:'游戏大厅', nav_hot:'热门游戏', nav_assets:'我的资产', nav_profile:'我的记录', nav_news:'平台公告',
-  nav_lottery:'链上彩票', connect:'连接钱包', foot_data:'链上数据以浏览器为准',
-  pt:'平台公告', psub:'ANUBIS PLAY 官方动态与更新记录'
-},
-en:{
-  nav_home:'Home', nav_games:'Games', nav_hot:'Hot Games', nav_assets:'Assets', nav_profile:'Records', nav_news:'News',
-  nav_lottery:'Lottery', connect:'Connect Wallet', foot_data:'On-chain data as shown in explorer',
-  pt:'Announcements', psub:'Official ANUBIS PLAY updates'
-}};
-window.NEWS = [
-  { d:'2026-10-12',
-    t:{ zh:'ANUBIS PLAY 平台正式上线', en:'ANUBIS PLAY platform officially launches' },
-    c:{ zh:'本站升级为 Anubis 链综合 Web3 游戏平台。原链上彩票完整迁移至「游戏大厅 → 安努比斯彩票」，合约、奖池、玩法保持不变；新增游戏大厅、资产、公告等板块，龙虎、转盘等新游戏即将加入。',
-        en:'This site is now the ANUBIS PLAY Web3 gaming hub on Anubis Chain. The lottery moved intact to Games → ANUBIS LOTTERY (contracts, jackpots and rules unchanged). New sections: lobby, assets, news. Dragon-Tiger, Wheel and more games coming.' } },
-  { d:'2026-10-11',
-    t:{ zh:'彩票升级 V3：五奖池 + 邀请返佣上线', en:'Lottery V3: five pools + referral rewards live' },
-    c:{ zh:'彩票合约升级至 V3，新增 USDT / DAI / A / RM 四个奖池，与 LGNS 池同逻辑、每小时开奖。邀请返佣同步上线：直推拿平台费 30%、间推 10%，从平台费支出，不影响奖池。',
-        en:'Lottery contracts upgraded to V3 with four new pools (USDT / DAI / A / RM) sharing the same rules, drawn hourly. Referral rewards live: 30% direct / 10% indirect of platform fees, paid from fees — jackpots untouched.' } },
-  { d:'2026-10-04',
-    t:{ zh:'anubislottery.com 域名启用', en:'anubislottery.com domain goes live' },
-    c:{ zh:'Anubis 链上彩票独立域名正式启用，链上开奖、自动开奖机器人同步运行。',
-        en:'The lottery’s dedicated domain went live, with on-chain draws and the auto-draw bot running.' } }
-];
-</script>
-<script src="../shared/site.js"></script>
-
-<div class="page"><div class="wrap">
-  <h1 class="pt" data-i18n="pt">平台公告</h1>
-  <div class="psub" data-i18n="psub"></div>
-  <div id="newsList"></div>
-</div></div>
-
-<script>
-SiteNav.render('nav_news');
-function paint(){
-  document.getElementById('newsList').innerHTML = window.NEWS.map(function(n){
-    return '<div class="news-item"><div class="nd">📢 '+n.d+'</div><h3>'+n.t[I18n.lang]+'</h3><p>'+n.c[I18n.lang]+'</p></div>';
-  }).join('');
-}
-paint(); renderFooter(); I18n.apply();
-window.onLangChange = function(){ paint(); var f=document.querySelector('footer'); if(f) f.remove(); renderFooter(); };
-</script>
-</body>
-</html>
+<meta http-equiv="refresh" content="0;url=../#home">
+<title>前往 ANUBIS PLAY</title>
+<script>location.replace('../#home');</script>
+<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0e1a14;color:#cfe0d2;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;text-align:center;padding:24px}a{color:#B49A63;font-weight:700;text-decoration:none}</style>
+</head><body><div>
+<div style="font-size:40px;margin-bottom:12px">🎮</div>
+<p>正在前往 ANUBIS PLAY… / Redirecting…</p>
+<p style="margin-top:16px"><a href="../#home">👉 点此进入 / Enter</a></p>
+</div></body></html>
