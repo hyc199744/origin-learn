@@ -308,18 +308,22 @@ html,body{overflow-x:hidden;max-width:100%}
       <div class="sec-head">
         <div><div class="eyebrow">LIVE · 链上彩票</div><h2>正在进行<span class="live-tag"><span class="dot"></span>进行中</span></h2></div>
       </div>
-      <div class="pool-tabs">
-        <div class="pool-tab">LGNS</div><div class="pool-tab">USDT</div><div class="pool-tab sel">DAI</div><div class="pool-tab">A</div><div class="pool-tab">RM</div>
-      </div>
-      <div class="jackpot">
-        <div class="eyebrow">本期奖池 · DAI</div>
-        <div class="amount"><strong>12,480</strong><span>DAI</span></div>
-      </div>
-      <div class="draw-info">
-        <div><div class="k">单张票价</div><div class="v">5 DAI</div></div>
-        <div><div class="k">售票截止</div><div class="timer">00:42:18</div></div>
-      </div>
-      <button class="btn">查看奖池 / 进入购票</button>
+      <div class="pool-tabs" id="poolTabs">
+<div class="pool-tab" onclick="selPool(0)">LGNS</div>
+<div class="pool-tab" onclick="selPool(1)">USDT</div>
+<div class="pool-tab" onclick="selPool(2)">DAI</div>
+<div class="pool-tab" onclick="selPool(3)">A</div>
+<div class="pool-tab" onclick="selPool(4)">RM</div>
+</div>
+<div class="jackpot">
+<div class="eyebrow" id="poolEyebrow">本期奖池 · LGNS</div>
+<div class="amount"><strong id="jkAmt">—</strong><span id="jkUnit">LGNS</span></div>
+</div>
+<div class="draw-info">
+<div><div class="k">单张票价</div><div class="v" id="tkPrice">—</div></div>
+<div><div class="k">售票截止</div><div class="timer" id="tkTimer">—</div></div>
+</div>
+<button class="btn">查看奖池 / 进入购票</button>
       <div class="lottery-foot">
         <span><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/></svg>链上可查</span>
         <span><svg class="ic" viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0110 0v3"/><rect x="5" y="11" width="14" height="9" rx="2"/></svg>钱包签名</span>
@@ -428,6 +432,51 @@ html,body{overflow-x:hidden;max-width:100%}
     }catch(e){toast((e&&e.message)||'\u8fde\u63a5\u5931\u8d25');}
   };
   if(window.ethereum&&window.ethereum.request){window.ethereum.request({method:'eth_accounts'}).then(function(a){if(a&&a.length){myAddr=a[0];ui();}}).catch(function(){});}
+})();
+</script>
+<script>
+(function(){
+  var RPC='https://rpc.anubispace.org';
+  var SEL={price:'1209b1f6',round:'8a19c8bc',rounds:'8c65c81f'};
+  var POOLS=[
+    {sym:'LGNS',c:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',d:9},
+    {sym:'USDT',c:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',d:6},
+    {sym:'DAI', c:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',d:18},
+    {sym:'A',   c:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',d:18},
+    {sym:'RM',  c:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',d:9}
+  ];
+  var sel=0, data={};
+  function $(id){return document.getElementById(id);}
+  function enc(n){return BigInt(n).toString(16).padStart(64,'0');}
+  function call(to,d){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:to,data:'0x'+d},'latest']})}).then(function(r){return r.json();}).then(function(j){return (j.result||'0x').replace(/^0x/,'');});}
+  function fmt(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
+  async function loadPool(k){
+    var P=POOLS[k];
+    try{
+      var price=BigInt('0x'+((await call(P.c,SEL.price))||'0'));
+      var rid=BigInt('0x'+((await call(P.c,SEL.round))||'0'));
+      var r=await call(P.c,SEL.rounds+enc(rid));
+      var w=function(n){return BigInt('0x'+(r.slice(n*64,n*64+64)||'0'));};
+      data[k]={price:price,end:Number(w(0)),pool:w(3)+w(4),round:Number(rid),ok:true};
+    }catch(e){data[k]={ok:false};}
+    if(k===sel) render();
+  }
+  function cd(end){var s=end-Math.floor(Date.now()/1000);if(s<0)s=0;var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;var p=function(n){return String(n).padStart(2,'0');};return p(h)+':'+p(m)+':'+p(x);}
+  function tickTimer(){var D=data[sel]||{};var e=$('tkTimer');if(!e)return;e.textContent=D.ok?(D.end>Math.floor(Date.now()/1000)?cd(D.end):'\u5df2\u622a\u6b62'):'\u2014';}
+  function render(){
+    var P=POOLS[sel],D=data[sel]||{};
+    var tabs=document.querySelectorAll('#poolTabs .pool-tab');tabs.forEach(function(t,i){t.classList.toggle('sel',i===sel);});
+    if($('poolEyebrow'))$('poolEyebrow').textContent='\u672c\u671f\u5956\u6c60 \u00b7 '+P.sym;
+    if($('jkUnit'))$('jkUnit').textContent=P.sym;
+    if(D.ok){if($('jkAmt'))$('jkAmt').textContent=fmt(D.pool,P.d);if($('tkPrice'))$('tkPrice').textContent=fmt(D.price,P.d)+' '+P.sym;}
+    else{if($('jkAmt'))$('jkAmt').textContent='\u2014';if($('tkPrice'))$('tkPrice').textContent='\u2014';}
+    tickTimer();
+  }
+  window.selPool=function(i){sel=i;render();if(!data[i]||!data[i].ok)loadPool(i);};
+  render();
+  POOLS.forEach(function(_,k){loadPool(k);});
+  setInterval(tickTimer,1000);
+  setInterval(function(){POOLS.forEach(function(_,k){loadPool(k);});},30000);
 })();
 </script>
 </body>
