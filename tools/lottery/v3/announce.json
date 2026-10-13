@@ -1,0 +1,10 @@
+{
+  "items": [
+    {
+      "on": true,
+      "date": "2026-10-14",
+      "zh": { "t": "欢迎来到 ANUBIS PLAY", "b": "链上彩票已上线，五大奖池（LGNS / USDT / DAI / A / RM）全程链上可查；邀请好友还能赚返佣（直推 30% / 间推 10%）。更多游戏陆续上线，敬请期待。" },
+      "en": { "t": "Welcome to ANUBIS PLAY", "b": "The on-chain lottery is live with five pools (LGNS / USDT / DAI / A / RM), fully verifiable on-chain. Invite friends to earn referral rewards (30% direct / 10% indirect). More games are coming soon." }
+    }
+  ]
+}

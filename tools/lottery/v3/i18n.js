@@ -113,7 +113,20 @@
   '去邀请页 →':['Open referral →'],'我的战绩':['My record'],'玩过的游戏':['Games played'],
   '交易历史':['Transaction history'],'已领返佣':['Claimed'],'暂无':['None'],
   '连接钱包查看你的资产':['Connect your wallet to see your account'],
-  '复制地址':['Copy address'],'票':['tickets']
+  '复制地址':['Copy address'],'票':['tickets'],
+  '帮助中心':['Help Center'],'新手三步':['Get started in 3 steps'],'游戏规则':['Game rules'],
+  '邀请返佣':['Referral rewards'],'钱包与网络':['Wallet & network'],'风险提示':['Risk notice'],
+  '常见问题':['FAQ'],'暂无公告':['No announcements yet'],'返回大厅':['Back to Lobby'],
+  '奖项：一等奖 1 名拿奖池 50%，二等奖 3 名各 10%，三等奖 10 名各 2%；没人中的奖项自动滚入下期。每期截止后用未来区块哈希开奖，任何人可触发，中奖奖金在开奖时自动发放。':['Prizes: 1st (×1) takes 50% of the pool, 2nd (×3) 10% each, 3rd (×10) 2% each; unwon prizes roll over. After cutoff a future block hash draws the winners — anyone can trigger it, and prizes are paid automatically at the draw.'],
+  '好友每次购票产生的平台费，你拿直推 30%、间推 10%，从平台费里出，不影响奖池，随时在邀请页领取。绑定在好友首次购票时自动完成，永久不可更改。':['On the platform fee from each ticket your invitees buy, you earn 30% (direct) and 10% (indirect) — taken from the fee, the prize pool is untouched; claim anytime on the Referral page. Binding happens automatically on their first purchase and is permanent.'],
+  '用支持 Anubis 链（chainId 6714）的钱包打开本站，连接后按提示切换或添加 Anubis 网络即可。Gas 使用链上原生代币。':['Open this site in a wallet that supports Anubis (chainId 6714); after connecting, switch or add the Anubis network as prompted. Gas uses the chain’s native token.'],
+  '参与链上彩票与博弈存在风险，可能损失本金。请量力而行、理性参与，未成年人请勿参与。本平台不作任何收益承诺。':['On-chain lottery and gaming carry risk — you may lose your funds. Play within your means and responsibly; not for minors. No returns are promised.'],
+  '需要什么代币？':['Which tokens do I need?'],
+  '每个奖池只收对应代币（LGNS/USDT/DAI/A/RM），外加少量 Gas。在彩票页切换奖池即可看到票价。':['Each pool accepts only its own token (LGNS/USDT/DAI/A/RM), plus a little gas. Switch pools on the Lottery page to see the ticket price.'],
+  '怎么知道开奖公平？':['How is the draw fair?'],
+  '开奖用的是售票截止之后才产生的未来区块哈希作随机源，买票时谁也预测不了，开奖后任何人都能在链上核对。':['The draw uses a future block hash produced only after sales close as the random source — unpredictable at purchase time and verifiable on-chain by anyone afterwards.'],
+  '进入链上彩票':['Enter the Lottery'],'中奖了怎么领？':['How do I claim winnings?'],
+  '中奖奖金在开奖时由合约自动打到你钱包，无需手动领取。返佣则在邀请页手动领取。':['Prizes are sent to your wallet automatically by the contract at the draw — no manual claim needed. Referral rewards are claimed manually on the Referral page.']
   };
   var LANG='zh';
   try{LANG=localStorage.getItem('aplang')||'zh';}catch(e){}

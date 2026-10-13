@@ -263,7 +263,7 @@ html,body{overflow-x:hidden;max-width:100%}
     <a href="account/"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v18M3 8l9-5 9 5M4 10v7a2 2 0 002 2h12a2 2 0 002-2v-7"/></svg><span>我的资产</span></a>
     <a href="invite/"><svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11l2 2 4-4"/></svg><span>邀请奖励</span></a>
     <a href="#"><svg class="ic" viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M4 20h16"/></svg><span>我的记录</span></a>
-    <a href="#"><svg class="ic" viewBox="0 0 24 24"><path d="M10 4h4l1 2 2 1 2-1 2 3-1 2v2l1 2-2 3-2-1-2 1-1 2h-4l-1-2-2-1-2 1-2-3 1-2v-2L2 9l2-3 2 1 2-1 1-2Z"/><circle cx="12" cy="12" r="2.5"/></svg><span>平台公告</span></a>
+    <a href="news/"><svg class="ic" viewBox="0 0 24 24"><path d="M10 4h4l1 2 2 1 2-1 2 3-1 2v2l1 2-2 3-2-1-2 1-1 2h-4l-1-2-2-1-2 1-2-3 1-2v-2L2 9l2-3 2 1 2-1 1-2Z"/><circle cx="12" cy="12" r="2.5"/></svg><span>平台公告</span></a>
   </nav>
   <div class="rail-bottom">
     <b>你的下一场精彩</b>
@@ -371,7 +371,7 @@ html,body{overflow-x:hidden;max-width:100%}
   <!-- 下半 -->
   <section class="lower">
     <div class="steps-box">
-      <div class="games-head"><div><div class="eyebrow">HOW TO PLAY</div><h2>三步开始</h2></div><button class="text-btn">帮助中心 →</button></div>
+      <div class="games-head"><div><div class="eyebrow">HOW TO PLAY</div><h2>三步开始</h2></div><button class="text-btn" onclick="location.href=\'help/\'">帮助中心 →</button></div>
       <div class="steps">
         <div class="step"><div class="step-no">1</div><div><h3>连接钱包</h3><p>用支持 Anubis 链的钱包（如 OKX）打开本站并连接。</p></div></div>
         <div class="step"><div class="step-no">2</div><div><h3>选奖池 · 买票</h3><p>选择 LGNS / USDT / DAI / A / RM 任一奖池，授权一次后购票。</p></div></div>
@@ -486,6 +486,6 @@ html,body{overflow-x:hidden;max-width:100%}
   setInterval(function(){POOLS.forEach(function(_,k){loadPool(k);});},30000);
 })();
 </script>
-<script src="i18n.js?v=11"></script>
+<script src="i18n.js?v=12"></script>
 </body>
 </html>
