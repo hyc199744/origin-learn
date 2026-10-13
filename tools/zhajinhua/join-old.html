@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加入旧房间 #6（取回 10 LGNS）</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.0/dist/ethers.umd.min.js"></script>
+<style>
+body{font-family:system-ui;background:#0e1512;color:#e9f1ea;max-width:480px;margin:40px auto;padding:20px;text-align:center}
+button{background:#e8c15a;border:none;border-radius:10px;padding:14px 32px;font-size:16px;font-weight:700;cursor:pointer;margin:10px}
+button:disabled{opacity:.4}
+#log{text-align:left;font-size:13px;margin-top:20px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<h2>🃏 加入旧房间 #6</h2>
+<p>交 10 LGNS 底注，3 人凑齐后另外两人会弃牌，你拿走奖池</p>
+<button id="btn">连接钱包并加入</button>
+<div id="log"></div>
+<script>
+const OLD = "0xaAeffB75Dd31F7a11595a2c9934505a76cc2e146";
+const LGNS = "0x4d1d808a081fdac440703b3765fc61f8028c06b8";
+const ABI = ["function joinRoom(uint256)", "function approve(address,uint256) returns (bool)"];
+const log = m => document.getElementById('log').textContent += m + "\n";
+document.getElementById('btn').onclick = async () => {
+  const btn = document.getElementById('btn'); btn.disabled = true;
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    try { await window.ethereum.request({method:'wallet_switchEthereumChain', params:[{chainId:'0x1a3a'}]}); }
+    catch(e) { await window.ethereum.request({method:'wallet_addEthereumChain', params:[{chainId:'0x1a3a', chainName:'Anubis', rpcUrls:['https://rpc.anubispace.org'], nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18}}]}); }
+    const signer = await provider.getSigner();
+    log("钱包：" + await signer.getAddress());
+    const lgns = new ethers.Contract(LGNS, ABI, signer);
+    log("授权 LGNS...");
+    const atx = await lgns.approve(OLD, 100n*10n**9n, {type: 0});
+    await atx.wait(); log("✅ 授权完成");
+    const room = new ethers.Contract(OLD, ABI, signer);
+    log("加入房间 #6...");
+    const tx = await room.joinRoom(6, {type: 0});
+    log("交易：" + tx.hash); await tx.wait();
+    log("✅ 已加入！等另外两人弃牌你就赢了");
+  } catch(e) { log("❌ " + (e.reason || e.message)); }
+  btn.disabled = false;
+};
+</script>
+</body>
+</html>
