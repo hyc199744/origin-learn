@@ -507,7 +507,7 @@ async function quickMatch(){
       let info;
       try{ info = await roGame.roomInfo(id); }catch(_){ continue; }
       const state = Number(info.state), pc = Number(info.playerCount);
-      if(state!==0 || pc<1 || pc>=8) continue;
+      if(state!==0 || pc>=8) continue;
       // 自己已经在这桌 -> 直接回去
       let mine=false; try{ mine = await roGame.isPlayer(id, account); }catch(_){}
       if(mine){ enterRoom(BigInt(id)); return; }
@@ -544,7 +544,16 @@ async function createRoom(){
       }catch(_){}
     }
     if(id==null){ toast("建房成功但没解析到房号，试试手动输入","err"); }
-    else{ toast("建房成功 #"+id.toString(),"ok"); enterRoom(id); }
+    else{
+      // 建房后自动加入（交底注），否则房间 pc=0 别人匹配不到
+      try{
+        await ensureAllowance(params.ante);
+        const jtx = await game.joinRoom(id, overrides());
+        await jtx.wait();
+        toast("建房并入座 #"+id.toString(),"ok");
+      }catch(je){ toast("建房成功但加入失败："+(je.shortMessage||je.message),"err"); }
+      enterRoom(id);
+    }
   }catch(e){ toast("建房失败："+(e.shortMessage||e.message||e),"err"); }
   finally{ $("btnCreate").disabled = false; }
 }
