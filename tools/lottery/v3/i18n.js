@@ -1,7 +1,9 @@
 /* ANUBIS PLAY 多语言 i18n：按中文原文作为 key，DOM 叶子节点扫描替换 */
 (function(){
   var ORDER=['en','ko','ja','ru','vi','es']; // D 数组顺序
-  var LANGS=[['zh','中文'],['en','English']];
+  var FLAG_CN='<span class="flag"><svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#DE2910"/><path fill="#FFDE00" d="M7 3.5 8 6.7 11.3 6.7 8.6 8.6 9.6 11.8 7 9.9 4.4 11.8 5.4 8.6 2.7 6.7 6 6.7z"/><circle cx="13.5" cy="2.6" r=".9" fill="#FFDE00"/><circle cx="15.5" cy="4.6" r=".9" fill="#FFDE00"/><circle cx="15.5" cy="7.6" r=".9" fill="#FFDE00"/><circle cx="13.5" cy="9.6" r=".9" fill="#FFDE00"/></svg></span>';
+  var FLAG_US='<span class="flag"><svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#fff"/><g fill="#B22234"><rect width="30" height="1.54"/><rect y="3.08" width="30" height="1.54"/><rect y="6.15" width="30" height="1.54"/><rect y="9.23" width="30" height="1.54"/><rect y="12.31" width="30" height="1.54"/><rect y="15.38" width="30" height="1.54"/><rect y="18.46" width="30" height="1.54"/></g><rect width="13" height="10.77" fill="#3C3B6E"/><g fill="#fff"><circle cx="2.6" cy="2.2" r=".55"/><circle cx="5.2" cy="2.2" r=".55"/><circle cx="7.8" cy="2.2" r=".55"/><circle cx="10.4" cy="2.2" r=".55"/><circle cx="3.9" cy="4.3" r=".55"/><circle cx="6.5" cy="4.3" r=".55"/><circle cx="9.1" cy="4.3" r=".55"/><circle cx="2.6" cy="6.4" r=".55"/><circle cx="5.2" cy="6.4" r=".55"/><circle cx="7.8" cy="6.4" r=".55"/><circle cx="10.4" cy="6.4" r=".55"/><circle cx="3.9" cy="8.5" r=".55"/><circle cx="6.5" cy="8.5" r=".55"/><circle cx="9.1" cy="8.5" r=".55"/></g></svg></span>';
+  var LANGS=[['zh','中文',FLAG_CN],['en','English',FLAG_US]];
   var D={
   '游戏大厅':['Lobby','게임 로비','ゲームロビー','Лобби','Sảnh game','Lobby'],
   '我的资产':['My Assets','내 자산','マイ資産','Мои активы','Tài sản','Mis activos'],
@@ -89,7 +91,7 @@
     document.querySelectorAll('[data-zh]').forEach(function(el){var k=el.getAttribute('data-zh');
       if(k==='heroH2'){el.innerHTML=HERO[l]||HERO.zh;return;}
       el.textContent=window.tr(k,l);});
-    var lc=document.getElementById('langCode');if(lc){var m={zh:'中',en:'EN',ko:'KO',ja:'JA',ru:'RU',vi:'VI',es:'ES'};lc.textContent=m[l]||'中';}
+    var lc=document.getElementById('langCode');if(lc){var f='';for(var i=0;i<LANGS.length;i++){if(LANGS[i][0]===l)f=LANGS[i][2];}lc.innerHTML=f;}
     document.querySelectorAll('#langMenu .lmi').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-l')===l);});
     try{if(window.__uiWallet)window.__uiWallet();}catch(e){}
     try{if(window.__poolRender)window.__poolRender();}catch(e){}
@@ -99,7 +101,7 @@
   window.setLang=function(l){window.applyLang(l);closeMenu();};
   function build(){
     if(!document.getElementById('langBackdrop')){var _bd=document.createElement('div');_bd.id='langBackdrop';_bd.hidden=true;_bd.style.cssText='position:fixed;inset:0;z-index:199;background:transparent';_bd.onclick=closeMenu;document.body.appendChild(_bd);}
-    var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){return '<a class="lmi" data-l="'+x[0]+'" onclick="setLang(\''+x[0]+'\')">'+x[1]+'</a>';}).join('');}
+    var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){return '<a class="lmi" data-l="'+x[0]+'" onclick="setLang(\''+x[0]+'\')">'+x[2]+'<span>'+x[1]+'</span></a>';}).join('');}
     collect();applyLang(LANG);
   }
   if(document.readyState!=='loading')build();else document.addEventListener('DOMContentLoaded',build);

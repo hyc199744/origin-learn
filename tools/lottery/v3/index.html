@@ -245,6 +245,7 @@ html,body{overflow-x:hidden;max-width:100%}
 /* 窄平板(768/820)hero与彩票卡上下堆叠 */
 @media(max-width:860px) and (min-width:621px){.top-grid{grid-template-columns:1fr}.hero{min-height:300px}}
 /* 平板游戏卡保持2列(768~1100已是2列) */
+.flag{display:inline-block;width:20px;height:13px;border-radius:3px;overflow:hidden;flex:none;line-height:0;box-shadow:0 0 0 1px #0004}.flag svg{width:100%;height:100%;display:block}.lang-menu .lmi{display:flex;align-items:center;gap:10px}#langCode{display:inline-flex;align-items:center;margin-left:4px}
 </style>
 </head>
 <body>
@@ -485,6 +486,6 @@ html,body{overflow-x:hidden;max-width:100%}
   setInterval(function(){POOLS.forEach(function(_,k){loadPool(k);});},30000);
 })();
 </script>
-<script src="i18n.js?v=4"></script>
+<script src="i18n.js?v=5"></script>
 </body>
 </html>
