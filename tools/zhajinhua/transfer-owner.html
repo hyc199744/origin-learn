@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>炸金花 管理员转移</title>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.0/dist/ethers.umd.min.js"></script>
+<style>
+body{font-family:system-ui;background:#0e1512;color:#e9f1ea;max-width:480px;margin:40px auto;padding:20px;text-align:center}
+button{background:#e8c15a;border:none;border-radius:10px;padding:14px 32px;font-size:16px;font-weight:700;cursor:pointer;margin:10px}
+button:disabled{opacity:.4}
+.addr{font-size:12px;word-break:break-all;color:#8fa89a;background:#15201b;padding:10px;border-radius:8px;margin:10px 0}
+#log{text-align:left;font-size:13px;margin-top:20px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<h2>🃏 炸金花 管理员转移</h2>
+<p>把管理员转给新地址，以后 3 人凑齐自动发牌</p>
+<div class="addr">合约：0xaAeffB75Dd31F7a11595a2c9934505a76cc2e146<br>新管理员：0xf47F405e30462768C41667BF94619222B5cE5726</div>
+<button id="btn">连接钱包并授权</button>
+<div id="log"></div>
+<script>
+const ROOM = "0xaAeffB75Dd31F7a11595a2c9934505a76cc2e146";
+const NEW_OWNER = "0x4a5f8dd04c54f0971db6619d5d68a31735e6afe7";
+const ABI = ["function transferOwnership(address d)", "function owner() view returns (address)"];
+const log = m => document.getElementById('log').textContent += m + "\n";
+
+document.getElementById('btn').onclick = async () => {
+  const btn = document.getElementById('btn');
+  btn.disabled = true;
+  try {
+    if (!window.ethereum) { log("❌ 没检测到钱包，请用 OKX 钱包浏览器打开"); return; }
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    // 切到 Anubis
+    try {
+      await window.ethereum.request({method:'wallet_switchEthereumChain', params:[{chainId:'0x1a3a'}]});
+    } catch(e) {
+      await window.ethereum.request({method:'wallet_addEthereumChain', params:[{
+        chainId:'0x1a3a', chainName:'Anubis',
+        rpcUrls:['https://rpc.anubispace.org'],
+        nativeCurrency:{name:'DAI', symbol:'DAI', decimals:18}
+      }]});
+    }
+    const signer = await provider.getSigner();
+    const addr = await signer.getAddress();
+    log("钱包：" + addr);
+    const c = new ethers.Contract(ROOM, ABI, signer);
+    const cur = await c.owner();
+    log("当前管理员：" + cur);
+    if (cur.toLowerCase() === NEW_DEALER.toLowerCase()) { log("✅ 已经是这个地址了，不用调"); return; }
+    log("发送 transferOwnership 交易，请在钱包确认...");
+    const tx = await c.transferOwnership(NEW_DEALER, {type: 0});
+    log("交易已发：" + tx.hash);
+    await tx.wait();
+    log("✅ 管理员已转移！");
+  } catch(e) {
+    log("❌ " + (e.reason || e.message || e));
+  }
+  btn.disabled = false;
+};
+</script>
+</body>
+</html>
