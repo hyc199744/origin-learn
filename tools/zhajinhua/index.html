@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>炸金花 · 链上牌桌</title>
+<style>
+  :root{
+    --bg:#0e1512; --panel:#15201b; --panel2:#1b2a22; --line:#2a3d31;
+    --felt:#1a4d3a; --felt2:#0f3327;
+    --gold:#e8c15a; --gold2:#f4d98a;
+    --txt:#e9f1ea; --muted:#8fa89a; --red:#e3564a; --green:#49c57a;
+    --chip:#243730; --danger:#c0392b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--txt);
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--gold);}
+  .wrap{max-width:1040px; margin:0 auto; padding:16px;}
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; flex-wrap:wrap; padding:14px 18px;
+    background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:1px solid var(--line); border-radius:14px;
+  }
+  .brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:18px;}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);}
+  .chainbadge{font-size:12px; padding:3px 9px; border-radius:20px; border:1px solid var(--line); color:var(--muted);}
+  .chainbadge.ok{color:var(--green); border-color:#2d5a44;}
+  .chainbadge.bad{color:var(--red); border-color:#5a2d2d;}
+  button{
+    font-family:inherit; cursor:pointer; border:none; border-radius:10px;
+    padding:10px 16px; font-size:14px; font-weight:600; color:#10140f;
+    background:linear-gradient(180deg,var(--gold2),var(--gold)); transition:.15s;
+  }
+  button:hover{filter:brightness(1.06);}
+  button:disabled{opacity:.4; cursor:not-allowed; filter:none;}
+  button.ghost{background:transparent; color:var(--txt); border:1px solid var(--line);}
+  button.ghost:hover{border-color:var(--gold);}
+  button.danger{background:linear-gradient(180deg,#e05a4e,var(--danger)); color:#fff;}
+  button.sm{padding:7px 12px; font-size:13px;}
+  .grid{display:grid; gap:14px; margin-top:14px;}
+  @media(min-width:860px){ .grid.two{grid-template-columns:1fr 320px;} }
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px;}
+  .card h2{margin:0 0 12px; font-size:15px; color:var(--gold2); font-weight:700; letter-spacing:.5px;}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  .muted{color:var(--muted);}
+  .mono{font-family:ui-monospace,Consolas,monospace;}
+  input[type=text],input[type=number]{
+    background:#0c1310; border:1px solid var(--line); color:var(--txt);
+    border-radius:9px; padding:9px 11px; font-size:14px; font-family:inherit; width:100%;
+  }
+  input:focus{outline:none; border-color:var(--gold);}
+  .params{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:4px;}
+  .param{background:var(--panel2); border:1px solid var(--line); border-radius:9px; padding:8px 10px;}
+  .param .k{font-size:11px; color:var(--muted);}
+  .param .v{font-size:16px; font-weight:700; color:var(--gold2);}
+  /* felt table */
+  .felt{
+    background:radial-gradient(ellipse at center,var(--felt),var(--felt2));
+    border:2px solid #0a2a20; border-radius:120px/60px; padding:24px 20px;
+    box-shadow:inset 0 0 60px rgba(0,0,0,.5);
+  }
+  .potline{text-align:center; margin-bottom:8px;}
+  .potline .pot{font-size:30px; font-weight:800; color:var(--gold2); text-shadow:0 2px 6px rgba(0,0,0,.4);}
+  .potline .sub{font-size:12px; color:#bfe0cf;}
+  .seats{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:14px;}
+  .seat{background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px; position:relative;}
+  .seat.turn{border-color:var(--gold); box-shadow:0 0 0 2px rgba(232,193,90,.35);}
+  .seat.me{border-color:#4a7; }
+  .seat.folded{opacity:.45;}
+  .seat .addr{font-size:12px; font-weight:700;}
+  .seat .meta{font-size:11px; color:#cfe6d9; margin-top:4px; display:flex; gap:6px; flex-wrap:wrap;}
+  .tag{font-size:10px; padding:1px 6px; border-radius:6px; background:rgba(255,255,255,.12);}
+  .tag.seen{background:#355;}
+  .tag.fold{background:#622;}
+  .tag.you{background:#363;}
+  /* cards */
+  .hand{display:flex; gap:8px; justify-content:center; margin:6px 0;}
+  .pcard{
+    width:52px; height:72px; border-radius:7px; background:#fdfdf6; color:#111;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-weight:800; box-shadow:0 3px 8px rgba(0,0,0,.4); position:relative;
+  }
+  .pcard.red{color:#c0392b;}
+  .pcard.back{
+    background:repeating-linear-gradient(45deg,#2a3d6a,#2a3d6a 6px,#1f2e52 6px,#1f2e52 12px);
+    color:transparent;
+  }
+  .pcard .r{font-size:20px; line-height:1;}
+  .pcard .s{font-size:16px;}
+  .handname{text-align:center; font-weight:700; color:var(--gold2); min-height:20px;}
+  /* actions */
+  .actions{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+  .countdown{font-variant-numeric:tabular-nums; font-weight:800; font-size:18px;}
+  .countdown.low{color:var(--red);}
+  .state-pill{display:inline-block; font-size:12px; padding:3px 10px; border-radius:20px; background:var(--chip); border:1px solid var(--line);}
+  .log{height:220px; overflow:auto; font-size:12px; font-family:ui-monospace,Consolas,monospace; background:#0b110e; border:1px solid var(--line); border-radius:9px; padding:10px; line-height:1.6;}
+  .log .t{color:var(--muted);}
+  .log .ev{color:var(--gold2);}
+  .notice{font-size:12px; color:var(--muted); line-height:1.6;}
+  .hint{background:#1a2420; border:1px dashed var(--line); border-radius:9px; padding:10px; font-size:12px; color:#bcd; line-height:1.6;}
+  label.lbl{font-size:12px; color:var(--muted); display:block; margin-bottom:4px;}
+  .hide{display:none !important;}
+  .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#222; color:#fff; padding:11px 18px; border-radius:10px; font-size:14px; box-shadow:0 6px 24px rgba(0,0,0,.5); z-index:50; max-width:90%;}
+  .toast.err{background:#5a2222;}
+  .toast.ok{background:#1f4a32;}
+  details summary{cursor:pointer; color:var(--muted); font-size:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="dot"></span> 炸金花 · 链上牌桌</div>
+    <div class="row">
+      <span id="chainBadge" class="chainbadge bad">未连接</span>
+      <span id="lgnsBal" class="muted mono" style="font-size:13px;"></span>
+      <button id="btnConnect">连接钱包</button>
+    </div>
+  </header>
+
+  <!-- 合约参数 -->
+  <div class="card" style="margin-top:14px;">
+    <h2>合约参数（链上读取）</h2>
+    <div class="params" id="params">
+      <div class="param"><div class="k">底注 ante</div><div class="v" id="pAnte">—</div></div>
+      <div class="param"><div class="k">暗注 darkBet</div><div class="v" id="pDark">—</div></div>
+      <div class="param"><div class="k">明注 openBet</div><div class="v" id="pOpen">—</div></div>
+      <div class="param"><div class="k">单局封顶 maxPot</div><div class="v" id="pMax">—</div></div>
+      <div class="param"><div class="k">抽水 feeBps</div><div class="v" id="pFee">—</div></div>
+      <div class="param"><div class="k">行动超时</div><div class="v" id="pTimeout">—</div></div>
+    </div>
+    <div class="notice" style="margin-top:10px;">
+      合约 <span class="mono" id="addrContract"></span> · 代币 LGNS（9 位精度）· Anubis 主网 chainId 6714
+    </div>
+  </div>
+
+  <!-- 大厅 -->
+  <div class="card" id="lobby" style="margin-top:14px;">
+    <h2>大厅</h2>
+    <div class="row">
+      <button id="btnCreate" disabled>建房开桌</button>
+      <div style="flex:1; min-width:200px;">
+        <div class="row">
+          <input type="number" id="joinId" placeholder="输入房间号" style="max-width:160px;" />
+          <button id="btnJoin" class="ghost" disabled>加入房间</button>
+        </div>
+      </div>
+    </div>
+    <div class="hint" style="margin-top:10px;">
+      建房 / 加入都会先检查 LGNS 授权，不足时弹一次 approve；加入扣 <b id="hintAnte">10</b> LGNS 底注。
+    </div>
+  </div>
+
+  <!-- 牌桌 -->
+  <div class="grid two" id="tableArea" style="display:none;">
+    <div class="card">
+      <h2>牌桌 · 房间 #<span id="curRoom">—</span>
+        <span id="statePill" class="state-pill" style="margin-left:8px;">—</span>
+        <button id="btnLeaveView" class="ghost sm" style="float:right;">返回大厅</button>
+      </h2>
+
+      <div class="felt">
+        <div class="potline">
+          <div class="pot"><span id="potVal">0</span> LGNS</div>
+          <div class="sub">当前注额 <span id="curBet">0</span> · 人数 <span id="pcount">0</span>/8</div>
+        </div>
+        <div class="seats" id="seats"></div>
+      </div>
+
+      <!-- 我的牌 -->
+      <div style="margin-top:16px;">
+        <div class="hand" id="myHand">
+          <div class="pcard back"></div><div class="pcard back"></div><div class="pcard back"></div>
+        </div>
+        <div class="handname" id="myHandName"></div>
+      </div>
+
+      <!-- 轮次 & 倒计时 -->
+      <div class="row" style="justify-content:center; margin:10px 0;">
+        <span class="muted">轮到：</span>
+        <span id="turnWho" class="mono">—</span>
+        <span class="muted">·</span>
+        <span>剩余 <span id="cd" class="countdown">—</span></span>
+      </div>
+
+      <!-- 行动按钮 -->
+      <div class="actions" id="actionBtns">
+        <button id="aDark"  disabled>闷跟 <span id="aDarkAmt">10</span></button>
+        <button id="aSeen"  class="ghost" disabled>看牌</button>
+        <button id="aOpen"  disabled>明跟 <span id="aOpenAmt">20</span></button>
+        <button id="aRaise" disabled>加注（翻倍）</button>
+        <button id="aCompare" disabled>比牌</button>
+        <button id="aFold"  class="danger" disabled>弃牌</button>
+      </div>
+      <div class="row" id="compareRow" style="margin-top:10px; display:none;">
+        <label class="lbl" style="width:100%;">比牌对象（选一个在局对手）：</label>
+        <select id="compareTarget" style="flex:1; background:#0c1310; border:1px solid var(--line); color:var(--txt); border-radius:9px; padding:9px;"></select>
+        <button id="aCompareGo" class="sm">确认比牌</button>
+        <button id="aCompareCancel" class="ghost sm">取消</button>
+      </div>
+      <div class="row" id="timeoutRow" style="margin-top:10px; display:none;">
+        <button id="aTimeout" class="ghost sm">对方超时了，踢他弃牌</button>
+      </div>
+
+      <!-- 结算 -->
+      <div id="settleBox" class="hint" style="display:none; margin-top:14px; text-align:center;">
+        <div style="font-size:16px; color:var(--gold2); font-weight:700;">🏆 本局结束</div>
+        <div id="settleText" style="margin-top:6px;"></div>
+      </div>
+    </div>
+
+    <!-- 侧栏 -->
+    <div class="card">
+      <h2>看牌密钥</h2>
+      <div class="notice">看牌要用 dealer 发给你的对称密钥解开 <span class="mono">encHand</span>。后端 WebSocket 就绪后会自动取密钥；在那之前可手动粘贴调试。</div>
+      <div style="margin-top:10px;">
+        <label class="lbl">WebSocket 地址（留空=不自动取）</label>
+        <input type="text" id="wsUrl" placeholder="wss://..." />
+      </div>
+      <details style="margin-top:10px;">
+        <summary>手动贴密钥（调试用）</summary>
+        <div style="margin-top:8px;">
+          <label class="lbl">密钥 hex（AES-256，32 字节）</label>
+          <input type="text" id="manualKey" class="mono" placeholder="0x..." />
+          <div class="notice" style="margin-top:6px;">约定：encHand = iv(12B) ‖ AES-GCM 密文(含 tag)，明文为 3 字节牌 id(0~51)。</div>
+        </div>
+      </details>
+
+      <h2 style="margin-top:18px;">事件日志</h2>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:14px;">
+    <details>
+      <summary>玩法速查</summary>
+      <div class="notice" style="margin-top:8px;">
+        牌型：豹子 &gt; 同花顺 &gt; 金花(同花) &gt; 顺子 &gt; 对子 &gt; 单张，A23 为最小顺子。<br/>
+        闷跟=不看牌跟暗注；看牌后只能明跟/加注/比牌/弃牌。加注=当前注额翻倍。比牌=付当前注额×2，输的出局。<br/>
+        单局达封顶后只能比牌或弃牌。剩 1 人直接赢，赢家拿池子 95%，5% 进平台。
+      </div>
+    </details>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script>
+"use strict";
+/* ========== 常量 ========== */
+const CONTRACT = "0xaAeffB75Dd31F7a11595a2c9934505a76cc2e146";
+const TOKEN    = "0x4d1d808a081fdac440703b3765fc61f8028c06b8";
+const RPC      = "https://rpc.anubispace.org";
+const CHAIN_ID = 6714;
+const CHAIN_HEX= "0x1a3a";
+const DEC      = 9n;          // LGNS 精度
+const GAS_PRICE= 12000000000n; // 12 gwei
+const POLL_MS  = 5000;
+
+const ABI = [
+  "function ante() view returns (uint256)",
+  "function darkBet() view returns (uint256)",
+  "function openBet() view returns (uint256)",
+  "function maxPot() view returns (uint256)",
+  "function feeBps() view returns (uint256)",
+  "function actionTimeout() view returns (uint256)",
+  "function createRoom() returns (uint256)",
+  "function joinRoom(uint256 id)",
+  "function action(uint256 id, uint8 act, address target)",
+  "function markSeen(uint256 id)",
+  "function timeoutFold(uint256 id, address player)",
+  "function roomInfo(uint256 id) view returns (uint8 state, uint256 pot, uint256 currentBet, address turnPlayer, uint256 deadline, address winner, uint256 playerCount)",
+  "function seats(uint256, address) view returns (bool joined, bool folded, bool seen, uint256 contributed, bytes encHand)",
+  "function isPlayer(uint256, address) view returns (bool)",
+  "function compareHands(uint8[3] a, uint8[3] b) pure returns (uint8)",
+  "event RoomCreated(uint256 indexed id, address indexed creator)",
+  "event Joined(uint256 indexed id, address indexed player)",
+  "event Dealt(uint256 indexed id, bytes32 deckCommit)",
+  "event Action(uint256 indexed id, address indexed player, uint8 act, uint256 amount)",
+  "event Folded(uint256 indexed id, address indexed player)",
+  "event Showdown(uint256 indexed id, address indexed winner, uint256 pot, uint256 fee)"
+];
+const ERC20_ABI = [
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function balanceOf(address) view returns (uint256)",
+  "function decimals() view returns (uint8)"
+];
+
+// 行动类型
+const ACT = { FOLD:0, DARK:1, OPEN:2, RAISE:3, COMPARE:4 };
+
+/* ========== 全局状态 ========== */
+let provider, signer, account;
+let game, token, roGame;           // 合约实例（读写 / 只读）
+let params = {};                   // ante/darkBet/...（BigInt，最小单位）
+let curRoomId = null;
+let pollTimer = null, cdTimer = null;
+let lastInfo = null;               // 最近一次 roomInfo
+let myCards = null;                // 已解出的 3 张牌 [id,id,id]
+let roomPlayers = [];              // 当前房已知玩家地址（从事件累积）
+let wsConn = null;
+
+/* ========== 工具 ========== */
+const $ = id => document.getElementById(id);
+function toast(msg, type){
+  const t = document.createElement("div");
+  t.className = "toast" + (type ? " "+type : "");
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3200);
+}
+function fmt(bi){ // BigInt 最小单位 -> 人类可读 LGNS
+  if(bi == null) return "—";
+  bi = BigInt(bi);
+  const base = 10n ** DEC;
+  const whole = bi / base;
+  const frac = bi % base;
+  if(frac === 0n) return whole.toString();
+  let f = frac.toString().padStart(Number(DEC),"0").replace(/0+$/,"");
+  return whole.toString() + "." + f;
+}
+function short(a){ return a ? a.slice(0,6)+"…"+a.slice(-4) : "—"; }
+function now(){ return Math.floor(Date.now()/1000); }
+function logLine(txt, isEvent){
+  const el = $("log");
+  const d = document.createElement("div");
+  const ts = new Date().toLocaleTimeString("zh-CN",{hour12:false});
+  d.innerHTML = `<span class="t">[${ts}]</span> <span class="${isEvent?'ev':''}">${txt}</span>`;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+function overrides(){ return { type:0, gasPrice:GAS_PRICE }; }
+
+/* ========== 牌面 / 牌型 ========== */
+// id 0~51: rank = id>>2 (0=2 … 12=A), suit = id%4
+const RANK_STR = ["2","3","4","5","6","7","8","9","10","J","Q","K","A"];
+const SUIT_STR = ["♠","♥","♦","♣"];
+function cardRank(id){ return id >> 2; }      // 0..12
+function cardSuit(id){ return id & 3; }       // 0..3
+function renderCards(ids, faceUp){
+  const box = $("myHand");
+  box.innerHTML = "";
+  for(let i=0;i<3;i++){
+    const c = document.createElement("div");
+    if(!faceUp || !ids){
+      c.className = "pcard back";
+    }else{
+      const id = ids[i];
+      const s = cardSuit(id), r = cardRank(id);
+      c.className = "pcard" + (s===1||s===2 ? " red":"");
+      c.innerHTML = `<span class="r">${RANK_STR[r]}</span><span class="s">${SUIT_STR[s]}</span>`;
+    }
+    box.appendChild(c);
+  }
+}
+// 返回牌型名（仅用于本地显示；胜负以链上 compareHands 为准）
+function handName(ids){
+  const ranks = ids.map(cardRank).sort((a,b)=>a-b); // 0..12
+  const suits = ids.map(cardSuit);
+  const flush = suits[0]===suits[1] && suits[1]===suits[2];
+  // 顺子：连续，或 A23（ranks 0,1,12）
+  const isStraightNormal = (ranks[1]===ranks[0]+1 && ranks[2]===ranks[1]+1);
+  const isA23 = (ranks[0]===0 && ranks[1]===1 && ranks[2]===12);
+  const straight = isStraightNormal || isA23;
+  const trips = ranks[0]===ranks[1] && ranks[1]===ranks[2];
+  const pair = (ranks[0]===ranks[1] || ranks[1]===ranks[2] || ranks[0]===ranks[2]) && !trips;
+  if(trips) return "豹子";
+  if(flush && straight) return "同花顺";
+  if(flush) return "金花（同花）";
+  if(straight) return "顺子";
+  if(pair) return "对子";
+  return "单张";
+}
+
+/* ========== 连接 & 切链 ========== */
+async function connect(){
+  try{
+    const eth = window.ethereum;
+    if(!eth){ toast("没检测到钱包，请用 OKX / MetaMask 浏览器打开","err"); return; }
+    await eth.request({ method:"eth_requestAccounts" });
+    await ensureChain(eth);
+    provider = new ethers.BrowserProvider(eth);
+    signer = await provider.getSigner();
+    account = await signer.getAddress();
+    game  = new ethers.Contract(CONTRACT, ABI, signer);
+    token = new ethers.Contract(TOKEN, ERC20_ABI, signer);
+    const roProvider = new ethers.JsonRpcProvider(RPC, CHAIN_ID);
+    roGame = new ethers.Contract(CONTRACT, ABI, roProvider);
+
+    $("btnConnect").textContent = short(account);
+    $("btnCreate").disabled = false;
+    $("btnJoin").disabled = false;
+    await refreshChainBadge();
+    await loadParams();
+    await loadBalance();
+    attachListeners();
+    logLine("钱包已连接 "+short(account), true);
+
+    eth.on && eth.on("accountsChanged", ()=>location.reload());
+    eth.on && eth.on("chainChanged", ()=>location.reload());
+  }catch(e){ toast("连接失败："+(e.shortMessage||e.message||e),"err"); }
+}
+
+async function ensureChain(eth){
+  try{
+    await eth.request({ method:"wallet_switchEthereumChain", params:[{chainId:CHAIN_HEX}] });
+  }catch(err){
+    if(err && (err.code===4902 || (""+err.message).includes("Unrecognized"))){
+      await eth.request({ method:"wallet_addEthereumChain", params:[{
+        chainId:CHAIN_HEX, chainName:"Anubis",
+        nativeCurrency:{ name:"DAI", symbol:"DAI", decimals:18 },
+        rpcUrls:[RPC]
+      }]});
+    }else{ throw err; }
+  }
+}
+async function refreshChainBadge(){
+  const net = await provider.getNetwork();
+  const ok = Number(net.chainId) === CHAIN_ID;
+  const b = $("chainBadge");
+  b.className = "chainbadge " + (ok?"ok":"bad");
+  b.textContent = ok ? "Anubis ✓" : ("错链 "+net.chainId);
+}
+
+async function loadParams(){
+  try{
+    const [ante,dark,open,mx,fee,to] = await Promise.all([
+      roGame.ante(), roGame.darkBet(), roGame.openBet(),
+      roGame.maxPot(), roGame.feeBps(), roGame.actionTimeout()
+    ]);
+    params = { ante, dark, open, mx, fee, to };
+    $("pAnte").textContent = fmt(ante);
+    $("pDark").textContent = fmt(dark);
+    $("pOpen").textContent = fmt(open);
+    $("pMax").textContent  = fmt(mx);
+    $("pFee").textContent  = (Number(fee)/100)+"%";
+    $("pTimeout").textContent = Number(to)+" 秒";
+    $("hintAnte").textContent = fmt(ante);
+    $("aDarkAmt").textContent = fmt(dark);
+    $("aOpenAmt").textContent = fmt(open);
+    $("addrContract").textContent = CONTRACT;
+  }catch(e){ logLine("读参数失败："+(e.shortMessage||e.message)); }
+}
+async function loadBalance(){
+  try{
+    const bal = await token.balanceOf(account);
+    $("lgnsBal").textContent = fmt(bal)+" LGNS";
+  }catch(e){}
+}
+
+/* ========== 授权 ========== */
+async function ensureAllowance(need){
+  const cur = await token.allowance(account, CONTRACT);
+  if(cur >= need) return;
+  // 一次授权够一局（封顶额度），省得反复弹窗
+  const amt = params.mx && params.mx > need ? params.mx : need;
+  toast("需要授权 LGNS，请在钱包确认");
+  const tx = await token.approve(CONTRACT, amt, overrides());
+  logLine("approve "+fmt(amt)+" LGNS … "+tx.hash.slice(0,10));
+  await tx.wait();
+  toast("授权完成","ok");
+}
+
+/* ========== 建房 / 加入 ========== */
+async function createRoom(){
+  try{
+    $("btnCreate").disabled = true;
+    const tx = await game.createRoom(overrides());
+    logLine("建房交易 "+tx.hash.slice(0,10)+" …");
+    const rc = await tx.wait();
+    // 从 RoomCreated 事件取 id
+    let id = null;
+    for(const lg of rc.logs){
+      try{ const p = game.interface.parseLog(lg);
+        if(p && p.name==="RoomCreated"){ id = p.args.id; break; }
+      }catch(_){}
+    }
+    if(id==null){ toast("建房成功但没解析到房号，试试手动输入","err"); }
+    else{ toast("建房成功 #"+id.toString(),"ok"); enterRoom(id); }
+  }catch(e){ toast("建房失败："+(e.shortMessage||e.message||e),"err"); }
+  finally{ $("btnCreate").disabled = false; }
+}
+async function joinRoom(){
+  const idv = $("joinId").value.trim();
+  if(idv==="") { toast("先填房间号","err"); return; }
+  const id = BigInt(idv);
+  try{
+    $("btnJoin").disabled = true;
+    await ensureAllowance(params.ante);
+    const tx = await game.joinRoom(id, overrides());
+    logLine("加入房间 #"+id+" "+tx.hash.slice(0,10)+" …");
+    await tx.wait();
+    toast("已加入 #"+id,"ok");
+    enterRoom(id);
+  }catch(e){ toast("加入失败："+(e.shortMessage||e.message||e),"err"); }
+  finally{ $("btnJoin").disabled = false; }
+}
+
+/* ========== 进房 & 轮询 ========== */
+function enterRoom(id){
+  curRoomId = BigInt(id);
+  myCards = null;
+  roomPlayers = [];
+  $("curRoom").textContent = curRoomId.toString();
+  $("tableArea").style.display = "";
+  $("settleBox").style.display = "none";
+  renderCards(null,false);
+  $("myHandName").textContent = "";
+  tryAutoKey();
+  startPolling();
+}
+function leaveView(){
+  stopPolling();
+  curRoomId = null;
+  $("tableArea").style.display = "none";
+}
+function startPolling(){
+  stopPolling();
+  poll();
+  pollTimer = setInterval(poll, POLL_MS);
+}
+function stopPolling(){
+  if(pollTimer){ clearInterval(pollTimer); pollTimer=null; }
+  if(cdTimer){ clearInterval(cdTimer); cdTimer=null; }
+}
+
+async function poll(){
+  if(curRoomId==null) return;
+  try{
+    const info = await roGame.roomInfo(curRoomId);
+    lastInfo = {
+      state:Number(info.state), pot:info.pot, currentBet:info.currentBet,
+      turnPlayer:info.turnPlayer, deadline:Number(info.deadline),
+      winner:info.winner, playerCount:Number(info.playerCount)
+    };
+    renderRoom();
+    await renderSeats();
+  }catch(e){ /* 网络抖动忽略 */ }
+}
+
+function stateName(s){ return s===0?"等人":s===1?"游戏中":s===2?"已结束":"?"; }
+
+function renderRoom(){
+  const i = lastInfo; if(!i) return;
+  $("statePill").textContent = stateName(i.state);
+  $("potVal").textContent = fmt(i.pot);
+  $("curBet").textContent = fmt(i.currentBet);
+  $("pcount").textContent = i.playerCount;
+  const myTurn = i.turnPlayer && account && i.turnPlayer.toLowerCase()===account.toLowerCase();
+  $("turnWho").textContent = (i.turnPlayer && i.turnPlayer!==ethers.ZeroAddress)
+    ? (myTurn ? "你" : short(i.turnPlayer)) : "—";
+
+  // 倒计时
+  startCountdown(i.deadline, i.state===1);
+
+  // 结算
+  if(i.state===2 && i.winner && i.winner!==ethers.ZeroAddress){
+    $("settleBox").style.display = "";
+    const won = i.winner.toLowerCase()===account.toLowerCase();
+    $("settleText").innerHTML = won
+      ? `你赢了！赢得约 <b>${fmt(i.pot)}</b> LGNS（已扣 5% 抽水）`
+      : `赢家是 ${short(i.winner)}`;
+  }
+
+  updateActionButtons();
+}
+
+function startCountdown(deadline, active){
+  if(cdTimer){ clearInterval(cdTimer); cdTimer=null; }
+  const tick = ()=>{
+    const el = $("cd");
+    if(!active || !deadline){ el.textContent="—"; el.classList.remove("low"); return; }
+    let left = deadline - now();
+    if(left<0) left=0;
+    el.textContent = left+"s";
+    el.classList.toggle("low", left<=20);
+    // 对手超时：显示踢人按钮
+    const i = lastInfo;
+    const someonesTurn = i && i.turnPlayer && i.turnPlayer!==ethers.ZeroAddress;
+    const notMe = someonesTurn && i.turnPlayer.toLowerCase()!==account.toLowerCase();
+    $("timeoutRow").style.display = (left===0 && notMe && i.state===1) ? "" : "none";
+  };
+  tick();
+  cdTimer = setInterval(tick, 1000);
+}
+
+async function renderSeats(){
+  const i = lastInfo; if(!i) return;
+  // 已知玩家 = 事件累积 + 自己
+  const set = new Set(roomPlayers.map(a=>a.toLowerCase()));
+  if(account) set.add(account.toLowerCase());
+  const addrs = [...set];
+  const box = $("seats");
+  box.innerHTML = "";
+  const liveOpponents = [];
+  for(const a of addrs){
+    let st;
+    try{ st = await roGame.seats(curRoomId, a); }catch(_){ continue; }
+    if(!st.joined) continue;
+    const isMe = a===account.toLowerCase();
+    const isTurn = i.turnPlayer && i.turnPlayer.toLowerCase()===a;
+    const el = document.createElement("div");
+    el.className = "seat" + (isTurn?" turn":"") + (isMe?" me":"") + (st.folded?" folded":"");
+    let tags = "";
+    if(isMe) tags += `<span class="tag you">你</span>`;
+    if(st.seen) tags += `<span class="tag seen">已看牌</span>`;
+    if(st.folded) tags += `<span class="tag fold">已弃牌</span>`;
+    el.innerHTML = `<div class="addr mono">${isMe?"你":short(a)}</div>
+      <div class="meta">投入 ${fmt(st.contributed)} LGNS ${tags}</div>`;
+    box.appendChild(el);
+    if(!isMe && !st.folded) liveOpponents.push(a);
+  }
+  // 比牌下拉
+  const sel = $("compareTarget");
+  const prev = sel.value;
+  sel.innerHTML = "";
+  for(const a of liveOpponents){
+    const o = document.createElement("option");
+    o.value = a; o.textContent = short(a);
+    sel.appendChild(o);
+  }
+  if(prev) sel.value = prev;
+}
+
+/* ========== 行动按钮状态 ========== */
+async function updateActionButtons(){
+  const i = lastInfo;
+  // 默认全禁
+  ["aDark","aSeen","aOpen","aRaise","aCompare","aFold"].forEach(id=>$(id).disabled=true);
+  if(!i || i.state!==1 || !account){ return; }
+  const myTurn = i.turnPlayer && i.turnPlayer.toLowerCase()===account.toLowerCase();
+  // 我的座位
+  let me;
+  try{ me = await roGame.seats(curRoomId, account); }catch(_){ return; }
+  if(!me.joined || me.folded) return;
+  const seen = me.seen;
+  const capped = params.mx && i.pot >= params.mx; // 达到封顶：只能比牌/弃牌
+
+  // 看牌任何时候（在局、没看过）可点
+  $("aSeen").disabled = seen;
+
+  if(!myTurn) return; // 不是我的回合，只能看牌
+  $("aFold").disabled = false;
+  $("aCompare").disabled = false;
+  if(!capped){
+    if(!seen){ $("aDark").disabled = false; }   // 没看牌 -> 闷跟
+    else      { $("aOpen").disabled = false; }   // 看过牌 -> 明跟
+    $("aRaise").disabled = false;
+  }
+}
+
+/* ========== 发送行动 ========== */
+async function doAction(act, target){
+  if(curRoomId==null) return;
+  target = target || ethers.ZeroAddress;
+  try{
+    // 估算需要授权的额度：比牌最大=当前注×2，其余按明注/翻倍，统一用 maxPot 兜底
+    let need = params.open || 0n;
+    if(act===ACT.DARK) need = params.dark;
+    if(act===ACT.OPEN) need = params.open;
+    if(act===ACT.RAISE) need = lastInfo ? lastInfo.currentBet*2n : params.open;
+    if(act===ACT.COMPARE) need = lastInfo ? lastInfo.currentBet*2n : params.mx;
+    if(act!==ACT.FOLD && need>0n) await ensureAllowance(need);
+
+    const tx = await game.action(curRoomId, act, target, overrides());
+    logLine("行动 act="+act+(target!==ethers.ZeroAddress?(" → "+short(target)):"")+" "+tx.hash.slice(0,10)+" …");
+    await tx.wait();
+    toast("操作已上链","ok");
+    await loadBalance();
+    poll();
+  }catch(e){ toast("操作失败："+(e.shortMessage||e.message||e),"err"); }
+}
+async function doMarkSeen(){
+  try{
+    // 先解牌，再上链告知看过
+    const ok = await revealMyCards();
+    if(!ok){ toast("还没拿到你的牌/密钥，无法看牌","err"); return; }
+    const tx = await game.markSeen(curRoomId, overrides());
+    logLine("markSeen "+tx.hash.slice(0,10)+" …");
+    await tx.wait();
+    poll();
+  }catch(e){ toast("看牌失败："+(e.shortMessage||e.message||e),"err"); }
+}
+async function doTimeout(){
+  const i = lastInfo;
+  if(!i || !i.turnPlayer) return;
+  try{
+    const tx = await game.timeoutFold(curRoomId, i.turnPlayer, overrides());
+    logLine("timeoutFold "+short(i.turnPlayer)+" "+tx.hash.slice(0,10)+" …");
+    await tx.wait();
+    poll();
+  }catch(e){ toast("超时弃牌失败："+(e.shortMessage||e.message||e),"err"); }
+}
+
+/* ========== 解密看牌 ========== */
+function hexToBytes(hex){
+  hex = hex.replace(/^0x/,"");
+  const out = new Uint8Array(hex.length/2);
+  for(let i=0;i<out.length;i++) out[i]=parseInt(hex.substr(i*2,2),16);
+  return out;
+}
+async function getKeyBytes(){
+  // 1) WebSocket 自动取（后端就绪后）
+  if(wsKey) return wsKey;
+  // 2) 手动密钥
+  const mk = $("manualKey").value.trim();
+  if(mk) return hexToBytes(mk);
+  return null;
+}
+let wsKey = null;
+async function revealMyCards(){
+  if(myCards){ renderCards(myCards,true); $("myHandName").textContent = handName(myCards); return true; }
+  // 取 encHand
+  let st;
+  try{ st = await roGame.seats(curRoomId, account); }catch(_){ return false; }
+  const enc = st.encHand;
+  if(!enc || enc==="0x" || enc.length<=2){ toast("dealer 还没发牌","err"); return false; }
+  const keyBytes = await getKeyBytes();
+  if(!keyBytes){ return false; }
+  try{
+    const data = hexToBytes(enc);
+    const iv = data.slice(0,12);
+    const ct = data.slice(12);
+    const key = await crypto.subtle.importKey("raw", keyBytes, {name:"AES-GCM"}, false, ["decrypt"]);
+    const pt = new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM", iv}, key, ct));
+    if(pt.length < 3){ toast("解密结果异常","err"); return false; }
+    myCards = [pt[0], pt[1], pt[2]];
+    renderCards(myCards, true);
+    $("myHandName").textContent = handName(myCards);
+    logLine("已解密看牌："+myCards.map(id=>RANK_STR[cardRank(id)]+SUIT_STR[cardSuit(id)]).join(" "), true);
+    return true;
+  }catch(e){ toast("解密失败，密钥不对或格式不符","err"); return false; }
+}
+
+/* ========== WebSocket（可选，后端就绪后用） ========== */
+async function tryAutoKey(){
+  const url = $("wsUrl").value.trim();
+  if(!url) return;
+  try{
+    if(wsConn){ try{wsConn.close();}catch(_){} }
+    wsConn = new WebSocket(url);
+    wsConn.onopen = async ()=>{
+      // 用钱包签名证明身份，向后端请求本房密钥
+      const msg = `zjh-key:${curRoomId}:${account}`;
+      let sig = "";
+      try{ sig = await signer.signMessage(msg); }catch(_){}
+      wsConn.send(JSON.stringify({ type:"reqKey", room:curRoomId.toString(), addr:account, sig }));
+      logLine("WebSocket 已连接，已请求密钥",true);
+    };
+    wsConn.onmessage = ev=>{
+      try{
+        const m = JSON.parse(ev.data);
+        if(m.type==="key" && m.key){ wsKey = hexToBytes(m.key); logLine("已收到解牌密钥",true); }
+      }catch(_){}
+    };
+    wsConn.onerror = ()=>logLine("WebSocket 连接出错");
+  }catch(e){ logLine("WebSocket 失败："+e.message); }
+}
+
+/* ========== 事件监听（更新房间玩家 & 日志） ========== */
+function attachListeners(){
+  // 用只读 provider 监听，避免钱包 provider 过滤问题
+  try{
+    roGame.on("RoomCreated",(id,creator)=>{ if(inRoom(id)) logLine(`房间 #${id} 创建 by ${short(creator)}`,true); });
+    roGame.on("Joined",(id,player)=>{
+      if(inRoom(id)){ addPlayer(player); logLine(`${short(player)} 加入 #${id}`,true); }
+    });
+    roGame.on("Dealt",(id)=>{ if(inRoom(id)) logLine(`#${id} 已发牌，可以看牌了`,true); });
+    roGame.on("Action",(id,player,act,amount)=>{
+      if(inRoom(id)){ addPlayer(player);
+        const names=["弃牌","闷跟","明跟","加注","比牌"];
+        logLine(`${short(player)} ${names[act]||act} ${amount>0n?fmt(amount)+" LGNS":""}`,true);
+      }
+    });
+    roGame.on("Folded",(id,player)=>{ if(inRoom(id)) logLine(`${short(player)} 弃牌`,true); });
+    roGame.on("Showdown",(id,winner,pot,fee)=>{
+      if(inRoom(id)) logLine(`🏆 #${id} 结束，赢家 ${short(winner)}，池 ${fmt(pot)}，抽水 ${fmt(fee)}`,true);
+    });
+  }catch(e){ /* 某些 RPC 不支持 filter 订阅，忽略，靠轮询 */ }
+}
+function inRoom(id){ return curRoomId!=null && BigInt(id)===curRoomId; }
+function addPlayer(a){
+  if(!a) return;
+  if(!roomPlayers.some(x=>x.toLowerCase()===a.toLowerCase())) roomPlayers.push(a);
+}
+
+/* ========== 绑定 ========== */
+$("btnConnect").onclick = connect;
+$("btnCreate").onclick = createRoom;
+$("btnJoin").onclick = joinRoom;
+$("btnLeaveView").onclick = leaveView;
+$("aDark").onclick = ()=>doAction(ACT.DARK);
+$("aOpen").onclick = ()=>doAction(ACT.OPEN);
+$("aRaise").onclick = ()=>doAction(ACT.RAISE);
+$("aFold").onclick = ()=>{ if(confirm("确定弃牌？投入的 LGNS 不退")) doAction(ACT.FOLD); };
+$("aSeen").onclick = doMarkSeen;
+$("aCompare").onclick = ()=>{ $("compareRow").style.display = ($("compareRow").style.display==="none"?"":"none"); };
+$("aCompareGo").onclick = ()=>{
+  const t = $("compareTarget").value;
+  if(!t){ toast("没有可比牌的对手","err"); return; }
+  $("compareRow").style.display="none";
+  doAction(ACT.COMPARE, t);
+};
+$("aCompareCancel").onclick = ()=>{ $("compareRow").style.display="none"; };
+$("aTimeout").onclick = doTimeout;
+$("wsUrl").onchange = tryAutoKey;
+
+logLine("页面就绪，先连接钱包");
+</script>
+</body>
+</html>
