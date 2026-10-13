@@ -1357,3 +1357,13 @@ window.addEventListener('load', ()=>{
   apShow(0); apStart(); updateSndBtn();
   loadWinners().then(winStart).catch(function(){});
 });
+
+/* 输入框聚焦防键盘遮挡 */
+document.addEventListener('focusin', function(e){
+  var t = e.target;
+  if(t && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT')){
+    setTimeout(function(){
+      try{ t.scrollIntoView({block:'center', behavior:'smooth'}); }catch(_){}
+    }, 300);
+  }
+});
