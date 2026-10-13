@@ -300,6 +300,16 @@ const ABI = [
   "function token() view returns (address)",
   "function transferOwnership(address)",
   "function unpause()",
+  "event Action(uint256 indexed id,address indexed player,uint8 act,uint256 amount)",
+  "event AnteChanged(uint256 newAnte)",
+  "event Dealt(uint256 indexed id,bytes32 deckCommit)",
+  "event EmergencyWithdraw(uint256 amount)",
+  "event Folded(uint256 indexed id,address indexed player)",
+  "event Joined(uint256 indexed id,address indexed player)",
+  "event Left(uint256 indexed id,address indexed player)",
+  "event NextRound(uint256 indexed id,uint256 round)",
+  "event RoomCreated(uint256 indexed id,address indexed creator)",
+  "event Showdown(uint256 indexed id,address indexed winner,uint256 pot,uint256 fee)",
 ];
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) returns (bool)",
