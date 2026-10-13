@@ -103,7 +103,7 @@
     document.querySelectorAll('[data-zh]').forEach(function(el){var k=el.getAttribute('data-zh');
       if(k==='heroH2'){el.innerHTML=HERO[l]||HERO.zh;return;}
       el.textContent=window.tr(k,l);});
-    var lc=document.getElementById('langCode');if(lc){var f='';for(var i=0;i<LANGS.length;i++){if(LANGS[i][0]===l)f=LANGS[i][2];}lc.innerHTML=f;}
+    var lc=document.getElementById('langCode');if(lc){lc.innerHTML='';}
     document.querySelectorAll('#langMenu .lmi').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-l')===l);});
     try{if(window.__uiWallet)window.__uiWallet();}catch(e){}
     try{if(window.__poolRender)window.__poolRender();}catch(e){}
