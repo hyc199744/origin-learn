@@ -108,7 +108,12 @@
   '返佣明细':['Reward details'],'下线':['Downline'],'交易':['Tx'],
   '连接钱包查看邀请数据':['Connect your wallet to see your referral data'],
   '领取成功！':['Claimed!'],'没有可领返佣':['Nothing to claim'],
-  '首次购票时永久绑定邀请关系，不可更改。':['Referral binds permanently on first purchase and cannot be changed.']
+  '首次购票时永久绑定邀请关系，不可更改。':['Referral binds permanently on first purchase and cannot be changed.'],
+  '个人中心':['My Account'],'我的钱包':['My wallet'],'邀请概况':['Referral overview'],
+  '去邀请页 →':['Open referral →'],'我的战绩':['My record'],'玩过的游戏':['Games played'],
+  '交易历史':['Transaction history'],'已领返佣':['Claimed'],'暂无':['None'],
+  '连接钱包查看你的资产':['Connect your wallet to see your account'],
+  '复制地址':['Copy address'],'票':['tickets']
   };
   var LANG='zh';
   try{LANG=localStorage.getItem('aplang')||'zh';}catch(e){}
