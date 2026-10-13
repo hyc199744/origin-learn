@@ -73,10 +73,11 @@
     try{if(window.__uiWallet)window.__uiWallet();}catch(e){}
     try{if(window.__poolRender)window.__poolRender();}catch(e){}
   };
-  window.toggleLangMenu=function(ev){if(ev)ev.stopPropagation();var m=document.getElementById('langMenu');if(m)m.hidden=!m.hidden;};
-  window.setLang=function(l){window.applyLang(l);var m=document.getElementById('langMenu');if(m)m.hidden=true;};
-  document.addEventListener('click',function(e){var m=document.getElementById('langMenu');if(m&&!m.hidden){var b=document.getElementById('langBtn');if(!m.contains(e.target)&&b&&!b.contains(e.target))m.hidden=true;}});
+  function closeMenu(){var m=document.getElementById('langMenu');if(m)m.hidden=true;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=true;}
+  window.toggleLangMenu=function(ev){if(ev){ev.stopPropagation();ev.preventDefault();}var m=document.getElementById('langMenu');if(!m)return;var willOpen=m.hidden;m.hidden=!willOpen;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=!willOpen;};
+  window.setLang=function(l){window.applyLang(l);closeMenu();};
   function build(){
+    if(!document.getElementById('langBackdrop')){var _bd=document.createElement('div');_bd.id='langBackdrop';_bd.hidden=true;_bd.style.cssText='position:fixed;inset:0;z-index:199;background:transparent';_bd.onclick=closeMenu;document.body.appendChild(_bd);}
     var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){return '<a class="lmi" data-l="'+x[0]+'" onclick="setLang(\''+x[0]+'\')">'+x[1]+'</a>';}).join('');}
     collect();applyLang(LANG);
   }
