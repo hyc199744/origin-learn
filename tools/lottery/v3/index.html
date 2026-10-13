@@ -297,7 +297,7 @@ html,body{overflow-x:hidden;max-width:100%}
         <span class="launch-tag">● NOW LIVE · 链上彩票</span>
         <h2>探索游戏宇宙，<em>发现 Anubis 的更多可能</em></h2>
         <p>一个钱包，连接你的链上游戏世界。每一次探索，都有新的期待。</p>
-        <button class="btn">探索链上彩票 <svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <button class="btn" onclick="location.href='lottery/'">探索链上彩票 <svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         <div class="hero-label"><span>ANUBIS PLAY</span><span><b>01</b> 款游戏</span><span><b>05</b> 奖池</span></div>
       </div>
     </div>
@@ -321,7 +321,7 @@ html,body{overflow-x:hidden;max-width:100%}
 <div><div class="k">单张票价</div><div class="v" id="tkPrice">—</div></div>
 <div><div class="k">售票截止</div><div class="timer" id="tkTimer">—</div></div>
 </div>
-<button class="btn">查看奖池 / 进入购票</button>
+<button class="btn" onclick="location.href='lottery/?pool='+(window.__sel||0)">查看奖池 / 进入购票</button>
       <div class="lottery-foot">
         <span><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/></svg>链上可查</span>
         <span><svg class="ic" viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0110 0v3"/><rect x="5" y="11" width="14" height="9" rx="2"/></svg>钱包签名</span>
@@ -346,7 +346,7 @@ html,body{overflow-x:hidden;max-width:100%}
           <div class="game-kicker">ON-CHAIN LOTTERY</div>
           <h3>链上彩票</h3>
           <p>五大奖池、链上开奖、邀请返佣，全程可查。</p>
-          <div class="game-foot"><button class="text-btn">进入游戏 →</button><span class="round-arrow"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+          <div class="game-foot"><button class="text-btn" onclick="location.href='lottery/'">进入游戏 →</button><span class="round-arrow"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
         </div>
       </article>
 
@@ -462,7 +462,7 @@ html,body{overflow-x:hidden;max-width:100%}
   function cd(end){var s=end-Math.floor(Date.now()/1000);if(s<0)s=0;var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;var p=function(n){return String(n).padStart(2,'0');};return p(h)+':'+p(m)+':'+p(x);}
   function tickTimer(){var D=data[sel]||{};var e=$('tkTimer');if(!e)return;e.textContent=D.ok?(D.end>Math.floor(Date.now()/1000)?cd(D.end):'\u5df2\u622a\u6b62'):'\u2014';}
   function render(){
-    var P=POOLS[sel],D=data[sel]||{};
+    window.__sel=sel;var P=POOLS[sel],D=data[sel]||{};
     var tabs=document.querySelectorAll('#poolTabs .pool-tab');tabs.forEach(function(t,i){t.classList.toggle('sel',i===sel);});
     if($('poolEyebrow'))$('poolEyebrow').textContent='\u672c\u671f\u5956\u6c60 \u00b7 '+P.sym;
     if($('jkUnit'))$('jkUnit').textContent=P.sym;

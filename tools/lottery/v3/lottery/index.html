@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1114">
+<title>链上彩票 · ANUBIS PLAY</title>
+<meta name="description" content="ANUBIS PLAY 链上彩票：五大奖池，链上开奖，邀请返佣，全程可查。">
+<link rel="icon" href="../img/logo.webp?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=Roboto+Mono:wght@500;600&display=swap">
+<style>
+:root{--bg:#0d1114;--card:#181e23;--card2:#20292e;--rail:#10161a;--text:#eff6f3;--muted:#96a4ab;
+  --accent:#c8f665;--accent-ink:#17200b;--line:#ffffff14;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:"Roboto Mono",ui-monospace,monospace;color-scheme:dark;}
+*{box-sizing:border-box}html,body{margin:0;overflow-x:hidden;max-width:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+img{max-width:100%;display:block}a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.eyebrow{color:var(--muted);font-size:9px;letter-spacing:1.6px;text-transform:uppercase;font-weight:700}
+.ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* 顶栏 */
+.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 18px 12px;background:#0d1114e6;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.back{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);font-weight:600}
+.back .ic{width:16px;height:16px}
+.brand{display:flex;align-items:center;gap:9px}
+.brand img{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 6px #0008)}
+.brand b{font-size:14px;font-weight:700;letter-spacing:.6px;line-height:1}
+.brand small{display:block;font-size:7px;letter-spacing:1.6px;color:var(--muted);margin-top:3px}
+.wallet-btn{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:var(--accent-ink);
+  font-weight:700;font-size:11px;padding:10px 14px;border-radius:9px;box-shadow:0 6px 18px #c8f66522}
+.wallet-btn.connected{background:#1f2a1f;color:var(--accent);box-shadow:none;border:1px solid #c8f66555}
+.wallet-btn .ic{width:15px;height:15px}
+/* 容器 */
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom,0px))}
+.h1{font-family:var(--sans);font-size:22px;font-weight:600;margin:0 0 4px}
+.lead{color:var(--muted);font-size:12px;margin:0 0 20px}
+/* 池标签 */
+.pool-tabs{display:flex;gap:4px;background:#0d1215;border:1px solid var(--line);border-radius:10px;padding:5px;margin-bottom:18px}
+.pool-tab{flex:1;padding:10px 6px;border-radius:7px;font-size:12px;font-weight:600;color:var(--muted);text-align:center;transition:.15s}
+.pool-tab.sel{background:var(--accent);color:var(--accent-ink)}
+/* 奖池大卡 */
+.jk{background:linear-gradient(135deg,#143226,#0e1a14);border:1px solid #c8f66526;border-radius:18px;padding:24px;box-shadow:var(--glow)}
+.jk .eyebrow{color:#a9c3ba}
+.jk .amt{display:flex;align-items:baseline;gap:10px;margin-top:8px}
+.jk .amt strong{font-family:var(--mono);font-size:clamp(34px,9vw,50px);font-weight:600;letter-spacing:-1.5px;color:#fff}
+.jk .amt span{font-size:12px;color:#bacfca}
+.jk-row{display:flex;gap:14px;margin-top:18px;flex-wrap:wrap}
+.jk-cell{flex:1;min-width:120px;background:#0c1713;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.jk-cell .k{font-size:10px;color:#9fb3ab;margin-bottom:5px}
+.jk-cell .v{font-size:16px;font-weight:600}
+.jk-cell .v.timer{font-family:var(--mono)}
+/* 购票卡 */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:16px}
+.card h2{font-size:15px;font-weight:600;margin:0 0 14px}
+.stepper{display:flex;align-items:center;gap:0;background:#0d1215;border:1px solid var(--line);border-radius:10px;overflow:hidden;width:fit-content}
+.stepper button{width:44px;height:44px;font-size:20px;color:var(--accent);background:transparent}
+.stepper input{width:80px;height:44px;text-align:center;background:transparent;border:0;color:var(--text);font-size:17px;font-family:var(--mono);outline:none}
+.quick{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.qbtn{padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:#10151a;color:var(--muted);font-size:12px;font-weight:600}
+.qbtn.on{border-color:var(--accent);color:var(--accent)}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin:16px 0;padding-top:14px;border-top:1px dashed var(--line)}
+.total .k{font-size:12px;color:var(--muted)}
+.total .v{font-family:var(--mono);font-size:20px;font-weight:600}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--accent);color:var(--accent-ink);
+  font-weight:700;font-size:14px;min-height:50px;border-radius:11px;box-shadow:0 6px 18px #c8f66522;transition:transform .15s}
+.btn:active{transform:scale(.99)}
+.btn:disabled{opacity:.55}
+.note{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.7}
+/* 奖项 */
+.prizes{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.prize{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#0d1215;border:1px solid var(--line);border-radius:10px}
+.prize .t{display:flex;align-items:center;gap:9px;font-weight:600;font-size:13px}
+.prize .tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;background:var(--card2);color:var(--accent)}
+.prize .p{font-family:var(--mono);color:#bacfca;font-size:13px}
+.foot{display:flex;justify-content:center;gap:16px;margin-top:22px;font-size:10px;color:var(--muted)}
+.foot span{display:inline-flex;align-items:center;gap:5px}.foot .ic{width:13px;height:13px;color:var(--accent)}
+#vtoast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#20292e;color:#eff6f3;border:1px solid #ffffff22;padding:11px 18px;border-radius:10px;font-size:13px;z-index:999;max-width:88%;text-align:center;box-shadow:0 10px 30px #0008;opacity:0;transition:opacity .2s;pointer-events:none}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="back" href="../"><svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>游戏大厅</a>
+  <a class="brand" href="../"><img src="../img/logo.webp?v=2" alt="ANUBIS PLAY"><span><b>ANUBIS PLAY</b><small>链上彩票</small></span></a>
+  <button class="wallet-btn" id="walletBtn" onclick="connectWallet()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h.01"/></svg><span id="walletTxt">连接钱包</span></button>
+</header>
+
+<main class="wrap">
+  <h1 class="h1">链上彩票</h1>
+  <p class="lead">五大奖池 · 每期 1 小时 · 未来区块哈希开奖，全程链上可查。</p>
+
+  <div class="pool-tabs" id="poolTabs">
+    <div class="pool-tab" onclick="selPool(0)">LGNS</div>
+    <div class="pool-tab" onclick="selPool(1)">USDT</div>
+    <div class="pool-tab" onclick="selPool(2)">DAI</div>
+    <div class="pool-tab" onclick="selPool(3)">A</div>
+    <div class="pool-tab" onclick="selPool(4)">RM</div>
+  </div>
+
+  <section class="jk">
+    <div class="eyebrow" id="poolEyebrow">本期奖池 · LGNS</div>
+    <div class="amt"><strong id="jkAmt">—</strong><span id="jkUnit">LGNS</span></div>
+    <div class="jk-row">
+      <div class="jk-cell"><div class="k">当前期数</div><div class="v" id="jkRound">—</div></div>
+      <div class="jk-cell"><div class="k">单张票价</div><div class="v" id="tkPrice">—</div></div>
+      <div class="jk-cell"><div class="k">售票截止</div><div class="v timer" id="tkTimer">—</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>购票</h2>
+    <div class="stepper">
+      <button onclick="addN(-1)" aria-label="减">−</button>
+      <input id="buyN" type="number" min="1" max="200" value="1" inputmode="numeric" onchange="normN()">
+      <button onclick="addN(1)" aria-label="加">+</button>
+    </div>
+    <div class="quick">
+      <button class="qbtn" onclick="setN(1)">1 张</button>
+      <button class="qbtn" onclick="setN(5)">5 张</button>
+      <button class="qbtn" onclick="setN(10)">10 张</button>
+      <button class="qbtn" onclick="setN(50)">50 张</button>
+    </div>
+    <div class="total"><span class="k">合计</span><span class="v" id="totalCost">—</span></div>
+    <button class="btn" id="buyBtn" onclick="mainAction()"><span id="buyTxt">连接钱包</span></button>
+    <div class="note">首次用某代币买票需先授权一次，之后直接购票。每期按比例扣少量平台费，其余按奖项派给中奖者。开奖用截止后的未来区块哈希，任何人可触发，结果链上可查。</div>
+  </section>
+
+  <section class="card">
+    <h2>奖项设置</h2>
+    <div class="prizes">
+      <div class="prize"><span class="t"><span class="tag">一等奖</span>1 名</span><span class="p">奖池 50%</span></div>
+      <div class="prize"><span class="t"><span class="tag">二等奖</span>3 名</span><span class="p">各 10%</span></div>
+      <div class="prize"><span class="t"><span class="tag">三等奖</span>10 名</span><span class="p">各 2%</span></div>
+    </div>
+    <div class="note">没人中的奖项自动滚入下期，奖池持续累积。</div>
+  </section>
+
+  <div class="foot">
+    <span><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/></svg>链上可查</span>
+    <span><svg class="ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M7 11V8a5 5 0 0110 0v3"/></svg>钱包签名</span>
+    <span><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>理性参与</span>
+  </div>
+</main>
+
+<script>
+(function(){
+  var RPC='https://rpc.anubispace.org';
+  var ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:RPC,exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
+  var SEL={price:'1209b1f6',round:'8a19c8bc',rounds:'8c65c81f',approve:'095ea7b3',allowance:'dd62ed3e',balanceOf:'70a08231',buy:'2f366637',buyRef:'f93afa09'};
+  var POOLS=[
+    {sym:'LGNS',c:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',t:'0x4d1d808a081fdac440703b3765fc61f8028c06b8',d:9},
+    {sym:'USDT',c:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',t:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e',d:6},
+    {sym:'DAI', c:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',t:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14',d:18},
+    {sym:'A',   c:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',t:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177',d:18},
+    {sym:'RM',  c:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',t:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d',d:9}
+  ];
+  var sel=0, data={}, myAddr=null, n=1, busy=false;
+  function $(id){return document.getElementById(id);}
+  function short(a){return a?a.slice(0,6)+'…'+a.slice(-4):'';}
+  function enc(v){return BigInt(v).toString(16).padStart(64,'0');}
+  function encA(a){return '0'.repeat(24)+a.toLowerCase().replace(/^0x/,'');}
+  function toast(m){var t=$('vtoast');if(!t){t=document.createElement('div');t.id='vtoast';document.body.appendChild(t);}t.textContent=m;t.style.opacity='1';clearTimeout(window._tt);window._tt=setTimeout(function(){t.style.opacity='0';},3600);}
+  function rcall(to,d){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:to,data:'0x'+d},'latest']})}).then(function(r){return r.json();}).then(function(j){return (j.result||'0x').replace(/^0x/,'');});}
+  function fmt(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
+  function getRef(){try{var r=new URLSearchParams(location.search).get('ref');if(r&&/^0x[0-9a-fA-F]{40}$/.test(r)){if(myAddr&&r.toLowerCase()===myAddr.toLowerCase())return null;return r;}}catch(e){}return null;}
+  /* 奖池数据 */
+  async function loadPool(k){var P=POOLS[k];try{
+    var price=BigInt('0x'+((await rcall(P.c,SEL.price))||'0'));
+    var rid=BigInt('0x'+((await rcall(P.c,SEL.round))||'0'));
+    var r=await rcall(P.c,SEL.rounds+enc(rid));var w=function(i){return BigInt('0x'+(r.slice(i*64,i*64+64)||'0'));};
+    data[k]={price:price,end:Number(w(0)),pool:w(3)+w(4),round:Number(rid),ok:true};
+  }catch(e){data[k]={ok:false};}if(k===sel)render();}
+  function cd(end){var s=end-Math.floor(Date.now()/1000);if(s<0)s=0;var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;var p=function(v){return String(v).padStart(2,'0');};return p(h)+':'+p(m)+':'+p(x);}
+  function tickTimer(){var D=data[sel]||{};var e=$('tkTimer');if(e)e.textContent=D.ok?(D.end>Math.floor(Date.now()/1000)?cd(D.end):'已截止'):'—';}
+  function render(){var P=POOLS[sel],D=data[sel]||{};
+    document.querySelectorAll('#poolTabs .pool-tab').forEach(function(t,i){t.classList.toggle('sel',i===sel);});
+    $('poolEyebrow').textContent='本期奖池 · '+P.sym;$('jkUnit').textContent=P.sym;
+    $('jkRound').textContent=D.ok?('第 '+D.round+' 期'):'—';
+    $('jkAmt').textContent=D.ok?fmt(D.pool,P.d):'—';
+    $('tkPrice').textContent=D.ok?(fmt(D.price,P.d)+' '+P.sym):'—';
+    tickTimer();updateTotal();updateBuy();}
+  window.selPool=function(i){sel=i;render();if(!data[i]||!data[i].ok)loadPool(i);};
+  /* 张数 */
+  function updateTotal(){var P=POOLS[sel],D=data[sel]||{};var e=$('totalCost');if(!e)return;if(D.ok){e.textContent=fmt(D.price*BigInt(n),P.d)+' '+P.sym;}else e.textContent='—';
+    document.querySelectorAll('.quick .qbtn').forEach(function(b){b.classList.remove('on');});}
+  window.addN=function(d){n=Math.max(1,Math.min(200,n+d));$('buyN').value=n;updateTotal();updateBuy();};
+  window.setN=function(v){n=v;$('buyN').value=n;updateTotal();updateBuy();};
+  window.normN=function(){var v=parseInt($('buyN').value||'1',10);if(isNaN(v))v=1;n=Math.max(1,Math.min(200,v));$('buyN').value=n;updateTotal();updateBuy();};
+  /* 钱包 */
+  function uiWallet(){var x=$('walletTxt');if(x)x.textContent=myAddr?short(myAddr):'连接钱包';var b=$('walletBtn');if(b)b.classList.toggle('connected',!!myAddr);updateBuy();}
+  window.connectWallet=async function(){var eth=window.ethereum;if(!eth){toast('未检测到钱包，请在 OKX / MetaMask 内置浏览器打开');return;}
+    try{var accs=await eth.request({method:'eth_requestAccounts'});if(!accs||!accs.length)return;myAddr=accs[0];
+      var cid=await eth.request({method:'eth_chainId'});
+      if(parseInt(cid,16)!==ANUBIS.id){try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}}
+      uiWallet();toast('已连接：'+short(myAddr));
+      if(!window._wl){window._wl=1;if(eth.on){eth.on('accountsChanged',function(a){myAddr=(a&&a[0])||null;uiWallet();});eth.on('chainChanged',function(){location.reload();});}}
+    }catch(e){toast((e&&e.message)||'连接失败');}};
+  /* 发交易(Anubis legacy type-0) */
+  async function sendTx(to,d){var eth=window.ethereum;var tx={from:myAddr,to:to,data:d,type:'0x0'};
+    var gp=await eth.request({method:'eth_gasPrice',params:[]});tx.gasPrice=gp;
+    var hash=await eth.request({method:'eth_sendTransaction',params:[tx]});toast('交易已发送，等待确认…');
+    for(var i=0;i<150;i++){await new Promise(function(r){setTimeout(r,2000);});var rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber&&rc.blockNumber!=='0x0'){if(rc.status==='0x1')return rc;throw new Error('交易失败(被合约回退)');}}
+    throw new Error('确认超时，请在浏览器查看');}
+  async function needApprove(){var P=POOLS[sel],D=data[sel];if(!myAddr||!D||!D.ok)return false;try{var al=BigInt('0x'+((await rcall(P.t,SEL.allowance+encA(myAddr)+encA(P.c)))||'0'));return al<D.price*BigInt(n);}catch(e){return true;}}
+  async function updateBuy(){var b=$('buyBtn'),t=$('buyTxt');if(!b||!t)return;if(busy){b.disabled=true;t.textContent='处理中…';return;}b.disabled=false;
+    if(!myAddr){t.textContent='连接钱包';return;}
+    try{t.textContent=(await needApprove())?('授权 '+POOLS[sel].sym):('买票 '+n+' 张');}catch(e){t.textContent='买票 '+n+' 张';}}
+  window.mainAction=async function(){if(busy)return;busy=true;updateBuy();try{
+    if(!myAddr){await connectWallet();return;}
+    var P=POOLS[sel],D=data[sel];if(!D||!D.ok){toast('奖池数据未就绪');return;}
+    if(await needApprove()){await sendTx(P.t,'0x'+SEL.approve+encA(P.c)+enc(D.price*200n));toast('授权成功');}
+    else{var ref=getRef();if(ref)await sendTx(P.c,'0x'+SEL.buyRef+enc(n)+encA(ref));else await sendTx(P.c,'0x'+SEL.buy+enc(n));toast('购票成功！');loadPool(sel);}
+  }catch(e){toast((e&&e.message)||e);}finally{busy=false;updateBuy();}};
+  /* init */
+  render();POOLS.forEach(function(_,k){loadPool(k);});
+  setInterval(tickTimer,1000);setInterval(function(){POOLS.forEach(function(_,k){loadPool(k);});},30000);
+  if(window.ethereum&&window.ethereum.request){window.ethereum.request({method:'eth_accounts'}).then(function(a){if(a&&a.length){myAddr=a[0];uiWallet();}}).catch(function(){});}
+  /* 从 ?pool=N 选池 */
+  try{var qp=new URLSearchParams(location.search).get('pool');if(qp!==null){var pn=parseInt(qp,10);if(pn>=0&&pn<=4)sel=pn;}}catch(e){}
+  render();
+})();
+</script>
+</body>
+</html>
