@@ -506,7 +506,7 @@ async function quickMatch(){
     for(let id=next-1; id>=start; id--){
       let info;
       try{ info = await roGame.roomInfo(id); }catch(_){ continue; }
-      const state = Number(info.state), pc = Number(info.playerCount);
+      const state = Number(info[0]), pc = Number(info[6]); // roomInfo 返回: state,pot,currentBet,turnPlayer,deadline,winner,playerCount,round
       if(state!==0 || pc>=8) continue;
       // 自己已经在这桌 -> 直接回去
       let mine=false; try{ mine = await roGame.isPlayer(id, account); }catch(_){}
@@ -606,9 +606,9 @@ async function poll(){
   try{
     const info = await roGame.roomInfo(curRoomId);
     lastInfo = {
-      state:Number(info.state), pot:info.pot, currentBet:info.currentBet,
-      turnPlayer:info.turnPlayer, deadline:Number(info.deadline),
-      winner:info.winner, playerCount:Number(info.playerCount)
+      state:Number(info[0]), pot:info[1], currentBet:info[2],
+      turnPlayer:info[3], deadline:Number(info[4]),
+      winner:info[5], playerCount:Number(info[6])
     };
     renderRoom();
     await renderSeats();
