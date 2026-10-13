@@ -85,7 +85,21 @@ zh: {
   refStatLine: '{n} 人 · 购票 {tk} 张 · 贡献 {amt} {s}',
   refTagD: '直推', refTagI: '间推',
   refRowStat: '买了 {tk} 张 · 贡献 {amt} {s}',
-  refNoInvite: '还没有邀请任何人，快把链接发给朋友吧'
+  refNoInvite: '还没有邀请任何人，快把链接发给朋友吧',
+  tabAccount: '我的', navAccount: '我的',
+  accTitle: '用户中心', accSub: '你的钱包，就是你的平台账户',
+  accConnect: '连接钱包后查看你的用户中心',
+  accAddr: '我的钱包地址', accReferrer: '我的邀请人', accLink: '我的推广链接',
+  accL1: '直属用户', accL2: '二级用户', accEarn: '累计推广收益',
+  accClaimable: '可领取佣金', accClaimed: '已领取佣金',
+  accGames: '我参加过的游戏', accTx: '我的交易历史',
+  accMultiNote: '（多奖池合计，主计 LGNS 池口径）', accTxBuy: '购票',
+  accGoInvite: '去邀请好友 →',
+  footRisk: '风险提示', footTerms: '使用协议', footAbout: '关于平台',
+  riskTitle: '风险提示', riskBody: '链上游戏存在智能合约风险、代币价格波动风险与网络风险。请理性参与、量力而行，不要投入无法承受损失的资金。本页面数据全部来自链上公开读取，仅供参考，不构成投资建议。未成年人请勿参与。',
+  termsTitle: '使用协议', termsBody: '使用本平台即表示你同意：1）以钱包地址作为唯一身份，不收集手机号等个人信息；2）所有游戏规则以链上合约为准，页面展示仅为辅助；3）邀请绑定一经上链永久有效，不可修改；4）平台不对代币价格波动、网络拥堵或第三方钱包问题负责。',
+  aboutBody: 'ANUBIS PLAY 是建立在 Anubis 公链上的链上游戏聚合平台，首款游戏为链上彩票（五大奖池）。全部游戏逻辑与资金结算均在链上完成，公开可查。',
+  announceDef: ''
 },
 en: {
   pageTitle: '{chain} Lottery', docTitle: '{chain} Lottery',
@@ -170,7 +184,21 @@ en: {
   refStatLine: '{n} people · {tk} tickets · earned {amt} {s}',
   refTagD: 'Direct', refTagI: 'Indirect',
   refRowStat: '{tk} tickets · {amt} {s} earned',
-  refNoInvite: 'No invitees yet — share your link with friends'
+  refNoInvite: 'No invitees yet — share your link with friends',
+  tabAccount: 'Me', navAccount: 'Me',
+  accTitle: 'Account', accSub: 'Your wallet is your platform account',
+  accConnect: 'Connect your wallet to view your account',
+  accAddr: 'My wallet', accReferrer: 'My referrer', accLink: 'My referral link',
+  accL1: 'Direct users', accL2: 'Level-2 users', accEarn: 'Total referral earnings',
+  accClaimable: 'Claimable', accClaimed: 'Claimed',
+  accGames: 'Games I played', accTx: 'My transactions',
+  accMultiNote: ' (multi-pool total, LGNS-pool unit)', accTxBuy: 'Buy',
+  accGoInvite: 'Invite friends →',
+  footRisk: 'Risk Notice', footTerms: 'Terms', footAbout: 'About',
+  riskTitle: 'Risk Notice', riskBody: 'On-chain games carry smart-contract risk, token price volatility and network risk. Participate rationally and never stake more than you can afford to lose. All data on this page is read from public on-chain sources for reference only, not investment advice. Minors should not participate.',
+  termsTitle: 'Terms of Use', termsBody: 'By using this platform you agree: 1) your wallet address is your sole identity; no phone numbers or personal info are collected; 2) game rules follow the on-chain contracts, page displays are auxiliary; 3) referral bindings are permanent once written on-chain; 4) the platform is not liable for token volatility, network congestion or third-party wallet issues.',
+  aboutBody: 'ANUBIS PLAY is an on-chain gaming platform on Anubis Chain. The first game is the on-chain lottery (5 pools). All game logic and fund settlement happen on-chain and are publicly verifiable.',
+  announceDef: ''
 }};
 let LANG = localStorage.getItem('lottery_lang') || 'zh';
 function t(k, p){
@@ -186,7 +214,7 @@ function applyLang(){
   document.querySelectorAll('[data-i18n-html]').forEach(el=>{ el.innerHTML = t(el.getAttribute('data-i18n-html'), {pct: el.dataset.pct || ''}); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.getAttribute('data-i18n-ph')); });
   $('langBtn').textContent = LANG==='zh' ? 'EN' : '中文';
-  var tabTxt={home:['首页','Home'],play:['彩票','Lottery'],records:['记录','Records'],invite:['邀请','Invite']};
+  var tabTxt={home:['首页','Home'],play:['彩票','Lottery'],records:['记录','Records'],invite:['邀请','Invite'],account:['我的','Me']};
   document.querySelectorAll('.ptab-txt[data-tab]').forEach(function(el){ var k=el.getAttribute('data-tab'); if(tabTxt[k]) el.textContent = LANG==='zh' ? tabTxt[k][0] : tabTxt[k][1]; });
   updateChainText();
   document.querySelectorAll('.qbtn[data-n]').forEach(b=>{ b.textContent = t('ticketsCount', {n: b.dataset.n}); });
@@ -284,6 +312,31 @@ const POOLS = [
       {sym:'RM', addr:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9} 
     ] },
 ];
+/* ================= V1.0 游戏注册表 =================
+   新游戏上线只加配置：gameId / gameName / gameRoute / gameCategory /
+   supportedTokens / contracts / feePolicy / referralEnabled / display。
+   无需改首页框架、无需改邀请系统、无需用户重新注册。 */
+const GAMES = [
+  { gameId:'lottery', gameName:'ANUBIS LOTTERY', gameRoute:'play', gameCategory:'lottery',
+    gameStatus:'live', supportedTokens:['LGNS','USDT','DAI','A','RM'],
+    contracts:['0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7','0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859','0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0','0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb','0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3'],
+    feePolicy:{feeBps:1000, base:'sales', note:'开奖时从票款扣 10% 平台费'},
+    referralEnabled:true, referral:{l1Bps:3000, l2Bps:1000, base:'当笔平台费'},
+    display:{ zh:['链上彩票','五大奖池 · 1 小时一期 · 链上开奖可验证'], en:['On-chain Lottery','5 pools · hourly rounds · verifiable draws'] } },
+  { gameId:'dragontiger', gameName:'龙虎斗', gameRoute:'', gameCategory:'casino',
+    gameStatus:'soon', supportedTokens:[], contracts:[],
+    feePolicy:null, referralEnabled:false,
+    display:{ zh:['龙虎斗','经典对押玩法，押中赢取奖池，链上实时结算、公平可查。'], en:['Dragon vs Tiger','Classic head-to-head betting, settled on-chain and verifiable.'] } },
+  { gameId:'wheel', gameName:'幸运转盘', gameRoute:'', gameCategory:'luck',
+    gameStatus:'soon', supportedTokens:[], contracts:[],
+    feePolicy:null, referralEnabled:false,
+    display:{ zh:['幸运转盘','转动命运之轮，赢取随机大奖。'], en:['Lucky Wheel','Spin the wheel of fate for random rewards.'] } },
+  { gameId:'arena', gameName:'竞技场', gameRoute:'', gameCategory:'pvp',
+    gameStatus:'soon', supportedTokens:[], contracts:[],
+    feePolicy:null, referralEnabled:false,
+    display:{ zh:['竞技场','多人同场竞技，胜者瓜分奖池。'], en:['Arena','Multiplayer showdown, winners split the pool.'] } },
+];
+function gameById(id){ for(var i=0;i<GAMES.length;i++) if(GAMES[i].gameId===id) return GAMES[i]; return null; }
 let poolIdx = 0;
 try{ poolIdx = Number(localStorage.getItem('lottery_pool')||0)||0; if(poolIdx<0||poolIdx>4) poolIdx=0; }catch(e){}
 try{ var _qp=new URLSearchParams(location.search).get('pool'); if(_qp!==null){ var _pn=Number(_qp); if(_pn>=0&&_pn<=4){ poolIdx=_pn; try{localStorage.setItem('lottery_pool',String(_pn));}catch(e){} } } }catch(e){}
@@ -786,6 +839,7 @@ const EV_WIN = '0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627
 const EV_REFBOUND = '0x8ceb585bfbbc2a8c702024b1d2f212e7ba1caff58b232f071b023d184997b111';
 const EV_TICKETS = '0xc8c5c2b0e44fb6312c0098ec42642058527713d0a1d29a5c6ccbfe34d714d41e';
 const EV_REFREWARD = '0xbfcb51139629056da37f44a10daa7f67e6ce0b9083e03a7408b3ad1a456ce097';
+const EV_REFCLAIMED = '0x6cd4d40588b17656762e007b5b0c873a86cc13d23123cd1c44b4389b8aafa105';
 const PADADDR = a => '0x' + '0'.repeat(24) + a.toLowerCase().replace(/^0x/,'');
 const _logCache = {};
 const _logPending = {};
@@ -1180,11 +1234,11 @@ function renderHFeature(){
   }
 }
 function homePickPool(i){ sfx('switch'); setPool(i); renderHPools(); renderHFeature(); }
-function renderHGames(){var box=$('hGames');if(!box)return;var html='';HGAMES.forEach(function(g,i){var d=g[LANG]||g.zh;html+='<div class="h-game" role="button" tabindex="0" onclick="gameIntro('+i+')"><img src="'+HG[i]+'" alt="'+d[0]+'" loading="lazy"></div>';});box.innerHTML=html;}
+function renderHGames(){var box=$('hGames');if(!box)return;var html='',imgIdx=0;GAMES.forEach(function(g,i){if(g.gameStatus==='live')return;var d=g.display[LANG]||g.display.zh;var img=HG[imgIdx++]||'';html+='<div class="h-game" role="button" tabindex="0" onclick="gameIntro(\''+g.gameId+'\')">'+(img?'<img src="'+img+'" alt="'+d[0]+'" loading="lazy">':'<div class="h-game-t">'+d[0]+'</div>')+'</div>';});box.innerHTML=html;}
 function renderHHelp(){var box=$('hHelp');if(!box)return;var html='';HHELP.forEach(function(s,i){var d=s[LANG]||s.zh;html+='<div class="h-step"><div class="n">'+(i+1)+'</div><h3>'+d[0]+'</h3><p>'+d[1]+'</p></div>';});box.innerHTML=html;var n=$('hNote');if(n)n.innerHTML=HNOTE[LANG]||HNOTE.zh;}
 function openHModal(o){var m=$('hmodal');if(!m)return;$('hmTitle').textContent=o.t;$('hmBody').innerHTML=o.b;m.classList.add('open');}
 function closeHModal(){var m=$('hmodal');if(m)m.classList.remove('open');}
-function gameIntro(i){var d=HGAMES[i][LANG]||HGAMES[i].zh;openHModal({t:d[0],b:d[1]+(LANG==='zh'?'<br><br>该游戏正在开发中，敬请期待。':'<br><br>In development. Stay tuned.')});}
+function gameIntro(gameId){var g=gameById(gameId)||{display:{zh:['',''],en:['','']}};var d=g.display[LANG]||g.display.zh;openHModal({t:d[0],b:d[1]+(LANG==='zh'?'<br><br>该游戏正在开发中，敬请期待。':'<br><br>In development. Stay tuned.')});}
 function RULES_T(){return {t:t('hRules'),b:t('hRulesBody')};}
 function NOTICE_T(){return {t:t('noticeT'),b:t('noticeB')};}
 var invClaim={};
@@ -1257,6 +1311,89 @@ async function loadRecords(){
   if(box)box.innerHTML=rows;
 }
 function goRecords(){ showView('play'); setTimeout(function(){ var e=$('sec-my'); if(e)e.scrollIntoView({behavior:'smooth',block:'start'}); },120); }
+/* ================= V1.0 用户中心 ================= */
+function accCopy(id){ var e=$(id); if(!e||!e.value) return; try{ if(navigator.clipboard) navigator.clipboard.writeText(e.value); else { e.select(); document.execCommand('copy'); } toast(t('copyOk')); }catch(err){} }
+async function loadAccount(){
+  var empty=$('accEmpty'), body=$('accBody');
+  if(!myAddr){ if(empty)empty.hidden=false; if(body)body.hidden=true; return; }
+  if(empty)empty.hidden=true; if(body)body.hidden=false;
+  var me=myAddr.toLowerCase(), ZERO='0x0000000000000000000000000000000000000000';
+  if($('accAddr')) $('accAddr').value=myAddr;
+  var link=location.origin+location.pathname+'?ref='+myAddr;
+  if($('accLink')) $('accLink').value=link;
+  // 我的邀请人（五池）
+  var refs=[];
+  for(var i=0;i<POOLS.length;i++){ try{ var r=decAddr(await ethCall(POOLS[i].CONTRACT,'0x'+SEL.referrer+encAddr(myAddr))); if(r!==ZERO) refs.push(POOLS[i].sym+': '+short(r)); }catch(e){} }
+  if($('accReferrer')) $('accReferrer').textContent=refs.length?refs.join(' · '):t('noReferrer');
+  // 邀请统计（复用链上事件，scanLogs 带缓存）
+  var dCount=0, iCount=0, dEarn=0n, iEarn=0n, claimable=0n, claimed=0n, claimableTxt=[];
+  try{
+    var bLogs=await scanLogs([EV_REFBOUND],POOLS[0].CONTRACT,POOLS[0].deployBlock);
+    for(var pi=1;pi<POOLS.length;pi++){ var bl=await scanLogs([EV_REFBOUND],POOLS[pi].CONTRACT,POOLS[pi].deployBlock); bLogs=bLogs.concat(bl); }
+    var bound={};
+    bLogs.forEach(function(l){ bound[('0x'+l.topics[1].slice(-40)).toLowerCase()]=('0x'+l.topics[2].slice(-40)).toLowerCase(); });
+    var direct=Object.keys(bound).filter(function(b){return bound[b]===me;});
+    var dset={}; direct.forEach(function(b){dset[b]=1;});
+    var indirect=Object.keys(bound).filter(function(b){return b!==me && !dset[b] && dset[bound[b]];});
+    dCount=direct.length; iCount=indirect.length;
+    for(var qi=0;qi<POOLS.length;qi++){
+      var rl=await scanLogs([EV_REFREWARD],POOLS[qi].CONTRACT,POOLS[qi].deployBlock);
+      rl.forEach(function(l){
+        var d=(l.data||'0x').replace(/^0x/,''), buyer=('0x'+l.topics[2].slice(-40)).toLowerCase();
+        var l1=('0x'+d.slice(0,64).slice(-40)).toLowerCase(), dd1=BigInt('0x'+(d.slice(64,128)||'0'));
+        var l2=('0x'+d.slice(128,192).slice(-40)).toLowerCase(), dd2=BigInt('0x'+(d.slice(192,256)||'0'));
+        if(dset[buyer]&&l1===me) dEarn+=dd1;
+        if(!dset[buyer]&&buyer!==me&&l2===me) iEarn+=dd2;
+      });
+    }
+  }catch(e){ console.error('accRef', e); }
+  if($('accL1')) $('accL1').textContent=dCount;
+  if($('accL2')) $('accL2').textContent=iCount;
+  if($('accEarn')) $('accEarn').textContent=fmtD(dEarn+iEarn, POOLS[0].decimals)+' '+POOLS[0].sym+t('accMultiNote');
+  // 可提 / 已提（五池分别）
+  for(var ci=0;ci<POOLS.length;ci++){
+    try{ var rw=decUint(await ethCall(POOLS[ci].CONTRACT,'0x'+SEL.referralRewards+encAddr(myAddr))); if(rw>0n) claimableTxt.push(fmtD(rw,POOLS[ci].decimals)+' '+POOLS[ci].sym); }catch(e){}
+    try{ var cl=await scanLogs([EV_REFCLAIMED],POOLS[ci].CONTRACT,POOLS[ci].deployBlock);
+      cl.forEach(function(l){ if(('0x'+l.topics[1].slice(-40)).toLowerCase()===me) claimed+=BigInt('0x'+((l.data||'0x').replace(/^0x/,''))||'0'); });
+    }catch(e){}
+  }
+  if($('accClaimable')) $('accClaimable').textContent=claimableTxt.length?claimableTxt.join(' · '):'0';
+  if($('accClaimed')) $('accClaimed').textContent=fmtD(claimed, POOLS[0].decimals)+' '+POOLS[0].sym+t('accMultiNote');
+  // 参加过的游戏
+  var games=[];
+  for(var gi=0;gi<POOLS.length;gi++){
+    try{ var tl=await scanLogs([EV_TICKETS],POOLS[gi].CONTRACT,POOLS[gi].deployBlock); var n=0n;
+      tl.forEach(function(l){ if(('0x'+l.topics[2].slice(-40)).toLowerCase()===me) n+=BigInt('0x'+((l.data||'0x').replace(/^0x/,'')).slice(0,64)||'0'); });
+      if(n>0n) games.push(POOLS[gi].sym+' × '+n.toString());
+    }catch(e){}
+  }
+  if($('accGames')) $('accGames').innerHTML=games.length?games.map(function(g){return '<span class="acc-tag">'+g+'</span>';}).join(''):'<span class="note">'+t('noData')+'</span>';
+  // 交易历史（最近 10 笔：购票/中奖/提佣）
+  var txs=[];
+  for(var hi=0;hi<POOLS.length;hi++){
+    try{ var ll=await scanLogs([EV_TICKETS],POOLS[hi].CONTRACT,POOLS[hi].deployBlock);
+      ll.forEach(function(l){ if(('0x'+l.topics[2].slice(-40)).toLowerCase()===me) txs.push({h:l.transactionHash, b:l.blockNumber, k:'buy', s:POOLS[hi].sym}); });
+    }catch(e){}
+  }
+  txs.sort(function(a,b){ return Number(BigInt(b.b)-BigInt(a.b)); });
+  var rows=txs.slice(0,10).map(function(x){
+    return '<div class="winner"><span><span class="tag">'+t('accTxBuy')+'</span>'+x.s+'</span><a href="'+CFG.explorer+'/tx/'+x.h+'" target="_blank" rel="noopener">'+short(x.h)+'</a></div>';
+  }).join('');
+  if($('accTxList')) $('accTxList').innerHTML=rows||'<div class="note">'+t('noData')+'</div>';
+}
+/* ================= V1.0 公告栏（静态 JSON，无后端） ================= */
+async function loadAnnounce(){
+  var bar=$('announceBar'); if(!bar) return;
+  try{
+    var r=await fetch('announce.json',{cache:'no-store'});
+    if(!r.ok) return;
+    var j=await r.json();
+    var item=(j&&j.items||[]).filter(function(x){return x.on;})[0];
+    if(!item) return;
+    bar.innerHTML='<span>'+item[LANG==='zh'?'zh':'en']+'</span>';
+    bar.hidden=false;
+  }catch(e){ /* 无公告文件则不显示 */ }
+}
 var AC=null, sndOn=false; try{ sndOn=localStorage.getItem('ap_snd')==='1'; }catch(e){}
 var SND_ON='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a3 3 0 010 6M18.5 7a6 6 0 010 10"/></svg>';
 var SND_OFF='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l4 6M21 9l-4 6"/></svg>';
@@ -1316,20 +1453,22 @@ document.addEventListener('click',function(e){
 function routeFromHash(){
   var h='';
   try{ h=(''+(location.hash||'')).replace(/^#/,''); }catch(e){}
-  return (h==='home'||h==='play'||h==='invite'||h==='records') ? h : 'home';
+  return (h==='home'||h==='play'||h==='invite'||h==='records'||h==='account') ? h : 'home';
 }
 function showView(v, fromHash){
   if(window.renderJoinBanner) renderJoinBanner();
-  var home=$('view-home'),play=$('view-play'),inv=$('view-invite'),rec=$('view-records'),pb=$('pback');
+  var home=$('view-home'),play=$('view-play'),inv=$('view-invite'),rec=$('view-records'),acc=$('view-account'),pb=$('pback');
   if(home)home.hidden=(v!=='home');
   if(play)play.hidden=(v!=='play');
   if(inv)inv.hidden=(v!=='invite');
   if(rec)rec.hidden=(v!=='records');
+  if(acc)acc.hidden=(v!=='account');
   if(pb)pb.hidden=(v==='home');
   if(!fromHash){ try{ if((''+location.hash)!=='#'+v) location.hash=v; }catch(e){} }
   if(v==='play'){ refresh(true); }
   else if(v==='invite'){ loadInvite(); }
   else if(v==='records'){ loadRecords(); }
+  else if(v==='account'){ loadAccount(); }
   else{ renderHome(); loadHome(); }
   try{window.scrollTo(0,0);}catch(e){}
   try{updateTabs(v);}catch(e){}
@@ -1366,6 +1505,7 @@ window.addEventListener('load', ()=>{
   showView(sp, true);
   apShow(0); apStart(); updateSndBtn();
   loadWinners().then(winStart).catch(function(){});
+  try{ loadAnnounce(); }catch(e){}
 });
 
 /* 输入框聚焦防键盘遮挡 */
