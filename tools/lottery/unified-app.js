@@ -108,6 +108,7 @@ zh: {
   joinGo: '加入平台', joinSkip: '先逛逛，直接进入 →',
   joinNote: '点击「加入平台」仅记住邀请人；邀请关系在你首次购票时写入链上，永久有效。',
   qrTitle: '我的邀请二维码', shareBtn: '分享', qrBtn: '二维码',
+  commTitle: '佣金明细', commNote: '每一笔返佣都对应链上真实购票交易，点击哈希可在浏览器核验。',
 },
 en: {
   pageTitle: '{chain} Lottery', docTitle: '{chain} Lottery',
@@ -215,6 +216,7 @@ en: {
   joinGo: 'Join', joinSkip: 'Look around first →',
   joinNote: 'Tapping "Join" only remembers your inviter; the binding is written on-chain at your first ticket purchase, permanently.',
   qrTitle: 'My invite QR code', shareBtn: 'Share', qrBtn: 'QR code',
+  commTitle: 'Commission ledger', commNote: 'Every commission maps to a real on-chain purchase. Click the hash to verify in the explorer.',
 }};
 let LANG = localStorage.getItem('lottery_lang') || 'zh';
 function t(k, p){
@@ -1333,6 +1335,52 @@ async function loadInvite(){
   if(mr)mr.textContent = refParts.length ? refParts.join(' · ') : t('noReferrer');
   if(pl)pl.innerHTML=rows;
   loadInviteStats(myAddr.toLowerCase());
+  loadCommissionLedger(myAddr.toLowerCase());
+}
+/* ================= V1.0 佣金明细账本（链上事件直读，可审计） ================= */
+var _blkTimeCache={};
+async function blkTime(bn){
+  var k=String(bn); if(_blkTimeCache[k]) return _blkTimeCache[k];
+  try{
+    var b=await reqPublic('eth_getBlockByNumber',['0x'+BigInt(bn).toString(16),false]);
+    var ts=b&&b.timestamp?Number(BigInt(b.timestamp))*1000:0;
+    _blkTimeCache[k]=ts; return ts;
+  }catch(e){ return 0; }
+}
+function fmtTime(ts){
+  if(!ts) return '-';
+  var d=new Date(ts), p=function(n){return String(n).padStart(2,'0');};
+  return (d.getMonth()+1)+'-'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
+async function loadCommissionLedger(me){
+  var box=$('commLedger'); if(!box) return;
+  if(!me){ box.innerHTML='<div class="note">'+t('invConnect')+'</div>'; return; }
+  box.innerHTML='<div class="note">'+t('loading')+'</div>';
+  var rows=[];
+  try{
+    for(var i=0;i<POOLS.length;i++){
+      var P=POOLS[i];
+      var logs=await scanLogs([EV_REFREWARD],P.CONTRACT,P.deployBlock);
+      for(var j=0;j<logs.length;j++){
+        var l=logs[j], d=(l.data||'0x').replace(/^0x/,'');
+        var buyer=('0x'+l.topics[2].slice(-40)).toLowerCase();
+        var l1=('0x'+d.slice(0,64).slice(-40)).toLowerCase(), dd1=BigInt('0x'+(d.slice(64,128)||'0'));
+        var l2=('0x'+d.slice(128,192).slice(-40)).toLowerCase(), dd2=BigInt('0x'+(d.slice(192,256)||'0'));
+        var rid=Number(BigInt(l.topics[1]));
+        if(l1===me&&dd1>0n) rows.push({bn:l.blockNumber,h:l.transactionHash,sym:P.sym,dec:P.decimals,tier:'d',buyer:buyer,rid:rid,amt:dd1});
+        else if(l2===me&&dd2>0n) rows.push({bn:l.blockNumber,h:l.transactionHash,sym:P.sym,dec:P.decimals,tier:'i',buyer:buyer,rid:rid,amt:dd2});
+      }
+    }
+  }catch(e){ console.error('commLedger',e); }
+  rows.sort(function(a,b){ return Number(BigInt(b.bn)-BigInt(a.bn)); });
+  var show=rows.slice(0,30);
+  for(var k=0;k<show.length;k++){ show[k].ts=await blkTime(show[k].bn); }
+  var html=show.map(function(r){
+    return '<div class="winner"><span><span class="tag">'+t(r.tier==='d'?'refTagD':'refTagI')+'</span>'
+      +r.sym+' · '+(LANG==='zh'?'第':'R')+r.rid+(LANG==='zh'?'期':'')+' · '+short(r.buyer)+'</span>'
+      +'<span>+'+fmtD(r.amt,r.dec)+' '+r.sym+' <a href="'+CFG.explorer+'/tx/'+r.h+'" target="_blank" rel="noopener">'+short(r.h)+'</a><br><small style="color:#8a8f7d">'+fmtTime(r.ts)+'</small></span></div>';
+  }).join('');
+  box.innerHTML=html||'<div class="note">'+t('refNoInvite')+'</div>';
 }
 async function loadInviteStats(me){
   var bound={}, poolSyms=[];
