@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>ANUBIS PLAY · 统一返佣演示</title>
+<style>
+:root{
+  --bg:#0B0E13; --card:#141922; --card2:#1A212D; --line:#232B38;
+  --gold:#D4AF37; --gold-dim:#8A7326; --ink:#EDEAE0; --muted:#8B93A3;
+  --green:#3FB97F; --red:#E0605E; --radius:16px;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Segoe UI,Roboto,sans-serif;
+  --serif:Georgia,"Noto Serif SC","Songti SC",serif;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+a{color:var(--gold)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+/* ===== 顶部横幅 ===== */
+.demo-banner{background:linear-gradient(90deg,#2A2113,#1A1408);border-bottom:1px solid var(--gold-dim);color:var(--gold);font-size:13px;text-align:center;padding:8px 12px;line-height:1.5}
+/* ===== 页头 ===== */
+header.top{position:sticky;top:0;z-index:50;background:rgba(11,14,19,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#7A6420);display:flex;align-items:center;justify-content:center;font-weight:800;color:#0B0E13;font-size:18px}
+.brand-name{font-weight:700;font-size:16px}
+.brand-sub{font-size:11px;color:var(--muted);letter-spacing:2px}
+.lang-btn{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer}
+.lang-btn:hover{border-color:var(--gold);color:var(--gold)}
+/* ===== 导航 ===== */
+nav.tabs{border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs-in{display:flex;gap:4px;padding:0}
+.tab{background:none;border:none;color:var(--muted);font-size:14px;padding:14px 16px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;font-family:var(--sans)}
+.tab .n{color:var(--gold-dim);font-family:var(--serif);margin-right:6px;font-size:12px}
+.tab.active{color:var(--ink);border-bottom-color:var(--gold)}
+.tab.active .n{color:var(--gold)}
+/* ===== 视图 ===== */
+.view{display:none;padding:24px 0 60px}
+.view.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sec-num{font-family:var(--serif);color:var(--gold);font-size:13px;letter-spacing:3px;margin:28px 0 4px}
+.sec-num:first-child{margin-top:0}
+h2.sec-title{margin:0 0 6px;font-size:22px}
+p.sec-desc{color:var(--muted);font-size:14px;line-height:1.7;margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin:12px 0}
+.card h3{margin:0 0 10px;font-size:16px}
+.muted{color:var(--muted)} .gold{color:var(--gold)} .small{font-size:13px}
+/* ===== 演示徽标 ===== */
+.demo-badge{display:inline-block;background:rgba(212,175,55,.14);border:1px solid var(--gold-dim);color:var(--gold);font-size:11px;border-radius:6px;padding:2px 8px;margin-left:8px;vertical-align:middle;white-space:nowrap}
+/* ===== 地址 ===== */
+.addr{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px;word-break:break-all;display:inline-block;max-width:100%}
+/* ===== 表单 ===== */
+label.f-label{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
+input.f-input{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:12px 14px;font-size:14px;font-family:ui-monospace,Menlo,monospace}
+input.f-input:focus{outline:none;border-color:var(--gold)}
+input.f-input::placeholder{color:#5A6373;font-family:var(--sans)}
+.btn{display:inline-block;background:linear-gradient(135deg,var(--gold),#A8852A);color:#0B0E13;border:none;border-radius:12px;padding:13px 28px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;font-family:var(--sans)}
+.btn:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+/* ===== 提示 ===== */
+.note{border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;margin:12px 0}
+.note-warn{background:rgba(224,96,94,.1);border:1px solid rgba(224,96,94,.4);color:#F0A3A1}
+.note-ok{background:rgba(63,185,127,.1);border:1px solid rgba(63,185,127,.4);color:#9FE0C0}
+.note-info{background:rgba(212,175,55,.08);border:1px solid var(--gold-dim);color:#D8C58A}
+/* ===== 关系链 ===== */
+.chain{display:flex;align-items:stretch;gap:0;margin:16px 0;flex-wrap:wrap}
+.chain-node{flex:1;min-width:140px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.chain-node .lvl{font-size:11px;color:var(--gold);letter-spacing:2px;margin-bottom:6px}
+.chain-node .who{font-family:ui-monospace,Menlo,monospace;font-size:13px;word-break:break-all}
+.chain-arrow{display:flex;align-items:center;padding:0 8px;color:var(--gold-dim);font-size:20px}
+/* ===== 表格 ===== */
+table.tbl{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+table.tbl th{text-align:left;color:var(--muted);font-weight:500;padding:10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.tbl td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tbl tr:last-child td{border-bottom:none}
+.tbl .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
+/* ===== 统计 ===== */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;text-align:center}
+.stat .v{font-family:var(--serif);font-size:26px;color:var(--gold);margin:4px 0}
+.stat .k{font-size:12px;color:var(--muted)}
+/* ===== 规则 ===== */
+.rule-row{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line)}
+.rule-row:last-child{border-bottom:none}
+.rule-pct{font-family:var(--serif);font-size:30px;color:var(--gold);min-width:90px}
+.rule-body{font-size:14px;line-height:1.7}
+.rule-body .muted{font-size:13px}
+/* ===== 加载 ===== */
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* ===== 页脚 ===== */
+footer{border-top:1px solid var(--line);padding:20px 0 40px;color:var(--muted);font-size:12px;line-height:1.8;text-align:center}
+/* ===== 响应式 ===== */
+@media (max-width:720px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  h2.sec-title{font-size:19px}
+  .chain{flex-direction:column}
+  .chain-arrow{justify-content:center;padding:6px 0;transform:rotate(90deg)}
+  .tab{padding:12px 10px;font-size:13px}
+  .rule-pct{font-size:24px;min-width:70px}
+  table.tbl th:nth-child(3),table.tbl td:nth-child(3){display:none}
+}
+@media (min-width:721px) and (max-width:1024px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-banner" data-i18n="topBanner">⚠ Phase 2 前端演示 · 全部数据为演示/只读，不调用返佣合约，不产生真实交易</div>
+
+<header class="top">
+  <div class="wrap top-in">
+    <div class="brand">
+      <div class="brand-mark">A</div>
+      <div>
+        <div class="brand-name">ANUBIS PLAY</div>
+        <div class="brand-sub" data-i18n="brandSub">统一返佣演示</div>
+      </div>
+    </div>
+    <button class="lang-btn" id="langBtn">EN</button>
+  </div>
+  <nav class="tabs">
+    <div class="wrap tabs-in">
+      <button class="tab active" data-view="invite" onclick="showView('invite')"><span class="n">01</span><span data-i18n="tabInvite">邀请加入</span></button>
+      <button class="tab" data-view="bind" onclick="showView('bind')"><span class="n">02</span><span data-i18n="tabBind">主动绑定</span></button>
+      <button class="tab" data-view="v3" onclick="showView('v3')"><span class="n">03</span><span data-i18n="tabV3">五池关系</span></button>
+      <button class="tab" data-view="center" onclick="showView('center')"><span class="n">04</span><span data-i18n="tabCenter">返佣中心</span></button>
+    </div>
+  </nav>
+</header>
+
+<main class="wrap">
+
+<!-- ================= 01 邀请加入 ================= -->
+<section class="view active" id="view-invite">
+  <div class="sec-num">01</div>
+  <h2 class="sec-title" data-i18n="inviteTitle">统一邀请加入</h2>
+  <p class="sec-desc" data-i18n="inviteDesc">通过邀请链接进入。点击「加入邀请」仅写入本地演示记录，不会上链、不产生交易。</p>
+
+  <div class="card" id="inviteCard">
+    <h3 data-i18n="inviteFrom">你的邀请人</h3>
+    <div id="inviteRefBox"></div>
+    <div id="inviteNoRef" class="note note-info" style="display:none" data-i18n="inviteNoRef">链接中没有邀请人参数（?ref=0x…）。这是通用入口，你可以在「主动绑定」页手动输入邀请人。</div>
+  </div>
+
+  <div class="card" id="inviteJoinCard" style="display:none">
+    <div class="sec-num">02</div>
+    <h3 data-i18n="inviteJoinTitle">确认加入</h3>
+    <label class="f-label" data-i18n="myAddrLabel">我的钱包地址（仅用于防自邀检查，不连接钱包）</label>
+    <input class="f-input" id="inviteMyAddr" data-i18n-ph="addrPh" placeholder="0x…">
+    <div id="selfWarn" class="note note-warn" style="display:none" data-i18n="selfWarn">⚠ 不能邀请自己：你填的地址和邀请人地址相同，加入按钮已禁用。</div>
+    <div class="btn-row">
+      <button class="btn" id="joinBtn" onclick="doJoin()" data-i18n="joinBtn">加入邀请</button>
+      <button class="btn btn-ghost" onclick="copyInviteLink()" data-i18n="copyMyLink">复制我的邀请链接</button>
+    </div>
+    <div id="joinDone" class="note note-ok" style="display:none"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-num">03</div>
+    <h3 data-i18n="inviteRuleTitle">加入规则（演示）</h3>
+    <p class="sec-desc" data-i18n="inviteRuleBody">· 必须主动点击「加入」才算加入<br>· 绑定后永久不可更改（正式版以链上为准）<br>· 不能绑定自己<br>· 演示版只写本地浏览器记录，不上链</p>
+  </div>
+</section>
+
+<!-- ================= 02 主动绑定 ================= -->
+<section class="view" id="view-bind">
+  <div class="sec-num">01</div>
+  <h2 class="sec-title" data-i18n="bindTitle">钱包主动绑定</h2>
+  <p class="sec-desc" data-i18n="bindDesc">输入邀请人地址，预览绑定关系。演示版确认后只写本地记录，不上链。</p>
+
+  <div class="card">
+    <div class="sec-num">02</div>
+    <h3 data-i18n="bindInputTitle">填写邀请人</h3>
+    <label class="f-label" data-i18n="myAddrLabel2">我的钱包地址</label>
+    <input class="f-input" id="bindMyAddr" data-i18n-ph="addrPh" placeholder="0x…">
+    <label class="f-label" data-i18n="refAddrLabel">邀请人地址</label>
+    <input class="f-input" id="bindRefAddr" data-i18n-ph="addrPh" placeholder="0x…">
+    <div class="btn-row"><button class="btn" onclick="previewBind()" data-i18n="previewBtn">预览绑定关系</button></div>
+    <div id="bindErr" class="note note-warn" style="display:none"></div>
+  </div>
+
+  <div class="card" id="bindPreviewCard" style="display:none">
+    <div class="sec-num">03</div>
+    <h3><span data-i18n="bindPreviewTitle">绑定关系预览</span><span class="demo-badge" data-i18n="demoBadge">演示数据</span></h3>
+    <div class="chain">
+      <div class="chain-node">
+        <div class="lvl" data-i18n="lvl2">二级 · 5%</div>
+        <div class="who" id="pvL2">—</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node">
+        <div class="lvl" data-i18n="lvl1">一级 · 20%</div>
+        <div class="who" id="pvL1">—</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node">
+        <div class="lvl" data-i18n="lvlMe">我</div>
+        <div class="who" id="pvMe">—</div>
+      </div>
+    </div>
+    <p class="small muted" data-i18n="bindPreviewNote">一级为你输入的邀请人；二级为演示数据（正式版上链后自动查询邀请人的邀请人）。返佣比例：一级拿平台费的 20%，二级拿 5%。</p>
+    <div class="btn-row"><button class="btn" id="bindConfirmBtn" onclick="confirmBind()" data-i18n="confirmBindBtn">确认绑定（本地演示）</button></div>
+    <div id="bindDone" class="note note-ok" style="display:none"></div>
+  </div>
+</section>
+
+<!-- ================= 03 五池关系 ================= -->
+<section class="view" id="view-v3">
+  <div class="sec-num">01</div>
+  <h2 class="sec-title" data-i18n="v3Title">V3 五池历史关系</h2>
+  <p class="sec-desc" data-i18n="v3Desc">只读查询链上五个彩票池的邀请人（referrer），展示跨池不一致时的冲突。不上链、不修改任何数据。</p>
+
+  <div class="card">
+    <div class="sec-num">02</div>
+    <h3 data-i18n="v3QueryTitle">查询地址</h3>
+    <label class="f-label" data-i18n="queryAddrLabel">要查询的钱包地址</label>
+    <input class="f-input" id="v3Addr" data-i18n-ph="addrPh" placeholder="0x…">
+    <div class="btn-row"><button class="btn" id="v3Btn" onclick="queryV3()" data-i18n="queryBtn">查询五池关系</button></div>
+    <div id="v3Err" class="note note-warn" style="display:none"></div>
+  </div>
+
+  <div class="card" id="v3ResultCard" style="display:none">
+    <div class="sec-num">03</div>
+    <h3><span data-i18n="v3ResultTitle">五池邀请人（链上只读）</span></h3>
+    <p class="small muted" data-i18n="v3Readonly">数据来自 Anubis 主网公共 RPC 只读查询，未发起任何交易。</p>
+    <div id="v3Loading" class="small muted" style="display:none"><span class="spin"></span><span data-i18n="loading">查询中…</span></div>
+    <table class="tbl" id="v3Table" style="display:none">
+      <thead><tr>
+        <th data-i18n="colPool">奖池</th>
+        <th data-i18n="colContract">合约</th>
+        <th data-i18n="colReferrer">邀请人</th>
+      </tr></thead>
+      <tbody id="v3Body"></tbody>
+    </table>
+    <div id="v3Conflict"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-num">04</div>
+    <h3 data-i18n="v3RuleTitle">冲突处理规则（统一返佣正式版）</h3>
+    <p class="sec-desc" data-i18n="v3RuleBody">· 五池邀请人不一致时，统一系统<b>不自动覆盖</b><br>· 全部历史证据上链存证，由本人确认选择<br>· V3 老用户 30%/10% 返佣比例保持不变<br>· 本页仅展示，不做任何写入</p>
+  </div>
+</section>
+
+<!-- ================= 04 返佣中心 ================= -->
+<section class="view" id="view-center">
+  <div class="sec-num">01</div>
+  <h2 class="sec-title"><span data-i18n="centerTitle">统一返佣中心</span><span class="demo-badge" data-i18n="demoBadge">演示数据</span></h2>
+  <p class="sec-desc" data-i18n="centerDesc">以下全部为演示数据，帮助你理解统一返佣规则。正式版以链上合约为准。</p>
+
+  <div class="stats">
+    <div class="stat"><div class="k" data-i18n="stL1">一级邀请</div><div class="v">12</div><div class="k"><span class="demo-badge" data-i18n="demoBadge">演示数据</span></div></div>
+    <div class="stat"><div class="k" data-i18n="stL2">二级邀请</div><div class="v">34</div><div class="k"><span class="demo-badge" data-i18n="demoBadge">演示数据</span></div></div>
+    <div class="stat"><div class="k" data-i18n="stPending">待领取</div><div class="v">1.25</div><div class="k">DAI <span class="demo-badge" data-i18n="demoBadge">演示数据</span></div></div>
+    <div class="stat"><div class="k" data-i18n="stClaimed">已领取</div><div class="v">3.80</div><div class="k">DAI <span class="demo-badge" data-i18n="demoBadge">演示数据</span></div></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-num">02</div>
+    <h3 data-i18n="ruleTitle">返佣规则</h3>
+    <div class="rule-row">
+      <div class="rule-pct">20%</div>
+      <div class="rule-body"><b data-i18n="ruleL1t">一级返佣</b><br><span class="muted" data-i18n="ruleL1b">你直接邀请的人产生平台费，你拿其中 20%。<br>例子：朋友买了 100 DAI 的票，平台费 10 DAI，你拿 2 DAI。</span></div>
+    </div>
+    <div class="rule-row">
+      <div class="rule-pct">5%</div>
+      <div class="rule-body"><b data-i18n="ruleL2t">二级返佣</b><br><span class="muted" data-i18n="ruleL2b">你邀请的人再邀请的人产生平台费，你拿其中 5%。<br>例子：二级用户买了 100 DAI 的票，平台费 10 DAI，你拿 0.5 DAI。</span></div>
+    </div>
+    <div class="note note-info" data-i18n="ruleDual">双轨说明：V3 五池老用户继续 30%/10%，历史关系和已产生佣金不变；新游戏统一 20%/5%。</div>
+  </div>
+
+  <div class="card">
+    <div class="sec-num">03</div>
+    <h3><span data-i18n="recentTitle">最近返佣明细</span><span class="demo-badge" data-i18n="demoBadge">演示数据</span></h3>
+    <table class="tbl">
+      <thead><tr><th data-i18n="colTime">时间</th><th data-i18n="colFrom">来源</th><th data-i18n="colAmt">金额</th></tr></thead>
+      <tbody>
+        <tr><td>10-14 13:02</td><td data-i18n="srcL1">一级 · 0x3f…9a21</td><td class="mono gold">+0.42 DAI</td></tr>
+        <tr><td>10-14 11:47</td><td data-i18n="srcL2">二级 · 0x7c…44be</td><td class="mono gold">+0.11 DAI</td></tr>
+        <tr><td>10-13 22:15</td><td data-i18n="srcL1b">一级 · 0x91…07dd</td><td class="mono gold">+0.35 DAI</td></tr>
+        <tr><td>10-13 18:30</td><td data-i18n="srcL2b">二级 · 0xab…e2f0</td><td class="mono gold">+0.08 DAI</td></tr>
+      </tbody>
+    </table>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="alert(t('claimDemo'))" data-i18n="claimBtn">领取（演示，不上链）</button></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div data-i18n="footer1">ANUBIS PLAY · 统一返佣系统 Phase 2 前端演示</div>
+    <div data-i18n="footer2">本页不连接钱包、不调用合约、不发起交易。链上数据仅只读查询，其余均为演示数据。</div>
+  </div>
+</footer>
+
+<script>
+/* ================= I18N ================= */
+const I18N = {
+zh: {
+  topBanner: '⚠ Phase 2 前端演示 · 全部数据为演示/只读，不调用返佣合约，不产生真实交易',
+  brandSub: '统一返佣演示',
+  tabInvite: '邀请加入', tabBind: '主动绑定', tabV3: '五池关系', tabCenter: '返佣中心',
+  demoBadge: '演示数据',
+  inviteTitle: '统一邀请加入', inviteDesc: '通过邀请链接进入。点击「加入邀请」仅写入本地演示记录，不会上链、不产生交易。',
+  inviteFrom: '你的邀请人', inviteNoRef: '链接中没有邀请人参数（?ref=0x…）。这是通用入口，你可以在「主动绑定」页手动输入邀请人。',
+  inviteJoinTitle: '确认加入', myAddrLabel: '我的钱包地址（仅用于防自邀检查，不连接钱包）', myAddrLabel2: '我的钱包地址', refAddrLabel: '邀请人地址',
+  addrPh: '0x…', selfWarn: '⚠ 不能邀请自己：你填的地址和邀请人地址相同，加入按钮已禁用。',
+  joinBtn: '加入邀请', copyMyLink: '复制我的邀请链接',
+  joinOk: '✅ 已加入！邀请人 {ref} 已记入本地演示（localStorage），正式版将在首次游戏时上链绑定。',
+  copyOk: '邀请链接已复制，去分享给朋友吧！', copyFail: '复制失败，请手动复制地址栏链接。',
+  noWalletAddr: '请先填写你的钱包地址（用于防自邀检查）。', badAddr: '地址格式不对，应为 0x 开头的 42 位地址。',
+  inviteRuleTitle: '加入规则（演示）', inviteRuleBody: '· 必须主动点击「加入」才算加入<br>· 绑定后永久不可更改（正式版以链上为准）<br>· 不能绑定自己<br>· 演示版只写本地浏览器记录，不上链',
+  bindTitle: '钱包主动绑定', bindDesc: '输入邀请人地址，预览绑定关系。演示版确认后只写本地记录，不上链。',
+  bindInputTitle: '填写邀请人', previewBtn: '预览绑定关系',
+  bindPreviewTitle: '绑定关系预览', lvl2: '二级 · 5%', lvl1: '一级 · 20%', lvlMe: '我',
+  bindPreviewNote: '一级为你输入的邀请人；二级为演示数据（正式版上链后自动查询邀请人的邀请人）。返佣比例：一级拿平台费的 20%，二级拿 5%。',
+  confirmBindBtn: '确认绑定（本地演示）',
+  bindOk: '✅ 绑定关系已记入本地演示：你的邀请人是 {ref}。正式版将在链上永久绑定。',
+  alreadyBound: '你已在本地演示中绑定过邀请人（{ref}），演示版不可更改。',
+  v3Title: 'V3 五池历史关系', v3Desc: '只读查询链上五个彩票池的邀请人（referrer），展示跨池不一致时的冲突。不上链、不修改任何数据。',
+  v3QueryTitle: '查询地址', queryAddrLabel: '要查询的钱包地址', queryBtn: '查询五池关系',
+  v3ResultTitle: '五池邀请人（链上只读）', v3Readonly: '数据来自 Anubis 主网公共 RPC 只读查询，未发起任何交易。',
+  loading: '查询中…', rpcFail: 'RPC 查询失败，请检查网络后重试。',
+  colPool: '奖池', colContract: '合约', colReferrer: '邀请人', colTime: '时间', colFrom: '来源', colAmt: '金额',
+  noRef: '无', queryErr: '查询出错',
+  v3Consistent: '✅ 五池邀请人一致：{ref}',
+  v3NoRef: '五池均未查到邀请关系。',
+  v3Conflict: '⚠ 检测到跨池邀请人不一致（{n} 个不同邀请人）。统一系统迁移时将保留全部历史证据，由本人确认选择，不自动覆盖。',
+  v3RuleTitle: '冲突处理规则（统一返佣正式版）',
+  v3RuleBody: '· 五池邀请人不一致时，统一系统<b>不自动覆盖</b><br>· 全部历史证据上链存证，由本人确认选择<br>· V3 老用户 30%/10% 返佣比例保持不变<br>· 本页仅展示，不做任何写入',
+  centerTitle: '统一返佣中心', centerDesc: '以下全部为演示数据，帮助你理解统一返佣规则。正式版以链上合约为准。',
+  stL1: '一级邀请', stL2: '二级邀请', stPending: '待领取', stClaimed: '已领取',
+  ruleTitle: '返佣规则', ruleL1t: '一级返佣', ruleL1b: '你直接邀请的人产生平台费，你拿其中 20%。<br>例子：朋友买了 100 DAI 的票，平台费 10 DAI，你拿 2 DAI。',
+  ruleL2t: '二级返佣', ruleL2b: '你邀请的人再邀请的人产生平台费，你拿其中 5%。<br>例子：二级用户买了 100 DAI 的票，平台费 10 DAI，你拿 0.5 DAI。',
+  ruleDual: '双轨说明：V3 五池老用户继续 30%/10%，历史关系和已产生佣金不变；新游戏统一 20%/5%。',
+  recentTitle: '最近返佣明细', srcL1: '一级 · 0x3f…9a21', srcL2: '二级 · 0x7c…44be', srcL1b: '一级 · 0x91…07dd', srcL2b: '二级 · 0xab…e2f0',
+  claimBtn: '领取（演示，不上链）', claimDemo: '演示模式：领取按钮不会发起任何交易。正式版将调用返佣合约领取。',
+  footer1: 'ANUBIS PLAY · 统一返佣系统 Phase 2 前端演示',
+  footer2: '本页不连接钱包、不调用合约、不发起交易。链上数据仅只读查询，其余均为演示数据。',
+  copied: '已复制'
+},
+en: {
+  topBanner: '⚠ Phase 2 UI Demo · All data is demo / read-only. No referral contracts called, no real transactions.',
+  brandSub: 'REFERRAL DEMO',
+  tabInvite: 'Join', tabBind: 'Bind', tabV3: 'Pool Relations', tabCenter: 'Rewards',
+  demoBadge: 'Demo Data',
+  inviteTitle: 'Join via Invite', inviteDesc: 'Arrived through an invite link. "Join" only writes a local demo record — nothing goes on-chain.',
+  inviteFrom: 'Your inviter', inviteNoRef: 'No inviter in the link (?ref=0x…). This is the generic entry — you can enter an inviter manually on the "Bind" tab.',
+  inviteJoinTitle: 'Confirm', myAddrLabel: 'My wallet address (self-invite check only, no wallet connection)', myAddrLabel2: 'My wallet address', refAddrLabel: 'Inviter address',
+  addrPh: '0x…', selfWarn: '⚠ You cannot invite yourself: the address matches the inviter. Join is disabled.',
+  joinBtn: 'Join Invite', copyMyLink: 'Copy my invite link',
+  joinOk: '✅ Joined! Inviter {ref} saved to local demo storage. On mainnet it will bind on your first game.',
+  copyOk: 'Invite link copied — share it with friends!', copyFail: 'Copy failed, please copy the URL manually.',
+  noWalletAddr: 'Please enter your wallet address first (for self-invite check).', badAddr: 'Bad address format — expected 0x + 40 hex chars.',
+  inviteRuleTitle: 'Join rules (demo)', inviteRuleBody: '· You must actively click "Join"<br>· Binding is permanent (on-chain in production)<br>· No self-invite<br>· Demo only writes local browser storage',
+  bindTitle: 'Manual Binding', bindDesc: 'Enter an inviter address and preview the relationship. Demo confirmation only writes local storage.',
+  bindInputTitle: 'Enter inviter', previewBtn: 'Preview relationship',
+  bindPreviewTitle: 'Relationship preview', lvl2: 'L2 · 5%', lvl1: 'L1 · 20%', lvlMe: 'Me',
+  bindPreviewNote: 'L1 is the inviter you entered; L2 is demo data (queried on-chain after production launch). Rates: L1 gets 20% of platform fee, L2 gets 5%.',
+  confirmBindBtn: 'Confirm (local demo)',
+  bindOk: '✅ Saved to local demo: your inviter is {ref}. Production will bind permanently on-chain.',
+  alreadyBound: 'You already bound an inviter in this demo ({ref}); it cannot be changed in demo.',
+  v3Title: 'V3 Five-Pool History', v3Desc: 'Read-only lookup of referrers across the five lottery pools. Shows conflicts when they differ. Nothing is written.',
+  v3QueryTitle: 'Look up address', queryAddrLabel: 'Wallet address to look up', queryBtn: 'Look up',
+  v3ResultTitle: 'Referrers (read-only)', v3Readonly: 'Data from Anubis mainnet public RPC (read-only). No transactions sent.',
+  loading: 'Loading…', rpcFail: 'RPC query failed, please check your network and retry.',
+  colPool: 'Pool', colContract: 'Contract', colReferrer: 'Referrer', colTime: 'Time', colFrom: 'Source', colAmt: 'Amount',
+  noRef: 'None', queryErr: 'Error',
+  v3Consistent: '✅ Consistent across pools: {ref}',
+  v3NoRef: 'No referrer found in any pool.',
+  v3Conflict: '⚠ Conflicting referrers across pools ({n} distinct). Migration keeps all historical evidence; you choose — nothing is auto-overwritten.',
+  v3RuleTitle: 'Conflict rules (production)',
+  v3RuleBody: '· Conflicts are <b>never auto-overwritten</b><br>· All history is preserved on-chain; you confirm your choice<br>· V3 users keep 30%/10%<br>· This page is display-only',
+  centerTitle: 'Referral Center', centerDesc: 'All demo data below, to illustrate the rules. Production follows the on-chain contracts.',
+  stL1: 'L1 invites', stL2: 'L2 invites', stPending: 'Pending', stClaimed: 'Claimed',
+  ruleTitle: 'Reward rules', ruleL1t: 'Level 1', ruleL1b: 'People you invite directly: you get 20% of their platform fees.<br>E.g. friend buys 100 DAI tickets → 10 DAI fee → you get 2 DAI.',
+  ruleL2t: 'Level 2', ruleL2b: 'People invited by your invitees: you get 5% of their platform fees.<br>E.g. L2 user buys 100 DAI tickets → 10 DAI fee → you get 0.5 DAI.',
+  ruleDual: 'Dual track: V3 five-pool users keep 30%/10% with history untouched; new games use 20%/5%.',
+  recentTitle: 'Recent rewards', srcL1: 'L1 · 0x3f…9a21', srcL2: 'L2 · 0x7c…44be', srcL1b: 'L1 · 0x91…07dd', srcL2b: 'L2 · 0xab…e2f0',
+  claimBtn: 'Claim (demo, no chain)', claimDemo: 'Demo mode: claiming sends no transaction. Production will call the referral contract.',
+  footer1: 'ANUBIS PLAY · Unified Referral System · Phase 2 UI Demo',
+  footer2: 'No wallet connection, no contract calls, no transactions. On-chain data is read-only; everything else is demo data.',
+  copied: 'Copied'
+}};
+let LANG = localStorage.getItem('referral_demo_lang') || 'zh';
+function t(k, p){
+  let s = (I18N[LANG] && I18N[LANG][k]) || I18N.zh[k] || k;
+  p = p || {};
+  for(const key in p) s = s.split('{'+key+'}').join(p[key]);
+  return s;
+}
+function applyLang(){
+  document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{ el.innerHTML = t(el.getAttribute('data-i18n-html')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+  document.getElementById('langBtn').textContent = LANG === 'zh' ? 'EN' : '中文';
+  // 动态内容按语言重绘
+  renderInviteRef(); renderJoinDone(); renderBindDone();
+}
+document.getElementById('langBtn').onclick = ()=>{
+  LANG = LANG === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('referral_demo_lang', LANG);
+  applyLang();
+};
+
+/* ================= 工具 ================= */
+const $ = id => document.getElementById(id);
+const RPC = 'https://rpc.anubispace.org';
+const POOLS = [
+  {key:'LGNS', addr:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7'},
+  {key:'USDT', addr:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859'},
+  {key:'DAI',  addr:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0'},
+  {key:'A',    addr:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb'},
+  {key:'RM',   addr:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3'},
+];
+const ZERO = '0x0000000000000000000000000000000000000000';
+function isAddr(s){ return /^0x[0-9a-fA-F]{40}$/.test((s||'').trim()); }
+function norm(s){ return (s||'').trim().toLowerCase(); }
+function shortAddr(a){
+  a = (a||'').trim(); if(!isAddr(a)) return a;
+  return a.slice(0,6) + '…' + a.slice(-4);
+}
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  $('view-'+name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+  if(history.replaceState) history.replaceState(null,'','#'+name);
+}
+
+/* ================= 01 邀请加入 ================= */
+let INVITE_REF = '';
+function getRefParam(){
+  const m = location.search.match(/[?&]ref=(0x[0-9a-fA-F]{40})/);
+  return m ? m[1] : '';
+}
+function renderInviteRef(){
+  const box = $('inviteRefBox');
+  if(!INVITE_REF){
+    box.innerHTML = '';
+    $('inviteNoRef').style.display = 'block';
+    $('inviteJoinCard').style.display = 'none';
+    return;
+  }
+  $('inviteNoRef').style.display = 'none';
+  $('inviteJoinCard').style.display = 'block';
+  box.innerHTML = '<span class="addr">'+shortAddr(INVITE_REF)+'</span> <span class="small muted">'+INVITE_REF+'</span>';
+  checkSelf();
+}
+function checkSelf(){
+  const me = norm($('inviteMyAddr').value), ref = norm(INVITE_REF);
+  const isSelf = me && ref && me === ref;
+  $('selfWarn').style.display = isSelf ? 'block' : 'none';
+  $('joinBtn').disabled = !!isSelf;
+  return isSelf;
+}
+function renderJoinDone(){
+  const saved = localStorage.getItem('referral_demo_joined');
+  if(saved){ $('joinDone').style.display='block'; $('joinDone').textContent = t('joinOk',{ref:shortAddr(saved)}); }
+}
+function doJoin(){
+  const me = $('inviteMyAddr').value.trim();
+  if(!me){ alert(t('noWalletAddr')); return; }
+  if(!isAddr(me)){ alert(t('badAddr')); return; }
+  if(checkSelf()) return;
+  localStorage.setItem('referral_demo_joined', INVITE_REF);
+  localStorage.setItem('referral_demo_me', me);
+  renderJoinDone();
+}
+function copyInviteLink(){
+  const me = $('inviteMyAddr').value.trim() || localStorage.getItem('referral_demo_me') || '';
+  if(me && !isAddr(me)){ alert(t('badAddr')); return; }
+  const url = location.origin + location.pathname + (me ? '?ref='+me : '');
+  const done = ()=>alert(t('copyOk'));
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done, ()=>alert(t('copyFail')));
+  } else {
+    const ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta);
+    ta.select(); try{ document.execCommand('copy'); done(); }catch(e){ alert(t('copyFail')); }
+    document.body.removeChild(ta);
+  }
+}
+
+/* ================= 02 主动绑定 ================= */
+const DEMO_L2 = '0x8f3a1c9e2b4d5f60718293a4b5c6d7e8f90a1b2c3';
+function previewBind(){
+  const me = $('bindMyAddr').value.trim(), ref = $('bindRefAddr').value.trim();
+  const err = $('bindErr'); err.style.display='none';
+  if(!isAddr(me) || !isAddr(ref)){ err.textContent = t('badAddr'); err.style.display='block'; return; }
+  if(norm(me)===norm(ref)){ err.textContent = t('selfWarn'); err.style.display='block'; return; }
+  $('pvL2').textContent = shortAddr(DEMO_L2);
+  $('pvL1').textContent = shortAddr(ref);
+  $('pvMe').textContent = shortAddr(me);
+  $('pvL1').title = ref; $('pvMe').title = me; $('pvL2').title = DEMO_L2;
+  $('bindPreviewCard').style.display='block';
+  $('bindDone').style.display='none';
+  $('bindPreviewCard').dataset.ref = ref;
+  renderBindDone();
+}
+function renderBindDone(){
+  const saved = localStorage.getItem('referral_demo_bound');
+  if(saved && $('bindPreviewCard').dataset.ref){
+    $('bindDone').style.display='block';
+    $('bindDone').textContent = t('bindOk',{ref:shortAddr(saved)});
+  }
+}
+function confirmBind(){
+  const ref = $('bindPreviewCard').dataset.ref;
+  const old = localStorage.getItem('referral_demo_bound');
+  if(old){ alert(t('alreadyBound',{ref:shortAddr(old)})); return; }
+  localStorage.setItem('referral_demo_bound', ref);
+  renderBindDone();
+}
+
+/* ================= 03 五池查询 ================= */
+async function ethCallReferrer(poolAddr, userAddr){
+  const data = '0x2cf003c2' + userAddr.slice(2).toLowerCase().padStart(64,'0');
+  const ctrl = new AbortController();
+  const timer = setTimeout(()=>ctrl.abort(), 15000);
+  try{
+    const r = await fetch(RPC, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({jsonrpc:'2.0', id:1, method:'eth_call',
+        params:[{to:poolAddr, data:data}, 'latest']}),
+      signal: ctrl.signal
+    });
+    const j = await r.json();
+    if(j.error || !j.result) return {error:true};
+    const addr = '0x' + j.result.slice(-40);
+    return {ref: addr.toLowerCase() === ZERO.slice(2).toLowerCase() ? ZERO : addr};
+  }catch(e){ return {error:true}; }
+  finally{ clearTimeout(timer); }
+}
+async function queryV3(){
+  const user = $('v3Addr').value.trim();
+  const err = $('v3Err'); err.style.display='none';
+  if(!isAddr(user)){ err.textContent = t('badAddr'); err.style.display='block'; return; }
+  $('v3ResultCard').style.display='block';
+  $('v3Loading').style.display='block';
+  $('v3Table').style.display='none';
+  $('v3Conflict').innerHTML='';
+  $('v3Btn').disabled = true;
+  try{
+    const results = await Promise.all(POOLS.map(p=>ethCallReferrer(p.addr, user)));
+    const body = $('v3Body'); body.innerHTML='';
+    const distinct = new Set();
+    results.forEach((res,i)=>{
+      const p = POOLS[i];
+      let cell;
+      if(res.error){ cell = '<span class="muted">'+t('queryErr')+'</span>'; }
+      else if(res.ref===ZERO){ cell = '<span class="muted">'+t('noRef')+'</span>'; }
+      else { cell = '<span class="mono">'+shortAddr(res.ref)+'</span>'; distinct.add(res.ref.toLowerCase()); }
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td><b class="gold">'+p.key+'</b></td><td class="mono muted">'+shortAddr(p.addr)+'</td><td>'+cell+'</td>';
+      tr.children[1].title = p.addr;
+      if(!res.error && res.ref!==ZERO) tr.children[2].title = res.ref;
+      body.appendChild(tr);
+    });
+    $('v3Table').style.display='table';
+    const box = $('v3Conflict');
+    if(distinct.size === 0){
+      box.innerHTML = '<div class="note note-info">'+t('v3NoRef')+'</div>';
+    } else if(distinct.size === 1){
+      const only = [...distinct][0];
+      box.innerHTML = '<div class="note note-ok">'+t('v3Consistent',{ref:shortAddr(only)})+'</div>';
+    } else {
+      box.innerHTML = '<div class="note note-warn">'+t('v3Conflict',{n:distinct.size})+'</div>';
+    }
+  }catch(e){
+    err.textContent = t('rpcFail'); err.style.display='block';
+  }finally{
+    $('v3Loading').style.display='none';
+    $('v3Btn').disabled = false;
+  }
+}
+
+/* ================= 初始化 ================= */
+(function init(){
+  INVITE_REF = getRefParam();
+  applyLang();
+  // hash 决定初始视图
+  const h = (location.hash||'').replace('#','');
+  if(['invite','bind','v3','center'].includes(h)) showView(h);
+  else if(INVITE_REF) showView('invite');
+  $('inviteMyAddr').addEventListener('input', checkSelf);
+})();
+</script>
+</body>
+</html>
