@@ -118,7 +118,7 @@ a{color:var(--accent);text-decoration:none}
   var CONTRACT="0x544d788E4A992FbAb3214847073F8AE2c108Da54";
   var LGNS="0x4D1D808a081FdAc440703b3765FC61f8028C06B8";
   var ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:'https://rpc.anubispace.org',exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
-  var SEL={join:'049878f3',call:'6875281f',raise:'85864a70',fold:'bff7a00b',look:'0b407b19',withdraw:'3ccfd60b',approve:'095ea7b3',allowance:'dd62ed3e',bal:'70a08231'};
+  var SEL={join:'049878f3',call:'6875281f',raise:'85864a70',fold:'bff7a00b',look:'0b407b19',withdraw:'3ccfd60b',leave:'a4b7fd22',approve:'095ea7b3',allowance:'dd62ed3e',bal:'70a08231'};
   var RANK=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
   var SUIT=['♠','♥','♣','♦'], SRED={1:1,3:1};
   var CAT={6:'豹子',5:'同花顺',4:'金花',3:'顺子',2:'对子',1:'散牌'};
@@ -244,7 +244,7 @@ a{color:var(--accent);text-decoration:none}
     function b(txt,cls,fn,dis){var el=document.createElement('button');el.className='abtn'+(cls?' '+cls:'');el.innerHTML=txt;el.disabled=!!dis;if(!dis)el.onclick=fn;c.appendChild(el);}
     if(state.phase===1){ // OPEN
       if(ms<0){ b('入座（交底注 '+e9(state.ante)+'）','p',doJoin, state.nPlayers>=state.maxPlayers); $('hint').innerHTML=state.nPlayers>=state.maxPlayers?'满员了':'点「入座」交底注加入'; }
-      else { b('开局发牌','p',doStart, state.nPlayers<2); b('等待更多玩家…','',null,true); $('hint').innerHTML=state.nPlayers<2?'至少 2 人才能开局，等人来':'人齐了可「开局发牌」'; }
+      else { b('开局发牌','p',doStart, state.nPlayers<2); b('退座取回底注','r',doLeave); $('hint').innerHTML=state.nPlayers<2?'至少 2 人才能开局；不想等可「退座」拿回底注':'人齐了可「开局发牌」；也可「退座」退出'; }
       return;
     }
     if(state.phase===2){ // BETTING
@@ -266,6 +266,7 @@ a{color:var(--accent);text-decoration:none}
   // ---- 链上动作 ----
   async function doJoin(){ try{ await ensureApprove(state.ante); toast('入座中…'); await sendTx(SEL.join+enc(curHand)); logln('你 <b>入座</b>'); }catch(e){toast(e.message||'失败');} }
   async function doStart(){ wsend({t:'startDeal',handId:curHand}); toast('开局发牌中…'); logln('你 请求 <b>开局</b>'); }
+  async function doLeave(){ try{ toast('退座中…'); await sendTx(SEL.leave+enc(curHand)); logln('你 <b>退座</b>，底注退回待领'); toast('退座成功，正在领回…'); try{ await sendTx(SEL.withdraw); }catch(e){} toast('底注已退回钱包'); refreshBalances(); leaveTable(); }catch(e){toast(e.message||'退座失败');} }
   async function doLook(){ try{ toast('看牌…'); await sendTx(SEL.look+enc(curHand)); logln('你 <b>看牌</b>'); }catch(e){toast(e.message||'失败');} }
   async function doCall(){ try{ toast('跟注…'); await sendTx(SEL.call+enc(curHand)); logln('你 跟注'); }catch(e){toast(e.message||'失败');} }
   async function doRaise(){ try{ toast('加注…'); await sendTx(SEL.raise+enc(curHand)); logln('你 <span class="gd">加注</span>'); }catch(e){toast(e.message||'失败');} }
