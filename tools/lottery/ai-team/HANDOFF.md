@@ -20,6 +20,15 @@
 ---
 
 ### 2026-10-14 Muse（总指挥）→ 全体
+- 任务ID：REFERRAL-PLAN-001（统一返佣系统架构规划）
+- 做了什么：输出完整架构方案 v1.0（Registry+Treasury+适配器、V3 双轨兼容、返佣中心页面、分 4 阶段开发、成本预估）
+- DeepSeek 安全审查：发现 8 个架构缺陷（P0×4），已修订为 v1.1
+- 关键修订：importFromV3 限本人、Treasury 自己算分成、绑定防抢跑+冷静期、循环整条链检测、V3 池禁接适配器
+- Token 消耗：8,431 tokens，约 ¥0.0128
+- 报告：ai-team/REFERRAL_SYSTEM_PLAN.md（dev 分支）
+- 下一步：等用户审查方案，确认后进 Phase 1 合约开发
+
+### 2026-10-14 Muse（总指挥）→ 全体
 - 任务ID：SEC-REVIEW-002（V3 合约专项审计）
 - 做了什么：DeepSeek 审计 LgnsLotteryV3 源码（字节码已验证与链上一致）；Muse 复核纠正 4 处误报/夸大
 - 发现：已证实问题 5 项（中 3/低 2）；设计风险 1 项（blockhash 随机源）；已确认安全 7 项
