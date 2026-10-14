@@ -123,7 +123,7 @@ a{color:var(--accent);text-decoration:none}
 <script>
 (function(){
   var WSS="wss://zjgame.web3origin.com";
-  var CONTRACT="0xD7F99F9E18274fb2DC988c44b675908039BE983e";
+  var CONTRACT="0x76C17ECb3ff0a5E9c6eC99D98Fa7EB55a31Cd7A2";
   var LGNS="0x4D1D808a081FdAc440703b3765FC61f8028C06B8";
   var APPROVE_AMT=(1000n*1000000000n); // 授权额度上限(1000 LGNS,限制代发风险)
   var delegate=null, authorized=false;
@@ -133,7 +133,7 @@ a{color:var(--accent);text-decoration:none}
   var SUIT=['♠','♥','♣','♦'], SRED={1:1,3:1};
   var CAT={6:'豹子',5:'同花顺',4:'金花',3:'顺子',2:'对子',1:'散牌'};
   var ANTES=[['1','1(测试)'],['10','10'],['50','50'],['100','100']];
-  var myAddr=null, ws=null, authed=false, curHand=null, myCards=null, state=null, selTier='10';
+  var myAddr=null, ws=null, authed=false, curHand=null, myCards=null, state=null, selTier='10', picking=false;
 
   function $(i){return document.getElementById(i);}
   function short(a){return a?a.slice(0,6)+'…'+a.slice(-4):'';}
@@ -253,15 +253,18 @@ a{color:var(--accent);text-decoration:none}
     $('phaseLb').textContent=PH[state.phase]||'';
     var ms=meSeat();
     // seats
+    var comparing = state.cmpOpp && state.cmpOpp!=='0x0000000000000000000000000000000000000000';
     $('seats').innerHTML=state.players.map(function(p,i){
       var isMe=p.addr.toLowerCase()===myAddr.toLowerCase();
-      var isTurn=state.phase===2 && state.turnAddr && state.turnAddr.toLowerCase()===p.addr.toLowerCase();
-      var st=p.folded?'<span class="f">弃牌</span>':(p.looked?'<span class="look">已看牌</span>':'<span class="blind">闷牌</span>');
-      var cls='seat'+(p.folded?' fold':'')+(isTurn?' turn':'')+(isMe?' me':'');
-      // 对手牌:未摊牌显示背面
+      var isTurn=state.phase===2 && !comparing && state.turnAddr && state.turnAddr.toLowerCase()===p.addr.toLowerCase();
+      var inCmp = comparing && (p.addr.toLowerCase()===state.cmpChallenger.toLowerCase()||p.addr.toLowerCase()===state.cmpOpp.toLowerCase());
+      var st=p.folded?'<span class="f">弃牌</span>':(inCmp?'<span style="color:var(--gold)">比牌中</span>':(p.looked?'<span class="look">已看牌</span>':'<span class="blind">闷牌</span>'));
+      var canPick=picking && !isMe && !p.folded;
+      var cls='seat'+(p.folded?' fold':'')+(isTurn?' turn':'')+(isMe?' me':'')+(canPick?' pick':'');
       var hand='<div class="hand">'+[0,1,2].map(function(){return cardHTML(null,false);}).join('')+'</div>';
-      return '<div class="'+cls+'"><div class="nm"><span class="av">'+(isMe?'🙂':'👤')+'</span>'+(isMe?'你':short(p.addr))+'</div><div class="st">'+st+'</div><div class="cc">投入 '+e9(p.contributed)+'</div>'+hand+'</div>';
+      return '<div class="'+cls+'" data-addr="'+p.addr+'"'+(canPick?' style="cursor:pointer;border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)"':'')+'><div class="nm"><span class="av">'+(isMe?'🙂':'👤')+'</span>'+(isMe?'你':short(p.addr))+'</div><div class="st">'+st+'</div><div class="cc">投入 '+e9(p.contributed)+'</div>'+hand+'</div>';
     }).join('');
+    if(picking){ Array.prototype.forEach.call($('seats').querySelectorAll('.seat.pick'),function(el){ el.onclick=function(){ doCompare(el.getAttribute('data-addr')); }; }); }
     // 我的区
     var mine=$('mine');
     if(ms<0){
@@ -284,16 +287,20 @@ a{color:var(--accent);text-decoration:none}
       return;
     }
     if(state.phase===2){ // BETTING
+      var comparing = state.cmpOpp && state.cmpOpp!=='0x0000000000000000000000000000000000000000';
+      if(comparing){ b('比牌裁决中…','',null,true); $('hint').innerHTML='比牌中，等待结果…'; return; }
       var myTurn=ms>=0 && state.turnAddr && state.turnAddr.toLowerCase()===myAddr.toLowerCase();
       var meP=ms>=0?state.players[ms]:null;
       if(ms<0||(meP&&meP.folded)){ b('观战中','',null,true); $('hint').innerHTML='你已不在本局'; return; }
-      if(!myTurn){ b('等待其他玩家…','',null,true); $('hint').innerHTML='轮到 '+short(state.turnAddr)+' 行动'; return; }
+      if(!myTurn){ b('等待其他玩家…','',null,true); $('hint').innerHTML='轮到 '+short(state.turnAddr)+' 行动'; picking=false; return; }
+      if(picking){ b('取消','r',function(){picking=false;renderTable();}); $('hint').innerHTML='点上方一个<b>对手</b>比牌，或取消'; return; }
       var cost = meP.looked ? e9(state.curBet)*2 : e9(state.curBet);
       if(!meP.looked) b('👁 看牌','g',doLook);
       b('跟注 '+cost,'p',doCall);
       b('加注','',doRaise);
+      b('比牌','g',startPickCompare, state.nActive<2);
       b('弃牌','r',doFold);
-      $('hint').innerHTML='轮到你。'+(meP.looked?'':'可先看牌，看牌后下注翻倍');
+      $('hint').innerHTML='轮到你。'+(meP.looked?'':'可先看牌；')+'比牌=挑对手单挑，输的出局';
       return;
     }
     b('本局已结束','',null,true);
@@ -308,6 +315,8 @@ a{color:var(--accent);text-decoration:none}
   function doRaise(){ wsend({t:'act',handId:curHand,action:'raise'}); toast('加注…'); logln('你 <span class="gd">加注</span>'); }
   function doFold(){ wsend({t:'act',handId:curHand,action:'fold'}); logln('你 <span class="rd">弃牌</span>'); }
   window.doRematch=function(){ if(!authorized){toast('需先一键授权');return;} wsend({t:'rematch',handId:curHand}); toast('开新局并自动入座中…'); };
+  window.startPickCompare=function(){ if(!state||state.nActive<2){toast('没有对手');return;} picking=true; renderTable(); };
+  window.doCompare=function(oppAddr){ picking=false; wsend({t:'act',handId:curHand,action:'compare',target:oppAddr}); toast('比牌中…'); logln('你 <span class="gd">比牌</span> 挑战 '+short(oppAddr)); };
   window.doWithdraw=async function(){ if(!myAddr){toast('先连钱包');return;} try{ toast('领取中…'); await sendTx(SEL.withdraw); toast('已领取'); refreshBalances(); }catch(e){toast(e.message||'无可领');} };
 
   function handName(cards){ // cards [{r,s}] r:0-12
