@@ -375,3 +375,201 @@ V3 不修改、资金隔离、多签框架、链上可验证、两级不做多�
   资金由游戏合约转入，不存在预扣问题。
 
 *修订完成，待用户审查方案*
+
+---
+
+## 十二、GPT 审查修订（v1.2，2026-10-14）
+
+GPT 结论：同意进入 Phase 1 本地合约开发，但 4 个问题必须先解决。以下为修订：
+
+### G1. Treasury 真实收入核验（替代"仅余额验证"）
+
+**问题**：原设计 `require(balance >= totalOwed)` 只防"记账超发"，但防不住"虚假收入上报"（适配器谎报收入金额）。
+
+**修订**：
+```solidity
+// 1. 结算 ID 去重
+mapping(bytes32 => bool) public processedSettlements;
+
+// 2. 游戏-适配器严格 1:1 绑定（授权时写死）
+mapping(address => address) public adapterGame; // adapter => game
+function authorizeAdapter(address adapter, address game) external onlyMultisig {
+    require(!registry.isV3Pool(game), "V3_BLOCKED");
+    require(adapterGame[adapter] == address(0), "ALREADY_BOUND");
+    authorizedAdapters[adapter] = true;
+    adapterGame[adapter] = game;  // 终身绑定，不可更改
+    emit AdapterAuthorized(adapter, game);
+}
+
+// 3. recordCommission 改签名，Treasury 自己算分成
+function recordCommission(bytes32 settlementId, address token, address user, uint256 revenue)
+    external {
+    require(authorizedAdapters[msg.sender], "NOT_ADAPTER");
+    address game = adapterGame[msg.sender];  // 严格绑定：适配器只能报自己的游戏
+    require(!processedSettlements[settlementId], "DUPLICATE_SETTLEMENT");
+    processedSettlements[settlementId] = true;
+    (address l1, address l2) = registry.getUpline(user);
+    (uint16 l1Bps, uint16 l2Bps) = registry.gameBps(game);
+    uint256 l1Amt = revenue * l1Bps / DEN;
+    uint256 l2Amt = revenue * l2Bps / DEN;
+    // 4. 资金守恒：记账总额永不超过实际到账（游戏必须先转账到 Treasury）
+    totalOwed[token] += l1Amt + l2Amt;
+    require(IERC20(token).balanceOf(address(this)) >= totalOwed[token], "UNDERFUNDED");
+    ...
+}
+```
+
+**标准资金流**（强制顺序）：
+1. 游戏合约产生平台费 → `token.transfer(treasury, feeAmount)`
+2. 适配器调用 `treasury.recordCommission(settlementId, token, user, revenueAmount)`
+3. Treasury 校验：白名单 ✓ / 1:1 绑定 ✓ / settlementId 未用过 ✓ / 余额覆盖记账 ✓
+
+`settlementId` 生成规范：`keccak256(abi.encode(game, token, user, revenue, blockNumber, nonce))`，
+由适配器生成，链上唯一性保证防重复上报。
+
+### G2. 无环保证：深度赋值替代 10 层遍历
+
+**问题**：10 层遍历可被 11 层深环绕过。
+
+**修订**：每次绑定时赋值 `depth[user] = depth[ref] + 1`，要求 `depth[ref] + 1 <= MAX_DEPTH(32)`。
+
+**无环证明**：每条邀请边都从低 depth 指向高 depth（严格递增），
+有向环要求 depth 沿环严格递增回到起点——数学上不可能。故**任何深度的环都无法形成**，
+无需遍历。这是比遍历更强的保证。
+
+```solidity
+uint256 public constant MAX_DEPTH = 32;
+mapping(address => uint256) public depth; // 0 = 未绑定/根节点
+
+function _bind(address user, address ref) internal {
+    require(!hasBound[user], "ALREADY_BOUND");
+    require(ref != address(0) && ref != user, "BAD_REF");
+    uint256 rd = depth[ref];
+    require(rd + 1 <= MAX_DEPTH, "TOO_DEEP");
+    referrer[user] = ref;
+    depth[user] = rd + 1;
+    hasBound[user] = true;
+    boundAt[user] = block.timestamp;
+    emit ReferrerBound(user, ref, depth[user]);
+}
+```
+
+**V3 遗留环**（如 A↔B 互绑）导入时：depth 赋值依然一致（后导入者 depth 更高），
+结构环存在但**派奖硬限 2 层 + `l2 != user` 检查**，无法无限套取。见 G4 冲突规则。
+
+### G3. 冷静期 + 行为锁定
+
+**问题**：24 小时冷静期内改绑可能产生归属争议。
+
+**修订**：
+```solidity
+mapping(address => bool) public hasEarned; // 是否产生过返佣行为
+uint256 public constant COOLDOWN = 24 hours;
+
+// Treasury 在每次 recordCommission 时回调
+function notifyActivity(address user) external {
+    require(msg.sender == address(treasury), "ONLY_TREASURY");
+    hasEarned[user] = true;
+}
+
+function rebind(address newRef) external {
+    require(hasBound[msg.sender], "NOT_BOUND");
+    require(block.timestamp <= boundAt[msg.sender] + COOLDOWN, "COOLDOWN_OVER");
+    require(!hasEarned[msg.sender], "ALREADY_ACTIVE"); // ← 关键：有返佣行为后永久锁定
+    // 通过同样的 _bind 检查（含无环、深度）
+    ...
+    emit ReferrerRebound(msg.sender, oldRef, newRef);
+}
+```
+
+**规则**：冷静期内**且**未产生任何返佣行为 → 可改绑一次；
+一旦产生过返佣（作为被邀请人消费），**永久锁定**，杜绝归属争议。
+
+### G4. V3 迁移冲突确定性规则
+
+**问题**：五个池邀请人不一致时无确定性规则；自动覆盖风险。
+
+**修订**（`importFromV3(pool, user)`）：
+```solidity
+function importFromV3(address pool, address user) external {
+    require(msg.sender == user, "ONLY_SELF");       // 规则1：只能本人迁移
+    require(!hasBound[user], "ALREADY_BOUND");       // 规则2：已有绑定不覆盖
+    require(isV3Pool[pool], "NOT_V3_POOL");
+    // 规则3：读取全部五个池的 referrer，作为历史证据上链
+    address[5] memory refs;
+    for (uint i = 0; i < 5; i++) refs[i] = ILotteryV3(v3Pools[i]).referrer(user);
+    address chosen = ILotteryV3(pool).referrer(user);
+    require(chosen != address(0) && chosen != user, "BAD_REF"); // 规则4：零地址/自邀跳过
+    _bind(user, chosen);  // 复用无环深度检查；若 V3 环导致深度超限则 revert
+    emit MigrationRecord(user, pool, chosen, refs);  // 规则5：全部证据上链
+}
+```
+
+**冲突规则表**：
+
+| 情况 | 处理 | 证据 |
+|---|---|---|
+| 用户已在新系统绑定 | 跳过，保留现有 | `MigrationSkipped(user, "ALREADY_BOUND")` |
+| 五个池邀请人不一致 | 用户自选其一（`pool` 参数），其余四个上链存证 | `MigrationRecord` 含全部 5 个 |
+| V3 referrer 为零地址/自己 | 跳过不绑定 | `MigrationSkipped(user, "BAD_REF")` |
+| V3 存在 A↔B 互绑环 | 按导入顺序赋 depth，派奖层 blocked | `MigrationRecord` 标注 `cyclic=true` |
+| 迁移后 V3 原池 | 继续有效（双轨），新系统不重复计算 | 文档明确 |
+
+**原则**：永不自动覆盖已有关系；所有冲突上链存证；用户自选。
+
+### G5. 默认费率确认
+
+- 一级 20%、二级 5%，基于各游戏**真实可分配**平台手续费
+- 每游戏可独立配置，`l1Bps + l2Bps <= maxTotalBps <= 10000` 链上强制
+- V3 五池保持 30%/10% 不变（双轨并行）
+
+---
+
+## 十三、法律合规风险评估（非法律意见，需咨询持牌律师）
+
+> **前置声明**：两级结构**不等于**自动合法。以下为风险提示，不是法律意见。
+
+| 风险项 | 评估 | 缓解 |
+|---|---|---|
+| 中国传销认定 | 传销三要素：入门费、拉人头、团队计酬。本系统**无入门费**、返佣来自**真实游戏消费**的平台收入分成，风险低于典型资金盘，**但"拉人头+计酬"形式仍可能被个案认定**，需律师逐案确认 | 用户协议明确返佣来源；不承诺收益率；不设"团队业绩"门槛 |
+| 非法经营（彩票） | 彩票发行在中国需特许。ANUBIS PLAY 是链上游戏平台，**可能被认定为变相彩票** |  geo-block 中国大陆 IP；用户协议明确 |
+| 年龄限制 | 必须 18+ | 前端强制年龄确认，链上无法验，靠前端+协议 |
+| 地区访问 | 部分司法区禁止在线博彩/返佣推广 | 高风险地区 geo-block；名单由法务定 |
+| 证券化风险 | 若返佣被宣传为"固定收益/理财"，可能触证券法 | **严禁**任何固定收益宣传；返佣=收入分成，非保本 |
+| 税务 | 用户返佣收入自行申报 | 协议明确，不代扣 |
+| 广告法 | "稳赚""必中"等用语违法 | 文案审查清单 |
+
+**上线前必须**：持牌律师出具书面合规意见；用户协议+风险揭示由律师审定。
+
+---
+
+*方案 v1.2 修订完成，审查状态：GPT 通过（附条件）→ 进入 Phase 1 本地开发*
+
+---
+
+## 十四、Phase 1 开发完成（2026-10-14）
+
+### 交付物
+- 分支：`feature/referral-phase1`（从 main 建，代码在 `tools/lottery/referral-system/`）
+- 合约：ReferralRegistry.sol / ReferralTreasury.sol / SettlementAdapter.sol / IERC20.sol
+- 测试：33 个全过（单元/模糊/不变量/攻击模拟/权限）
+- 未部署主网，无真实资金
+
+### DeepSeek 代码复审（v1.2）
+发现 4 高危，**已全部修复**：
+- H-1 资金守恒绕过 → 修：每游戏 `gameFunded`/`gameRecorded` 隔离记账，妥协适配器只能动自己游戏的钱
+- H-2 签名重放 → 修：nonce + deadline 上限 1h + user 非零检查
+- H-3 V3 迁移环 → 修：`cyclic==true` 直接跳过不写入
+- H-4 rebind 无限循环 → 修：终身限 1 次 + 不重置计时 + 频率限制
+另修 M-2~M-7（多签/treasury 改延迟执行、opId 用 nonce、getUpline 防自环等）
+
+### 审查状态
+- 架构 v1.1 → DeepSeek（8 缺陷）→ v1.2
+- GPT（4 必修）→ v1.2 → 代码
+- 代码 v1.2 → DeepSeek 复审（4 高危已修）
+- **当前状态：待用户确认，进 Phase 2**
+
+### Token 消耗
+- 方案审查：8,431（¥0.0128）
+- 代码审计：9,823（¥0.0152）
+- 合计：18,254 tokens（约 ¥0.028）
