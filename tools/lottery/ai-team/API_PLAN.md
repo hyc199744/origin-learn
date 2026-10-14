@@ -1,15 +1,22 @@
-# 三家 AI 的 API 接口规划 v1.0
+# 三家 AI 的 API 接口规划 v1.1
 
-> 状态：只规划，不调用。等用户授权录入 Key 后再逐个实测。
-> 统一用 OpenAI 兼容的 chat completions 格式封装，方便一套代码调三家。
+> 更新：2026-10-14，GPT 已实测接入成功（Responses API）
 
-## 1. OpenAI GPT
+## 1. OpenAI GPT ✅ 已接入
 
-- 接口：`https://api.openai.com/v1/chat/completions`
-- 认证：`Authorization: Bearer <OPENAI_API_KEY>`
-- 建议模型：`gpt-4o-mini`（日常任务，便宜快）、`gpt-4o`（复杂推理）
+- 接口：`https://api.openai.com/v1/responses`（Responses API，已实测）
+- 认证：`Authorization: Bearer` + 保险柜动态凭证（`custom.openai`），Key 永不落盘
+- 默认模型：`gpt-4.1-mini`（2026-10-14 实测版本 `gpt-4.1-mini-2025-04-14`）
+  - 费率：$0.40 / $1.60 per 1M tokens（输入/输出）
+  - 选用理由：编程能力强、性价比最高
+- 备选：`gpt-4o-mini`（最便宜，$0.15/$0.60，简单任务）
 - 申请地址：https://platform.openai.com/api-keys
-- 备注：按量付费，需要绑卡
+- 调用工具：`~/workspace/skills/openai/bin/gpt_chat.py`
+  - `gpt_chat.py models` — 列出可用模型
+  - `gpt_chat.py [model] [prompt]` — Responses API 调用
+- 用量日志：`~/workspace/skills/openai/usage.log`
+- 月预算：¥30（接近 ¥25 提醒，达到后停止调用）
+- 备注：按量付费，需要绑卡；国内需代理（保险柜服务端直连，无影响）
 
 ## 2. DeepSeek
 
