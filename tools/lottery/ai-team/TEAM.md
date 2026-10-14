@@ -44,3 +44,14 @@
 - 推送前本地自查：JS 过 node --check，HTML 检查括号配平
 - 任何疑问写进 HANDOFF.md，不要猜
 - 密钥、钱包、私钥相关内容永不进仓库、永不进聊天记录
+
+---
+
+## GPT 接入记录（2026-10-14）
+
+- 接入方式：OpenAI 官方 API（api.openai.com），Key 存保险柜 `custom.openai`
+- 默认模型：gpt-4.1-mini（编程性价比最高，$0.40/$1.60 per 1M tokens）
+- 连接测试：Responses API 返回 OK，14 tokens，费用可忽略
+- 月预算：¥30，接近 ¥25 提醒，达到后停止调用，用量记 skills/openai/usage.log
+- 调用工具：skills/openai/bin/gpt_chat.py
+- 约束：只走 feature/dev 分支 + PR 审核流程；禁动 main、禁部署主网、禁操作真实钱包/资金
