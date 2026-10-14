@@ -3,20 +3,18 @@ pragma solidity ^0.8.20;
 
 /// @title 结算适配器模板
 /// @notice 每游戏部署一个。只做归一化上报，不持有资金，无状态
-/// @dev 标准资金流：游戏合约先把平台费转给 Treasury，适配器再调 recordCommission
+/// @dev GPT#2 修复：原子结算。适配器调用 treasury.settle，Treasury 在同一笔交易中
+/// 从游戏拉取资金（游戏需 approve Treasury）并记账。settlementId 由 Treasury 派生。
 
 interface ITreasury {
-    function recordCommission(bytes32 settlementId, address token, address user, uint256 revenue) external;
+    function settle(address token, address user, uint256 revenue) external returns (bytes32 settlementId);
 }
-
-import "./IERC20.sol";
 
 contract SettlementAdapter {
     address public immutable game;
     address public immutable treasury;
     address public immutable token;
     address public operator; // 游戏运营方，可更换
-    uint256 public nonce;
 
     event RevenueReported(bytes32 indexed settlementId, address indexed user, uint256 revenue);
 
@@ -30,12 +28,10 @@ contract SettlementAdapter {
         operator = _operator;
     }
 
-    /// @notice 上报一笔已实现收入。调用前游戏必须已把 revenue 转给 treasury
+    /// @notice 上报一笔已实现收入。Treasury 原子拉取资金并记账，返回 Treasury 派生的结算 ID
     function reportRevenue(address user, uint256 revenue) external onlyOperator returns (bytes32 settlementId) {
         require(user != address(0) && revenue > 0, "BAD_INPUT");
-        settlementId = keccak256(abi.encode(game, token, user, revenue, block.number, nonce));
-        nonce++;
-        ITreasury(treasury).recordCommission(settlementId, token, user, revenue);
+        settlementId = ITreasury(treasury).settle(token, user, revenue);
         emit RevenueReported(settlementId, user, revenue);
     }
 

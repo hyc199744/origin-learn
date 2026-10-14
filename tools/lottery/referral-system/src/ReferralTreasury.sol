@@ -24,9 +24,11 @@ contract ReferralTreasury {
     // 适配器 => 游戏（1:1 严格绑定，终身不可改）
     mapping(address => bool) public authorizedAdapters;
     mapping(address => address) public adapterGame;
+    // GPT#5 修复：revoke 只停用，不清除绑定。重新授权只能绑回原游戏
 
-    // 防重复上报
-    mapping(bytes32 => bool) public processedSettlements;
+    // GPT#2 修复：Treasury 控制的结算 nonce，settlementId 由 Treasury 派生，
+    // 适配器不能自选 ID，无法通过换 ID 重复上报
+    mapping(address => uint256) public adapterNonce;
 
     // 分币种记账：用户 => 代币 => 待领取
     mapping(address => mapping(address => uint256)) public claimable;
@@ -79,10 +81,18 @@ contract ReferralTreasury {
         emit AdapterAuthorized(adapter, game);
     }
 
+    /// @notice GPT#5 修复：revoke 只停用，adapterGame 终身保留。
+    /// @dev 如需换游戏，部署新适配器。旧适配器重新授权只能绑回原游戏
     function revokeAdapter(address adapter) external onlyMultisig {
         authorizedAdapters[adapter] = false;
-        delete adapterGame[adapter]; // M-6 修复：允许重新授权到新游戏
         emit AdapterRevoked(adapter);
+    }
+
+    function reauthorizeAdapter(address adapter) external onlyMultisig {
+        require(adapterGame[adapter] != address(0), "NEVER_BOUND");
+        require(!registry.isV3Pool(adapterGame[adapter]), "V3_BLOCKED");
+        authorizedAdapters[adapter] = true;
+        emit AdapterAuthorized(adapter, adapterGame[adapter]);
     }
 
     /// @notice H-1 修复：游戏方注资。返佣记账不得超过本游戏实际注资，
@@ -101,15 +111,23 @@ contract ReferralTreasury {
 
     // ============ 记账 ============
 
-    /// @notice 记录返佣。标准资金流：游戏先转账到本合约，适配器再调用此函数
-    /// @param settlementId 唯一结算 ID（防重复上报）
-    function recordCommission(bytes32 settlementId, address token, address user, uint256 revenue)
-        external whenNotPaused
+    /// @notice GPT#2 修复：原子结算。适配器在同一笔交易中从游戏拉取资金并记账。
+    /// @dev settlementId 由 Treasury 用自有 nonce 派生，适配器不能自选 ID，
+    /// 无法通过换 ID 反复上报同一业务收入。重复上报必须重复注资（经济约束）。
+    /// 游戏只需 approve Treasury 一次。
+    function settle(address token, address user, uint256 revenue)
+        external whenNotPaused nonReentrant returns (bytes32 settlementId)
     {
         require(authorizedAdapters[msg.sender], "NOT_ADAPTER");
-        address game = adapterGame[msg.sender]; // 严格绑定：只能报自己的游戏
-        require(!processedSettlements[settlementId], "DUPLICATE_SETTLEMENT");
-        processedSettlements[settlementId] = true;
+        address game = adapterGame[msg.sender]; // 严格绑定：只能结算自己的游戏
+        require(revenue > 0, "ZERO_REVENUE");
+
+        // 原子资金流：同一笔交易从游戏拉取本次收入
+        require(IERC20(token).transferFrom(game, address(this), revenue), "FUND_FAIL");
+
+        // Treasury 派生唯一结算 ID（适配器不可控）
+        uint256 nonce = adapterNonce[msg.sender]++;
+        settlementId = keccak256(abi.encode(msg.sender, game, token, user, revenue, nonce, block.chainid));
 
         (address l1, address l2) = registry.getUpline(user);
         (uint16 l1Bps, uint16 l2Bps) = registry.gameBps(game);
@@ -118,18 +136,28 @@ contract ReferralTreasury {
 
         _checkDailyCap(game, token, user, l1Amt + l2Amt);
 
-        // H-1 修复：每游戏隔离。记账不得超过本游戏实际注资，
-        // 妥协适配器也只能动自己游戏的钱
-        gameRecorded[game][token] += l1Amt + l2Amt;
+        // GPT#3 修复：只给真实存在的邀请人记账。零地址/无上级的部分不产生债务，
+        // totalOwed 只累计实际应付，确保资金守恒与可领取余额一致
+        uint256 credited = 0;
+        if (l1 != address(0) && l1Amt > 0) {
+            claimable[l1][token] += l1Amt;
+            credited += l1Amt;
+        }
+        if (l2 != address(0) && l2Amt > 0) {
+            claimable[l2][token] += l2Amt;
+            credited += l2Amt;
+        }
+
+        // 每游戏隔离：实际记账不得超过本游戏累计转入
+        gameFunded[game][token] += revenue;
+        gameRecorded[game][token] += credited;
         require(gameRecorded[game][token] <= gameFunded[game][token], "GAME_UNDERFUNDED");
 
         // 全局资金守恒：记账总额永不超过实际到账
-        totalOwed[token] += l1Amt + l2Amt;
+        totalOwed[token] += credited;
         require(IERC20(token).balanceOf(address(this)) >= totalOwed[token], "UNDERFUNDED");
 
         gameRevenue[game][token] += revenue;
-        if (l1Amt > 0) claimable[l1][token] += l1Amt;
-        if (l2Amt > 0) claimable[l2][token] += l2Amt;
 
         registry.notifyActivity(user);
         emit CommissionRecorded(settlementId, game, token, user, l1, l1Amt, l2, l2Amt);

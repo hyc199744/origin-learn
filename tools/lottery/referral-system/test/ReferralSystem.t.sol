@@ -78,35 +78,78 @@ contract ReferralSystemTest is Test {
     }
 
     /// @notice 深度赋值无环：A→B→C 后，C→A 依然可以绑定（depth 递增），但派奖有界
-    function test_depth_acyclic() public {
-        vm.prank(alice); registry.bind(bob);   // depth alice=1
-        vm.prank(bob); registry.bind(carol);   // depth bob=1... carol 未绑定 depth 0 → bob depth=1
-        // carol 绑定 alice：depth[alice]=1 → depth[carol]=2，无环保证不断言失败
-        vm.prank(carol); registry.bind(alice);
-        assertEq(registry.depth(carol), 2);
-        // 但 getUpline 有 l2 != user 保护
-        (address l1, address l2) = registry.getUpline(carol);
-        assertEq(l1, alice);
-        // l2 = referrer[alice] = bob ≠ carol，正常
-        assertEq(l2, bob);
+    /// @notice GPT#1 回归：任何循环绑定必须失败
+    function test_cycle_rejected_two_node() public {
+        vm.prank(alice); registry.bind(bob);   // alice → bob
+        // bob 试图绑回 alice → 形成 A↔B 环，必须 revert
+        vm.prank(bob);
+        vm.expectRevert("CYCLE");
+        registry.bind(alice);
     }
 
-    /// @notice 攻击模拟：尝试构造深层环（11 层），depth 机制依然安全
+    /// @notice 攻击模拟：深层环（11 层）闭环必须失败
     function test_deep_cycle_attack() public {
         address[] memory chain = new address[](12);
         for (uint i = 0; i < 12; i++) chain[i] = address(uint160(0x3000 + i));
-        // 链式绑定：chain[0]→chain[1]→...→chain[11]
         for (uint i = 0; i < 11; i++) {
             vm.prank(chain[i]);
             registry.bind(chain[i+1]);
         }
-        // 试图闭环：chain[11]→chain[0]，depth 递增依然允许，但派奖有界
+        // 试图闭环：chain[11]→chain[0]，必须 revert
         vm.prank(chain[11]);
+        vm.expectRevert("CYCLE");
         registry.bind(chain[0]);
-        // 验证 getUpline 不会死循环（固定 2 层）
-        (address l1, address l2) = registry.getUpline(chain[11]);
-        assertEq(l1, chain[0]);
-        assertTrue(l2 == address(0) || l2 != chain[11]);
+    }
+
+    /// @notice 攻击模拟：改绑形成环必须失败
+    function test_rebind_cycle_rejected() public {
+        vm.prank(alice); registry.bind(bob);   // alice → bob
+        // alice 在冷静期内试图改绑到自己 → 自环，必须失败
+        vm.prank(alice);
+        vm.expectRevert("BAD_REF");
+        registry.rebind(alice);
+    }
+
+    /// @notice 攻击模拟：改绑到自己的下游形成环，必须失败
+    function test_rebind_to_downstream_rejected() public {
+        address dave = address(0xD000);
+        vm.prank(alice); registry.bind(bob);   // alice → bob
+        vm.prank(dave); registry.bind(alice);  // dave → alice（alice 是 dave 的上游）
+        // alice 试图改绑到 dave：dave 的上游链是 dave→alice，包含 alice → 成环
+        vm.prank(alice);
+        vm.expectRevert("CYCLE");
+        registry.rebind(dave);
+    }
+
+    /// @notice fuzz：随机绑定序列永不形成环
+    function testFuzz_no_cycle_random_binds(address[] memory users, uint8 seed) public {
+        vm.assume(users.length > 0 && users.length <= 20);
+        for (uint i = 0; i < users.length; i++) {
+            vm.assume(users[i] != address(0));
+            // 简单去重：跳过已出现的
+            bool dup = false;
+            for (uint j = 0; j < i; j++) if (users[j] == users[i]) { dup = true; break; }
+            if (dup) continue;
+        }
+        // 链式绑定 + 随机尝试闭环，闭环必须失败
+        for (uint i = 0; i + 1 < users.length; i++) {
+            if (users[i] == address(0) || users[i+1] == address(0) || users[i] == users[i+1]) continue;
+            // 检查是否已绑定
+            (bool ok,) = address(registry).call(
+                abi.encodeWithSignature("hasBound(address)", users[i]));
+            if (ok) continue;
+            vm.prank(users[i]);
+            try registry.bind(users[i+1]) {} catch {}
+        }
+        // 验证：对每个用户，从其上游链走 32 步永不回到自己
+        for (uint i = 0; i < users.length; i++) {
+            address cur = users[i];
+            for (uint k = 0; k < 32; k++) {
+                cur = registry.referrer(cur);
+                if (cur == address(0)) break;
+                assertTrue(cur != users[i], "CYCLE_FOUND");
+            }
+        }
     }
 
     function test_rebind_cooldown() public {
@@ -141,11 +184,11 @@ contract ReferralSystemTest is Test {
 
     // ============ 返佣记账测试 ============
 
+    // 新资金流：token 先给 game，game approve Treasury，适配器调 settle 原子拉取
     function _fundAndReport(address user, uint256 revenue) internal returns (bytes32) {
-        token.mint(address(this), revenue);
+        token.mint(game, revenue);
+        vm.prank(game);
         token.approve(address(treasury), revenue);
-        vm.prank(address(this));
-        treasury.fundGame(game, address(token), revenue);
         vm.prank(multisig);
         return adapter.reportRevenue(user, revenue);
     }
@@ -179,59 +222,105 @@ contract ReferralSystemTest is Test {
         treasury.claim(address(token));
     }
 
-    /// @notice 攻击模拟：重复 settlementId 上报
-    function test_duplicate_settlement_revert() public {
+    /// @notice 攻击模拟：同一业务收入反复上报 → 每次都要真实注资
+    function test_replay_requires_refunding() public {
         vm.prank(bob); registry.bind(alice);
-        token.mint(address(this), 20000);
-        token.approve(address(treasury), 20000);
-        treasury.fundGame(game, address(token), 20000);
-        bytes32 sid = keccak256("test-sid-1");
-        // 手动调 treasury（模拟适配器）
-        vm.prank(address(adapter));
-        treasury.recordCommission(sid, address(token), bob, 10000);
-        vm.prank(address(adapter));
-        vm.expectRevert("DUPLICATE_SETTLEMENT");
-        treasury.recordCommission(sid, address(token), bob, 10000);
+        // 第一次：game 有 10000，成功
+        bytes32 sid1 = _fundAndReport(bob, 10000);
+        // 第二次：game 没钱了 → transferFrom 失败
+        vm.prank(multisig);
+        vm.expectRevert();
+        adapter.reportRevenue(bob, 10000);
+        // settlementId 每次不同（Treasury nonce 派生）
+        bytes32 sid2 = _fundAndReport(bob, 10000);
+        assertTrue(sid1 != sid2);
     }
 
     /// @notice 攻击模拟：未注资就上报（虚假收入）
     function test_unfunded_report_revert() public {
         vm.prank(bob); registry.bind(alice);
-        // 不注资，直接上报 → 每游戏资金检查失败
+        // game 没 approve → transferFrom 失败，无法上报
         vm.prank(multisig);
-        vm.expectRevert("GAME_UNDERFUNDED");
+        vm.expectRevert();
         adapter.reportRevenue(bob, 10000);
     }
 
     /// @notice 攻击模拟：未授权适配器上报
     function test_unauthorized_adapter_revert() public {
         vm.prank(bob); registry.bind(alice);
-        bytes32 sid = keccak256("evil");
+        token.mint(game, 10000);
+        vm.prank(game);
+        token.approve(address(treasury), 10000);
         vm.prank(address(0xE411));
         vm.expectRevert("NOT_ADAPTER");
-        treasury.recordCommission(sid, address(token), bob, 10000);
+        treasury.settle(address(token), bob, 10000);
     }
 
-    /// @notice 攻击模拟：重入 claim（恶意代币）
-    /// @dev claim 先清零后转账 + nonReentrant，恶意代币的重入调用会被挡住
-    function test_reentrancy_claim() public {
+    /// @notice GPT#4：真正的恶意 ERC20 重入测试
+    /// @dev 恶意代币在 transfer 回调中重入 treasury.claim，验证无重复支付
+    function test_reentrancy_claim_real() public {
         MaliciousERC20 evil = new MaliciousERC20();
+        vm.prank(bob); registry.bind(alice);
+
+        // 给 alice 在恶意币上记一笔 2000 待领取（手动记账模拟 settle）
+        // 先让 treasury 持有恶意币
         evil.mint(address(treasury), 10000);
-        // 配置恶意代币：transfer 时尝试重入 treasury.claim
+        // 直接写 claimable（测试环境）：用 deal 思路，这里走正常 settle 流程
+        // 为简化，用一个独立的 treasury 实例测重入
+        ReferralTreasury evilTreasury = new ReferralTreasury(multisig, address(registry));
+        evil.mint(address(evilTreasury), 10000);
+        // 手动设置 claimable：通过 vm.store 直接写 storage（slot 计算复杂，改走事件）
+        // 更直接：让 alice 在 evilTreasury 上走 claim 流程，先记账
+        // 由于 settle 需要 adapter，这里直接测试 claim 的重入保护：
+        // 1. 给 alice 记账：调用一个最小化的记账路径
+        // 用 mock 手段：在测试合约里直接调 evilTreasury 的内部状态不可行，
+        // 改为验证 nonReentrant 修饰符：第一次 claim 进入后，重入被 "REENTRANCY" 挡住
+
+        // 配置恶意代币：transfer 时重入 evilTreasury.claim(evil)
+        bytes memory payload = abi.encodeWithSelector(evilTreasury.claim.selector, address(evil));
+        evil.setAttack(address(evilTreasury), payload);
+
+        // 场景：alice 在 evilTreasury 有 2000 可领（通过 store 直接设置）
+        // claimable mapping slot: 需要计算，这里用更直接的方法验证：
+        // 调用 claim 时若 claimable 为 0 会 revert "NOTHING"，先确认保护逻辑存在
+        vm.prank(alice);
+        vm.expectRevert("NOTHING");
+        evilTreasury.claim(address(evil));
+
+        // 现在给 alice 真正记一笔：通过 treasury.settle 的完整路径需要 adapter，
+        // 为聚焦重入测试，直接用 vm.store 写 claimable
+        // claimable[alice][evil] 的 slot = keccak256(abi.encode(evil, keccak256(abi.encode(alice, CLAIMABLE_SLOT))))
+        // 简化：部署时已知布局，改用可计算的方式
+        // 实际采用：在测试中部署新 Treasury 并走完整 settle（配 adapter）
+        _testReentrancyFullPath(evil);
+    }
+
+    function _testReentrancyFullPath(MaliciousERC20 evil) internal {
+        // 完整路径：adapter + settle（用恶意币）+ claim 重入
+        SettlementAdapter evilAdapter = new SettlementAdapter(game, address(treasury), address(evil), multisig);
+        vm.prank(multisig);
+        treasury.authorizeAdapter(address(evilAdapter), game);
+        // game 需要持有恶意币并 approve
+        evil.mint(game, 10000);
+        vm.prank(game);
+        evil.approve(address(treasury), 10000);
+        // 配置游戏返佣（game 已在 setUp 配置）
+        // 上报：alice 是 bob 的上级，bob 消费 10000 → alice 得 2000 恶意币
+        vm.prank(multisig);
+        evilAdapter.reportRevenue(bob, 10000);
+        assertEq(treasury.claimable(alice, address(evil)), 2000);
+
+        // 配置恶意回调：transfer 时重入 treasury.claim(evil)
         bytes memory payload = abi.encodeWithSelector(treasury.claim.selector, address(evil));
         evil.setAttack(address(treasury), payload);
 
-        // 用恶意币走一遍完整记账+领取流程
-        vm.prank(bob); registry.bind(alice);
-        // 验证 claim 的 CEI 顺序（先清零后转账 + nonReentrant）
+        uint256 balBefore = evil.balanceOf(alice);
+        // alice 领取：transfer 触发重入，重入的 claim 因 nonReentrant 失败（被吞掉），
+        // 外层继续完成。最终 alice 只拿到 2000，没有双花
         vm.prank(alice);
-        // alice 在普通 token 上有 2000 待领取，先正常领一次验证无双花
-        _fundAndReport(bob, 10000);
-        vm.prank(alice);
-        treasury.claim(address(token));
-        assertEq(token.balanceOf(alice), 2000);
-        // claimable 已清零，重入无利可图
-        assertEq(treasury.claimable(alice, address(token)), 0);
+        treasury.claim(address(evil));
+        assertEq(evil.balanceOf(alice) - balBefore, 2000, "DOUBLE_PAY");
+        assertEq(treasury.claimable(alice, address(evil)), 0);
     }
 
     /// @notice 攻击模拟：暂停后不能 record，但能 claim
@@ -315,10 +404,9 @@ contract ReferralSystemTest is Test {
     function testFuzz_commission_math(uint256 revenue) public {
         revenue = bound(revenue, 1, 1e30);
         vm.prank(carol); // carol 未绑定，无上级
-        // 先给 treasury 注资足额（走 fundGame）
-        token.mint(address(this), revenue);
+        token.mint(game, revenue);
+        vm.prank(game);
         token.approve(address(treasury), revenue);
-        treasury.fundGame(game, address(token), revenue);
         vm.prank(multisig);
         adapter.reportRevenue(carol, revenue);
         // 无上级 → 无人拿钱，但 gameRevenue 记录
@@ -333,9 +421,9 @@ contract ReferralSystemTest is Test {
         address u3 = address(0x3333);
         vm.prank(u2); registry.bind(u1);
         vm.prank(u3); registry.bind(u2);
-        token.mint(address(this), revenue);
+        token.mint(game, revenue);
+        vm.prank(game);
         token.approve(address(treasury), revenue);
-        treasury.fundGame(game, address(token), revenue);
         vm.prank(multisig);
         adapter.reportRevenue(u3, revenue);
         assertEq(treasury.claimable(u2, address(token)), revenue * 2000 / 10000);
@@ -376,9 +464,9 @@ contract InvariantTest is Test {
             vm.prank(user);
             try registry.bind(ref) {} catch {}
             uint256 rev = (i + 1) * 1e18;
-            token.mint(address(this), rev);
+            token.mint(game, rev);
+            vm.prank(game);
             token.approve(address(treasury), rev);
-            treasury.fundGame(game, address(token), rev);
             vm.prank(multisig);
             try adapter.reportRevenue(user, rev) {} catch {}
             // 不变量：totalOwed 永不超过余额
@@ -424,13 +512,13 @@ contract GameIsolationTest is Test {
         address user = address(0x1111);
         address ref = address(0x2222);
         vm.prank(user); registry.bind(ref);
-        // 只给 gameA 注资 10000
-        token.mint(address(this), 10000);
+        // 只给 gameA 的资金（gameA approve），gameB 没钱
+        token.mint(gameA, 10000);
+        vm.prank(gameA);
         token.approve(address(treasury), 10000);
-        treasury.fundGame(gameA, address(token), 10000);
-        // gameB 的适配器想上报 10000（无注资）→ 失败
+        // gameB 的适配器想上报 → 从 gameB 拉取失败
         vm.prank(multisig);
-        vm.expectRevert("GAME_UNDERFUNDED");
+        vm.expectRevert();
         adapterB.reportRevenue(user, 10000);
         // gameA 正常上报 → 成功
         vm.prank(multisig);
@@ -542,5 +630,107 @@ contract MultisigTest is Test {
         vm.prank(o1);
         vm.expectRevert("ALREADY_CONFIRMED");
         msig.confirm(txId);
+    }
+}
+
+/// @notice GPT#3 回归：零地址/无效邀请人不产生债务
+contract ZeroRefTest is Test {
+    ReferralRegistry registry;
+    ReferralTreasury treasury;
+    SettlementAdapter adapter;
+    MockERC20 token;
+    address multisig = address(0x1001);
+    address game = address(0x2002);
+
+    function setUp() public {
+        address[] memory pools = new address[](0);
+        registry = new ReferralRegistry(multisig, pools);
+        treasury = new ReferralTreasury(multisig, address(registry));
+        token = new MockERC20("Test", "TST", 18);
+        vm.startPrank(multisig);
+        registry.proposeTreasury(address(treasury));
+        registry.proposeGameConfig(game, 2000, 500, 2500, true);
+        vm.warp(block.timestamp + 25 hours);
+        registry.executeTreasury(address(treasury), 0);
+        registry.executeGameConfig(game, 2000, 500, 2500, true, 1);
+        adapter = new SettlementAdapter(game, address(treasury), address(token), multisig);
+        treasury.authorizeAdapter(address(adapter), game);
+        vm.stopPrank();
+    }
+
+    function test_no_upline_no_debt() public {
+        address lonely = address(0x9999);
+        // lonely 没有绑定任何邀请人
+        token.mint(game, 10000);
+        vm.prank(game);
+        token.approve(address(treasury), 10000);
+        vm.prank(multisig);
+        adapter.reportRevenue(lonely, 10000);
+        // 零地址没有产生不可领取的债务
+        assertEq(treasury.claimable(address(0), address(token)), 0);
+        assertEq(treasury.totalOwed(address(token)), 0);
+        // gameRecorded 只记实际应付（0）
+        assertEq(treasury.gameRecorded(game, address(token)), 0);
+        // Treasury 实际收到了 10000（资金在，但无债务）
+        assertEq(token.balanceOf(address(treasury)), 10000);
+    }
+
+    function test_partial_upline_only_real_credit() public {
+        address user = address(0x1111);
+        address l1 = address(0x2222);
+        vm.prank(user);
+        registry.bind(l1); // 只有一级，无二级
+        token.mint(game, 10000);
+        vm.prank(game);
+        token.approve(address(treasury), 10000);
+        vm.prank(multisig);
+        adapter.reportRevenue(user, 10000);
+        // l1 得 2000，l2（零地址）不得
+        assertEq(treasury.claimable(l1, address(token)), 2000);
+        assertEq(treasury.claimable(address(0), address(token)), 0);
+        assertEq(treasury.totalOwed(address(token)), 2000);
+    }
+}
+
+/// @notice GPT#5 回归：适配器终身绑定
+contract LifetimeBindTest is Test {
+    ReferralRegistry registry;
+    ReferralTreasury treasury;
+    MockERC20 token;
+    address multisig = address(0x1001);
+    address gameA = address(0xA001);
+    address gameB = address(0xB002);
+
+    function setUp() public {
+        address[] memory pools = new address[](0);
+        registry = new ReferralRegistry(multisig, pools);
+        treasury = new ReferralTreasury(multisig, address(registry));
+        token = new MockERC20("Test", "TST", 18);
+    }
+
+    function test_revoke_keeps_binding() public {
+        SettlementAdapter adapter = new SettlementAdapter(gameA, address(treasury), address(token), multisig);
+        vm.startPrank(multisig);
+        treasury.authorizeAdapter(address(adapter), gameA);
+        treasury.revokeAdapter(address(adapter));
+        // 绑定关系保留
+        assertEq(treasury.adapterGame(address(adapter)), gameA);
+        assertFalse(treasury.authorizedAdapters(address(adapter)));
+        // 重新授权只能绑回原游戏
+        treasury.reauthorizeAdapter(address(adapter));
+        assertTrue(treasury.authorizedAdapters(address(adapter)));
+        assertEq(treasury.adapterGame(address(adapter)), gameA);
+        vm.stopPrank();
+    }
+
+    function test_cannot_rebind_to_different_game() public {
+        SettlementAdapter adapter = new SettlementAdapter(gameA, address(treasury), address(token), multisig);
+        vm.startPrank(multisig);
+        treasury.authorizeAdapter(address(adapter), gameA);
+        treasury.revokeAdapter(address(adapter));
+        // 试图绑到 gameB → 失败（ALREADY_BOUND）
+        vm.expectRevert("ALREADY_BOUND");
+        treasury.authorizeAdapter(address(adapter), gameB);
+        vm.stopPrank();
     }
 }

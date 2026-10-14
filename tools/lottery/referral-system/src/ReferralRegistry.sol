@@ -111,12 +111,28 @@ contract ReferralRegistry {
         _bind(user, ref);
     }
 
+    /// @notice 无环检查 + 返回 ref 的真实链长。覆盖 bind/rebind/importFromV3
+    /// @dev DeepSeek 三轮复审修复：depth 改为每次重算真实链长（不再用 max/快照），
+    /// 确保 depth == 真实链长，链长 ≤ MAX_DEPTH 可证明，遍历永不漏检
+    /// @return depthOfRef ref 到根的真实链长
+    function _checkAcyclicAndDepth(address user, address ref) internal view returns (uint256 depthOfRef) {
+        address cur = ref;
+        for (uint256 i = 0; i < MAX_DEPTH * 2; i++) {
+            require(cur != user, "CYCLE");
+            cur = referrer[cur];
+            if (cur == address(0)) break;
+            depthOfRef++;
+        }
+        // 若 64 步还没到根，说明链异常长，拒绝（防御性）
+        require(cur == address(0), "CHAIN_TOO_LONG");
+    }
+
     function _bind(address user, address ref) internal {
         require(!hasBound[user], "ALREADY_BOUND");
         require(ref != address(0), "ZERO_REF");
         require(ref != user, "SELF_REF");
-        // 无环保证：depth 严格递增，环在数学上不可能形成
-        uint256 rd = depth[ref];
+        // 无环检查 + 重算真实链长（depth 恒等于真实链长，不再用快照）
+        uint256 rd = _checkAcyclicAndDepth(user, ref);
         require(rd + 1 <= MAX_DEPTH, "TOO_DEEP");
         // 频率限制
         uint256 hour = block.timestamp / 1 hours;
@@ -139,13 +155,13 @@ contract ReferralRegistry {
         require(rebindCount[msg.sender] < MAX_REBINDS, "REBIND_LIMIT");
         address oldRef = referrer[msg.sender];
         require(newRef != address(0) && newRef != msg.sender, "BAD_REF");
-        uint256 rd = depth[newRef];
+        uint256 rd = _checkAcyclicAndDepth(msg.sender, newRef);
         require(rd + 1 <= MAX_DEPTH, "TOO_DEEP");
         uint256 hour = block.timestamp / 1 hours;
         require(bindCountPerHour[newRef][hour] < MAX_BINDS_PER_HOUR, "RATE_LIMIT");
         bindCountPerHour[newRef][hour]++;
         referrer[msg.sender] = newRef;
-        depth[msg.sender] = rd + 1;
+        depth[msg.sender] = rd + 1; // 重算真实链长，无虚高/低估
         rebindCount[msg.sender]++;
         // 注意：不重置 boundAt，冷静期不延长
         emit ReferrerRebound(msg.sender, oldRef, newRef);
