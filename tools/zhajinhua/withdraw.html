@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>炸金花 - 取回房间资金</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f1a12;color:#e8e0c8;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:16px;max-width:600px;margin:0 auto}
+h1{font-size:20px;color:#f5d67b;margin-bottom:16px}
+.card{background:#1a2419;border:1px solid #2a3a28;border-radius:12px;padding:16px;margin-bottom:12px}
+.card h3{color:#f5d67b;margin-bottom:8px;font-size:16px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #2a3a28}
+.row:last-child{border:none}
+button{background:#f5d67b;color:#1a1a1a;border:none;border-radius:8px;padding:10px 20px;font-size:15px;font-weight:bold;cursor:pointer;width:100%;margin-top:8px}
+button:disabled{background:#555;color:#999;cursor:not-allowed}
+button.danger{background:#c0392b;color:#fff}
+.hint{font-size:13px;color:#999;margin-top:8px;line-height:1.6}
+.mono{font-family:monospace;font-size:12px;word-break:break-all}
+#connectBtn{margin-bottom:16px}
+.status{font-size:13px;color:#7bc96f;margin-top:4px}
+</style></head><body>
+<h1>💰 取回炸金花房间资金</h1>
+<button id="connectBtn">连接钱包</button>
+<div id="addr" class="mono" style="margin-bottom:16px"></div>
+<div id="list"></div>
+<div class="hint">
+v3 合约：<span class="mono">0x5C9cf872d4C0a9fde7b138193076Ff575af2E0A9</span><br>
+· 等人中的房间可直接退出拿回 10 LGNS 底注<br>
+· 进行中的房间需打完才能结算<br>
+· v1 旧合约的 10 LGNS 锁死，取不出
+</div>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script>
+"use strict";
+const CONTRACT = "0x5C9cf872d4C0a9fde7b138193076Ff575af2E0A9";
+const ABI = [
+  "function nextRoomId() view returns (uint256)",
+  "function roomInfo(uint256) view returns (uint8,uint256,uint256,address,uint256,address,uint256,uint256)",
+  "function seats(uint256,address) view returns (bool,bool,bool,uint256,bytes)",
+  "function leaveRoom(uint256)",
+];
+let provider, signer, account, game, roGame;
+async function connect(){
+  if(!window.ethereum){ alert("请用钱包浏览器打开"); return; }
+  provider = new ethers.BrowserProvider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = await provider.getSigner();
+  account = await signer.getAddress();
+  const net = await provider.getNetwork();
+  if(net.chainId !== 6714n){ alert("请切换到 Anubis 网络 (chainId 6714)"); return; }
+  game = new ethers.Contract(CONTRACT, ABI, signer);
+  roGame = new ethers.Contract(CONTRACT, ABI, provider);
+  document.getElementById("addr").textContent = "已连接: " + account;
+  document.getElementById("connectBtn").disabled = true;
+  await loadRooms();
+}
+async function loadRooms(){
+  const list = document.getElementById("list");
+  list.innerHTML = "<div class='card'>扫描中...</div>";
+  const next = Number(await roGame.nextRoomId());
+  let html = "";
+  let waiting = [];
+  for(let id=1; id<next; id++){
+    let st;
+    try{ st = await roGame.seats(id, account); }catch(_){ continue; }
+    if(!st[0]) continue; // 没加入
+    const info = await roGame.roomInfo(id);
+    const state = Number(info[0]), pot = Number(info[1])/1e9;
+    const stateStr = ["等人中","进行中","已结算"][state] || state;
+    html += `<div class="card"><h3>房间 #${id} · ${stateStr}</h3>
+      <div class="row"><span>奖池</span><span>${pot} LGNS</span></div>
+      ${state===0 ? `<button onclick="leaveRoom(${id})">退出房间，拿回 10 LGNS</button>` : `<div class="hint">进行中，打完自动结算</div>`}
+    </div>`;
+    if(state===0) waiting.push(id);
+  }
+  if(!html) html = "<div class='card'>没有找到你的房间</div>";
+  else if(waiting.length>0) html = `<div class="card"><h3>一键退出所有等人房间</h3><button onclick="leaveAll([${waiting.join(",")}])">全部退出 (${waiting.length} 个，共 ${waiting.length*10} LGNS)</button></div>` + html;
+  list.innerHTML = html;
+}
+async function leaveRoom(id){
+  try{
+    const tx = await game.leaveRoom(id);
+    alert("交易已发送: " + tx.hash.slice(0,10) + "...，等待确认");
+    await tx.wait();
+    alert("已退出房间 #" + id);
+    await loadRooms();
+  }catch(e){ alert("失败: " + (e.shortMessage||e.message)); }
+}
+async function leaveAll(ids){
+  for(const id of ids){
+    try{
+      const tx = await game.leaveRoom(id);
+      await tx.wait();
+    }catch(e){ alert("房间 #"+id+" 退出失败: "+(e.shortMessage||e.message)); break; }
+  }
+  alert("完成");
+  await loadRooms();
+}
+document.getElementById("connectBtn").onclick = connect;
+</script></body></html>
