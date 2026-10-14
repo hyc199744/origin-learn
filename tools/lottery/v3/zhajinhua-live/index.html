@@ -335,7 +335,7 @@ a{color:var(--accent);text-decoration:none}
       var isMe=r.addr.toLowerCase()===myAddr.toLowerCase();
       html+='<div class="rs'+(r.folded?' lose':'')+'"><span class="av" style="width:20px;height:20px;display:inline-grid;place-items:center;border-radius:50%;background:#223b30">'+(isMe?'🙂':'👤')+'</span><span class="nm">'+(isMe?'你':short(r.addr))+(r.folded?'(弃)':'')+'</span><span style="display:flex;gap:3px">'+r.cards.map(function(c){return cardHTML(c,true);}).join('')+'</span><span class="ht">'+handName(r.cards)+'</span></div>';
     });
-    html+='</div><div class="ctrl"><button class="abtn p" onclick="doRematch()">🔄 再来一局（同桌）</button><button class="abtn" onclick="closeOv();leaveTable();">返回大厅</button></div>';
+    html+='</div><p style="color:var(--accent);font-size:12px;text-align:center;margin:8px 0 0">下一局即将自动开始，想退出点「返回大厅」</p><div class="ctrl"><button class="abtn p" onclick="doRematch()">🔄 立即再来</button><button class="abtn" onclick="closeOv();leaveTable();">返回大厅</button></div>';
     $('panel').innerHTML=html; $('ov').classList.add('on');
   }
   window.closeOv=function(){ $('ov').classList.remove('on'); };
