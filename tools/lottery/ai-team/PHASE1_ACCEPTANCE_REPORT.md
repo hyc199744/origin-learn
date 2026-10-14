@@ -17,7 +17,7 @@
 
 ## 二、测试统计
 
-- 总计：**46 通过，0 失败**
+- 总计：**51 通过，0 失败**（11 个测试套件）
 - 单元测试：绑定/改绑/签名/迁移/结算/领取/暂停/权限
 - 模糊测试：分成比例、随机绑定无环
 - 不变量测试：资金守恒 `totalOwed <= balance`
@@ -51,9 +51,43 @@
 4. **Safe 评估**：Anubis 无 Safe 官方部署前置合约，部署非官方地址引入信任风险 → 加固自研多签
 5. **回归测试**：33 个 expectRevert，新增 GameSigAttackTest（3）+ MultisigHistoryTest（1）
 
-## 六、待用户验收
 
+## 七、GPT 终审 5 阻塞项修复（2026-10-14）
+
+| # | 阻塞项 | 修复方案 | 状态 |
+|---|---|---|---|
+| 1 | Treasury 拉走全部手续费 | settle 只拉取 `credited`（实际应付），剩余留游戏账户 | ✓ DeepSeek 通过 |
+| 2 | 同一业务可重复结算 | `businessId` + `processedBusiness[game][biz]`，签名覆盖 businessId | ✓ DeepSeek 通过 |
+| 3 | fuzz 测试 hasBound 读取错误 | 正确解码返回值 + `assert bindCount > 0` | ✓ |
+| 4 | 多签阈值固定/历史确认 | 动态阈值 `ceil(2n/3)`；removeOwner 作废历史确认（有界遍历） | ✓ DeepSeek 通过 |
+| 5 | depth 文档宣称不实 | 文档改为"绑定时快照"，无环由实时遍历保证 | ✓ DeepSeek 通过 |
+
+### 测试命令与结果
+```
+forge test
+# 11 个测试套件，51 通过，0 失败
+
+forge test --gas-report
+# settle: ~53k gas
+```
+
+### 代码 Commit
+- 分支：`feature/referral-phase1`
+- SHA：`10a8ad6196eedb05bf0fc78d46608b410d97cc61`
+- 信息：GPT终审5阻塞全修：精确资金流+businessId+动态阈值+depth语义，51测试全过
+
+### DeepSeek 独立复审
+- 5 项全部通过（第 4 项附条件已确认：removeOwner 对 pendingTx 执行确认作废+重算）
+- 报告：`ai-team/` 下复审记录
+
+### 安全红线确认
+- [x] 未修改 main
+- [x] 未部署主网
+- [x] 未操作真实钱包或资金
+- [x] 仅 feature/dev 分支
+
+## 八、待用户验收
 - [ ] 代码审查通过
-- [ ] 批准进入 Phase 2（前端演示已并行开发）
+- [ ] 批准进入 Phase 2（前端演示已完成，dev 分支）
 - [ ] 确认法律审查安排
 - [ ] 确认多签正式地址录入时机
