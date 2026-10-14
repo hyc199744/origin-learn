@@ -217,6 +217,7 @@ a{color:var(--accent);text-decoration:none}
     else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ state=m; renderTable(); } }
     else if(m.t==='yourCards'){ if(String(m.handId)===String(curHand)){ myCards=m.cards; renderTable(); } }
     else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); } }
+    else if(m.t==='rematched'){ closeOv(); curHand=String(m.handId); myCards=null; state=null; $('log').innerHTML=''; wsend({t:'subscribe',handId:curHand}); toast('已进入新一局 #'+curHand+'（已自动入座）'); }
     else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)){ toast('本局已退款'); } }
     else if(m.t==='error'){ toast(m.msg); logln('<span class="rd">'+m.msg+'</span>'); }
   }
@@ -302,6 +303,7 @@ a{color:var(--accent);text-decoration:none}
   function doCall(){ wsend({t:'act',handId:curHand,action:'call'}); toast('跟注…'); logln('你 跟注'); }
   function doRaise(){ wsend({t:'act',handId:curHand,action:'raise'}); toast('加注…'); logln('你 <span class="gd">加注</span>'); }
   function doFold(){ wsend({t:'act',handId:curHand,action:'fold'}); logln('你 <span class="rd">弃牌</span>'); }
+  window.doRematch=function(){ if(!authorized){toast('需先一键授权');return;} wsend({t:'rematch',handId:curHand}); toast('开新局并自动入座中…'); };
   window.doWithdraw=async function(){ if(!myAddr){toast('先连钱包');return;} try{ toast('领取中…'); await sendTx(SEL.withdraw); toast('已领取'); refreshBalances(); }catch(e){toast(e.message||'无可领');} };
 
   function handName(cards){ // cards [{r,s}] r:0-12
@@ -320,7 +322,7 @@ a{color:var(--accent);text-decoration:none}
       var isMe=r.addr.toLowerCase()===myAddr.toLowerCase();
       html+='<div class="rs'+(r.folded?' lose':'')+'"><span class="av" style="width:20px;height:20px;display:inline-grid;place-items:center;border-radius:50%;background:#223b30">'+(isMe?'🙂':'👤')+'</span><span class="nm">'+(isMe?'你':short(r.addr))+(r.folded?'(弃)':'')+'</span><span style="display:flex;gap:3px">'+r.cards.map(function(c){return cardHTML(c,true);}).join('')+'</span><span class="ht">'+handName(r.cards)+'</span></div>';
     });
-    html+='</div><div class="ctrl"><button class="abtn p" onclick="closeOv();leaveTable();">返回大厅</button></div>';
+    html+='</div><div class="ctrl"><button class="abtn p" onclick="doRematch()">🔄 再来一局（同桌）</button><button class="abtn" onclick="closeOv();leaveTable();">返回大厅</button></div>';
     $('panel').innerHTML=html; $('ov').classList.add('on');
   }
   window.closeOv=function(){ $('ov').classList.remove('on'); };
