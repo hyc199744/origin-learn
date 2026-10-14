@@ -50,7 +50,7 @@ async function connect(){
   signer = await provider.getSigner();
   account = await signer.getAddress();
   const net = await provider.getNetwork();
-  if(net.chainId !== 6714n){ alert("请切换到 Anubis"); return; }
+  if(Number(net.chainId) !== 6714){ alert("请切换到 Anubis (当前 chainId: "+net.chainId+")"); return; }
   game = new ethers.Contract(CONTRACT, ABI, signer);
   roGame = new ethers.Contract(CONTRACT, ABI, provider);
   document.getElementById("addr").textContent = "已连接: " + account;
