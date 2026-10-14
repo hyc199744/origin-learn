@@ -707,7 +707,7 @@ contract MultisigTest is Test {
         // o3 执行
         vm.prank(o3);
         msig.execute(txId);
-        (,,, bool executed,) = msig.transactions(txId);
+        (,,, bool executed) = msig.transactions(txId);
         assertTrue(executed);
     }
 
@@ -985,9 +985,9 @@ contract MultisigHistoryTest is Test {
         vm.prank(o2);
         msig.execute(rmTx);
         assertFalse(msig.isOwner(o1));
-        // o1 的确认被作废，原交易确认数从 3 降到 2
-        (, , , bool executed, uint256 confs) = msig.transactions(txId);
-        assertEq(confs, 2);
+        // o1 的确认被作废（版本号懒作废），原交易有效确认数从 3 降到 2
+        (, , , bool executed) = msig.transactions(txId);
+        assertEq(msig.getValidConfirmations(txId), 2);
         assertFalse(executed);
         // 移除后剩 3 人，阈值降为 2。但 o1 已不是 owner，不能再确认或执行
         vm.prank(o1);
@@ -996,7 +996,7 @@ contract MultisigHistoryTest is Test {
         // o2 执行：2 确认 >= 阈值 2，可以执行（o1 的旧确认未被计入）
         vm.prank(o2);
         msig.execute(txId);
-        (, , , bool executed2, ) = msig.transactions(txId);
+        (, , , bool executed2) = msig.transactions(txId);
         assertTrue(executed2);
     }
 
@@ -1062,7 +1062,7 @@ contract MultisigThresholdTest is Test {
         msig.confirm(txId);
         vm.prank(o1);
         msig.execute(txId);
-        (, , , bool executed, ) = msig.transactions(txId);
+        (, , , bool executed) = msig.transactions(txId);
         assertTrue(executed);
     }
 
