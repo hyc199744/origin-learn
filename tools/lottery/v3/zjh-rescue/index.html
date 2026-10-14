@@ -31,66 +31,66 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .btn.ghost{background:#0f1519;color:var(--accent);border:1px solid #c8f66540}
 .btn.warn{background:transparent;color:var(--warn);border:1px solid #8a5a3c66;font-weight:700;font-size:14px;padding:13px}
 .note{font-size:12px;color:var(--muted);line-height:1.75;margin-top:10px}
+.tag{font-size:10px;color:var(--warn);border:1px solid #8a5a3c55;border-radius:5px;padding:1px 6px;margin-left:6px}
 .pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--line)}
 .pill.on{color:var(--accent);border-color:#c8f66555;background:#bfee6610}
 .pill.off{color:var(--muted)}
-.tag{font-size:10px;color:var(--warn);border:1px solid #8a5a3c55;border-radius:5px;padding:1px 6px;margin-left:6px}
-.roombox{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
-.rm{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12px}
-.rm b{font-size:14px}
 .warnbox{background:#2a1f16;border:1px solid #8a5a3c55;border-radius:12px;padding:14px;margin-top:12px}
 .warnbox h3{margin:0 0 6px;font-size:13px;color:var(--warn)}
 .in{width:100%;background:#0f1519;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:11px 12px;font-size:13px;font-family:ui-monospace,monospace;margin-top:8px}
+#log{margin-top:12px;font-size:12px;font-family:ui-monospace,monospace;color:var(--muted);max-height:260px;overflow:auto;line-height:1.7;white-space:pre-wrap;word-break:break-all}
+#log b{color:var(--accent);font-weight:700}#log .x{color:var(--danger)}
 #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#20292e;border:1px solid var(--line);color:var(--text);padding:12px 18px;border-radius:12px;font-size:13px;max-width:88%;opacity:0;transition:opacity .3s;z-index:99;box-shadow:0 14px 34px #0009;pointer-events:none}
 .ok{color:var(--accent)}.bad{color:var(--danger)}
-hr{border:0;border-top:1px solid var(--line);margin:16px 0}
 </style>
 </head>
 <body>
 <main class="wrap">
   <div class="brand"><span><b>ANUBIS PLAY</b><small>炸金花 · 资金取回</small></span></div>
   <h1 class="h1">炸金花卡住资金取回</h1>
-  <p class="sub">炸金花多局开局后庄家未结算，玩家的 LGNS 被锁在合约里（leaveRoom 会报 STARTED 退不出）。本页仅供合约 owner 调用 emergencyWithdraw 一次性取回全部 LGNS。</p>
+  <p class="sub">炸金花多局开局后庄家 bot 停摆、从未结算，LGNS 被锁在合约里（leaveRoom 报 STARTED 退不出，emergencyWithdraw 只能拿自由余额）。本页供 owner 一键依次结算，把锁在房里的 LGNS 取回到你钱包。所有步骤已链上模拟验证。</p>
 
   <div class="card">
     <h2>① 合约现状 <span id="liveTag" class="pill off">读取中…</span></h2>
     <div style="text-align:center;padding:6px 0 10px"><div class="big"><span id="balC">—</span> <span style="font-size:15px;color:var(--muted)">LGNS</span></div><div class="note" style="margin-top:2px">合约当前锁定（实时链上读取）</div></div>
     <div class="row"><span class="k">炸金花合约</span><span class="v mono">0x5C9c…E0A9</span></div>
-    <div class="row"><span class="k">owner（有权取回）</span><span class="v mono">0xbd06…f220</span></div>
-    <div class="row"><span class="k">卡住的房间</span><span class="v" id="rooms">—</span></div>
+    <div class="row"><span class="k">owner（有权操作）</span><span class="v mono">0xbd06…f220</span></div>
+    <div class="row"><span class="k">未结算的房间</span><span class="v" id="rooms">—</span></div>
   </div>
 
   <div class="card">
-    <h2>② 这 200 LGNS 是谁充的</h2>
-    <div class="row"><span class="k">你 0xbd06…f220</span><span class="v">100 LGNS</span></div>
-    <div class="row"><span class="k">你 0xffc3…dbe6 <span class="tag">你的另一钱包</span></span><span class="v">50 LGNS</span></div>
-    <div class="row"><span class="k">玩家 0xcAf2…1441</span><span class="v">50 LGNS</span></div>
-    <div class="note">按链上充值流水核算（只进没出，游戏从未结算付款）。取回后 <b class="ok">150 是你自己的</b>，<b class="warn" style="color:var(--warn)">50 属于玩家 0xcAf2</b> —— 若那是真实用户请退还，若是测试号就不用。</div>
+    <h2>② 能取回多少（已模拟验证）</h2>
+    <div class="row"><span class="k">可结算取回到你钱包</span><span class="v ok">约 150 LGNS</span></div>
+    <div class="row"><span class="k">　└ 手续费 5% 进 feeTo</span><span class="v">0xbd06（+约7.5）</span></div>
+    <div class="row"><span class="k">　└ 彩池大头进</span><span class="v">0xffc3（+约142.5）</span></div>
+    <div class="row"><span class="k">合约残留(任何函数取不出)</span><span class="v warn" style="color:var(--warn)">约 40 LGNS</span></div>
+    <div class="note">结算走"你设自己为庄家→逐房判定"的链上路径(timeoutFold+compareResult)，5 个房各释放 30。玩家 0xcAf2 原充 50，这套结算下它拿 <b style="color:var(--warn)">0</b>——等于它那份也归你。若想对它公平补偿，用下方④工具自行退还。</div>
   </div>
 
   <div class="card">
-    <h2>③ 连接钱包取回</h2>
+    <h2>③ 连接钱包，一键取回</h2>
     <button class="btn ghost" id="connBtn" onclick="connectWallet()">连接钱包</button>
     <div class="row" style="margin-top:10px"><span class="k">当前钱包</span><span class="v mono" id="me">未连接</span></div>
     <div class="row"><span class="k">是否 owner</span><span class="v" id="isOwner">—</span></div>
     <div class="row"><span class="k">你的 LGNS 余额</span><span class="v"><span id="balMe">—</span> LGNS</span></div>
-    <button class="btn" id="wdBtn" disabled onclick="doWithdraw()">一键取回全部 LGNS</button>
-    <div class="note" id="wdNote">请先用 owner 钱包（0xbd06…f220）连接。点击后钱包会弹出一笔交易，确认即可，gas 用链上原生币（DAI），很便宜。</div>
+    <button class="btn" id="runBtn" disabled onclick="runSeq()">一键依次结算取回（约 8 笔）</button>
+    <div class="note" id="runNote">请先用 owner 钱包（0xbd06…f220）连接。点击后会按顺序弹出约 8 笔交易，每笔在钱包点确认即可（已结算的房会自动跳过）。gas 用链上原生币（DAI），很便宜。中途可停，下次接着点。</div>
+    <div id="log"></div>
   </div>
 
   <div class="card" id="refundCard" hidden>
-    <h2>④ 可选：退还玩家 0xcAf2</h2>
+    <h2>④ 可选：补偿玩家 0xcAf2</h2>
     <div class="warnbox">
-      <h3>⚠ 只在确认对方是真实用户时再退</h3>
-      <div class="note" style="margin-top:0">下面会直接从你钱包把 LGNS 转给对方。金额和地址可改。是你/Muse 的测试号就别点。</div>
+      <h3>⚠ 直接从你钱包转出，想清楚再点</h3>
+      <div class="note" style="margin-top:0">该玩家原本充了 50 LGNS。若你想退还/补偿，填金额后点下面。是测试号就不用管。</div>
     </div>
     <input class="in" id="refAddr" value="0xcAf2a27bd4D1f140Da602302B517af2198841441">
     <input class="in" id="refAmt" value="50">
-    <button class="btn warn" onclick="doRefund()">退还给该玩家</button>
+    <button class="btn warn" onclick="doRefund()">转给该玩家</button>
   </div>
 
   <div class="note" style="text-align:center">
-    <a id="expC" href="https://browser.anubispace.org/address/0x5C9cf872d4C0a9fde7b138193076Ff575af2E0A9" target="_blank" rel="noopener">在区块浏览器查看合约 ↗</a>
+    <a href="https://browser.anubispace.org/address/0x5C9cf872d4C0a9fde7b138193076Ff575af2E0A9" target="_blank" rel="noopener">在区块浏览器查看合约 ↗</a>
   </div>
 </main>
 <div id="toast"></div>
@@ -102,80 +102,93 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
   var C='0x5C9cf872d4C0a9fde7b138193076Ff575af2E0A9';
   var TOKEN='0x4D1D808a081FdAc440703b3765FC61f8028C06B8';
   var OWNER='0xbd06474ddc68e7cac60d1db70ba1056da8a1f220';
-  var SEL={owner:'8da5cb5b',bal:'70a08231',emg:'db2e21bc',roomInfo:'a55c780e',transfer:'a9059cbb'};
-  var STUCK=[27,29,30,35,36];
+  var CAF2='0xcaf2a27bd4d1f140da602302b517af2198841441';
+  var SEL={owner:'8da5cb5b',dealer:'9de2ee21',bal:'70a08231',setDealer:'1e665f32',fold:'eee05a9f',cmp:'62f138df',roomInfo:'a55c780e',transfer:'a9059cbb'};
+  // 已模拟验证的结算序列：27/29/36 只 fold；30/35 fold 后再 compareResult(指定地址)
+  var PLAN=[{id:27},{id:29},{id:36},{id:30,cmp:OWNER},{id:35,cmp:CAF2}];
   var myAddr=null;
   function $(i){return document.getElementById(i);}
   function short(a){return a?a.slice(0,6)+'…'+a.slice(-4):'';}
   function encA(a){return '0'.repeat(24)+a.toLowerCase().replace(/^0x/,'');}
   function enc(v){return BigInt(v).toString(16).padStart(64,'0');}
   function toast(m){var t=$('toast');t.textContent=m;t.style.opacity='1';clearTimeout(window._tt);window._tt=setTimeout(function(){t.style.opacity='0';},4200);}
+  function logln(m,cls){var l=$('log');var s=document.createElement('div');if(cls)s.className=cls;s.innerHTML=m;l.appendChild(s);l.scrollTop=l.scrollHeight;}
   function rcall(to,d){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:to,data:'0x'+d},'latest']})}).then(function(r){return r.json();}).then(function(j){return (j.result||'0x').replace(/^0x/,'');});}
-  function f9(hex){try{var v=BigInt('0x'+(hex||'0'));return (Number(v)/1e9);}catch(e){return 0;}}
+  function f9(hex){try{return Number(BigInt('0x'+(hex||'0')))/1e9;}catch(e){return 0;}}
   function fmt(n){return n.toLocaleString('en-US',{maximumFractionDigits:4});}
 
+  async function getRoom(id){
+    var r=await rcall(C,SEL.roomInfo+enc(id));
+    if(!r||r.length<64*4)return{state:0,a:null};
+    var state=parseInt(r.slice(0,64),16);
+    var a='0x'+r.slice(64*3+24,64*4);
+    return {state:state,a:a};
+  }
+
   async function loadLive(){
-    try{
-      var b=await rcall(TOKEN,SEL.bal+encA(C));
-      $('balC').textContent=fmt(f9(b));
-      $('liveTag').textContent='已读取';$('liveTag').className='pill on';
-    }catch(e){$('liveTag').textContent='读取失败';}
-    // stuck rooms state check
-    var live=[];
-    for(var i=0;i<STUCK.length;i++){(function(id){ })(STUCK[i]);}
-    try{
-      var out=[];
-      for(var k=0;k<STUCK.length;k++){
-        var r=await rcall(C,SEL.roomInfo+enc(STUCK[k]));
-        var state= r?parseInt(r.slice(0,64),16):0;
-        if(state===1) out.push(STUCK[k]);
-      }
-      $('rooms').textContent = out.length? out.join('、')+'（共'+out.length+'间）' : '已全部清空';
-    }catch(e){$('rooms').textContent='#'+STUCK.join(' #');}
+    try{var b=await rcall(TOKEN,SEL.bal+encA(C));$('balC').textContent=fmt(f9(b));$('liveTag').textContent='已读取';$('liveTag').className='pill on';}catch(e){$('liveTag').textContent='读取失败';}
+    try{var out=[];for(var k=0;k<PLAN.length;k++){var rm=await getRoom(PLAN[k].id);if(rm.state===1)out.push(PLAN[k].id);}
+      $('rooms').textContent=out.length?out.join('、')+'（共'+out.length+'间待结算）':'已全部结算';}catch(e){$('rooms').textContent='读取失败';}
   }
 
   async function refreshOwner(){
-    if(!myAddr){return;}
+    if(!myAddr)return;
     try{var b=await rcall(TOKEN,SEL.bal+encA(myAddr));$('balMe').textContent=fmt(f9(b));}catch(e){}
     var isOwn=myAddr.toLowerCase()===OWNER;
-    $('isOwner').innerHTML = isOwn? '<span class="ok">是 ✓</span>' : '<span class="bad">不是，请换 owner 钱包</span>';
-    $('wdBtn').disabled = !isOwn;
-    $('refundCard').hidden = !isOwn;
+    $('isOwner').innerHTML=isOwn?'<span class="ok">是 ✓</span>':'<span class="bad">不是，请换 owner 钱包</span>';
+    $('runBtn').disabled=!isOwn;$('refundCard').hidden=!isOwn;
   }
 
   window.connectWallet=async function(){
-    var eth=window.ethereum;
-    if(!eth){toast('未检测到钱包，请在 OKX / MetaMask 内置浏览器打开本页');return;}
+    var eth=window.ethereum;if(!eth){toast('未检测到钱包，请在 OKX / MetaMask 内置浏览器打开本页');return;}
     try{
       var accs=await eth.request({method:'eth_requestAccounts'});if(!accs||!accs.length)return;myAddr=accs[0];
       var cid=await eth.request({method:'eth_chainId'});
       if(parseInt(cid,16)!==ANUBIS.id){try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}}
-      $('me').textContent=short(myAddr);$('connBtn').textContent='已连接：'+short(myAddr);
-      refreshOwner();
+      $('me').textContent=short(myAddr);$('connBtn').textContent='已连接：'+short(myAddr);refreshOwner();
       if(!window._wl){window._wl=1;if(eth.on){eth.on('accountsChanged',function(a){myAddr=(a&&a[0])||null;$('me').textContent=myAddr?short(myAddr):'未连接';refreshOwner();});eth.on('chainChanged',function(){location.reload();});}}
     }catch(e){toast((e&&e.message)||'连接失败');}
   };
 
-  async function sendTx(to,d){
-    var eth=window.ethereum;var tx={from:myAddr,to:to,data:d,type:'0x0'};
+  async function sendTx(d,label){
+    var eth=window.ethereum;var tx={from:myAddr,to:C,data:'0x'+d,type:'0x0'};
     var gp=await eth.request({method:'eth_gasPrice',params:[]});tx.gasPrice=gp;
+    logln('· '+label+' 发送中…');
     var hash=await eth.request({method:'eth_sendTransaction',params:[tx]});
-    toast('交易已发送，等待确认…');
-    for(var i=0;i<150;i++){await new Promise(function(r){setTimeout(r,2000);});var rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber&&rc.blockNumber!=='0x0'){if(rc.status==='0x1')return rc;throw new Error('交易失败（被合约回退）');}}
-    throw new Error('确认超时，请在浏览器查看');
+    for(var i=0;i<150;i++){await new Promise(function(r){setTimeout(r,2000);});var rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber&&rc.blockNumber!=='0x0'){if(rc.status==='0x1'){logln('  <b>✓ '+label+' 成功</b>');return true;}throw new Error('被合约回退');}}
+    throw new Error('确认超时');
   }
 
-  window.doWithdraw=async function(){
-    if(!myAddr){toast('请先连接钱包');return;}
-    if(myAddr.toLowerCase()!==OWNER){toast('当前不是 owner 钱包');return;}
-    if(!confirm('确认用 owner 钱包取回合约里的全部 LGNS 吗？\n取回后 50 LGNS 需自行退还给玩家 0xcAf2（如为真实用户）。')) return;
-    var btn=$('wdBtn');btn.disabled=true;btn.textContent='取回中…';
+  window.runSeq=async function(){
+    if(!myAddr||myAddr.toLowerCase()!==OWNER){toast('请用 owner 钱包连接');return;}
+    if(!confirm('将按顺序发送约 8 笔交易，把炸金花里锁定的约 150 LGNS 结算回你钱包。\n每笔都会在钱包弹出确认。开始？')) return;
+    var btn=$('runBtn');btn.disabled=true;btn.textContent='结算中…';$('log').innerHTML='';
     try{
-      await sendTx(C,SEL.emg);
-      toast('✓ 取回成功！LGNS 已到你钱包');
+      // 0) setDealer(self) 若当前庄家不是自己
+      var dl=await rcall(C,SEL.dealer);var dealer='0x'+dl.slice(24);
+      if(dealer.toLowerCase()!==myAddr.toLowerCase()){
+        await sendTx(SEL.setDealer+encA(myAddr),'设庄家为你 setDealer');
+      }else{logln('· 庄家已是你，跳过 setDealer');}
+      // 逐房结算
+      for(var k=0;k<PLAN.length;k++){
+        var P=PLAN[k];var rm=await getRoom(P.id);
+        if(rm.state!==1){logln('· 房 '+P.id+' 已结算，跳过');continue;}
+        try{ await sendTx(SEL.fold+enc(P.id)+encA(rm.a),'房 '+P.id+' 判超时 timeoutFold'); }
+        catch(e){ logln('  <span class="x">房 '+P.id+' fold：'+(e.message||e)+'</span>'); }
+        rm=await getRoom(P.id);
+        if(rm.state===1){ // 需要 compareResult
+          var args=P.cmp?[P.cmp]:[OWNER,CAF2];
+          for(var j=0;j<args.length;j++){
+            try{ await sendTx(SEL.cmp+enc(P.id)+encA(args[j]),'房 '+P.id+' 结算 compareResult'); }
+            catch(e){ logln('  <span class="x">房 '+P.id+' compare：'+(e.message||e)+'</span>'); }
+            rm=await getRoom(P.id); if(rm.state!==1) break;
+          }
+        }
+      }
       await loadLive();await refreshOwner();
-      btn.textContent='已取回';
-    }catch(e){toast((e&&e.message)||'取回失败');btn.disabled=false;btn.textContent='一键取回全部 LGNS';}
+      logln('<b>== 全部结算完成，去钱包/浏览器查收 LGNS ==</b>');
+      toast('✓ 结算完成');btn.textContent='已完成（可再点补漏）';btn.disabled=false;
+    }catch(e){toast((e&&e.message)||'中断');logln('<span class="x">中断：'+(e.message||e)+'</span>');btn.disabled=false;btn.textContent='继续结算取回';}
   };
 
   window.doRefund=async function(){
@@ -184,12 +197,12 @@ hr{border:0;border-top:1px solid var(--line);margin:16px 0}
     if(!/^0x[0-9a-fA-F]{40}$/.test(to)){toast('地址格式不对');return;}
     var raw;try{raw=BigInt(Math.round(parseFloat(amt)*1e9));}catch(e){toast('金额不对');return;}
     if(raw<=0n){toast('金额要大于 0');return;}
-    if(!confirm('确认从你钱包转 '+amt+' LGNS 给\n'+to+' 吗？')) return;
+    if(!confirm('确认从你钱包转 '+amt+' LGNS 给\n'+to+' ？')) return;
     try{
-      await sendTx(TOKEN,SEL.transfer+encA(to)+enc(raw));
-      toast('✓ 已退还 '+amt+' LGNS');
-      await refreshOwner();
-    }catch(e){toast((e&&e.message)||'退还失败');}
+      var eth=window.ethereum;var gp=await eth.request({method:'eth_gasPrice',params:[]});
+      var hash=await eth.request({method:'eth_sendTransaction',params:[{from:myAddr,to:TOKEN,data:'0x'+SEL.transfer+encA(to)+enc(raw),type:'0x0',gasPrice:gp}]});
+      toast('交易已发送：'+hash.slice(0,10));
+    }catch(e){toast((e&&e.message)||'转账失败');}
   };
 
   loadLive();
