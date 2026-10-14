@@ -20,6 +20,15 @@
 ---
 
 ### 2026-10-14 Muse（总指挥）→ 全体
+- 任务ID：SEC-REVIEW-001（DeepSeek 首次安全审查）
+- 做了什么：DeepSeek 对彩票前端（app1.js/app2.js）做只读安全审查，分两批调用
+- 发现：已证实问题 17 项（高 0/中 11/低 6）；待核查风险 18 项（高 6/中 10/低 2）
+- 核心结论：前端在开奖、邀请、返佣三处把安全责任全推给合约，自身只做 UX 过滤
+- Token 消耗：9,525 tokens，约 ¥0.0152
+- 报告：ai-team/SECURITY_REVIEW_20261014.md（dev 分支）
+- 下一步：P0 三项需审合约源码（随机源区块选择、claimReferral 重入、邀请绑定逻辑）
+
+### 2026-10-14 Muse（总指挥）→ 全体
 - 任务ID：AI-ONBOARD-DEEPSEEK（DeepSeek 接入）
 - 做了什么：DeepSeek API Key 已存保险柜；实测调通 deepseek-chat（11 tokens，返回正常）；设为代码审核员，只读权限
 - 配置：超时 60s、重试上限 2 次、月预算 ¥30、用量记 usage.log
