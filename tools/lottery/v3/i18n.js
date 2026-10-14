@@ -126,7 +126,13 @@
   '怎么知道开奖公平？':['How is the draw fair?'],
   '开奖用的是售票截止之后才产生的未来区块哈希作随机源，买票时谁也预测不了，开奖后任何人都能在链上核对。':['The draw uses a future block hash produced only after sales close as the random source — unpredictable at purchase time and verifiable on-chain by anyone afterwards.'],
   '进入链上彩票':['Enter the Lottery'],'中奖了怎么领？':['How do I claim winnings?'],
-  '中奖奖金在开奖时由合约自动打到你钱包，无需手动领取。返佣则在邀请页手动领取。':['Prizes are sent to your wallet automatically by the contract at the draw — no manual claim needed. Referral rewards are claimed manually on the Referral page.']
+  '中奖奖金在开奖时由合约自动打到你钱包，无需手动领取。返佣则在邀请页手动领取。':['Prizes are sent to your wallet automatically by the contract at the draw — no manual claim needed. Referral rewards are claimed manually on the Referral page.'],
+  '房主管理':['Owner Panel'],'仅房主可见':['Owner only'],'改票价':['Set ticket price'],
+  '改开奖周期（小时）':['Round duration (hours)'],'注资奖池':['Seed the pool'],
+  '设置':['Set'],'注资':['Seed'],'当前':['Current'],'请输入金额':['Enter an amount'],
+  '票价已更新':['Ticket price updated'],'开奖周期已更新':['Round duration updated'],'注资成功！':['Seeded!'],
+  '确定要把票价改为':['Change ticket price to'],'吗？':['?'],
+  '新票价':['New ticket price'],'新周期（小时）':['New duration (hours)'],'注资金额':['Seed amount']
   };
   var LANG='zh';
   try{LANG=localStorage.getItem('aplang')||'zh';}catch(e){}
