@@ -195,7 +195,7 @@ a{color:var(--accent);text-decoration:none}
     var box=$('tlist');
     if(!ts||!ts.length){ box.innerHTML='<div class="note">暂无牌桌，点上面「开桌」新建一桌。</div>'; return; }
     box.innerHTML=ts.map(function(t){
-      return '<div class="ti"><div><b>#'+t.handId+'</b> · 底注 '+e9(t.ante)+' LGNS</div><div class="meta">最多 '+t.maxPlayers+' 人</div><button class="j" onclick="joinTable(\''+t.handId+'\','+t.ante+')">进入</button></div>';
+      return '<div class="ti"><div><b>#'+t.handId+'</b> · 底注 '+e9(t.ante)+' LGNS</div><div class="meta">'+(t.nPlayers||0)+'/'+t.maxPlayers+' 人</div><button class="j" onclick="joinTable(\''+t.handId+'\','+t.ante+')">进入</button></div>';
     }).join('');
   }
   window.joinTable=function(id,ante){ curHand=id; openTable(); wsend({t:'subscribe',handId:id}); };
@@ -294,6 +294,7 @@ a{color:var(--accent);text-decoration:none}
   window.closeOv=function(){ $('ov').classList.remove('on'); };
 
   renderTiers();
+  setInterval(function(){ if(authed && ws && ws.readyState===1 && !curHand) wsend({t:'listTables'}); }, 5000);
   if(window.ethereum&&window.ethereum.selectedAddress){ connect(); }
 })();
 </script>
