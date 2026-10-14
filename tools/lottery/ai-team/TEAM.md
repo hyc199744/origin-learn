@@ -67,3 +67,12 @@
 - 月预算：¥30，接近 ¥25 提醒，达到后应用层停止调用，用量记 skills/claude/usage.log
 - 调用工具：skills/claude/bin/claude_chat.py
 - 约束：只走 feature/dev 分支；禁动 main、禁部署主网、禁操作真实钱包/资金
+
+---
+
+## 费用决策（2026-10-14）
+
+用户决定：GPT 和 Claude 太耗钱，暂停使用。只保留 DeepSeek（最便宜）。
+- OpenAI 累计花费：约 ¥0.077
+- Claude 累计花费：约 ¥4.17（CLAUDE-FRONTEND-001 未完成，半成品存档于 /tmp/claude_v2.html）
+- DeepSeek 继续作为开发+审查的主力 AI。
