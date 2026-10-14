@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>炸金花 - 批量结算</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f1a12;color:#e8e0c8;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:16px;max-width:600px;margin:0 auto}
+h1{font-size:20px;color:#f5d67b;margin-bottom:16px}
+.card{background:#1a2419;border:1px solid #2a3a28;border-radius:12px;padding:16px;margin-bottom:12px}
+button{background:#f5d67b;color:#1a1a1a;border:none;border-radius:8px;padding:12px 20px;font-size:15px;font-weight:bold;cursor:pointer;width:100%;margin-top:8px}
+button:disabled{background:#555;color:#999}
+.hint{font-size:13px;color:#999;margin-top:8px;line-height:1.8}
+.mono{font-family:monospace;font-size:12px;word-break:break-all}
+.log{background:#000;border-radius:8px;padding:12px;margin-top:12px;font-size:13px;max-height:300px;overflow-y:auto;white-space:pre-wrap}
+</style></head><body>
+<h1>🃏 批量结算房间</h1>
+<button id="connectBtn">连接钱包</button>
+<div id="addr" class="mono" style="margin:12px 0"></div>
+<div class="card">
+<h3>说明</h3>
+<div class="hint">
+1. 用<strong>两个</strong>钱包分别点下面的"批量弃牌"<br>
+2. 每个房间剩 1 人时自动结算，赢家拿 28.5 LGNS<br>
+3. 5% 抽水（1.5 LGNS）进 feeTo<br><br>
+建议：主钱包和 rescue1 点弃牌，让 rescue2 赢，最后 rescue2 把钱转回主钱包。
+</div>
+</div>
+<div class="card">
+<h3>进行中的房间</h3>
+<div id="roomList">连接钱包后显示</div>
+<button id="foldAllBtn" disabled>全部弃牌</button>
+</div>
+<div class="log" id="log"></div>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script>
+"use strict";
+const CONTRACT = "0x5C9cf872d4C0a9fde7b138193076Ff575af2E0A9";
+const ABI = [
+  "function nextRoomId() view returns (uint256)",
+  "function roomInfo(uint256) view returns (uint8,uint256,uint256,address,uint256,address,uint256,uint256)",
+  "function seats(uint256,address) view returns (bool,bool,bool,uint256,bytes)",
+  "function action(uint256,uint8,address)",
+];
+let provider, signer, account, game, roGame;
+function log(m){ document.getElementById("log").textContent += m + "\n"; }
+async function connect(){
+  if(!window.ethereum){ alert("请用钱包浏览器打开"); return; }
+  provider = new ethers.BrowserProvider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  signer = await provider.getSigner();
+  account = await signer.getAddress();
+  const net = await provider.getNetwork();
+  if(net.chainId !== 6714n){ alert("请切换到 Anubis"); return; }
+  game = new ethers.Contract(CONTRACT, ABI, signer);
+  roGame = new ethers.Contract(CONTRACT, ABI, provider);
+  document.getElementById("addr").textContent = "已连接: " + account;
+  document.getElementById("connectBtn").disabled = true;
+  await loadRooms();
+}
+async function loadRooms(){
+  const next = Number(await roGame.nextRoomId());
+  let rooms = [];
+  for(let id=1; id<next; id++){
+    let st; try{ st = await roGame.seats(id, account); }catch(_){ continue; }
+    if(!st[0] || st[1]) continue; // 没加入或已弃牌
+    const info = await roGame.roomInfo(id);
+    if(Number(info[0]) !== 1) continue; // 不是进行中
+    rooms.push(id);
+  }
+  const el = document.getElementById("roomList");
+  if(rooms.length===0){ el.innerHTML = "没有需要弃牌的房间"; return; }
+  el.innerHTML = rooms.map(id=>`<div>房间 #${id}</div>`).join("");
+  const btn = document.getElementById("foldAllBtn");
+  btn.disabled = false;
+  btn.onclick = ()=>foldAll(rooms);
+}
+async function foldAll(rooms){
+  const btn = document.getElementById("foldAllBtn");
+  btn.disabled = true;
+  for(const id of rooms){
+    try{
+      log(`房间 #${id} 弃牌中...`);
+      // action(roomId, 0=弃牌, address(0))
+      const tx = await game.action(id, 0, "0x0000000000000000000000000000000000000000");
+      await tx.wait();
+      log(`房间 #${id} 已弃牌 ✅`);
+    }catch(e){ log(`房间 #${id} 失败: `+(e.shortMessage||e.message)); }
+  }
+  log("完成，重新扫描...");
+  await loadRooms();
+  btn.disabled = false;
+}
+document.getElementById("connectBtn").onclick = connect;
+</script></body></html>
