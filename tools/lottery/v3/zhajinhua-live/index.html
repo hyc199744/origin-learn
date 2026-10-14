@@ -101,7 +101,10 @@ a{color:var(--accent);text-decoration:none}
 
   <!-- 牌桌 -->
   <div id="tableView" hidden>
-    <button class="wbtn" style="margin-bottom:10px" onclick="leaveTable()">← 返回大厅</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px">
+      <button class="wbtn" onclick="leaveTable()">← 返回大厅</button>
+      <span style="font-size:13px"><span style="color:var(--muted)">余额 </span><span style="font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums"><span id="tblBal">—</span> LGNS</span></span>
+    </div>
     <div class="table">
       <div class="seats" id="seats"></div>
       <div class="pot"><div class="amt"><span id="pot">0</span> <span style="font-size:13px;color:var(--muted)">LGNS</span></div><div class="lb">底池</div></div>
@@ -161,8 +164,8 @@ a{color:var(--accent);text-decoration:none}
     throw new Error('确认超时');
   }
   async function refreshBalances(){
-    try{var b=await rcall(LGNS,SEL.bal+encA(myAddr)); $('myLgns').textContent=e9(BigInt('0x'+(b||'0')));}catch(e){}
-    try{var wd=await rcall(CONTRACT, 'ce513b6f'+encA(myAddr)); $('myWd').textContent=e9(BigInt('0x'+(wd||'0')));}catch(e){}
+    try{var b=await rcall(LGNS,SEL.bal+encA(myAddr)); var v=e9(BigInt('0x'+(b||'0'))); if($('myLgns'))$('myLgns').textContent=v; if($('tblBal'))$('tblBal').textContent=v;}catch(e){}
+    try{var wd=await rcall(CONTRACT, 'ce513b6f'+encA(myAddr)); if($('myWd'))$('myWd').textContent=e9(BigInt('0x'+(wd||'0')));}catch(e){}
   }
   async function checkAuth(){
     if(!myAddr||!delegate) return;
@@ -269,6 +272,7 @@ a{color:var(--accent);text-decoration:none}
       mine.innerHTML='<div style="text-align:center;font-size:12px;color:var(--gold);margin-bottom:4px">我的牌 '+(meP.looked?'':'（闷牌中，点看牌查看）')+'</div>'+myHand;
     }
     renderCtrl();
+    var now=Date.now(); if(!window._lb||now-window._lb>4000){ window._lb=now; refreshBalances(); }
   }
   function renderCtrl(){
     var c=$('ctrl'); c.innerHTML=''; if(!state)return;
