@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0c1412">
+  <meta name="description" content="ANUBIS PLAY 金花牌局，真人实时对战，押真 LGNS，链上公平可证明。手机横竖屏、平板与电脑自适应。">
+  <title>金花牌局 · ANUBIS PLAY</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230d1714'/%3E%3Cpath d='M22 10L43 32H57L78 10L73 58L50 89L27 58Z' fill='%23c7a66c'/%3E%3Cpath d='M33 43L46 48L40 55M67 43L54 48L60 55M43 68H57L50 76Z' fill='%230d1714'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-anubis" viewBox="0 0 80 92"><path d="M10 4 32 29H48L70 4 66 55 40 86 14 55Z" fill="currentColor"/><path d="m18 15 9 30-9-6M62 15 53 45l9-6M24 43l12 6-7 8M56 43l-12 6 7 8M32 67h16l-8 9Z" fill="#111d18"/><path d="m34 54 6 6 6-6M29 80l11 10 11-10" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m14 6-6 6 6 6M8 12h13"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4H5a2 2 0 0 0-2 2v13h18V7H5a1 1 0 0 1 0-2"/><path d="M21 11h-6v4h6M17 13h.01"/></symbol>
+    <symbol id="i-full" viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2" transform="rotate(45 12 12)"/><path d="M2 6V2h4M22 18v4h-4"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4M12 16h.01"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M11 4 6 8H3v8h3l5 4ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V3c5-3 9 4 14 0v11c-5 4-9-3-14 0"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-compare" viewBox="0 0 24 24"><path d="m4 4 16 16M4 4l1 6M4 4l6 1M20 4 4 20M20 4l-1 6M20 4l-6 1M3 17l4 4M17 17l4 4"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 1 7M3 4v6h6M12 7v6l4 2"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 2 8 4v6c0 5-8 10-8 10S4 17 4 12V6ZM8 12l3 3 5-6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 8a9 9 0 0 0-15-3L2 8M2 3v5h5M4 16a9 9 0 0 0 15 3l3-3M22 21v-5h-5"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 15a5 5 0 0 1 3 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/></symbol>
+  </svg>
+
+  <div class="app-shell" id="app">
+    <header class="site-header">
+      <a class="brand" href="#table" aria-label="ANUBIS PLAY 牌桌首页"><svg class="brand-mark"><use href="#i-anubis"/></svg><span>ANUBIS <b>PLAY</b><small>THE ART OF PLAY</small></span></a>
+      <nav class="primary-nav" aria-label="主导航">
+        <button data-view="table" class="nav-link active" aria-current="page">金花牌局<span class="nav-dot"></span></button>
+        <button data-view="lobby" class="nav-link">游戏大厅</button>
+        <button data-action="records" class="nav-link">我的战绩</button>
+      </nav>
+      <div class="header-right"><span class="network"><i></i> Anubis Chain</span><button class="wallet-button" data-action="wallet"><svg class="icon"><use href="#i-wallet"/></svg><span id="walletLabel">连接钱包</span></button></div>
+    </header>
+
+    <main class="main">
+      <div class="page-heading">
+        <div><div class="eyebrow">ANUBIS CARD CLUB <span> / </span> GOLDEN FLOWER</div><h1>金花牌局<span>落子之间，胜负未定。</span></h1></div>
+        <div class="heading-actions"><button class="text-button" data-action="rules"><svg class="icon"><use href="#i-help"/></svg>玩法规则</button><button class="outline-button" data-action="create"><svg class="icon"><use href="#i-plus"/></svg>创建牌桌</button></div>
+      </div>
+
+      <div class="portrait-tip" id="portraitTip"><svg class="icon"><use href="#i-rotate"/></svg><span>横过手机，展开完整牌桌</span><button data-action="fullscreen">全屏体验</button><button class="tip-close" data-action="dismiss-tip" aria-label="关闭横屏提示">×</button></div>
+
+      <section id="tableView" class="game-layout" aria-label="炸金花牌桌">
+        <div class="table-column">
+          <section class="game-card">
+            <header class="table-toolbar">
+              <div class="table-identity"><button class="icon-button back-button" data-view="lobby" aria-label="返回游戏大厅"><svg class="icon"><use href="#i-arrow"/></svg></button><div><strong id="roomTitle">未入座</strong><span id="roomSubtitle">请到游戏大厅选择牌桌</span></div><span class="table-status" id="tableStatus"><i></i> 未开局</span></div>
+              <div class="table-tools"><button class="icon-button" data-action="sound" id="soundButton" aria-label="开启音效" aria-pressed="false" title="开启音效"><svg class="icon"><use href="#i-sound"/></svg><span class="sound-off"></span></button><button class="icon-button mobile-records" data-action="wallet" aria-label="我的钱包" title="我的钱包"><svg class="icon"><use href="#i-wallet"/></svg></button><button class="icon-button mobile-records" data-action="records" aria-label="查看牌局记录"><svg class="icon"><use href="#i-history"/></svg></button><button class="icon-button" data-action="fullscreen" id="fullscreenButton" aria-label="全屏与横屏" title="全屏与横屏"><svg class="icon"><use href="#i-full"/></svg></button></div>
+            </header>
+
+            <div class="table-stage" id="tableStage">
+              <div class="ambient ambient-left"></div><div class="ambient ambient-right"></div>
+              <div class="stage-corner top-left">A<span>♠</span></div><div class="stage-corner bottom-right">A<span>♠</span></div>
+              <div class="felt-outer"><div class="felt-inner"><div class="felt-pattern"></div><div class="felt-watermark"><svg><use href="#i-anubis"/></svg><span>ANUBIS PLAY</span></div><div class="table-edge-label">GOLDEN FLOWER · PRIVATE CLUB</div></div></div>
+              <div class="pot-display"><span class="pot-caption">本局底池</span><div class="pot-value"><strong id="potAmount">0</strong><span>LGNS</span></div><div class="chip-pile" aria-hidden="true"><i class="poker-chip chip-a"></i><i class="poker-chip chip-b"></i><i class="poker-chip chip-c"></i><i class="poker-chip chip-d"></i><i class="poker-chip chip-e"></i></div><span class="round-badge" id="roundBadge">本注 0</span></div>
+              <div class="seats" id="seats"></div>
+              <div class="my-hand" id="myHand" aria-label="我的手牌"></div>
+              <div class="hand-label" id="handLabel">未看牌 · 保持神秘</div>
+              <div class="table-message" id="tableMessage" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="action-zone">
+              <div class="turn-strip"><div class="turn-indicator"><i></i><strong id="turnTitle">等待开局</strong><span id="turnHint">到大厅开桌或加入牌桌</span></div><div class="hand-state" id="handState"><svg class="icon"><use href="#i-shield"/></svg>链上结算 · 真实 LGNS</div></div>
+              <div class="action-controls" id="actionControls">
+                <button class="game-action action-fold" data-action="fold" id="foldButton"><svg class="icon"><use href="#i-flag"/></svg><span>弃牌</span></button>
+                <button class="game-action action-view" data-action="peek" id="peekButton"><svg class="icon"><use href="#i-eye"/></svg><span>看牌</span></button>
+                <button class="game-action action-raise" data-action="raise" id="raiseButton"><svg class="icon"><use href="#i-plus"/></svg><span>加注</span></button>
+                <button class="game-action action-compare" data-action="compare" id="compareButton"><svg class="icon"><use href="#i-compare"/></svg><span>比牌</span></button>
+                <button class="game-action action-call" data-action="call" id="callButton"><span>跟注</span><strong id="callAmount">0 <small>LGNS</small></strong><svg class="icon"><use href="#i-chevron"/></svg></button>
+              </div>
+              <div class="round-result" id="roundResult" hidden><div><strong id="resultTitle">本局结束</strong><span id="resultDescription"></span></div><button class="gold-button" data-action="next">立即再来 <svg class="icon"><use href="#i-chevron"/></svg></button></div>
+            </div>
+          </section>
+          <div class="below-table"><span><i></i> 真人实时对战 · 链上结算，公平可证明</span><button class="text-button" data-action="rules">牌型说明 <svg class="icon"><use href="#i-chevron"/></svg></button></div>
+        </div>
+
+        <aside class="side-panel" aria-label="牌局信息">
+          <section class="balance-panel"><div class="panel-label"><span>我的筹码</span><svg class="icon"><use href="#i-wallet"/></svg></div><div class="balance-number"><strong id="balanceAmount">—</strong><span>LGNS</span></div><div class="balance-note">我的钱包余额 <span>ANUBIS CHAIN</span></div><div class="balance-divider"></div><div class="balance-detail"><span>本局投入</span><strong id="investedAmount">0 LGNS</strong></div><div class="balance-detail"><span>可领取</span><strong id="claimableAmount">0 LGNS</strong></div><button class="claim-button" data-action="claim" id="claimButton" disabled>领取奖金 <svg class="icon"><use href="#i-chevron"/></svg></button></section>
+          <section class="activity-panel"><div class="panel-title"><h2>牌局动态</h2><span id="handNumber">NO. ----</span></div><ol class="activity-list" id="activityList" aria-label="当前牌局动态"></ol><button class="activity-more" data-action="records">查看全部记录 <svg class="icon"><use href="#i-chevron"/></svg></button></section>
+          <button class="quick-rules" data-action="rules"><span class="rules-art" aria-hidden="true">♠<span>A</span></span><div><strong>好牌，也要好策略。</strong><span>查看牌型与玩法规则</span></div><svg class="icon"><use href="#i-chevron"/></svg></button>
+        </aside>
+      </section>
+
+      <section class="lobby-view" id="lobbyView" hidden aria-label="游戏大厅">
+        <div class="lobby-hero"><div><div class="eyebrow">FIND YOUR TABLE</div><h2>好牌局，等你入座。</h2><p>选择你的底注，开始一场金花对决。</p><button class="gold-button" data-action="create"><svg class="icon"><use href="#i-plus"/></svg>创建我的牌桌</button></div><div class="lobby-card-art" aria-hidden="true"><div class="art-card red">A<span>♥</span></div><div class="art-card black">A<span>♠</span></div><div class="art-card gold">A<span>♠</span></div></div><span class="hero-watermark">ANUBIS</span></div>
+        <div class="lobby-bar"><div class="filter-tabs" id="filters" role="group" aria-label="底注筛选"><button class="selected" data-filter="all" aria-pressed="true">全部牌桌</button><button data-filter="10" aria-pressed="false">10 LGNS</button><button data-filter="50" aria-pressed="false">50 LGNS</button><button data-filter="100" aria-pressed="false">100 LGNS</button></div><button class="text-button" data-action="refresh" id="refreshButton"><svg class="icon"><use href="#i-refresh"/></svg><span>刷新</span></button></div>
+        <div class="room-grid" id="roomGrid"></div>
+        <div class="lobby-footer"><svg class="icon"><use href="#i-shield"/></svg><span>真人对战，开桌与入座需要真实 LGNS；授权一次后玩牌免签。</span><button class="text-button" data-action="authorization">管理授权 <svg class="icon"><use href="#i-chevron"/></svg></button></div>
+      </section>
+      <footer class="site-footer"><span>ANUBIS PLAY <i> / </i> GOLDEN FLOWER</span><span>每一手，皆有可能。</span><div><button data-action="wallet">钱包</button><button data-action="rules">游戏规则</button><button data-action="authorization">授权管理</button></div></footer>
+    </main>
+  </div>
+
+  <dialog class="modal" id="modal" aria-labelledby="modalTitle"><header class="modal-header"><div><span class="eyebrow" id="modalEyebrow">ANUBIS PLAY</span><h2 id="modalTitle"></h2></div><button class="icon-button" data-action="close" aria-label="关闭弹窗"><svg class="icon"><use href="#i-close"/></svg></button></header><div class="modal-body" id="modalBody"></div></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <noscript><div class="noscript-note">请启用 JavaScript，以体验牌桌和横屏交互。</div></noscript>
+</body>
+</html>
