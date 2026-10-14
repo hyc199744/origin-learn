@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 /// @title ANUBIS PLAY 统一邀请关系注册表
 /// @notice 全平台唯一邀请关系真相源。v1.2（含 GPT 审查修订）
-/// @dev 无环保证：depth 严格递增赋值，数学上不可能形成环
+/// @dev 无环保证：绑定时实时遍历检查（_checkAcyclicAndDepth），不依赖 depth
 
 interface IReferralTreasury {
     function notifyActivity(address user) external;
@@ -26,7 +26,7 @@ contract ReferralRegistry {
 
     // 用户 => 一级邀请人（永久，除冷静期改绑外）
     mapping(address => address) public referrer;
-    // 用户 => depth（无环保证的核心）
+    // 用户 => depth（绑定时快照，用于 UI 展示和深度启发式限制，非安全不变量）
     mapping(address => uint256) public depth;
     mapping(address => bool) public hasBound;
     mapping(address => uint256) public boundAt;
@@ -112,9 +112,9 @@ contract ReferralRegistry {
     }
 
     /// @notice 无环检查 + 返回 ref 的真实链长。覆盖 bind/rebind/importFromV3
-    /// @dev DeepSeek 三轮复审修复：depth 改为每次重算真实链长（不再用 max/快照），
-    /// 确保 depth == 真实链长，链长 ≤ MAX_DEPTH 可证明，遍历永不漏检
-    /// @return depthOfRef ref 到根的真实链长
+    /// @dev GPT 终审澄清：depth 是绑定时快照，上游链增长后可能过期。
+    /// 无环安全由实时遍历保证，不依赖 depth 准确性。
+    /// @return depthOfRef ref 在绑定时刻到根的真实链长
     function _checkAcyclicAndDepth(address user, address ref) internal view returns (uint256 depthOfRef) {
         address cur = ref;
         for (uint256 i = 0; i < MAX_DEPTH * 2; i++) {
@@ -131,7 +131,7 @@ contract ReferralRegistry {
         require(!hasBound[user], "ALREADY_BOUND");
         require(ref != address(0), "ZERO_REF");
         require(ref != user, "SELF_REF");
-        // 无环检查 + 重算真实链长（depth 恒等于真实链长，不再用快照）
+        // 无环检查 + 记录绑定时刻链长（快照语义）
         uint256 rd = _checkAcyclicAndDepth(user, ref);
         require(rd + 1 <= MAX_DEPTH, "TOO_DEEP");
         // 频率限制
@@ -161,7 +161,7 @@ contract ReferralRegistry {
         require(bindCountPerHour[newRef][hour] < MAX_BINDS_PER_HOUR, "RATE_LIMIT");
         bindCountPerHour[newRef][hour]++;
         referrer[msg.sender] = newRef;
-        depth[msg.sender] = rd + 1; // 重算真实链长，无虚高/低估
+        depth[msg.sender] = rd + 1; // 更新快照为当前真实链长
         rebindCount[msg.sender]++;
         // 注意：不重置 boundAt，冷静期不延长
         emit ReferrerRebound(msg.sender, oldRef, newRef);

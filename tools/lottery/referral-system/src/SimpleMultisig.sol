@@ -36,16 +36,25 @@ contract SimpleMultisig {
     modifier txExists(uint256 txId) { require(txId < transactions.length, "NO_TX"); _; }
     modifier notExecuted(uint256 txId) { require(!transactions[txId].executed, "EXECUTED"); _; }
 
-    constructor(address[] memory _owners, uint256 _threshold) {
+    /// @notice GPT 终审修复：阈值动态 = ceil(2n/3)，owner 数量变化时自动调整
+    constructor(address[] memory _owners) {
         require(_owners.length >= 3, "MIN_3_OWNERS");
-        require(_threshold == 2, "THRESHOLD_MUST_BE_2");
         for (uint i = 0; i < _owners.length; i++) {
             require(_owners[i] != address(0), "ZERO_OWNER");
             require(!isOwner[_owners[i]], "DUP_OWNER");
             isOwner[_owners[i]] = true;
             owners.push(_owners[i]);
         }
-        threshold = _threshold;
+        threshold = _calcThreshold(_owners.length);
+    }
+
+    function _calcThreshold(uint256 n) internal pure returns (uint256) {
+        return (n * 2 + 2) / 3; // ceil(2n/3)
+    }
+
+    function _updateThreshold() internal {
+        threshold = _calcThreshold(owners.length);
+        emit ThresholdChanged(threshold);
     }
 
     function submit(address to, uint256 value, bytes calldata data)
@@ -102,6 +111,7 @@ contract SimpleMultisig {
         require(o != address(0) && !isOwner[o], "BAD_OWNER");
         isOwner[o] = true;
         owners.push(o);
+        _updateThreshold();
         emit OwnerAdded(o);
     }
 
@@ -127,6 +137,7 @@ contract SimpleMultisig {
                 break;
             }
         }
+        _updateThreshold();
         emit OwnerRemoved(o);
     }
 

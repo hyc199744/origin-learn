@@ -51,16 +51,20 @@ contract ReferralSystemTest is Test {
         vm.stopPrank();
     }
 
-    // 生成游戏背书签名
-    function _gameSig(address tokenAddr, address user, uint256 revenue)
+    // 生成游戏背书签名。businessId 由调用者传入（测试用自增序列保证唯一）
+    uint256 businessSeq;
+    function _signFor(address tokenAddr, address user, uint256 revenue, bytes32 businessId)
         internal view returns (uint8 v, bytes32 r, bytes32 s)
     {
-        uint256 nonce = treasury.gameNonce(game);
         bytes32 digest = keccak256(abi.encodePacked(
             "\x19Ethereum Signed Message:\n32",
-            keccak256(abi.encode(address(treasury), block.chainid, game, tokenAddr, user, revenue, nonce))
+            keccak256(abi.encode(address(treasury), block.chainid, game, tokenAddr, user, revenue, businessId))
         ));
         (v, r, s) = vm.sign(gameSignerKey, digest);
+    }
+
+    function _newBiz() internal returns (bytes32) {
+        return keccak256(abi.encode("biz", block.timestamp, businessSeq++));
     }
 
     // ============ 绑定测试 ============
@@ -139,7 +143,7 @@ contract ReferralSystemTest is Test {
 
     /// @notice fuzz：随机绑定序列永不形成环
     function testFuzz_no_cycle_random_binds(address[] memory users, uint8 seed) public {
-        vm.assume(users.length > 0 && users.length <= 20);
+        vm.assume(users.length >= 2 && users.length <= 20);
         for (uint i = 0; i < users.length; i++) {
             vm.assume(users[i] != address(0));
             // 简单去重：跳过已出现的
@@ -148,15 +152,26 @@ contract ReferralSystemTest is Test {
             if (dup) continue;
         }
         // 链式绑定 + 随机尝试闭环，闭环必须失败
+        // GPT 终审修复：正确解码 hasBound 返回值（之前误用 call 成功标志）
+        uint256 bindCount = 0;
+        uint256 cycleAttempts = 0;
         for (uint i = 0; i + 1 < users.length; i++) {
             if (users[i] == address(0) || users[i+1] == address(0) || users[i] == users[i+1]) continue;
-            // 检查是否已绑定
-            (bool ok,) = address(registry).call(
+            // 正确读取 hasBound 返回值
+            (bool success, bytes memory ret) = address(registry).call(
                 abi.encodeWithSignature("hasBound(address)", users[i]));
-            if (ok) continue;
+            require(success, "CALL_FAIL");
+            bool alreadyBound = abi.decode(ret, (bool));
+            if (alreadyBound) continue;
             vm.prank(users[i]);
-            try registry.bind(users[i+1]) {} catch {}
+            try registry.bind(users[i+1]) {
+                bindCount++;
+            } catch {
+                cycleAttempts++;
+            }
         }
+        // 确保测试真正执行了绑定操作，而不是全部跳过
+        assertTrue(bindCount > 0, "NO_BINDS_EXECUTED");
         // 验证：对每个用户，从其上游链走 32 步永不回到自己
         for (uint i = 0; i < users.length; i++) {
             address cur = users[i];
@@ -202,12 +217,15 @@ contract ReferralSystemTest is Test {
 
     // 新资金流：token 先给 game，game approve Treasury，适配器调 settle 原子拉取
     function _fundAndReport(address user, uint256 revenue) internal returns (bytes32) {
-        token.mint(game, revenue);
+        // 只需给游戏准备好实际应付的佣金（20%+5%=25%），剩余留在游戏账户
+        uint256 need = revenue * 2500 / 10000;
+        token.mint(game, need);
         vm.prank(game);
-        token.approve(address(treasury), revenue);
-        (uint8 v, bytes32 r, bytes32 s) = _gameSig(address(token), user, revenue);
+        token.approve(address(treasury), need);
+        bytes32 biz = _newBiz();
+        (uint8 v, bytes32 r, bytes32 s) = _signFor(address(token), user, revenue, biz);
         vm.prank(multisig);
-        return adapter.reportRevenue(user, revenue, v, r, s);
+        return adapter.reportRevenue(user, revenue, biz, v, r, s);
     }
 
     function test_commission_split() public {
@@ -245,10 +263,11 @@ contract ReferralSystemTest is Test {
         // 第一次：game 有 10000，成功
         bytes32 sid1 = _fundAndReport(bob, 10000);
         // 第二次：game 没钱了 → transferFrom 失败
-        (uint8 v, bytes32 r, bytes32 s) = _gameSig(address(token), bob, 10000);
+        bytes32 biz1 = _newBiz();
+        (uint8 v, bytes32 r, bytes32 s) = _signFor(address(token), bob, 10000, biz1);
         vm.prank(multisig);
         vm.expectRevert();
-        adapter.reportRevenue(bob, 10000, v, r, s);
+        adapter.reportRevenue(bob, 10000, biz1, v, r, s);
         // settlementId 每次不同（Treasury nonce 派生）
         bytes32 sid2 = _fundAndReport(bob, 10000);
         assertTrue(sid1 != sid2);
@@ -258,10 +277,11 @@ contract ReferralSystemTest is Test {
     function test_unfunded_report_revert() public {
         vm.prank(bob); registry.bind(alice);
         // game 没 approve → transferFrom 失败，无法上报
-        (uint8 v3, bytes32 r3, bytes32 s3) = _gameSig(address(token), bob, 10000);
+        bytes32 biz1 = _newBiz();
+        (uint8 v3, bytes32 r3, bytes32 s3) = _signFor(address(token), bob, 10000, biz1);
         vm.prank(multisig);
         vm.expectRevert();
-        adapter.reportRevenue(bob, 10000, v3, r3, s3);
+        adapter.reportRevenue(bob, 10000, biz1, v3, r3, s3);
     }
 
     /// @notice 攻击模拟：未授权适配器上报
@@ -270,10 +290,11 @@ contract ReferralSystemTest is Test {
         token.mint(game, 10000);
         vm.prank(game);
         token.approve(address(treasury), 10000);
-        (uint8 v, bytes32 r, bytes32 s) = _gameSig(address(token), bob, 10000);
+        bytes32 biz1 = _newBiz();
+        (uint8 v, bytes32 r, bytes32 s) = _signFor(address(token), bob, 10000, biz1);
         vm.prank(address(0xE411));
         vm.expectRevert("NOT_ADAPTER");
-        treasury.settle(address(token), bob, 10000, v, r, s);
+        treasury.settle(address(token), bob, 10000, _newBiz(), v, r, s);
     }
 
     /// @notice GPT#4：真正的恶意 ERC20 重入测试
@@ -326,9 +347,10 @@ contract ReferralSystemTest is Test {
         evil.approve(address(treasury), 10000);
         // 配置游戏返佣（game 已在 setUp 配置）
         // 上报：alice 是 bob 的上级，bob 消费 10000 → alice 得 2000 恶意币
-        (uint8 v2, bytes32 r2, bytes32 s2) = _gameSig(address(evil), bob, 10000);
+        bytes32 biz1 = _newBiz();
+        (uint8 v2, bytes32 r2, bytes32 s2) = _signFor(address(evil), bob, 10000, biz1);
         vm.prank(multisig);
-        evilAdapter.reportRevenue(bob, 10000, v2, r2, s2);
+        evilAdapter.reportRevenue(bob, 10000, biz1, v2, r2, s2);
         assertEq(treasury.claimable(alice, address(evil)), 2000);
 
         // 配置恶意回调：transfer 时重入 treasury.claim(evil)
@@ -351,10 +373,11 @@ contract ReferralSystemTest is Test {
         vm.prank(multisig);
         treasury.pause();
         // record 被停
-        (uint8 pv, bytes32 pr, bytes32 ps) = _gameSig(address(token), bob, 10000);
+        bytes32 biz1 = _newBiz();
+        (uint8 pv, bytes32 pr, bytes32 ps) = _signFor(address(token), bob, 10000, biz1);
         vm.prank(multisig);
         vm.expectRevert("PAUSED");
-        adapter.reportRevenue(bob, 10000, pv, pr, ps);
+        adapter.reportRevenue(bob, 10000, biz1, pv, pr, ps);
         // claim 不受影响
         vm.prank(alice);
         treasury.claim(address(token));
@@ -429,9 +452,10 @@ contract ReferralSystemTest is Test {
         token.mint(game, revenue);
         vm.prank(game);
         token.approve(address(treasury), revenue);
-        (uint8 fv, bytes32 fr, bytes32 fs) = _gameSig(address(token), carol, revenue);
+        bytes32 biz1 = _newBiz();
+        (uint8 fv, bytes32 fr, bytes32 fs) = _signFor(address(token), carol, revenue, biz1);
         vm.prank(multisig);
-        adapter.reportRevenue(carol, revenue, fv, fr, fs);
+        adapter.reportRevenue(carol, revenue, biz1, fv, fr, fs);
         // 无上级 → 无人拿钱，但 gameRevenue 记录
         assertEq(treasury.gameRevenue(game, address(token)), revenue);
     }
@@ -447,9 +471,10 @@ contract ReferralSystemTest is Test {
         token.mint(game, revenue);
         vm.prank(game);
         token.approve(address(treasury), revenue);
-        (uint8 fv2, bytes32 fr2, bytes32 fs2) = _gameSig(address(token), u3, revenue);
+        bytes32 biz1 = _newBiz();
+        (uint8 fv2, bytes32 fr2, bytes32 fs2) = _signFor(address(token), u3, revenue, biz1);
         vm.prank(multisig);
-        adapter.reportRevenue(u3, revenue, fv2, fr2, fs2);
+        adapter.reportRevenue(u3, revenue, biz1, fv2, fr2, fs2);
         assertEq(treasury.claimable(u2, address(token)), revenue * 2000 / 10000);
         assertEq(treasury.claimable(u1, address(token)), revenue * 500 / 10000);
     }
@@ -484,11 +509,15 @@ contract InvariantTest is Test {
         vm.stopPrank();
     }
 
-    function _gameSig(address user, uint256 revenue) internal view returns (uint8 v, bytes32 r, bytes32 s) {
-        uint256 nonce = treasury.gameNonce(game);
+    uint256 businessSeq;
+    function _newBiz() internal returns (bytes32) {
+        return keccak256(abi.encode("biz", block.timestamp, businessSeq++));
+    }
+
+    function _gameSig(address user, uint256 revenue, bytes32 biz) internal view returns (uint8 v, bytes32 r, bytes32 s) {
         bytes32 digest = keccak256(abi.encodePacked(
             "\x19Ethereum Signed Message:\n32",
-            keccak256(abi.encode(address(treasury), block.chainid, game, address(token), user, revenue, nonce))
+            keccak256(abi.encode(address(treasury), block.chainid, game, address(token), user, revenue, biz))
         ));
         (v, r, s) = vm.sign(gameSignerKey, digest);
     }
@@ -504,9 +533,11 @@ contract InvariantTest is Test {
             token.mint(game, rev);
             vm.prank(game);
             token.approve(address(treasury), rev);
-            (uint8 iv, bytes32 ir, bytes32 is_) = _gameSig(user, rev);
+            (uint8 iv, bytes32 ir, bytes32 is_) = _gameSig(user, rev, _newBiz());
             vm.prank(multisig);
-            try adapter.reportRevenue(user, rev, iv, ir, is_) {} catch {}
+            bytes32 ibiz = _newBiz();
+            (uint8 iv2, bytes32 ir2, bytes32 is2) = _gameSig(user, rev, ibiz);
+            try adapter.reportRevenue(user, rev, ibiz, iv2, ir2, is2) {} catch {}
             // 不变量：totalOwed 永不超过余额
             assertLe(treasury.totalOwed(address(token)), token.balanceOf(address(treasury)));
         }
@@ -554,20 +585,23 @@ contract GameIsolationTest is Test {
         vm.stopPrank();
     }
 
-    function _sigA(address user, uint256 revenue) internal view returns (uint8 v, bytes32 r, bytes32 s) {
-        uint256 nonce = treasury.gameNonce(gameA);
+    uint256 businessSeq;
+    function _newBiz() internal returns (bytes32) {
+        return keccak256(abi.encode("biz", block.timestamp, businessSeq++));
+    }
+
+    function _sigA(address user, uint256 revenue, bytes32 biz) internal view returns (uint8 v, bytes32 r, bytes32 s) {
         bytes32 digest = keccak256(abi.encodePacked(
             "\x19Ethereum Signed Message:\n32",
-            keccak256(abi.encode(address(treasury), block.chainid, gameA, address(token), user, revenue, nonce))
+            keccak256(abi.encode(address(treasury), block.chainid, gameA, address(token), user, revenue, biz))
         ));
         (v, r, s) = vm.sign(signerKeyA, digest);
     }
 
-    function _sigB(address user, uint256 revenue) internal view returns (uint8 v, bytes32 r, bytes32 s) {
-        uint256 nonce = treasury.gameNonce(gameB);
+    function _sigB(address user, uint256 revenue, bytes32 biz) internal view returns (uint8 v, bytes32 r, bytes32 s) {
         bytes32 digest = keccak256(abi.encodePacked(
             "\x19Ethereum Signed Message:\n32",
-            keccak256(abi.encode(address(treasury), block.chainid, gameB, address(token), user, revenue, nonce))
+            keccak256(abi.encode(address(treasury), block.chainid, gameB, address(token), user, revenue, biz))
         ));
         (v, r, s) = vm.sign(signerKeyB, digest);
     }
@@ -581,14 +615,16 @@ contract GameIsolationTest is Test {
         vm.prank(gameA);
         token.approve(address(treasury), 10000);
         // gameB 的适配器想上报 → 从 gameB 拉取失败
-        (uint8 bv, bytes32 br, bytes32 bs) = _sigB(user, 10000);
+        bytes32 bizB = _newBiz();
+        (uint8 bv, bytes32 br, bytes32 bs) = _sigB(user, 10000, bizB);
         vm.prank(multisig);
         vm.expectRevert();
-        adapterB.reportRevenue(user, 10000, bv, br, bs);
+        adapterB.reportRevenue(user, 10000, bizB, bv, br, bs);
         // gameA 正常上报 → 成功
-        (uint8 av, bytes32 ar, bytes32 as_) = _sigA(user, 10000);
+        bytes32 bizA = _newBiz();
+        (uint8 av, bytes32 ar, bytes32 as_) = _sigA(user, 10000, bizA);
         vm.prank(multisig);
-        adapterA.reportRevenue(user, 10000, av, ar, as_);
+        adapterA.reportRevenue(user, 10000, bizA, av, ar, as_);
         assertEq(treasury.claimable(ref, address(token)), 2000);
     }
 }
@@ -658,7 +694,7 @@ contract MultisigTest is Test {
     function setUp() public {
         address[] memory owners = new address[](3);
         owners[0] = o1; owners[1] = o2; owners[2] = o3;
-        msig = new SimpleMultisig(owners, 2);
+        msig = new SimpleMultisig(owners);
     }
 
     function test_submit_and_execute() public {
@@ -728,11 +764,17 @@ contract ZeroRefTest is Test {
         vm.stopPrank();
     }
 
-    function _gameSig(address user, uint256 revenue) internal view returns (uint8 v, bytes32 r, bytes32 s) {
-        uint256 nonce = treasury.gameNonce(game);
+    uint256 businessSeq;
+    function _newBiz() internal returns (bytes32) {
+        return keccak256(abi.encode("biz", block.timestamp, businessSeq++));
+    }
+
+    function _signFor(address tokenAddr, address user, uint256 revenue, bytes32 businessId)
+        internal view returns (uint8 v, bytes32 r, bytes32 s)
+    {
         bytes32 digest = keccak256(abi.encodePacked(
             "\x19Ethereum Signed Message:\n32",
-            keccak256(abi.encode(address(treasury), block.chainid, game, address(token), user, revenue, nonce))
+            keccak256(abi.encode(address(treasury), block.chainid, game, tokenAddr, user, revenue, businessId))
         ));
         (v, r, s) = vm.sign(gameSignerKey, digest);
     }
@@ -743,16 +785,19 @@ contract ZeroRefTest is Test {
         token.mint(game, 10000);
         vm.prank(game);
         token.approve(address(treasury), 10000);
-        (uint8 zv, bytes32 zr, bytes32 zs) = _gameSig(lonely, 10000);
+        bytes32 bizLonely = _newBiz();
+        (uint8 zv, bytes32 zr, bytes32 zs) = _signFor(address(token), lonely, 10000, bizLonely);
         vm.prank(multisig);
-        adapter.reportRevenue(lonely, 10000, zv, zr, zs);
+        adapter.reportRevenue(lonely, 10000, bizLonely, zv, zr, zs);
         // 零地址没有产生不可领取的债务
         assertEq(treasury.claimable(address(0), address(token)), 0);
         assertEq(treasury.totalOwed(address(token)), 0);
         // gameRecorded 只记实际应付（0）
         assertEq(treasury.gameRecorded(game, address(token)), 0);
-        // Treasury 实际收到了 10000（资金在，但无债务）
-        assertEq(token.balanceOf(address(treasury)), 10000);
+        // GPT 终审修复：精确资金流，无应付时 Treasury 不拉取资金，余额为 0
+        assertEq(token.balanceOf(address(treasury)), 0);
+        // 游戏账户保留了全部 10000（未被转走）
+        assertEq(token.balanceOf(game), 10000);
     }
 
     function test_partial_upline_only_real_credit() public {
@@ -763,9 +808,10 @@ contract ZeroRefTest is Test {
         token.mint(game, 10000);
         vm.prank(game);
         token.approve(address(treasury), 10000);
-        (uint8 zv2, bytes32 zr2, bytes32 zs2) = _gameSig(user, 10000);
+        bytes32 bizUser = _newBiz();
+        (uint8 zv2, bytes32 zr2, bytes32 zs2) = _signFor(address(token), user, 10000, bizUser);
         vm.prank(multisig);
-        adapter.reportRevenue(user, 10000, zv2, zr2, zs2);
+        adapter.reportRevenue(user, 10000, bizUser, zv2, zr2, zs2);
         // l1 得 2000，l2（零地址）不得
         assertEq(treasury.claimable(l1, address(token)), 2000);
         assertEq(treasury.claimable(address(0), address(token)), 0);
@@ -846,12 +892,17 @@ contract GameSigAttackTest is Test {
         vm.stopPrank();
     }
 
-    function _sig(uint256 key, address user, uint256 revenue, uint256 nonce)
+    uint256 businessSeq;
+    function _newBiz() internal returns (bytes32) {
+        return keccak256(abi.encode("biz", block.timestamp, businessSeq++));
+    }
+
+    function _sig(uint256 key, address user, uint256 revenue, bytes32 biz)
         internal view returns (uint8 v, bytes32 r, bytes32 s)
     {
         bytes32 digest = keccak256(abi.encodePacked(
             "\x19Ethereum Signed Message:\n32",
-            keccak256(abi.encode(address(treasury), block.chainid, game, address(token), user, revenue, nonce))
+            keccak256(abi.encode(address(treasury), block.chainid, game, address(token), user, revenue, biz))
         ));
         (v, r, s) = vm.sign(key, digest);
     }
@@ -862,10 +913,11 @@ contract GameSigAttackTest is Test {
         vm.prank(game);
         token.approve(address(treasury), 10000);
         // 攻击者伪造签名（用自己的 key 签）
-        (uint8 v, bytes32 r, bytes32 s) = _sig(attackerKey, user, 10000, 0);
+        bytes32 bizForge = _newBiz();
+        (uint8 v, bytes32 r, bytes32 s) = _sig(attackerKey, user, 10000, bizForge);
         vm.prank(multisig);
         vm.expectRevert("BAD_GAME_SIG");
-        adapter.reportRevenue(user, 10000, v, r, s);
+        adapter.reportRevenue(user, 10000, bizForge, v, r, s);
     }
 
     function test_replay_sig_rejected() public {
@@ -874,13 +926,16 @@ contract GameSigAttackTest is Test {
         vm.prank(game);
         token.approve(address(treasury), 20000);
         // 正常签一次，上报成功
-        (uint8 v, bytes32 r, bytes32 s) = _sig(gameSignerKey, user, 10000, 0);
+        bytes32 biz1 = _newBiz();
+        (uint8 v, bytes32 r, bytes32 s) = _sig(gameSignerKey, user, 10000, biz1);
         vm.prank(multisig);
-        adapter.reportRevenue(user, 10000, v, r, s);
-        // 重放同一签名（nonce 已消费）→ 失败
+        adapter.reportRevenue(user, 10000, biz1, v, r, s);
+        // 同一 businessId 重复结算 → 失败（BUSINESS_SETTLED）
+        bytes32 biz2 = _newBiz();
+        (uint8 v2, bytes32 r2, bytes32 s2) = _sig(gameSignerKey, user, 10000, biz1);
         vm.prank(multisig);
-        vm.expectRevert("BAD_GAME_SIG");
-        adapter.reportRevenue(user, 10000, v, r, s);
+        vm.expectRevert("BUSINESS_SETTLED");
+        adapter.reportRevenue(user, 10000, biz1, v2, r2, s2);
     }
 
     function test_wrong_revenue_sig_rejected() public {
@@ -888,11 +943,12 @@ contract GameSigAttackTest is Test {
         token.mint(game, 10000);
         vm.prank(game);
         token.approve(address(treasury), 10000);
+        bytes32 bizW = _newBiz();
         // 签的是 10000，实际报 20000 → 签名不匹配
-        (uint8 v, bytes32 r, bytes32 s) = _sig(gameSignerKey, user, 10000, 0);
+        (uint8 v, bytes32 r, bytes32 s) = _sig(gameSignerKey, user, 10000, bizW);
         vm.prank(multisig);
         vm.expectRevert("BAD_GAME_SIG");
-        adapter.reportRevenue(user, 20000, v, r, s);
+        adapter.reportRevenue(user, 20000, bizW, v, r, s);
     }
 }
 
@@ -907,32 +963,165 @@ contract MultisigHistoryTest is Test {
     function setUp() public {
         address[] memory owners = new address[](4);
         owners[0] = o1; owners[1] = o2; owners[2] = o3; owners[3] = o4;
-        msig = new SimpleMultisig(owners, 2);
+        msig = new SimpleMultisig(owners);
     }
 
     function test_removed_owner_confirm_invalidated() public {
-        // o1 提交（自动确认），o2 确认 → 2/3 达成
+        // 场景：o1、o2、o4 确认某交易（3/3 达成，可执行）
         vm.prank(o1);
         uint256 txId = msig.submit(address(0x9999), 0, "");
         vm.prank(o2);
         msig.confirm(txId);
-        // 移除 o1（走多签自身调用）
-        // 先构造移除交易：o2 提交，o3 确认，执行
+        vm.prank(o4);
+        msig.confirm(txId);
+        // 移除 o1：o2 提交，o3、o4 确认 → 3 达成
         vm.prank(o2);
         uint256 rmTx = msig.submit(address(msig), 0,
             abi.encodeWithSelector(msig.removeOwner.selector, o1));
         vm.prank(o3);
         msig.confirm(rmTx);
+        vm.prank(o4);
+        msig.confirm(rmTx);
         vm.prank(o2);
         msig.execute(rmTx);
         assertFalse(msig.isOwner(o1));
-        // 原交易的确认数应从 2 降到 1（o1 的确认作废）
+        // o1 的确认被作废，原交易确认数从 3 降到 2
         (, , , bool executed, uint256 confs) = msig.transactions(txId);
-        assertEq(confs, 1);
+        assertEq(confs, 2);
         assertFalse(executed);
-        // 现在执行原交易 → 确认不足，失败
+        // 移除后剩 3 人，阈值降为 2。但 o1 已不是 owner，不能再确认或执行
+        vm.prank(o1);
+        vm.expectRevert("NOT_OWNER");
+        msig.confirm(txId);
+        // o2 执行：2 确认 >= 阈值 2，可以执行（o1 的旧确认未被计入）
         vm.prank(o2);
+        msig.execute(txId);
+        (, , , bool executed2, ) = msig.transactions(txId);
+        assertTrue(executed2);
+    }
+
+    /// @notice 攻击：被移除成员试图用旧确认执行交易
+    function test_removed_owner_cannot_execute() public {
+        vm.prank(o1);
+        uint256 txId = msig.submit(address(0x9999), 0, "");
+        // 移除 o1
+        vm.prank(o2);
+        uint256 rmTx = msig.submit(address(msig), 0,
+            abi.encodeWithSelector(msig.removeOwner.selector, o1));
+        vm.prank(o3);
+        msig.confirm(rmTx);
+        vm.prank(o4);
+        msig.confirm(rmTx);
+        vm.prank(o2);
+        msig.execute(rmTx);
+        // o1 试图执行 → 不是 owner，失败
+        vm.prank(o1);
+        vm.expectRevert("NOT_OWNER");
+        msig.execute(txId);
+    }
+}
+
+/// @notice GPT 终审：多签动态阈值攻击测试
+contract MultisigThresholdTest is Test {
+    SimpleMultisig msig;
+    address o1 = address(0x1111);
+    address o2 = address(0x2222);
+    address o3 = address(0x3333);
+    address o4 = address(0x4444);
+    address o5 = address(0x5555);
+
+    function setUp() public {
+        address[] memory owners = new address[](3);
+        owners[0] = o1; owners[1] = o2; owners[2] = o3;
+        msig = new SimpleMultisig(owners);
+    }
+
+    function test_threshold_scales_with_owners() public {
+        // 3 人 → ceil(6/3)=2
+        assertEq(msig.threshold(), 2);
+        // 加到 4 人 → ceil(8/3)=3（走多签自身调用）
+        _addOwnerViaMultisig(o4);
+        assertEq(msig.threshold(), 3);
+        // 加到 5 人 → ceil(10/3)=4
+        _addOwnerViaMultisig(o5);
+        assertEq(msig.threshold(), 4);
+    }
+
+    function test_old_threshold_not_enough_after_growth() public {
+        _addOwnerViaMultisig(o4); // 4 人，阈值 3
+        // o1 提交，o2 确认 → 只有 2 个确认，不够 3
+        vm.prank(o1);
+        uint256 txId = msig.submit(address(0x9999), 0, "");
+        vm.prank(o2);
+        msig.confirm(txId);
+        vm.prank(o1);
         vm.expectRevert("NOT_ENOUGH_CONFIRMS");
         msig.execute(txId);
+        // o3 再确认 → 3 个，够了
+        vm.prank(o3);
+        msig.confirm(txId);
+        vm.prank(o1);
+        msig.execute(txId);
+        (, , , bool executed, ) = msig.transactions(txId);
+        assertTrue(executed);
+    }
+
+    function _addOwnerViaMultisig(address o) internal {
+        vm.prank(o1);
+        uint256 txId = msig.submit(address(msig), 0,
+            abi.encodeWithSelector(msig.addOwner.selector, o));
+        // 根据当前阈值确认足够人数
+        uint256 need = msig.threshold();
+        address[5] memory owners = [o1, o2, o3, o4, o5];
+        uint256 confirmed = 1; // o1 提交时自动确认
+        for (uint i = 1; i < 5 && confirmed < need; i++) {
+            if (msig.isOwner(owners[i])) {
+                vm.prank(owners[i]);
+                // 可能已确认，忽略失败
+                try msig.confirm(txId) { confirmed++; } catch {}
+            }
+        }
+        vm.prank(o1);
+        msig.execute(txId);
+    }
+}
+
+/// @notice GPT 终审#5：depth 语义澄清测试
+/// @dev depth 是绑定时的快照（上游链增长后可能过期），不用于安全判断。
+/// 安全由 _checkAcyclicAndDepth 的实时遍历保证。此测试验证文档宣称的准确语义。
+contract DepthSemanticsTest is Test {
+    ReferralRegistry registry;
+    address multisig = address(0x1001);
+
+    function setUp() public {
+        address[] memory pools = new address[](0);
+        registry = new ReferralRegistry(multisig, pools);
+    }
+
+    function test_depth_is_bind_time_snapshot() public {
+        address a = address(0xA001);
+        address b = address(0xB002);
+        // a 绑 b 时 b 未绑定（链长 0），所以 depth[a] = 1
+        vm.prank(a); registry.bind(b);
+        assertEq(registry.depth(a), 1);
+        // b 后来绑定 c，a 的 depth 快照不变（仍为 1），但真实链长变为 2
+        // 这是已知语义：depth 是快照，不自动更新
+        vm.prank(b); registry.bind(address(0xC003));
+        assertEq(registry.depth(a), 1); // 快照不变
+        // 无环检查仍有效：a 不能绑回自己的下游
+        vm.prank(address(0xC003));
+        vm.expectRevert("CYCLE");
+        registry.bind(a);
+    }
+
+    function test_cycle_check_independent_of_depth() public {
+        // 证明无环检查不依赖 depth 准确性
+        address a = address(0xA001);
+        address b = address(0xB002);
+        vm.prank(a); registry.bind(b);
+        // 即使 depth[a]=1 是过期快照，b 绑回 a 仍被拦截
+        vm.prank(b);
+        vm.expectRevert("CYCLE");
+        registry.bind(a);
     }
 }

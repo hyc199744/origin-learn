@@ -29,10 +29,11 @@ contract ReferralTreasury {
     // GPT#2 修复：Treasury 控制的结算 nonce，settlementId 由 Treasury 派生，
     // 适配器不能自选 ID，无法通过换 ID 重复上报
     mapping(address => uint256) public adapterNonce;
-    // GPT 复审#3 修复：每游戏指定签名人。每笔结算必须有游戏方的签名背书，
-    // operator 不能单方面上报。签名覆盖 (game, token, user, revenue, gameNonce)
+    // GPT 终审修复：每游戏指定签名人。每笔结算必须有游戏方的签名背书，
+    // operator 不能单方面上报。签名覆盖 (game, token, user, revenue, businessId)
     mapping(address => address) public gameSigner;
-    mapping(address => uint256) public gameNonce;
+    // GPT 终审修复：业务级防重放。同一游戏的同一 businessId 只能结算一次
+    mapping(address => mapping(bytes32 => bool)) public processedBusiness;
 
     // 分币种记账：用户 => 代币 => 待领取
     mapping(address => mapping(address => uint256)) public claimable;
@@ -123,37 +124,29 @@ contract ReferralTreasury {
 
     // ============ 记账 ============
 
-    /// @notice GPT#2 修复：原子结算。适配器在同一笔交易中从游戏拉取资金并记账。
-    /// @dev settlementId 由 Treasury 用自有 nonce 派生，适配器不能自选 ID，
-    /// 无法通过换 ID 反复上报同一业务收入。重复上报必须重复注资（经济约束）。
-    /// 游戏只需 approve Treasury 一次。
-    /// @notice GPT 复审#3：每笔结算必须携带游戏签名人的背书签名。
-    /// @dev 签名覆盖 (treasury, chainid, game, token, user, revenue, gameNonce)，
-    /// gameNonce 由 Treasury 控制并递增，防重放。operator 无法伪造游戏背书。
-    function settle(address token, address user, uint256 revenue, uint8 v, bytes32 r, bytes32 s)
+    /// @notice GPT 终审修复 v2：精确资金流 + 业务级防重放。
+    /// @dev 1. 只拉取实际应付佣金（credited），剩余手续费留在游戏收入账户，不永久转入金库
+    ///      2. businessId 绑定真实游戏业务记录，同一业务只能结算一次（processedBusiness）
+    ///      3. 游戏签名覆盖全部关键参数，operator 无法伪造或挪用
+    /// @param businessId 游戏方业务记录 ID（如对局/订单号），同一游戏下唯一
+    function settle(address token, address user, uint256 revenue, bytes32 businessId, uint8 v, bytes32 r, bytes32 s)
         external whenNotPaused nonReentrant returns (bytes32 settlementId)
     {
         require(authorizedAdapters[msg.sender], "NOT_ADAPTER");
         address game = adapterGame[msg.sender]; // 严格绑定：只能结算自己的游戏
         require(revenue > 0, "ZERO_REVENUE");
+        require(businessId != bytes32(0), "ZERO_BUSINESS_ID");
+        require(!processedBusiness[game][businessId], "BUSINESS_SETTLED");
         address signer = gameSigner[game];
         require(signer != address(0), "NO_GAME_SIGNER");
 
-        // 验证游戏背书签名
-        uint256 gNonce = gameNonce[game];
+        // 验证游戏背书签名（覆盖 businessId，绑定真实业务记录）
         bytes32 digest = keccak256(abi.encodePacked(
             "\x19Ethereum Signed Message:\n32",
-            keccak256(abi.encode(address(this), block.chainid, game, token, user, revenue, gNonce))
+            keccak256(abi.encode(address(this), block.chainid, game, token, user, revenue, businessId))
         ));
         require(ecrecover(digest, v, r, s) == signer, "BAD_GAME_SIG");
-        gameNonce[game] = gNonce + 1;
-
-        // 原子资金流：同一笔交易从游戏拉取本次收入
-        require(IERC20(token).transferFrom(game, address(this), revenue), "FUND_FAIL");
-
-        // Treasury 派生唯一结算 ID（适配器不可控）
-        uint256 nonce = adapterNonce[msg.sender]++;
-        settlementId = keccak256(abi.encode(msg.sender, game, token, user, revenue, nonce, block.chainid));
+        processedBusiness[game][businessId] = true;
 
         (address l1, address l2) = registry.getUpline(user);
         (uint16 l1Bps, uint16 l2Bps) = registry.gameBps(game);
@@ -162,8 +155,7 @@ contract ReferralTreasury {
 
         _checkDailyCap(game, token, user, l1Amt + l2Amt);
 
-        // GPT#3 修复：只给真实存在的邀请人记账。零地址/无上级的部分不产生债务，
-        // totalOwed 只累计实际应付，确保资金守恒与可领取余额一致
+        // 只给真实存在的邀请人记账
         uint256 credited = 0;
         if (l1 != address(0) && l1Amt > 0) {
             claimable[l1][token] += l1Amt;
@@ -174,10 +166,18 @@ contract ReferralTreasury {
             credited += l2Amt;
         }
 
+        // 精确资金流：只拉取实际应付佣金，剩余留在游戏账户
+        if (credited > 0) {
+            require(IERC20(token).transferFrom(game, address(this), credited), "FUND_FAIL");
+        }
+
+        // Treasury 派生唯一结算 ID（适配器不可控）
+        uint256 nonce = adapterNonce[msg.sender]++;
+        settlementId = keccak256(abi.encode(msg.sender, game, token, user, revenue, businessId, nonce, block.chainid));
+
         // 每游戏隔离：实际记账不得超过本游戏累计转入
-        gameFunded[game][token] += revenue;
+        gameFunded[game][token] += credited;
         gameRecorded[game][token] += credited;
-        require(gameRecorded[game][token] <= gameFunded[game][token], "GAME_UNDERFUNDED");
 
         // 全局资金守恒：记账总额永不超过实际到账
         totalOwed[token] += credited;
