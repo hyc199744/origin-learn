@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import "../src/ReferralRegistry.sol";
 import "../src/ReferralTreasury.sol";
 import "../src/SettlementAdapter.sol";
+import "../src/SimpleMultisig.sol";
 import "../src/MockERC20.sol";
 
 /// @notice V3 彩票 mock（测试迁移用）
@@ -490,5 +491,56 @@ contract SigCycleRebindTest is Test {
         vm.prank(alice);
         vm.expectRevert("REBIND_LIMIT");
         registry.rebind(address(0xD0D));
+    }
+}
+
+/// @notice 多签测试
+contract MultisigTest is Test {
+    SimpleMultisig msig;
+    address o1 = address(0x1111);
+    address o2 = address(0x2222);
+    address o3 = address(0x3333);
+
+    function setUp() public {
+        address[] memory owners = new address[](3);
+        owners[0] = o1; owners[1] = o2; owners[2] = o3;
+        msig = new SimpleMultisig(owners, 2);
+    }
+
+    function test_submit_and_execute() public {
+        // o1 提交（自动确认1次）
+        vm.prank(o1);
+        uint256 txId = msig.submit(address(0x9999), 0, "");
+        // o2 确认（2/3 达成）
+        vm.prank(o2);
+        msig.confirm(txId);
+        // o3 执行
+        vm.prank(o3);
+        msig.execute(txId);
+        (,,, bool executed,) = msig.transactions(txId);
+        assertTrue(executed);
+    }
+
+    function test_single_confirm_cannot_execute() public {
+        vm.prank(o1);
+        uint256 txId = msig.submit(address(0x9999), 0, "");
+        // 只有1个确认，执行失败
+        vm.prank(o1);
+        vm.expectRevert("NOT_ENOUGH_CONFIRMS");
+        msig.execute(txId);
+    }
+
+    function test_non_owner_revert() public {
+        vm.prank(address(0x9999));
+        vm.expectRevert("NOT_OWNER");
+        msig.submit(address(0x8888), 0, "");
+    }
+
+    function test_double_confirm_revert() public {
+        vm.prank(o1);
+        uint256 txId = msig.submit(address(0x9999), 0, "");
+        vm.prank(o1);
+        vm.expectRevert("ALREADY_CONFIRMED");
+        msig.confirm(txId);
     }
 }
