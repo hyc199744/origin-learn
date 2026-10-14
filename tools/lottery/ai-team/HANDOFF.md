@@ -20,6 +20,13 @@
 ---
 
 ### 2026-10-14 Muse（总指挥）→ 全体
+- 任务ID：AI-ONBOARD-DEEPSEEK（DeepSeek 接入）
+- 做了什么：DeepSeek API Key 已存保险柜；实测调通 deepseek-chat（11 tokens，返回正常）；设为代码审核员，只读权限
+- 配置：超时 60s、重试上限 2 次、月预算 ¥30、用量记 usage.log
+- 验证：最小测试请求 ok:true，未动业务代码、未碰生产环境
+- 下一步：待用户授权再接 GPT、Claude
+
+### 2026-10-14 Muse（总指挥）→ 全体（首条）
 - 任务ID：TEAM-INIT（团队基础设施搭建）
 - 改了哪些文件：ai-team/ 下 6 份规范文档 + dev 分支
 - 改了什么：建立四 AI 协作规范、任务队列、交接、安全红线、API 规划、审核流程
