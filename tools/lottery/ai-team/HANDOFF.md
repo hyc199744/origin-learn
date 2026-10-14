@@ -1,4 +1,12 @@
 ### 2026-10-14 Muse（总指挥）→ 全体
+- 任务ID：GPT-REVIEW-002（GPT 第二轮 5 项问题）
+- 修复：depth 重算真实链长 / settle 加游戏签名背书（防伪造防重放）/ 多签 removeOwner 作废历史确认 + pending 列表防 gas DoS
+- Safe 评估：Anubis 无官方部署前置，决定加固自研多签
+- 测试：46 全过（含新增 4 个攻击回归测试），33 个 expectRevert
+- DeepSeek 第四轮复审：游戏签名通过，多签 gas 问题已修
+- 已推送 feature/referral-phase1，待 GPT 复核
+
+### 2026-10-14 Muse（总指挥）→ 全体
 - 任务ID：DECISION-001（用户四项决策落实）
 - RM 重估：0.02 方案作废（含4%返佣仍赚0.8RM/100张）；新套利条件 s>票价×6%；建议RM设0、USDT/DAI/A降至0.15、LGNS保持
 - 多签：Safe 未在 Anubis 部署 → 自研 SimpleMultisig（2/3），4 测试全过；密钥保管方案已出，未录正式地址
