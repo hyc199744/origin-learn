@@ -55,3 +55,15 @@
 - 月预算：¥30，接近 ¥25 提醒，达到后停止调用，用量记 skills/openai/usage.log
 - 调用工具：skills/openai/bin/gpt_chat.py
 - 约束：只走 feature/dev 分支 + PR 审核流程；禁动 main、禁部署主网、禁操作真实钱包/资金
+
+---
+
+## Claude 接入记录（2026-10-14）
+
+- 接入方式：Anthropic 官方 Messages API（api.anthropic.com/v1/messages），Key 存保险柜 `custom.anthropic`
+- 认证：`x-api-key` 请求头 + `anthropic-version: 2023-06-01`
+- 默认模型：claude-sonnet-5-5（14 个可用模型中最新的 Sonnet）
+- 连接测试：Messages API 返回 OK，19 tokens，费用可忽略
+- 月预算：¥30，接近 ¥25 提醒，达到后应用层停止调用，用量记 skills/claude/usage.log
+- 调用工具：skills/claude/bin/claude_chat.py
+- 约束：只走 feature/dev 分支；禁动 main、禁部署主网、禁操作真实钱包/资金

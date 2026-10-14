@@ -26,13 +26,21 @@
 - 申请地址：https://platform.deepseek.com/api_keys
 - 备注：OpenAI 兼容格式，最便宜；国内可直连
 
-## 3. Anthropic Claude
+## 3. Anthropic Claude ✅ 已接入
 
-- 接口：`https://api.anthropic.com/v1/messages`
-- 认证：`x-api-key: <ANTHROPIC_API_KEY>` + `anthropic-version: 2023-06-01`
-- 建议模型：`claude-sonnet-4-5`（日常）、`claude-opus-4-1`（复杂）
+- 接口：`https://api.anthropic.com/v1/messages`（Messages API，已实测）
+- 认证：`x-api-key` 请求头 + `anthropic-version: 2023-06-01`，Key 走保险柜动态凭证（`custom.anthropic`），永不落盘
+- 默认模型：`claude-sonnet-5-5`（2026-10-14 实测，14 个可用模型中最新的 Sonnet）
+  - 费率参考：约 $3 / $15 per 1M tokens（输入/输出，Sonnet 系标准）
+  - 选用理由：前端编程、复杂页面设计、UI/UX 最强
+- 备选：`claude-sonnet-4-6`、`claude-haiku-4-5-20251001`（便宜，简单任务）
 - 申请地址：https://console.anthropic.com/
-- 备注：**不是** OpenAI 兼容格式，需单独封装；价格最高
+- 调用工具：`~/workspace/skills/claude/bin/claude_chat.py`
+  - `claude_chat.py models` — 列出可用模型
+  - `claude_chat.py [model] [prompt]` — Messages API 调用
+- 用量日志：`~/workspace/skills/claude/usage.log`
+- 月预算：¥30（接近 ¥25 提醒，达到后应用层停止调用）
+- 备注：**不是** OpenAI 兼容格式，已单独封装；Key 曾因复制问题 401 一次，重录后正常
 
 ## 4. 统一调度设计（待实现）
 
