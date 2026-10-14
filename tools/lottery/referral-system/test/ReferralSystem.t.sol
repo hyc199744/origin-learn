@@ -26,8 +26,11 @@ contract ReferralSystemTest is Test {
     address alice = address(0xA11CE);
     address bob = address(0xB0B);
     address carol = address(0xCA201);
+    uint256 gameSignerKey = 0x6A6E;
+    address gameSignerAddr;
 
     function setUp() public {
+        gameSignerAddr = vm.addr(gameSignerKey);
         address[] memory pools = new address[](1);
         v3pool = new MockV3Pool();
         pools[0] = address(v3pool);
@@ -39,12 +42,25 @@ contract ReferralSystemTest is Test {
         bytes32 topId = registry.proposeTreasury(address(treasury));
         // 游戏配置：l1 20%, l2 5%
         bytes32 opId = registry.proposeGameConfig(game, 2000, 500, 2500, true);
+        treasury.setGameSigner(game, gameSignerAddr);
         vm.warp(block.timestamp + 25 hours);
         registry.executeTreasury(address(treasury), 0);
         registry.executeGameConfig(game, 2000, 500, 2500, true, 1);
         adapter = new SettlementAdapter(game, address(treasury), address(token), multisig);
         treasury.authorizeAdapter(address(adapter), game);
         vm.stopPrank();
+    }
+
+    // 生成游戏背书签名
+    function _gameSig(address tokenAddr, address user, uint256 revenue)
+        internal view returns (uint8 v, bytes32 r, bytes32 s)
+    {
+        uint256 nonce = treasury.gameNonce(game);
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19Ethereum Signed Message:\n32",
+            keccak256(abi.encode(address(treasury), block.chainid, game, tokenAddr, user, revenue, nonce))
+        ));
+        (v, r, s) = vm.sign(gameSignerKey, digest);
     }
 
     // ============ 绑定测试 ============
@@ -189,8 +205,9 @@ contract ReferralSystemTest is Test {
         token.mint(game, revenue);
         vm.prank(game);
         token.approve(address(treasury), revenue);
+        (uint8 v, bytes32 r, bytes32 s) = _gameSig(address(token), user, revenue);
         vm.prank(multisig);
-        return adapter.reportRevenue(user, revenue);
+        return adapter.reportRevenue(user, revenue, v, r, s);
     }
 
     function test_commission_split() public {
@@ -228,9 +245,10 @@ contract ReferralSystemTest is Test {
         // 第一次：game 有 10000，成功
         bytes32 sid1 = _fundAndReport(bob, 10000);
         // 第二次：game 没钱了 → transferFrom 失败
+        (uint8 v, bytes32 r, bytes32 s) = _gameSig(address(token), bob, 10000);
         vm.prank(multisig);
         vm.expectRevert();
-        adapter.reportRevenue(bob, 10000);
+        adapter.reportRevenue(bob, 10000, v, r, s);
         // settlementId 每次不同（Treasury nonce 派生）
         bytes32 sid2 = _fundAndReport(bob, 10000);
         assertTrue(sid1 != sid2);
@@ -240,9 +258,10 @@ contract ReferralSystemTest is Test {
     function test_unfunded_report_revert() public {
         vm.prank(bob); registry.bind(alice);
         // game 没 approve → transferFrom 失败，无法上报
+        (uint8 v3, bytes32 r3, bytes32 s3) = _gameSig(address(token), bob, 10000);
         vm.prank(multisig);
         vm.expectRevert();
-        adapter.reportRevenue(bob, 10000);
+        adapter.reportRevenue(bob, 10000, v3, r3, s3);
     }
 
     /// @notice 攻击模拟：未授权适配器上报
@@ -251,9 +270,10 @@ contract ReferralSystemTest is Test {
         token.mint(game, 10000);
         vm.prank(game);
         token.approve(address(treasury), 10000);
+        (uint8 v, bytes32 r, bytes32 s) = _gameSig(address(token), bob, 10000);
         vm.prank(address(0xE411));
         vm.expectRevert("NOT_ADAPTER");
-        treasury.settle(address(token), bob, 10000);
+        treasury.settle(address(token), bob, 10000, v, r, s);
     }
 
     /// @notice GPT#4：真正的恶意 ERC20 重入测试
@@ -306,8 +326,9 @@ contract ReferralSystemTest is Test {
         evil.approve(address(treasury), 10000);
         // 配置游戏返佣（game 已在 setUp 配置）
         // 上报：alice 是 bob 的上级，bob 消费 10000 → alice 得 2000 恶意币
+        (uint8 v2, bytes32 r2, bytes32 s2) = _gameSig(address(evil), bob, 10000);
         vm.prank(multisig);
-        evilAdapter.reportRevenue(bob, 10000);
+        evilAdapter.reportRevenue(bob, 10000, v2, r2, s2);
         assertEq(treasury.claimable(alice, address(evil)), 2000);
 
         // 配置恶意回调：transfer 时重入 treasury.claim(evil)
@@ -330,9 +351,10 @@ contract ReferralSystemTest is Test {
         vm.prank(multisig);
         treasury.pause();
         // record 被停
+        (uint8 pv, bytes32 pr, bytes32 ps) = _gameSig(address(token), bob, 10000);
         vm.prank(multisig);
         vm.expectRevert("PAUSED");
-        adapter.reportRevenue(bob, 10000);
+        adapter.reportRevenue(bob, 10000, pv, pr, ps);
         // claim 不受影响
         vm.prank(alice);
         treasury.claim(address(token));
@@ -407,8 +429,9 @@ contract ReferralSystemTest is Test {
         token.mint(game, revenue);
         vm.prank(game);
         token.approve(address(treasury), revenue);
+        (uint8 fv, bytes32 fr, bytes32 fs) = _gameSig(address(token), carol, revenue);
         vm.prank(multisig);
-        adapter.reportRevenue(carol, revenue);
+        adapter.reportRevenue(carol, revenue, fv, fr, fs);
         // 无上级 → 无人拿钱，但 gameRevenue 记录
         assertEq(treasury.gameRevenue(game, address(token)), revenue);
     }
@@ -424,8 +447,9 @@ contract ReferralSystemTest is Test {
         token.mint(game, revenue);
         vm.prank(game);
         token.approve(address(treasury), revenue);
+        (uint8 fv2, bytes32 fr2, bytes32 fs2) = _gameSig(address(token), u3, revenue);
         vm.prank(multisig);
-        adapter.reportRevenue(u3, revenue);
+        adapter.reportRevenue(u3, revenue, fv2, fr2, fs2);
         assertEq(treasury.claimable(u2, address(token)), revenue * 2000 / 10000);
         assertEq(treasury.claimable(u1, address(token)), revenue * 500 / 10000);
     }
@@ -439,8 +463,11 @@ contract InvariantTest is Test {
     MockERC20 token;
     address multisig = address(0x1001);
     address game = address(0x2002);
+    uint256 gameSignerKey = 0x6A6E;
+    address gameSignerAddr;
 
     function setUp() public {
+        gameSignerAddr = vm.addr(gameSignerKey);
         address[] memory pools = new address[](0);
         registry = new ReferralRegistry(multisig, pools);
         treasury = new ReferralTreasury(multisig, address(registry));
@@ -448,12 +475,22 @@ contract InvariantTest is Test {
         vm.startPrank(multisig);
         registry.proposeTreasury(address(treasury));
         registry.proposeGameConfig(game, 2000, 500, 2500, true);
+        treasury.setGameSigner(game, gameSignerAddr);
         vm.warp(block.timestamp + 25 hours);
         registry.executeTreasury(address(treasury), 0);
         registry.executeGameConfig(game, 2000, 500, 2500, true, 1);
         adapter = new SettlementAdapter(game, address(treasury), address(token), multisig);
         treasury.authorizeAdapter(address(adapter), game);
         vm.stopPrank();
+    }
+
+    function _gameSig(address user, uint256 revenue) internal view returns (uint8 v, bytes32 r, bytes32 s) {
+        uint256 nonce = treasury.gameNonce(game);
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19Ethereum Signed Message:\n32",
+            keccak256(abi.encode(address(treasury), block.chainid, game, address(token), user, revenue, nonce))
+        ));
+        (v, r, s) = vm.sign(gameSignerKey, digest);
     }
 
     /// @notice 处理器：随机绑定+上报+领取
@@ -467,8 +504,9 @@ contract InvariantTest is Test {
             token.mint(game, rev);
             vm.prank(game);
             token.approve(address(treasury), rev);
+            (uint8 iv, bytes32 ir, bytes32 is_) = _gameSig(user, rev);
             vm.prank(multisig);
-            try adapter.reportRevenue(user, rev) {} catch {}
+            try adapter.reportRevenue(user, rev, iv, ir, is_) {} catch {}
             // 不变量：totalOwed 永不超过余额
             assertLe(treasury.totalOwed(address(token)), token.balanceOf(address(treasury)));
         }
@@ -487,8 +525,14 @@ contract GameIsolationTest is Test {
     address multisig = address(0x1001);
     address gameA = address(0xA001);
     address gameB = address(0xB002);
+    uint256 signerKeyA = 0xAAA1;
+    uint256 signerKeyB = 0xBBB2;
+    address signerA;
+    address signerB;
 
     function setUp() public {
+        signerA = vm.addr(signerKeyA);
+        signerB = vm.addr(signerKeyB);
         address[] memory pools = new address[](0);
         registry = new ReferralRegistry(multisig, pools);
         treasury = new ReferralTreasury(multisig, address(registry));
@@ -497,6 +541,8 @@ contract GameIsolationTest is Test {
         registry.proposeTreasury(address(treasury));
         registry.proposeGameConfig(gameA, 2000, 500, 2500, true);
         registry.proposeGameConfig(gameB, 2000, 500, 2500, true);
+        treasury.setGameSigner(gameA, signerA);
+        treasury.setGameSigner(gameB, signerB);
         vm.warp(block.timestamp + 25 hours);
         registry.executeTreasury(address(treasury), 0);
         registry.executeGameConfig(gameA, 2000, 500, 2500, true, 1);
@@ -508,6 +554,24 @@ contract GameIsolationTest is Test {
         vm.stopPrank();
     }
 
+    function _sigA(address user, uint256 revenue) internal view returns (uint8 v, bytes32 r, bytes32 s) {
+        uint256 nonce = treasury.gameNonce(gameA);
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19Ethereum Signed Message:\n32",
+            keccak256(abi.encode(address(treasury), block.chainid, gameA, address(token), user, revenue, nonce))
+        ));
+        (v, r, s) = vm.sign(signerKeyA, digest);
+    }
+
+    function _sigB(address user, uint256 revenue) internal view returns (uint8 v, bytes32 r, bytes32 s) {
+        uint256 nonce = treasury.gameNonce(gameB);
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19Ethereum Signed Message:\n32",
+            keccak256(abi.encode(address(treasury), block.chainid, gameB, address(token), user, revenue, nonce))
+        ));
+        (v, r, s) = vm.sign(signerKeyB, digest);
+    }
+
     function test_game_fund_isolation() public {
         address user = address(0x1111);
         address ref = address(0x2222);
@@ -517,12 +581,14 @@ contract GameIsolationTest is Test {
         vm.prank(gameA);
         token.approve(address(treasury), 10000);
         // gameB 的适配器想上报 → 从 gameB 拉取失败
+        (uint8 bv, bytes32 br, bytes32 bs) = _sigB(user, 10000);
         vm.prank(multisig);
         vm.expectRevert();
-        adapterB.reportRevenue(user, 10000);
+        adapterB.reportRevenue(user, 10000, bv, br, bs);
         // gameA 正常上报 → 成功
+        (uint8 av, bytes32 ar, bytes32 as_) = _sigA(user, 10000);
         vm.prank(multisig);
-        adapterA.reportRevenue(user, 10000);
+        adapterA.reportRevenue(user, 10000, av, ar, as_);
         assertEq(treasury.claimable(ref, address(token)), 2000);
     }
 }
@@ -641,8 +707,11 @@ contract ZeroRefTest is Test {
     MockERC20 token;
     address multisig = address(0x1001);
     address game = address(0x2002);
+    uint256 gameSignerKey = 0x6A6E;
+    address gameSignerAddr;
 
     function setUp() public {
+        gameSignerAddr = vm.addr(gameSignerKey);
         address[] memory pools = new address[](0);
         registry = new ReferralRegistry(multisig, pools);
         treasury = new ReferralTreasury(multisig, address(registry));
@@ -650,6 +719,7 @@ contract ZeroRefTest is Test {
         vm.startPrank(multisig);
         registry.proposeTreasury(address(treasury));
         registry.proposeGameConfig(game, 2000, 500, 2500, true);
+        treasury.setGameSigner(game, gameSignerAddr);
         vm.warp(block.timestamp + 25 hours);
         registry.executeTreasury(address(treasury), 0);
         registry.executeGameConfig(game, 2000, 500, 2500, true, 1);
@@ -658,14 +728,24 @@ contract ZeroRefTest is Test {
         vm.stopPrank();
     }
 
+    function _gameSig(address user, uint256 revenue) internal view returns (uint8 v, bytes32 r, bytes32 s) {
+        uint256 nonce = treasury.gameNonce(game);
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19Ethereum Signed Message:\n32",
+            keccak256(abi.encode(address(treasury), block.chainid, game, address(token), user, revenue, nonce))
+        ));
+        (v, r, s) = vm.sign(gameSignerKey, digest);
+    }
+
     function test_no_upline_no_debt() public {
         address lonely = address(0x9999);
         // lonely 没有绑定任何邀请人
         token.mint(game, 10000);
         vm.prank(game);
         token.approve(address(treasury), 10000);
+        (uint8 zv, bytes32 zr, bytes32 zs) = _gameSig(lonely, 10000);
         vm.prank(multisig);
-        adapter.reportRevenue(lonely, 10000);
+        adapter.reportRevenue(lonely, 10000, zv, zr, zs);
         // 零地址没有产生不可领取的债务
         assertEq(treasury.claimable(address(0), address(token)), 0);
         assertEq(treasury.totalOwed(address(token)), 0);
@@ -683,8 +763,9 @@ contract ZeroRefTest is Test {
         token.mint(game, 10000);
         vm.prank(game);
         token.approve(address(treasury), 10000);
+        (uint8 zv2, bytes32 zr2, bytes32 zs2) = _gameSig(user, 10000);
         vm.prank(multisig);
-        adapter.reportRevenue(user, 10000);
+        adapter.reportRevenue(user, 10000, zv2, zr2, zs2);
         // l1 得 2000，l2（零地址）不得
         assertEq(treasury.claimable(l1, address(token)), 2000);
         assertEq(treasury.claimable(address(0), address(token)), 0);
@@ -732,5 +813,126 @@ contract LifetimeBindTest is Test {
         vm.expectRevert("ALREADY_BOUND");
         treasury.authorizeAdapter(address(adapter), gameB);
         vm.stopPrank();
+    }
+}
+
+/// @notice GPT 复审回归：游戏签名背书攻击测试
+contract GameSigAttackTest is Test {
+    ReferralRegistry registry;
+    ReferralTreasury treasury;
+    SettlementAdapter adapter;
+    MockERC20 token;
+    address multisig = address(0x1001);
+    address game = address(0x2002);
+    uint256 gameSignerKey = 0x6A6E;
+    uint256 attackerKey = 0xBAD;
+    address gameSignerAddr;
+
+    function setUp() public {
+        gameSignerAddr = vm.addr(gameSignerKey);
+        address[] memory pools = new address[](0);
+        registry = new ReferralRegistry(multisig, pools);
+        treasury = new ReferralTreasury(multisig, address(registry));
+        token = new MockERC20("Test", "TST", 18);
+        vm.startPrank(multisig);
+        registry.proposeTreasury(address(treasury));
+        registry.proposeGameConfig(game, 2000, 500, 2500, true);
+        treasury.setGameSigner(game, gameSignerAddr);
+        vm.warp(block.timestamp + 25 hours);
+        registry.executeTreasury(address(treasury), 0);
+        registry.executeGameConfig(game, 2000, 500, 2500, true, 1);
+        adapter = new SettlementAdapter(game, address(treasury), address(token), multisig);
+        treasury.authorizeAdapter(address(adapter), game);
+        vm.stopPrank();
+    }
+
+    function _sig(uint256 key, address user, uint256 revenue, uint256 nonce)
+        internal view returns (uint8 v, bytes32 r, bytes32 s)
+    {
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19Ethereum Signed Message:\n32",
+            keccak256(abi.encode(address(treasury), block.chainid, game, address(token), user, revenue, nonce))
+        ));
+        (v, r, s) = vm.sign(key, digest);
+    }
+
+    function test_forged_game_sig_rejected() public {
+        address user = address(0x1111);
+        token.mint(game, 10000);
+        vm.prank(game);
+        token.approve(address(treasury), 10000);
+        // 攻击者伪造签名（用自己的 key 签）
+        (uint8 v, bytes32 r, bytes32 s) = _sig(attackerKey, user, 10000, 0);
+        vm.prank(multisig);
+        vm.expectRevert("BAD_GAME_SIG");
+        adapter.reportRevenue(user, 10000, v, r, s);
+    }
+
+    function test_replay_sig_rejected() public {
+        address user = address(0x1111);
+        token.mint(game, 20000);
+        vm.prank(game);
+        token.approve(address(treasury), 20000);
+        // 正常签一次，上报成功
+        (uint8 v, bytes32 r, bytes32 s) = _sig(gameSignerKey, user, 10000, 0);
+        vm.prank(multisig);
+        adapter.reportRevenue(user, 10000, v, r, s);
+        // 重放同一签名（nonce 已消费）→ 失败
+        vm.prank(multisig);
+        vm.expectRevert("BAD_GAME_SIG");
+        adapter.reportRevenue(user, 10000, v, r, s);
+    }
+
+    function test_wrong_revenue_sig_rejected() public {
+        address user = address(0x1111);
+        token.mint(game, 10000);
+        vm.prank(game);
+        token.approve(address(treasury), 10000);
+        // 签的是 10000，实际报 20000 → 签名不匹配
+        (uint8 v, bytes32 r, bytes32 s) = _sig(gameSignerKey, user, 10000, 0);
+        vm.prank(multisig);
+        vm.expectRevert("BAD_GAME_SIG");
+        adapter.reportRevenue(user, 20000, v, r, s);
+    }
+}
+
+/// @notice GPT 复审回归：多签历史确认一致性
+contract MultisigHistoryTest is Test {
+    SimpleMultisig msig;
+    address o1 = address(0x1111);
+    address o2 = address(0x2222);
+    address o3 = address(0x3333);
+    address o4 = address(0x4444);
+
+    function setUp() public {
+        address[] memory owners = new address[](4);
+        owners[0] = o1; owners[1] = o2; owners[2] = o3; owners[3] = o4;
+        msig = new SimpleMultisig(owners, 2);
+    }
+
+    function test_removed_owner_confirm_invalidated() public {
+        // o1 提交（自动确认），o2 确认 → 2/3 达成
+        vm.prank(o1);
+        uint256 txId = msig.submit(address(0x9999), 0, "");
+        vm.prank(o2);
+        msig.confirm(txId);
+        // 移除 o1（走多签自身调用）
+        // 先构造移除交易：o2 提交，o3 确认，执行
+        vm.prank(o2);
+        uint256 rmTx = msig.submit(address(msig), 0,
+            abi.encodeWithSelector(msig.removeOwner.selector, o1));
+        vm.prank(o3);
+        msig.confirm(rmTx);
+        vm.prank(o2);
+        msig.execute(rmTx);
+        assertFalse(msig.isOwner(o1));
+        // 原交易的确认数应从 2 降到 1（o1 的确认作废）
+        (, , , bool executed, uint256 confs) = msig.transactions(txId);
+        assertEq(confs, 1);
+        assertFalse(executed);
+        // 现在执行原交易 → 确认不足，失败
+        vm.prank(o2);
+        vm.expectRevert("NOT_ENOUGH_CONFIRMS");
+        msig.execute(txId);
     }
 }

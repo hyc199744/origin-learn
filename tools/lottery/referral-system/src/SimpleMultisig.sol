@@ -20,6 +20,10 @@ contract SimpleMultisig {
 
     Transaction[] public transactions;
     mapping(uint256 => mapping(address => bool)) public confirmed;
+    // DeepSeek 复审修复：维护未执行交易 ID 列表，removeOwner 只遍历未执行的，
+    // 避免 transactions 无限增长导致 gas DoS
+    uint256[] public pendingTxIds;
+    mapping(uint256 => uint256) private pendingTxIndex; // txId => 在 pendingTxIds 中的下标+1（0 表示不在）
 
     event Submitted(uint256 indexed txId, address indexed to, uint256 value, bytes data);
     event Confirmed(uint256 indexed txId, address indexed owner);
@@ -49,6 +53,8 @@ contract SimpleMultisig {
     {
         txId = transactions.length;
         transactions.push(Transaction(to, value, data, false, 0));
+        pendingTxIds.push(txId);
+        pendingTxIndex[txId] = pendingTxIds.length; // 下标+1
         emit Submitted(txId, to, value, data);
         // 提交者自动确认一次
         _confirm(txId);
@@ -73,9 +79,20 @@ contract SimpleMultisig {
         Transaction storage t = transactions[txId];
         require(t.confirmations >= threshold, "NOT_ENOUGH_CONFIRMS");
         t.executed = true;
+        _removePending(txId);
         (bool ok,) = t.to.call{value: t.value}(t.data);
         require(ok, "EXEC_FAIL");
         emit Executed(txId);
+    }
+
+    function _removePending(uint256 txId) internal {
+        uint256 idx = pendingTxIndex[txId];
+        require(idx > 0, "NOT_PENDING");
+        uint256 last = pendingTxIds[pendingTxIds.length - 1];
+        pendingTxIds[idx - 1] = last;
+        pendingTxIndex[last] = idx;
+        pendingTxIds.pop();
+        delete pendingTxIndex[txId];
     }
 
     // ============ owner 管理（需多签自身调用，即走 submit/confirm/execute） ============
@@ -88,11 +105,21 @@ contract SimpleMultisig {
         emit OwnerAdded(o);
     }
 
+    /// @notice GPT 复审修复：移除成员时，其在所有未执行交易上的旧确认一并作废，
+    /// @dev 保证"历史确认一致性"：已移除成员的确认不能继续计入阈值
     function removeOwner(address o) external {
         require(msg.sender == address(this), "ONLY_SELF");
         require(isOwner[o], "NOT_OWNER");
         require(owners.length - 1 >= 3, "MIN_3_OWNERS");
         isOwner[o] = false;
+        // 作废该成员在所有未执行交易上的确认（只遍历 pending 列表，有界）
+        for (uint256 i = 0; i < pendingTxIds.length; i++) {
+            uint256 txId = pendingTxIds[i];
+            if (confirmed[txId][o]) {
+                confirmed[txId][o] = false;
+                transactions[txId].confirmations--;
+            }
+        }
         for (uint i = 0; i < owners.length; i++) {
             if (owners[i] == o) {
                 owners[i] = owners[owners.length - 1];

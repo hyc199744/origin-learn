@@ -29,6 +29,10 @@ contract ReferralTreasury {
     // GPT#2 修复：Treasury 控制的结算 nonce，settlementId 由 Treasury 派生，
     // 适配器不能自选 ID，无法通过换 ID 重复上报
     mapping(address => uint256) public adapterNonce;
+    // GPT 复审#3 修复：每游戏指定签名人。每笔结算必须有游戏方的签名背书，
+    // operator 不能单方面上报。签名覆盖 (game, token, user, revenue, gameNonce)
+    mapping(address => address) public gameSigner;
+    mapping(address => uint256) public gameNonce;
 
     // 分币种记账：用户 => 代币 => 待领取
     mapping(address => mapping(address => uint256)) public claimable;
@@ -55,6 +59,7 @@ contract ReferralTreasury {
 
     event AdapterAuthorized(address indexed adapter, address indexed game);
     event AdapterRevoked(address indexed adapter);
+    event GameSignerSet(address indexed game, address indexed signer);
     event GameFunded(address indexed game, address indexed token, uint256 amount);
     event CommissionRecorded(bytes32 indexed settlementId, address indexed game, address indexed token, address user, address l1, uint256 l1Amt, address l2, uint256 l2Amt);
     event Claimed(address indexed user, address indexed token, uint256 amount);
@@ -109,18 +114,39 @@ contract ReferralTreasury {
         emit DailyCapSet(game, token, cap);
     }
 
+    /// @notice 设置游戏的签名背书人（多签）
+    function setGameSigner(address game, address signer) external onlyMultisig {
+        require(game != address(0) && signer != address(0), "BAD_ADDR");
+        gameSigner[game] = signer;
+        emit GameSignerSet(game, signer);
+    }
+
     // ============ 记账 ============
 
     /// @notice GPT#2 修复：原子结算。适配器在同一笔交易中从游戏拉取资金并记账。
     /// @dev settlementId 由 Treasury 用自有 nonce 派生，适配器不能自选 ID，
     /// 无法通过换 ID 反复上报同一业务收入。重复上报必须重复注资（经济约束）。
     /// 游戏只需 approve Treasury 一次。
-    function settle(address token, address user, uint256 revenue)
+    /// @notice GPT 复审#3：每笔结算必须携带游戏签名人的背书签名。
+    /// @dev 签名覆盖 (treasury, chainid, game, token, user, revenue, gameNonce)，
+    /// gameNonce 由 Treasury 控制并递增，防重放。operator 无法伪造游戏背书。
+    function settle(address token, address user, uint256 revenue, uint8 v, bytes32 r, bytes32 s)
         external whenNotPaused nonReentrant returns (bytes32 settlementId)
     {
         require(authorizedAdapters[msg.sender], "NOT_ADAPTER");
         address game = adapterGame[msg.sender]; // 严格绑定：只能结算自己的游戏
         require(revenue > 0, "ZERO_REVENUE");
+        address signer = gameSigner[game];
+        require(signer != address(0), "NO_GAME_SIGNER");
+
+        // 验证游戏背书签名
+        uint256 gNonce = gameNonce[game];
+        bytes32 digest = keccak256(abi.encodePacked(
+            "\x19Ethereum Signed Message:\n32",
+            keccak256(abi.encode(address(this), block.chainid, game, token, user, revenue, gNonce))
+        ));
+        require(ecrecover(digest, v, r, s) == signer, "BAD_GAME_SIG");
+        gameNonce[game] = gNonce + 1;
 
         // 原子资金流：同一笔交易从游戏拉取本次收入
         require(IERC20(token).transferFrom(game, address(this), revenue), "FUND_FAIL");
