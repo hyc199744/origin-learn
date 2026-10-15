@@ -123,10 +123,10 @@
     if(m.t==='challenge'){ const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig}); }
     else if(m.t==='authed'){ authed=true; delegate=m.delegate; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); }
     else if(m.t==='tables'){ renderRooms(m.tables); }
-    else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=true;
-      wsend({t:'subscribe',handId:curHand}); wsend({t:'joinTable',handId:curHand}); toast('开桌成功，入座中…'); // 先真入座
+    else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
+      wsend({t:'subscribe',handId:curHand}); toast('开桌成功，点「准备」交底注开始'); // 进桌旁观,点准备才交底注
       state={handId:String(m.handId),phase:1,ante:(BigInt(newAnte)*1000000000n).toString(),maxPlayers:newCount,nPlayers:0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
-      enterTable(); try{ render(); }catch(e){} clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false; try{render();}catch(e){}} },12000); }
+      enterTable(); try{ render(); }catch(e){} }
     else if(m.t==='joined'){ logAct('你已入座'); }
     else if(m.t==='left'){ toast('已退座，底注退回可领取'); backToLobby(true); }
     else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ onState(m); } }
@@ -307,16 +307,30 @@
   }
   function renderActions(phase,mi,me,looked,cost,ended,comparing){
     const ctrl=$('actionControls'), rr=$('roundResult');
-    if(pending && phase===2 && !ended){ ctrl.hidden=false; rr.hidden=true; ['foldButton','peekButton','raiseButton','compareButton','callButton'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); return; } // 处理中:保持禁用,但上面已把牌渲染出来
+    if(pending && phase===2 && !ended){ ctrl.hidden=false; rr.hidden=true; const _r=$('readyRow'); if(_r)_r.hidden=true; ['foldButton','peekButton','raiseButton','compareButton','callButton'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); return; } // 处理中:保持禁用,但上面已把牌渲染出来
     const myTurn=phase===2&&!comparing&&mi>=0&&state.turnAddr&&isMe(state.turnAddr)&&me&&!me.folded;
 
+    const ready=$('readyRow');
     if(phase===1){
       ctrl.hidden=true; rr.hidden=true;
-      if(joining){ $('turnTitle').textContent='入座中…'; $('turnHint').textContent='正在上链交底注，稍候…'; return; }
-      $('turnTitle').textContent = mi<0?'未入座':(state.nPlayers<2?'等待玩家':'准备开局…');
-      $('turnHint').textContent = mi<0?'点下方加入或到大厅入座':(state.nPlayers<2?'已自动邀请同桌玩家,凑够 2 人自动发牌':'人齐,正在发牌');
+      const anteV=fmt(e9(state.ante));
+      if(joining){ if(ready)ready.hidden=true; $('turnTitle').textContent='准备中…'; $('turnHint').textContent='正在上链交底注，稍候…'; return; }
+      if(ready)ready.hidden=false;
+      if(mi<0){ // 旁观,未准备
+        $('turnTitle').textContent='进桌成功'; $('turnHint').textContent='点「准备」交底注入座';
+        $('readyTitle').textContent='准备开始'; $('readyDesc').textContent='交底注 '+anteV+' LGNS 入座，人齐自动开局';
+        const rb=$('readyBtn'); rb.textContent='准备（交底注 '+anteV+'）'; rb.disabled=false;
+      } else { // 已准备(已交底注)
+        const waiting=state.nPlayers<2;
+        $('turnTitle').textContent=waiting?'已准备':'人齐，马上开始';
+        $('turnHint').textContent=waiting?'等其他玩家准备':'正在发牌…';
+        $('readyTitle').textContent=waiting?'✓ 已准备 · 等其他玩家':'✓ 人齐，马上开始';
+        $('readyDesc').textContent=waiting?'已交底注 '+anteV+' LGNS，等另一位玩家准备':'';
+        const rb=$('readyBtn'); rb.textContent='✓ 已准备'; rb.disabled=true;
+      }
       return;
     }
+    if(ready)ready.hidden=true;
     if(ended){
       ctrl.hidden=true; rr.hidden=false;
       $('turnTitle').textContent='本局已结算';
@@ -413,12 +427,19 @@
   }
   async function joinRoom(id){
     if(!myAddr){ await connect(); if(!myAddr)return; }
-    if(!authorized){ await doAuthorize(); if(!authorized)return; } // 首次自动授权一次,签完即进,无需单独说明
-    curHand=String(id); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=true;
-    wsend({t:'subscribe',handId:id}); wsend({t:'joinTable',handId:id}); toast('入座中…'); // 先真入座,渲染出错也不影响
-    const room=(window._rooms||[]).find(r=>String(r.handId)===String(id)); // 立刻用大厅已知信息搭个临时桌,不等上链
+    curHand=String(id); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
+    wsend({t:'subscribe',handId:id}); // 先进桌旁观,点「准备」才交底注入座
+    const room=(window._rooms||[]).find(r=>String(r.handId)===String(id));
     state={handId:String(id),phase:1,ante:room?room.ante:'0',maxPlayers:room?Number(room.maxPlayers):6,nPlayers:room?Number(room.nPlayers):0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
     enterTable(); try{ render(); }catch(e){}
+  }
+  async function doReady(){ // 准备=交底注入座
+    if(!curHand)return;
+    if(!myAddr){ await connect(); if(!myAddr)return; }
+    if(!authorized){ await doAuthorize(); if(!authorized)return; } // 首次自动授权一次
+    joining=true;
+    wsend({t:'joinTable',handId:curHand}); toast('准备中，交底注入座…');
+    try{ render(); }catch(e){}
     clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false; try{render();}catch(e){}} },12000);
   }
   async function doCreate(){
@@ -565,6 +586,7 @@
         case 'raise':doRaise();break;
         case 'compare':startCompare();break;
         case 'next':if(curHand)wsend({t:'rematch',handId:curHand});toast('继续下一局…');break;
+        case 'ready':await doReady();break;
         case 'leave':backToLobby();break;
         case 'fullscreen':await toggleLandscape();break;
         case 'sound':sound=!sound;updateSound();playSound();toast(sound?'音效已开':'音效已关');break;
