@@ -38,6 +38,9 @@
   function enc(v){return BigInt(v).toString(16).padStart(64,'0');}
   function encA(a){return '0'.repeat(24)+a.toLowerCase().replace(/^0x/,'');}
   function rcall(to,d){return fetch(ANUBIS.rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to,data:'0x'+d},'latest']})}).then(r=>r.json()).then(j=>(j.result||'0x').replace(/^0x/,''));}
+  async function roomPhase(id){ // 查房间当前阶段:0不存在/1等待/2下注/3摊牌/4结束/5退款, -1出错
+    try{ const r=await rcall(CONTRACT,'d47f269e'+enc(id)); if(!r||r.length<64)return 0; return parseInt(r.slice(62,64),16)||0; }catch(e){ return -1; }
+  }
   function loadResults(){try{return JSON.parse(localStorage.getItem('anubisplay_results')||'[]');}catch(e){return [];}}
   function saveResults(){try{localStorage.setItem('anubisplay_results',JSON.stringify(results.slice(0,50)));}catch(e){}}
   function logAct(t){activity.unshift({text:t,time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})});activity=activity.slice(0,40);}
@@ -124,7 +127,7 @@
     else if(m.t==='authed'){ authed=true; delegate=m.delegate; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); }
     else if(m.t==='tables'){ renderRooms(m.tables); }
     else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
-      wsend({t:'subscribe',handId:curHand}); toast('开桌成功，点「准备」交底注开始'); // 进桌旁观,点准备才交底注
+      wsend({t:'subscribe',handId:curHand}); toast('✅ 开桌成功！房号 #'+m.handId+' —— 把这个号发给朋友，他输房号进同一桌；你点「准备」交底注开始'); // 进桌旁观,点准备才交底注
       state={handId:String(m.handId),phase:1,ante:(BigInt(newAnte)*1000000000n).toString(),maxPlayers:newCount,nPlayers:0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
       enterTable(); try{ render(); }catch(e){} }
     else if(m.t==='joined'){ logAct('你已入座'); }
@@ -577,7 +580,7 @@
         case 'connect':await connect();closeModal();showWallet();break;
         case 'rules':showRules();break;
         case 'records':showRecords();break;
-        case 'join-code':{ const box=b.closest('.m-joinbox,.join-box'); const inp=box&&box.querySelector('input'); const id=inp?String(inp.value).replace(/[^0-9]/g,''):''; if(!id){toast('请输入房号');break;} if(inp)inp.value=''; joinRoom(id); break; }
+        case 'join-code':{ const box=b.closest('.m-joinbox,.join-box'); const inp=box&&box.querySelector('input'); const id=inp?String(inp.value).replace(/[^0-9]/g,''):''; if(!id){toast('请输入房号');break;} toast('查询房间 #'+id+'…'); const ph=await roomPhase(id); if(ph===0){toast('房间 #'+id+' 不存在，请让朋友重新建桌');break;} if(ph>=4){toast('房间 #'+id+' 本局已结束，请换一个房号或新建牌桌');break;} if(inp)inp.value=''; joinRoom(id); break; }
         case 'create':openCreate();break;
         case 'create-confirm':doCreate();break;
         case 'claim':doClaim();break;
