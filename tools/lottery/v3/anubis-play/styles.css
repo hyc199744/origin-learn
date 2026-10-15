@@ -335,3 +335,6 @@ body.force-landscape .felt-watermark{opacity:.5}
 /* 头部再上提 */
 .m-head{padding-top:calc(2px + env(safe-area-inset-top));padding-bottom:7px}
 .m-net{padding-top:7px}
+
+/* DApp内置浏览器:安全区封顶,头部再收紧 */
+.m-head{padding-top:calc(2px + min(env(safe-area-inset-top),8px));padding-bottom:6px}
