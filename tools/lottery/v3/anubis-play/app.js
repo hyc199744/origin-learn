@@ -339,10 +339,13 @@
   // ---------- 行动 ----------
   function act(action,extra){ wsend(Object.assign({t:'act',handId:curHand,action},extra||{})); }
   function setPending(txt){ pending=true; cdActive=false; ['foldButton','peekButton','raiseButton','compareButton','callButton'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('turnHint'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
-  function doFold(){ setPending('弃牌中…'); act('fold'); logAct('你 弃牌'); }
+  // 乐观更新:点了立刻在本地改状态(底池/我的投入/先交出回合),链上确认后由真实state对齐
+  function optimBet(extra){ const mi=meIdx(); if(mi<0||!state)return; const me=state.players[mi]; const base=BigInt(state.curBet)+(extra||0n); const cost=me.looked?base*2n:base; const nc=(BigInt(me.contributed)+cost).toString(); state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{contributed:nc}):p); state.pot=(BigInt(state.pot)+cost).toString(); if(extra)state.curBet=base.toString(); state.turnAddr=ZERO; }
+  function optimFold(){ const mi=meIdx(); if(mi<0||!state)return; state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{folded:true}):p); state.turnAddr=ZERO; }
+  function doFold(){ optimFold(); act('fold'); logAct('你 弃牌'); setPending('已弃牌'); render(); }
   function doPeek(){ setPending('看牌中…'); act('look'); playSound('card'); }
-  function doCall(){ setPending('跟注中…'); act('call'); playSound(); logAct('你 跟注'); }
-  function doRaise(){ setPending('加注中…'); act('raise'); playSound(); logAct('你 加注'); }
+  function doCall(){ optimBet(0n); act('call'); playSound(); logAct('你 跟注'); setPending('已跟注，等其他玩家…'); render(); }
+  function doRaise(){ try{optimBet(BigInt(state.ante));}catch(e){} act('raise'); playSound(); logAct('你 加注'); setPending('已加注，等其他玩家…'); render(); }
   function startCompare(){ if(!state||state.nActive<2){toast('暂无可比牌的对手');return;} picking=!picking; if(picking){openCompare();} render(); }
   function doCompare(addr){ picking=false; setPending('比牌中…'); act('compare',{target:addr}); logAct('你 比牌'); closeModal(); }
   async function doClaim(){ if(!myAddr)return; try{toast('领取中…');await sendTx(SEL.withdraw);toast('已领取到钱包');refreshBalances();}catch(e){toast(e.message||'暂无可领');} }
