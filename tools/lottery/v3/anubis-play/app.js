@@ -25,8 +25,15 @@
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
   let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false;
+  let tableLayout='classic';
 
   const slotMap={2:[0,3],3:[0,2,4],4:[0,2,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
+  const LAYOUTS={classic:'01 经典环桌',split:'02 对席分区',focus:'03 单手操作'};
+  // 牌桌布局切换(经典环桌/对席分区/单手操作),存本地,默认01
+  function applyLayout(){ const g=$('jtGame'); if(g)g.dataset.layout=tableLayout; }
+  function setTableLayout(name){ if(!LAYOUTS[name])return; tableLayout=name; applyLayout(); try{localStorage.setItem('ap_layout',name);}catch(e){} resizeGame(); if($('modal').open)showWallet(); toast('牌桌布局：'+LAYOUTS[name]); }
+  // 响应式:按牌桌容器宽度切 wide(电脑/平板宽布局),横屏矮屏切 compact;同时给 --vh 兜底(DApp 钱包浏览器 100vh 不准)
+  function resizeGame(){ const g=$('jtGame'); if(!g)return; try{document.documentElement.style.setProperty('--vh',(window.innerHeight*0.01)+'px');}catch(e){} const w=g.getBoundingClientRect().width; const compact=window.innerWidth>window.innerHeight&&window.innerHeight<=550; g.classList.toggle('wide', w>620&&!compact); g.classList.toggle('compact', compact); }
 
   // ---- 工具 ----
   const short=a=>a?a.slice(0,6)+'…'+a.slice(-4):'';
@@ -91,7 +98,7 @@
   const sendTx=data=>sendTxTo(CONTRACT,data);
   async function refreshBalances(){
     if(!myAddr)return;
-    try{const b=await rcall(LGNS,SEL.bal+encA(myAddr)); const v=e9(BigInt('0x'+(b||'0'))); myBalStr=fmt(v); const e=$('gtMyBal'); if(e)e.textContent=myBalStr;}catch(e){}
+    try{const b=await rcall(LGNS,SEL.bal+encA(myAddr)); const v=e9(BigInt('0x'+(b||'0'))); myBalStr=fmt(v); const e=$('jtBal'); if(e)e.textContent=myBalStr;}catch(e){}
     try{const wd=await rcall(CONTRACT,SEL.wd+encA(myAddr)); const v=e9(BigInt('0x'+(wd||'0'))); myClaimStr=fmt(v)+' LGNS'; myClaimPos=v>0;}catch(e){}
   }
   async function checkAuth(){
@@ -277,24 +284,32 @@
     const looked=me&&(me.looked||myLookedLocal);
     const cost=looked?curBet*2:curBet;
     const ended=phase>=3;
-    $('gtRoomName').textContent='牌桌 #'+state.handId;
-    $('gtRoomSub').textContent=fmt(ante)+' LGNS 底注 · '+state.nPlayers+'/'+state.maxPlayers+' 人';
+    $('jtRoomName').textContent='牌桌 #'+state.handId;
+    $('jtRoomSub').textContent=fmt(ante)+' LGNS 底注 · '+state.nPlayers+'/'+state.maxPlayers+' 人';
     const PH={1:'等待入座',2:'对局进行中',3:'摊牌结算',4:'本局结束',5:'已退款'};
-    $('gtPill').innerHTML='<i></i>'+(PH[phase]||'');
-    $('gtPot').textContent=fmt(pot);
-    $('gtBet').textContent='当前单注 '+fmt(curBet)+' LGNS';
-    $('gtMeName').textContent=(myNick||'我');
-    $('gtInvested').textContent='已投入 '+(me?fmt(e9(me.contributed)):'0')+' LGNS';
+    $('jtPill').textContent=PH[phase]||'';
+    $('jtPot').textContent=fmt(pot);
+    $('jtBet').textContent='当前单注 '+fmt(curBet)+' LGNS';
+    $('jtMeName').textContent=(myNick||'我');
+    $('jtOwnStack').textContent=fmt(me?e9(me.contributed):0);
+    $('jtBal').textContent=myBalStr;
     renderGtSeats(phase,comparing,ended);
     const showFace=(myCards&&me&&(me.looked||myLookedLocal))||(ended&&myCards&&me);
     renderGtHand(me,showFace);
-    if(me&&myCards&&showFace){ const rk=rankHand(myCards.map(conv)); $('gtHandText').textContent=rk.label+' · '+(ended?'本局揭晓':'已看牌'); }
-    else { $('gtHandText').textContent=joining?'入座中…':(me?'未看牌 · 神秘手牌':'你在观战'); }
+    if(me&&myCards&&showFace){ const rk=rankHand(myCards.map(conv)); $('jtHandStatus').textContent=rk.label+' · '+(ended?'揭晓':'已看牌'); }
+    else { $('jtHandStatus').textContent=joining?'入座中…':(me?'未看牌':'观战中'); }
     renderGtActions(phase,mi,me,looked,cost,ended,comparing);
   }
+  // 翡翠金牌面(可翻转):card={value,suit} 或 null(未知=显示牌背)
+  function jtCard(card,revealed){
+    const r=card?(({11:'J',12:'Q',13:'K',14:'A'})[card.value]||card.value):'';
+    const red=card&&(card.suit==='♥'||card.suit==='♦');
+    const front=card?'<span class="card-front '+(red?'red':'')+'"><span class="rank">'+r+'<small>'+card.suit+'</small></span><span class="center-suit">'+card.suit+'</span><span class="rank bottom">'+r+'<small>'+card.suit+'</small></span></span>':'<span class="card-front"></span>';
+    return '<span class="card '+(revealed&&card?'revealed':'')+'" aria-hidden="true"><span class="card-inner"><span class="card-back"><img class="card-logo" src="logo.webp" alt=""><span class="card-label">ANUBIS PLAY</span></span>'+front+'</span></span>';
+  }
   function renderGtSeats(phase,comparing,ended){
-    const cont=$('gtSeats'); if(!cont)return;
-    const opps=[]; state.players.forEach(p=>{ if(!isMe(p.addr)) opps.push(p); });
+    const cont=$('jtSeats'); if(!cont)return;
+    const opps=state.players.filter(p=>!isMe(p.addr));
     const slots=gtOppSeat[Math.min(5,opps.length)]||[];
     let winAddr=null; if(ended){ let best=-1; (window._reveal||[]).forEach(r=>{ if(!r.folded){const s=score(r.cards); if(s>best){best=s;winAddr=r.addr;}} }); }
     cont.innerHTML=opps.slice(0,5).map((p,k)=>{
@@ -302,53 +317,52 @@
       const isTurn=phase===2&&!comparing&&state.turnAddr&&state.turnAddr.toLowerCase()===p.addr.toLowerCase();
       const inCmp=comparing&&(p.addr.toLowerCase()===state.cmpChallenger.toLowerCase()||p.addr.toLowerCase()===state.cmpOpp.toLowerCase());
       const win=ended&&winAddr&&winAddr.toLowerCase()===p.addr.toLowerCase();
-      let st='闷牌', cls='';
-      if(p.folded){st='已弃牌';cls=' gt-out';} else if(inCmp){st='⚔比牌';cls=' gt-betting';} else if(isTurn){st='行动中';cls=' gt-betting';} else if(p.looked){st='已看牌';}
+      let st='闷牌';
+      if(p.folded){st='已弃牌';} else if(inCmp){st='⚔ 比牌';} else if(isTurn){st='行动中';} else if(p.looked){st='已看牌';}
       const letter=esc(p.nick?[...p.nick][0]:p.addr.slice(2,3).toUpperCase());
-      return '<div class="gt-seat gt-seat-'+slot+(isTurn?' gt-active':'')+(p.folded?' gt-faded':'')+'"><div class="gt-portrait">'+letter+'</div><div class="gt-player-label"><div class="gt-name">'+esc(nm)+(win?' 🏆':'')+'</div><div class="gt-player-meta">投入 '+fmt(e9(p.contributed))+'</div></div><span class="gt-status-bubble'+cls+'">'+st+'</span></div>';
+      let rev=null; if(ended){ const r=(window._reveal||[]).find(x=>x.addr.toLowerCase()===p.addr.toLowerCase()); if(r&&!r.folded)rev=r.cards.map(conv); }
+      const hand=[0,1,2].map(i=>jtCard(rev?rev[i]:null,!!rev)).join('');
+      return '<div class="seat jt-s'+slot+(p.folded?' folded':'')+(isTurn?' playing':'')+'" aria-label="'+esc(nm)+'，'+st+'">'
+        +'<div class="identity"><div class="avatar">'+letter+'</div><div class="seat-info"><div class="seat-name">'+esc(nm)+(win?' 🏆':'')+'</div><div class="seat-balance">投入 '+fmt(e9(p.contributed))+'</div></div></div>'
+        +'<div class="mini-hand">'+hand+'</div>'
+        +'<span class="seat-status">'+st+'</span></div>';
     }).join('');
   }
   function renderGtHand(me,showFace){
-    const c=$('gtCards'); if(!c)return;
+    const c=$('jtCards'); if(!c)return;
     if(!me){ c.innerHTML=''; return; }
-    c.innerHTML=[0,1,2].map(i=>{
-      const rot=['-9deg','0deg','9deg'][i];
-      if(showFace&&myCards){ const cd=conv(myCards[i]); const rank=({11:'J',12:'Q',13:'K',14:'A'})[cd.value]||cd.value; const red='♥♦'.includes(cd.suit);
-        return '<div class="gt-playing-card gt-open '+(red?'gt-red':'gt-black')+'" style="--rotate:'+rot+'"><div class="gt-inside"><div class="gt-rank">'+rank+'<small>'+cd.suit+'</small></div><div class="gt-middle-suit">'+cd.suit+'</div></div></div>';
-      }
-      return '<div class="gt-playing-card" style="--rotate:'+rot+'"><div class="gt-inside"><svg><use href="#i-anubis"/></svg><b>A · PLAY</b></div></div>';
-    }).join('');
+    c.innerHTML=[0,1,2].map(i=>{ const cd=(showFace&&myCards)?conv(myCards[i]):null; return jtCard(cd,!!cd); }).join('');
   }
-  function gtTick(){ const t=$('gtTimer'); if(!t||!state)return; const me=state.players[meIdx()]; const myTurn=state.phase===2&&!nz(state.cmpOpp)&&me&&!me.folded&&state.turnAddr&&isMe(state.turnAddr); if(myTurn&&state.actionDeadline){ t.textContent=Math.max(0,state.actionDeadline-Math.floor(Date.now()/1000)); } else t.textContent='–'; }
+  function gtTick(){ const t=$('jtTimer'); if(!t||!state)return; const me=state.players[meIdx()]; const myTurn=state.phase===2&&!nz(state.cmpOpp)&&me&&!me.folded&&state.turnAddr&&isMe(state.turnAddr); if(myTurn&&state.actionDeadline){ t.textContent=Math.max(0,state.actionDeadline-Math.floor(Date.now()/1000)); } else t.textContent='–'; }
   function renderGtActions(phase,mi,me,looked,cost,ended,comparing){
-    const ready=$('gtReadyRow'), acts=$('gtActions'), callRow=$('gtCallRow'), endBox=$('gtEndBox');
+    const ready=$('jtReadyRow'), acts=$('jtActions'), endBox=$('jtEndBox');
     const anteV=fmt(e9(state.ante));
     if(endBox && phase<3) endBox.hidden=true;
     if(phase===1){
-      acts.hidden=true; callRow.hidden=true; ready.hidden=false; $('gtTimer').textContent='–';
-      if(joining){ $('gtReadyBtn').textContent='准备中…'; $('gtReadyBtn').disabled=true; $('gtTurnMain').textContent='准备中…'; $('gtTurnHint').textContent='正在上链交底注'; }
-      else if(mi<0){ $('gtReadyBtn').textContent='准备（交底注 '+anteV+'）'; $('gtReadyBtn').disabled=false; $('gtTurnMain').textContent='进桌成功'; $('gtTurnHint').textContent='点准备交底注入座，人齐自动开局'; }
-      else { const w=state.nPlayers<2; $('gtReadyBtn').textContent='✓ 已准备'; $('gtReadyBtn').disabled=true; $('gtTurnMain').textContent=w?'已准备':'人齐，马上开始'; $('gtTurnHint').textContent=w?'等其他玩家准备':'正在发牌…'; }
+      acts.hidden=true; ready.hidden=false; $('jtTimer').textContent='–';
+      if(joining){ $('jtReadyBtn').textContent='准备中…'; $('jtReadyBtn').disabled=true; $('jtTurnMain').textContent='准备中…'; $('jtTurnHint').textContent='正在上链交底注'; }
+      else if(mi<0){ $('jtReadyBtn').textContent='准备（交底注 '+anteV+'）'; $('jtReadyBtn').disabled=false; $('jtTurnMain').textContent='进桌成功'; $('jtTurnHint').textContent='点准备交底注入座，人齐自动开局'; }
+      else { const w=state.nPlayers<2; $('jtReadyBtn').textContent='✓ 已准备'; $('jtReadyBtn').disabled=true; $('jtTurnMain').textContent=w?'已准备':'人齐，马上开始'; $('jtTurnHint').textContent=w?'等其他玩家准备':'正在发牌…'; }
       return;
     }
     ready.hidden=true;
-    if(ended){ acts.hidden=true; callRow.hidden=true; $('gtTurnMain').textContent='本局已结算'; $('gtTurnHint').textContent='第 '+state.handId+' 局'; $('gtTimer').textContent='–'; return; }
+    if(ended){ acts.hidden=true; $('jtTurnMain').textContent='本局已结算'; $('jtTurnHint').textContent='第 '+state.handId+' 局'; $('jtTimer').textContent='–'; return; }
     if(endBox)endBox.hidden=true;
-    acts.hidden=false; callRow.hidden=false;
-    $('gtCallAmt').textContent=fmt(cost)+' LGNS'; $('gtCallSmall').textContent=fmt(cost);
+    acts.hidden=false;
+    $('jtCallAmt').textContent=fmt(cost)+' LGNS';
     const myTurn=!comparing&&mi>=0&&state.turnAddr&&isMe(state.turnAddr)&&me&&!me.folded;
     gtTick();
-    if(pending){ ['gtFold','gtPeek','gtRaise','gtCompare','gtCall'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); $('gtTurnMain').textContent='处理中…'; return; }
-    if(comparing){ $('gtTurnMain').textContent='比牌裁决中'; $('gtTurnHint').textContent='马上出结果'; }
-    else if(myTurn){ $('gtTurnMain').textContent='轮到你行动'; $('gtTurnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' LGNS'; }
-    else if(mi<0||(me&&me.folded)){ $('gtTurnMain').textContent='观战中'; $('gtTurnHint').textContent='等待本局结束'; }
-    else { $('gtTurnMain').textContent='其他玩家行动中'; $('gtTurnHint').textContent='轮到 '+nameOf(state.turnAddr); }
+    if(pending){ ['jtFold','jtPeek','jtRaise','jtCompare','jtCall'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); $('jtTurnMain').textContent='处理中…'; return; }
+    if(comparing){ $('jtTurnMain').textContent='比牌裁决中'; $('jtTurnHint').textContent='马上出结果'; }
+    else if(myTurn){ $('jtTurnMain').textContent='轮到你行动'; $('jtTurnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' LGNS'; }
+    else if(mi<0||(me&&me.folded)){ $('jtTurnMain').textContent='观战中'; $('jtTurnHint').textContent='等待本局结束'; }
+    else { $('jtTurnMain').textContent='其他玩家行动中'; $('jtTurnHint').textContent='轮到 '+nameOf(state.turnAddr); }
     const dis=!myTurn;
-    $('gtFold').disabled=dis; $('gtPeek').disabled=dis||looked; $('gtPeekSmall').textContent=looked?'已看牌':'翻开手牌';
-    $('gtRaise').disabled=dis; $('gtCompare').disabled=dis||state.nActive<2; $('gtCall').disabled=dis;
-    if(picking&&myTurn){ $('gtTurnHint').textContent='点一个对手比牌，或再次点比牌取消'; }
+    $('jtFold').disabled=dis; $('jtPeek').disabled=dis||looked; $('jtPeekSmall').textContent=looked?'已看牌':'看牌';
+    $('jtRaise').disabled=dis; $('jtCompare').disabled=dis||state.nActive<2; $('jtCall').disabled=dis;
+    if(picking&&myTurn){ $('jtTurnHint').textContent='点一个对手比牌，或再次点比牌取消'; }
   }
-  function animateDeal(){ playSound('card'); }
+  function animateDeal(){ playSound('card'); const c=$('jtCards'); if(c){ c.classList.remove('deal'); void c.offsetWidth; c.classList.add('deal'); } }
 
   function showResult(m){
     window._reveal=m.reveal||[];
@@ -360,8 +374,8 @@
     state=Object.assign({},state,{phase:4});
     render();
     var anteV=state?fmt(e9(state.ante)):'';
-    const box=$('gtEndBox');
-    if(box){ box.hidden=false; $('gtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('gtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout)+'（扣 3%）':'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' LGNS':''); }
+    const box=$('jtEndBox');
+    if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout)+'（扣 3%）':'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' LGNS':''); }
     if(iWon)playSound('win');
     message(iWon?'好牌！你赢得了本局':'本局已结束');
     // 记录(本地,真实观测)
@@ -440,7 +454,7 @@
 
   // ---------- 行动 ----------
   function act(action,extra){ wsend(Object.assign({t:'act',handId:curHand,action},extra||{})); }
-  function setPending(txt){ pending=true; cdActive=false; ['gtFold','gtPeek','gtRaise','gtCompare','gtCall'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('gtTurnMain'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
+  function setPending(txt){ pending=true; cdActive=false; ['jtFold','jtPeek','jtRaise','jtCompare','jtCall'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('jtTurnMain'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
   // 乐观更新:点了立刻在本地改状态(底池/我的投入/先交出回合),链上确认后由真实state对齐
   function optimBet(extra){ const mi=meIdx(); if(mi<0||!state)return; const me=state.players[mi]; const base=BigInt(state.curBet)+(extra||0n); const cost=(me.looked||myLookedLocal)?base*2n:base; const nc=(BigInt(me.contributed)+cost).toString(); state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{contributed:nc}):p); state.pot=(BigInt(state.pot)+cost).toString(); if(extra)state.curBet=base.toString(); state.turnAddr=ZERO; }
   function optimFold(){ const mi=meIdx(); if(mi<0||!state)return; state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{folded:true}):p); state.turnAddr=ZERO; }
@@ -467,12 +481,16 @@
     const soundSet=`<label class="form-label">声音设置</label>
        <div class="wallet-row"><span>背景音乐</span><button class="small-button" data-action="toggle-bgm">${bgmOn?'🔊 开':'🔇 关'}</button></div>
        <div class="wallet-row"><span>游戏音效</span><button class="small-button" data-action="toggle-sfx">${sound?'🔊 开':'🔇 关'}</button></div>`;
+    const layoutSet=`<label class="form-label">牌桌布局</label>
+       <div class="tier-options" role="group" aria-label="牌桌布局">${Object.keys(LAYOUTS).map(k=>`<button class="tier-button ${tableLayout===k?'selected':''}" data-tlayout="${k}" aria-pressed="${tableLayout===k}"><strong>${LAYOUTS[k].slice(0,2)}</strong><span>${LAYOUTS[k].slice(3)}</span></button>`).join('')}</div>
+       <div class="form-note" style="margin-top:4px">01 经典环桌 / 02 对席分区 / 03 单手操作，随时切换；手机、平板、电脑都适配。</div>`;
     openModal('我的', (connected?
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
        <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${myBalStr} <small>LGNS</small></strong></div>
        <div class="wallet-row"><span>可领取奖金</span><strong>${myClaimStr}</strong><button class="small-button" data-action="claim" ${myClaimPos?'':'disabled'}>领取</button></div>`
       :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 LGNS 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
       + nickSet
+      + layoutSet
       + soundSet
       + `<div class="form-note">押真 LGNS，链上公平结算，奖金自动到账。</div>`,
       'MY ACCOUNT');
@@ -537,12 +555,13 @@
     const mApp=$('mApp'); if(mApp) mApp.hidden=(view!=='lobby'); // 手机:大厅显示App壳,进桌隐藏(露出绿呢牌桌)
     document.querySelectorAll('#mNav button').forEach(b=>b.classList.toggle('active', b.dataset.mtab==='lobby' && view==='lobby'));
     if(view==='lobby'){ if(authed)wsend({t:'listTables'}); renderRooms(); }
+    else { applyLayout(); resizeGame(); setTimeout(resizeGame,60); }
     if(location.hash!=='#'+view)history.replaceState(null,'','#'+view);
   }
 
   // ---------- 音效/全屏 ----------
   function playSound(type='click'){ if(!sound)return; try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.value=type==='win'?660:type==='card'?420:280;g.gain.setValueAtTime(.035,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.13);o.start();o.stop(audioCtx.currentTime+.15);}catch(e){sound=false;updateSound();} }
-  function updateSound(){const s=$('gtSoundStrike');if(s)s.style.display=sound?'none':'';const b=$('gtSoundBtn');if(b)b.title=sound?'关闭音效':'开启音效';}
+  function updateSound(){const s=$('jtSoundStrike');if(s)s.style.display=sound?'none':'';const b=$('jtSoundBtn');if(b)b.title=sound?'关闭音效':'开启音效';}
   // 背景音乐:五声音阶轻柔拨弦(像音乐盒/竖琴)+很轻的低音垫,舒缓不吵,可开关
   function startBGM(){
     if(bgmNodes||!bgmOn)return;
@@ -603,6 +622,7 @@
       if(b.dataset.mtab){ const t=b.dataset.mtab; if(t==='lobby')setView('lobby'); else if(t==='mytable'){ if(curHand)setView('table'); else toast('你还没入座牌桌，去大厅选一桌'); } else if(t==='records')showRecords(); else if(t==='account')showWallet(); return; }
       if(b.dataset.ante){ newAnte=Number(b.dataset.ante); document.querySelectorAll('[data-ante]').forEach(el=>{const s=Number(el.dataset.ante)===newAnte;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
       if(b.dataset.seats){ newCount=Number(b.dataset.seats); document.querySelectorAll('[data-seats]').forEach(el=>{const s=Number(el.dataset.seats)===newCount;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
+      if(b.dataset.tlayout){ setTableLayout(b.dataset.tlayout); return; }
       if(b.dataset.join){ joinRoom(b.dataset.join); return; }
       if(b.dataset.compare){ doCompare(b.dataset.compare); return; }
       const a=b.dataset.action;
@@ -643,10 +663,17 @@
 
   // 启动
   try{ sound=localStorage.getItem('ap_sfx')!=='0'; bgmOn=localStorage.getItem('ap_bgm')==='1'; }catch(e){} // 默认音效开、背景乐关
+  try{ const L=localStorage.getItem('ap_layout'); if(L&&LAYOUTS[L])tableLayout=L; }catch(e){} // 牌桌布局,默认01经典环桌
+  applyLayout();
+  window.addEventListener('resize',resizeGame);
+  window.addEventListener('orientationchange',()=>setTimeout(resizeGame,120));
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',resizeGame);
+  try{ if(typeof ResizeObserver!=='undefined'){ const tv=$('tableView'); if(tv)new ResizeObserver(resizeGame).observe(tv); } }catch(e){}
+  resizeGame();
   updateSound();
   if(bgmOn){ const once=()=>{ startBGM(); document.removeEventListener('pointerdown',once); }; document.addEventListener('pointerdown',once,{once:true}); } // 首次点击后启动背景乐
   setView('lobby'); // 通过链接进入一律默认到大厅,让用户挑桌/开桌
   renderRooms();
   if(window.ethereum&&window.ethereum.selectedAddress){ connect(); }
-  else { const a=$('gtTurnMain'),b=$('gtTurnHint'); if(a)a.textContent='连接钱包开始'; if(b)b.textContent='点右上角「连接钱包」'; }
+  else { const a=$('jtTurnMain'),b=$('jtTurnHint'); if(a)a.textContent='连接钱包开始'; if(b)b.textContent='点右上角「连接钱包」'; }
 })();

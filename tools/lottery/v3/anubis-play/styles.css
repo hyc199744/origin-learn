@@ -569,3 +569,368 @@ body.force-landscape .felt-watermark{opacity:.5}
 #tableView.gt-view{display:block;padding:0}
 @media(min-width:691px){#tableView.gt-view{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:22px;background:radial-gradient(ellipse 60% 60% at 50% 32%,#17372a,transparent 72%),#050a09}.gt-game{width:430px;max-width:100%;height:min(840px,calc(100dvh - 44px));border:1px solid #2a3a30;border-radius:26px;box-shadow:0 30px 90px #000b}}
 @media(max-width:690px){.gt-game{width:100%;height:100dvh;border:0;border-radius:0}}
+
+/* ======== 翡翠金三布局牌桌(jade) 作用域隔离样式 ======== */
+
+/* ======== 翡翠金三布局牌桌(jade) 作用域隔离样式 ======== */
+.jt-game{color-scheme:dark;--bg:#071410;--panel:#0c211b;--felt:#153b2d;--gold:#dbc08a;--gold-soft:#a99265;--ink:#eef0df;--muted:#93a69a;--line:rgba(217,192,138,.18);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-synthesis:none}
+.jt-game svg.icon{height:20px;width:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.jt-game .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.jt-game .brand{display:flex;align-items:center;gap:11px}
+.jt-game .brand img{width:39px;height:39px;object-fit:contain}
+.jt-game .brand strong{display:block;font-size:16px;font-weight:500;letter-spacing:2.3px}
+.jt-game .brand b{color:var(--gold);font-weight:700}
+.jt-game .brand small{display:block;font-size:8px;letter-spacing:3.4px;color:var(--muted);margin-top:5px}
+.jt-game{height:max(620px,calc(100dvh - 178px));min-height:600px;display:grid;grid-template-rows:56px 38px minmax(290px,1fr) auto;position:relative;isolation:isolate;background:radial-gradient(ellipse at 50% 42%,#173c2a 0%,#0b2119 60%,#0a1b16 100%);--card-w:61px;--opp-w:32px;--avatar:35px;--seat-width:94px}
+.jt-game-header{display:flex;align-items:center;gap:9px;padding:0 12px;border-bottom:1px solid #c5b6821a;background:linear-gradient(90deg,#0a1c17,#10291f);z-index:3}
+.jt-game-header .brand{gap:7px;flex:1;min-width:0}
+.jt-game-header .brand img{width:29px;height:29px}
+.jt-game-header .brand strong{font-size:12px;letter-spacing:1.6px}
+.jt-game-header .brand small{font-size:6px;letter-spacing:2.5px;margin-top:3px}
+.jt-game .icon-btn{display:inline-flex;align-items:center;justify-content:center;flex:none;background:#ffffff04;color:#c4d1bd;min-width:44px;min-height:44px;border-radius:50%;padding:0}
+.jt-game .icon-btn:hover{background:#dcc58d12}
+.jt-game-header .header-buttons{display:flex;gap:0}
+.jt-game .room-strip{display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:11px;letter-spacing:.3px;color:var(--muted)}
+.jt-game .room-strip strong{font-size:12px;color:var(--gold);font-weight:500}
+.jt-game .room-strip strong span{font-size:9px;letter-spacing:1px;color:#9ead9b;margin-left:8px}
+.jt-game .room-strip .room-meta{display:flex;gap:8px;align-items:center;font-size:10px}
+.jt-game .room-meta i{height:4px;width:4px;background:#708f71;border-radius:100%}
+.jt-game .scene{position:relative;min-width:0;min-height:290px;overflow:hidden;background-image:radial-gradient(#b8bd7d10 .7px,transparent .7px);background-size:19px 19px}
+.jt-game .felt{position:absolute;left:15%;right:15%;top:19%;bottom:13%;border-radius:50%;padding:9px;background:linear-gradient(125deg,#403d24 0%,#f1d9a0 22%,#7d6844 33%,#d1b673 49%,#59492b 74%,#e9cb91 94%);box-shadow:0 12px 16px #0005,0 3px 0 #241f14,0 5px 0 #5b4c30}
+.jt-game .felt:before{content:"";position:absolute;inset:8px;border-radius:inherit;background:radial-gradient(ellipse at 40% 25%,#22523b,#143b2c 50%,#0c281f);border:5px solid #173329;box-shadow:inset 0 0 0 1px #d9c28b44,inset 0 0 28px #0009}
+.jt-game .felt:after{content:"";position:absolute;inset:19px;border-radius:inherit;border:1px solid #d8c08b27;background:repeating-linear-gradient(45deg,#ffffff01 0 1px,transparent 1px 4px)}
+.jt-game .felt-mark{position:absolute;left:50%;top:29%;transform:translate(-50%,-50%);text-align:center;color:#dcc48b22;letter-spacing:4px;font-size:9px;white-space:nowrap;z-index:1}
+.jt-game .felt-mark img{width:37px;height:37px;display:block;margin:0 auto 5px;opacity:.11;filter:grayscale(1)}
+.jt-game .opponents{position:absolute;inset:0;z-index:2;pointer-events:none}
+.jt-game .seat{position:absolute;left:27%;top:2%;width:var(--seat-width);transform:translateX(-50%);text-align:center;pointer-events:auto;background:transparent;padding:0;color:var(--ink);border:0}
+.jt-game .seat:nth-child(2){left:73%}
+.jt-game .seat:nth-child(3){left:14%;top:40%}
+.jt-game .seat:nth-child(4){left:86%;top:40%}
+.jt-game .identity{display:flex;align-items:center;flex-direction:column;gap:4px}
+.jt-game .avatar{position:relative;width:var(--avatar);height:var(--avatar);border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 40% 28%,#5b6c44,#243c2b 70%);border:1px solid #d9c28a68;box-shadow:0 3px 8px #0005;font:17px "Songti SC","SimSun",serif;color:#f1ddb4;flex:none}
+.jt-game .seat:nth-child(2) .avatar{background:radial-gradient(circle at 40% 28%,#536956,#1b3d31 70%)}
+.jt-game .seat:nth-child(3) .avatar{background:radial-gradient(circle at 40% 28%,#5b6249,#354131 70%)}
+.jt-game .seat:nth-child(4) .avatar{background:radial-gradient(circle at 40% 28%,#3b6358,#132c27 70%)}
+.jt-game .dealer{position:absolute;right:-4px;bottom:-1px;width:13px;height:13px;border-radius:50%;color:#173326;background:#ddc48a;font:8px/13px Georgia,serif;box-shadow:0 1px 3px #0008}
+.jt-game .seat-info{min-width:0}
+.jt-game .seat-name{font-size:10px;line-height:1.2;white-space:nowrap;color:#e0e4d6;font-weight:500}
+.jt-game .seat-balance{margin-top:3px;color:#baad87;font-size:9px;letter-spacing:.4px;font-variant-numeric:tabular-nums}
+.jt-game .mini-hand{display:flex;justify-content:center;padding:0 5px;position:relative;margin:6px auto 4px;height:calc(var(--opp-w) * 1.41);width:calc(var(--opp-w) * 2.25)}
+.jt-game .card{width:var(--card-w);height:calc(var(--card-w) * 1.414);position:relative;display:inline-block;perspective:700px;flex:none;filter:drop-shadow(1px 4px 3px #0004);border-radius:5px}
+.jt-game .card .card-inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .52s cubic-bezier(.2,.7,.25,1)}
+.jt-game .card.revealed .card-inner{transform:rotateY(180deg)}
+.jt-game .card-back,.jt-game .card-front{position:absolute;inset:0;border-radius:5px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:2px solid #e8e2cd;box-shadow:inset 0 0 0 1px #a19b81,0 1px 0 #918c76,0 2px 0 #d4cfbc;background-color:#17382b;overflow:hidden}
+.jt-game .card-back{background-image:linear-gradient(135deg,transparent 42%,#deca8a1f 48%,transparent 54%),linear-gradient(45deg,#dfc59213 25%,transparent 25%,transparent 75%,#dfc59213 75%),linear-gradient(45deg,#dfc59213 25%,transparent 25%,transparent 75%,#dfc59213 75%),radial-gradient(ellipse at 50% 40%,#2b513c,#0c251c);background-size:auto,6px 6px,6px 6px,auto;background-position:center,0 0,3px 3px,center}
+.jt-game .card-back:before{content:"";position:absolute;inset:4px;border:1px solid #dbc78b8c;border-radius:3px;background:linear-gradient(135deg,#f6dfaa13,transparent 46%,#0002)}
+.jt-game .card-back:after{content:"◆";position:absolute;inset:7px;color:#dfc68e;font-size:5px;text-align:left;background:radial-gradient(ellipse at center,transparent 40%,#051b0d33)}
+.jt-game .card-logo{position:absolute;left:50%;top:48%;width:64%;height:auto;aspect-ratio:1;transform:translate(-50%,-50%);z-index:1;filter:drop-shadow(0 2px 2px #0009)}
+.jt-game .card-label{position:absolute;bottom:10%;left:0;right:0;text-align:center;font:bold 4px Georgia,serif;letter-spacing:1px;color:#d9c181;z-index:1}
+.jt-game .card-front{transform:rotateY(180deg);background:radial-gradient(ellipse at 30% 15%,#fffef6,#ede9d9);border-color:#f9f5e5;color:#182c23;box-shadow:inset 0 0 0 1px #c5c0ac}
+.jt-game .card-front.red{color:#a94337}
+.jt-game .rank{position:absolute;top:4px;left:4px;font:bold 15px/1 Georgia,serif;display:flex;flex-direction:column;align-items:center;gap:2px}
+.jt-game .rank small{font-size:12px}
+.jt-game .rank.bottom{transform:rotate(180deg);top:auto;left:auto;right:4px;bottom:4px}
+.jt-game .center-suit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:32px Georgia,serif}
+.jt-game .mini-hand .card{--card-w:var(--opp-w);margin-left:calc(var(--opp-w) * -.38);border-radius:3px}
+.jt-game .mini-hand .card:first-child{margin-left:0;transform:rotate(-11deg) translateY(2px)}
+.jt-game .mini-hand .card:last-child{transform:rotate(11deg) translateY(2px)}
+.jt-game .mini-hand .card-back,.jt-game .mini-hand .card-front{border-width:1.4px;border-radius:3px}
+.jt-game .mini-hand .card-back:before{inset:2px}
+.jt-game .mini-hand .card-label{font-size:2px;letter-spacing:.5px}
+.jt-game .mini-hand .rank{font-size:9px;top:2px;left:2px}
+.jt-game .mini-hand .rank small{font-size:7px}
+.jt-game .mini-hand .rank.bottom{bottom:2px;right:2px;left:auto;top:auto}
+.jt-game .mini-hand .center-suit{font-size:17px}
+.jt-game .seat-status{display:inline-block;padding:2px 5px;border:1px solid #b1bc9a18;border-radius:4px;background:#071c17bb;color:#98aa93;font-size:9px;line-height:1.2;max-width:95%;white-space:nowrap}
+.jt-game .seat.playing .avatar{box-shadow:0 0 0 3px #dfc3842b,0 0 20px #d9c58a2b;border-color:#f1d5a2}
+.jt-game .seat.playing .seat-status{color:#f0d99e;border-color:#cdb17855}
+.jt-game .seat.folded{opacity:.38}
+.jt-game .seat.folded .mini-hand{filter:grayscale(1)}
+.jt-game .pot{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);z-index:1;text-align:center;min-width:115px}
+.jt-game .pot-label{font-size:9px;letter-spacing:3px;color:#bfccac}
+.jt-game .pot-total{display:flex;justify-content:center;align-items:baseline;gap:4px;margin:4px 0 2px}
+.jt-game .pot-total strong{color:#f2db9e;font:40px/1.1 Georgia,"Times New Roman",serif;font-variant-numeric:tabular-nums;letter-spacing:-1px;text-shadow:0 2px 12px #b59b6644}
+.jt-game .pot-total small{font-size:9px;color:#c5bb91}
+.jt-game .pot-caption{font-size:9px;color:#abc0a4}
+.jt-game .chips{height:22px;position:relative;width:68px;margin:9px auto 0;display:flex;align-items:flex-end;justify-content:center;gap:1px}
+.jt-game .chip{width:23px;height:12px;border-radius:50%;position:relative;border:2px dashed #e8cc85;background:#8e733f;box-shadow:0 2px 0 #493f28,0 4px 0 #aa8b51,0 5px 0 #4e402c,0 7px 4px #0005}
+.jt-game .chip:nth-child(2){background:#e1dcc2;border-color:#8e936c;transform:translateY(-4px);box-shadow:0 2px 0 #6d7259,0 4px 0 #d0cfb4,0 6px 0 #666c50,0 7px 4px #0005}
+.jt-game .chip:nth-child(3){background:#355b42;border-color:#d3c490}
+.jt-game .chip:after{content:"◆";font-size:5px;color:#ece0b7;position:absolute;left:5px;top:1px}
+.jt-game .my-zone{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:210px;text-align:center;z-index:3}
+.jt-game .my-cards{display:flex;justify-content:center;align-items:center;min-height:calc(var(--card-w) * 1.414 + 11px);padding:5px 0 8px;cursor:pointer;background:none;border:0;width:100%}
+.jt-game .my-cards .card{margin-left:-12px;transform-origin:center 140%;transition:transform .3s}
+.jt-game .my-cards .card:first-child{margin-left:0;transform:rotate(-9deg) translateY(3px)}
+.jt-game .my-cards .card:last-child{transform:rotate(9deg) translateY(3px)}
+.jt-game .my-cards .card.revealed:first-child{transform:rotate(-6deg)}
+.jt-game .my-cards .card.revealed:last-child{transform:rotate(6deg)}
+.jt-game .my-cards:hover .card{filter:drop-shadow(1px 5px 4px #0005)}
+.jt-game .my-caption{display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;margin-top:3px;white-space:nowrap}
+.jt-game .my-caption b{color:#e7d5a2;font-weight:500}
+.jt-game .my-caption span{color:#a6b59f}
+.jt-game .turn-dot{width:4px;height:4px;border-radius:50%;background:#dfc389;box-shadow:0 0 8px #e0c78e}
+.jt-game .own-stack{display:none;font-size:10px;color:#a7b39c;margin-top:7px}
+.jt-game .focus-kicker{display:none}
+.jt-game .action-dock{z-index:5;position:relative;padding:11px 14px calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid #c1b17326;background:linear-gradient(180deg,#12291fe8,#091b15 80%);box-shadow:0 -12px 30px #03100a40}
+.jt-game .turn-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px;min-height:30px}
+.jt-game .turn-status{display:flex;gap:9px;align-items:center;min-width:0}
+.jt-game .clock{height:30px;width:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#122e22;border:1.5px solid #dbc28e;color:#eed7a3;font:13px Georgia,serif;flex:none}
+.jt-game .status-lines{min-width:0}
+.jt-game .status-lines strong{display:block;font-size:11px;letter-spacing:.4px;font-weight:500;color:#ead9b2}
+.jt-game .status-lines small{display:block;font-size:9px;color:#8da18d;margin-top:3px}
+.jt-game .balance{text-align:right}
+.jt-game .balance small{display:block;font-size:9px;color:#8da18d}
+.jt-game .balance strong{font:16px Georgia,serif;color:#ebdcba;display:block;margin-top:3px}
+.jt-game .balance strong span{font:8px sans-serif;color:#a2b095;margin-left:3px}
+.jt-game .actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.jt-game .action{display:flex;align-items:center;justify-content:center;gap:5px;flex-direction:column;min-height:46px;border-radius:7px;background:linear-gradient(#294333,#1d3528);border:1px solid #b7b48223;box-shadow:inset 0 1px 0 #eff2bc08;color:#d4dec7;font-size:11px}
+.jt-game .action svg{width:16px;height:16px}
+.jt-game .action.fold{color:#adba9e;background:#13271f}
+.jt-game .action.call{grid-column:1/-1;min-height:45px;flex-direction:row;justify-content:center;gap:10px;background:linear-gradient(105deg,#bda36a,#eddaa0 50%,#ceb078);color:#182e20;box-shadow:0 2px 0 #7b663f,inset 0 1px 0 #fff8;font-size:13px;font-weight:650;border-color:#e8d39a}
+.jt-game .call small{font-size:10px;font-weight:500}
+.jt-game .call svg{width:16px;height:16px}
+.jt-game .dock-foot{font-size:8px;color:#80917e;letter-spacing:.4px;text-align:center;margin-top:8px}
+.jt-game .swatch{width:13px;height:13px;background:#153b2d;border:1px solid #c8b77633;border-radius:50%}
+.jt-game .swatch.gold{background:#dbc08a;margin-right:6px}
+one rectangular playing surface. */
+.jt-game[data-layout=split] .scene{padding:12px}
+.jt-game[data-layout=split] .opponents{inset:10px 12px auto;display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.jt-game[data-layout=split] .seat{position:relative;left:auto;top:auto;transform:none;width:auto;min-width:0;height:69px;display:grid;grid-template-columns:1fr 65px;align-items:center;text-align:left;background:linear-gradient(120deg,#294431aa,#183526cc);border:1px solid #b6b58224;border-radius:9px;padding:7px;--avatar:28px;--opp-w:28px}
+.jt-game[data-layout=split] .identity{flex-direction:row;gap:6px}
+.jt-game[data-layout=split] .avatar{font-size:13px}
+.jt-game[data-layout=split] .seat-name{font-size:9px}
+.jt-game[data-layout=split] .seat-balance{font-size:8px}
+.jt-game[data-layout=split] .mini-hand{margin:0 0 9px}
+.jt-game[data-layout=split] .seat-status{position:absolute;right:8px;bottom:5px;font-size:8px;max-width:73px;background:none;border:0;padding:0}
+.jt-game[data-layout=split] .felt{left:12px;right:12px;top:165px;bottom:108px;border-radius:30px;padding:5px}
+.jt-game[data-layout=split] .felt:before{inset:4px;border-width:3px}
+.jt-game[data-layout=split] .felt:after{inset:12px}
+.jt-game[data-layout=split] .felt-mark{display:none}
+.jt-game[data-layout=split] .pot{top:calc(50% + 40px)}
+.jt-game[data-layout=split] .pot-total strong{font-size:34px}
+.jt-game[data-layout=split] .chips{position:absolute;left:calc(100% + 14px);bottom:25px;transform:rotate(-15deg);width:42px}
+.jt-game[data-layout=split] .chip{min-width:19px;width:19px}
+.jt-game[data-layout=split] .my-zone{width:calc(100% - 24px);bottom:3px;display:flex;align-items:center;justify-content:center;gap:14px}
+.jt-game[data-layout=split] .my-cards{width:170px;--card-w:55px;flex:none}
+.jt-game[data-layout=split] .my-caption{flex-direction:column;align-items:flex-start;gap:6px}
+.jt-game[data-layout=split] .turn-dot{display:none}
+.jt-game[data-layout=split] .own-stack{display:block}
+.jt-game[data-layout=split] .action.peek{grid-column:1/3;grid-row:1;flex-direction:row}
+.jt-game[data-layout=split] .action.raise{grid-column:3/5;grid-row:1;flex-direction:row}
+.jt-game[data-layout=split] .action.fold{grid-column:1;grid-row:2;flex-direction:row}
+.jt-game[data-layout=split] .action.compare{grid-column:2;grid-row:2;flex-direction:row}
+.jt-game[data-layout=split] .action.call{grid-column:3/5;grid-row:2;gap:4px}
+.jt-game[data-layout=split] .action.call svg{display:none}
+own hand right. */
+.jt-game[data-layout=focus] .opponents{inset:10px auto 10px 10px;width:36%;display:flex;flex-direction:column;justify-content:space-between;gap:5px}
+.jt-game[data-layout=focus] .seat{position:relative;left:auto;top:auto;transform:none;width:100%;flex:1;max-height:88px;min-height:58px;display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:3px;align-items:center;background:linear-gradient(90deg,#213b2c99,#18322455);border:1px solid #b6b58220;border-radius:8px;padding:5px;--avatar:25px;--opp-w:22px}
+.jt-game[data-layout=focus] .identity{gap:3px}
+.jt-game[data-layout=focus] .avatar{font-size:12px}
+.jt-game[data-layout=focus] .seat-name{font-size:8px}
+.jt-game[data-layout=focus] .seat-balance{font-size:8px;margin-top:2px}
+.jt-game[data-layout=focus] .mini-hand{margin:0 0 10px;width:48px;padding:0}
+.jt-game[data-layout=focus] .seat-status{position:absolute;right:5px;bottom:7px;font-size:7px;border:0;padding:0;background:none}
+.jt-game[data-layout=focus] .felt{left:calc(36% + 20px);right:8px;top:13px;bottom:12px;border-radius:90px 90px 25px 25px;padding:5px}
+.jt-game[data-layout=focus] .felt:before{inset:5px;border-width:3px}
+.jt-game[data-layout=focus] .felt:after{inset:13px}
+.jt-game[data-layout=focus] .felt-mark{top:19%;font-size:6px;letter-spacing:2px}
+.jt-game[data-layout=focus] .felt-mark img{display:none}
+.jt-game[data-layout=focus] .pot{left:70%;top:32%;min-width:110px}
+.jt-game[data-layout=focus] .pot-total strong{font-size:36px}
+.jt-game[data-layout=focus] .my-zone{left:70%;width:59%;bottom:34px;--card-w:58px}
+.jt-game[data-layout=focus] .my-caption{flex-direction:column;gap:7px;font-size:10px}
+.jt-game[data-layout=focus] .turn-dot{display:none}
+.jt-game[data-layout=focus] .focus-kicker{display:block;color:#acbd9c;letter-spacing:2px;font-size:7px;margin-bottom:10px}
+.jt-game[data-layout=focus] .my-cards .card{margin-left:-13px}
+.jt-game[data-layout=focus] .my-cards .card:first-child{margin-left:0}
+.jt-game[data-layout=focus] .actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+.jt-game[data-layout=focus] .action.peek{grid-column:1;grid-row:1;flex-direction:row}
+.jt-game[data-layout=focus] .action.raise{grid-column:2;grid-row:1;flex-direction:row}
+.jt-game[data-layout=focus] .action.compare{grid-column:3;grid-row:1;flex-direction:row}
+.jt-game[data-layout=focus] .action.fold{grid-column:1;grid-row:2;flex-direction:row}
+.jt-game[data-layout=focus] .action.call{grid-column:2/4;grid-row:2}
+including the preview frames. */
+.jt-game.wide{--card-w:84px;--opp-w:44px;--avatar:46px;--seat-width:124px;grid-template-rows:62px 44px minmax(400px,1fr) auto}
+.jt-game.wide .jt-game-header{padding:0 24px}
+.jt-game.wide .jt-game-header .brand strong{font-size:14px}
+.jt-game.wide .room-strip{padding:0 32px;font-size:12px}
+.jt-game.wide .seat-name{font-size:12px}
+.jt-game.wide .seat-balance,.jt-game.wide .seat-status{font-size:10px}
+.jt-game.wide .pot-total strong{font-size:57px}
+.jt-game.wide .pot-label{font-size:11px}
+.jt-game.wide .pot-caption{font-size:11px}
+.jt-game.wide .pot{top:44%}
+.jt-game.wide .felt{left:13%;right:13%;top:15%;bottom:15%}
+.jt-game.wide .my-zone{width:280px;bottom:8px}
+.jt-game.wide .my-caption{font-size:12px}
+.jt-game.wide .action-dock{padding:14px 28px 12px}
+.jt-game.wide .actions{grid-template-columns:repeat(6,1fr);gap:9px}
+.jt-game.wide .action{min-height:52px;flex-direction:row;font-size:12px}
+.jt-game.wide .action.call{grid-column:5/7;grid-row:1}
+.jt-game.wide .turn-strip{margin-bottom:12px}
+.jt-game.wide .status-lines strong{font-size:12px}
+.jt-game.wide .status-lines small{font-size:10px}
+.jt-game.wide .balance strong{font-size:20px}
+.jt-game.wide[data-layout=split] .opponents{grid-template-columns:repeat(4,minmax(0,1fr));inset:15px 20px auto;gap:10px}
+.jt-game.wide[data-layout=split] .seat{height:94px;display:flex;flex-direction:column;align-items:center;gap:3px;--opp-w:30px}
+.jt-game.wide[data-layout=split] .identity{flex-direction:row}
+.jt-game.wide[data-layout=split] .mini-hand{margin:1px 0}
+.jt-game.wide[data-layout=split] .seat-status{right:8px;top:8px;bottom:auto;font-size:8px}
+.jt-game.wide[data-layout=split] .felt{left:7%;right:7%;top:130px;bottom:150px;border-radius:60px}
+.jt-game.wide[data-layout=split] .pot{top:49%}
+.jt-game.wide[data-layout=split] .my-zone{width:90%;bottom:10px;gap:40px}
+.jt-game.wide[data-layout=split] .my-cards{--card-w:77px;width:240px}
+.jt-game.wide[data-layout=split] .action.peek,.jt-game.wide[data-layout=split] .action.raise,.jt-game.wide[data-layout=split] .action.fold,.jt-game.wide[data-layout=split] .action.compare{grid-row:auto;grid-column:auto}
+.jt-game.wide[data-layout=split] .action.call{grid-column:5/7;grid-row:1}
+.jt-game.wide[data-layout=focus] .opponents{width:27%;inset:12px auto 12px 20px}
+.jt-game.wide[data-layout=focus] .seat{max-height:105px;grid-template-columns:1fr 80px;--avatar:32px;--opp-w:35px;padding:8px}
+.jt-game.wide[data-layout=focus] .identity{flex-direction:row}
+.jt-game.wide[data-layout=focus] .mini-hand{width:79px}
+.jt-game.wide[data-layout=focus] .seat-status{right:16px;bottom:10px;font-size:9px}
+.jt-game.wide[data-layout=focus] .seat-name{font-size:11px}
+.jt-game.wide[data-layout=focus] .seat-balance{font-size:10px}
+.jt-game.wide[data-layout=focus] .felt{left:32%;right:4%;top:12px;bottom:12px;border-radius:45px}
+.jt-game.wide[data-layout=focus] .pot{left:64%;top:29%}
+.jt-game.wide[data-layout=focus] .my-zone{left:64%;width:50%;--card-w:94px;bottom:22px}
+.jt-game.wide[data-layout=focus] .actions{grid-template-columns:repeat(6,1fr)}
+.jt-game.wide[data-layout=focus] .action.peek,.jt-game.wide[data-layout=focus] .action.raise,.jt-game.wide[data-layout=focus] .action.fold,.jt-game.wide[data-layout=focus] .action.compare{grid-row:auto;grid-column:auto}
+.jt-game.wide[data-layout=focus] .action.call{grid-column:5/7;grid-row:1}
+/* Landscape: put the controls beside the table and keep safe areas clear. */
+.jt-game.compact{height:100%;min-height:290px;grid-template-columns:minmax(0,1fr) 200px;grid-template-rows:44px minmax(246px,1fr);--card-w:49px;--opp-w:25px;--avatar:26px;--seat-width:77px}
+.jt-game.compact .jt-game-header{grid-column:1/-1;padding:0 12px}
+.jt-game.compact .room-strip{display:none}
+.jt-game.compact .scene{grid-column:1;grid-row:2;min-height:246px}
+.jt-game.compact .action-dock{grid-column:2;grid-row:2;border-top:0;border-left:1px solid var(--line);padding:12px 10px 8px;display:flex;flex-direction:column;justify-content:center}
+.jt-game.compact .turn-strip{align-items:flex-start;flex-wrap:wrap;gap:8px}
+.jt-game.compact .balance{display:flex;align-items:baseline;justify-content:space-between;width:100%}
+.jt-game.compact .balance strong{font-size:16px}
+.jt-game.compact .actions{grid-template-columns:1fr 1fr;gap:6px}
+.jt-game.compact .action{min-height:44px;flex-direction:row;font-size:10px}
+.jt-game.compact .action.call{grid-column:1/-1;grid-row:auto}
+.jt-game.compact .action.fold,.jt-game.compact .action.peek,.jt-game.compact .action.raise,.jt-game.compact .action.compare{grid-row:auto;grid-column:auto}
+.jt-game.compact .dock-foot{font-size:7px;line-height:1.5}
+.jt-game.compact .seat-name{font-size:9px}
+.jt-game.compact .seat-balance,.jt-game.compact .seat-status{font-size:8px}
+.jt-game.compact .pot-total strong{font-size:32px}
+.jt-game.compact .pot{top:44%}
+.jt-game.compact .pot-label,.jt-game.compact .pot-caption{font-size:8px}
+.jt-game.compact .chips{margin-top:5px;transform:scale(.8);height:14px}
+.jt-game.compact .my-zone{bottom:2px;width:190px}
+.jt-game.compact .my-caption{font-size:9px;margin-top:0}
+.jt-game.compact .felt{left:15%;right:15%;top:14%;bottom:16%}
+.jt-game.compact .felt-mark{display:none}
+.jt-game.compact .seat:nth-child(1),.jt-game.compact .seat:nth-child(2){top:1%}
+.jt-game.compact .seat:nth-child(3),.jt-game.compact .seat:nth-child(4){top:41%}
+.jt-game.compact[data-layout=split] .opponents{inset:8px 10px auto;gap:4px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.jt-game.compact[data-layout=split] .seat{height:66px;display:flex;flex-direction:column;gap:3px;--opp-w:21px;padding:5px}
+.jt-game.compact[data-layout=split] .identity{flex-direction:row;gap:3px}
+.jt-game.compact[data-layout=split] .avatar{--avatar:23px;font-size:11px}
+.jt-game.compact[data-layout=split] .seat-name{font-size:8px}
+.jt-game.compact[data-layout=split] .seat-balance{font-size:7px}
+.jt-game.compact[data-layout=split] .mini-hand{margin:0;height:29px}
+.jt-game.compact[data-layout=split] .seat-status{display:none}
+.jt-game.compact[data-layout=split] .felt{left:10px;right:10px;top:84px;bottom:85px;border-radius:30px}
+.jt-game.compact[data-layout=split] .pot{top:50%}
+.jt-game.compact[data-layout=split] .my-zone{width:94%;gap:20px;bottom:2px}
+.jt-game.compact[data-layout=split] .my-cards{--card-w:44px;width:140px}
+.jt-game.compact[data-layout=focus] .opponents{inset:6px auto 6px 10px;width:31%;gap:4px}
+.jt-game.compact[data-layout=focus] .seat{min-height:51px;height:51px;--avatar:22px;--opp-w:22px;grid-template-columns:1fr 48px;padding:3px}
+.jt-game.compact[data-layout=focus] .seat-balance{display:none}
+.jt-game.compact[data-layout=focus] .seat-status{bottom:3px;font-size:7px}
+.jt-game.compact[data-layout=focus] .felt{left:36%;right:8px;top:7px;bottom:7px;border-radius:35px}
+.jt-game.compact[data-layout=focus] .pot{left:68%;top:25%}
+.jt-game.compact[data-layout=focus] .my-zone{left:68%;width:60%;bottom:15px;--card-w:53px}
+.jt-game.compact[data-layout=focus] .focus-kicker{margin-bottom:2px;font-size:6px}
+.jt-game.compact[data-layout=focus] .my-caption{gap:4px}
+.jt-game .chip-fly{position:absolute;z-index:6;left:49%;top:80%;width:19px;height:9px;border:2px dashed #e9d4a1;border-radius:50%;background:#ae8b4a;box-shadow:0 2px 0 #59442c;animation:jttoPot .55s ease-out forwards;pointer-events:none}
+.jt-game[data-layout=focus] .chip-fly{left:68%}
+@keyframes jttoPot{0%{transform:translateY(0) scale(1);opacity:1}80%{opacity:1}100%{transform:translateY(-130px) scale(.7);opacity:0}}
+.jt-game .deal .card{animation:jtdeal .45s both}
+.jt-game .deal .card:nth-child(2){animation-delay:.08s}
+.jt-game .deal .card:nth-child(3){animation-delay:.16s}
+@keyframes jtdeal{from{opacity:0;translate:0 -32px}to{opacity:1;translate:0 0}}
+@media(max-width:760px){
+.jt-game{height:calc(var(--vh) * 100 - 60px);height:calc(100dvh - 60px);min-height:540px;grid-template-rows:50px 34px minmax(280px,1fr) auto}
+.jt-game .action-dock{position:sticky;bottom:0}
+.jt-game-header{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.jt-game.wide{min-height:700px}
+.jt-game[data-layout=split] .scene{min-height:330px}
+.jt-game[data-layout=split]{min-height:590px}
+}
+@media(max-width:359px){
+.jt-game{--card-w:53px;--opp-w:29px;--avatar:31px;--seat-width:84px}
+.jt-game-header .brand strong{font-size:11px}
+.jt-game-header .brand small{letter-spacing:1.9px}
+.jt-game .room-strip{padding:0 12px}
+.jt-game[data-layout=split] .seat{grid-template-columns:1fr 53px;--opp-w:24px;padding:5px;gap:1px}
+.jt-game[data-layout=split] .identity{gap:4px}
+.jt-game[data-layout=split] .seat-name{font-size:8px}
+.jt-game[data-layout=split] .seat-balance{font-size:7px}
+.jt-game[data-layout=split] .avatar{--avatar:24px}
+.jt-game[data-layout=split] .my-cards{--card-w:49px;width:148px}
+.jt-game[data-layout=focus] .seat{grid-template-columns:minmax(0,1fr) 39px;--opp-w:19px;padding:3px}
+.jt-game[data-layout=focus] .mini-hand{width:39px}
+.jt-game[data-layout=focus] .seat-status{font-size:6px;right:3px}
+.jt-game[data-layout=focus] .my-zone{--card-w:49px}
+.jt-game[data-layout=focus] .pot-total strong{font-size:31px}
+.jt-game[data-layout=focus] .pot-label{letter-spacing:2px}
+.jt-game .action-dock{padding-left:10px;padding-right:10px}
+.jt-game[data-layout=split] .chips{display:none}
+}
+@media(max-height:690px) and (orientation:portrait){
+.jt-game{--card-w:52px;--opp-w:27px;--avatar:29px;grid-template-rows:44px 31px minmax(270px,1fr) auto;min-height:520px}
+.jt-game[data-layout=split]{min-height:570px}
+.jt-game-header .brand img{width:26px;height:26px}
+.jt-game .mini-hand{margin-top:4px}
+.jt-game .seat-status{font-size:8px}
+.jt-game .seat-name{font-size:9px}
+.jt-game .pot-total strong{font-size:35px}
+.jt-game .action-dock{padding-top:7px}
+.jt-game .turn-strip{margin-bottom:7px}
+.jt-game .actions{gap:5px}
+.jt-game .action{min-height:44px}
+.jt-game .dock-foot{margin-top:5px}
+.jt-game[data-layout=focus] .my-zone{bottom:20px;--card-w:52px}
+.jt-game[data-layout=focus] .pot{top:29%}
+}
+@media(orientation:landscape) and (max-height:550px){
+.jt-game.compact .action-dock{position:relative;bottom:auto}
+}
+/* ===== 翡翠金三布局牌桌:嵌入覆盖(接真实逻辑用,非预览外壳) ===== */
+:root{--vh:1vh}
+#tableView.jt-view{display:block;padding:0}
+.jt-game{height:calc(var(--vh,1vh) * 100);height:100dvh;min-height:520px}
+/* dock 底部的"准备交底注"行 */
+.jt-game .jt-ready-row{z-index:5;position:relative;padding:11px 16px calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid #c1b17326;background:linear-gradient(180deg,#12291fe8,#091b15 80%)}
+.jt-game .jt-ready-btn{width:100%;min-height:50px;border-radius:9px;background:linear-gradient(110deg,#bda06a,#eddaa2,#c0a46d);color:#163024;font-weight:700;font-size:14px}
+.jt-game .jt-ready-btn:disabled{opacity:.55}
+/* 结算浮层 */
+.jt-game .jt-end-box{position:absolute;z-index:30;left:50%;top:43%;transform:translate(-50%,-50%);width:min(290px,86%);text-align:center;padding:18px;border:1px solid #efd08b8c;background:linear-gradient(150deg,#173326f6,#091711fa);border-radius:16px;box-shadow:0 20px 60px #000c}
+.jt-game .jt-end-box[hidden]{display:none}
+.jt-game .jt-end-box .jt-win-star{font-size:26px;color:#ffe6a1}
+.jt-game .jt-end-box h2{font-size:20px;color:#ffe0a4;margin:3px 0}
+.jt-game .jt-end-box p{font-size:12px;color:#a6c3b0;line-height:1.6;margin:0 0 10px}
+.jt-game .jt-end-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.jt-game .jt-end-box button{background:linear-gradient(110deg,#c09659,#f3d8a1);color:#201f13;font-weight:700;border-radius:8px;padding:9px 15px;min-height:42px;font-size:13px}
+.jt-game .jt-end-box button.jt-end-sec{background:#223029;color:#cdd8cf}
+/* 经典环桌(01):按对手人数分布 1~5 个弧形座位(my-zone 固定底部) */
+.jt-game[data-layout=classic] .seat.jt-s1{left:50%;top:1%}
+.jt-game[data-layout=classic] .seat.jt-s2{left:19%;top:5%}
+.jt-game[data-layout=classic] .seat.jt-s3{left:81%;top:5%}
+.jt-game[data-layout=classic] .seat.jt-s4{left:11%;top:40%}
+.jt-game[data-layout=classic] .seat.jt-s5{left:89%;top:40%}
+.jt-game.wide[data-layout=classic] .seat.jt-s2{left:22%}
+.jt-game.wide[data-layout=classic] .seat.jt-s3{left:78%}
+.jt-game.wide[data-layout=classic] .seat.jt-s4{left:9%;top:42%}
+.jt-game.wide[data-layout=classic] .seat.jt-s5{left:91%;top:42%}
+/* dock-foot 真实文案(非预览) */
+.jt-game .dock-foot{color:#7e9583}
+/* 桌面/平板:居中成框(容器>620触发 wide 宽布局);手机:满屏 */
+@media(min-width:621px){
+  #tableView.jt-view{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse 60% 60% at 50% 30%,#163626,transparent 70%),#060c0a}
+  .jt-game{width:min(1160px,100%);height:min(820px,calc(100dvh - 40px));border:1px solid #2a3a30;border-radius:22px;overflow:hidden;box-shadow:0 30px 90px #000b;min-height:0}
+}
+@media(max-width:620px){
+  #tableView.jt-view{position:fixed;inset:0;z-index:40;padding:0;background:#060c0a}
+  .jt-game{width:100%;height:calc(var(--vh,1vh) * 100);height:100dvh;border:0;border-radius:0;min-height:0}
+}
