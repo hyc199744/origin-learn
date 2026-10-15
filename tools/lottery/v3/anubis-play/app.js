@@ -122,9 +122,9 @@
     else if(m.t==='authed'){ authed=true; delegate=m.delegate; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); }
     else if(m.t==='tables'){ renderRooms(m.tables); }
     else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; prevPlayers=null; joining=true;
+      wsend({t:'subscribe',handId:curHand}); wsend({t:'joinTable',handId:curHand}); toast('开桌成功，入座中…'); // 先真入座
       state={handId:String(m.handId),phase:1,ante:(BigInt(newAnte)*1000000000n).toString(),maxPlayers:newCount,nPlayers:0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
-      enterTable(); render(); clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false;render();} },12000);
-      wsend({t:'subscribe',handId:curHand}); wsend({t:'joinTable',handId:curHand}); toast('开桌成功，入座中…'); }
+      enterTable(); try{ render(); }catch(e){} clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false; try{render();}catch(e){}} },12000); }
     else if(m.t==='joined'){ logAct('你已入座'); }
     else if(m.t==='left'){ toast('已退座，底注退回可领取'); backToLobby(true); }
     else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ onState(m); } }
@@ -323,11 +323,11 @@
     if(!myAddr){ await connect(); if(!myAddr)return; }
     if(!authorized){ await doAuthorize(); if(!authorized)return; } // 首次自动授权一次,签完即进,无需单独说明
     curHand=String(id); myCards=null; prevPlayers=null; joining=true;
+    wsend({t:'subscribe',handId:id}); wsend({t:'joinTable',handId:id}); toast('入座中…'); // 先真入座,渲染出错也不影响
     const room=(window._rooms||[]).find(r=>String(r.handId)===String(id)); // 立刻用大厅已知信息搭个临时桌,不等上链
     state={handId:String(id),phase:1,ante:room?room.ante:'0',maxPlayers:room?Number(room.maxPlayers):6,nPlayers:room?Number(room.nPlayers):0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
-    enterTable(); render();
-    clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false; render();} },12000);
-    wsend({t:'subscribe',handId:id}); wsend({t:'joinTable',handId:id}); toast('入座中…');
+    enterTable(); try{ render(); }catch(e){}
+    clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false; try{render();}catch(e){}} },12000);
   }
   async function doCreate(){
     if(!myAddr){ await connect(); if(!myAddr)return; }
