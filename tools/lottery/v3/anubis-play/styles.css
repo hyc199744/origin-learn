@@ -12,3 +12,185 @@
 @media(orientation:landscape) and (max-width:680px) and (max-height:600px){.action-zone{grid-template-columns:106px 1fr;gap:6px;padding-left:10px;padding-right:10px}.turn-indicator>strong{font-size:9px}.turn-indicator>span{font-size:7px}.game-action{gap:3px;font-size:9px}.game-action .icon{width:13px;height:13px}.action-call>strong{font-size:16px}.action-call small{display:none}.action-controls{gap:5px}.table-identity>div{gap:8px}.seat-2{left:9%}.seat-4{right:9%}.seat-1{left:3%}.seat-5{right:3%}.table-stage .player-seat{width:88px}.seat-cards{left:calc(50% + 18px)}.seat-4 .seat-cards,.seat-5 .seat-cards{right:calc(50% + 18px)}.felt-outer{left:12%;right:12%}.room-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.room-card-head{flex-direction:column}}
 @media(orientation:portrait) and (min-width:651px) and (max-width:1024px){.portrait-tip{display:flex;align-items:center;gap:9px;margin-bottom:14px;padding:10px 13px;border:1px solid #5c714533;border-radius:6px;color:#9eaf8c;background:#5e6c3210;font-size:11px}.portrait-tip>span{flex:1}.portrait-tip>button{min-height:29px;color:#d3ba83;font-size:11px}.portrait-tip .tip-close{font-size:18px;color:#7c8c6d}.portrait-tip .icon{width:16px;height:16px}.table-stage{height:520px}.room-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.room-bottom{flex-direction:row;align-items:center}.join-button{width:auto}.side-panel{display:none}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* ====== 强制横屏模式(CSS旋转,不依赖系统旋转,任意手机可用) ====== */
+body.force-landscape{position:fixed;top:0;left:0;overflow:hidden;width:100vh;height:100vw;transform-origin:top left;transform:translateX(100vw) rotate(90deg);background:#0d1812}
+body.force-landscape{scrollbar-gutter:auto}
+body.force-landscape{background:#0d1812}
+body.force-landscape .app-shell{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+body.force-landscape .site-header,body.force-landscape .page-heading,body.force-landscape .site-footer,body.force-landscape .below-table,body.force-landscape .portrait-tip,body.force-landscape .side-panel{display:none}
+body.force-landscape .main{max-width:none;margin:0;padding:0}
+body.force-landscape .game-layout{display:block}
+body.force-landscape .game-card{height:100svh;height:100dvh;border:0;border-radius:0;display:grid;grid-template-rows:43px minmax(150px,1fr) auto;overflow:hidden}
+body.force-landscape .table-toolbar{height:43px;padding:0 16px}
+body.force-landscape .table-identity{gap:8px}
+body.force-landscape .table-identity>div{display:flex;align-items:center;gap:11px}
+body.force-landscape .table-identity>div>strong{font-size:11px}
+body.force-landscape .table-identity>div>span{display:inline;font-size:9px;margin-top:0}
+body.force-landscape .table-status{font-size:8px;padding:3px 7px}
+body.force-landscape .table-tools{gap:8px}
+body.force-landscape .table-tools>.icon-button{height:29px;width:31px}
+body.force-landscape .sound-off{top:4px;left:15px}
+body.force-landscape .mobile-records{display:inline-flex}
+body.force-landscape .table-stage{height:auto;min-height:0;align-self:stretch;background:radial-gradient(ellipse at 50% 45%,#213a29,#0e1b14 90%)}
+body.force-landscape .felt-outer{left:15%;right:15%;top:14%;bottom:15%;padding:8px;border-radius:50%;box-shadow:0 10px 0 -2px #09110d,0 11px 1px -2px #81704444,0 14px 22px #0008,0 0 0 2px #080f0c,0 0 0 4px #3d432c}
+body.force-landscape .felt-inner,body.force-landscape .felt-inner:before{border-radius:50%}
+body.force-landscape .felt-inner:before{inset:8px}
+body.force-landscape .felt-watermark{top:9%;gap:3px}
+body.force-landscape .felt-watermark svg{display:none}
+body.force-landscape .felt-watermark span{font-size:6px;letter-spacing:3px}
+body.force-landscape .table-edge-label{font-size:5px;letter-spacing:2px;bottom:8%}
+body.force-landscape .stage-corner{font-size:22px}
+body.force-landscape .stage-corner span{font-size:14px;margin-top:5px}
+body.force-landscape .top-left{top:17px;left:18px}
+body.force-landscape .bottom-right{bottom:16px;right:18px}
+body.force-landscape .player-seat{width:100px}
+body.force-landscape .seat-1{left:6%;top:auto;bottom:4%}
+body.force-landscape .seat-2{left:12%;top:5%}
+body.force-landscape .seat-3{top:3%}
+body.force-landscape .seat-4{right:12%;top:5%}
+body.force-landscape .seat-5{right:6%;top:auto;bottom:4%}
+body.force-landscape .avatar{width:33px;height:33px;font-size:16px;box-shadow:0 0 0 2px #111d17,0 3px 7px #0004}
+body.force-landscape .avatar svg{width:19px;height:23px}
+body.force-landscape .avatar:before{inset:3px}
+body.force-landscape .player-name{font-size:9px;margin-top:4px}
+body.force-landscape .player-balance{font-size:8px;margin-top:2px}
+body.force-landscape .player-balance small{display:none}
+body.force-landscape .seat-cards{position:absolute;left:calc(50% + 23px);top:3px;gap:1px;margin:0;height:21px}
+body.force-landscape .seat-4 .seat-cards,body.force-landscape .seat-5 .seat-cards{left:auto;right:calc(50% + 23px)}
+body.force-landscape .mini-card{width:13px;height:19px}
+body.force-landscape .mini-card:after{font-size:7px;line-height:12px}
+body.force-landscape .dealer-label{width:13px;height:13px;line-height:12px;font-size:7px;right:-4px}
+body.force-landscape .seat-status{font-size:7px;top:-10px;padding:1px 5px}
+body.force-landscape .player-seat.seat-0{width:140px;bottom:5px!important}
+body.force-landscape .seat-0 .avatar{width:26px;height:26px}
+body.force-landscape .seat-0 .avatar svg{width:16px;height:20px}
+body.force-landscape .seat-0 .player-info{margin-left:7px}
+body.force-landscape .seat-0 .player-name{font-size:9px;margin-top:0}
+body.force-landscape .seat-0 .player-balance{font-size:8px;margin-top:3px}
+body.force-landscape .seat-0 .seat-status{display:none}
+body.force-landscape .you-badge{font-size:7px}
+body.force-landscape .pot-display{top:36%;min-width:100px}
+body.force-landscape .pot-caption{font-size:8px;letter-spacing:.5px}
+body.force-landscape .mock-label{font-size:6px}
+body.force-landscape .pot-value{margin-top:3px;gap:6px}
+body.force-landscape .pot-value strong{font-size:27px}
+body.force-landscape .pot-value>span{font-size:7px}
+body.force-landscape .chip-pile{position:absolute;left:calc(100% - 1px);top:5px;transform:scale(.72);transform-origin:left center;margin:0}
+body.force-landscape .round-badge{position:absolute;right:calc(100% + 5px);top:12px;font-size:7px;padding:3px 7px;white-space:nowrap}
+body.force-landscape .my-hand{bottom:39px;gap:4px}
+body.force-landscape .playing-card{height:56px;width:39px;border-radius:4px}
+body.force-landscape .playing-card .rank{font-size:12px;top:3px;left:3px}
+body.force-landscape .playing-card .rank span{font-size:8px;margin-top:1px}
+body.force-landscape .playing-card .card-suit{font-size:23px}
+body.force-landscape .playing-card .rank-bottom{font-size:10px;right:3px;bottom:3px}
+body.force-landscape .card-back svg{width:20px;height:25px}
+body.force-landscape .hand-label{left:calc(50% + 80px);bottom:46px;transform:none;font-size:8px;white-space:normal;max-width:110px;text-align:left}
+body.force-landscape .action-zone{padding:6px max(16px,calc((100vw - 920px)/2)) calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:150px 1fr;gap:13px;align-items:center;background:#142019}
+body.force-landscape .turn-strip{margin:0;display:block}
+body.force-landscape .turn-indicator{display:flex;flex-wrap:wrap;gap:5px}
+body.force-landscape .turn-indicator>strong{font-size:10px}
+body.force-landscape .turn-indicator>span{font-size:8px;margin:1px 0 0 10px;width:100%;line-height:1.5}
+body.force-landscape .hand-state{display:none}
+body.force-landscape .action-controls{gap:7px;grid-template-columns:.8fr .85fr .85fr .85fr 1.6fr}
+body.force-landscape .game-action{height:44px;min-height:44px;flex-direction:row;font-size:11px;gap:5px}
+body.force-landscape .game-action .icon{width:15px;height:15px}
+body.force-landscape .action-call>strong{font-size:20px}
+body.force-landscape .action-call small{font-size:7px}
+body.force-landscape .action-call>.icon{display:none}
+body.force-landscape .table-message{font-size:11px;padding:9px 16px}
+body.force-landscape .round-result{min-height:44px}
+body.force-landscape .round-result strong{font-size:14px}
+body.force-landscape .round-result>div>span{font-size:9px}
+body.force-landscape .round-result .gold-button{min-height:39px;font-size:11px}
+body.force-landscape .lobby-view{padding:15px 20px}
+body.force-landscape .lobby-hero{min-height:150px;padding:20px 25px}
+body.force-landscape .lobby-hero h2{font-size:23px;margin:8px 0}
+body.force-landscape .lobby-hero p{font-size:10px;margin-bottom:13px}
+body.force-landscape .lobby-card-art{top:-20px;right:25px;transform:scale(.65)}
+body.force-landscape .room-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+body.force-landscape .room-card{padding:16px}
+body.force-landscape .room-bottom{flex-direction:row;align-items:center}
+body.force-landscape .join-button{width:auto;padding:0 10px;font-size:10px}
+body.force-landscape .room-ante{margin:13px 0 7px}
+body.force-landscape .room-divider{margin:13px 0}
+body.force-landscape .room-card-head{flex-direction:row}
+body.force-landscape .lobby-bar{margin:16px 0}
+body.force-landscape .filter-tabs>button{font-size:10px;padding:7px 13px}
+body.force-landscape .modal{max-height:calc(100dvh - 18px);width:min(600px,calc(100vw - 36px))}
+body.force-landscape .modal-header{padding:13px 20px}
+body.force-landscape .modal-header h2{font-size:18px;margin-top:3px}
+body.force-landscape .modal-body{padding:15px 20px}
+body.force-landscape .modal-header .eyebrow{font-size:7px}
+body.force-landscape .modal-body>.gold-button{margin-top:15px}
+body.force-landscape .toast{bottom:13px;padding:10px 16px;font-size:11px}
+body.force-landscape .form-label{margin:11px 0 8px}
+body.force-landscape .tier-button{height:52px}
+body.force-landscape .tier-button strong{font-size:21px}
+body.force-landscape .form-note{margin-top:10px;font-size:10px}
+body.force-landscape .table-identity .back-button{width:26px;height:28px}
+body.force-landscape .action-zone{grid-template-columns:106px 1fr;gap:6px;padding-left:10px;padding-right:10px}
+body.force-landscape .turn-indicator>strong{font-size:9px}
+body.force-landscape .turn-indicator>span{font-size:7px}
+body.force-landscape .game-action{gap:3px;font-size:9px}
+body.force-landscape .game-action .icon{width:13px;height:13px}
+body.force-landscape .action-call>strong{font-size:16px}
+body.force-landscape .action-call small{display:none}
+body.force-landscape .action-controls{gap:5px}
+body.force-landscape .table-identity>div{gap:8px}
+body.force-landscape .seat-2{left:9%}
+body.force-landscape .seat-4{right:9%}
+body.force-landscape .seat-1{left:3%}
+body.force-landscape .seat-5{right:3%}
+body.force-landscape .table-stage .player-seat{width:88px}
+body.force-landscape .seat-cards{left:calc(50% + 18px)}
+body.force-landscape .seat-4 .seat-cards,body.force-landscape .seat-5 .seat-cards{right:calc(50% + 18px)}
+body.force-landscape .felt-outer{left:12%;right:12%}
+body.force-landscape .room-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+body.force-landscape .room-card-head{flex-direction:column}
+body.force-landscape .game-card{grid-template-rows:38px minmax(130px,1fr) auto}
+body.force-landscape .table-toolbar{height:38px}
+body.force-landscape .table-tools>.icon-button{width:28px;height:27px}
+body.force-landscape .action-zone{padding-top:5px;padding-bottom:calc(6px + env(safe-area-inset-bottom));grid-template-columns:135px 1fr;gap:8px}
+body.force-landscape .table-stage .avatar{width:28px;height:28px;font-size:14px}
+body.force-landscape .table-stage .avatar svg{width:16px;height:20px}
+body.force-landscape .table-stage .player-name{font-size:8px;margin-top:3px}
+body.force-landscape .table-stage .player-balance{font-size:7px;margin-top:2px}
+body.force-landscape .seat-0 .avatar{width:23px!important;height:23px!important}
+body.force-landscape .player-seat.seat-0{bottom:3px!important}
+body.force-landscape .seat-2,body.force-landscape .seat-4{top:5%}
+body.force-landscape .seat-1,body.force-landscape .seat-5{bottom:2%}
+body.force-landscape .seat-cards{left:calc(50% + 20px);top:3px}
+body.force-landscape .seat-4 .seat-cards,body.force-landscape .seat-5 .seat-cards{right:calc(50% + 20px)}
+body.force-landscape .mini-card{width:11px;height:17px}
+body.force-landscape .mini-card:after{font-size:6px;line-height:10px}
+body.force-landscape .seat-status{top:-8px;font-size:6px;padding:0 4px}
+body.force-landscape .felt-outer{top:16%;bottom:14%;padding:6px}
+body.force-landscape .pot-display{top:34%}
+body.force-landscape .pot-value strong{font-size:23px}
+body.force-landscape .pot-caption{font-size:7px}
+body.force-landscape .pot-value>span{font-size:6px}
+body.force-landscape .felt-watermark span{font-size:5px;letter-spacing:2px}
+body.force-landscape .my-hand{bottom:33px;gap:3px}
+body.force-landscape .playing-card{height:46px;width:33px}
+body.force-landscape .card-back svg{width:17px;height:22px}
+body.force-landscape .playing-card .rank{font-size:10px}
+body.force-landscape .playing-card .rank span{font-size:7px}
+body.force-landscape .playing-card .card-suit{font-size:19px}
+body.force-landscape .playing-card .rank-bottom{font-size:9px}
+body.force-landscape .hand-label{left:calc(50% + 69px);bottom:36px;font-size:7px;max-width:90px}
+body.force-landscape .game-action{height:44px;font-size:10px;gap:4px}
+body.force-landscape .game-action .icon{width:13px}
+body.force-landscape .action-call>strong{font-size:17px}
+body.force-landscape .turn-indicator>strong{font-size:9px}
+body.force-landscape .turn-indicator>span{font-size:7px}
+body.force-landscape .round-badge{font-size:6px;padding:2px 5px}
+body.force-landscape .round-result strong{font-size:12px}
+body.force-landscape .round-result>div>span{font-size:8px}
+
+/* 旋转后用百分比撑满,覆盖内部视口单位 */
+body.force-landscape .app-shell,body.force-landscape .main,body.force-landscape .game-layout,body.force-landscape .table-column{height:100%!important;max-width:none!important;margin:0!important}
+body.force-landscape .game-card{height:100%!important}
+body.force-landscape .modal{max-height:calc(100vw - 20px)!important;width:min(600px,calc(100vh - 40px))!important}
+body.force-landscape .toast{bottom:14px!important}

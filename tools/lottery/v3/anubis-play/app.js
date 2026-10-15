@@ -424,6 +424,15 @@
     finally{fsBusy=false;}
   }
   function updateFullscreen(){const on=!!(document.fullscreenElement||document.webkitFullscreenElement);$('fullscreenButton').title=on?'退出全屏':'全屏与横屏';}
+  const isLandscapeReal=()=>matchMedia('(orientation:landscape)').matches;
+  async function toggleLandscape(){
+    if(document.body.classList.contains('force-landscape')){ document.body.classList.remove('force-landscape'); try{if(document.fullscreenElement)await document.exitFullscreen();}catch(e){} toast('已退出横屏'); return; }
+    const coarse=matchMedia('(pointer:coarse)').matches;
+    if(!coarse||isLandscapeReal()){ await toggleFullscreen(); return; } // 桌面或已横屏:走原生全屏
+    document.body.classList.add('force-landscape'); // 手机竖屏:CSS旋转强制横屏,不靠系统旋转
+    try{const el=document.documentElement,req=el.requestFullscreen||el.webkitRequestFullscreen; if(req)await req.call(el);}catch(e){}
+    $('portraitTip').hidden=true; toast('已切换横屏,再点一次退出');
+  }
 
   // ---------- 事件 ----------
   document.addEventListener('fullscreenchange',updateFullscreen);
@@ -457,7 +466,7 @@
         case 'raise':doRaise();break;
         case 'compare':startCompare();break;
         case 'next':if(curHand)wsend({t:'rematch',handId:curHand});toast('开新局中…');break;
-        case 'fullscreen':await toggleFullscreen();break;
+        case 'fullscreen':await toggleLandscape();break;
         case 'sound':sound=!sound;updateSound();playSound();toast(sound?'音效已开':'音效已关');break;
         case 'dismiss-tip':$('portraitTip').hidden=true;break;
         case 'refresh':{if(authed)wsend({t:'listTables'});const l=b.querySelector('span');if(l){l.textContent='刷新中';setTimeout(()=>l.textContent='刷新',500);}toast('已刷新牌桌列表');break;}
@@ -465,6 +474,7 @@
     }catch(err){toast((err&&err.message)||'操作失败，请重试');}
   });
   window.addEventListener('hashchange',()=>setView(location.hash==='#lobby'?'lobby':'table'));
+  try{ matchMedia('(orientation:landscape)').addEventListener('change',e=>{ if(e.matches)document.body.classList.remove('force-landscape'); }); }catch(e){} // 真横屏时关掉CSS旋转防重复
 
   // 倒计时/状态轻刷新(整屏重算,保证跟注额与倒计时正确)
   setInterval(()=>{ if(state&&state.phase===2&&view==='table'&&!$('tableView').hidden)render(); },1000);
