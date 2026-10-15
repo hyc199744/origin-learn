@@ -24,7 +24,7 @@
   let view='table', filter='all', newAnte=10, newCount=6;
   let sound=false, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null, cdActive=false, cdBase='';
+  let prevPlayers=null, cdActive=false, cdBase='', pending=false;
 
   const slotMap={2:[0,3],3:[0,2,4],4:[0,2,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
 
@@ -135,10 +135,11 @@
     else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); } }
     else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
     else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)) toast('本局已退款'); }
-    else if(m.t==='error'){ toast(m.msg); }
+    else if(m.t==='error'){ pending=false; clearTimeout(window._pt); toast(m.msg); if(state)render(); }
   }
 
   function onState(m){
+    pending=false; clearTimeout(window._pt); // 新状态到达,解除"处理中"
     // 事件推断(弃牌/看牌),让"牌局动态"真实
     if(prevPlayers){
       m.players.forEach(p=>{
@@ -331,12 +332,13 @@
 
   // ---------- 行动 ----------
   function act(action,extra){ wsend(Object.assign({t:'act',handId:curHand,action},extra||{})); }
-  function doFold(){ act('fold'); logAct('你 弃牌'); }
-  function doPeek(){ act('look'); message('看牌'); playSound('card'); }
-  function doCall(){ act('call'); playSound(); logAct('你 跟注'); }
-  function doRaise(){ act('raise'); playSound(); message('加注'); logAct('你 加注'); }
+  function setPending(txt){ pending=true; cdActive=false; ['foldButton','peekButton','raiseButton','compareButton','callButton'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('turnHint'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
+  function doFold(){ setPending('弃牌中…'); act('fold'); logAct('你 弃牌'); }
+  function doPeek(){ setPending('看牌中…'); act('look'); playSound('card'); }
+  function doCall(){ setPending('跟注中…'); act('call'); playSound(); logAct('你 跟注'); }
+  function doRaise(){ setPending('加注中…'); act('raise'); playSound(); logAct('你 加注'); }
   function startCompare(){ if(!state||state.nActive<2){toast('暂无可比牌的对手');return;} picking=!picking; if(picking){openCompare();} render(); }
-  function doCompare(addr){ picking=false; act('compare',{target:addr}); message('比牌中…'); logAct('你 比牌'); closeModal(); }
+  function doCompare(addr){ picking=false; setPending('比牌中…'); act('compare',{target:addr}); logAct('你 比牌'); closeModal(); }
   async function doClaim(){ if(!myAddr)return; try{toast('领取中…');await sendTx(SEL.withdraw);toast('已领取到钱包');refreshBalances();}catch(e){toast(e.message||'暂无可领');} }
 
   // ---------- 弹窗 ----------
