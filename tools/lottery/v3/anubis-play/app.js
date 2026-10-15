@@ -136,6 +136,7 @@
     else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ onState(m); } }
     else if(m.t==='yourCards'){ if(String(m.handId)===String(curHand)){ myCards=m.cards; render(); } }
     else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); } }
+    else if(m.t==='compareReveal'){ showCompareReveal(m); }
     else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
     else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)) toast('本局已退款'); }
     else if(m.t==='error'){ pending=false; joining=false; clearTimeout(window._pt); clearTimeout(window._jt); toast(m.msg); if(state)render(); }
@@ -491,6 +492,21 @@
     openModal('选择比牌对手',
       `<p>比牌支付你当前跟注额（看牌为 2 倍）。输的一方出局；牌力相同则发起方出局。</p>
        <div class="opponent-list">${opps.map(p=>`<button class="opponent-choice" data-compare="${p.addr}"><div class="avatar" aria-hidden="true">${esc(p.addr.slice(2,3).toUpperCase())}</div><span><strong>${short(p.addr)}</strong><small>${p.looked?'已看牌':'暗牌中'}</small></span></button>`).join('')}</div>`,'HEAD TO HEAD');
+  }
+  function showCompareReveal(m){
+    const iAmCh=isMe(m.challenger.addr);
+    const mine=iAmCh?m.challenger:m.opponent, theirs=iAmCh?m.opponent:m.challenger;
+    const iLost=m.loser&&myAddr&&m.loser.toLowerCase()===myAddr.toLowerCase();
+    const mh=rankHand(mine.cards.map(conv)).label, th=rankHand(theirs.cards.map(conv)).label;
+    const chips=cards=>cards.map(c=>{const cd=conv(c);const r=({11:'J',12:'Q',13:'K',14:'A'})[cd.value]||cd.value;const red='♥♦'.includes(cd.suit);return '<span style="display:inline-block;width:38px;height:52px;border-radius:6px;background:#fffdf0;color:'+(red?'#b9383c':'#23292a')+';font-weight:800;line-height:52px;text-align:center;margin:0 3px;font-family:Georgia,serif;font-size:17px;box-shadow:0 3px 7px #0006">'+r+cd.suit+'</span>';}).join('');
+    openModal('⚔ 比牌结果',
+      '<div style="text-align:center">'+
+      '<div style="font-size:12px;color:#9dac98">你 · '+esc(mh)+'</div><div style="margin:7px 0 2px">'+chips(mine.cards)+'</div>'+
+      '<div style="font-size:19px;color:#e8c783;margin:12px 0;letter-spacing:3px">VS</div>'+
+      '<div style="font-size:12px;color:#9dac98">'+esc(nameOf(theirs.addr))+' · '+esc(th)+'</div><div style="margin:7px 0 2px">'+chips(theirs.cards)+'</div>'+
+      '<div style="font-size:18px;font-weight:800;margin-top:15px;color:'+(iLost?'#dd888a':'#65c59d')+'">'+(iLost?'你输了，本局出局':'你赢了！对手出局')+'</div></div>'+
+      '<button class="gold-button" data-action="close" style="width:100%;margin-top:14px">知道了</button>','HEAD TO HEAD');
+    clearTimeout(window._crt); window._crt=setTimeout(()=>{ if($('modal').open)closeModal(); },6000);
   }
   function showRules(){
     openModal('三张牌，一场对决。',
