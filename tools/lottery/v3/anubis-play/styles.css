@@ -202,3 +202,35 @@ body.force-landscape .toast{bottom:14px!important}
 }
 body.force-landscape .ambient{display:none!important}
 body.force-landscape .felt-watermark{opacity:.5}
+
+/* ====== 重新设计扑克牌(保留各断点尺寸,只改视觉) ====== */
+.playing-card{
+  background:linear-gradient(157deg,#ffffff 0%,#faf7ef 55%,#f0e9d8 100%);
+  color:#191a1f;
+  border:1px solid rgba(40,30,10,.18);
+  box-shadow:0 5px 11px rgba(0,0,0,.42),0 1px 2px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.95);
+  overflow:hidden;
+}
+.playing-card.red{color:#d41f2b}
+.playing-card .rank{font-weight:800;letter-spacing:-.3px;text-shadow:0 1px 0 rgba(255,255,255,.65);z-index:2}
+.playing-card .rank>span{opacity:.92}
+.playing-card .rank-bottom{font-weight:800;z-index:2}
+.playing-card .card-suit{filter:drop-shadow(0 2px 2px rgba(0,0,0,.16));opacity:.97}
+/* 牌面内细金框 */
+.playing-card:not(.card-back):before{content:"";position:absolute;inset:3px;border-radius:5px;border:1px solid rgba(188,156,88,.38);pointer-events:none;z-index:1}
+/* 大花色淡水印在正中,增加层次 */
+.playing-card:not(.card-back):after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 46%,rgba(0,0,0,.04),transparent 58%);pointer-events:none}
+
+/* ====== 重新设计牌背(黑金高级) ====== */
+.playing-card.card-back{
+  background:
+    radial-gradient(circle at 50% 40%,rgba(216,186,122,.20),transparent 62%),
+    repeating-linear-gradient(45deg,#14251b 0 3px,#182e21 3px 6px),
+    linear-gradient(160deg,#17291e,#0b1610);
+  border:1.5px solid #c8a76d;
+  color:#e6cb84;
+  box-shadow:0 5px 11px rgba(0,0,0,.5),inset 0 0 14px rgba(0,0,0,.45);
+}
+.playing-card.card-back:before{content:"";position:absolute;inset:3px;border:1px solid rgba(200,167,109,.6);border-radius:5px;transform:none}
+.playing-card.card-back:after{content:"";position:absolute;inset:7px;border:1px solid rgba(200,167,109,.24);border-radius:4px;transform:none}
+.playing-card.card-back svg{filter:drop-shadow(0 1px 2px rgba(0,0,0,.65));opacity:.95;position:relative;z-index:1}
