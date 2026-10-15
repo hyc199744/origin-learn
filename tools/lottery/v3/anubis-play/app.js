@@ -104,13 +104,7 @@
       toast('第1步：授权代币额度（上限 1000 LGNS）…'); await sendTxTo(LGNS,SEL.approve+encA(CONTRACT)+enc(APPROVE_AMT));
       toast('第2步：授权免签代发…'); await sendTx(SEL.authorize+encA(delegate));
       authorized=true; toast('✅ 授权完成，之后玩牌不再弹签名'); refreshBalances();
-      if($('modal').open)showAuthorization();
     }catch(e){toast(e.message||'授权失败');}
-  }
-  async function doRevoke(){
-    if(!myAddr)return;
-    try{ toast('撤销授权额度中…'); await sendTxTo(LGNS,SEL.approve+encA(CONTRACT)+enc(0n)); authorized=false; toast('已撤销授权额度'); if($('modal').open)showAuthorization(); }
-    catch(e){toast(e.message||'撤销失败');}
   }
 
   // ---------- WSS ----------
@@ -319,14 +313,14 @@
     curHand=null; state=null; myCards=null; prevPlayers=null; picking=false;
     setView('lobby'); if(authed)wsend({t:'listTables'}); refreshBalances();
   }
-  function joinRoom(id){
-    if(!myAddr){toast('请先连接钱包');return;}
-    if(!authorized){toast('请先授权(点右上钱包→一键授权)');showAuthorization();return;}
+  async function joinRoom(id){
+    if(!myAddr){ await connect(); if(!myAddr)return; }
+    if(!authorized){ await doAuthorize(); if(!authorized)return; } // 首次自动授权一次,签完即进,无需单独说明
     curHand=String(id); enterTable(); wsend({t:'subscribe',handId:id}); wsend({t:'joinTable',handId:id}); toast('入座中…');
   }
-  function doCreate(){
-    if(!myAddr){toast('请先连接钱包');return;}
-    if(!authorized){toast('请先授权');showAuthorization();return;}
+  async function doCreate(){
+    if(!myAddr){ await connect(); if(!myAddr)return; }
+    if(!authorized){ closeModal(); await doAuthorize(); if(!authorized)return; }
     const ante=(BigInt(newAnte)*1000000000n).toString();
     wsend({t:'createTable',ante,maxPlayers:newCount}); closeModal(); toast('开桌中…');
   }
@@ -351,19 +345,9 @@
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
        <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${$('balanceAmount').textContent} <small>LGNS</small></strong></div>
        <div class="wallet-row"><span>可领取奖金</span><strong>${$('claimableAmount').textContent}</strong><button class="small-button" data-action="claim" ${$('claimButton').disabled?'disabled':''}>领取</button></div>
-       <div class="wallet-row"><span>免签授权</span><strong>${authorized?'已启用':'未启用'}</strong><button class="small-button" data-action="authorization">管理</button></div>
-       <div class="form-note">押真 LGNS，链上结算。授权一次后看牌/下注/比牌免签，钱始终从你钱包扣，额度上限 1000 LGNS，随时可撤销。</div>`
+       <div class="form-note">押真 LGNS，链上公平结算，奖金自动到账。</div>`
       :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 LGNS 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`,
       'MY WALLET');
-  }
-  function showAuthorization(){
-    openModal('免签授权', !myAddr?`<div class="notice">请先连接钱包。</div><button class="gold-button" data-action="connect">连接钱包</button>`:
-      `<p>授权一次后，看牌、跟注、加注、比牌都不再逐笔弹签名，由对战服务代你发到链上（gas 平台出）。钱始终从你自己钱包扣。</p>
-       <div class="wallet-row"><span>当前状态</span><strong>${authorized?'已授权':'未授权'}</strong></div>
-       <div class="wallet-row"><span>授权额度上限</span><strong>1000 LGNS</strong></div>
-       <div class="form-note">安全说明：平台只能在你授权额度内、按游戏规则代发交易，无法动用额度外资产，也拿不到你的私钥。随时可在此撤销。</div>
-       ${authorized?'<button class="modal-secondary" data-action="revoke">撤销授权</button>':'<button class="gold-button" data-action="authorize">'+icon('shield')+'一键授权（免签玩牌）</button>'}`,
-      'SESSION AUTHORIZATION');
   }
   function openCreate(){
     newAnte=10;newCount=6;
@@ -457,9 +441,6 @@
         case 'connect':await connect();closeModal();showWallet();break;
         case 'rules':showRules();break;
         case 'records':showRecords();break;
-        case 'authorization':showAuthorization();break;
-        case 'authorize':await doAuthorize();break;
-        case 'revoke':await doRevoke();break;
         case 'create':openCreate();break;
         case 'create-confirm':{newCount=Number(($('playerCount')||{}).value||6);doCreate();break;}
         case 'claim':doClaim();break;
