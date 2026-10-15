@@ -7,9 +7,9 @@
   <meta name="description" content="ANUBIS PLAY 金花牌局，真人实时对战，押真 LGNS，链上公平可证明。手机横竖屏、平板与电脑自适应。">
   <title>金花牌局 · ANUBIS PLAY</title>
   <link rel="icon" href="logo.webp">
-  <link rel="stylesheet" href="styles.css?v=1016q">
+  <link rel="stylesheet" href="styles.css?v=1017a">
   <style>.brand-logo{height:44px;width:44px;object-fit:contain;display:block;border-radius:10px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}@media(max-width:650px){.brand-logo{height:36px;width:36px}}@media(orientation:landscape) and (max-height:600px){.brand-logo{height:32px;width:32px}}</style>
-  <script defer src="app.js?v=1016q"></script>
+  <script defer src="app.js?v=1017a"></script>
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -54,46 +54,43 @@
 
       <div class="portrait-tip" id="portraitTip"><svg class="icon"><use href="#i-rotate"/></svg><span>横过手机，或点右侧按钮一键横屏</span><button data-action="fullscreen">一键横屏</button><button class="tip-close" data-action="dismiss-tip" aria-label="关闭横屏提示">×</button></div>
 
-      <section id="tableView" class="game-layout" aria-label="炸金花牌桌">
-        <div class="table-column">
-          <section class="game-card">
-            <header class="table-toolbar">
-              <div class="table-identity"><button class="icon-button back-button" data-view="lobby" aria-label="返回游戏大厅"><svg class="icon"><use href="#i-arrow"/></svg></button><div><strong id="roomTitle">未入座</strong><span id="roomSubtitle">请到游戏大厅选择牌桌</span></div><span class="table-status" id="tableStatus"><i></i> 未开局</span></div>
-              <div class="table-tools"><button class="icon-button" data-action="sound" id="soundButton" aria-label="开启音效" aria-pressed="false" title="开启音效"><svg class="icon"><use href="#i-sound"/></svg><span class="sound-off"></span></button><button class="icon-button mobile-records" data-action="wallet" aria-label="我的钱包" title="我的钱包"><svg class="icon"><use href="#i-wallet"/></svg></button><button class="icon-button mobile-records" data-action="records" aria-label="查看牌局记录"><svg class="icon"><use href="#i-history"/></svg></button><button class="icon-button" data-action="fullscreen" id="fullscreenButton" aria-label="全屏与横屏" title="全屏与横屏"><svg class="icon"><use href="#i-full"/></svg></button></div>
-            </header>
-
-            <div class="table-stage" id="tableStage">
-              <div class="ambient ambient-left"></div><div class="ambient ambient-right"></div>
-              <div class="stage-corner top-left">A<span>♠</span></div><div class="stage-corner bottom-right">A<span>♠</span></div>
-              <div class="felt-outer"><div class="felt-inner"><div class="felt-pattern"></div><div class="felt-watermark"><svg><use href="#i-anubis"/></svg><span>ANUBIS PLAY</span></div><div class="table-edge-label">GOLDEN FLOWER · PRIVATE CLUB</div></div></div>
-              <div class="pot-display"><span class="pot-caption">本局底池</span><div class="pot-value"><strong id="potAmount">0</strong><span>LGNS</span></div><div class="chip-pile" aria-hidden="true"><i class="poker-chip chip-a"></i><i class="poker-chip chip-b"></i><i class="poker-chip chip-c"></i><i class="poker-chip chip-d"></i><i class="poker-chip chip-e"></i></div><span class="round-badge" id="roundBadge">本注 0</span></div>
-              <div class="seats" id="seats"></div>
-              <div class="my-hand" id="myHand" aria-label="我的手牌"></div>
-              <div class="hand-label" id="handLabel">未看牌 · 保持神秘</div>
-              <div class="table-message" id="tableMessage" role="status" aria-live="polite"></div>
-            </div>
-
-            <div class="action-zone">
-              <div class="turn-strip"><div class="turn-indicator"><i></i><strong id="turnTitle">等待开局</strong><span id="turnHint">到大厅开桌或加入牌桌</span></div><div class="hand-state" id="handState"><svg class="icon"><use href="#i-shield"/></svg>链上结算 · 真实 LGNS</div></div>
-              <div class="action-controls" id="actionControls">
-                <button class="game-action action-fold" data-action="fold" id="foldButton"><svg class="icon"><use href="#i-flag"/></svg><span>弃牌</span></button>
-                <button class="game-action action-view" data-action="peek" id="peekButton"><svg class="icon"><use href="#i-eye"/></svg><span>看牌</span></button>
-                <button class="game-action action-raise" data-action="raise" id="raiseButton"><svg class="icon"><use href="#i-plus"/></svg><span>加注</span></button>
-                <button class="game-action action-compare" data-action="compare" id="compareButton"><svg class="icon"><use href="#i-compare"/></svg><span>比牌</span></button>
-                <button class="game-action action-call" data-action="call" id="callButton"><span>跟注</span><strong id="callAmount">0 <small>LGNS</small></strong><svg class="icon"><use href="#i-chevron"/></svg></button>
-              </div>
-              <div class="round-result" id="roundResult" hidden><div><strong id="resultTitle">本局结束</strong><span id="resultDescription"></span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="gold-button" data-action="next">继续下一局 <svg class="icon"><use href="#i-chevron"/></svg></button><button class="game-action" data-action="leave" style="flex:none;padding:0 16px;min-height:44px">退出离开</button></div></div>
-              <div class="round-result" id="readyRow" hidden><div><strong id="readyTitle">准备开始</strong><span id="readyDesc"></span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="gold-button" data-action="ready" id="readyBtn">准备</button><button class="game-action" data-action="leave" style="flex:none;padding:0 16px;min-height:44px">退出</button></div></div>
-            </div>
-          </section>
-          <div class="below-table"><span><i></i> 真人实时对战 · 链上结算，公平可证明</span><button class="text-button" data-action="rules">牌型说明 <svg class="icon"><use href="#i-chevron"/></svg></button></div>
-        </div>
-
-        <aside class="side-panel" aria-label="牌局信息">
-          <section class="balance-panel"><div class="panel-label"><span>我的筹码</span><svg class="icon"><use href="#i-wallet"/></svg></div><div class="balance-number"><strong id="balanceAmount">—</strong><span>LGNS</span></div><div class="balance-note">我的钱包余额 <span>ANUBIS CHAIN</span></div><div class="balance-divider"></div><div class="balance-detail"><span>本局投入</span><strong id="investedAmount">0 LGNS</strong></div><div class="balance-detail"><span>可领取</span><strong id="claimableAmount">0 LGNS</strong></div><button class="claim-button" data-action="claim" id="claimButton" disabled>领取奖金 <svg class="icon"><use href="#i-chevron"/></svg></button></section>
-          <section class="activity-panel"><div class="panel-title"><h2>牌局动态</h2><span id="handNumber">NO. ----</span></div><ol class="activity-list" id="activityList" aria-label="当前牌局动态"></ol><button class="activity-more" data-action="records">查看全部记录 <svg class="icon"><use href="#i-chevron"/></svg></button></section>
-          <button class="quick-rules" data-action="rules"><span class="rules-art" aria-hidden="true">♠<span>A</span></span><div><strong>好牌，也要好策略。</strong><span>查看牌型与玩法规则</span></div><svg class="icon"><use href="#i-chevron"/></svg></button>
-        </aside>
+      <section id="tableView" class="gt-view" aria-label="炸金花牌桌">
+       <main class="gt-game" id="gtGame">
+        <div class="gt-spark"></div>
+        <header class="gt-topbar">
+          <div class="gt-logo-group">
+            <button class="gt-circle-btn" data-action="leave" aria-label="返回大厅"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 5 8 12l7 7M9 12h11"/></svg></button>
+            <img class="gt-logo-mark" src="logo.webp" alt="" style="width:30px;height:30px;border-radius:8px">
+            <div class="gt-brand">ANUBIS <strong>PLAY</strong><small>THE ART OF PLAY</small></div>
+          </div>
+          <div class="gt-head-tools">
+            <button class="gt-circle-btn" data-action="sound" id="gtSoundBtn" aria-label="音效"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 5 6 9H3v6h3l5 4V5ZM15 9a5 5 0 0 1 0 6"/><path id="gtSoundStrike" d="M4 4 20 20"/></svg></button>
+            <button class="gt-circle-btn" data-action="rules" aria-label="规则"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 2-3 5M12 17h.01"/></svg></button>
+          </div>
+        </header>
+        <div class="gt-roombar"><div><div class="gt-room-name"><span>✦</span> <span id="gtRoomName">牌桌</span></div><div class="gt-room-sub" id="gtRoomSub">—</div></div><div class="gt-room-pill" id="gtPill"><i></i>等待</div></div>
+        <section class="gt-table-scene" aria-label="牌桌">
+          <div class="gt-deco-left"></div><div class="gt-deco-right"></div>
+          <div class="gt-table-outer"><div class="gt-table-edge"><div class="gt-watermark"><svg viewBox="0 0 80 92"><use href="#i-anubis"/></svg><span>ANUBIS PLAY</span></div></div></div>
+          <div class="gt-pot"><div class="gt-pot-top">✦ 本 局 底 池 ✦</div><div class="gt-amount"><span id="gtPot">0</span><small>LGNS</small></div><div class="gt-round-info" id="gtBet">当前单注 0 LGNS</div></div>
+          <div class="gt-chips"><span class="gt-chip"></span><span class="gt-chip"></span><span class="gt-chip"></span></div>
+          <div id="gtSeats"></div>
+          <div class="gt-my-zone"><div class="gt-cards" id="gtCards"></div><div class="gt-my-caption"><span class="gt-turn-light"></span><strong id="gtMeName">我</strong><span class="gt-spaced">│</span><span id="gtHandText">未看牌 · 神秘手牌</span></div></div>
+          <div class="gt-your-chips">我的筹码 <span id="gtMyBal">—</span></div>
+          <div class="gt-round-ended" id="gtEndBox" hidden><div class="gt-win-star">✧ ♠ ✧</div><h2 id="gtEndTitle">本局结束</h2><p id="gtEndText"></p><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button data-action="next">继续下一局</button><button data-action="leave" style="background:#223029;color:#cdd8cf">退出</button></div></div>
+        </section>
+        <footer class="gt-game-footer">
+          <div class="gt-status-strip"><div class="gt-status-left"><div class="gt-clockring" id="gtTimer">–</div><div class="gt-status-main"><strong id="gtTurnMain">等待开局</strong><small id="gtTurnHint">到大厅开桌或加入牌桌</small></div></div><div class="gt-status-right"><b id="gtInvested">已投入 0</b><span>ANUBIS CHAIN</span></div></div>
+          <div class="gt-call-row" id="gtReadyRow" hidden style="padding-bottom:10px"><button class="gt-call" data-action="ready" id="gtReadyBtn" style="width:100%">准备</button></div>
+          <div class="gt-actions" id="gtActions" hidden>
+            <button class="gt-action gt-fold" data-action="fold" id="gtFold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 21V3c6-3 8 4 14 0v11c-6 4-8-3-14 0"/></svg>弃牌<small>放弃本局</small></button>
+            <button class="gt-action gt-peek" data-action="peek" id="gtPeek"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>看牌<small id="gtPeekSmall">翻开手牌</small></button>
+            <button class="gt-action gt-raise" data-action="raise" id="gtRaise"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>加注<small>提高底注</small></button>
+            <button class="gt-action gt-compare" data-action="compare" id="gtCompare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4 20 20M20 4 4 20M3 18l4 3M17 3l4 3"/></svg>比牌<small>选择对手</small></button>
+          </div>
+          <div class="gt-call-row" id="gtCallRow" hidden><div class="gt-bet-note"><span>本次跟注</span><strong id="gtCallAmt">0 LGNS</strong></div><button class="gt-call" data-action="call" id="gtCall">跟 注 <small id="gtCallSmall">0</small><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 5 7 7-7 7" stroke-width="2.3"/></svg></button></div>
+        </footer>
+       </main>
       </section>
 
       <section class="lobby-view" id="lobbyView" hidden aria-label="游戏大厅">

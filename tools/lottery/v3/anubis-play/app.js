@@ -24,7 +24,7 @@
   let view='table', filter='all', newAnte=10, newCount=6;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3;
+  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false;
 
   const slotMap={2:[0,3],3:[0,2,4],4:[0,2,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
 
@@ -34,7 +34,7 @@
   const fmt=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:3});
   const nz=a=>a&&a.toLowerCase()!==ZERO;
   function toast(t){clearTimeout(toastTimer);const el=$('toast');el.textContent=t;el.classList.add('show');toastTimer=setTimeout(()=>el.classList.remove('show'),3600);}
-  function message(t){clearTimeout(msgTimer);const el=$('tableMessage');el.textContent=t;el.classList.add('visible');msgTimer=setTimeout(()=>el.classList.remove('visible'),1600);}
+  function message(t){ toast(t); } // 牌桌内提示改用 toast
   function enc(v){return BigInt(v).toString(16).padStart(64,'0');}
   function encA(a){return '0'.repeat(24)+a.toLowerCase().replace(/^0x/,'');}
   function rcall(to,d){return fetch(ANUBIS.rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to,data:'0x'+d},'latest']})}).then(r=>r.json()).then(j=>(j.result||'0x').replace(/^0x/,''));}
@@ -91,8 +91,8 @@
   const sendTx=data=>sendTxTo(CONTRACT,data);
   async function refreshBalances(){
     if(!myAddr)return;
-    try{const b=await rcall(LGNS,SEL.bal+encA(myAddr)); const v=e9(BigInt('0x'+(b||'0'))); $('balanceAmount').textContent=fmt(v);}catch(e){}
-    try{const wd=await rcall(CONTRACT,SEL.wd+encA(myAddr)); const v=e9(BigInt('0x'+(wd||'0'))); $('claimableAmount').textContent=fmt(v)+' LGNS'; $('claimButton').disabled=!(v>0);}catch(e){}
+    try{const b=await rcall(LGNS,SEL.bal+encA(myAddr)); const v=e9(BigInt('0x'+(b||'0'))); myBalStr=fmt(v); const e=$('gtMyBal'); if(e)e.textContent=myBalStr;}catch(e){}
+    try{const wd=await rcall(CONTRACT,SEL.wd+encA(myAddr)); const v=e9(BigInt('0x'+(wd||'0'))); myClaimStr=fmt(v)+' LGNS'; myClaimPos=v>0;}catch(e){}
   }
   async function checkAuth(){
     if(!myAddr||!delegate){authorized=false;return;}
@@ -267,102 +267,87 @@
     for(let i=0;i<6;i++){ const el=actEls[i], a=activity[i]; if(!a){ el.li.style.display='none'; continue; } el.li.style.display=''; el.sp.textContent=a.text; el.tm.textContent=a.time; }
   }
 
+  const gtOppSeat={0:[],1:[1],2:[2,3],3:[1,2,3],4:[2,3,4,5],5:[1,2,3,4,5]};
   function render(){
-    if(!state){ return; }
-    buildDom();
+    if(!state)return;
     const phase=state.phase, mi=meIdx(), comparing=nz(state.cmpOpp);
     const ante=e9(state.ante), curBet=e9(state.curBet), pot=e9(state.pot);
     const me=mi>=0?state.players[mi]:null;
     const looked=me&&(me.looked||myLookedLocal);
     const cost=looked?curBet*2:curBet;
     const ended=phase>=3;
-
-    // 顶部桌面信息
-    $('roomTitle').textContent='牌桌 #'+state.handId;
-    $('roomSubtitle').innerHTML=`底注 ${fmt(ante)} LGNS <i>·</i> ${state.nPlayers}/${state.maxPlayers} 人`;
-    const PH={1:'等待入座',2:'对局中',3:'结算中',4:'已结束',5:'已退款'};
-    $('tableStatus').innerHTML='<i></i> '+(PH[phase]||'');
-    $('potAmount').textContent=fmt(pot);
-    $('roundBadge').textContent='本注 '+fmt(curBet);
-    $('handNumber').textContent='NO. '+String(state.handId).padStart(4,'0');
-
-    // 座位
-    let disp=buildPlayers();
-    if(phase===1){ const open=Math.min(state.maxPlayers,6)-disp.length; for(let i=0;i<open;i++)disp.push({placeholder:true}); }
-    if(ended){ // 标记赢家(未弃牌最大)
-      let best=-1,win=null; (window._reveal||[]).forEach(r=>{ if(!r.folded){const sc=score(r.cards); if(sc>best){best=sc;win=r.addr;}} });
-      disp.forEach(p=>{ if(win&&p.addr&&p.addr.toLowerCase()===win.toLowerCase())p.winner=true; });
-    }
-    const count=Math.max(2,Math.min(6,disp.length));
-    const slots=slotMap[count]||slotMap[6];
-    paintSeats(disp.slice(0,6),slots);
-
-    // 我的手牌(me.looked=链上已确认看牌;myLookedLocal=本地已点看牌,秒翻不等上链)
-    const showFace=(myCards&&me&&(me.looked||myLookedLocal))|| (ended&&myCards&&me);
-    paintHand(me,showFace);
-    if(me&&myCards&&showFace){ const rk=rankHand(myCards.map(conv)); $('handLabel').textContent=rk.label+' · '+(ended?'本局揭晓':'已看牌'); }
-    else { $('handLabel').textContent=joining?'入座中…':(me?'未看牌 · 保持神秘':'你在观战'); }
-
-    // 侧栏
-    $('investedAmount').textContent=(me?fmt(e9(me.contributed)):'0')+' LGNS';
-    paintActivity();
-
-    // 行动区
-    renderActions(phase,mi,me,looked,cost,ended,comparing);
+    $('gtRoomName').textContent='牌桌 #'+state.handId;
+    $('gtRoomSub').textContent=fmt(ante)+' LGNS 底注 · '+state.nPlayers+'/'+state.maxPlayers+' 人';
+    const PH={1:'等待入座',2:'对局进行中',3:'摊牌结算',4:'本局结束',5:'已退款'};
+    $('gtPill').innerHTML='<i></i>'+(PH[phase]||'');
+    $('gtPot').textContent=fmt(pot);
+    $('gtBet').textContent='当前单注 '+fmt(curBet)+' LGNS';
+    $('gtMeName').textContent=(myNick||'我');
+    $('gtInvested').textContent='已投入 '+(me?fmt(e9(me.contributed)):'0')+' LGNS';
+    renderGtSeats(phase,comparing,ended);
+    const showFace=(myCards&&me&&(me.looked||myLookedLocal))||(ended&&myCards&&me);
+    renderGtHand(me,showFace);
+    if(me&&myCards&&showFace){ const rk=rankHand(myCards.map(conv)); $('gtHandText').textContent=rk.label+' · '+(ended?'本局揭晓':'已看牌'); }
+    else { $('gtHandText').textContent=joining?'入座中…':(me?'未看牌 · 神秘手牌':'你在观战'); }
+    renderGtActions(phase,mi,me,looked,cost,ended,comparing);
   }
-  function renderActions(phase,mi,me,looked,cost,ended,comparing){
-    const ctrl=$('actionControls'), rr=$('roundResult');
-    if(pending && phase===2 && !ended){ ctrl.hidden=false; rr.hidden=true; const _r=$('readyRow'); if(_r)_r.hidden=true; ['foldButton','peekButton','raiseButton','compareButton','callButton'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); return; } // 处理中:保持禁用,但上面已把牌渲染出来
-    const myTurn=phase===2&&!comparing&&mi>=0&&state.turnAddr&&isMe(state.turnAddr)&&me&&!me.folded;
-
-    const ready=$('readyRow');
-    if(phase===1){
-      ctrl.hidden=true; rr.hidden=true;
-      const anteV=fmt(e9(state.ante));
-      if(joining){ if(ready)ready.hidden=true; $('turnTitle').textContent='准备中…'; $('turnHint').textContent='正在上链交底注，稍候…'; return; }
-      if(ready)ready.hidden=false;
-      if(mi<0){ // 旁观,未准备
-        $('turnTitle').textContent='进桌成功'; $('turnHint').textContent='点「准备」交底注入座';
-        $('readyTitle').textContent='准备开始'; $('readyDesc').textContent='交底注 '+anteV+' LGNS 入座，人齐自动开局';
-        const rb=$('readyBtn'); rb.textContent='准备（交底注 '+anteV+'）'; rb.disabled=false;
-      } else { // 已准备(已交底注)
-        const waiting=state.nPlayers<2;
-        $('turnTitle').textContent=waiting?'已准备':'人齐，马上开始';
-        $('turnHint').textContent=waiting?'等其他玩家准备':'正在发牌…';
-        $('readyTitle').textContent=waiting?'✓ 已准备 · 等其他玩家':'✓ 人齐，马上开始';
-        $('readyDesc').textContent=waiting?'已交底注 '+anteV+' LGNS，等另一位玩家准备':'';
-        const rb=$('readyBtn'); rb.textContent='✓ 已准备'; rb.disabled=true;
+  function renderGtSeats(phase,comparing,ended){
+    const cont=$('gtSeats'); if(!cont)return;
+    const opps=[]; state.players.forEach(p=>{ if(!isMe(p.addr)) opps.push(p); });
+    const slots=gtOppSeat[Math.min(5,opps.length)]||[];
+    let winAddr=null; if(ended){ let best=-1; (window._reveal||[]).forEach(r=>{ if(!r.folded){const s=score(r.cards); if(s>best){best=s;winAddr=r.addr;}} }); }
+    cont.innerHTML=opps.slice(0,5).map((p,k)=>{
+      const slot=slots[k]||1, nm=p.nick||short(p.addr);
+      const isTurn=phase===2&&!comparing&&state.turnAddr&&state.turnAddr.toLowerCase()===p.addr.toLowerCase();
+      const inCmp=comparing&&(p.addr.toLowerCase()===state.cmpChallenger.toLowerCase()||p.addr.toLowerCase()===state.cmpOpp.toLowerCase());
+      const win=ended&&winAddr&&winAddr.toLowerCase()===p.addr.toLowerCase();
+      let st='闷牌', cls='';
+      if(p.folded){st='已弃牌';cls=' gt-out';} else if(inCmp){st='⚔比牌';cls=' gt-betting';} else if(isTurn){st='行动中';cls=' gt-betting';} else if(p.looked){st='已看牌';}
+      const letter=esc(p.nick?[...p.nick][0]:p.addr.slice(2,3).toUpperCase());
+      return '<div class="gt-seat gt-seat-'+slot+(isTurn?' gt-active':'')+(p.folded?' gt-faded':'')+'"><div class="gt-portrait">'+letter+'</div><div class="gt-player-label"><div class="gt-name">'+esc(nm)+(win?' 🏆':'')+'</div><div class="gt-player-meta">投入 '+fmt(e9(p.contributed))+'</div></div><span class="gt-status-bubble'+cls+'">'+st+'</span></div>';
+    }).join('');
+  }
+  function renderGtHand(me,showFace){
+    const c=$('gtCards'); if(!c)return;
+    if(!me){ c.innerHTML=''; return; }
+    c.innerHTML=[0,1,2].map(i=>{
+      const rot=['-9deg','0deg','9deg'][i];
+      if(showFace&&myCards){ const cd=conv(myCards[i]); const rank=({11:'J',12:'Q',13:'K',14:'A'})[cd.value]||cd.value; const red='♥♦'.includes(cd.suit);
+        return '<div class="gt-playing-card gt-open '+(red?'gt-red':'gt-black')+'" style="--rotate:'+rot+'"><div class="gt-inside"><div class="gt-rank">'+rank+'<small>'+cd.suit+'</small></div><div class="gt-middle-suit">'+cd.suit+'</div></div></div>';
       }
-      return;
-    }
-    if(ready)ready.hidden=true;
-    if(ended){
-      ctrl.hidden=true; rr.hidden=false;
-      $('turnTitle').textContent='本局已结算';
-      $('turnHint').textContent='第 '+state.handId+' 局';
-      return;
-    }
-    // phase 2 betting
-    ctrl.hidden=false; rr.hidden=true; cdActive=false;
-    $('callAmount').innerHTML=fmt(cost)+' <small>LGNS</small>';
-    if(comparing){ $('turnTitle').textContent='比牌裁决中'; $('turnHint').textContent='马上出结果…'; }
-    else if(myTurn){ $('turnTitle').textContent='轮到你行动'; cdBase=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' LGNS'; cdActive=true; $('turnHint').textContent=cdBase+timeLeftStr(); }
-    else if(mi<0||(me&&me.folded)){ $('turnTitle').textContent='观战中'; $('turnHint').textContent='等待本局结束'; }
-    else { $('turnTitle').textContent='其他玩家行动中'; $('turnHint').textContent='轮到 '+short(state.turnAddr); }
-
-    const dis=!myTurn;
-    $('foldButton').disabled=dis;
-    $('peekButton').disabled=dis||looked;
-    $('peekButton').querySelector('span').textContent=looked?'已看牌':'看牌';
-    $('raiseButton').disabled=dis;
-    $('compareButton').disabled=dis||state.nActive<2;
-    $('callButton').disabled=dis;
-    // 若在选比牌对手,提示
-    if(picking&&myTurn){ cdActive=false; $('turnHint').textContent='点一个对手比牌(下方座位),或再次点比牌取消'; }
+      return '<div class="gt-playing-card" style="--rotate:'+rot+'"><div class="gt-inside"><svg><use href="#i-anubis"/></svg><b>A · PLAY</b></div></div>';
+    }).join('');
   }
-  function timeLeftStr(){ if(!state||!state.actionDeadline)return ''; const l=state.actionDeadline-Math.floor(Date.now()/1000); return l>0?' · 剩 '+l+'s':''; }
-
-  function animateDeal(){ const hand=$('myHand'); if(!hand)return; hand.classList.add('dealing'); hand.querySelectorAll('.playing-card').forEach(c=>c.classList.add('deal-in')); setTimeout(()=>hand.classList.remove('dealing'),700); playSound('card'); }
+  function gtTick(){ const t=$('gtTimer'); if(!t||!state)return; const me=state.players[meIdx()]; const myTurn=state.phase===2&&!nz(state.cmpOpp)&&me&&!me.folded&&state.turnAddr&&isMe(state.turnAddr); if(myTurn&&state.actionDeadline){ t.textContent=Math.max(0,state.actionDeadline-Math.floor(Date.now()/1000)); } else t.textContent='–'; }
+  function renderGtActions(phase,mi,me,looked,cost,ended,comparing){
+    const ready=$('gtReadyRow'), acts=$('gtActions'), callRow=$('gtCallRow'), endBox=$('gtEndBox');
+    const anteV=fmt(e9(state.ante));
+    if(endBox && phase<3) endBox.hidden=true;
+    if(phase===1){
+      acts.hidden=true; callRow.hidden=true; ready.hidden=false; $('gtTimer').textContent='–';
+      if(joining){ $('gtReadyBtn').textContent='准备中…'; $('gtReadyBtn').disabled=true; $('gtTurnMain').textContent='准备中…'; $('gtTurnHint').textContent='正在上链交底注'; }
+      else if(mi<0){ $('gtReadyBtn').textContent='准备（交底注 '+anteV+'）'; $('gtReadyBtn').disabled=false; $('gtTurnMain').textContent='进桌成功'; $('gtTurnHint').textContent='点准备交底注入座，人齐自动开局'; }
+      else { const w=state.nPlayers<2; $('gtReadyBtn').textContent='✓ 已准备'; $('gtReadyBtn').disabled=true; $('gtTurnMain').textContent=w?'已准备':'人齐，马上开始'; $('gtTurnHint').textContent=w?'等其他玩家准备':'正在发牌…'; }
+      return;
+    }
+    ready.hidden=true;
+    if(ended){ acts.hidden=true; callRow.hidden=true; $('gtTurnMain').textContent='本局已结算'; $('gtTurnHint').textContent='第 '+state.handId+' 局'; $('gtTimer').textContent='–'; return; }
+    if(endBox)endBox.hidden=true;
+    acts.hidden=false; callRow.hidden=false;
+    $('gtCallAmt').textContent=fmt(cost)+' LGNS'; $('gtCallSmall').textContent=fmt(cost);
+    const myTurn=!comparing&&mi>=0&&state.turnAddr&&isMe(state.turnAddr)&&me&&!me.folded;
+    gtTick();
+    if(pending){ ['gtFold','gtPeek','gtRaise','gtCompare','gtCall'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); $('gtTurnMain').textContent='处理中…'; return; }
+    if(comparing){ $('gtTurnMain').textContent='比牌裁决中'; $('gtTurnHint').textContent='马上出结果'; }
+    else if(myTurn){ $('gtTurnMain').textContent='轮到你行动'; $('gtTurnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' LGNS'; }
+    else if(mi<0||(me&&me.folded)){ $('gtTurnMain').textContent='观战中'; $('gtTurnHint').textContent='等待本局结束'; }
+    else { $('gtTurnMain').textContent='其他玩家行动中'; $('gtTurnHint').textContent='轮到 '+nameOf(state.turnAddr); }
+    const dis=!myTurn;
+    $('gtFold').disabled=dis; $('gtPeek').disabled=dis||looked; $('gtPeekSmall').textContent=looked?'已看牌':'翻开手牌';
+    $('gtRaise').disabled=dis; $('gtCompare').disabled=dis||state.nActive<2; $('gtCall').disabled=dis;
+    if(picking&&myTurn){ $('gtTurnHint').textContent='点一个对手比牌，或再次点比牌取消'; }
+  }
+  function animateDeal(){ playSound('card'); }
 
   function showResult(m){
     window._reveal=m.reveal||[];
@@ -373,11 +358,9 @@
     const meRev=(m.reveal||[]).find(r=>isMe(r.addr)); if(meRev)myCards=meRev.cards; // 没看牌也在摊牌亮出我的牌
     state=Object.assign({},state,{phase:4});
     render();
-    $('resultTitle').textContent=iWon?'🎉 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束');
     var anteV=state?fmt(e9(state.ante)):'';
-    $('resultDescription').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout)+'（扣 3%）':'本局结束')+' · 奖金自动到账'+(anteV?'｜继续下一局需再交底注 '+anteV+' LGNS':'');
-    // 翻牌动画
-    setTimeout(()=>{ const hand=$('myHand'); if(hand){hand.querySelectorAll('.playing-card').forEach(c=>c.classList.add('deal-in'));} },40);
+    const box=$('gtEndBox');
+    if(box){ box.hidden=false; $('gtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('gtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout)+'（扣 3%）':'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' LGNS':''); }
     if(iWon)playSound('win');
     message(iWon?'好牌！你赢得了本局':'本局已结束');
     // 记录(本地,真实观测)
@@ -456,7 +439,7 @@
 
   // ---------- 行动 ----------
   function act(action,extra){ wsend(Object.assign({t:'act',handId:curHand,action},extra||{})); }
-  function setPending(txt){ pending=true; cdActive=false; ['foldButton','peekButton','raiseButton','compareButton','callButton'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('turnHint'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
+  function setPending(txt){ pending=true; cdActive=false; ['gtFold','gtPeek','gtRaise','gtCompare','gtCall'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('gtTurnMain'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
   // 乐观更新:点了立刻在本地改状态(底池/我的投入/先交出回合),链上确认后由真实state对齐
   function optimBet(extra){ const mi=meIdx(); if(mi<0||!state)return; const me=state.players[mi]; const base=BigInt(state.curBet)+(extra||0n); const cost=(me.looked||myLookedLocal)?base*2n:base; const nc=(BigInt(me.contributed)+cost).toString(); state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{contributed:nc}):p); state.pot=(BigInt(state.pot)+cost).toString(); if(extra)state.curBet=base.toString(); state.turnAddr=ZERO; }
   function optimFold(){ const mi=meIdx(); if(mi<0||!state)return; state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{folded:true}):p); state.turnAddr=ZERO; }
@@ -485,8 +468,8 @@
        <div class="wallet-row"><span>游戏音效</span><button class="small-button" data-action="toggle-sfx">${sound?'🔊 开':'🔇 关'}</button></div>`;
     openModal('我的', (connected?
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
-       <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${$('balanceAmount').textContent} <small>LGNS</small></strong></div>
-       <div class="wallet-row"><span>可领取奖金</span><strong>${$('claimableAmount').textContent}</strong><button class="small-button" data-action="claim" ${$('claimButton').disabled?'disabled':''}>领取</button></div>`
+       <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${myBalStr} <small>LGNS</small></strong></div>
+       <div class="wallet-row"><span>可领取奖金</span><strong>${myClaimStr}</strong><button class="small-button" data-action="claim" ${myClaimPos?'':'disabled'}>领取</button></div>`
       :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 LGNS 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
       + nickSet
       + soundSet
@@ -543,7 +526,7 @@
 
   // ---------- 音效/全屏 ----------
   function playSound(type='click'){ if(!sound)return; try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.value=type==='win'?660:type==='card'?420:280;g.gain.setValueAtTime(.035,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.13);o.start();o.stop(audioCtx.currentTime+.15);}catch(e){sound=false;updateSound();} }
-  function updateSound(){const b=$('soundButton');if(!b)return;b.setAttribute('aria-pressed',String(sound));b.title=sound?'关闭音效':'开启音效';const so=b.querySelector('.sound-off');if(so)so.hidden=sound;}
+  function updateSound(){const s=$('gtSoundStrike');if(s)s.style.display=sound?'none':'';const b=$('gtSoundBtn');if(b)b.title=sound?'关闭音效':'开启音效';}
   // 背景音乐:五声音阶轻柔拨弦(像音乐盒/竖琴)+很轻的低音垫,舒缓不吵,可开关
   function startBGM(){
     if(bgmNodes||!bgmOn)return;
@@ -579,7 +562,7 @@
     }catch(e){toast('此浏览器未允许全屏。横过设备也能用横屏牌桌。');}
     finally{fsBusy=false;}
   }
-  function updateFullscreen(){const on=!!(document.fullscreenElement||document.webkitFullscreenElement);$('fullscreenButton').title=on?'退出全屏':'全屏与横屏';}
+  function updateFullscreen(){const b=$('fullscreenButton');if(b){const on=!!(document.fullscreenElement||document.webkitFullscreenElement);b.title=on?'退出全屏':'全屏与横屏';}}
   const isLandscapeReal=()=>matchMedia('(orientation:landscape)').matches;
   async function toggleLandscape(){
     if(document.body.classList.contains('force-landscape')){ document.body.classList.remove('force-landscape'); try{if(document.fullscreenElement)await document.exitFullscreen();}catch(e){} toast('已退出横屏'); return; }
@@ -587,7 +570,7 @@
     if(!coarse||isLandscapeReal()){ await toggleFullscreen(); return; } // 桌面或已横屏:走原生全屏
     document.body.classList.add('force-landscape'); // 手机竖屏:CSS旋转强制横屏,不靠系统旋转
     try{const el=document.documentElement,req=el.requestFullscreen||el.webkitRequestFullscreen; if(req)await req.call(el);}catch(e){}
-    $('portraitTip').hidden=true; toast('已切换横屏,再点一次退出');
+    {const pt=$('portraitTip');if(pt)pt.hidden=true;} toast('已切换横屏,再点一次退出');
   }
 
   // ---------- 事件 ----------
@@ -630,7 +613,7 @@
         case 'save-nick':{ const inp=$('nickInput'); const nm=inp?inp.value.trim():''; if(!nm){toast('请输入昵称');break;} if([...nm].length>3){toast('昵称最多3个字');break;} if(myNickRem<=0){toast('本月改名次数已用完');break;} wsend({t:'setNickname',name:nm}); break; }
         case 'toggle-bgm':{bgmOn=!bgmOn;try{localStorage.setItem('ap_bgm',bgmOn?'1':'0');}catch(e){}if(bgmOn)startBGM();else stopBGM();showWallet();toast(bgmOn?'背景音乐已开':'背景音乐已关');break;}
         case 'toggle-sfx':{sound=!sound;try{localStorage.setItem('ap_sfx',sound?'1':'0');}catch(e){}updateSound();if(sound)playSound();showWallet();toast(sound?'音效已开':'音效已关');break;}
-        case 'dismiss-tip':$('portraitTip').hidden=true;break;
+        case 'dismiss-tip':{const pt=$('portraitTip');if(pt)pt.hidden=true;break;}
         case 'refresh':{if(authed)wsend({t:'listTables'});const l=b.querySelector('span');if(l){l.textContent='刷新中';setTimeout(()=>l.textContent='刷新',500);}toast('已刷新牌桌列表');break;}
       }
     }catch(err){toast((err&&err.message)||'操作失败，请重试');}
@@ -639,7 +622,7 @@
   try{ matchMedia('(orientation:landscape)').addEventListener('change',e=>{ if(e.matches)document.body.classList.remove('force-landscape'); }); }catch(e){} // 真横屏时关掉CSS旋转防重复
 
   // 倒计时:只更新一个文字,不整屏重绘(手机流畅关键)
-  setInterval(()=>{ if(cdActive&&state&&state.phase===2&&view==='table'&&!$('tableView').hidden){ const el=$('turnHint'); if(el)el.textContent=cdBase+timeLeftStr(); } },1000);
+  setInterval(()=>{ if(state&&state.phase===2&&view==='table'&&!$('tableView').hidden) gtTick(); },1000);
   setInterval(()=>{ if(authed&&ws&&ws.readyState===1&&!curHand&&view==='lobby')wsend({t:'listTables'}); },5000);
 
   // 启动
@@ -649,5 +632,5 @@
   setView('lobby'); // 通过链接进入一律默认到大厅,让用户挑桌/开桌
   renderRooms();
   if(window.ethereum&&window.ethereum.selectedAddress){ connect(); }
-  else { $('turnTitle').textContent='连接钱包开始'; $('turnHint').textContent='点右上角「连接钱包」'; }
+  else { const a=$('gtTurnMain'),b=$('gtTurnHint'); if(a)a.textContent='连接钱包开始'; if(b)b.textContent='点右上角「连接钱包」'; }
 })();
