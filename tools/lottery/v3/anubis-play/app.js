@@ -237,6 +237,7 @@
   }
   function renderActions(phase,mi,me,looked,cost,ended,comparing){
     const ctrl=$('actionControls'), rr=$('roundResult');
+    if(pending && phase===2 && !ended){ ctrl.hidden=false; rr.hidden=true; ['foldButton','peekButton','raiseButton','compareButton','callButton'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); return; } // 处理中:保持禁用,但上面已把牌渲染出来
     const myTurn=phase===2&&!comparing&&mi>=0&&state.turnAddr&&isMe(state.turnAddr)&&me&&!me.folded;
 
     if(phase===1){
