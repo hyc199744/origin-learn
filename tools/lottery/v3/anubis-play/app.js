@@ -24,7 +24,7 @@
   let view='table', filter='all', newAnte=10, newCount=6;
   let sound=false, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false;
+  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false;
 
   const slotMap={2:[0,3],3:[0,2,4],4:[0,2,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
 
@@ -121,7 +121,7 @@
     if(m.t==='challenge'){ const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig}); }
     else if(m.t==='authed'){ authed=true; delegate=m.delegate; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); }
     else if(m.t==='tables'){ renderRooms(m.tables); }
-    else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; prevPlayers=null; joining=true;
+    else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=true;
       wsend({t:'subscribe',handId:curHand}); wsend({t:'joinTable',handId:curHand}); toast('开桌成功，入座中…'); // 先真入座
       state={handId:String(m.handId),phase:1,ante:(BigInt(newAnte)*1000000000n).toString(),maxPlayers:newCount,nPlayers:0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
       enterTable(); try{ render(); }catch(e){} clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false; try{render();}catch(e){}} },12000); }
@@ -130,7 +130,7 @@
     else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ onState(m); } }
     else if(m.t==='yourCards'){ if(String(m.handId)===String(curHand)){ myCards=m.cards; render(); } }
     else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); } }
-    else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
+    else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
     else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)) toast('本局已退款'); }
     else if(m.t==='error'){ pending=false; joining=false; clearTimeout(window._pt); clearTimeout(window._jt); toast(m.msg); if(state)render(); }
   }
@@ -195,7 +195,7 @@
     const phase=state.phase, mi=meIdx(), comparing=nz(state.cmpOpp);
     const ante=e9(state.ante), curBet=e9(state.curBet), pot=e9(state.pot);
     const me=mi>=0?state.players[mi]:null;
-    const looked=me&&me.looked;
+    const looked=me&&(me.looked||myLookedLocal);
     const cost=looked?curBet*2:curBet;
     const ended=phase>=3;
 
@@ -317,13 +317,13 @@
       if(state&&state.phase===1&&meIdx()>=0){ wsend({t:'leaveTable',handId:curHand}); } // 开局前退座退款
       wsend({t:'unsubscribe',handId:curHand});
     }
-    curHand=null; state=null; myCards=null; myLookedLocal=false; prevPlayers=null; picking=false; joining=false; clearTimeout(window._jt);
+    curHand=null; state=null; myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; picking=false; joining=false; clearTimeout(window._jt);
     setView('lobby'); if(authed)wsend({t:'listTables'}); refreshBalances();
   }
   async function joinRoom(id){
     if(!myAddr){ await connect(); if(!myAddr)return; }
     if(!authorized){ await doAuthorize(); if(!authorized)return; } // 首次自动授权一次,签完即进,无需单独说明
-    curHand=String(id); myCards=null; myLookedLocal=false; prevPlayers=null; joining=true;
+    curHand=String(id); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=true;
     wsend({t:'subscribe',handId:id}); wsend({t:'joinTable',handId:id}); toast('入座中…'); // 先真入座,渲染出错也不影响
     const room=(window._rooms||[]).find(r=>String(r.handId)===String(id)); // 立刻用大厅已知信息搭个临时桌,不等上链
     state={handId:String(id),phase:1,ante:room?room.ante:'0',maxPlayers:room?Number(room.maxPlayers):6,nPlayers:room?Number(room.nPlayers):0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
@@ -341,14 +341,18 @@
   function act(action,extra){ wsend(Object.assign({t:'act',handId:curHand,action},extra||{})); }
   function setPending(txt){ pending=true; cdActive=false; ['foldButton','peekButton','raiseButton','compareButton','callButton'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('turnHint'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
   // 乐观更新:点了立刻在本地改状态(底池/我的投入/先交出回合),链上确认后由真实state对齐
-  function optimBet(extra){ const mi=meIdx(); if(mi<0||!state)return; const me=state.players[mi]; const base=BigInt(state.curBet)+(extra||0n); const cost=me.looked?base*2n:base; const nc=(BigInt(me.contributed)+cost).toString(); state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{contributed:nc}):p); state.pot=(BigInt(state.pot)+cost).toString(); if(extra)state.curBet=base.toString(); state.turnAddr=ZERO; }
+  function optimBet(extra){ const mi=meIdx(); if(mi<0||!state)return; const me=state.players[mi]; const base=BigInt(state.curBet)+(extra||0n); const cost=(me.looked||myLookedLocal)?base*2n:base; const nc=(BigInt(me.contributed)+cost).toString(); state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{contributed:nc}):p); state.pot=(BigInt(state.pot)+cost).toString(); if(extra)state.curBet=base.toString(); state.turnAddr=ZERO; }
   function optimFold(){ const mi=meIdx(); if(mi<0||!state)return; state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{folded:true}):p); state.turnAddr=ZERO; }
-  function doFold(){ optimFold(); act('fold'); logAct('你 弃牌'); setPending('已弃牌'); render(); }
-  function doPeek(){ myLookedLocal=true; act('look'); playSound('card'); setPending('看牌中…'); render(); } // 牌已在本地,点看牌秒翻,look后台上链
-  function doCall(){ optimBet(0n); act('call'); playSound(); logAct('你 跟注'); setPending('已跟注，等其他玩家…'); render(); }
-  function doRaise(){ try{optimBet(BigInt(state.ante));}catch(e){} act('raise'); playSound(); logAct('你 加注'); setPending('已加注，等其他玩家…'); render(); }
+  function doFold(){ const wl=pendingLook;pendingLook=false; optimFold(); act('fold',{withLook:wl}); logAct('你 弃牌'); setPending('已弃牌'); render(); }
+  function doPeek(){ // 看牌=纯本地翻牌(牌已在本地),不单独上链;看完按钮仍可点,look与下一步动作打包上链
+    if(myLookedLocal)return;
+    if(!myCards){ act('look'); setPending('看牌中…'); return; } // 兜底:牌还没到,走独立look
+    myLookedLocal=true; pendingLook=true; playSound('card'); render();
+  }
+  function doCall(){ const wl=pendingLook;pendingLook=false; optimBet(0n); act('call',{withLook:wl}); playSound(); logAct('你 跟注'); setPending('已跟注，等其他玩家…'); render(); }
+  function doRaise(){ const wl=pendingLook;pendingLook=false; try{optimBet(BigInt(state.ante));}catch(e){} act('raise',{withLook:wl}); playSound(); logAct('你 加注'); setPending('已加注，等其他玩家…'); render(); }
   function startCompare(){ if(!state||state.nActive<2){toast('暂无可比牌的对手');return;} picking=!picking; if(picking){openCompare();} render(); }
-  function doCompare(addr){ picking=false; setPending('比牌中…'); act('compare',{target:addr}); logAct('你 比牌'); closeModal(); }
+  function doCompare(addr){ const wl=pendingLook;pendingLook=false; picking=false; setPending('比牌中…'); act('compare',{target:addr,withLook:wl}); logAct('你 比牌'); closeModal(); }
   async function doClaim(){ if(!myAddr)return; try{toast('领取中…');await sendTx(SEL.withdraw);toast('已领取到钱包');refreshBalances();}catch(e){toast(e.message||'暂无可领');} }
 
   // ---------- 弹窗 ----------
