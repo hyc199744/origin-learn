@@ -234,3 +234,8 @@ body.force-landscape .felt-watermark{opacity:.5}
 .playing-card.card-back:before{content:"";position:absolute;inset:3px;border:1px solid rgba(200,167,109,.6);border-radius:5px;transform:none}
 .playing-card.card-back:after{content:"";position:absolute;inset:7px;border:1px solid rgba(200,167,109,.24);border-radius:4px;transform:none}
 .playing-card.card-back svg{filter:drop-shadow(0 1px 2px rgba(0,0,0,.65));opacity:.95;position:relative;z-index:1}
+
+/* ====== 节点复用:每张手牌同时含正/反结构,靠 .card-back class 切换显示(避免整块重建) ====== */
+.playing-card>svg{display:none}
+.playing-card.card-back>svg{display:block}
+.playing-card.card-back>.rank,.playing-card.card-back>.card-suit,.playing-card.card-back>.rank-bottom{display:none}

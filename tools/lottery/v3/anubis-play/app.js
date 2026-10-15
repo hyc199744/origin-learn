@@ -190,8 +190,79 @@
     });
     return ps;
   }
+  // ===== 节点复用:座位/手牌/动态只建一次,之后只改文字与class,不再整块重建(手机流畅关键) =====
+  const SVGNS='http://www.w3.org/2000/svg';
+  let _domBuilt=false, seatEls=[], cardEls=[], actEls=[];
+  function mkSvgUse(href){ const svg=document.createElementNS(SVGNS,'svg'); svg.setAttribute('aria-hidden','true'); const u=document.createElementNS(SVGNS,'use'); u.setAttribute('href',href); svg.appendChild(u); return svg; }
+  function buildDom(){
+    if(_domBuilt) return; const seatsC=$('seats'), handC=$('myHand'), actC=$('activityList'); if(!seatsC||!handC||!actC) return; _domBuilt=true;
+    seatsC.textContent='';
+    for(let i=0;i<6;i++){
+      const d=document.createElement('div'); d.className='player-seat';
+      const aw=document.createElement('div'); aw.className='avatar-wrap';
+      const av=document.createElement('div'); av.className='avatar'; av.setAttribute('aria-hidden','true');
+      const avSvg=mkSvgUse('#i-anubis'); avSvg.style.display='none';
+      const avTxt=document.createElement('span');
+      av.appendChild(avSvg); av.appendChild(avTxt); aw.appendChild(av);
+      const info=document.createElement('div'); info.className='player-info';
+      const nm=document.createElement('span'); nm.className='player-name'; const nmText=document.createTextNode(''); const badge=document.createElement('small'); badge.className='you-badge'; badge.textContent='YOU'; badge.style.display='none'; nm.appendChild(nmText); nm.appendChild(badge);
+      const bal=document.createElement('span'); bal.className='player-balance'; const balText=document.createTextNode(''); const balSmall=document.createElement('small'); balSmall.textContent='LGNS'; bal.appendChild(balText); bal.appendChild(balSmall);
+      info.appendChild(nm); info.appendChild(bal);
+      const sc=document.createElement('div'); sc.className='seat-cards'; sc.setAttribute('aria-hidden','true'); for(let k=0;k<3;k++){const mc=document.createElement('i');mc.className='mini-card';sc.appendChild(mc);}
+      const st=document.createElement('span'); st.className='seat-status';
+      d.appendChild(aw); d.appendChild(info); d.appendChild(sc); d.appendChild(st); seatsC.appendChild(d);
+      seatEls.push({d,av,avSvg,avTxt,nmText,badge,balText,balSmall,sc,st});
+    }
+    handC.textContent='';
+    for(let i=0;i<3;i++){
+      const c=document.createElement('div'); c.className='playing-card';
+      const svg=mkSvgUse('#i-anubis');
+      const rank=document.createElement('span'); rank.className='rank'; const rText=document.createTextNode(''); const rSuit=document.createElement('span'); rank.appendChild(rText); rank.appendChild(rSuit);
+      const main=document.createElement('span'); main.className='card-suit';
+      const rb=document.createElement('span'); rb.className='rank-bottom';
+      c.appendChild(svg); c.appendChild(rank); c.appendChild(main); c.appendChild(rb); handC.appendChild(c);
+      cardEls.push({c,rText,rSuit,main,rb});
+    }
+    actC.textContent='';
+    for(let i=0;i<6;i++){ const li=document.createElement('li'); const sp=document.createElement('span'); const tm=document.createElement('small'); li.appendChild(sp); li.appendChild(tm); li.style.display='none'; actC.appendChild(li); actEls.push({li,sp,tm}); }
+  }
+  function paintSeats(disp,slots){
+    for(let i=0;i<6;i++){
+      const el=seatEls[i], p=disp[i], slot=(slots[i]!==undefined?slots[i]:i);
+      if(!p){ el.d.style.display='none'; continue; }
+      el.d.style.display='';
+      if(p.placeholder){
+        el.d.className='player-seat seat-'+slot+' folded';
+        el.avSvg.style.display='none'; el.avTxt.style.display=''; el.avTxt.textContent='+';
+        el.nmText.nodeValue='空位'; el.badge.style.display='none'; el.balText.nodeValue='等待加入'; el.balSmall.style.display='none';
+        el.sc.style.display='none'; el.st.textContent='等待加入'; el.d.setAttribute('aria-label','空位'); continue;
+      }
+      el.d.className='player-seat seat-'+slot+(p.folded?' folded':'')+(p.isTurn?' current':'')+(p.winner?' winner':'');
+      el.av.className='avatar avi-'+(p.isMe?0:(1+(p.seatIndex%5)));
+      if(p.isMe){ el.avSvg.style.display=''; el.avTxt.style.display='none'; } else { el.avSvg.style.display='none'; el.avTxt.style.display=''; el.avTxt.textContent=(p.sign||'👤'); }
+      el.nmText.nodeValue=p.isMe?'我':p.name; el.badge.style.display=p.isMe?'':'none';
+      el.balText.nodeValue='投入 '+fmt(e9(p.contributed))+' '; el.balSmall.style.display='';
+      el.sc.style.display=p.isMe?'none':''; el.st.textContent=p.status;
+      el.d.setAttribute('aria-label',(p.isMe?'你':p.name)+'，'+p.status);
+    }
+  }
+  function paintHand(me,showFace){
+    for(let i=0;i<3;i++){
+      const el=cardEls[i];
+      if(!me){ el.c.style.display='none'; continue; }
+      el.c.style.display='';
+      if(myCards&&showFace){ const card=conv(myCards[i]); const rank=({11:'J',12:'Q',13:'K',14:'A'})[card.value]||card.value; const red=card.suit==='♥'||card.suit==='♦';
+        el.c.className='playing-card'+(red?' red':''); el.rText.nodeValue=rank; el.rSuit.textContent=card.suit; el.main.textContent=card.suit; el.rb.textContent=rank; el.c.setAttribute('aria-label',card.suit+' '+rank);
+      } else { el.c.className='playing-card card-back'; el.c.setAttribute('aria-label','未翻开的手牌'); }
+    }
+  }
+  function paintActivity(){
+    for(let i=0;i<6;i++){ const el=actEls[i], a=activity[i]; if(!a){ el.li.style.display='none'; continue; } el.li.style.display=''; el.sp.textContent=a.text; el.tm.textContent=a.time; }
+  }
+
   function render(){
     if(!state){ return; }
+    buildDom();
     const phase=state.phase, mi=meIdx(), comparing=nz(state.cmpOpp);
     const ante=e9(state.ante), curBet=e9(state.curBet), pot=e9(state.pot);
     const me=mi>=0?state.players[mi]:null;
@@ -217,19 +288,17 @@
     }
     const count=Math.max(2,Math.min(6,disp.length));
     const slots=slotMap[count]||slotMap[6];
-    $('seats').innerHTML=disp.slice(0,6).map((p,i)=>seatHTML(p,slots[i]!==undefined?slots[i]:i)).join('');
+    paintSeats(disp.slice(0,6),slots);
 
     // 我的手牌(me.looked=链上已确认看牌;myLookedLocal=本地已点看牌,秒翻不等上链)
     const showFace=(myCards&&me&&(me.looked||myLookedLocal))|| (ended&&myCards&&me);
-    if(me&&myCards){ $('myHand').innerHTML=myCards.map(c=>cardHTML(conv(c),showFace)).join(''); }
-    else if(me){ $('myHand').innerHTML=[0,1,2].map(()=>cardHTML(null,false)).join(''); }
-    else { $('myHand').innerHTML=''; }
+    paintHand(me,showFace);
     if(me&&myCards&&showFace){ const rk=rankHand(myCards.map(conv)); $('handLabel').textContent=rk.label+' · '+(ended?'本局揭晓':'已看牌'); }
     else { $('handLabel').textContent=joining?'入座中…':(me?'未看牌 · 保持神秘':'你在观战'); }
 
     // 侧栏
     $('investedAmount').textContent=(me?fmt(e9(me.contributed)):'0')+' LGNS';
-    $('activityList').innerHTML=activity.slice(0,6).map(l=>`<li><span>${esc(l.text)}</span><small>${esc(l.time)}</small></li>`).join('');
+    paintActivity();
 
     // 行动区
     renderActions(phase,mi,me,looked,cost,ended,comparing);
