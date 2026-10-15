@@ -284,7 +284,8 @@
     state=Object.assign({},state,{phase:4});
     render();
     $('resultTitle').textContent=iWon?'🎉 你赢了':(winAddr?short(winAddr)+' 获胜':'本局结束');
-    $('resultDescription').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout)+'（扣 3%）':'本局结束')+' · 奖金自动到账';
+    var anteV=state?fmt(e9(state.ante)):'';
+    $('resultDescription').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout)+'（扣 3%）':'本局结束')+' · 奖金自动到账'+(anteV?'｜继续下一局需再交底注 '+anteV+' LGNS':'');
     // 翻牌动画
     setTimeout(()=>{ const hand=$('myHand'); if(hand){hand.querySelectorAll('.playing-card').forEach(c=>c.classList.add('deal-in'));} },40);
     if(iWon)playSound('win');
@@ -463,7 +464,8 @@
         case 'call':doCall();break;
         case 'raise':doRaise();break;
         case 'compare':startCompare();break;
-        case 'next':if(curHand)wsend({t:'rematch',handId:curHand});toast('开新局中…');break;
+        case 'next':if(curHand)wsend({t:'rematch',handId:curHand});toast('继续下一局…');break;
+        case 'leave':backToLobby();break;
         case 'fullscreen':await toggleLandscape();break;
         case 'sound':sound=!sound;updateSound();playSound();toast(sound?'音效已开':'音效已关');break;
         case 'dismiss-tip':$('portraitTip').hidden=true;break;
