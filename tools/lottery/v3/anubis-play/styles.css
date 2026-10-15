@@ -514,13 +514,18 @@ body.force-landscape .felt-watermark{opacity:.5}
 .gt-topbar{height:61px}
 .gt-table-scene{min-height:405px}
 .gt-demo-banner{padding-top:4px}
-.gt-table-outer{top:25.5%}
+.gt-table-outer{top:19%}
+.gt-seat-1{top:2%}
+.gt-seat-2,.gt-seat-3{top:13.5%}
+.gt-seat-4,.gt-seat-5{top:57.5%}
+.gt-pot{top:33.5%}
+.gt-chips{top:52.5%}
 }
 @media(max-height:750px) and (orientation:portrait) and (max-width:690px){
 .gt-table-scene{min-height:355px}
 .gt-game{min-height:580px}
-.gt-table-outer{top:25%;height:52%}
-.gt-seat-4,.gt-seat-5{top:60%}
+.gt-table-outer{top:18.5%;height:52%}
+.gt-seat-4,.gt-seat-5{top:57.5%}
 .gt-playing-card{height:69px;width:49px}
 .gt-cards{height:70px}
 .gt-my-zone{bottom:1%}
