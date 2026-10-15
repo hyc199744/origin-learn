@@ -312,3 +312,22 @@ body.force-landscape .felt-watermark{opacity:.5}
 .m-nav button .icon{width:22px;height:22px}
 .m-nav button.active{color:#ebc77f}
 .m-nav button.active:before{content:'';position:absolute;top:-9px;height:2px;width:30px;background:#dfc079;border-radius:4px}
+
+/* ====== 手机外壳:换原LOGO + 顶部收紧 + 连接钱包按钮 + 小屏适配 ====== */
+.m-head{padding:calc(5px + env(safe-area-inset-top)) 16px 10px}
+.m-mark{width:40px;height:40px;border:0!important;border-radius:11px;object-fit:contain;background:none!important;box-shadow:none!important;display:block;filter:drop-shadow(0 1px 4px rgba(0,0,0,.4))}
+.m-connect{display:inline-flex;align-items:center;gap:6px;border:1px solid #c8a76d80;background:#19281f;color:#e8c783;border-radius:11px;padding:9px 13px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;flex:none}
+.m-connect .icon{width:16px;height:16px}
+.m-connect:active{transform:scale(.97)}
+@media(max-width:360px){
+  .m-bn{font-size:14px}
+  .m-connect{padding:8px 10px;font-size:11px}
+  .m-hero h2{font-size:23px}
+  .m-herotext{max-width:66%}
+  .m-hero p{font-size:9px}
+  .m-cards{transform:scale(.86);transform-origin:top right}
+  .m-pagetitle{font-size:23px}
+  .m-quick{gap:8px}
+  .m-qa{padding:11px 9px;gap:8px}
+}
+@media(max-width:620px){ html,body{overflow-x:hidden} }

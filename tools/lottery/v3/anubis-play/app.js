@@ -74,6 +74,7 @@
       if(parseInt(cid,16)!==ANUBIS.id){try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}}
       $('walletLabel').textContent=short(myAddr);
       const wp=$('mWalletPill'); if(wp)wp.textContent=short(myAddr);
+      const cb=$('mConnectBtn'); if(cb){const sp=cb.querySelector('span'); if(sp)sp.textContent=short(myAddr);}
       refreshBalances(); connectWS();
       if(!window._wl){window._wl=1;eth.on&&eth.on('accountsChanged',()=>location.reload());eth.on&&eth.on('chainChanged',()=>location.reload());}
     }catch(e){toast((e&&e.message)||'连接失败');}
