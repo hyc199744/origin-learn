@@ -480,7 +480,7 @@
 
   // 启动
   updateSound();
-  setView(location.hash==='#table'?'table':'lobby'); // 通过链接进入默认到大厅,让用户挑桌/开桌
+  setView('lobby'); // 通过链接进入一律默认到大厅,让用户挑桌/开桌
   renderRooms();
   if(window.ethereum&&window.ethereum.selectedAddress){ connect(); }
   else { $('turnTitle').textContent='连接钱包开始'; $('turnHint').textContent='点右上角「连接钱包」'; }
