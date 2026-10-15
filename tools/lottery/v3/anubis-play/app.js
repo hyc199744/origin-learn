@@ -24,7 +24,7 @@
   let view='table', filter='all', newAnte=10, newCount=6;
   let sound=false, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null, cdActive=false, cdBase='', pending=false;
+  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false;
 
   const slotMap={2:[0,3],3:[0,2,4],4:[0,2,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
 
@@ -121,7 +121,10 @@
     if(m.t==='challenge'){ const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig}); }
     else if(m.t==='authed'){ authed=true; delegate=m.delegate; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); }
     else if(m.t==='tables'){ renderRooms(m.tables); }
-    else if(m.t==='tableCreated'){ curHand=String(m.handId); enterTable(); wsend({t:'subscribe',handId:curHand}); wsend({t:'joinTable',handId:curHand}); toast('开桌成功，等待其他玩家入座'); }
+    else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; prevPlayers=null; joining=true;
+      state={handId:String(m.handId),phase:1,ante:(BigInt(newAnte)*1000000000n).toString(),maxPlayers:newCount,nPlayers:0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
+      enterTable(); render(); clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false;render();} },12000);
+      wsend({t:'subscribe',handId:curHand}); wsend({t:'joinTable',handId:curHand}); toast('开桌成功，入座中…'); }
     else if(m.t==='joined'){ logAct('你已入座'); }
     else if(m.t==='left'){ toast('已退座，底注退回可领取'); backToLobby(true); }
     else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ onState(m); } }
@@ -129,11 +132,12 @@
     else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); } }
     else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
     else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)) toast('本局已退款'); }
-    else if(m.t==='error'){ pending=false; clearTimeout(window._pt); toast(m.msg); if(state)render(); }
+    else if(m.t==='error'){ pending=false; joining=false; clearTimeout(window._pt); clearTimeout(window._jt); toast(m.msg); if(state)render(); }
   }
 
   function onState(m){
     pending=false; clearTimeout(window._pt); // 新状态到达,解除"处理中"
+    if(joining && m.players.some(p=>isMe(p.addr))){ joining=false; clearTimeout(window._jt); } // 真座位已上链,撤销乐观占位
     // 事件推断(弃牌/看牌),让"牌局动态"真实
     if(prevPlayers){
       m.players.forEach(p=>{
@@ -174,6 +178,7 @@
   function buildPlayers(){
     // 把"我"排到首位(座位0=底部),其余按链上顺序
     const ps=state.players.map((p,i)=>({addr:p.addr,contributed:p.contributed,looked:p.looked,folded:p.folded,seatIndex:i,isMe:isMe(p.addr)}));
+    if(joining && myAddr && !ps.some(p=>p.isMe)){ ps.push({addr:myAddr,contributed:'0',looked:false,folded:false,seatIndex:999,isMe:true,_joining:true}); } // 乐观占位:我的座位先显示"入座中"
     ps.sort((a,b)=> (a.isMe?-1:0)-(b.isMe?-1:0) || a.seatIndex-b.seatIndex);
     const comparing=nz(state.cmpOpp);
     ps.forEach(p=>{
@@ -181,7 +186,7 @@
       p.sign=p.isMe?'':p.addr.slice(2,3).toUpperCase();
       p.isTurn=state.phase===2&&!comparing&&state.turnAddr&&state.turnAddr.toLowerCase()===p.addr.toLowerCase();
       const inCmp=comparing&&(p.addr.toLowerCase()===state.cmpChallenger.toLowerCase()||p.addr.toLowerCase()===state.cmpOpp.toLowerCase());
-      p.status=p.folded?'弃牌':(inCmp?'⚔ 比牌中':(p.isTurn?'行动中':(p.looked?'已看牌':'暗牌中')));
+      p.status=p._joining?'入座中…':(p.folded?'弃牌':(inCmp?'⚔ 比牌中':(p.isTurn?'行动中':(p.looked?'已看牌':'暗牌中'))));
     });
     return ps;
   }
@@ -220,7 +225,7 @@
     else if(me){ $('myHand').innerHTML=[0,1,2].map(()=>cardHTML(null,false)).join(''); }
     else { $('myHand').innerHTML=''; }
     if(me&&myCards&&showFace){ const rk=rankHand(myCards.map(conv)); $('handLabel').textContent=rk.label+' · '+(ended?'本局揭晓':'已看牌'); }
-    else { $('handLabel').textContent=me?'未看牌 · 保持神秘':'你在观战'; }
+    else { $('handLabel').textContent=joining?'入座中…':(me?'未看牌 · 保持神秘':'你在观战'); }
 
     // 侧栏
     $('investedAmount').textContent=(me?fmt(e9(me.contributed)):'0')+' LGNS';
@@ -236,6 +241,7 @@
 
     if(phase===1){
       ctrl.hidden=true; rr.hidden=true;
+      if(joining){ $('turnTitle').textContent='入座中…'; $('turnHint').textContent='正在上链交底注，稍候…'; return; }
       $('turnTitle').textContent = mi<0?'未入座':(state.nPlayers<2?'等待玩家':'准备开局…');
       $('turnHint').textContent = mi<0?'点下方加入或到大厅入座':(state.nPlayers<2?'已自动邀请同桌玩家,凑够 2 人自动发牌':'人齐,正在发牌');
       return;
@@ -310,13 +316,18 @@
       if(state&&state.phase===1&&meIdx()>=0){ wsend({t:'leaveTable',handId:curHand}); } // 开局前退座退款
       wsend({t:'unsubscribe',handId:curHand});
     }
-    curHand=null; state=null; myCards=null; prevPlayers=null; picking=false;
+    curHand=null; state=null; myCards=null; prevPlayers=null; picking=false; joining=false; clearTimeout(window._jt);
     setView('lobby'); if(authed)wsend({t:'listTables'}); refreshBalances();
   }
   async function joinRoom(id){
     if(!myAddr){ await connect(); if(!myAddr)return; }
     if(!authorized){ await doAuthorize(); if(!authorized)return; } // 首次自动授权一次,签完即进,无需单独说明
-    curHand=String(id); enterTable(); wsend({t:'subscribe',handId:id}); wsend({t:'joinTable',handId:id}); toast('入座中…');
+    curHand=String(id); myCards=null; prevPlayers=null; joining=true;
+    const room=(window._rooms||[]).find(r=>String(r.handId)===String(id)); // 立刻用大厅已知信息搭个临时桌,不等上链
+    state={handId:String(id),phase:1,ante:room?room.ante:'0',maxPlayers:room?Number(room.maxPlayers):6,nPlayers:room?Number(room.nPlayers):0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
+    enterTable(); render();
+    clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false; render();} },12000);
+    wsend({t:'subscribe',handId:id}); wsend({t:'joinTable',handId:id}); toast('入座中…');
   }
   async function doCreate(){
     if(!myAddr){ await connect(); if(!myAddr)return; }
