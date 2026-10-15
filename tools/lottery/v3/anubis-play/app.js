@@ -577,6 +577,7 @@
         case 'connect':await connect();closeModal();showWallet();break;
         case 'rules':showRules();break;
         case 'records':showRecords();break;
+        case 'join-code':{ const box=b.closest('.m-joinbox,.join-box'); const inp=box&&box.querySelector('input'); const id=inp?String(inp.value).replace(/[^0-9]/g,''):''; if(!id){toast('请输入房号');break;} if(inp)inp.value=''; joinRoom(id); break; }
         case 'create':openCreate();break;
         case 'create-confirm':doCreate();break;
         case 'claim':doClaim();break;

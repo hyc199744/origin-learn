@@ -344,3 +344,12 @@ body.force-landscape .felt-watermark{opacity:.5}
 
 /* 顶部间隔回一点点 */
 .m-head{padding-top:calc(9px + min(env(safe-area-inset-top),8px));padding-bottom:7px}
+
+/* 输入房号加入 */
+.m-joinbox{display:flex;gap:8px;margin:0 0 16px}
+.m-joinbox input{flex:1;min-width:0;background:#122118;border:1px solid #35483c;border-radius:10px;padding:11px 13px;color:#f4ecd8;font-size:13px}
+.m-joinbox input::placeholder{color:#6f847a}
+.m-joincode{flex:none;background:linear-gradient(120deg,#f1d79c,#c49d5b);color:#30271a;border:0;border-radius:10px;padding:0 20px;font-size:13px;font-weight:800;cursor:pointer}
+.join-box{display:flex;gap:10px;margin:14px 0}
+.join-box input{flex:1;min-width:0;background:#0f1519;border:1px solid var(--line,#ffffff18);border-radius:10px;padding:11px 14px;color:#eaf3ee;font-size:13px}
+.join-box .gold-button{flex:none;white-space:nowrap}
