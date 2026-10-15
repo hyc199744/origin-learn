@@ -22,7 +22,7 @@
   let myAddr=null, ws=null, authed=false, delegate=null, authorized=false;
   let curHand=null, myCards=null, state=null, picking=false, lastPot='0';
   let view='table', filter='all', newAnte=10, newCount=6;
-  let sound=false, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
+  let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
   let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false;
 
@@ -475,13 +475,17 @@
   function closeModal(){ if($('modal').open)$('modal').close(); }
   function showWallet(){
     const connected=!!myAddr;
-    openModal('我的钱包', connected?
+    const soundSet=`<label class="form-label">声音设置</label>
+       <div class="wallet-row"><span>背景音乐</span><button class="small-button" data-action="toggle-bgm">${bgmOn?'🔊 开':'🔇 关'}</button></div>
+       <div class="wallet-row"><span>游戏音效</span><button class="small-button" data-action="toggle-sfx">${sound?'🔊 开':'🔇 关'}</button></div>`;
+    openModal('我的', (connected?
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
        <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${$('balanceAmount').textContent} <small>LGNS</small></strong></div>
-       <div class="wallet-row"><span>可领取奖金</span><strong>${$('claimableAmount').textContent}</strong><button class="small-button" data-action="claim" ${$('claimButton').disabled?'disabled':''}>领取</button></div>
-       <div class="form-note">押真 LGNS，链上公平结算，奖金自动到账。</div>`
-      :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 LGNS 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`,
-      'MY WALLET');
+       <div class="wallet-row"><span>可领取奖金</span><strong>${$('claimableAmount').textContent}</strong><button class="small-button" data-action="claim" ${$('claimButton').disabled?'disabled':''}>领取</button></div>`
+      :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 LGNS 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
+      + soundSet
+      + `<div class="form-note">押真 LGNS，链上公平结算，奖金自动到账。</div>`,
+      'MY ACCOUNT');
   }
   function openCreate(){
     newAnte=10;newCount=6;
@@ -533,7 +537,25 @@
 
   // ---------- 音效/全屏 ----------
   function playSound(type='click'){ if(!sound)return; try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.value=type==='win'?660:type==='card'?420:280;g.gain.setValueAtTime(.035,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.13);o.start();o.stop(audioCtx.currentTime+.15);}catch(e){sound=false;updateSound();} }
-  function updateSound(){const b=$('soundButton');b.setAttribute('aria-pressed',String(sound));b.title=sound?'关闭音效':'开启音效';b.querySelector('.sound-off').hidden=sound;}
+  function updateSound(){const b=$('soundButton');if(!b)return;b.setAttribute('aria-pressed',String(sound));b.title=sound?'关闭音效':'开启音效';const so=b.querySelector('.sound-off');if(so)so.hidden=sound;}
+  // 背景音乐:网页自带音频合成的轻缓氛围循环(无文件,可开关)
+  function startBGM(){
+    if(bgmNodes||!bgmOn)return;
+    try{
+      if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+      if(audioCtx.state==='suspended')audioCtx.resume();
+      const ctx=audioCtx, now=ctx.currentTime;
+      const master=ctx.createGain(); master.gain.value=0; master.connect(ctx.destination);
+      master.gain.linearRampToValueAtTime(0.045, now+3); // 低音量淡入
+      const filter=ctx.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value=850; filter.connect(master);
+      const voices=[0,1,2].map(()=>{ const o=ctx.createOscillator(); o.type='sine'; const g=ctx.createGain(); g.gain.value=0.34; o.connect(g); g.connect(filter); o.start(); return o; });
+      const prog=[[220,261.63,329.63],[196,246.94,293.66],[174.61,220,261.63],[196,246.94,329.63]]; // 轻缓和弦进行
+      let step=0; const tick=()=>{ if(!bgmNodes)return; const ch=prog[step%prog.length]; step++; voices.forEach((o,i)=>o.frequency.setTargetAtTime(ch[i],ctx.currentTime,1.6)); };
+      tick(); const iv=setInterval(tick,6000);
+      bgmNodes={master,voices,iv};
+    }catch(e){ bgmNodes=null; }
+  }
+  function stopBGM(){ if(!bgmNodes)return; try{ const {master,voices,iv}=bgmNodes; clearInterval(iv); master.gain.linearRampToValueAtTime(0.0001,audioCtx.currentTime+1); setTimeout(()=>{ voices.forEach(o=>{try{o.stop();}catch(e){}}); try{master.disconnect();}catch(e){} },1200); }catch(e){} bgmNodes=null; }
   async function toggleFullscreen(){
     if(fsBusy)return; fsBusy=true; const el=document.documentElement;
     try{
@@ -593,7 +615,9 @@
         case 'ready':await doReady();break;
         case 'leave':backToLobby();break;
         case 'fullscreen':await toggleLandscape();break;
-        case 'sound':sound=!sound;updateSound();playSound();toast(sound?'音效已开':'音效已关');break;
+        case 'sound':sound=!sound;try{localStorage.setItem('ap_sfx',sound?'1':'0');}catch(e){}updateSound();playSound();toast(sound?'音效已开':'音效已关');break;
+        case 'toggle-bgm':{bgmOn=!bgmOn;try{localStorage.setItem('ap_bgm',bgmOn?'1':'0');}catch(e){}if(bgmOn)startBGM();else stopBGM();showWallet();toast(bgmOn?'背景音乐已开':'背景音乐已关');break;}
+        case 'toggle-sfx':{sound=!sound;try{localStorage.setItem('ap_sfx',sound?'1':'0');}catch(e){}updateSound();if(sound)playSound();showWallet();toast(sound?'音效已开':'音效已关');break;}
         case 'dismiss-tip':$('portraitTip').hidden=true;break;
         case 'refresh':{if(authed)wsend({t:'listTables'});const l=b.querySelector('span');if(l){l.textContent='刷新中';setTimeout(()=>l.textContent='刷新',500);}toast('已刷新牌桌列表');break;}
       }
@@ -607,7 +631,9 @@
   setInterval(()=>{ if(authed&&ws&&ws.readyState===1&&!curHand&&view==='lobby')wsend({t:'listTables'}); },5000);
 
   // 启动
+  try{ sound=localStorage.getItem('ap_sfx')!=='0'; bgmOn=localStorage.getItem('ap_bgm')==='1'; }catch(e){} // 默认音效开、背景乐关
   updateSound();
+  if(bgmOn){ const once=()=>{ startBGM(); document.removeEventListener('pointerdown',once); }; document.addEventListener('pointerdown',once,{once:true}); } // 首次点击后启动背景乐
   setView('lobby'); // 通过链接进入一律默认到大厅,让用户挑桌/开桌
   renderRooms();
   if(window.ethereum&&window.ethereum.selectedAddress){ connect(); }
