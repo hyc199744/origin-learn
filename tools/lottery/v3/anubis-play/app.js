@@ -24,7 +24,7 @@
   let view='table', filter='all', newAnte=10, newCount=6;
   let sound=false, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null;
+  let prevPlayers=null, cdActive=false, cdBase='';
 
   const slotMap={2:[0,3],3:[0,2,4],4:[0,2,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
 
@@ -251,10 +251,10 @@
       return;
     }
     // phase 2 betting
-    ctrl.hidden=false; rr.hidden=true;
+    ctrl.hidden=false; rr.hidden=true; cdActive=false;
     $('callAmount').innerHTML=fmt(cost)+' <small>LGNS</small>';
     if(comparing){ $('turnTitle').textContent='比牌裁决中'; $('turnHint').textContent='马上出结果…'; }
-    else if(myTurn){ $('turnTitle').textContent='轮到你行动'; $('turnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' LGNS'+timeLeftStr(); }
+    else if(myTurn){ $('turnTitle').textContent='轮到你行动'; cdBase=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' LGNS'; cdActive=true; $('turnHint').textContent=cdBase+timeLeftStr(); }
     else if(mi<0||(me&&me.folded)){ $('turnTitle').textContent='观战中'; $('turnHint').textContent='等待本局结束'; }
     else { $('turnTitle').textContent='其他玩家行动中'; $('turnHint').textContent='轮到 '+short(state.turnAddr); }
 
@@ -266,7 +266,7 @@
     $('compareButton').disabled=dis||state.nActive<2;
     $('callButton').disabled=dis;
     // 若在选比牌对手,提示
-    if(picking&&myTurn){ $('turnHint').textContent='点一个对手比牌(下方座位),或再次点比牌取消'; }
+    if(picking&&myTurn){ cdActive=false; $('turnHint').textContent='点一个对手比牌(下方座位),或再次点比牌取消'; }
   }
   function timeLeftStr(){ if(!state||!state.actionDeadline)return ''; const l=state.actionDeadline-Math.floor(Date.now()/1000); return l>0?' · 剩 '+l+'s':''; }
 
@@ -476,8 +476,8 @@
   window.addEventListener('hashchange',()=>setView(location.hash==='#lobby'?'lobby':'table'));
   try{ matchMedia('(orientation:landscape)').addEventListener('change',e=>{ if(e.matches)document.body.classList.remove('force-landscape'); }); }catch(e){} // 真横屏时关掉CSS旋转防重复
 
-  // 倒计时/状态轻刷新(整屏重算,保证跟注额与倒计时正确)
-  setInterval(()=>{ if(state&&state.phase===2&&view==='table'&&!$('tableView').hidden)render(); },1000);
+  // 倒计时:只更新一个文字,不整屏重绘(手机流畅关键)
+  setInterval(()=>{ if(cdActive&&state&&state.phase===2&&view==='table'&&!$('tableView').hidden){ const el=$('turnHint'); if(el)el.textContent=cdBase+timeLeftStr(); } },1000);
   setInterval(()=>{ if(authed&&ws&&ws.readyState===1&&!curHand&&view==='lobby')wsend({t:'listTables'}); },5000);
 
   // 启动

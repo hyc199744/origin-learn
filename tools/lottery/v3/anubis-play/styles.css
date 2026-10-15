@@ -194,3 +194,11 @@ body.force-landscape .app-shell,body.force-landscape .main,body.force-landscape 
 body.force-landscape .game-card{height:100%!important}
 body.force-landscape .modal{max-height:calc(100vw - 20px)!important;width:min(600px,calc(100vh - 40px))!important}
 body.force-landscape .toast{bottom:14px!important}
+
+/* ====== 手机性能优化:关掉昂贵的模糊/光晕,尤其横屏旋转层 ====== */
+@media (pointer:coarse){
+  .ambient{display:none!important}
+  .modal::backdrop{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+}
+body.force-landscape .ambient{display:none!important}
+body.force-landscape .felt-watermark{opacity:.5}
