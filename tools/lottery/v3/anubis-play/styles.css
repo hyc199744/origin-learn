@@ -338,3 +338,6 @@ body.force-landscape .felt-watermark{opacity:.5}
 
 /* DApp内置浏览器:安全区封顶,头部再收紧 */
 .m-head{padding-top:calc(2px + min(env(safe-area-inset-top),8px));padding-bottom:6px}
+
+/* 头部间隔压到最小,尽量靠上 */
+.m-head{padding-top:min(env(safe-area-inset-top),4px);padding-bottom:5px}
