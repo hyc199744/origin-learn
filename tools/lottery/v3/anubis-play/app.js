@@ -73,6 +73,7 @@
       const cid=await eth.request({method:'eth_chainId'});
       if(parseInt(cid,16)!==ANUBIS.id){try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}}
       $('walletLabel').textContent=short(myAddr);
+      const wp=$('mWalletPill'); if(wp)wp.textContent=short(myAddr);
       refreshBalances(); connectWS();
       if(!window._wl){window._wl=1;eth.on&&eth.on('accountsChanged',()=>location.reload());eth.on&&eth.on('chainChanged',()=>location.reload());}
     }catch(e){toast((e&&e.message)||'连接失败');}
@@ -372,6 +373,7 @@
     window._rooms=tables||window._rooms||[];
     if(view!=='lobby')return;
     const list=(window._rooms||[]).filter(r=>filter==='all'||String(e9(r.ante))===String(filter));
+    renderMRooms(list); // 手机端大厅房间
     const grid=$('roomGrid');
     if(!list.length){ grid.innerHTML='<div class="room-empty" style="opacity:.7;padding:24px;text-align:center">暂无牌桌，点「创建我的牌桌」开一桌，或等别人开。</div>'; return; }
     grid.innerHTML=list.map(r=>{
@@ -379,6 +381,25 @@
       const name=(e9(r.ante)>=100?'大师':e9(r.ante)>=50?'进阶':'经典')+'场 · '+String(r.handId).padStart(2,'0');
       return `<article class="room-card"><div class="room-card-head"><span>${esc(name)}</span><span class="room-pill ${full?'busy':''}">${full?'已满':'等待加入'}</span></div><div class="room-ante"><strong>${ante}</strong><span>LGNS</span></div><div class="room-caption">底注 / 每人每局</div><div class="room-divider"></div><div class="room-bottom"><div class="room-players">${icon('users')}${n} / ${r.maxPlayers} 已入座</div><button class="join-button" data-join="${r.handId}" ${full?'disabled':''}>${full?'本桌已满':'加入牌桌'}</button></div><div class="room-sub">真人对战 · ${r.maxPlayers} 人桌 · 押真 LGNS</div></article>`;
     }).join('');
+  }
+  function mFaces(n,mx){ const suits=['♠','♦','♣','♥']; let s=''; const show=Math.min(mx,4); for(let i=0;i<show;i++){ s+= i<n? '<i>'+suits[i]+'</i>' : '<i class="empty">+</i>'; } return s; }
+  function renderMRooms(list){
+    const box=$('mRooms'); if(!box)return;
+    if(!list.length){ box.innerHTML='<div class="m-empty">暂无同档位牌桌。点上面「创建我的牌桌」开一桌，或等别人开。</div>'; return; }
+    box.innerHTML=list.map((r,i)=>{
+      const ante=fmt(e9(r.ante)), n=r.nPlayers||0, mx=r.maxPlayers, full=n>=mx, av=e9(r.ante), id=r.handId;
+      const name=(av>=100?'大师':av>=50?'进阶':'经典')+'场';
+      if(i===0 && filter==='all'){
+        return '<div class="m-featured"><div class="m-rowflex"><span class="m-fav">✦ 人气推荐</span><span style="font-size:10px;color:#a6c8a8">● '+(full?'已满':'等待加入')+'</span></div><div class="m-rowflex" style="margin-top:1px"><div><h4>'+esc(name)+' <span style="color:#92aa95;font-size:10px;font-weight:400">#'+esc(String(id))+'</span></h4><p class="fp">'+mx+' 人桌 · 押真 LGNS</p></div><div class="m-fprice"><strong>'+ante+'</strong><small>LGNS</small></div></div><div class="m-featbottom"><div class="m-bubble"><div class="m-faces">'+mFaces(n,mx)+'</div><span>'+n+'/'+mx+' 已入座</span></div><button class="m-joinbtn" data-join="'+id+'" '+(full?'disabled':'')+'>'+(full?'已满':'加入牌桌 →')+'</button></div></div>';
+      }
+      const mark=av>=100?'♣':av>=50?'♥':'♠', mcls=av>=100?'blue':av>=50?'red':'';
+      const dots=Array.from({length:mx},(_,j)=>'<b class="'+(j<n?'on':'')+'"></b>').join('');
+      return '<article class="m-room"><div class="m-rmark '+mcls+'">'+mark+'</div><div><h4>'+esc(name)+' <span style="font-size:10px;color:#637e69">#'+esc(String(id))+'</span>'+(!full?'<i>● 有空位</i>':'')+'</h4><p>'+mx+' 人桌 · '+(full?'已满':'等待入座')+'</p><div class="m-miniseats"><span class="m-dots">'+dots+'</span>'+n+' / '+mx+' 人</div></div><div class="m-side"><strong>'+ante+'</strong><small>LGNS 底注</small><button data-join="'+id+'" '+(full?'disabled':'')+'>'+(full?'已满':'加入 →')+'</button></div></article>';
+    }).join('');
+  }
+  function syncFilters(){
+    document.querySelectorAll('[data-filter]').forEach(el=>{const s=el.dataset.filter===filter;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));});
+    document.querySelectorAll('[data-mfilter]').forEach(el=>el.classList.toggle('active',el.dataset.mfilter===filter));
   }
   function enterTable(){ setView('table'); }
   function backToLobby(skipLeave){
@@ -479,6 +500,8 @@
     view=next==='lobby'?'lobby':'table';
     $('tableView').hidden=view!=='table'; $('lobbyView').hidden=view!=='lobby';
     document.querySelectorAll('.primary-nav [data-view]').forEach(b=>{const s=b.dataset.view===view;b.classList.toggle('active',s);s?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current');});
+    const mApp=$('mApp'); if(mApp) mApp.hidden=(view!=='lobby'); // 手机:大厅显示App壳,进桌隐藏(露出绿呢牌桌)
+    document.querySelectorAll('#mNav button').forEach(b=>b.classList.toggle('active', b.dataset.mtab==='lobby' && view==='lobby'));
     if(view==='lobby'){ if(authed)wsend({t:'listTables'}); renderRooms(); }
     if(location.hash!=='#'+view)history.replaceState(null,'','#'+view);
   }
@@ -518,7 +541,9 @@
     const b=e.target.closest('button,a[data-view]'); if(!b||b.disabled)return;
     try{
       if(b.dataset.view){ if(b.classList.contains('back-button')){backToLobby();}else setView(b.dataset.view); return; }
-      if(b.dataset.filter){ filter=b.dataset.filter; document.querySelectorAll('[data-filter]').forEach(el=>{const s=el.dataset.filter===filter;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); renderRooms(); return; }
+      if(b.dataset.filter){ filter=b.dataset.filter; syncFilters(); renderRooms(); return; }
+      if(b.dataset.mfilter){ filter=b.dataset.mfilter; syncFilters(); renderRooms(); return; }
+      if(b.dataset.mtab){ const t=b.dataset.mtab; if(t==='lobby')setView('lobby'); else if(t==='mytable'){ if(curHand)setView('table'); else toast('你还没入座牌桌，去大厅选一桌'); } else if(t==='records')showRecords(); else if(t==='account')showWallet(); return; }
       if(b.dataset.ante){ newAnte=Number(b.dataset.ante); document.querySelectorAll('[data-ante]').forEach(el=>{const s=Number(el.dataset.ante)===newAnte;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
       if(b.dataset.join){ joinRoom(b.dataset.join); return; }
       if(b.dataset.compare){ doCompare(b.dataset.compare); return; }
