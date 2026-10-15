@@ -24,7 +24,7 @@
   let view='table', filter='all', newAnte=10, newCount=6;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false;
+  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3;
 
   const slotMap={2:[0,3],3:[0,2,4],4:[0,2,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
 
@@ -124,7 +124,8 @@
   function wsend(o){try{ws.send(JSON.stringify(o));}catch(e){}}
   async function onMsg(m){
     if(m.t==='challenge'){ const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig}); }
-    else if(m.t==='authed'){ authed=true; delegate=m.delegate; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); }
+    else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); }
+    else if(m.t==='nickname'){ myNick=m.name; myNickRem=m.remaining; toast('昵称已设为「'+m.name+'」'); if($('modal').open)showWallet(); if(state)render(); }
     else if(m.t==='tables'){ renderRooms(m.tables); }
     else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
       wsend({t:'subscribe',handId:curHand}); toast('✅ 开桌成功！房号 #'+m.handId+' —— 把这个号发给朋友，他输房号进同一桌；你点「准备」交底注开始'); // 进桌旁观,点准备才交底注
@@ -165,6 +166,7 @@
   }
   const isMe=a=>myAddr&&a&&a.toLowerCase()===myAddr.toLowerCase();
   const meIdx=()=>state?state.players.findIndex(p=>isMe(p.addr)):-1;
+  function nameOf(addr){ if(isMe(addr))return myNick||'你'; const p=state&&state.players&&state.players.find(x=>x.addr.toLowerCase()===String(addr).toLowerCase()); return (p&&p.nick)||short(addr); }
 
   // ---------- 渲染 ----------
   function cardHTML(card,revealed){
@@ -182,12 +184,12 @@
   }
   function buildPlayers(){
     // 把"我"排到首位(座位0=底部),其余按链上顺序
-    const ps=state.players.map((p,i)=>({addr:p.addr,contributed:p.contributed,looked:p.looked,folded:p.folded,seatIndex:i,isMe:isMe(p.addr)}));
+    const ps=state.players.map((p,i)=>({addr:p.addr,contributed:p.contributed,looked:p.looked,folded:p.folded,seatIndex:i,isMe:isMe(p.addr),nick:p.nick}));
     if(joining && myAddr && !ps.some(p=>p.isMe)){ ps.push({addr:myAddr,contributed:'0',looked:false,folded:false,seatIndex:999,isMe:true,_joining:true}); } // 乐观占位:我的座位先显示"入座中"
     ps.sort((a,b)=> (a.isMe?-1:0)-(b.isMe?-1:0) || a.seatIndex-b.seatIndex);
     const comparing=nz(state.cmpOpp);
     ps.forEach(p=>{
-      p.name=p.isMe?'我':short(p.addr);
+      p.name=p.isMe?(myNick||p.nick||'我'):(p.nick||short(p.addr));
       p.sign=p.isMe?'':p.addr.slice(2,3).toUpperCase();
       p.isTurn=state.phase===2&&!comparing&&state.turnAddr&&state.turnAddr.toLowerCase()===p.addr.toLowerCase();
       const inCmp=comparing&&(p.addr.toLowerCase()===state.cmpChallenger.toLowerCase()||p.addr.toLowerCase()===state.cmpOpp.toLowerCase());
@@ -371,7 +373,7 @@
     const meRev=(m.reveal||[]).find(r=>isMe(r.addr)); if(meRev)myCards=meRev.cards; // 没看牌也在摊牌亮出我的牌
     state=Object.assign({},state,{phase:4});
     render();
-    $('resultTitle').textContent=iWon?'🎉 你赢了':(winAddr?short(winAddr)+' 获胜':'本局结束');
+    $('resultTitle').textContent=iWon?'🎉 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束');
     var anteV=state?fmt(e9(state.ante)):'';
     $('resultDescription').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout)+'（扣 3%）':'本局结束')+' · 奖金自动到账'+(anteV?'｜继续下一局需再交底注 '+anteV+' LGNS':'');
     // 翻牌动画
@@ -475,6 +477,9 @@
   function closeModal(){ if($('modal').open)$('modal').close(); }
   function showWallet(){
     const connected=!!myAddr;
+    const nickSet=connected?`<label class="form-label">游戏昵称（最多 3 个字）</label>
+       <div class="wallet-row"><input id="nickInput" type="text" maxlength="3" value="${esc(myNick)}" placeholder="未设置昵称" style="flex:1;min-width:0;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px;margin-right:8px"><button class="small-button" data-action="save-nick">保存</button></div>
+       <div class="form-note" style="margin-top:6px">本月还可改 ${myNickRem} 次（每月最多 3 次），昵称会显示给同桌玩家。</div>`:'';
     const soundSet=`<label class="form-label">声音设置</label>
        <div class="wallet-row"><span>背景音乐</span><button class="small-button" data-action="toggle-bgm">${bgmOn?'🔊 开':'🔇 关'}</button></div>
        <div class="wallet-row"><span>游戏音效</span><button class="small-button" data-action="toggle-sfx">${sound?'🔊 开':'🔇 关'}</button></div>`;
@@ -483,6 +488,7 @@
        <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${$('balanceAmount').textContent} <small>LGNS</small></strong></div>
        <div class="wallet-row"><span>可领取奖金</span><strong>${$('claimableAmount').textContent}</strong><button class="small-button" data-action="claim" ${$('claimButton').disabled?'disabled':''}>领取</button></div>`
       :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 LGNS 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
+      + nickSet
       + soundSet
       + `<div class="form-note">押真 LGNS，链上公平结算，奖金自动到账。</div>`,
       'MY ACCOUNT');
@@ -616,6 +622,7 @@
         case 'leave':backToLobby();break;
         case 'fullscreen':await toggleLandscape();break;
         case 'sound':sound=!sound;try{localStorage.setItem('ap_sfx',sound?'1':'0');}catch(e){}updateSound();playSound();toast(sound?'音效已开':'音效已关');break;
+        case 'save-nick':{ const inp=$('nickInput'); const nm=inp?inp.value.trim():''; if(!nm){toast('请输入昵称');break;} if([...nm].length>3){toast('昵称最多3个字');break;} if(myNickRem<=0){toast('本月改名次数已用完');break;} wsend({t:'setNickname',name:nm}); break; }
         case 'toggle-bgm':{bgmOn=!bgmOn;try{localStorage.setItem('ap_bgm',bgmOn?'1':'0');}catch(e){}if(bgmOn)startBGM();else stopBGM();showWallet();toast(bgmOn?'背景音乐已开':'背景音乐已关');break;}
         case 'toggle-sfx':{sound=!sound;try{localStorage.setItem('ap_sfx',sound?'1':'0');}catch(e){}updateSound();if(sound)playSound();showWallet();toast(sound?'音效已开':'音效已关');break;}
         case 'dismiss-tip':$('portraitTip').hidden=true;break;
