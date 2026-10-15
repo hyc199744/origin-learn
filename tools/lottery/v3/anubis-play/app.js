@@ -463,7 +463,7 @@
     newAnte=10;newCount=6;
     openModal('创建你的牌桌',
       `<label class="form-label">选择底注</label><div class="tier-options" role="group" aria-label="选择底注">${[10,50,100].map(n=>`<button class="tier-button ${newAnte===n?'selected':''}" data-ante="${n}" aria-pressed="${newAnte===n}"><strong>${n}</strong><span>LGNS</span></button>`).join('')}</div>
-       <label class="form-label" for="playerCount">牌桌人数</label><select id="playerCount" class="form-select">${[2,3,4,5,6].map(n=>`<option value="${n}" ${newCount===n?'selected':''}>${n} 人桌</option>`).join('')}</select>
+       <label class="form-label">牌桌人数（最多 6 人/局）</label><div class="tier-options" role="group" aria-label="牌桌人数">${[2,3,4,5,6].map(n=>`<button type="button" class="tier-button ${newCount===n?'selected':''}" data-seats="${n}" aria-pressed="${newCount===n}"><strong>${n}</strong><span>人</span></button>`).join('')}</div>
        <div class="form-note">开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 LGNS。</div>
        <button class="gold-button" data-action="create-confirm">${icon('plus')}创建并进入牌桌</button>`,'CREATE A TABLE');
   }
@@ -546,6 +546,7 @@
       if(b.dataset.mfilter){ filter=b.dataset.mfilter; syncFilters(); renderRooms(); return; }
       if(b.dataset.mtab){ const t=b.dataset.mtab; if(t==='lobby')setView('lobby'); else if(t==='mytable'){ if(curHand)setView('table'); else toast('你还没入座牌桌，去大厅选一桌'); } else if(t==='records')showRecords(); else if(t==='account')showWallet(); return; }
       if(b.dataset.ante){ newAnte=Number(b.dataset.ante); document.querySelectorAll('[data-ante]').forEach(el=>{const s=Number(el.dataset.ante)===newAnte;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
+      if(b.dataset.seats){ newCount=Number(b.dataset.seats); document.querySelectorAll('[data-seats]').forEach(el=>{const s=Number(el.dataset.seats)===newCount;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
       if(b.dataset.join){ joinRoom(b.dataset.join); return; }
       if(b.dataset.compare){ doCompare(b.dataset.compare); return; }
       const a=b.dataset.action;
@@ -556,7 +557,7 @@
         case 'rules':showRules();break;
         case 'records':showRecords();break;
         case 'create':openCreate();break;
-        case 'create-confirm':{newCount=Number(($('playerCount')||{}).value||6);doCreate();break;}
+        case 'create-confirm':doCreate();break;
         case 'claim':doClaim();break;
         case 'fold':doFold();break;
         case 'peek':doPeek();break;
