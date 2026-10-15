@@ -158,7 +158,7 @@
     // 首局自动发牌:人齐且仍 OPEN,由首座玩家触发一次(后端去重)
     if(m.phase===1 && m.nPlayers>=2 && !startedHands.has(String(m.handId))){
       const first=m.players[0];
-      if(first && isMe(first.addr)){ startedHands.add(String(m.handId)); setTimeout(()=>wsend({t:'startDeal',handId:m.handId}),1500); }
+      if(first && isMe(first.addr)){ startedHands.add(String(m.handId)); setTimeout(()=>wsend({t:'startDeal',handId:m.handId}),3000); } // 兜底:后端一般已秒发
     }
     if(newHandBetting){ lastDealtHand=String(m.handId); logAct('第 '+m.handId+' 局开始'); }
     render();
