@@ -353,3 +353,19 @@ body.force-landscape .felt-watermark{opacity:.5}
 .join-box{display:flex;gap:10px;margin:14px 0}
 .join-box input{flex:1;min-width:0;background:#0f1519;border:1px solid var(--line,#ffffff18);border-radius:10px;padding:11px 14px;color:#eaf3ee;font-size:13px}
 .join-box .gold-button{flex:none;white-space:nowrap}
+
+/* 房间卡片文字整体放大一档 */
+.m-room h4{font-size:14px}
+.m-room h4 i{font-size:11px}
+.m-room p{font-size:12px}
+.m-miniseats{font-size:12px}
+.m-rmark{font-size:31px}
+.m-side strong{font-size:19px}
+.m-side small{font-size:11px}
+.m-side button{font-size:12px;padding:8px 13px}
+.m-featured h4{font-size:15px}
+.m-featured .fp{font-size:11px}
+.m-fprice strong{font-size:26px}
+.m-fprice small{font-size:11px}
+.m-bubble{font-size:11px}
+.m-joinbtn{font-size:12px}
