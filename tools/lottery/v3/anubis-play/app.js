@@ -642,29 +642,15 @@
   // ---------- 音效/全屏 ----------
   function playSound(type='click'){ if(!sound)return; try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='triangle';o.frequency.value=type==='win'?680:type==='card'?440:300;const t=audioCtx.currentTime;const peak=type==='win'?1.0:.9;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+.012);g.gain.exponentialRampToValueAtTime(.0008,t+(type==='win'?.3:.2));o.start(t);o.stop(t+(type==='win'?.32:.22));}catch(e){sound=false;updateSound();} }
   function updateSound(){const s=$('jtSoundStrike');if(s)s.style.display=sound?'none':'';const b=$('jtSoundBtn');if(b)b.title=sound?'关闭音效':'开启音效';}
-  // 背景音乐:五声音阶轻柔拨弦(像音乐盒/竖琴)+很轻的低音垫,舒缓不吵,可开关
+  // 背景音乐:循环播放一段埃及氛围乐(CC0, Polygondan - Desert Mystic),音量轻,可开关
   function startBGM(){
-    if(bgmNodes||!bgmOn)return;
+    if(!bgmOn)return;
     try{
-      if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-      if(audioCtx.state==='suspended')audioCtx.resume();
-      const ctx=audioCtx, now=ctx.currentTime;
-      const master=ctx.createGain(); master.gain.value=0; master.connect(ctx.destination);
-      master.gain.linearRampToValueAtTime(0.6, now+2); // 整体音量(单音本身很轻)
-      const filter=ctx.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value=2400; filter.connect(master);
-      // 很轻的低音垫
-      const bass=ctx.createOscillator(); bass.type='sine'; const bg=ctx.createGain(); bg.gain.value=0.03; bass.frequency.value=130.81; bass.connect(bg); bg.connect(filter); bass.start();
-      const bassNotes=[130.81,146.83,164.81,146.83]; let bi=0;
-      const bassIv=setInterval(()=>{ if(!bgmNodes)return; bi++; bass.frequency.setTargetAtTime(bassNotes[bi%bassNotes.length],ctx.currentTime,1.6); },8000);
-      // C大调五声音阶(C D E G A,多八度),随机漫步出旋律,怎么走都和谐
-      const scale=[196.00,220.00,261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25];
-      let idx=3;
-      const pluck=()=>{ if(!bgmNodes)return; idx=Math.max(0,Math.min(scale.length-1, idx+(Math.floor(Math.random()*3)-1))); if(Math.random()<0.25)return; const f=scale[idx]; const o=ctx.createOscillator(); o.type='triangle'; const g=ctx.createGain(); const t=ctx.currentTime; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.09,t+0.02); g.gain.exponentialRampToValueAtTime(0.0008,t+1.9); o.frequency.value=f; o.connect(g); g.connect(filter); o.start(t); o.stop(t+2); };
-      const pluckIv=setInterval(pluck,1150); pluck();
-      bgmNodes={master,bass,bassIv,pluckIv};
-    }catch(e){ bgmNodes=null; }
+      if(!bgmNodes){ bgmNodes=new Audio('bgm.mp3?v=1017y'); bgmNodes.loop=true; bgmNodes.volume=0.35; bgmNodes.preload='auto'; }
+      const p=bgmNodes.play(); if(p&&p.catch)p.catch(()=>{});
+    }catch(e){}
   }
-  function stopBGM(){ if(!bgmNodes)return; try{ const {master,bass,bassIv,pluckIv}=bgmNodes; clearInterval(bassIv); clearInterval(pluckIv); master.gain.linearRampToValueAtTime(0.0001,audioCtx.currentTime+0.8); setTimeout(()=>{ try{bass.stop();}catch(e){} try{master.disconnect();}catch(e){} },1000); }catch(e){} bgmNodes=null; }
+  function stopBGM(){ if(!bgmNodes)return; try{ bgmNodes.pause(); bgmNodes.currentTime=0; }catch(e){} }
   async function toggleFullscreen(){
     if(fsBusy)return; fsBusy=true; const el=document.documentElement;
     try{
