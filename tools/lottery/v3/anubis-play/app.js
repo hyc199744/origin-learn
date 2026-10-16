@@ -552,9 +552,9 @@
         let q=0.75, data=c.toDataURL('image/jpeg',q);
         while(data.length>30000 && q>0.3){ q-=0.12; data=c.toDataURL('image/jpeg',q); }
         if(data.length>30000){ toast('图片太大，请换一张更简单的图'); return; }
-        pendingAvatar=data; // 只暂存,点「保存」才上传
+        pendingAvatar=data; // 选好即自动上传保存(无需点保存)
         if($('modal').open)showWallet();
-        toast('已选好图片，点「保存」上传');
+        toast('头像上传中…'); wsend({t:'setAvatar',avatar:data}); clearTimeout(window._avT); window._avT=setTimeout(()=>{window._avT=null;toast('⚠ 上传超时，请检查网络后重试');},8000);
       }catch(e){ toast('处理图片出错，换一张试试'); }
     }; img.src=rd.result; };
     rd.onerror=()=>toast('读取文件失败');
@@ -584,12 +584,11 @@
        <div class="wallet-row" style="gap:12px;align-items:center">
          <button data-action="pick-avatar" title="点击更换头像" style="width:58px;height:58px;border-radius:14px;overflow:hidden;flex:none;background:linear-gradient(135deg,#2a5f45,#17382a);display:flex;align-items:center;justify-content:center;color:#e8c783;font-weight:800;font-size:21px;border:1px solid #ffffff22;padding:0;cursor:pointer">${avShow?`<img src="${avShow}" alt="" style="width:100%;height:100%;object-fit:cover">`:avLetter}</button>
          <input type="file" accept="image/*" id="avatarFile" style="display:none">
-         <div style="flex:1;min-width:0;display:flex;gap:8px;flex-wrap:wrap">
-           <button class="small-button" data-action="save-avatar"${pendingAvatar?'':' disabled'}>保存</button>
+         <div style="flex:1;min-width:0;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+           <span class="form-note" style="margin:0">点左边头像换图，选好自动上传</span>
            ${(avCur||pendingAvatar)?'<button class="small-button" data-action="clear-avatar">恢复默认</button>':''}
          </div>
-       </div>
-       ${pendingAvatar?'<div class="form-note" style="margin-top:6px"><b style="color:#e8c783">已选新图，记得点「保存」</b></div>':''}`:'';
+       </div>`:'';
     const nickSet=connected?`<label class="form-label">游戏昵称（最多 3 个字）</label>
        <div class="wallet-row"><input id="nickInput" type="text" maxlength="3" value="${esc(myNick)}" placeholder="未设置昵称" style="flex:1;min-width:0;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px;margin-right:8px"><button class="small-button" data-action="save-nick">保存</button></div>
        <div class="form-note" style="margin-top:6px">本月还可改 ${myNickRem} 次（每月最多 3 次），昵称会显示给同桌玩家。</div>`:'';
