@@ -601,20 +601,25 @@
        <div class="rules-foot">牌序由合约种子 + 区块哈希决定，后端按权威结果发牌，每局种子上链公开可事后核验。押真 LGNS，理性参与。</div>`,'HOW TO PLAY');
   }
   function showRecords(){
-    const cardChips=arr=>(arr&&arr.length)?arr.map(cs=>{const red=cs.includes('♥')||cs.includes('♦');return '<span style="display:inline-block;min-width:25px;text-align:center;background:#fffdf0;color:'+(red?'#b9383c':'#23292a')+';border-radius:4px;padding:1px 4px;margin-right:3px;font-family:Georgia,serif;font-weight:700;font-size:12px">'+esc(cs)+'</span>';}).join(''):'<span style="color:#8b9b8e">未亮牌</span>';
-    const netStr=r=>{ if(r.net===undefined||r.net===null) return r.win?'🏆 赢':'未赢'; const n=Number(r.net); return (r.win?'🏆 赢 ':'输 ')+(n>=0?'+':'')+fmt(n)+' LGNS'; };
-    const row=r=>`<li style="padding:11px 2px;border-bottom:1px solid var(--line,#ffffff14);line-height:1.6;list-style:none">
-      <div style="display:flex;justify-content:space-between;align-items:center"><b style="color:#e8c783;font-size:13px">第 ${esc(String(r.hand))} 局</b><small style="color:#8b9b8e;font-size:10px">${esc(r.time||'')}</small></div>
-      <div style="font-size:11px;color:#9db09f;margin-top:3px">底注 ${esc(String(r.ante||'-'))} LGNS · ${esc(String(r.players||'-'))} 人 · 底池 ${esc(String(r.pot||'-'))} LGNS</div>
-      <div style="font-size:12px;margin-top:5px;display:flex;align-items:center;flex-wrap:wrap;gap:4px">我的牌 ${cardChips(r.myCards)} ${r.label&&r.label!=='-'?'<span style="color:#cbb; ">（'+esc(r.label)+'）</span>':''}</div>
-      <div style="font-size:13px;margin-top:5px;font-weight:700;color:${r.win?'#65c59d':'#dd888a'}">${netStr(r)}</div>
-      <div style="font-size:11px;color:#9db09f;margin-top:3px">赢家 ${esc(String(r.winner||'-'))}${r.winnerLabel&&r.winnerLabel!=='-'?'（'+esc(r.winnerLabel)+'）':''}</div>
-    </li>`;
+    const cardChips=arr=>(arr&&arr.length)?arr.map(cs=>{const red=cs.includes('♥')||cs.includes('♦');return '<span style="display:inline-block;min-width:26px;text-align:center;background:#fffdf0;color:'+(red?'#b9383c':'#23292a')+';border-radius:4px;padding:2px 5px;margin-right:4px;font-family:Georgia,serif;font-weight:700;font-size:13px">'+esc(cs)+'</span>';}).join(''):'<span style="color:#8b9b8e">未亮牌</span>';
+    const GC='grid-template-columns:2.6em minmax(0,1fr) auto auto;gap:10px';
+    const netCell=r=>{ if(r.net===undefined||r.net===null) return '<span style="color:'+(r.win?'#65c59d':'#dd888a')+'">'+(r.win?'🏆赢':'输')+'</span>'; const n=Number(r.net); return '<span style="color:'+(r.win?'#65c59d':'#dd888a')+'">'+(r.win?'🏆':'')+(n>=0?'+':'')+fmt(n)+'</span>'; };
+    const row=(r,i)=>`<button class="rec-row" data-action="rec-toggle" data-idx="${i}" style="display:grid;${GC};width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line,#ffffff10);padding:10px 4px;align-items:center;font-size:12.5px;color:#dbe0cf;cursor:pointer">
+         <span style="color:#e8c783;font-weight:700">${esc(String(r.hand))}</span>
+         <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(String(r.label||'-'))}</span>
+         <span style="font-weight:700;text-align:right;font-variant-numeric:tabular-nums">${netCell(r)}</span>
+         <span style="text-align:right;color:#9db09f;font-variant-numeric:tabular-nums">${esc(String(r.pot||'-'))}</span>
+       </button>
+       <div id="recd-${i}" hidden style="padding:8px 10px 12px;background:#0d1a14;border-bottom:1px solid var(--line,#ffffff10);font-size:11px;color:#9db09f;line-height:1.7">
+         <div>时间 ${esc(r.time||'-')} · 底注 ${esc(String(r.ante||'-'))} · ${esc(String(r.players||'-'))} 人</div>
+         <div style="margin-top:6px;display:flex;align-items:center;flex-wrap:wrap;gap:3px">我的牌 ${cardChips(r.myCards)}</div>
+         <div style="margin-top:6px">赢家 ${esc(String(r.winner||'-'))}${r.winnerLabel&&r.winnerLabel!=='-'?'（'+esc(r.winnerLabel)+'）':''}</div>
+       </div>`;
     openModal('我的牌局记录',
       `<div class="stats-grid" style="grid-template-columns:1fr"><div><strong>${results.length}</strong><span>对局次数</span></div></div>
-       <label class="form-label">最近记录（本浏览器）</label>
-       <ol class="record-list" style="padding:0;margin:0">${results.length?results.slice(0,40).map(row).join(''):'<li style="list-style:none;padding:16px 0;color:#8b9b8e">暂无记录，玩一局就有了。</li>'}</ol>
-       <div class="form-note">记录保存在本浏览器本地，换设备或清缓存会清空；权威结果以链上为准。</div>`,'SESSION RECORDS');
+       <div style="display:grid;${GC};padding:0 4px 7px;font-size:10px;letter-spacing:1px;color:#7e9583;border-bottom:1px solid var(--line,#ffffff14)"><span>局号</span><span>牌型</span><span style="text-align:right">输赢</span><span style="text-align:right">底池</span></div>
+       ${results.length?results.slice(0,40).map(row).join(''):'<div style="padding:16px 4px;color:#8b9b8e;font-size:12px">暂无记录，玩一局就有了。</div>'}
+       <div class="form-note" style="margin-top:12px">点某一行展开看你的三张牌。记录存本浏览器本地，换设备或清缓存会清空；权威结果以链上为准。</div>`,'SESSION RECORDS');
   }
 
   // ---------- 视图 ----------
@@ -707,6 +712,7 @@
         case 'create':openCreate();break;
         case 'create-confirm':doCreate();break;
         case 'refresh-bal':{ if(!myAddr){toast('请先连接钱包');break;} toast('刷新中…'); await refreshBalances(); if($('modal').open)showWallet(); toast('余额已刷新'); break; }
+        case 'rec-toggle':{ const d=$('recd-'+b.dataset.idx); if(d)d.hidden=!d.hidden; break; }
         case 'pick-avatar':{ const f=$('avatarFile'); if(f)f.click(); break; }
         case 'clear-avatar':{ if(!authed){toast('未连接对战服务，稍候重试');break;} wsend({t:'setAvatar',avatar:''}); if(myAddr)delete avatarCache[myAddr.toLowerCase()]; if($('modal').open)showWallet(); if(state&&view==='table')render(); toast('已恢复默认头像'); break; }
         case 'claim':doClaim();break;
