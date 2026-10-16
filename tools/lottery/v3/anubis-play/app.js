@@ -334,7 +334,7 @@
     { const u=$('jtPotUnit'); if(u)u.textContent=SYM; const bu=$('jtBalUnit'); if(bu)bu.textContent=SYM; const df=$('jtDockFoot'); if(df)df.textContent='押真 '+SYM+' · 链上公平结算 · 奖金自动到账'; }
     $('jtBet').textContent='当前单注 '+fmt(curBet)+' '+SYM;
     $('jtMeName').textContent=(myNick||'我');
-    { const meAv=$('jtMeAv'); if(meAv){ const a=myAddr&&avatarCache[myAddr.toLowerCase()]; const lt=esc(myNick?[...myNick][0]:(myAddr?myAddr.slice(2,3).toUpperCase():'我')); meAv.innerHTML=a?('<img src="'+a+'" alt="" style="width:100%;height:100%;object-fit:cover">'):lt; } }
+    { const meAv=$('jtMeAv'); if(meAv){ const a=myAddr&&avatarCache[myAddr.toLowerCase()]; const lt=esc(myNick?[...myNick][0]:(myAddr?myAddr.slice(2,3).toUpperCase():'我')); const h=a?('<img src="'+a+'" alt="" style="width:100%;height:100%;object-fit:cover">'):lt; if(meAv._html!==h){ meAv._html=h; meAv.innerHTML=h; } } }
     $('jtOwnStack').textContent=fmt(me?e9(me.contributed):0);
     $('jtBal').textContent=myBalStr;
     renderGtSeats(phase,comparing,ended);
@@ -356,7 +356,7 @@
     const opps=state.players.filter(p=>!isMe(p.addr));
     const slots=gtOppSeat[Math.min(5,opps.length)]||[];
     let winAddr=null; if(ended){ let best=-1; (window._reveal||[]).forEach(r=>{ if(!r.folded){const s=score(r.cards); if(s>best){best=s;winAddr=r.addr;}} }); }
-    cont.innerHTML=opps.slice(0,5).map((p,k)=>{
+    const _seatHtml=opps.slice(0,5).map((p,k)=>{
       const slot=slots[k]||1, nm=p.nick||short(p.addr);
       const isTurn=phase===2&&!comparing&&state.turnAddr&&state.turnAddr.toLowerCase()===p.addr.toLowerCase();
       const inCmp=comparing&&(p.addr.toLowerCase()===state.cmpChallenger.toLowerCase()||p.addr.toLowerCase()===state.cmpOpp.toLowerCase());
@@ -373,11 +373,12 @@
         +'<div class="mini-hand">'+hand+'</div>'
         +'<span class="seat-status">'+st+'</span></div>';
     }).join('');
+    if(cont._html===_seatHtml)return; cont._html=_seatHtml; cont.innerHTML=_seatHtml; // 内容没变不重画,避免牌/头像反复闪
   }
   function renderGtHand(me,showFace){
     const c=$('jtCards'); if(!c)return;
-    if(!me){ c.innerHTML=''; return; }
-    c.innerHTML=[0,1,2].map(i=>{ const cd=(showFace&&myCards)?conv(myCards[i]):null; return jtCard(cd,!!cd); }).join('');
+    const html = !me ? '' : [0,1,2].map(i=>{ const cd=(showFace&&myCards)?conv(myCards[i]):null; return jtCard(cd,!!cd); }).join('');
+    if(c._html===html)return; c._html=html; c.innerHTML=html; // 内容没变不重画,避免牌反复闪
   }
   function gtTick(){ const t=$('jtTimer'); if(!t||!state)return; const me=state.players[meIdx()]; const myTurn=state.phase===2&&!nz(state.cmpOpp)&&me&&!me.folded&&state.turnAddr&&isMe(state.turnAddr); if(myTurn&&state.actionDeadline){ t.textContent=Math.max(0,state.actionDeadline-Math.floor(Date.now()/1000)); } else t.textContent='–'; }
   function renderGtActions(phase,mi,me,looked,cost,ended,comparing){
