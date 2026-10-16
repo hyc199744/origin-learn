@@ -33,7 +33,8 @@
   function applyLayout(){ const g=$('jtGame'); if(g)g.dataset.layout=tableLayout; }
   function setTableLayout(name){ if(!LAYOUTS[name])return; tableLayout=name; applyLayout(); try{localStorage.setItem('ap_layout',name);}catch(e){} resizeGame(); if($('modal').open)showWallet(); toast('牌桌布局：'+LAYOUTS[name]); }
   // 响应式:按牌桌容器宽度切 wide(电脑/平板宽布局),横屏矮屏切 compact;同时给 --vh 兜底(DApp 钱包浏览器 100vh 不准)
-  function resizeGame(){ const g=$('jtGame'); if(!g)return; try{document.documentElement.style.setProperty('--vh',(window.innerHeight*0.01)+'px');}catch(e){} const w=g.getBoundingClientRect().width; const compact=window.innerWidth>window.innerHeight&&window.innerHeight<=550; g.classList.toggle('wide', w>620&&!compact); g.classList.toggle('compact', compact); }
+  function resizeGame(){ const g=$('jtGame'); if(!g)return; try{document.documentElement.style.setProperty('--vh',(window.innerHeight*0.01)+'px');}catch(e){} const w=g.getBoundingClientRect().width; let landscape=false; try{ landscape = window.matchMedia ? matchMedia('(orientation:landscape)').matches : (window.innerWidth>window.innerHeight); }catch(e){ landscape=window.innerWidth>window.innerHeight; } const compact = landscape && window.innerHeight<=550; g.classList.toggle('wide', w>620&&!compact); g.classList.toggle('compact', compact); }
+  function resizeSoon(){ resizeGame(); setTimeout(resizeGame,80); setTimeout(resizeGame,350); setTimeout(resizeGame,900); } // DApp浏览器视口常晚settle,多补几次防布局误判
 
   // ---- 工具 ----
   const short=a=>a?a.slice(0,6)+'…'+a.slice(-4):'';
@@ -560,7 +561,7 @@
     const mApp=$('mApp'); if(mApp) mApp.hidden=(view!=='lobby'); // 手机:大厅显示App壳,进桌隐藏(露出绿呢牌桌)
     document.querySelectorAll('#mNav button').forEach(b=>b.classList.toggle('active', b.dataset.mtab==='lobby' && view==='lobby'));
     if(view==='lobby'){ if(authed)wsend({t:'listTables'}); renderRooms(); }
-    else { applyLayout(); resizeGame(); setTimeout(resizeGame,60); }
+    else { applyLayout(); resizeSoon(); }
     if(location.hash!=='#'+view)history.replaceState(null,'','#'+view);
   }
 
@@ -672,10 +673,11 @@
   try{ const L=localStorage.getItem('ap_layout'); if(L&&LAYOUTS[L])tableLayout=L; }catch(e){} // 牌桌布局,默认01经典环桌
   applyLayout();
   window.addEventListener('resize',resizeGame);
-  window.addEventListener('orientationchange',()=>setTimeout(resizeGame,120));
+  window.addEventListener('orientationchange',resizeSoon);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden)resizeSoon(); });
   if(window.visualViewport)window.visualViewport.addEventListener('resize',resizeGame);
   try{ if(typeof ResizeObserver!=='undefined'){ const tv=$('tableView'); if(tv)new ResizeObserver(resizeGame).observe(tv); } }catch(e){}
-  resizeGame();
+  resizeSoon();
   updateSound();
   if(bgmOn){ const once=()=>{ startBGM(); document.removeEventListener('pointerdown',once); }; document.addEventListener('pointerdown',once,{once:true}); } // 首次点击后启动背景乐
   setView('lobby'); // 通过链接进入一律默认到大厅,让用户挑桌/开桌

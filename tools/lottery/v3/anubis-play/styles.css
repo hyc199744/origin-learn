@@ -582,14 +582,14 @@ body.force-landscape .felt-watermark{opacity:.5}
 .jt-game .brand b{color:var(--gold);font-weight:700}
 .jt-game .brand small{display:block;font-size:8px;letter-spacing:3.4px;color:var(--muted);margin-top:5px}
 .jt-game{height:max(620px,calc(100dvh - 178px));min-height:600px;display:grid;grid-template-rows:56px 38px minmax(290px,1fr) auto;position:relative;isolation:isolate;background:radial-gradient(ellipse at 50% 42%,#173c2a 0%,#0b2119 60%,#0a1b16 100%);--card-w:61px;--opp-w:32px;--avatar:35px;--seat-width:94px}
-.jt-game-header{display:flex;align-items:center;gap:9px;padding:0 12px;border-bottom:1px solid #c5b6821a;background:linear-gradient(90deg,#0a1c17,#10291f);z-index:3}
-.jt-game-header .brand{gap:7px;flex:1;min-width:0}
-.jt-game-header .brand img{width:29px;height:29px}
-.jt-game-header .brand strong{font-size:12px;letter-spacing:1.6px}
-.jt-game-header .brand small{font-size:6px;letter-spacing:2.5px;margin-top:3px}
+.jt-game .game-header{display:flex;align-items:center;gap:9px;padding:0 12px;border-bottom:1px solid #c5b6821a;background:linear-gradient(90deg,#0a1c17,#10291f);z-index:3}
+.jt-game .game-header .brand{gap:7px;flex:1;min-width:0}
+.jt-game .game-header .brand img{width:29px;height:29px}
+.jt-game .game-header .brand strong{font-size:12px;letter-spacing:1.6px}
+.jt-game .game-header .brand small{font-size:6px;letter-spacing:2.5px;margin-top:3px}
 .jt-game .icon-btn{display:inline-flex;align-items:center;justify-content:center;flex:none;background:#ffffff04;color:#c4d1bd;min-width:44px;min-height:44px;border-radius:50%;padding:0}
 .jt-game .icon-btn:hover{background:#dcc58d12}
-.jt-game-header .header-buttons{display:flex;gap:0}
+.jt-game .game-header .header-buttons{display:flex;gap:0}
 .jt-game .room-strip{display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:11px;letter-spacing:.3px;color:var(--muted)}
 .jt-game .room-strip strong{font-size:12px;color:var(--gold);font-weight:500}
 .jt-game .room-strip strong span{font-size:9px;letter-spacing:1px;color:#9ead9b;margin-left:8px}
@@ -751,8 +751,8 @@ own hand right. */
 .jt-game[data-layout=focus] .action.call{grid-column:2/4;grid-row:2}
 including the preview frames. */
 .jt-game.wide{--card-w:84px;--opp-w:44px;--avatar:46px;--seat-width:124px;grid-template-rows:62px 44px minmax(400px,1fr) auto}
-.jt-game.wide .jt-game-header{padding:0 24px}
-.jt-game.wide .jt-game-header .brand strong{font-size:14px}
+.jt-game.wide .jt-game .game-header{padding:0 24px}
+.jt-game.wide .jt-game .game-header .brand strong{font-size:14px}
 .jt-game.wide .room-strip{padding:0 32px;font-size:12px}
 .jt-game.wide .seat-name{font-size:12px}
 .jt-game.wide .seat-balance,.jt-game.wide .seat-status{font-size:10px}
@@ -797,7 +797,7 @@ including the preview frames. */
 .jt-game.wide[data-layout=focus] .action.call{grid-column:5/7;grid-row:1}
 /* Landscape: put the controls beside the table and keep safe areas clear. */
 .jt-game.compact{height:100%;min-height:290px;grid-template-columns:minmax(0,1fr) 200px;grid-template-rows:44px minmax(246px,1fr);--card-w:49px;--opp-w:25px;--avatar:26px;--seat-width:77px}
-.jt-game.compact .jt-game-header{grid-column:1/-1;padding:0 12px}
+.jt-game.compact .jt-game .game-header{grid-column:1/-1;padding:0 12px}
 .jt-game.compact .room-strip{display:none}
 .jt-game.compact .scene{grid-column:1;grid-row:2;min-height:246px}
 .jt-game.compact .action-dock{grid-column:2;grid-row:2;border-top:0;border-left:1px solid var(--line);padding:12px 10px 8px;display:flex;flex-direction:column;justify-content:center}
@@ -852,15 +852,15 @@ including the preview frames. */
 @media(max-width:760px){
 .jt-game{height:calc(var(--vh) * 100 - 60px);height:calc(100dvh - 60px);min-height:540px;grid-template-rows:50px 34px minmax(280px,1fr) auto}
 .jt-game .action-dock{position:sticky;bottom:0}
-.jt-game-header{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.jt-game .game-header{padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
 .jt-game.wide{min-height:700px}
 .jt-game[data-layout=split] .scene{min-height:330px}
 .jt-game[data-layout=split]{min-height:590px}
 }
 @media(max-width:359px){
 .jt-game{--card-w:53px;--opp-w:29px;--avatar:31px;--seat-width:84px}
-.jt-game-header .brand strong{font-size:11px}
-.jt-game-header .brand small{letter-spacing:1.9px}
+.jt-game .game-header .brand strong{font-size:11px}
+.jt-game .game-header .brand small{letter-spacing:1.9px}
 .jt-game .room-strip{padding:0 12px}
 .jt-game[data-layout=split] .seat{grid-template-columns:1fr 53px;--opp-w:24px;padding:5px;gap:1px}
 .jt-game[data-layout=split] .identity{gap:4px}
@@ -880,7 +880,7 @@ including the preview frames. */
 @media(max-height:690px) and (orientation:portrait){
 .jt-game{--card-w:52px;--opp-w:27px;--avatar:29px;grid-template-rows:44px 31px minmax(270px,1fr) auto;min-height:520px}
 .jt-game[data-layout=split]{min-height:570px}
-.jt-game-header .brand img{width:26px;height:26px}
+.jt-game .game-header .brand img{width:26px;height:26px}
 .jt-game .mini-hand{margin-top:4px}
 .jt-game .seat-status{font-size:8px}
 .jt-game .seat-name{font-size:9px}
