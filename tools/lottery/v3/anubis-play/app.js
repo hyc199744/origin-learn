@@ -7,10 +7,15 @@
   const icon=name=>`<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  // ---- 配置(与 zhajinhua-live 一致的真实环境) ----
-  const WSS="wss://zjgame.web3origin.com";
-  const CONTRACT="0x76C17ECb3ff0a5E9c6eC99D98Fa7EB55a31Cd7A2"; // 当前为测试合约,正式上线会替换
-  const LGNS="0x4D1D808a081FdAc440703b3765FC61f8028C06B8";
+  // ---- 多池配置:LGNS池 + DAI池,各自独立后端(WSS)/合约/代币/小数/档位。均为测试合约,正式上线会替换 ----
+  const TOKENS={
+    lgns:{ key:'lgns', label:'LGNS', sym:'LGNS', wss:'wss://zjgame.web3origin.com',     contract:'0x76C17ECb3ff0a5E9c6eC99D98Fa7EB55a31Cd7A2', token:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8', dec:9,  tiers:[10,50,100] },
+    dai: { key:'dai',  label:'DAI',  sym:'DAI',  wss:'wss://zjgame.web3origin.com/dai', contract:'0x7802E7fdE7Cb8e964260769E2016F98f8Bb768b5', token:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14', dec:18, tiers:[1,5,10,50] }
+  };
+  let curToken='lgns'; try{ const _t=localStorage.getItem('ap_token'); if(_t&&TOKENS[_t])curToken=_t; }catch(e){}
+  let WSS, CONTRACT, LGNS, DEC, SYM, TIERS;
+  function applyToken(){ const c=TOKENS[curToken]; WSS=c.wss; CONTRACT=c.contract; LGNS=c.token; DEC=c.dec; SYM=c.sym; TIERS=c.tiers; }
+  applyToken();
   const APPROVE_AMT=(2n**256n-1n); // 无限授权(MaxUint256):标准ERC20对其不扣减额度→一次授权永不再弹
   const ZERO='0x0000000000000000000000000000000000000000';
   const ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:'https://rpc.anubispace.org',exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
@@ -40,7 +45,8 @@
 
   // ---- 工具 ----
   const short=a=>a?a.slice(0,6)+'…'+a.slice(-4):'';
-  const e9=v=>Number(BigInt(v))/1e9;
+  const e9=v=>Number(BigInt(v))/Math.pow(10,DEC);   // 按当前池代币小数位换算显示(名字沿用e9,实为e^DEC)
+  const toBase=n=>BigInt(n)*(10n**BigInt(DEC));      // 人类档位(整数)→基础单位
   const fmt=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:3});
   const nz=a=>a&&a.toLowerCase()!==ZERO;
   function toast(t){clearTimeout(toastTimer);const el=$('toast');el.textContent=t;el.classList.add('show');toastTimer=setTimeout(()=>el.classList.remove('show'),3600);}
@@ -102,7 +108,7 @@
   async function refreshBalances(){
     if(!myAddr)return;
     try{const b=await rcall(LGNS,SEL.bal+encA(myAddr)); const v=e9(BigInt('0x'+(b||'0'))); myBalNum=v; balFetched=true; myBalStr=fmt(v); const e=$('jtBal'); if(e)e.textContent=myBalStr;}catch(e){}
-    try{const wd=await rcall(CONTRACT,SEL.wd+encA(myAddr)); const v=e9(BigInt('0x'+(wd||'0'))); myClaimStr=fmt(v)+' LGNS'; myClaimPos=v>0;}catch(e){}
+    try{const wd=await rcall(CONTRACT,SEL.wd+encA(myAddr)); const v=e9(BigInt('0x'+(wd||'0'))); myClaimStr=fmt(v)+' '+SYM; myClaimPos=v>0;}catch(e){}
   }
   async function checkAuth(){
     if(!myAddr||!delegate){authorized=false;return;}
@@ -138,6 +144,24 @@
   }
   function setNet(ok){ const el=document.querySelector('.network'); if(el)el.classList.toggle('offline',!ok); }
   function wsend(o){try{ws.send(JSON.stringify(o));}catch(e){}}
+  // ---- 多池切换(LGNS/DAI)+档位筛选条,按当前池动态生成 ----
+  function poolBtns(activeCls){ return Object.values(TOKENS).map(t=>'<button class="'+(curToken===t.key?activeCls:'')+'" data-pool="'+t.key+'">'+t.label+' 池</button>').join(''); }
+  function tierBtns(attr,activeCls){ return '<button class="'+(filter==='all'?activeCls:'')+'" '+attr+'="all">全部</button>'+TIERS.map(n=>'<button class="'+(String(filter)===String(n)?activeCls:'')+'" '+attr+'="'+n+'">'+n+' '+SYM+'</button>').join(''); }
+  function renderLobbyBars(){ const ps=$('poolSwitch'); if(ps)ps.innerHTML=poolBtns('selected'); const mps=$('mPoolSwitch'); if(mps)mps.innerHTML=poolBtns('active'); const f=$('filters'); if(f)f.innerHTML=tierBtns('data-filter','selected'); const mf=$('mFilters'); if(mf)mf.innerHTML=tierBtns('data-mfilter','active'); }
+  function setPool(key){
+    if(!TOKENS[key]||key===curToken)return;
+    curToken=key; try{localStorage.setItem('ap_token',key);}catch(e){} applyToken();
+    filter='all';
+    authed=false; delegate=null; authorized=false; authInProgress=false;
+    myBalStr='—'; myBalNum=0; balFetched=false;
+    try{ if(ws){ ws.onclose=null; ws.close(); } }catch(e){}   // 断开旧池,避免旧连接自动重连
+    renderLobbyBars();
+    backToLobby(true);          // 回大厅并清当前对局态(内部会 setView lobby)
+    renderRooms([]);            // 先清空旧池房间列表,等新池 authed 后重列
+    connectWS();                // 连新池:challenge→签名→authed→自动 listTables+余额
+    if($('modal').open)showWallet();
+    toast('已切到 '+SYM+' 池');
+  }
   async function onMsg(m){
     if(m.t==='challenge'){ const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig}); }
     else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth().then(maybeAutoAuthorize); if(curHand)wsend({t:'subscribe',handId:curHand}); }
@@ -148,7 +172,7 @@
     else if(m.t==='tables'){ renderRooms(m.tables); }
     else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
       wsend({t:'subscribe',handId:curHand}); toast(m.private?('🔒 私密牌桌已开！房号 #'+m.handId+' —— 大厅看不到这桌，把房号发给朋友，他输房号才能进；你点「准备」交底注开始'):('✅ 开桌成功！房号 #'+m.handId+' —— 把这个号发给朋友，他输房号进同一桌；你点「准备」交底注开始')); // 进桌旁观,点准备才交底注
-      state={handId:String(m.handId),phase:1,ante:(BigInt(newAnte)*1000000000n).toString(),maxPlayers:newCount,nPlayers:0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
+      state={handId:String(m.handId),phase:1,ante:toBase(newAnte).toString(),maxPlayers:newCount,nPlayers:0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
       enterTable(); try{ render(); }catch(e){} }
     else if(m.t==='joined'){ logAct('你已入座'); }
     else if(m.t==='left'){ toast('已退座，底注退回可领取'); backToLobby(true); }
@@ -200,7 +224,7 @@
     if(p.placeholder) return `<div class="player-seat seat-${slot} folded" aria-label="空位"><div class="avatar-wrap"><div class="avatar" aria-hidden="true">+</div></div><div class="player-info"><span class="player-name">空位</span><span class="player-balance">等待加入</span></div><span class="seat-status">等待加入</span></div>`;
     const cls=`player-seat seat-${slot}${p.folded?' folded':''}${p.isTurn?' current':''}${p.winner?' winner':''}`;
     const mini=p.isMe?'':`<div class="seat-cards" aria-hidden="true"><i class="mini-card"></i><i class="mini-card"></i><i class="mini-card"></i></div>`;
-    return `<div class="${cls}" aria-label="${p.isMe?'你':esc(p.name)}，${esc(p.status)}"><div class="avatar-wrap">${avatarHTML(p)}</div><div class="player-info"><span class="player-name">${p.isMe?'我':esc(p.name)}${p.isMe?'<small class="you-badge">YOU</small>':''}</span><span class="player-balance">投入 ${fmt(e9(p.contributed))} <small>LGNS</small></span></div>${mini}<span class="seat-status">${esc(p.status)}</span></div>`;
+    return `<div class="${cls}" aria-label="${p.isMe?'你':esc(p.name)}，${esc(p.status)}"><div class="avatar-wrap">${avatarHTML(p)}</div><div class="player-info"><span class="player-name">${p.isMe?'我':esc(p.name)}${p.isMe?'<small class="you-badge">YOU</small>':''}</span><span class="player-balance">投入 ${fmt(e9(p.contributed))} <small>${SYM}</small></span></div>${mini}<span class="seat-status">${esc(p.status)}</span></div>`;
   }
   function buildPlayers(){
     // 把"我"排到首位(座位0=底部),其余按链上顺序
@@ -233,7 +257,7 @@
       av.appendChild(avSvg); av.appendChild(avTxt); aw.appendChild(av);
       const info=document.createElement('div'); info.className='player-info';
       const nm=document.createElement('span'); nm.className='player-name'; const nmText=document.createTextNode(''); const badge=document.createElement('small'); badge.className='you-badge'; badge.textContent='YOU'; badge.style.display='none'; nm.appendChild(nmText); nm.appendChild(badge);
-      const bal=document.createElement('span'); bal.className='player-balance'; const balText=document.createTextNode(''); const balSmall=document.createElement('small'); balSmall.textContent='LGNS'; bal.appendChild(balText); bal.appendChild(balSmall);
+      const bal=document.createElement('span'); bal.className='player-balance'; const balText=document.createTextNode(''); const balSmall=document.createElement('small'); balSmall.textContent=SYM; bal.appendChild(balText); bal.appendChild(balSmall);
       info.appendChild(nm); info.appendChild(bal);
       const sc=document.createElement('div'); sc.className='seat-cards'; sc.setAttribute('aria-hidden','true'); for(let k=0;k<3;k++){const mc=document.createElement('i');mc.className='mini-card';sc.appendChild(mc);}
       const st=document.createElement('span'); st.className='seat-status';
@@ -297,11 +321,11 @@
     const cost=looked?curBet*2:curBet;
     const ended=phase>=3;
     $('jtRoomName').textContent='牌桌 #'+state.handId;
-    $('jtRoomSub').textContent=fmt(ante)+' LGNS 底注 · '+state.nPlayers+'/'+state.maxPlayers+' 人';
+    $('jtRoomSub').textContent=fmt(ante)+' '+SYM+' 底注 · '+state.nPlayers+'/'+state.maxPlayers+' 人';
     const PH={1:'等待入座',2:'对局进行中',3:'摊牌结算',4:'本局结束',5:'已退款'};
     $('jtPill').textContent=PH[phase]||'';
     $('jtPot').textContent=fmt(pot);
-    $('jtBet').textContent='当前单注 '+fmt(curBet)+' LGNS';
+    $('jtBet').textContent='当前单注 '+fmt(curBet)+' '+SYM;
     $('jtMeName').textContent=(myNick||'我');
     { const meAv=$('jtMeAv'); if(meAv){ const a=myAddr&&avatarCache[myAddr.toLowerCase()]; const lt=esc(myNick?[...myNick][0]:(myAddr?myAddr.slice(2,3).toUpperCase():'我')); meAv.innerHTML=a?('<img src="'+a+'" alt="" style="width:100%;height:100%;object-fit:cover">'):lt; } }
     $('jtOwnStack').textContent=fmt(me?e9(me.contributed):0);
@@ -364,12 +388,12 @@
     if(ended){ acts.hidden=true; $('jtTurnMain').textContent='本局已结算'; $('jtTurnHint').textContent='第 '+state.handId+' 局'; $('jtTimer').textContent='–'; return; }
     if(endBox)endBox.hidden=true;
     acts.hidden=false;
-    $('jtCallAmt').textContent=fmt(cost)+' LGNS';
+    $('jtCallAmt').textContent=fmt(cost)+' '+SYM;
     const myTurn=!comparing&&mi>=0&&state.turnAddr&&isMe(state.turnAddr)&&me&&!me.folded;
     gtTick();
     if(pending){ ['jtFold','jtPeek','jtRaise','jtCompare','jtCall'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); $('jtTurnMain').textContent='处理中…'; return; }
     if(comparing){ $('jtTurnMain').textContent='比牌裁决中'; $('jtTurnHint').textContent='马上出结果'; }
-    else if(myTurn){ $('jtTurnMain').textContent='轮到你行动'; $('jtTurnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' LGNS'; }
+    else if(myTurn){ $('jtTurnMain').textContent='轮到你行动'; $('jtTurnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' '+SYM; }
     else if(mi<0){ $('jtTurnMain').textContent='观战中'; $('jtTurnHint').textContent='本局结束后点「继续下一局」即可加入'; }
     else if(me&&me.folded){ $('jtTurnMain').textContent='已弃牌'; $('jtTurnHint').textContent='等待本局结束'; }
     else { $('jtTurnMain').textContent='其他玩家行动中'; $('jtTurnHint').textContent='轮到 '+nameOf(state.turnAddr); }
@@ -378,7 +402,7 @@
     const poor = myTurn && balFetched && myBalNum < cost; // 筹码不够跟注
     $('jtFold').disabled=dis; $('jtPeek').disabled=dis||looked; $('jtPeekSmall').textContent=looked?'已看牌':'看牌';
     $('jtRaise').disabled=dis||poor; $('jtCompare').disabled=dis||state.nActive<2||poor; $('jtCall').disabled=dis||poor;
-    if(poor){ $('jtTurnMain').textContent='筹码不足'; $('jtTurnHint').textContent='余额 '+fmt(myBalNum)+' < 需跟 '+fmt(cost)+' LGNS，只能弃牌；想继续先充 LGNS'; }
+    if(poor){ $('jtTurnMain').textContent='筹码不足'; $('jtTurnHint').textContent='余额 '+fmt(myBalNum)+' < 需跟 '+fmt(cost)+' '+SYM+'，只能弃牌；想继续先充 '+SYM; }
     else if(picking&&myTurn){ $('jtTurnHint').textContent='点一个对手比牌，或再次点比牌取消'; }
   }
   function animateDeal(){ playSound('card'); const c=$('jtCards'); if(c){ c.classList.remove('deal'); void c.offsetWidth; c.classList.add('deal'); } }
@@ -394,7 +418,7 @@
     render();
     var anteV=state?fmt(e9(state.ante)):'';
     const box=$('jtEndBox');
-    if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout):'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' LGNS':''); }
+    if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' '+SYM+'，赢家拿 '+fmt(payout):'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' '+SYM:''); }
     if(iWon)playSound('win');
     message(iWon?'好牌！你赢得了本局':'本局已结束');
     // 记录(本地,真实观测):详细版
@@ -420,7 +444,7 @@
       pot:fmt(pot)
     });
     results=results.slice(0,50); saveResults();
-    logAct((iWon?'你赢得':short(winAddr)+' 赢得')+'底池 '+fmt(pot)+' LGNS');
+    logAct((iWon?'你赢得':short(winAddr)+' 赢得')+'底池 '+fmt(pot)+' '+SYM);
     refreshBalances();
   }
 
@@ -435,7 +459,7 @@
     grid.innerHTML=list.map(r=>{
       const ante=fmt(e9(r.ante)), n=r.nPlayers||0, full=n>=r.maxPlayers;
       const name=(e9(r.ante)>=100?'大师':e9(r.ante)>=50?'进阶':'经典')+'场 · '+String(r.handId).padStart(2,'0');
-      return `<article class="room-card"><div class="room-card-head"><span>${esc(name)}</span><span class="room-pill ${full?'busy':''}">${full?'已满':'等待加入'}</span></div><div class="room-ante"><strong>${ante}</strong><span>LGNS</span></div><div class="room-caption">底注 / 每人每局</div><div class="room-divider"></div><div class="room-bottom"><div class="room-players">${icon('users')}${n} / ${r.maxPlayers} 已入座</div><button class="join-button" data-join="${r.handId}" ${full?'disabled':''}>${full?'本桌已满':'加入牌桌'}</button></div><div class="room-sub">真人对战 · ${r.maxPlayers} 人桌 · 押真 LGNS</div></article>`;
+      return `<article class="room-card"><div class="room-card-head"><span>${esc(name)}</span><span class="room-pill ${full?'busy':''}">${full?'已满':'等待加入'}</span></div><div class="room-ante"><strong>${ante}</strong><span>${SYM}</span></div><div class="room-caption">底注 / 每人每局</div><div class="room-divider"></div><div class="room-bottom"><div class="room-players">${icon('users')}${n} / ${r.maxPlayers} 已入座</div><button class="join-button" data-join="${r.handId}" ${full?'disabled':''}>${full?'本桌已满':'加入牌桌'}</button></div><div class="room-sub">真人对战 · ${r.maxPlayers} 人桌 · 押真 ${SYM}</div></article>`;
     }).join('');
   }
   function mFaces(n,mx){ const suits=['♠','♦','♣','♥']; let s=''; const show=Math.min(mx,4); for(let i=0;i<show;i++){ s+= i<n? '<i>'+suits[i]+'</i>' : '<i class="empty">+</i>'; } return s; }
@@ -446,11 +470,11 @@
       const ante=fmt(e9(r.ante)), n=r.nPlayers||0, mx=r.maxPlayers, full=n>=mx, av=e9(r.ante), id=r.handId;
       const name=(av>=100?'大师':av>=50?'进阶':'经典')+'场';
       if(i===0 && filter==='all'){
-        return '<div class="m-featured"><div class="m-rowflex"><span class="m-fav">✦ 人气推荐</span><span style="font-size:10px;color:#a6c8a8">● '+(full?'已满':'等待加入')+'</span></div><div class="m-rowflex" style="margin-top:1px"><div><h4>'+esc(name)+' <span style="color:#92aa95;font-size:12px;font-weight:400">#'+esc(String(id))+'</span></h4><p class="fp">'+mx+' 人桌 · 押真 LGNS</p></div><div class="m-fprice"><strong>'+ante+'</strong><small>LGNS</small></div></div><div class="m-featbottom"><div class="m-bubble"><div class="m-faces">'+mFaces(n,mx)+'</div><span>'+n+'/'+mx+' 已入座</span></div><button class="m-joinbtn" data-join="'+id+'" '+(full?'disabled':'')+'>'+(full?'已满':'加入牌桌 →')+'</button></div></div>';
+        return '<div class="m-featured"><div class="m-rowflex"><span class="m-fav">✦ 人气推荐</span><span style="font-size:10px;color:#a6c8a8">● '+(full?'已满':'等待加入')+'</span></div><div class="m-rowflex" style="margin-top:1px"><div><h4>'+esc(name)+' <span style="color:#92aa95;font-size:12px;font-weight:400">#'+esc(String(id))+'</span></h4><p class="fp">'+mx+' 人桌 · 押真 '+SYM+'</p></div><div class="m-fprice"><strong>'+ante+'</strong><small>'+SYM+'</small></div></div><div class="m-featbottom"><div class="m-bubble"><div class="m-faces">'+mFaces(n,mx)+'</div><span>'+n+'/'+mx+' 已入座</span></div><button class="m-joinbtn" data-join="'+id+'" '+(full?'disabled':'')+'>'+(full?'已满':'加入牌桌 →')+'</button></div></div>';
       }
       const mark=av>=100?'♣':av>=50?'♥':'♠', mcls=av>=100?'blue':av>=50?'red':'';
       const dots=Array.from({length:mx},(_,j)=>'<b class="'+(j<n?'on':'')+'"></b>').join('');
-      return '<article class="m-room"><div class="m-rmark '+mcls+'">'+mark+'</div><div><h4>'+esc(name)+' <span style="font-size:12px;color:#637e69">#'+esc(String(id))+'</span>'+(!full?'<i>● 有空位</i>':'')+'</h4><p>'+mx+' 人桌 · '+(full?'已满':'等待入座')+'</p><div class="m-miniseats"><span class="m-dots">'+dots+'</span>'+n+' / '+mx+' 人</div></div><div class="m-side"><strong>'+ante+'</strong><small>LGNS 底注</small><button data-join="'+id+'" '+(full?'disabled':'')+'>'+(full?'已满':'加入 →')+'</button></div></article>';
+      return '<article class="m-room"><div class="m-rmark '+mcls+'">'+mark+'</div><div><h4>'+esc(name)+' <span style="font-size:12px;color:#637e69">#'+esc(String(id))+'</span>'+(!full?'<i>● 有空位</i>':'')+'</h4><p>'+mx+' 人桌 · '+(full?'已满':'等待入座')+'</p><div class="m-miniseats"><span class="m-dots">'+dots+'</span>'+n+' / '+mx+' 人</div></div><div class="m-side"><strong>'+ante+'</strong><small>'+SYM+' 底注</small><button data-join="'+id+'" '+(full?'disabled':'')+'>'+(full?'已满':'加入 →')+'</button></div></article>';
     }).join('');
   }
   function syncFilters(){
@@ -486,7 +510,7 @@
   async function doCreate(){
     if(!myAddr){ await connect(); if(!myAddr)return; }
     if(!authorized){ closeModal(); await doAuthorize(); if(!authorized)return; }
-    const ante=(BigInt(newAnte)*1000000000n).toString();
+    const ante=toBase(newAnte).toString();
     wsend({t:'createTable',ante,maxPlayers:newCount,private:newPrivate}); closeModal(); toast('开桌中…');
   }
 
@@ -558,23 +582,23 @@
        <div class="tier-options" role="group" aria-label="牌桌布局">${Object.keys(LAYOUTS).map(k=>`<button class="tier-button ${tableLayout===k?'selected':''}" data-tlayout="${k}" aria-pressed="${tableLayout===k}"><strong>${LAYOUTS[k].slice(0,2)}</strong><span>${LAYOUTS[k].slice(3)}</span></button>`).join('')}</div>`;
     openModal('我的', avatarSet + (connected?
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
-       <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${myBalStr} <small>LGNS</small></strong><button class="small-button" data-action="refresh-bal" aria-label="刷新余额">↻ 刷新</button></div>`
-      :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 LGNS 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
+       <div class="wallet-row"><span>${SYM} 余额</span><strong id="mw_bal">${myBalStr} <small>${SYM}</small></strong><button class="small-button" data-action="refresh-bal" aria-label="刷新余额">↻ 刷新</button></div>`
+      :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 ${SYM} 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
       + nickSet
       + layoutSet
       + soundSet,
       'MY ACCOUNT');
   }
   function openCreate(){
-    newAnte=10;newCount=6;newPrivate=false;
+    newAnte=TIERS[0];newCount=6;newPrivate=false;
     openModal('创建你的牌桌',
-      `<label class="form-label">选择底注</label><div class="tier-options" role="group" aria-label="选择底注">${[10,50,100].map(n=>`<button class="tier-button ${newAnte===n?'selected':''}" data-ante="${n}" aria-pressed="${newAnte===n}"><strong>${n}</strong><span>LGNS</span></button>`).join('')}</div>
+      `<label class="form-label">选择底注（${SYM} 池）</label><div class="tier-options" role="group" aria-label="选择底注">${TIERS.map(n=>`<button class="tier-button ${newAnte===n?'selected':''}" data-ante="${n}" aria-pressed="${newAnte===n}"><strong>${n}</strong><span>${SYM}</span></button>`).join('')}</div>
        <label class="form-label">牌桌人数（最多 6 人/局）</label><div class="tier-options" role="group" aria-label="牌桌人数">${[2,3,4,5,6].map(n=>`<button type="button" class="tier-button ${newCount===n?'selected':''}" data-seats="${n}" aria-pressed="${newCount===n}"><strong>${n}</strong><span>人</span></button>`).join('')}</div>
        <label class="form-label">牌桌类型</label><div class="tier-options" role="group" aria-label="牌桌类型">
          <button type="button" class="tier-button ${!newPrivate?'selected':''}" data-priv="0" aria-pressed="${!newPrivate}"><strong>公开</strong><span>大厅可见</span></button>
          <button type="button" class="tier-button ${newPrivate?'selected':''}" data-priv="1" aria-pressed="${newPrivate}"><strong>私密</strong><span>仅凭房号进</span></button>
        </div>
-       <div class="form-note" id="privNote">${newPrivate?'私密牌桌不显示在大厅，只有拿到房号的人才能进。开桌后把房号发给朋友即可。':'开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 LGNS。'}</div>
+       <div class="form-note" id="privNote">${newPrivate?'私密牌桌不显示在大厅，只有拿到房号的人才能进。开桌后把房号发给朋友即可。':'开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 '+SYM+'。'}</div>
        <button class="gold-button" data-action="create-confirm">${icon('plus')}创建并进入牌桌</button>`,'CREATE A TABLE');
   }
   function openCompare(){
@@ -610,7 +634,7 @@
        <li>轮到你可比牌：挑一个对手单挑，输的出局；牌力相同发起方出局。</li>
        <li>打到只剩 1 人或摊牌结算，赢家拿底池（扣 3% 手续费）。一局结束自动开下一局。</li>
        <li>A23 为最小顺子；花色不分大小。</li></ol>
-       <div class="rules-foot">牌序由合约种子 + 区块哈希决定，后端按权威结果发牌，每局种子上链公开可事后核验。押真 LGNS，理性参与。</div>`,'HOW TO PLAY');
+       <div class="rules-foot">牌序由合约种子 + 区块哈希决定，后端按权威结果发牌，每局种子上链公开可事后核验。押真 ${SYM}，理性参与。</div>`,'HOW TO PLAY');
   }
   function showRecords(){
     const cardChips=arr=>(arr&&arr.length)?arr.map(cs=>{const red=cs.includes('♥')||cs.includes('♦');return '<span style="display:inline-block;min-width:26px;text-align:center;background:#fffdf0;color:'+(red?'#b9383c':'#23292a')+';border-radius:4px;padding:2px 5px;margin-right:4px;font-family:Georgia,serif;font-weight:700;font-size:13px">'+esc(cs)+'</span>';}).join(''):'<span style="color:#8b9b8e">未亮牌</span>';
@@ -690,12 +714,13 @@
     const b=e.target.closest('button,a[data-view]'); if(!b||b.disabled)return;
     try{
       if(b.dataset.view){ if(b.classList.contains('back-button')){backToLobby();}else setView(b.dataset.view); return; }
+      if(b.dataset.pool){ setPool(b.dataset.pool); return; }
       if(b.dataset.filter){ filter=b.dataset.filter; syncFilters(); renderRooms(); return; }
       if(b.dataset.mfilter){ filter=b.dataset.mfilter; syncFilters(); renderRooms(); return; }
       if(b.dataset.mtab){ const t=b.dataset.mtab; if(t==='lobby')setView('lobby'); else if(t==='mytable'){ if(curHand)setView('table'); else toast('你还没入座牌桌，去大厅选一桌'); } else if(t==='records')showRecords(); else if(t==='account')showWallet(); return; }
       if(b.dataset.ante){ newAnte=Number(b.dataset.ante); document.querySelectorAll('[data-ante]').forEach(el=>{const s=Number(el.dataset.ante)===newAnte;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
       if(b.dataset.seats){ newCount=Number(b.dataset.seats); document.querySelectorAll('[data-seats]').forEach(el=>{const s=Number(el.dataset.seats)===newCount;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
-      if(b.dataset.priv!==undefined){ newPrivate=b.dataset.priv==='1'; document.querySelectorAll('[data-priv]').forEach(el=>{const s=(el.dataset.priv==='1')===newPrivate;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); const n=$('privNote'); if(n)n.textContent=newPrivate?'私密牌桌不显示在大厅，只有拿到房号的人才能进。开桌后把房号发给朋友即可。':'开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 LGNS。'; return; }
+      if(b.dataset.priv!==undefined){ newPrivate=b.dataset.priv==='1'; document.querySelectorAll('[data-priv]').forEach(el=>{const s=(el.dataset.priv==='1')===newPrivate;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); const n=$('privNote'); if(n)n.textContent=newPrivate?'私密牌桌不显示在大厅，只有拿到房号的人才能进。开桌后把房号发给朋友即可。':'开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 '+SYM+'。'; return; }
       if(b.dataset.tlayout){ setTableLayout(b.dataset.tlayout); return; }
       if(b.dataset.join){ joinRoom(b.dataset.join); return; }
       if(b.dataset.compare){ doCompare(b.dataset.compare); return; }
@@ -753,6 +778,7 @@
   resizeSoon();
   updateSound();
   if(bgmOn){ const once=()=>{ startBGM(); document.removeEventListener('pointerdown',once); }; document.addEventListener('pointerdown',once,{once:true}); } // 首次点击后启动背景乐
+  renderLobbyBars(); // 生成币种池切换(LGNS/DAI)+当前池档位筛选条
   setView('lobby'); // 通过链接进入一律默认到大厅,让用户挑桌/开桌
   renderRooms();
   if(window.ethereum&&window.ethereum.selectedAddress){ connect(); }
