@@ -47,6 +47,10 @@
   const e9=v=>Number(BigInt(v))/Math.pow(10,DEC);   // 按当前池代币小数位换算显示(名字沿用e9,实为e^DEC)
   const toBase=n=>BigInt(n)*(10n**BigInt(DEC));      // 人类档位(整数)→基础单位
   const fmt=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:3});
+  // 房间档位名/标记:按当前池档位相对定(最高档=大师,最低=经典,中间=进阶)
+  const tierName=av=>{const mx=TIERS[TIERS.length-1],mn=TIERS[0];return av>=mx?'大师':(av<=mn?'经典':'进阶');};
+  const tierMark=av=>{const mx=TIERS[TIERS.length-1],mn=TIERS[0];return av>=mx?'♣':(av<=mn?'♠':'♥');};
+  const tierCls=av=>{const mx=TIERS[TIERS.length-1],mn=TIERS[0];return av>=mx?'blue':(av<=mn?'':'red');};
   const nz=a=>a&&a.toLowerCase()!==ZERO;
   function toast(t){clearTimeout(toastTimer);const el=$('toast');el.textContent=t;el.classList.add('show');toastTimer=setTimeout(()=>el.classList.remove('show'),3600);}
   function message(t){ toast(t); } // 牌桌内提示改用 toast
@@ -392,7 +396,7 @@
     if(!list.length){ grid.innerHTML='<div class="room-empty" style="opacity:.7;padding:24px;text-align:center">暂无牌桌，点「创建我的牌桌」开一桌，或等别人开。</div>'; return; }
     grid.innerHTML=list.map(r=>{
       const ante=fmt(e9(r.ante)), n=r.nPlayers||0, full=n>=r.maxPlayers;
-      const name=(e9(r.ante)>=100?'大师':e9(r.ante)>=50?'进阶':'经典')+'场 · '+String(r.handId).padStart(2,'0');
+      const name=tierName(e9(r.ante))+'场 · '+String(r.handId).padStart(2,'0');
       return `<article class="room-card"><div class="room-card-head"><span>${esc(name)}</span><span class="room-pill ${full?'busy':''}">${full?'已满':'等待加入'}</span></div><div class="room-ante"><strong>${ante}</strong><span>${SYM}</span></div><div class="room-caption">底注 / 每人每局</div><div class="room-divider"></div><div class="room-bottom"><div class="room-players">${icon('users')}${n} / ${r.maxPlayers} 已入座</div><button class="join-button" data-join="${r.handId}" ${full?'disabled':''}>${full?'本桌已满':'加入牌桌'}</button></div><div class="room-sub">真人对战 · ${r.maxPlayers} 人桌 · 押真 ${SYM}</div></article>`;
     }).join('');
   }
@@ -402,11 +406,11 @@
     if(!list.length){ box.innerHTML='<div class="m-empty">暂无同档位牌桌。点上面「创建我的牌桌」开一桌，或等别人开。</div>'; return; }
     box.innerHTML=list.map((r,i)=>{
       const ante=fmt(e9(r.ante)), n=r.nPlayers||0, mx=r.maxPlayers, full=n>=mx, av=e9(r.ante), id=r.handId;
-      const name=(av>=100?'大师':av>=50?'进阶':'经典')+'场';
+      const name=tierName(av)+'场';
       if(i===0 && filter==='all'){
         return '<div class="m-featured"><div class="m-rowflex"><span class="m-fav">✦ 人气推荐</span><span style="font-size:10px;color:#a6c8a8">● '+(full?'已满':'等待加入')+'</span></div><div class="m-rowflex" style="margin-top:1px"><div><h4>'+esc(name)+' <span style="color:#92aa95;font-size:12px;font-weight:400">#'+esc(String(id))+'</span></h4><p class="fp">'+mx+' 人桌 · 押真 '+SYM+'</p></div><div class="m-fprice"><strong>'+ante+'</strong><small>'+SYM+'</small></div></div><div class="m-featbottom"><div class="m-bubble"><div class="m-faces">'+mFaces(n,mx)+'</div><span>'+n+'/'+mx+' 已入座</span></div><button class="m-joinbtn" data-join="'+id+'" '+(full?'disabled':'')+'>'+(full?'已满':'加入牌桌 →')+'</button></div></div>';
       }
-      const mark=av>=100?'♣':av>=50?'♥':'♠', mcls=av>=100?'blue':av>=50?'red':'';
+      const mark=tierMark(av), mcls=tierCls(av);
       const dots=Array.from({length:mx},(_,j)=>'<b class="'+(j<n?'on':'')+'"></b>').join('');
       return '<article class="m-room"><div class="m-rmark '+mcls+'">'+mark+'</div><div><h4>'+esc(name)+' <span style="font-size:12px;color:#637e69">#'+esc(String(id))+'</span>'+(!full?'<i>● 有空位</i>':'')+'</h4><p>'+mx+' 人桌 · '+(full?'已满':'等待入座')+'</p><div class="m-miniseats"><span class="m-dots">'+dots+'</span>'+n+' / '+mx+' 人</div></div><div class="m-side"><strong>'+ante+'</strong><small>'+SYM+' 底注</small><button data-join="'+id+'" '+(full?'disabled':'')+'>'+(full?'已满':'加入 →')+'</button></div></article>';
     }).join('');
