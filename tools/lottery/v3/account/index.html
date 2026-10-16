@@ -97,6 +97,13 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     </section>
 
     <section class="card">
+      <h2>炸金花<a href="../anubis-play/">进入游戏 →</a></h2>
+      <div class="eyebrow">我的币余额</div>
+      <div id="zjhAssets" class="tags"><span class="note">加载中…</span></div>
+      <div class="kv"><span class="k">金花对局次数</span><span class="v" id="zjhRounds">—</span></div>
+    </section>
+
+    <section class="card">
       <h2>邀请概况<a href="../invite/">去邀请页 →</a></h2>
       <div class="rstat">
         <div class="rs"><div class="n" id="stDirect">—</div><div class="l">直推</div></div>
@@ -203,7 +210,16 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     for(var k=0;k<txs.length;k++){txs[k].ts=await blkTime(txs[k].bn);}
     box.innerHTML=txs.map(function(x){return '<div class="txrow"><span class="l"><span class="pd" style="background:'+COL[POOLS.indexOf(x.P)]+'"></span>'+TR('买票')+' '+x.P.sym+' ×'+x.cnt+'</span><span style="display:flex;gap:10px;align-items:center"><span class="t">'+fmtTime(x.ts)+'</span><a href="https://browser.anubispace.org/tx/'+x.h+'" target="_blank" rel="noopener">'+short(x.h)+' ↗</a></span></div>';}).join('');
   }
-  function loadAll(){loadReferral();loadRecord();loadTx();}
+  async function loadZjh(){
+    var box=$('zjhAssets');if(!box||!myAddr)return;
+    var TOKS=[{s:'LGNS',c:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',d:9},{s:'DAI',c:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14',d:18},{s:'RM',c:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d',d:9},{s:'USDT',c:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e',d:6}];
+    var html='';
+    for(var i=0;i<TOKS.length;i++){var T=TOKS[i],b='-';try{var r=await ethCall(T.c,'70a08231'+encA(myAddr));b=fmt(BigInt('0x'+(r||'0')),T.d);}catch(e){b='-';}html+='<span class="gtag">'+T.s+'<span class="mono">'+b+'</span></span>';}
+    box.innerHTML=html;
+    var n=0;try{n=(JSON.parse(localStorage.getItem('anubisplay_results')||'[]')||[]).length;}catch(e){}
+    var el=$('zjhRounds');if(el)el.textContent=n;
+  }
+  function loadAll(){loadReferral();loadRecord();loadTx();loadZjh();}
   window.__loadAccount=loadAll;
   if(window.ethereum&&window.ethereum.request){window.ethereum.request({method:'eth_accounts'}).then(function(a){if(a&&a.length){myAddr=a[0];uiWallet();}}).catch(function(){});}
 })();
