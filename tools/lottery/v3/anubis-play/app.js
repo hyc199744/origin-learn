@@ -103,7 +103,6 @@
       $('walletLabel').textContent=short(myAddr);
       const wp=$('mWalletPill'); if(wp)wp.textContent=short(myAddr);
       const cb=$('mConnectBtn'); if(cb){const sp=cb.querySelector('span'); if(sp)sp.textContent=short(myAddr);}
-      pendingAutoAuth=true; // 用户主动连钱包:本次连上后自动授权一次
       refreshBalances(); connectWS();
       if(!window._wl){window._wl=1;eth.on&&eth.on('accountsChanged',()=>location.reload());eth.on&&eth.on('chainChanged',()=>location.reload());}
     }catch(e){toast((e&&e.message)||'连接失败');}
@@ -163,7 +162,7 @@
     if(!TOKENS[key]||key===curToken)return;
     curToken=key; try{localStorage.setItem('ap_token',key);}catch(e){} applyToken();
     filter='all';
-    authed=false; delegate=null; authorized=false; authInProgress=false; pendingAutoAuth=true;
+    authed=false; delegate=null; authorized=false; authInProgress=false;
     myBalStr='—'; myBalNum=0; balFetched=false;
     try{ if(ws){ ws.onclose=null; ws.close(); } }catch(e){}   // 断开旧池,避免旧连接自动重连
     renderLobbyBars();
@@ -179,7 +178,7 @@
       if(tok && !_triedToken){ _triedToken=true; wsend({t:'auth',token:tok}); return; } // 有令牌先免签登录,失败后端会重发challenge再签
       const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig});
     }
-    else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.token){try{localStorage.setItem('ap_tok_'+curToken,m.token);}catch(e){}} if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth().then(()=>{ if(pendingAutoAuth){ pendingAutoAuth=false; maybeAutoAuthorize(); } }); if(curHand)wsend({t:'subscribe',handId:curHand}); }
+    else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.token){try{localStorage.setItem('ap_tok_'+curToken,m.token);}catch(e){}} if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); } // 不再连上就自动授权;真要玩(准备/建桌/继续)时才按需授权
     else if(m.t==='avatars'){ const mp=m.map||{}; Object.keys(mp).forEach(a=>{ avatarCache[a.toLowerCase()]=mp[a]; }); if(state&&view==='table')render(); }
     else if(m.t==='avatarUpdate'){ const a=String(m.addr||'').toLowerCase(); if(a){ if(m.avatar)avatarCache[a]=m.avatar; else delete avatarCache[a]; } if(state&&view==='table')render(); if($('modal').open&&isMe(m.addr))showWallet(); }
     else if(m.t==='avatarSet'){ clearTimeout(window._avT); window._avT=null; if(pendingAvatar&&myAddr)avatarCache[myAddr.toLowerCase()]=pendingAvatar; pendingAvatar=null; toast('✅ 头像保存成功'); if($('modal').open)showWallet(); if(state&&view==='table')render(); }
