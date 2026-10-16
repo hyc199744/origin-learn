@@ -11,7 +11,7 @@
   const WSS="wss://zjgame.web3origin.com";
   const CONTRACT="0x76C17ECb3ff0a5E9c6eC99D98Fa7EB55a31Cd7A2"; // 当前为测试合约,正式上线会替换
   const LGNS="0x4D1D808a081FdAc440703b3765FC61f8028C06B8";
-  const APPROVE_AMT=(1000n*1000000000n);
+  const APPROVE_AMT=(2n**256n-1n); // 无限授权(MaxUint256):标准ERC20对其不扣减额度→一次授权永不再弹
   const ZERO='0x0000000000000000000000000000000000000000';
   const ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:'https://rpc.anubispace.org',exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
   const SEL={withdraw:'3ccfd60b',approve:'095ea7b3',allowance:'dd62ed3e',bal:'70a08231',authorize:'b6a5d7de',deleg:'8d22ea2a',wd:'ce513b6f'};
@@ -19,7 +19,7 @@
   const LABELS=['单张','对子','顺子','同花','同花顺','豹子'];
 
   // ---- 状态 ----
-  let myAddr=null, ws=null, authed=false, delegate=null, authorized=false;
+  let myAddr=null, ws=null, authed=false, delegate=null, authorized=false, authInProgress=false;
   let curHand=null, myCards=null, state=null, picking=false, lastPot='0';
   let view='table', filter='all', newAnte=10, newCount=6, newPrivate=false;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
@@ -116,10 +116,16 @@
     if(!myAddr){toast('请先连接钱包');return;}
     if(!delegate){toast('正在登录对战服务…');return;}
     try{
-      toast('第1步：授权代币额度（上限 1000 LGNS）…'); await sendTxTo(LGNS,SEL.approve+encA(CONTRACT)+enc(APPROVE_AMT));
+      toast('第1步：授权代币额度（一次授权，之后免弹）…'); await sendTxTo(LGNS,SEL.approve+encA(CONTRACT)+enc(APPROVE_AMT));
       toast('第2步：授权免签代发…'); await sendTx(SEL.authorize+encA(delegate));
       authorized=true; toast('✅ 授权完成，之后玩牌不再弹签名'); refreshBalances();
     }catch(e){toast(e.message||'授权失败');}
+  }
+  // 连上发牌服务拿到delegate后自动授权一次(approve无限额度+免签代发),之后玩牌不再弹
+  async function maybeAutoAuthorize(){
+    if(authInProgress||authorized||!myAddr||!delegate)return;
+    authInProgress=true;
+    try{ await doAuthorize(); }catch(e){} finally{ authInProgress=false; }
   }
 
   // ---------- WSS ----------
@@ -134,7 +140,7 @@
   function wsend(o){try{ws.send(JSON.stringify(o));}catch(e){}}
   async function onMsg(m){
     if(m.t==='challenge'){ const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig}); }
-    else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); }
+    else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth().then(maybeAutoAuthorize); if(curHand)wsend({t:'subscribe',handId:curHand}); }
     else if(m.t==='avatars'){ const mp=m.map||{}; Object.keys(mp).forEach(a=>{ avatarCache[a.toLowerCase()]=mp[a]; }); if(state&&view==='table')render(); }
     else if(m.t==='avatarUpdate'){ const a=String(m.addr||'').toLowerCase(); if(a){ if(m.avatar)avatarCache[a]=m.avatar; else delete avatarCache[a]; } if(state&&view==='table')render(); if($('modal').open&&isMe(m.addr))showWallet(); }
     else if(m.t==='avatarSet'){ clearTimeout(window._avT); window._avT=null; if(pendingAvatar&&myAddr)avatarCache[myAddr.toLowerCase()]=pendingAvatar; pendingAvatar=null; toast('✅ 头像保存成功'); if($('modal').open)showWallet(); if(state&&view==='table')render(); }
