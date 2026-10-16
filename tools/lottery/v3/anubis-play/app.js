@@ -104,7 +104,7 @@
       const wp=$('mWalletPill'); if(wp)wp.textContent=short(myAddr);
       const cb=$('mConnectBtn'); if(cb){const sp=cb.querySelector('span'); if(sp)sp.textContent=short(myAddr);}
       refreshBalances(); connectWS();
-      authorizeAll(); // 连钱包即把所有池授权一次做好(已做的跳过),以后玩牌不再弹
+      authorizeCurrent(); // 连钱包只授权当前池(2笔,已做的跳过);换池玩时再按需补签那池
       if(!window._wl){window._wl=1;eth.on&&eth.on('accountsChanged',()=>location.reload());eth.on&&eth.on('chainChanged',()=>location.reload());}
     }catch(e){toast((e&&e.message)||'连接失败');}
   }
@@ -137,23 +137,21 @@
       authorized=true; refreshBalances();
     }catch(e){toast(e.message||'授权失败');}
   }
-  // 连钱包时一次性把所有池(LGNS/DAI/RM/USDT)的授权都做好,以后玩哪个池都不再弹;已授权的自动跳过(重连不重弹)
-  async function authorizeAll(){
+  // 只授权"当前池"(approve额度+代发),连钱包时做一次;换别的池等真要玩时由doReady/doCreate/next按需补签。已授权的跳过(重连不重弹)
+  async function authorizeCurrent(){
     if(!myAddr||authInProgress)return;
+    const t=TOKENS[curToken];
     authInProgress=true;
     try{
       const need=[];
-      for(const t of Object.values(TOKENS)){
-        let okApprove=false, okDeleg=false;
-        try{ const al=BigInt('0x'+((await rcall(t.token,SEL.allowance+encA(myAddr)+encA(t.contract)))||'0')); okApprove=al>=(2n**255n); }catch(e){}
-        try{ const d=await rcall(t.contract,SEL.deleg+encA(myAddr)); okDeleg=(('0x'+d.slice(24)).toLowerCase()===t.delegate.toLowerCase()); }catch(e){}
-        if(!okApprove) need.push({to:t.token,   data:SEL.approve+encA(t.contract)+enc(APPROVE_AMT), label:t.sym+' 额度'});
-        if(!okDeleg)   need.push({to:t.contract,data:SEL.authorize+encA(t.delegate),               label:t.sym+' 代发'});
-      }
-      if(!need.length) return;
-      toast('一次性授权 '+need.length+' 项，请在钱包里逐个确认，之后玩牌不再弹');
-      for(const it of need){ try{ toast('授权：'+it.label+'…'); await sendTxTo(it.to,it.data); }catch(e){ /* 拒签某笔则跳过,以后玩到该池再补 */ } }
-      try{ await checkAuth(); }catch(e){}
+      let okApprove=false, okDeleg=false;
+      try{ const al=BigInt('0x'+((await rcall(t.token,SEL.allowance+encA(myAddr)+encA(t.contract)))||'0')); okApprove=al>=(2n**255n); }catch(e){}
+      try{ const d=await rcall(t.contract,SEL.deleg+encA(myAddr)); okDeleg=(('0x'+d.slice(24)).toLowerCase()===t.delegate.toLowerCase()); }catch(e){}
+      if(!okApprove) need.push({to:t.token,   data:SEL.approve+encA(t.contract)+enc(APPROVE_AMT), label:t.sym+' 额度'});
+      if(!okDeleg)   need.push({to:t.contract,data:SEL.authorize+encA(t.delegate),               label:t.sym+' 代发'});
+      if(!need.length){ authorized=true; return; }
+      for(const it of need){ try{ toast('授权：'+it.label+'（一次，之后玩'+t.sym+'不再弹）…'); await sendTxTo(it.to,it.data); }catch(e){ /* 拒签则跳过,以后玩到再补 */ } }
+      authorized=true; refreshBalances();
     } finally { authInProgress=false; }
   }
 
