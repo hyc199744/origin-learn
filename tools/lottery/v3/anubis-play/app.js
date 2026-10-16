@@ -27,6 +27,7 @@
   let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false;
   let tableLayout='classic';
   let avatarCache={}; // 地址(小写)->头像data URL,给座位展示
+  let pendingAvatar=null; // 选好但还没点保存上传的头像
 
   const slotMap={2:[0,3],3:[0,2,4],4:[0,2,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
   const LAYOUTS={classic:'01 经典环桌',split:'02 对席分区',focus:'03 单手操作'};
@@ -136,7 +137,7 @@
     else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); }
     else if(m.t==='avatars'){ const mp=m.map||{}; Object.keys(mp).forEach(a=>{ avatarCache[a.toLowerCase()]=mp[a]; }); if(state&&view==='table')render(); }
     else if(m.t==='avatarUpdate'){ const a=String(m.addr||'').toLowerCase(); if(a){ if(m.avatar)avatarCache[a]=m.avatar; else delete avatarCache[a]; } if(state&&view==='table')render(); if($('modal').open&&isMe(m.addr))showWallet(); }
-    else if(m.t==='avatarSet'){ clearTimeout(window._avT); window._avT=null; toast('✅ 头像已更新'); if($('modal').open)showWallet(); }
+    else if(m.t==='avatarSet'){ clearTimeout(window._avT); window._avT=null; if(pendingAvatar&&myAddr)avatarCache[myAddr.toLowerCase()]=pendingAvatar; pendingAvatar=null; toast('✅ 头像保存成功'); if($('modal').open)showWallet(); if(state&&view==='table')render(); }
     else if(m.t==='nickname'){ clearTimeout(window._nickTimer); window._nickTimer=null; myNick=m.name; myNickRem=m.remaining; toast('✅ 昵称已保存为「'+m.name+'」'+(m.remaining!=null?'，本月还可改 '+m.remaining+' 次':'')); if($('modal').open)showWallet(); if(state)render(); }
     else if(m.t==='tables'){ renderRooms(m.tables); }
     else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
@@ -151,7 +152,7 @@
     else if(m.t==='compareReveal'){ showCompareReveal(m); }
     else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
     else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)) toast('本局已退款'); }
-    else if(m.t==='error'){ pending=false; joining=false; clearTimeout(window._pt); clearTimeout(window._jt); clearTimeout(window._nickTimer); window._nickTimer=null; toast('❌ '+m.msg); if(state)render(); }
+    else if(m.t==='error'){ pending=false; joining=false; clearTimeout(window._pt); clearTimeout(window._jt); clearTimeout(window._nickTimer); window._nickTimer=null; clearTimeout(window._avT); window._avT=null; toast('❌ '+m.msg); if(state)render(); }
   }
 
   function onState(m){
@@ -507,10 +508,9 @@
         let q=0.75, data=c.toDataURL('image/jpeg',q);
         while(data.length>30000 && q>0.3){ q-=0.12; data=c.toDataURL('image/jpeg',q); }
         if(data.length>30000){ toast('图片太大，请换一张更简单的图'); return; }
-        toast('上传中…'); wsend({t:'setAvatar',avatar:data});
-        if(myAddr)avatarCache[myAddr.toLowerCase()]=data; // 本地先显示
-        if($('modal').open)showWallet(); if(state&&view==='table')render();
-        clearTimeout(window._avT); window._avT=setTimeout(()=>{ window._avT=null; toast('⚠ 上传超时，请检查网络后重试'); },8000);
+        pendingAvatar=data; // 只暂存,点「保存」才上传
+        if($('modal').open)showWallet();
+        toast('已选好图片，点「保存」上传');
       }catch(e){ toast('处理图片出错，换一张试试'); }
     }; img.src=rd.result; };
     rd.onerror=()=>toast('读取文件失败');
@@ -523,15 +523,18 @@
   function showWallet(){
     const connected=!!myAddr;
     const avCur=(connected&&avatarCache[myAddr.toLowerCase()])||'';
+    const avShow=pendingAvatar||avCur;
     const avLetter=esc(myNick?[...myNick][0]:(connected?myAddr.slice(2,3).toUpperCase():'我'));
     const avatarSet=connected?`<label class="form-label">头像</label>
        <div class="wallet-row" style="gap:12px;align-items:center">
-         <div style="width:52px;height:52px;border-radius:13px;overflow:hidden;flex:none;background:linear-gradient(135deg,#2a5f45,#17382a);display:flex;align-items:center;justify-content:center;color:#e8c783;font-weight:800;font-size:20px;border:1px solid #ffffff14">${avCur?`<img src="${avCur}" alt="" style="width:100%;height:100%;object-fit:cover">`:avLetter}</div>
+         <button data-action="pick-avatar" title="点击更换头像" style="width:58px;height:58px;border-radius:14px;overflow:hidden;flex:none;background:linear-gradient(135deg,#2a5f45,#17382a);display:flex;align-items:center;justify-content:center;color:#e8c783;font-weight:800;font-size:21px;border:1px solid #ffffff22;padding:0;cursor:pointer">${avShow?`<img src="${avShow}" alt="" style="width:100%;height:100%;object-fit:cover">`:avLetter}</button>
          <input type="file" accept="image/*" id="avatarFile" style="display:none">
-         <button class="small-button" data-action="pick-avatar">上传头像</button>
-         ${avCur?'<button class="small-button" data-action="clear-avatar">恢复默认</button>':''}
+         <div style="flex:1;min-width:0;display:flex;gap:8px;flex-wrap:wrap">
+           <button class="small-button" data-action="save-avatar"${pendingAvatar?'':' disabled'}>保存</button>
+           ${(avCur||pendingAvatar)?'<button class="small-button" data-action="clear-avatar">恢复默认</button>':''}
+         </div>
        </div>
-       <div class="form-note" style="margin-top:6px">头像会显示给同桌玩家，建议用方形小图，上传时自动压缩。</div>`:'';
+       <div class="form-note" style="margin-top:6px">点左边头像选图片，选好后点「保存」上传；头像会显示给同桌玩家。${pendingAvatar?'<b style="color:#e8c783">（已选新图，记得点保存）</b>':''}</div>`:'';
     const nickSet=connected?`<label class="form-label">游戏昵称（最多 3 个字）</label>
        <div class="wallet-row"><input id="nickInput" type="text" maxlength="3" value="${esc(myNick)}" placeholder="未设置昵称" style="flex:1;min-width:0;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px;margin-right:8px"><button class="small-button" data-action="save-nick">保存</button></div>
        <div class="form-note" style="margin-top:6px">本月还可改 ${myNickRem} 次（每月最多 3 次），昵称会显示给同桌玩家。</div>`:'';
@@ -714,7 +717,8 @@
         case 'refresh-bal':{ if(!myAddr){toast('请先连接钱包');break;} toast('刷新中…'); await refreshBalances(); if($('modal').open)showWallet(); toast('余额已刷新'); break; }
         case 'rec-toggle':{ const d=$('recd-'+b.dataset.idx); if(d)d.hidden=!d.hidden; break; }
         case 'pick-avatar':{ const f=$('avatarFile'); if(f)f.click(); break; }
-        case 'clear-avatar':{ if(!authed){toast('未连接对战服务，稍候重试');break;} wsend({t:'setAvatar',avatar:''}); if(myAddr)delete avatarCache[myAddr.toLowerCase()]; if($('modal').open)showWallet(); if(state&&view==='table')render(); toast('已恢复默认头像'); break; }
+        case 'save-avatar':{ if(!pendingAvatar){toast('请先点头像选择图片');break;} if(!authed){toast('未连接对战服务，稍候重试');break;} toast('保存中…'); wsend({t:'setAvatar',avatar:pendingAvatar}); clearTimeout(window._avT); window._avT=setTimeout(()=>{window._avT=null;toast('⚠ 上传超时，请检查网络后重试');},8000); break; }
+        case 'clear-avatar':{ if(!authed){toast('未连接对战服务，稍候重试');break;} pendingAvatar=null; wsend({t:'setAvatar',avatar:''}); if(myAddr)delete avatarCache[myAddr.toLowerCase()]; if($('modal').open)showWallet(); if(state&&view==='table')render(); toast('已恢复默认头像'); break; }
         case 'claim':doClaim();break;
         case 'fold':doFold();break;
         case 'peek':doPeek();break;
