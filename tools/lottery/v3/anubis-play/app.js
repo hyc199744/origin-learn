@@ -491,7 +491,7 @@
        <div class="form-note" style="margin-top:4px">01 经典环桌 / 02 对席分区 / 03 单手操作，随时切换；手机、平板、电脑都适配。</div>`;
     openModal('我的', (connected?
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
-       <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${myBalStr} <small>LGNS</small></strong></div>
+       <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${myBalStr} <small>LGNS</small></strong><button class="small-button" data-action="refresh-bal" aria-label="刷新余额">↻ 刷新</button></div>
        <div class="wallet-row"><span>可领取奖金</span><strong>${myClaimStr}</strong><button class="small-button" data-action="claim" ${myClaimPos?'':'disabled'}>领取</button></div>`
       :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 LGNS 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
       + nickSet
@@ -645,6 +645,7 @@
         case 'join-code':{ const box=b.closest('.m-joinbox,.join-box'); const inp=box&&box.querySelector('input'); const id=inp?String(inp.value).replace(/[^0-9]/g,''):''; if(!id){toast('请输入房号');break;} toast('查询房间 #'+id+'…'); const ph=await roomPhase(id); if(ph===0){toast('房间 #'+id+' 不存在，请让朋友重新建桌');break;} if(ph>=4){toast('房间 #'+id+' 本局已结束，请换一个房号或新建牌桌');break;} if(inp)inp.value=''; joinRoom(id); break; }
         case 'create':openCreate();break;
         case 'create-confirm':doCreate();break;
+        case 'refresh-bal':{ if(!myAddr){toast('请先连接钱包');break;} toast('刷新中…'); await refreshBalances(); if($('modal').open)showWallet(); toast('余额已刷新'); break; }
         case 'claim':doClaim();break;
         case 'fold':doFold();break;
         case 'peek':doPeek();break;
