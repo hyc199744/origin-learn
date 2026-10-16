@@ -21,7 +21,7 @@
   // ---- 状态 ----
   let myAddr=null, ws=null, authed=false, delegate=null, authorized=false;
   let curHand=null, myCards=null, state=null, picking=false, lastPot='0';
-  let view='table', filter='all', newAnte=10, newCount=6;
+  let view='table', filter='all', newAnte=10, newCount=6, newPrivate=false;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
   let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false;
@@ -135,7 +135,7 @@
     else if(m.t==='nickname'){ myNick=m.name; myNickRem=m.remaining; toast('昵称已设为「'+m.name+'」'); if($('modal').open)showWallet(); if(state)render(); }
     else if(m.t==='tables'){ renderRooms(m.tables); }
     else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
-      wsend({t:'subscribe',handId:curHand}); toast('✅ 开桌成功！房号 #'+m.handId+' —— 把这个号发给朋友，他输房号进同一桌；你点「准备」交底注开始'); // 进桌旁观,点准备才交底注
+      wsend({t:'subscribe',handId:curHand}); toast(m.private?('🔒 私密牌桌已开！房号 #'+m.handId+' —— 大厅看不到这桌，把房号发给朋友，他输房号才能进；你点「准备」交底注开始'):('✅ 开桌成功！房号 #'+m.handId+' —— 把这个号发给朋友，他输房号进同一桌；你点「准备」交底注开始')); // 进桌旁观,点准备才交底注
       state={handId:String(m.handId),phase:1,ante:(BigInt(newAnte)*1000000000n).toString(),maxPlayers:newCount,nPlayers:0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
       enterTable(); try{ render(); }catch(e){} }
     else if(m.t==='joined'){ logAct('你已入座'); }
@@ -450,7 +450,7 @@
     if(!myAddr){ await connect(); if(!myAddr)return; }
     if(!authorized){ closeModal(); await doAuthorize(); if(!authorized)return; }
     const ante=(BigInt(newAnte)*1000000000n).toString();
-    wsend({t:'createTable',ante,maxPlayers:newCount}); closeModal(); toast('开桌中…');
+    wsend({t:'createTable',ante,maxPlayers:newCount,private:newPrivate}); closeModal(); toast('开桌中…');
   }
 
   // ---------- 行动 ----------
@@ -497,11 +497,15 @@
       'MY ACCOUNT');
   }
   function openCreate(){
-    newAnte=10;newCount=6;
+    newAnte=10;newCount=6;newPrivate=false;
     openModal('创建你的牌桌',
       `<label class="form-label">选择底注</label><div class="tier-options" role="group" aria-label="选择底注">${[10,50,100].map(n=>`<button class="tier-button ${newAnte===n?'selected':''}" data-ante="${n}" aria-pressed="${newAnte===n}"><strong>${n}</strong><span>LGNS</span></button>`).join('')}</div>
        <label class="form-label">牌桌人数（最多 6 人/局）</label><div class="tier-options" role="group" aria-label="牌桌人数">${[2,3,4,5,6].map(n=>`<button type="button" class="tier-button ${newCount===n?'selected':''}" data-seats="${n}" aria-pressed="${newCount===n}"><strong>${n}</strong><span>人</span></button>`).join('')}</div>
-       <div class="form-note">开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 LGNS。</div>
+       <label class="form-label">牌桌类型</label><div class="tier-options" role="group" aria-label="牌桌类型">
+         <button type="button" class="tier-button ${!newPrivate?'selected':''}" data-priv="0" aria-pressed="${!newPrivate}"><strong>公开</strong><span>大厅可见</span></button>
+         <button type="button" class="tier-button ${newPrivate?'selected':''}" data-priv="1" aria-pressed="${newPrivate}"><strong>私密</strong><span>仅凭房号进</span></button>
+       </div>
+       <div class="form-note" id="privNote">${newPrivate?'私密牌桌不显示在大厅，只有拿到房号的人才能进。开桌后把房号发给朋友即可。':'开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 LGNS。'}</div>
        <button class="gold-button" data-action="create-confirm">${icon('plus')}创建并进入牌桌</button>`,'CREATE A TABLE');
   }
   function openCompare(){
@@ -623,6 +627,7 @@
       if(b.dataset.mtab){ const t=b.dataset.mtab; if(t==='lobby')setView('lobby'); else if(t==='mytable'){ if(curHand)setView('table'); else toast('你还没入座牌桌，去大厅选一桌'); } else if(t==='records')showRecords(); else if(t==='account')showWallet(); return; }
       if(b.dataset.ante){ newAnte=Number(b.dataset.ante); document.querySelectorAll('[data-ante]').forEach(el=>{const s=Number(el.dataset.ante)===newAnte;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
       if(b.dataset.seats){ newCount=Number(b.dataset.seats); document.querySelectorAll('[data-seats]').forEach(el=>{const s=Number(el.dataset.seats)===newCount;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
+      if(b.dataset.priv!==undefined){ newPrivate=b.dataset.priv==='1'; document.querySelectorAll('[data-priv]').forEach(el=>{const s=(el.dataset.priv==='1')===newPrivate;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); const n=$('privNote'); if(n)n.textContent=newPrivate?'私密牌桌不显示在大厅，只有拿到房号的人才能进。开桌后把房号发给朋友即可。':'开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 LGNS。'; return; }
       if(b.dataset.tlayout){ setTableLayout(b.dataset.tlayout); return; }
       if(b.dataset.join){ joinRoom(b.dataset.join); return; }
       if(b.dataset.compare){ doCompare(b.dataset.compare); return; }
