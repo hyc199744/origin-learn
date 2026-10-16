@@ -29,7 +29,7 @@
   let view='table', filter='all', newAnte=10, newCount=6, newPrivate=false;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false, lgnsBalStr='—', daiBalStr='—';
+  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false, lgnsBalStr='—', daiBalStr='—', qrOpen=false;
   let tableLayout='classic';
   let avatarCache={}; // 地址(小写)->头像data URL,给座位展示
   let pendingAvatar=null; // 选好但还没点保存上传的头像
@@ -602,8 +602,8 @@
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
        <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_lgns">${lgnsBalStr} <small>LGNS</small></strong><button class="small-button" data-action="refresh-bal" aria-label="刷新余额">↻ 刷新</button></div>
        <div class="wallet-row"><span>DAI 余额</span><strong id="mw_dai">${daiBalStr} <small>DAI</small></strong></div>
-       <label class="form-label">收款码（余额不足时扫码转入）</label>
-       <div class="wallet-row" style="flex-direction:column;align-items:center;gap:10px">
+       <button class="small-button" data-action="toggle-qr" style="width:100%;margin-top:6px;text-align:left">${qrOpen?'▾':'▸'} 收款码（余额不足时扫码转入）</button>
+       <div id="mw_qrwrap" style="flex-direction:column;align-items:center;gap:10px;margin-top:8px;display:${qrOpen?'flex':'none'}">
          <div id="mw_qr" style="width:180px;height:180px;background:#fff;border-radius:12px;padding:10px;box-sizing:border-box;display:flex;align-items:center;justify-content:center"></div>
          <div id="mw_addr_full" style="font-size:12px;color:#9fb3a6;word-break:break-all;text-align:center">${esc(myAddr)}</div>
          <button class="small-button" data-action="copy-addr">复制地址</button>
@@ -614,7 +614,7 @@
       + layoutSet
       + soundSet,
       'MY ACCOUNT');
-    if(connected){ renderWalletQR(); refreshWalletBalances(); }
+    if(connected){ if(qrOpen)renderWalletQR(); refreshWalletBalances(); }
   }
   function openCreate(){
     newAnte=TIERS[0];newCount=6;newPrivate=false;
@@ -763,6 +763,7 @@
         case 'create-confirm':doCreate();break;
         case 'refresh-bal':{ if(!myAddr){toast('请先连接钱包');break;} toast('刷新中…'); await Promise.all([refreshBalances(), refreshWalletBalances()]); toast('余额已刷新'); break; }
         case 'copy-addr':{ if(!myAddr)break; try{ await navigator.clipboard.writeText(myAddr); toast('✅ 地址已复制'); }catch(e){ toast('复制失败，请长按上面的地址手动复制'); } break; }
+        case 'toggle-qr':{ qrOpen=!qrOpen; const w=$('mw_qrwrap'); if(w)w.style.display=qrOpen?'flex':'none'; if(b)b.textContent=(qrOpen?'▾':'▸')+' 收款码（余额不足时扫码转入）'; if(qrOpen)renderWalletQR(); break; }
         case 'rec-toggle':{ const d=$('recd-'+b.dataset.idx); if(d)d.hidden=!d.hidden; break; }
         case 'pick-avatar':{ const f=$('avatarFile'); if(f)f.click(); break; }
         case 'save-avatar':{ if(!pendingAvatar){toast('请先点头像选择图片');break;} if(!authed){toast('未连接对战服务，稍候重试');break;} toast('保存中…'); wsend({t:'setAvatar',avatar:pendingAvatar}); clearTimeout(window._avT); window._avT=setTimeout(()=>{window._avT=null;toast('⚠ 上传超时，请检查网络后重试');},8000); break; }
