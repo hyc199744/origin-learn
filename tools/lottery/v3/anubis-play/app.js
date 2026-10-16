@@ -246,7 +246,6 @@
     { const u=$('jtPotUnit'); if(u)u.textContent=SYM; const bu=$('jtBalUnit'); if(bu)bu.textContent=SYM; const df=$('jtDockFoot'); if(df)df.textContent='押真 '+SYM+' · 链上公平结算 · 奖金自动到账'; }
     $('jtBet').textContent='当前单注 '+fmt(curBet)+' '+SYM;
     $('jtMeName').textContent=(myNick||'我');
-    { const meAv=$('jtMeAv'); if(meAv){ const a=myAddr&&avatarCache[myAddr.toLowerCase()]; const lt=esc(myNick?[...myNick][0]:(myAddr?myAddr.slice(2,3).toUpperCase():'我')); const h=a?('<img src="'+a+'" alt="" style="width:100%;height:100%;object-fit:cover">'):lt; if(meAv._html!==h){ meAv._html=h; meAv.innerHTML=h; } } }
     $('jtOwnStack').textContent=fmt(me?e9(me.contributed):0);
     $('jtBal').textContent=myBalStr;
     renderGtSeats(phase,comparing,ended);
@@ -299,8 +298,8 @@
       const cls='seat jt-s'+slot+(p.folded?' folded':'')+(isTurn?' playing':'');
       if(E._cls!==cls){ E._cls=cls; E.seat.className=cls; }
       const av=avatarCache[p.addr.toLowerCase()];
-      const avKey=av?('i'+av):('l'+seatLetter(p));
-      if(E._av!==avKey){ E._av=avKey; if(av){ E.avEl.style.padding='0'; E.avEl.style.overflow='hidden'; E.avEl.innerHTML='<img src="'+av+'" alt="" style="width:100%;height:100%;object-fit:cover">'; } else { E.avEl.style.padding=''; E.avEl.style.overflow=''; E.avEl.innerHTML=seatLetter(p); } }
+      const avKey='l'+seatLetter(p); // 头像已取消,座位统一字母头像
+      if(E._av!==avKey){ E._av=avKey; E.avEl.innerHTML=seatLetter(p); }
       const nm=(p.nick||short(p.addr))+(win?' 🏆':'');
       if(E._nm!==nm){ E._nm=nm; E.nameEl.textContent=nm; E.seat.setAttribute('aria-label',nm+'，'+st); }
       const bal='投入 '+fmt(e9(p.contributed));
@@ -514,18 +513,7 @@
   function renderWalletQR(){ try{ const box=$('mw_qr'); if(!box||!myAddr)return; box.innerHTML=''; if(window.QRCode){ new window.QRCode(box,{text:myAddr,width:160,height:160,colorDark:'#0b0f0d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); } else { box.innerHTML='<div style="color:#111;font-size:11px;word-break:break-all;padding:6px">'+esc(myAddr)+'</div>'; } }catch(e){} }
   function showWallet(){
     const connected=!!myAddr;
-    const avCur=(connected&&avatarCache[myAddr.toLowerCase()])||'';
-    const avShow=pendingAvatar||avCur;
-    const avLetter=esc(myNick?[...myNick][0]:(connected?myAddr.slice(2,3).toUpperCase():'我'));
-    const avatarSet=connected?`<label class="form-label">头像</label>
-       <div class="wallet-row" style="gap:12px;align-items:center">
-         <button data-action="pick-avatar" title="点击更换头像" style="width:58px;height:58px;border-radius:14px;overflow:hidden;flex:none;background:linear-gradient(135deg,#2a5f45,#17382a);display:flex;align-items:center;justify-content:center;color:#e8c783;font-weight:800;font-size:21px;border:1px solid #ffffff22;padding:0;cursor:pointer">${avShow?`<img src="${avShow}" alt="" style="width:100%;height:100%;object-fit:cover">`:avLetter}</button>
-         <input type="file" accept="image/*" id="avatarFile" style="display:none">
-         <div style="flex:1;min-width:0;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-           <span class="form-note" style="margin:0">点左边头像换图，选好自动上传</span>
-           ${(avCur||pendingAvatar)?'<button class="small-button" data-action="clear-avatar">恢复默认</button>':''}
-         </div>
-       </div>`:'';
+    const avatarSet=''; // 头像功能已取消,改回默认字母头像
     const nickSet=connected?`<label class="form-label">游戏昵称（最多 3 个字）</label>
        <div class="wallet-row"><input id="nickInput" type="text" maxlength="3" value="${esc(myNick)}" placeholder="未设置昵称" style="flex:1;min-width:0;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px;margin-right:8px"><button class="small-button" data-action="save-nick">保存</button></div>
        <div class="form-note" style="margin-top:6px">本月还可改 ${myNickRem} 次（每月最多 3 次），昵称会显示给同桌玩家。</div>`:'';
