@@ -7,9 +7,9 @@
   <meta name="description" content="ANUBIS PLAY 金花牌局，真人实时对战，押真 LGNS，链上公平可证明。手机横竖屏、平板与电脑自适应。">
   <title>金花牌局 · ANUBIS PLAY</title>
   <link rel="icon" href="logo.webp">
-  <link rel="stylesheet" href="styles.css?v=1018b">
+  <link rel="stylesheet" href="styles.css?v=1018c">
   <style>.brand-logo{height:44px;width:44px;object-fit:contain;display:block;border-radius:10px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}@media(max-width:650px){.brand-logo{height:36px;width:36px}}@media(orientation:landscape) and (max-height:600px){.brand-logo{height:32px;width:32px}}</style>
-  <script defer src="app.js?v=1018b"></script>
+  <script defer src="app.js?v=1018c"></script>
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -107,10 +107,10 @@
 
       <section class="lobby-view" id="lobbyView" hidden aria-label="游戏大厅">
         <div class="lobby-hero"><div><div class="eyebrow">FIND YOUR TABLE</div><h2>好牌局，等你入座。</h2><p>选择你的底注，开始一场金花对决。</p><button class="gold-button" data-action="create"><svg class="icon"><use href="#i-plus"/></svg>创建我的牌桌</button></div><div class="lobby-card-art" aria-hidden="true"><div class="art-card red">A<span>♥</span></div><div class="art-card black">A<span>♠</span></div><div class="art-card gold">A<span>♠</span></div></div><span class="hero-watermark">ANUBIS</span></div>
-        <div class="lobby-bar"><div class="filter-tabs" id="filters" role="group" aria-label="底注筛选"><button class="selected" data-filter="all" aria-pressed="true">全部牌桌</button><button data-filter="10" aria-pressed="false">10 LGNS</button><button data-filter="50" aria-pressed="false">50 LGNS</button><button data-filter="100" aria-pressed="false">100 LGNS</button></div><button class="text-button" data-action="refresh" id="refreshButton"><svg class="icon"><use href="#i-refresh"/></svg><span>刷新</span></button></div>
+        <div class="lobby-bar"><div class="filter-tabs pool-switch" id="poolSwitch" role="group" aria-label="选择币种池"></div><div class="filter-tabs" id="filters" role="group" aria-label="底注筛选"></div><button class="text-button" data-action="refresh" id="refreshButton"><svg class="icon"><use href="#i-refresh"/></svg><span>刷新</span></button></div>
         <div class="join-box"><input id="roomInput" type="text" inputmode="numeric" maxlength="8" placeholder="输入房号加入（和朋友同桌）"><button class="gold-button" data-action="join-code">加入房间</button></div>
         <div class="room-grid" id="roomGrid"></div>
-        <div class="lobby-footer"><svg class="icon"><use href="#i-shield"/></svg><span>真人对战，押真 LGNS，链上公平结算。</span></div>
+        <div class="lobby-footer"><svg class="icon"><use href="#i-shield"/></svg><span>真人对战，押真 LGNS / DAI，链上公平结算。</span></div>
       </section>
       <footer class="site-footer"><span>ANUBIS PLAY <i> / </i> GOLDEN FLOWER</span><span>每一手，皆有可能。</span><div><button data-action="wallet">钱包</button><button data-action="rules">游戏规则</button></div></footer>
     </main>
@@ -133,9 +133,9 @@
         <div class="m-quick"><button class="m-qa" data-action="create"><span class="m-qi"><svg class="icon"><use href="#i-plus"/></svg></span><span><strong>快速开桌</strong><small>自己创建房间</small></span></button><button class="m-qa alt" data-action="rules"><span class="m-qi"><svg class="icon"><use href="#i-help"/></svg></span><span><strong>玩法指南</strong><small>从入门到高手</small></span></button></div>
         <div class="m-joinbox"><input id="mRoomInput" type="text" inputmode="numeric" maxlength="8" placeholder="输入房号，和朋友同桌"><button class="m-joincode" data-action="join-code">加入</button></div>
         <div class="m-section"><h3>发现牌桌</h3><button class="m-ctrl" data-action="refresh"><svg class="icon"><use href="#i-refresh"/></svg> 刷新</button></div>
-        <div class="m-filters" id="mFilters" aria-label="底注筛选"><button class="active" data-mfilter="all">全部牌桌</button><button data-mfilter="10">10 LGNS</button><button data-mfilter="50">50 LGNS</button><button data-mfilter="100">100 LGNS</button></div>
+        <div class="m-filters pool-switch" id="mPoolSwitch" aria-label="选择币种池"></div><div class="m-filters" id="mFilters" aria-label="底注筛选"></div>
         <div id="mRooms"></div>
-        <div class="m-footnote"><svg class="icon"><use href="#i-shield"/></svg> 真人链上牌局，押真 LGNS，公平可证明</div>
+        <div class="m-footnote"><svg class="icon"><use href="#i-shield"/></svg> 真人链上牌局，押真 LGNS / DAI，公平可证明</div>
       </div>
     </div>
     <nav class="m-nav" id="mNav">
