@@ -159,7 +159,15 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   function toast(m){var t=$('vtoast');if(!t){t=document.createElement('div');t.id='vtoast';document.body.appendChild(t);}t.textContent=m;t.style.opacity='1';clearTimeout(window._tt);window._tt=setTimeout(function(){t.style.opacity='0';},3600);}
   function rpc(m,pr){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:m,params:pr})}).then(function(r){return r.json();}).then(function(j){return j.result;});}
   function ethCall(to,d){return rpc('eth_call',[{to:to,data:'0x'+d},'latest']).then(function(r){return (r||'0x').replace(/^0x/,'');});}
-  async function getLogs(topic,addr,from){var key=addr+'|'+topic;var c=_lc[key]||(_lc[key]={next:from,logs:[]});var latest=num(await rpc('eth_blockNumber',[]));var f=c.next;while(f<=latest){var t=Math.min(f+4999,latest);try{var part=await rpc('eth_getLogs',[{address:addr,topics:[topic],fromBlock:'0x'+f.toString(16),toBlock:'0x'+t.toString(16)}]);if(part&&part.length)for(var i=0;i<part.length;i++)c.logs.push(part[i]);}catch(e){}f=t+1;}if(latest+1>c.next)c.next=latest+1;return c.logs;}
+  async function getLogs(topic,addr,from){ // 改用Blockscout索引接口一次查全范围(避免RPC每次5000块上限扫上千次卡死)
+    var key=addr+'|'+topic; if(_lc[key])return _lc[key];
+    try{
+      var url='https://browser.anubispace.org/api?module=logs&action=getLogs&fromBlock='+from+'&toBlock=latest&address='+addr+'&topic0='+topic;
+      var j=await fetch(url).then(function(r){return r.json();});
+      var logs=(j&&j.result&&Array.isArray(j.result))?j.result:[];
+      _lc[key]=logs; return logs;
+    }catch(e){ return []; }
+  }
   function decArr(d,off,isAddr){var n=num(d.slice(off,off+64));var a=[];for(var i=0;i<n;i++){var w=d.slice(off+64*(i+1),off+64*(i+2));a.push(isAddr?('0x'+w.slice(-40)):BigInt('0x'+(w||'0')));}return a;}
   async function blkTime(bn){var k=String(bn);if(_bt[k])return _bt[k];try{var b=await rpc('eth_getBlockByNumber',['0x'+BigInt(bn).toString(16),false]);var ts=b&&b.timestamp?num(b.timestamp)*1000:0;_bt[k]=ts;return ts;}catch(e){return 0;}}
   function fmtTime(ts){if(!ts)return '-';var d=new Date(ts),p=function(n){return String(n).padStart(2,'0');};return (d.getMonth()+1)+'-'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes());}
