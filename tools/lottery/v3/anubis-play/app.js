@@ -32,11 +32,11 @@
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
   let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false, qrOpen=false, walletBals={};
-  let tableLayout='classic';
+  let tableLayout='split';
   let avatarCache={}; // 地址(小写)->头像data URL,给座位展示
   let pendingAvatar=null; // 选好但还没点保存上传的头像
 
-  const LAYOUTS={classic:'01 经典环桌',split:'02 对席分区',focus:'03 单手操作'};
+  const LAYOUTS={split:'02 对席分区',focus:'03 单手操作'}; // 01经典环桌已取消
   // 牌桌布局切换(经典环桌/对席分区/单手操作),存本地,默认01
   function applyLayout(){ const g=$('jtGame'); if(g)g.dataset.layout=tableLayout; }
   function setTableLayout(name){ if(!LAYOUTS[name])return; tableLayout=name; applyLayout(); try{localStorage.setItem('ap_layout',name);}catch(e){} resizeGame(); if($('modal').open)showWallet(); toast('牌桌布局：'+LAYOUTS[name]); }
@@ -721,7 +721,7 @@
 
   // 启动
   try{ sound=localStorage.getItem('ap_sfx')!=='0'; bgmOn=localStorage.getItem('ap_bgm')==='1'; }catch(e){} // 默认音效开、背景乐关
-  try{ const L=localStorage.getItem('ap_layout'); if(L&&LAYOUTS[L])tableLayout=L; }catch(e){} // 牌桌布局,默认01经典环桌
+  try{ const L=localStorage.getItem('ap_layout'); if(L&&LAYOUTS[L])tableLayout=L; }catch(e){} // 牌桌布局,默认02对席分区(旧存classic已失效→回默认)
   applyLayout();
   window.addEventListener('resize',resizeGame);
   window.addEventListener('orientationchange',resizeSoon);
