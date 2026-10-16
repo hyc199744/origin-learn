@@ -40,6 +40,7 @@
   '五大奖池、链上开奖、邀请返佣，全程可查。':['Five pools, on-chain draws, referral rewards — all verifiable.','5개 풀, 온체인 추첨, 추천 보상 — 모두 조회 가능.','5つのプール、オンチェーン抽選、招待報酬 — すべて検証可能。','Пять пулов, ончейн-розыгрыш, рефералы — всё проверяемо.','Năm pool, quay on-chain, thưởng giới thiệu — minh bạch.','Cinco pozos, sorteos on-chain, referidos — todo verificable.'],
   '进入游戏 →':['Play →','게임 →','プレイ →','Играть →','Vào game →','Jugar →'],
   '炸金花':['Golden Flower'],
+  '我的币余额':['My token balances'],'金花对局次数':['Hands played'],
   '真人实时对战，押真币、链上公平结算，LGNS / DAI / RM / USDT 多池可选。':['Live PvP · real tokens · provably fair on-chain · LGNS / DAI / RM / USDT pools.'],
   '龙虎斗':['Dragon vs Tiger','드래곤 타이거','ドラゴンタイガー','Дракон и Тигр','Rồng Hổ','Dragón vs Tigre'],
   '经典对押，押中赢取奖池，链上实时结算。':['Classic head-to-head, win the pool, settled on-chain.','클래식 대결, 풀 획득, 온체인 정산.','クラシック対決、プール獲得、オンチェーン決済。','Классическая дуэль, забери пул, расчёт ончейн.','Đối đầu kinh điển, thắng pool, quyết toán on-chain.','Duelo clásico, gana el pozo, liquidado on-chain.'],
