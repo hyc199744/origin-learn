@@ -31,7 +31,7 @@
   let view='table', filter='all', newAnte=10, newCount=6, newPrivate=false;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false, lgnsBalStr='—', daiBalStr='—', qrOpen=false;
+  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false, qrOpen=false, walletBals={};
   let tableLayout='classic';
   let avatarCache={}; // 地址(小写)->头像data URL,给座位展示
   let pendingAvatar=null; // 选好但还没点保存上传的头像
@@ -503,12 +503,12 @@
   function closeModal(){ if($('modal').open)$('modal').close(); }
   // 读指定代币余额(按其小数位),给「我的」里同时显示 LGNS + DAI
   async function fetchTokenBal(tokenAddr,dec){ try{ const b=await rcall(tokenAddr,SEL.bal+encA(myAddr)); return fmt(Number(BigInt('0x'+(b||'0')))/Math.pow(10,dec)); }catch(e){ return '—'; } }
-  async function refreshWalletBalances(){
+  async function refreshWalletBalances(){ // 一次刷新全部币余额
     if(!myAddr)return;
-    const [l,d]=await Promise.all([fetchTokenBal(TOKENS.lgns.token,TOKENS.lgns.dec), fetchTokenBal(TOKENS.dai.token,TOKENS.dai.dec)]);
-    lgnsBalStr=l; daiBalStr=d;
-    const el=$('mw_lgns'); if(el)el.innerHTML=l+' <small>LGNS</small>';
-    const ed=$('mw_dai'); if(ed)ed.innerHTML=d+' <small>DAI</small>';
+    await Promise.all(Object.values(TOKENS).map(async t=>{
+      const s=await fetchTokenBal(t.token,t.dec); walletBals[t.key]=s;
+      const el=$('mw_bal_'+t.key); if(el)el.innerHTML=s+' <small>'+t.sym+'</small>';
+    }));
   }
   // 画收款二维码(我的钱包地址);库没加载成功就退化成显示地址文字
   function renderWalletQR(){ try{ const box=$('mw_qr'); if(!box||!myAddr)return; box.innerHTML=''; if(window.QRCode){ new window.QRCode(box,{text:myAddr,width:160,height:160,colorDark:'#0b0f0d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); } else { box.innerHTML='<div style="color:#111;font-size:11px;word-break:break-all;padding:6px">'+esc(myAddr)+'</div>'; } }catch(e){} }
@@ -543,8 +543,8 @@
          <button class="small-button" data-action="copy-addr">复制地址</button>
          <div class="form-note" style="text-align:center">用别的钱包扫这个码（或复制地址），把 LGNS / DAI 转进来充值。地址在 Anubis 链两种币通用。</div>
        </div>
-       <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_lgns">${lgnsBalStr} <small>LGNS</small></strong><button class="small-button" data-action="refresh-bal" aria-label="刷新余额">↻ 刷新</button></div>
-       <div class="wallet-row"><span>DAI 余额</span><strong id="mw_dai">${daiBalStr} <small>DAI</small></strong></div>`
+       <label class="form-label" style="display:flex;justify-content:space-between;align-items:center">我的余额<button class="small-button" data-action="refresh-bal" aria-label="刷新全部余额">↻ 刷新</button></label>
+       ${Object.values(TOKENS).map(t=>`<div class="wallet-row"><span>${t.label}</span><strong id="mw_bal_${t.key}">${walletBals[t.key]||'—'} <small>${t.sym}</small></strong></div>`).join('')}`
       :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 ${SYM} 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
       + nickSet
       + layoutSet
