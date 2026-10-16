@@ -383,9 +383,22 @@
     if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout)+'（扣 3%）':'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' LGNS':''); }
     if(iWon)playSound('win');
     message(iWon?'好牌！你赢得了本局':'本局已结束');
-    // 记录(本地,真实观测)
+    // 记录(本地,真实观测):详细版
     const me=(m.reveal||[]).find(r=>isMe(r.addr));
-    results.unshift({hand:state.handId,win:iWon,winner:winAddr?short(winAddr):'-',pot:fmt(pot),time:new Date().toLocaleString('zh-CN'),label:me?rankHand(me.cards.map(conv)).label:'-'});
+    const myP=state.players&&state.players.find(p=>isMe(p.addr));
+    const myContrib=myP?e9(myP.contributed):0;
+    const net=iWon?(payout-myContrib):-myContrib;              // 这局净输赢(正=赢,负=输)
+    const winRev=winAddr?(m.reveal||[]).find(r=>r.addr&&r.addr.toLowerCase()===winAddr.toLowerCase()):null;
+    const cardStrs=cs=>cs.map(c=>{const d=conv(c);const rk=({11:'J',12:'Q',13:'K',14:'A'})[d.value]||d.value;return rk+d.suit;});
+    results.unshift({
+      hand:state.handId, time:new Date().toLocaleString('zh-CN'),
+      ante:fmt(e9(state.ante)), players:((m.reveal||[]).length||state.nPlayers||0),
+      win:iWon, net:net, cost:myContrib,
+      myCards:me?cardStrs(me.cards):[], label:me?rankHand(me.cards.map(conv)).label:'-',
+      winner:iWon?'你':(winAddr?(nameOf(winAddr)||short(winAddr)):'-'),
+      winnerLabel:(winRev&&!winRev.folded)?rankHand(winRev.cards.map(conv)).label:'-',
+      pot:fmt(pot)
+    });
     results=results.slice(0,50); saveResults();
     logAct((iWon?'你赢得':short(winAddr)+' 赢得')+'底池 '+fmt(pot)+' LGNS');
     refreshBalances();
@@ -548,11 +561,19 @@
        <div class="rules-foot">牌序由合约种子 + 区块哈希决定，后端按权威结果发牌，每局种子上链公开可事后核验。押真 LGNS，理性参与。</div>`,'HOW TO PLAY');
   }
   function showRecords(){
-    const wins=results.filter(r=>r.win).length;
+    const cardChips=arr=>(arr&&arr.length)?arr.map(cs=>{const red=cs.includes('♥')||cs.includes('♦');return '<span style="display:inline-block;min-width:25px;text-align:center;background:#fffdf0;color:'+(red?'#b9383c':'#23292a')+';border-radius:4px;padding:1px 4px;margin-right:3px;font-family:Georgia,serif;font-weight:700;font-size:12px">'+esc(cs)+'</span>';}).join(''):'<span style="color:#8b9b8e">未亮牌</span>';
+    const netStr=r=>{ if(r.net===undefined||r.net===null) return r.win?'🏆 赢':'未赢'; const n=Number(r.net); return (r.win?'🏆 赢 ':'输 ')+(n>=0?'+':'')+fmt(n)+' LGNS'; };
+    const row=r=>`<li style="padding:11px 2px;border-bottom:1px solid var(--line,#ffffff14);line-height:1.6;list-style:none">
+      <div style="display:flex;justify-content:space-between;align-items:center"><b style="color:#e8c783;font-size:13px">第 ${esc(String(r.hand))} 局</b><small style="color:#8b9b8e;font-size:10px">${esc(r.time||'')}</small></div>
+      <div style="font-size:11px;color:#9db09f;margin-top:3px">底注 ${esc(String(r.ante||'-'))} LGNS · ${esc(String(r.players||'-'))} 人 · 底池 ${esc(String(r.pot||'-'))} LGNS</div>
+      <div style="font-size:12px;margin-top:5px;display:flex;align-items:center;flex-wrap:wrap;gap:4px">我的牌 ${cardChips(r.myCards)} ${r.label&&r.label!=='-'?'<span style="color:#cbb; ">（'+esc(r.label)+'）</span>':''}</div>
+      <div style="font-size:13px;margin-top:5px;font-weight:700;color:${r.win?'#65c59d':'#dd888a'}">${netStr(r)}</div>
+      <div style="font-size:11px;color:#9db09f;margin-top:3px">赢家 ${esc(String(r.winner||'-'))}${r.winnerLabel&&r.winnerLabel!=='-'?'（'+esc(r.winnerLabel)+'）':''}</div>
+    </li>`;
     openModal('我的牌局记录',
-      `<div class="stats-grid"><div><strong>${results.length}</strong><span>已记录牌局</span></div><div><strong>${wins}</strong><span>获胜</span></div><div><strong>${results.length?Math.round(wins/results.length*100):0}%</strong><span>胜率</span></div></div>
+      `<div class="stats-grid" style="grid-template-columns:1fr"><div><strong>${results.length}</strong><span>对局次数</span></div></div>
        <label class="form-label">最近记录（本浏览器）</label>
-       <ol class="record-list">${results.length?results.slice(0,40).map(r=>`<li><span>#${r.hand} ${r.win?'🏆 你赢':'赢家 '+esc(r.winner)} · ${esc(r.label)} · 底池 ${esc(r.pot)}</span><small>${esc(r.time)}</small></li>`).join(''):'<li><span>暂无记录，玩一局就有了。</span><small></small></li>'}</ol>
+       <ol class="record-list" style="padding:0;margin:0">${results.length?results.slice(0,40).map(row).join(''):'<li style="list-style:none;padding:16px 0;color:#8b9b8e">暂无记录，玩一局就有了。</li>'}</ol>
        <div class="form-note">记录保存在本浏览器本地，换设备或清缓存会清空；权威结果以链上为准。</div>`,'SESSION RECORDS');
   }
 
