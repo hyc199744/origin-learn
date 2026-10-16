@@ -7,9 +7,9 @@
   <meta name="description" content="ANUBIS PLAY 金花牌局，真人实时对战，押真 LGNS，链上公平可证明。手机横竖屏、平板与电脑自适应。">
   <title>金花牌局 · ANUBIS PLAY</title>
   <link rel="icon" href="logo.webp">
-  <link rel="stylesheet" href="styles.css?v=1018c">
+  <link rel="stylesheet" href="styles.css?v=1018d">
   <style>.brand-logo{height:44px;width:44px;object-fit:contain;display:block;border-radius:10px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}@media(max-width:650px){.brand-logo{height:36px;width:36px}}@media(orientation:landscape) and (max-height:600px){.brand-logo{height:32px;width:32px}}</style>
-  <script defer src="app.js?v=1018c"></script>
+  <script defer src="app.js?v=1018d"></script>
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -76,7 +76,7 @@
           <div class="opponents" id="jtSeats"></div>
           <div class="pot">
             <div class="pot-label">本 局 底 池</div>
-            <div class="pot-total"><strong id="jtPot">0</strong><small>LGNS</small></div>
+            <div class="pot-total"><strong id="jtPot">0</strong><small id="jtPotUnit">LGNS</small></div>
             <div class="pot-caption" id="jtBet">当前单注 0</div>
             <div class="chips"><i class="chip"></i><i class="chip"></i><i class="chip"></i></div>
           </div>
@@ -90,7 +90,7 @@
         <footer class="action-dock">
           <div class="turn-strip">
             <div class="turn-status"><div class="clock" id="jtTimer">–</div><div class="status-lines"><strong id="jtTurnMain">等待开局</strong><small id="jtTurnHint">到大厅开桌或加入牌桌</small></div></div>
-            <div class="balance"><small>我的筹码</small><strong><b id="jtBal">—</b><span>LGNS</span></strong></div>
+            <div class="balance"><small>我的筹码</small><strong><b id="jtBal">—</b><span id="jtBalUnit">LGNS</span></strong></div>
           </div>
           <div class="jt-ready-row" id="jtReadyRow" hidden><button class="jt-ready-btn" data-action="ready" id="jtReadyBtn">准备</button></div>
           <div class="actions" id="jtActions" hidden>
@@ -100,7 +100,7 @@
             <button class="action compare" data-action="compare" id="jtCompare"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4 20 20M20 4 4 20M3 18l4 3M17 3l4 3"/></svg><span>比牌</span></button>
             <button class="action call" data-action="call" id="jtCall"><span>跟注</span><small id="jtCallAmt">0</small><svg class="icon" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
           </div>
-          <p class="dock-foot">押真 LGNS · 链上公平结算 · 奖金自动到账</p>
+          <p class="dock-foot" id="jtDockFoot">押真 LGNS · 链上公平结算 · 奖金自动到账</p>
         </footer>
        </main>
       </section>
