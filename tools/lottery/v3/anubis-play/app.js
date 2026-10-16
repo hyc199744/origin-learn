@@ -7,12 +7,12 @@
   const icon=name=>`<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  // ---- 多池配置:LGNS池 + DAI池,各自独立后端(WSS)/合约/代币/小数/档位。均为测试合约,正式上线会替换 ----
+  // ---- 多池配置:LGNS/DAI/RM/USDT,各自独立后端(WSS)/合约/代币/小数/档位。正式合约,owner=feeTo=0x4A5f8D ----
   const TOKENS={
-    lgns:{ key:'lgns', label:'LGNS', sym:'LGNS', wss:'wss://zjgame.web3origin.com',     contract:'0x76C17ECb3ff0a5E9c6eC99D98Fa7EB55a31Cd7A2', token:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8', dec:9,  tiers:[10,50,100],     delegate:'0xB4cD764a45caa8FaaFEa2f3CCb9E70FCa69290Eb' },
-    dai: { key:'dai',  label:'DAI',  sym:'DAI',  wss:'wss://zjgame.web3origin.com/dai', contract:'0x7802E7fdE7Cb8e964260769E2016F98f8Bb768b5', token:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14', dec:18, tiers:[1,5,10,50],      delegate:'0x836598c3Bae38d489DAe96b92C203AD0aF75f017' },
-    rm:  { key:'rm',   label:'RM',   sym:'RM',   wss:'wss://zjgame.web3origin.com/rm',  contract:'0xBBE63aD9f85085e91c9Ace4FF76E00a04df8aFdc', token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9,  tiers:[0.1,0.2,0.5,1], delegate:'0xbC1dd0A23C6bE4286Cc55D79AdcB3210918e689e' },
-    usdt:{ key:'usdt', label:'USDT', sym:'USDT', wss:'wss://zjgame.web3origin.com/usdt',contract:'0x1372586c43FDd4D45DbF0cCF540d1FF23431d5B4', token:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,  tiers:[1,5,10,50],      delegate:'0xA4661f77F119B0e10b23eBa1A22f1eB3301a3729' }
+    lgns:{ key:'lgns', label:'LGNS', sym:'LGNS', wss:'wss://zjgame.web3origin.com',     contract:'0xC66BD371b8fc7e839b3d8Ade0CD572E04aA9F72C', token:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8', dec:9,  tiers:[10,50,100],     delegate:'0xC7fd978C49c69447313C22E8c57fC29adBb64fC9' },
+    dai: { key:'dai',  label:'DAI',  sym:'DAI',  wss:'wss://zjgame.web3origin.com/dai', contract:'0xab854E16dF42857aB3B682C0A1Ea5B1DB47f4235', token:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14', dec:18, tiers:[1,5,10,50],      delegate:'0xfaE7F7c17F10269760eb3AaF162161F362367b22' },
+    rm:  { key:'rm',   label:'RM',   sym:'RM',   wss:'wss://zjgame.web3origin.com/rm',  contract:'0x0B442160Cb7B0FDFD4C3422677958cF8F9929641', token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9,  tiers:[0.1,0.2,0.5,1], delegate:'0xc199963Bd66a104c40989a1749C85118232475A8' },
+    usdt:{ key:'usdt', label:'USDT', sym:'USDT', wss:'wss://zjgame.web3origin.com/usdt',contract:'0x24388daf4fdd198e8d021F02A37a2D82393D0DBF', token:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,  tiers:[1,5,10,50],      delegate:'0xAe88781f9B88f774A4F2254499F3ff0FF69bAD8f' }
   };
   let curToken='lgns'; try{ const _t=localStorage.getItem('ap_token'); if(_t&&TOKENS[_t])curToken=_t; }catch(e){}
   let WSS, CONTRACT, LGNS, DEC, SYM, TIERS;
