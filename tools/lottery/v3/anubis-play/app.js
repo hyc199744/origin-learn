@@ -34,7 +34,6 @@
   let avatarCache={}; // 地址(小写)->头像data URL,给座位展示
   let pendingAvatar=null; // 选好但还没点保存上传的头像
 
-  const slotMap={2:[0,3],3:[0,2,4],4:[0,2,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
   const LAYOUTS={classic:'01 经典环桌',split:'02 对席分区',focus:'03 单手操作'};
   // 牌桌布局切换(经典环桌/对席分区/单手操作),存本地,默认01
   function applyLayout(){ const g=$('jtGame'); if(g)g.dataset.layout=tableLayout; }
@@ -219,103 +218,6 @@
   function nameOf(addr){ if(isMe(addr))return myNick||'你'; const p=state&&state.players&&state.players.find(x=>x.addr.toLowerCase()===String(addr).toLowerCase()); return (p&&p.nick)||short(addr); }
 
   // ---------- 渲染 ----------
-  function cardHTML(card,revealed){
-    if(!revealed)return '<div class="playing-card card-back" role="img" aria-label="未翻开的手牌"><svg aria-hidden="true"><use href="#i-anubis"/></svg></div>';
-    const rank=({11:'J',12:'Q',13:'K',14:'A'})[card.value]||card.value;
-    const red=['♥','♦'].includes(card.suit);
-    return `<div class="playing-card${red?' red':''}" role="img" aria-label="${esc(card.suit)} ${rank}"><span class="rank">${rank}<span>${card.suit}</span></span><span class="card-suit">${card.suit}</span><span class="rank-bottom">${rank}</span></div>`;
-  }
-  function avatarHTML(p){ return `<div class="avatar avi-${p.isMe?0:(1+(p.seatIndex%5))}" aria-hidden="true">${p.isMe?'<svg><use href="#i-anubis"/></svg>':(p.sign||'👤')}</div>`; }
-  function seatHTML(p,slot){
-    if(p.placeholder) return `<div class="player-seat seat-${slot} folded" aria-label="空位"><div class="avatar-wrap"><div class="avatar" aria-hidden="true">+</div></div><div class="player-info"><span class="player-name">空位</span><span class="player-balance">等待加入</span></div><span class="seat-status">等待加入</span></div>`;
-    const cls=`player-seat seat-${slot}${p.folded?' folded':''}${p.isTurn?' current':''}${p.winner?' winner':''}`;
-    const mini=p.isMe?'':`<div class="seat-cards" aria-hidden="true"><i class="mini-card"></i><i class="mini-card"></i><i class="mini-card"></i></div>`;
-    return `<div class="${cls}" aria-label="${p.isMe?'你':esc(p.name)}，${esc(p.status)}"><div class="avatar-wrap">${avatarHTML(p)}</div><div class="player-info"><span class="player-name">${p.isMe?'我':esc(p.name)}${p.isMe?'<small class="you-badge">YOU</small>':''}</span><span class="player-balance">投入 ${fmt(e9(p.contributed))} <small>${SYM}</small></span></div>${mini}<span class="seat-status">${esc(p.status)}</span></div>`;
-  }
-  function buildPlayers(){
-    // 把"我"排到首位(座位0=底部),其余按链上顺序
-    const ps=state.players.map((p,i)=>({addr:p.addr,contributed:p.contributed,looked:p.looked,folded:p.folded,seatIndex:i,isMe:isMe(p.addr),nick:p.nick}));
-    if(joining && myAddr && !ps.some(p=>p.isMe)){ ps.push({addr:myAddr,contributed:'0',looked:false,folded:false,seatIndex:999,isMe:true,_joining:true}); } // 乐观占位:我的座位先显示"入座中"
-    ps.sort((a,b)=> (a.isMe?-1:0)-(b.isMe?-1:0) || a.seatIndex-b.seatIndex);
-    const comparing=nz(state.cmpOpp);
-    ps.forEach(p=>{
-      p.name=p.isMe?(myNick||p.nick||'我'):(p.nick||short(p.addr));
-      p.sign=p.isMe?'':p.addr.slice(2,3).toUpperCase();
-      p.isTurn=state.phase===2&&!comparing&&state.turnAddr&&state.turnAddr.toLowerCase()===p.addr.toLowerCase();
-      const inCmp=comparing&&(p.addr.toLowerCase()===state.cmpChallenger.toLowerCase()||p.addr.toLowerCase()===state.cmpOpp.toLowerCase());
-      p.status=p._joining?'入座中…':(p.folded?'弃牌':(inCmp?'⚔ 比牌中':(p.isTurn?'行动中':(p.looked?'已看牌':'暗牌中'))));
-    });
-    return ps;
-  }
-  // ===== 节点复用:座位/手牌/动态只建一次,之后只改文字与class,不再整块重建(手机流畅关键) =====
-  const SVGNS='http://www.w3.org/2000/svg';
-  let _domBuilt=false, seatEls=[], cardEls=[], actEls=[];
-  function mkSvgUse(href){ const svg=document.createElementNS(SVGNS,'svg'); svg.setAttribute('aria-hidden','true'); const u=document.createElementNS(SVGNS,'use'); u.setAttribute('href',href); svg.appendChild(u); return svg; }
-  function buildDom(){
-    if(_domBuilt) return; const seatsC=$('seats'), handC=$('myHand'), actC=$('activityList'); if(!seatsC||!handC||!actC) return; _domBuilt=true;
-    seatsC.textContent='';
-    for(let i=0;i<6;i++){
-      const d=document.createElement('div'); d.className='player-seat';
-      const aw=document.createElement('div'); aw.className='avatar-wrap';
-      const av=document.createElement('div'); av.className='avatar'; av.setAttribute('aria-hidden','true');
-      const avSvg=mkSvgUse('#i-anubis'); avSvg.style.display='none';
-      const avTxt=document.createElement('span');
-      av.appendChild(avSvg); av.appendChild(avTxt); aw.appendChild(av);
-      const info=document.createElement('div'); info.className='player-info';
-      const nm=document.createElement('span'); nm.className='player-name'; const nmText=document.createTextNode(''); const badge=document.createElement('small'); badge.className='you-badge'; badge.textContent='YOU'; badge.style.display='none'; nm.appendChild(nmText); nm.appendChild(badge);
-      const bal=document.createElement('span'); bal.className='player-balance'; const balText=document.createTextNode(''); const balSmall=document.createElement('small'); balSmall.textContent=SYM; bal.appendChild(balText); bal.appendChild(balSmall);
-      info.appendChild(nm); info.appendChild(bal);
-      const sc=document.createElement('div'); sc.className='seat-cards'; sc.setAttribute('aria-hidden','true'); for(let k=0;k<3;k++){const mc=document.createElement('i');mc.className='mini-card';sc.appendChild(mc);}
-      const st=document.createElement('span'); st.className='seat-status';
-      d.appendChild(aw); d.appendChild(info); d.appendChild(sc); d.appendChild(st); seatsC.appendChild(d);
-      seatEls.push({d,av,avSvg,avTxt,nmText,badge,balText,balSmall,sc,st});
-    }
-    handC.textContent='';
-    for(let i=0;i<3;i++){
-      const c=document.createElement('div'); c.className='playing-card';
-      const svg=mkSvgUse('#i-anubis');
-      const rank=document.createElement('span'); rank.className='rank'; const rText=document.createTextNode(''); const rSuit=document.createElement('span'); rank.appendChild(rText); rank.appendChild(rSuit);
-      const main=document.createElement('span'); main.className='card-suit';
-      const rb=document.createElement('span'); rb.className='rank-bottom';
-      c.appendChild(svg); c.appendChild(rank); c.appendChild(main); c.appendChild(rb); handC.appendChild(c);
-      cardEls.push({c,rText,rSuit,main,rb});
-    }
-    actC.textContent='';
-    for(let i=0;i<6;i++){ const li=document.createElement('li'); const sp=document.createElement('span'); const tm=document.createElement('small'); li.appendChild(sp); li.appendChild(tm); li.style.display='none'; actC.appendChild(li); actEls.push({li,sp,tm}); }
-  }
-  function paintSeats(disp,slots){
-    for(let i=0;i<6;i++){
-      const el=seatEls[i], p=disp[i], slot=(slots[i]!==undefined?slots[i]:i);
-      if(!p){ el.d.style.display='none'; continue; }
-      el.d.style.display='';
-      if(p.placeholder){
-        el.d.className='player-seat seat-'+slot+' folded';
-        el.avSvg.style.display='none'; el.avTxt.style.display=''; el.avTxt.textContent='+';
-        el.nmText.nodeValue='空位'; el.badge.style.display='none'; el.balText.nodeValue='等待加入'; el.balSmall.style.display='none';
-        el.sc.style.display='none'; el.st.textContent='等待加入'; el.d.setAttribute('aria-label','空位'); continue;
-      }
-      el.d.className='player-seat seat-'+slot+(p.folded?' folded':'')+(p.isTurn?' current':'')+(p.winner?' winner':'');
-      el.av.className='avatar avi-'+(p.isMe?0:(1+(p.seatIndex%5)));
-      if(p.isMe){ el.avSvg.style.display=''; el.avTxt.style.display='none'; } else { el.avSvg.style.display='none'; el.avTxt.style.display=''; el.avTxt.textContent=(p.sign||'👤'); }
-      el.nmText.nodeValue=p.isMe?'我':p.name; el.badge.style.display=p.isMe?'':'none';
-      el.balText.nodeValue='投入 '+fmt(e9(p.contributed))+' '; el.balSmall.style.display='';
-      el.sc.style.display=p.isMe?'none':''; el.st.textContent=p.status;
-      el.d.setAttribute('aria-label',(p.isMe?'你':p.name)+'，'+p.status);
-    }
-  }
-  function paintHand(me,showFace){
-    for(let i=0;i<3;i++){
-      const el=cardEls[i];
-      if(!me){ el.c.style.display='none'; continue; }
-      el.c.style.display='';
-      if(myCards&&showFace){ const card=conv(myCards[i]); const rank=({11:'J',12:'Q',13:'K',14:'A'})[card.value]||card.value; const red=card.suit==='♥'||card.suit==='♦';
-        el.c.className='playing-card'+(red?' red':''); el.rText.nodeValue=rank; el.rSuit.textContent=card.suit; el.main.textContent=card.suit; el.rb.textContent=rank; el.c.setAttribute('aria-label',card.suit+' '+rank);
-      } else { el.c.className='playing-card card-back'; el.c.setAttribute('aria-label','未翻开的手牌'); }
-    }
-  }
-  function paintActivity(){
-    for(let i=0;i<6;i++){ const el=actEls[i], a=activity[i]; if(!a){ el.li.style.display='none'; continue; } el.li.style.display=''; el.sp.textContent=a.text; el.tm.textContent=a.time; }
-  }
 
   const gtOppSeat={0:[],1:[1],2:[2,3],3:[1,2,3],4:[2,3,4,5],5:[1,2,3,4,5]};
   function render(){
@@ -351,29 +253,53 @@
     const front=card?'<span class="card-front '+(red?'red':'')+'"><span class="rank">'+r+'<small>'+card.suit+'</small></span><span class="center-suit">'+card.suit+'</span><span class="rank bottom">'+r+'<small>'+card.suit+'</small></span></span>':'<span class="card-front"></span>';
     return '<span class="card '+(revealed&&card?'revealed':'')+'" aria-hidden="true"><span class="card-inner"><span class="card-back"><img class="card-logo" src="logo.webp" alt=""><span class="card-label">ANUBIS PLAY</span></span>'+front+'</span></span>';
   }
+  let gtSeatEls=[];
+  const seatLetter=p=>esc(p.nick?[...p.nick][0]:p.addr.slice(2,3).toUpperCase());
+  // 节点复用:座位骨架只建一次,之后只改变化的文字/样式,头像与牌背不重挂→对手动作时不闪
   function renderGtSeats(phase,comparing,ended){
     const cont=$('jtSeats'); if(!cont)return;
-    const opps=state.players.filter(p=>!isMe(p.addr));
+    const opps=state.players.filter(p=>!isMe(p.addr)).slice(0,5);
     const slots=gtOppSeat[Math.min(5,opps.length)]||[];
     let winAddr=null; if(ended){ let best=-1; (window._reveal||[]).forEach(r=>{ if(!r.folded){const s=score(r.cards); if(s>best){best=s;winAddr=r.addr;}} }); }
-    const _seatHtml=opps.slice(0,5).map((p,k)=>{
-      const slot=slots[k]||1, nm=p.nick||short(p.addr);
+    if(cont._n!==opps.length || cont.children.length!==opps.length){ // 座位数变了(或被清空)才重建骨架
+      cont._n=opps.length; cont.innerHTML=''; gtSeatEls=[];
+      for(let k=0;k<opps.length;k++){
+        const seat=document.createElement('div');
+        const ident=document.createElement('div'); ident.className='identity';
+        const avEl=document.createElement('div'); avEl.className='avatar';
+        const info=document.createElement('div'); info.className='seat-info';
+        const nameEl=document.createElement('div'); nameEl.className='seat-name';
+        const balEl=document.createElement('div'); balEl.className='seat-balance';
+        info.appendChild(nameEl); info.appendChild(balEl);
+        ident.appendChild(avEl); ident.appendChild(info);
+        const miniBox=document.createElement('div'); miniBox.className='mini-hand';
+        const statusEl=document.createElement('span'); statusEl.className='seat-status';
+        seat.appendChild(ident); seat.appendChild(miniBox); seat.appendChild(statusEl);
+        cont.appendChild(seat);
+        gtSeatEls.push({seat,avEl,nameEl,balEl,miniBox,statusEl,_av:null,_mini:null,_cls:null,_nm:null,_bal:null,_st:null});
+      }
+    }
+    opps.forEach((p,k)=>{
+      const E=gtSeatEls[k]; if(!E)return;
+      const slot=slots[k]||1;
       const isTurn=phase===2&&!comparing&&state.turnAddr&&state.turnAddr.toLowerCase()===p.addr.toLowerCase();
       const inCmp=comparing&&(p.addr.toLowerCase()===state.cmpChallenger.toLowerCase()||p.addr.toLowerCase()===state.cmpOpp.toLowerCase());
       const win=ended&&winAddr&&winAddr.toLowerCase()===p.addr.toLowerCase();
-      let st='闷牌';
-      if(p.folded){st='已弃牌';} else if(inCmp){st='⚔ 比牌';} else if(isTurn){st='行动中';} else if(p.looked){st='已看牌';}
-      const letter=esc(p.nick?[...p.nick][0]:p.addr.slice(2,3).toUpperCase());
-      let rev=null; if(ended){ const r=(window._reveal||[]).find(x=>x.addr.toLowerCase()===p.addr.toLowerCase()); if(r&&!r.folded)rev=r.cards.map(conv); }
-      const hand=[0,1,2].map(i=>jtCard(rev?rev[i]:null,!!rev)).join('');
+      let st='闷牌'; if(p.folded)st='已弃牌'; else if(inCmp)st='⚔ 比牌'; else if(isTurn)st='行动中'; else if(p.looked)st='已看牌';
+      const cls='seat jt-s'+slot+(p.folded?' folded':'')+(isTurn?' playing':'');
+      if(E._cls!==cls){ E._cls=cls; E.seat.className=cls; }
       const av=avatarCache[p.addr.toLowerCase()];
-      const avHtml=av?'<div class="avatar" style="padding:0;overflow:hidden"><img src="'+av+'" alt="" style="width:100%;height:100%;object-fit:cover"></div>':'<div class="avatar">'+letter+'</div>';
-      return '<div class="seat jt-s'+slot+(p.folded?' folded':'')+(isTurn?' playing':'')+'" aria-label="'+esc(nm)+'，'+st+'">'
-        +'<div class="identity">'+avHtml+'<div class="seat-info"><div class="seat-name">'+esc(nm)+(win?' 🏆':'')+'</div><div class="seat-balance">投入 '+fmt(e9(p.contributed))+'</div></div></div>'
-        +'<div class="mini-hand">'+hand+'</div>'
-        +'<span class="seat-status">'+st+'</span></div>';
-    }).join('');
-    if(cont._html===_seatHtml)return; cont._html=_seatHtml; cont.innerHTML=_seatHtml; // 内容没变不重画,避免牌/头像反复闪
+      const avKey=av?('i'+av):('l'+seatLetter(p));
+      if(E._av!==avKey){ E._av=avKey; if(av){ E.avEl.style.padding='0'; E.avEl.style.overflow='hidden'; E.avEl.innerHTML='<img src="'+av+'" alt="" style="width:100%;height:100%;object-fit:cover">'; } else { E.avEl.style.padding=''; E.avEl.style.overflow=''; E.avEl.innerHTML=seatLetter(p); } }
+      const nm=(p.nick||short(p.addr))+(win?' 🏆':'');
+      if(E._nm!==nm){ E._nm=nm; E.nameEl.textContent=nm; E.seat.setAttribute('aria-label',nm+'，'+st); }
+      const bal='投入 '+fmt(e9(p.contributed));
+      if(E._bal!==bal){ E._bal=bal; E.balEl.textContent=bal; }
+      if(E._st!==st){ E._st=st; E.statusEl.textContent=st; E.seat.setAttribute('aria-label',nm+'，'+st); }
+      let rev=null; if(ended){ const r=(window._reveal||[]).find(x=>x.addr.toLowerCase()===p.addr.toLowerCase()); if(r&&!r.folded)rev=r.cards.map(conv); }
+      const miniKey=rev?('r'+rev.map(c=>c.value+c.suit).join('')):'back';
+      if(E._mini!==miniKey){ E._mini=miniKey; E.miniBox.innerHTML=[0,1,2].map(i=>jtCard(rev?rev[i]:null,!!rev)).join(''); }
+    });
   }
   function renderGtHand(me,showFace){
     const c=$('jtCards'); if(!c)return;
