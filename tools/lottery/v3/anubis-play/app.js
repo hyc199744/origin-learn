@@ -548,8 +548,7 @@
        <div class="wallet-row"><span>背景音乐</span><button class="small-button" data-action="toggle-bgm">${bgmOn?'🔊 开':'🔇 关'}</button></div>
        <div class="wallet-row"><span>游戏音效</span><button class="small-button" data-action="toggle-sfx">${sound?'🔊 开':'🔇 关'}</button></div>`;
     const layoutSet=`<label class="form-label">牌桌布局</label>
-       <div class="tier-options" role="group" aria-label="牌桌布局">${Object.keys(LAYOUTS).map(k=>`<button class="tier-button ${tableLayout===k?'selected':''}" data-tlayout="${k}" aria-pressed="${tableLayout===k}"><strong>${LAYOUTS[k].slice(0,2)}</strong><span>${LAYOUTS[k].slice(3)}</span></button>`).join('')}</div>
-       <div class="form-note" style="margin-top:4px">01 经典环桌 / 02 对席分区 / 03 单手操作，随时切换。</div>`;
+       <div class="tier-options" role="group" aria-label="牌桌布局">${Object.keys(LAYOUTS).map(k=>`<button class="tier-button ${tableLayout===k?'selected':''}" data-tlayout="${k}" aria-pressed="${tableLayout===k}"><strong>${LAYOUTS[k].slice(0,2)}</strong><span>${LAYOUTS[k].slice(3)}</span></button>`).join('')}</div>`;
     openModal('我的', (connected?
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
        <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${myBalStr} <small>LGNS</small></strong><button class="small-button" data-action="refresh-bal" aria-label="刷新余额">↻ 刷新</button></div>`
@@ -557,8 +556,7 @@
       + avatarSet
       + nickSet
       + layoutSet
-      + soundSet
-      + `<div class="form-note">押真 LGNS，链上公平结算，奖金自动到账。</div>`,
+      + soundSet,
       'MY ACCOUNT');
   }
   function openCreate(){
