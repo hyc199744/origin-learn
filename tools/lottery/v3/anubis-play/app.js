@@ -29,7 +29,7 @@
   let view='table', filter='all', newAnte=10, newCount=6, newPrivate=false;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false;
+  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false, lgnsBalStr='—', daiBalStr='—';
   let tableLayout='classic';
   let avatarCache={}; // 地址(小写)->头像data URL,给座位展示
   let pendingAvatar=null; // 选好但还没点保存上传的头像
@@ -564,6 +564,17 @@
   // ---------- 弹窗 ----------
   function openModal(title,html,eyebrow='ANUBIS PLAY'){ if(!$('modal').open)modalFocus=document.activeElement; $('modalTitle').textContent=title; $('modalEyebrow').textContent=eyebrow; $('modalBody').innerHTML=html; if(!$('modal').open)$('modal').showModal(); }
   function closeModal(){ if($('modal').open)$('modal').close(); }
+  // 读指定代币余额(按其小数位),给「我的」里同时显示 LGNS + DAI
+  async function fetchTokenBal(tokenAddr,dec){ try{ const b=await rcall(tokenAddr,SEL.bal+encA(myAddr)); return fmt(Number(BigInt('0x'+(b||'0')))/Math.pow(10,dec)); }catch(e){ return '—'; } }
+  async function refreshWalletBalances(){
+    if(!myAddr)return;
+    const [l,d]=await Promise.all([fetchTokenBal(TOKENS.lgns.token,TOKENS.lgns.dec), fetchTokenBal(TOKENS.dai.token,TOKENS.dai.dec)]);
+    lgnsBalStr=l; daiBalStr=d;
+    const el=$('mw_lgns'); if(el)el.innerHTML=l+' <small>LGNS</small>';
+    const ed=$('mw_dai'); if(ed)ed.innerHTML=d+' <small>DAI</small>';
+  }
+  // 画收款二维码(我的钱包地址);库没加载成功就退化成显示地址文字
+  function renderWalletQR(){ try{ const box=$('mw_qr'); if(!box||!myAddr)return; box.innerHTML=''; if(window.QRCode){ new window.QRCode(box,{text:myAddr,width:160,height:160,colorDark:'#0b0f0d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); } else { box.innerHTML='<div style="color:#111;font-size:11px;word-break:break-all;padding:6px">'+esc(myAddr)+'</div>'; } }catch(e){} }
   function showWallet(){
     const connected=!!myAddr;
     const avCur=(connected&&avatarCache[myAddr.toLowerCase()])||'';
@@ -589,12 +600,21 @@
        <div class="tier-options" role="group" aria-label="牌桌布局">${Object.keys(LAYOUTS).map(k=>`<button class="tier-button ${tableLayout===k?'selected':''}" data-tlayout="${k}" aria-pressed="${tableLayout===k}"><strong>${LAYOUTS[k].slice(0,2)}</strong><span>${LAYOUTS[k].slice(3)}</span></button>`).join('')}</div>`;
     openModal('我的', avatarSet + (connected?
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
-       <div class="wallet-row"><span>${SYM} 余额</span><strong id="mw_bal">${myBalStr} <small>${SYM}</small></strong><button class="small-button" data-action="refresh-bal" aria-label="刷新余额">↻ 刷新</button></div>`
+       <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_lgns">${lgnsBalStr} <small>LGNS</small></strong><button class="small-button" data-action="refresh-bal" aria-label="刷新余额">↻ 刷新</button></div>
+       <div class="wallet-row"><span>DAI 余额</span><strong id="mw_dai">${daiBalStr} <small>DAI</small></strong></div>
+       <label class="form-label">收款码（余额不足时扫码转入）</label>
+       <div class="wallet-row" style="flex-direction:column;align-items:center;gap:10px">
+         <div id="mw_qr" style="width:180px;height:180px;background:#fff;border-radius:12px;padding:10px;box-sizing:border-box;display:flex;align-items:center;justify-content:center"></div>
+         <div id="mw_addr_full" style="font-size:12px;color:#9fb3a6;word-break:break-all;text-align:center">${esc(myAddr)}</div>
+         <button class="small-button" data-action="copy-addr">复制地址</button>
+         <div class="form-note" style="text-align:center">用别的钱包扫这个码（或复制地址），把 LGNS / DAI 转进来充值。地址在 Anubis 链两种币通用。</div>
+       </div>`
       :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 ${SYM} 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
       + nickSet
       + layoutSet
       + soundSet,
       'MY ACCOUNT');
+    if(connected){ renderWalletQR(); refreshWalletBalances(); }
   }
   function openCreate(){
     newAnte=TIERS[0];newCount=6;newPrivate=false;
@@ -741,7 +761,8 @@
         case 'join-code':{ const box=b.closest('.m-joinbox,.join-box'); const inp=box&&box.querySelector('input'); const id=inp?String(inp.value).replace(/[^0-9]/g,''):''; if(!id){toast('请输入房号');break;} toast('查询房间 #'+id+'…'); const ph=await roomPhase(id); if(ph===0){toast('房间 #'+id+' 不存在，请让朋友重新建桌');break;} if(ph>=4){toast('房间 #'+id+' 本局已结束，请换一个房号或新建牌桌');break;} if(inp)inp.value=''; joinRoom(id); break; }
         case 'create':openCreate();break;
         case 'create-confirm':doCreate();break;
-        case 'refresh-bal':{ if(!myAddr){toast('请先连接钱包');break;} toast('刷新中…'); await refreshBalances(); if($('modal').open)showWallet(); toast('余额已刷新'); break; }
+        case 'refresh-bal':{ if(!myAddr){toast('请先连接钱包');break;} toast('刷新中…'); await Promise.all([refreshBalances(), refreshWalletBalances()]); toast('余额已刷新'); break; }
+        case 'copy-addr':{ if(!myAddr)break; try{ await navigator.clipboard.writeText(myAddr); toast('✅ 地址已复制'); }catch(e){ toast('复制失败，请长按上面的地址手动复制'); } break; }
         case 'rec-toggle':{ const d=$('recd-'+b.dataset.idx); if(d)d.hidden=!d.hidden; break; }
         case 'pick-avatar':{ const f=$('avatarFile'); if(f)f.click(); break; }
         case 'save-avatar':{ if(!pendingAvatar){toast('请先点头像选择图片');break;} if(!authed){toast('未连接对战服务，稍候重试');break;} toast('保存中…'); wsend({t:'setAvatar',avatar:pendingAvatar}); clearTimeout(window._avT); window._avT=setTimeout(()=>{window._avT=null;toast('⚠ 上传超时，请检查网络后重试');},8000); break; }
