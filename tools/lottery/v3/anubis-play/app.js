@@ -133,7 +133,7 @@
   async function onMsg(m){
     if(m.t==='challenge'){ const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig}); }
     else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); }
-    else if(m.t==='nickname'){ myNick=m.name; myNickRem=m.remaining; toast('昵称已设为「'+m.name+'」'); if($('modal').open)showWallet(); if(state)render(); }
+    else if(m.t==='nickname'){ clearTimeout(window._nickTimer); window._nickTimer=null; myNick=m.name; myNickRem=m.remaining; toast('✅ 昵称已保存为「'+m.name+'」'+(m.remaining!=null?'，本月还可改 '+m.remaining+' 次':'')); if($('modal').open)showWallet(); if(state)render(); }
     else if(m.t==='tables'){ renderRooms(m.tables); }
     else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
       wsend({t:'subscribe',handId:curHand}); toast(m.private?('🔒 私密牌桌已开！房号 #'+m.handId+' —— 大厅看不到这桌，把房号发给朋友，他输房号才能进；你点「准备」交底注开始'):('✅ 开桌成功！房号 #'+m.handId+' —— 把这个号发给朋友，他输房号进同一桌；你点「准备」交底注开始')); // 进桌旁观,点准备才交底注
@@ -147,7 +147,7 @@
     else if(m.t==='compareReveal'){ showCompareReveal(m); }
     else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
     else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)) toast('本局已退款'); }
-    else if(m.t==='error'){ pending=false; joining=false; clearTimeout(window._pt); clearTimeout(window._jt); toast(m.msg); if(state)render(); }
+    else if(m.t==='error'){ pending=false; joining=false; clearTimeout(window._pt); clearTimeout(window._jt); clearTimeout(window._nickTimer); window._nickTimer=null; toast('❌ '+m.msg); if(state)render(); }
   }
 
   function onState(m){
@@ -653,7 +653,7 @@
         case 'leave':backToLobby();break;
         case 'fullscreen':await toggleLandscape();break;
         case 'sound':sound=!sound;try{localStorage.setItem('ap_sfx',sound?'1':'0');}catch(e){}updateSound();playSound();toast(sound?'音效已开':'音效已关');break;
-        case 'save-nick':{ const inp=$('nickInput'); const nm=inp?inp.value.trim():''; if(!nm){toast('请输入昵称');break;} if([...nm].length>3){toast('昵称最多3个字');break;} if(myNickRem<=0){toast('本月改名次数已用完');break;} wsend({t:'setNickname',name:nm}); break; }
+        case 'save-nick':{ const inp=$('nickInput'); const nm=inp?inp.value.trim():''; if(!nm){toast('请输入昵称');break;} if([...nm].length>3){toast('昵称最多3个字');break;} if(myNickRem<=0){toast('本月改名次数已用完');break;} if(!authed){toast('未连接对战服务，请稍候重试');break;} toast('保存中…'); wsend({t:'setNickname',name:nm}); clearTimeout(window._nickTimer); window._nickTimer=setTimeout(()=>{ window._nickTimer=null; toast('⚠ 保存超时，请检查网络后重试'); },6000); break; }
         case 'toggle-bgm':{bgmOn=!bgmOn;try{localStorage.setItem('ap_bgm',bgmOn?'1':'0');}catch(e){}if(bgmOn)startBGM();else stopBGM();showWallet();toast(bgmOn?'背景音乐已开':'背景音乐已关');break;}
         case 'toggle-sfx':{sound=!sound;try{localStorage.setItem('ap_sfx',sound?'1':'0');}catch(e){}updateSound();if(sound)playSound();showWallet();toast(sound?'音效已开':'音效已关');break;}
         case 'dismiss-tip':{const pt=$('portraitTip');if(pt)pt.hidden=true;break;}
