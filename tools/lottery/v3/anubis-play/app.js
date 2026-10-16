@@ -540,7 +540,7 @@
            ${(avCur||pendingAvatar)?'<button class="small-button" data-action="clear-avatar">恢复默认</button>':''}
          </div>
        </div>
-       <div class="form-note" style="margin-top:6px">点左边头像选图片，选好后点「保存」上传；头像会显示给同桌玩家。${pendingAvatar?'<b style="color:#e8c783">（已选新图，记得点保存）</b>':''}</div>`:'';
+       ${pendingAvatar?'<div class="form-note" style="margin-top:6px"><b style="color:#e8c783">已选新图，记得点「保存」</b></div>':''}`:'';
     const nickSet=connected?`<label class="form-label">游戏昵称（最多 3 个字）</label>
        <div class="wallet-row"><input id="nickInput" type="text" maxlength="3" value="${esc(myNick)}" placeholder="未设置昵称" style="flex:1;min-width:0;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px;margin-right:8px"><button class="small-button" data-action="save-nick">保存</button></div>
        <div class="form-note" style="margin-top:6px">本月还可改 ${myNickRem} 次（每月最多 3 次），昵称会显示给同桌玩家。</div>`:'';
@@ -549,7 +549,7 @@
        <div class="wallet-row"><span>游戏音效</span><button class="small-button" data-action="toggle-sfx">${sound?'🔊 开':'🔇 关'}</button></div>`;
     const layoutSet=`<label class="form-label">牌桌布局</label>
        <div class="tier-options" role="group" aria-label="牌桌布局">${Object.keys(LAYOUTS).map(k=>`<button class="tier-button ${tableLayout===k?'selected':''}" data-tlayout="${k}" aria-pressed="${tableLayout===k}"><strong>${LAYOUTS[k].slice(0,2)}</strong><span>${LAYOUTS[k].slice(3)}</span></button>`).join('')}</div>
-       <div class="form-note" style="margin-top:4px">01 经典环桌 / 02 对席分区 / 03 单手操作，随时切换；手机、平板、电脑都适配。</div>`;
+       <div class="form-note" style="margin-top:4px">01 经典环桌 / 02 对席分区 / 03 单手操作，随时切换。</div>`;
     openModal('我的', (connected?
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
        <div class="wallet-row"><span>LGNS 余额</span><strong id="mw_bal">${myBalStr} <small>LGNS</small></strong><button class="small-button" data-action="refresh-bal" aria-label="刷新余额">↻ 刷新</button></div>`
