@@ -396,12 +396,18 @@
     const myContrib=myP?e9(myP.contributed):0;
     const net=iWon?(payout-myContrib):-myContrib;              // 这局净输赢(正=赢,负=输)
     const winRev=winAddr?(m.reveal||[]).find(r=>r.addr&&r.addr.toLowerCase()===winAddr.toLowerCase()):null;
-    const cardStrs=cs=>cs.map(c=>{const d=conv(c);const rk=({11:'J',12:'Q',13:'K',14:'A'})[d.value]||d.value;return rk+d.suit;});
+    const cardStrs=cs=>(cs&&cs.length)?cs.map(c=>{const d=conv(c);const rk=({11:'J',12:'Q',13:'K',14:'A'})[d.value]||d.value;return rk+d.suit;}):[];
+    const foes=(m.reveal||[]).filter(r=>!isMe(r.addr)).map(r=>({
+      name:(nameOf(r.addr)||short(r.addr)), cards:cardStrs(r.cards),
+      label:r.folded?'弃牌':((r.cards&&r.cards.length)?rankHand(r.cards.map(conv)).label:'-'),
+      folded:!!r.folded, win:(winAddr&&r.addr.toLowerCase()===winAddr.toLowerCase())
+    }));
     results.unshift({
       hand:state.handId, time:new Date().toLocaleString('zh-CN'),
       ante:fmt(e9(state.ante)), players:((m.reveal||[]).length||state.nPlayers||0),
       win:iWon, net:net, cost:myContrib,
       myCards:me?cardStrs(me.cards):[], label:me?rankHand(me.cards.map(conv)).label:'-',
+      foes:foes,
       winner:iWon?'你':(winAddr?(nameOf(winAddr)||short(winAddr)):'-'),
       winnerLabel:(winRev&&!winRev.folded)?rankHand(winRev.cards.map(conv)).label:'-',
       pot:fmt(pot)
@@ -615,8 +621,8 @@
        </button>
        <div id="recd-${i}" hidden style="padding:8px 10px 12px;background:#0d1a14;border-bottom:1px solid var(--line,#ffffff10);font-size:11px;color:#9db09f;line-height:1.7">
          <div>时间 ${esc(r.time||'-')} · 底注 ${esc(String(r.ante||'-'))} · ${esc(String(r.players||'-'))} 人</div>
-         <div style="margin-top:6px;display:flex;align-items:center;flex-wrap:wrap;gap:3px">我的牌 ${cardChips(r.myCards)}</div>
-         <div style="margin-top:6px">赢家 ${esc(String(r.winner||'-'))}${r.winnerLabel&&r.winnerLabel!=='-'?'（'+esc(r.winnerLabel)+'）':''}</div>
+         <div style="margin-top:7px;display:flex;align-items:center;flex-wrap:wrap;gap:4px"><b style="color:#e8c783;min-width:64px">我的牌</b> ${cardChips(r.myCards)} ${r.label&&r.label!=='-'?'<span>（'+esc(r.label)+'）</span>':''}</div>
+         ${(r.foes&&r.foes.length)?r.foes.map(f=>`<div style="margin-top:6px;display:flex;align-items:center;flex-wrap:wrap;gap:4px${f.folded?';opacity:.55':''}"><b style="min-width:64px;color:#c9d4c0">${esc(f.name)}${f.win?' 🏆':''}</b> ${f.folded?'<span style="color:#8b9b8e">已弃牌</span> ':''}${cardChips(f.cards)} <span>（${esc(f.label||'-')}）</span></div>`).join(''):'<div style="margin-top:6px;color:#8b9b8e">无对手牌面记录</div>'}
        </div>`;
     openModal('我的牌局记录',
       `<div class="stats-grid" style="grid-template-columns:1fr"><div><strong>${results.length}</strong><span>对局次数</span></div></div>
