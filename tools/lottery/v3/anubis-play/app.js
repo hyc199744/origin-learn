@@ -10,7 +10,8 @@
   // ---- 多池配置:LGNS池 + DAI池,各自独立后端(WSS)/合约/代币/小数/档位。均为测试合约,正式上线会替换 ----
   const TOKENS={
     lgns:{ key:'lgns', label:'LGNS', sym:'LGNS', wss:'wss://zjgame.web3origin.com',     contract:'0x76C17ECb3ff0a5E9c6eC99D98Fa7EB55a31Cd7A2', token:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8', dec:9,  tiers:[10,50,100] },
-    dai: { key:'dai',  label:'DAI',  sym:'DAI',  wss:'wss://zjgame.web3origin.com/dai', contract:'0x7802E7fdE7Cb8e964260769E2016F98f8Bb768b5', token:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14', dec:18, tiers:[1,5,10,50] }
+    dai: { key:'dai',  label:'DAI',  sym:'DAI',  wss:'wss://zjgame.web3origin.com/dai', contract:'0x7802E7fdE7Cb8e964260769E2016F98f8Bb768b5', token:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14', dec:18, tiers:[1,5,10,50] },
+    rm:  { key:'rm',   label:'RM',   sym:'RM',   wss:'wss://zjgame.web3origin.com/rm',  contract:'0xBBE63aD9f85085e91c9Ace4FF76E00a04df8aFdc', token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9,  tiers:[0.1,0.2,0.5,1] }
   };
   let curToken='lgns'; try{ const _t=localStorage.getItem('ap_token'); if(_t&&TOKENS[_t])curToken=_t; }catch(e){}
   let WSS, CONTRACT, LGNS, DEC, SYM, TIERS;
@@ -45,7 +46,11 @@
   // ---- 工具 ----
   const short=a=>a?a.slice(0,6)+'…'+a.slice(-4):'';
   const e9=v=>Number(BigInt(v))/Math.pow(10,DEC);   // 按当前池代币小数位换算显示(名字沿用e9,实为e^DEC)
-  const toBase=n=>BigInt(n)*(10n**BigInt(DEC));      // 人类档位(整数)→基础单位
+  function toBase(n){ // 人类档位(可带小数,如0.1)→基础单位,按位精确(避免浮点)
+    const t=String(n); const [ip,fp='']=t.split('.');
+    const frac=(fp+'0'.repeat(DEC)).slice(0,DEC);
+    return BigInt((ip+frac).replace(/^0+(?=\d)/,'')||'0');
+  }
   const fmt=n=>Number(n).toLocaleString('en-US',{maximumFractionDigits:3});
   // 房间档位名/标记:按当前池档位相对定(最高档=大师,最低=经典,中间=进阶)
   const tierName=av=>{const mx=TIERS[TIERS.length-1],mn=TIERS[0];return av>=mx?'大师':(av<=mn?'经典':'进阶');};
