@@ -118,7 +118,7 @@
     try{
       toast('第1步：授权代币额度（一次授权，之后免弹）…'); await sendTxTo(LGNS,SEL.approve+encA(CONTRACT)+enc(APPROVE_AMT));
       toast('第2步：授权免签代发…'); await sendTx(SEL.authorize+encA(delegate));
-      authorized=true; toast('✅ 授权完成，之后玩牌不再弹签名'); refreshBalances();
+      authorized=true; refreshBalances();
     }catch(e){toast(e.message||'授权失败');}
   }
   // 连上发牌服务拿到delegate后自动授权一次(approve无限额度+免签代发),之后玩牌不再弹
@@ -303,6 +303,7 @@
     $('jtPot').textContent=fmt(pot);
     $('jtBet').textContent='当前单注 '+fmt(curBet)+' LGNS';
     $('jtMeName').textContent=(myNick||'我');
+    { const meAv=$('jtMeAv'); if(meAv){ const a=myAddr&&avatarCache[myAddr.toLowerCase()]; const lt=esc(myNick?[...myNick][0]:(myAddr?myAddr.slice(2,3).toUpperCase():'我')); meAv.innerHTML=a?('<img src="'+a+'" alt="" style="width:100%;height:100%;object-fit:cover">'):lt; } }
     $('jtOwnStack').textContent=fmt(me?e9(me.contributed):0);
     $('jtBal').textContent=myBalStr;
     renderGtSeats(phase,comparing,ended);
