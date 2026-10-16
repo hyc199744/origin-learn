@@ -355,7 +355,8 @@
     if(pending){ ['jtFold','jtPeek','jtRaise','jtCompare','jtCall'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); $('jtTurnMain').textContent='处理中…'; return; }
     if(comparing){ $('jtTurnMain').textContent='比牌裁决中'; $('jtTurnHint').textContent='马上出结果'; }
     else if(myTurn){ $('jtTurnMain').textContent='轮到你行动'; $('jtTurnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' LGNS'; }
-    else if(mi<0||(me&&me.folded)){ $('jtTurnMain').textContent='观战中'; $('jtTurnHint').textContent='等待本局结束'; }
+    else if(mi<0){ $('jtTurnMain').textContent='观战中'; $('jtTurnHint').textContent='本局结束后点「继续下一局」即可加入'; }
+    else if(me&&me.folded){ $('jtTurnMain').textContent='已弃牌'; $('jtTurnHint').textContent='等待本局结束'; }
     else { $('jtTurnMain').textContent='其他玩家行动中'; $('jtTurnHint').textContent='轮到 '+nameOf(state.turnAddr); }
     const dis=!myTurn;
     $('jtFold').disabled=dis; $('jtPeek').disabled=dis||looked; $('jtPeekSmall').textContent=looked?'已看牌':'看牌';
@@ -641,7 +642,7 @@
         case 'call':doCall();break;
         case 'raise':doRaise();break;
         case 'compare':startCompare();break;
-        case 'next':if(curHand)wsend({t:'rematch',handId:curHand});toast('继续下一局…');break;
+        case 'next':{ if(!curHand)break; if(!authorized){ await doAuthorize(); if(!authorized)break; } wsend({t:'rematch',handId:curHand}); toast('继续下一局…'); break; }
         case 'ready':await doReady();break;
         case 'leave':backToLobby();break;
         case 'fullscreen':await toggleLandscape();break;
