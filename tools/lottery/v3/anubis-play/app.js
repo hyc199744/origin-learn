@@ -652,7 +652,7 @@
   function startBGM(){
     if(!bgmOn)return;
     try{
-      if(!bgmNodes){ bgmNodes=new Audio('bgm.mp3?v=1017y'); bgmNodes.loop=true; bgmNodes.volume=0.35; bgmNodes.preload='auto'; }
+      if(!bgmNodes){ bgmNodes=new Audio('bgm.mp3?v=1018a'); bgmNodes.loop=true; bgmNodes.volume=0.35; bgmNodes.preload='auto'; }
       const p=bgmNodes.play(); if(p&&p.catch)p.catch(()=>{});
     }catch(e){}
   }
