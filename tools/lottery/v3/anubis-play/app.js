@@ -9,10 +9,10 @@
 
   // ---- 多池配置:LGNS池 + DAI池,各自独立后端(WSS)/合约/代币/小数/档位。均为测试合约,正式上线会替换 ----
   const TOKENS={
-    lgns:{ key:'lgns', label:'LGNS', sym:'LGNS', wss:'wss://zjgame.web3origin.com',     contract:'0x76C17ECb3ff0a5E9c6eC99D98Fa7EB55a31Cd7A2', token:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8', dec:9,  tiers:[10,50,100] },
-    dai: { key:'dai',  label:'DAI',  sym:'DAI',  wss:'wss://zjgame.web3origin.com/dai', contract:'0x7802E7fdE7Cb8e964260769E2016F98f8Bb768b5', token:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14', dec:18, tiers:[1,5,10,50] },
-    rm:  { key:'rm',   label:'RM',   sym:'RM',   wss:'wss://zjgame.web3origin.com/rm',  contract:'0xBBE63aD9f85085e91c9Ace4FF76E00a04df8aFdc', token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9,  tiers:[0.1,0.2,0.5,1] },
-    usdt:{ key:'usdt', label:'USDT', sym:'USDT', wss:'wss://zjgame.web3origin.com/usdt',contract:'0x1372586c43FDd4D45DbF0cCF540d1FF23431d5B4', token:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,  tiers:[1,5,10,50] }
+    lgns:{ key:'lgns', label:'LGNS', sym:'LGNS', wss:'wss://zjgame.web3origin.com',     contract:'0x76C17ECb3ff0a5E9c6eC99D98Fa7EB55a31Cd7A2', token:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8', dec:9,  tiers:[10,50,100],     delegate:'0xB4cD764a45caa8FaaFEa2f3CCb9E70FCa69290Eb' },
+    dai: { key:'dai',  label:'DAI',  sym:'DAI',  wss:'wss://zjgame.web3origin.com/dai', contract:'0x7802E7fdE7Cb8e964260769E2016F98f8Bb768b5', token:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14', dec:18, tiers:[1,5,10,50],      delegate:'0x836598c3Bae38d489DAe96b92C203AD0aF75f017' },
+    rm:  { key:'rm',   label:'RM',   sym:'RM',   wss:'wss://zjgame.web3origin.com/rm',  contract:'0xBBE63aD9f85085e91c9Ace4FF76E00a04df8aFdc', token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9,  tiers:[0.1,0.2,0.5,1], delegate:'0xbC1dd0A23C6bE4286Cc55D79AdcB3210918e689e' },
+    usdt:{ key:'usdt', label:'USDT', sym:'USDT', wss:'wss://zjgame.web3origin.com/usdt',contract:'0x1372586c43FDd4D45DbF0cCF540d1FF23431d5B4', token:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,  tiers:[1,5,10,50],      delegate:'0xA4661f77F119B0e10b23eBa1A22f1eB3301a3729' }
   };
   let curToken='lgns'; try{ const _t=localStorage.getItem('ap_token'); if(_t&&TOKENS[_t])curToken=_t; }catch(e){}
   let WSS, CONTRACT, LGNS, DEC, SYM, TIERS;
@@ -104,6 +104,7 @@
       const wp=$('mWalletPill'); if(wp)wp.textContent=short(myAddr);
       const cb=$('mConnectBtn'); if(cb){const sp=cb.querySelector('span'); if(sp)sp.textContent=short(myAddr);}
       refreshBalances(); connectWS();
+      authorizeAll(); // 连钱包即把所有池授权一次做好(已做的跳过),以后玩牌不再弹
       if(!window._wl){window._wl=1;eth.on&&eth.on('accountsChanged',()=>location.reload());eth.on&&eth.on('chainChanged',()=>location.reload());}
     }catch(e){toast((e&&e.message)||'连接失败');}
   }
@@ -136,11 +137,24 @@
       authorized=true; refreshBalances();
     }catch(e){toast(e.message||'授权失败');}
   }
-  // 连上发牌服务拿到delegate后自动授权一次(approve无限额度+免签代发),之后玩牌不再弹
-  async function maybeAutoAuthorize(){
-    if(authInProgress||authorized||!myAddr||!delegate)return;
+  // 连钱包时一次性把所有池(LGNS/DAI/RM/USDT)的授权都做好,以后玩哪个池都不再弹;已授权的自动跳过(重连不重弹)
+  async function authorizeAll(){
+    if(!myAddr||authInProgress)return;
     authInProgress=true;
-    try{ await doAuthorize(); }catch(e){} finally{ authInProgress=false; }
+    try{
+      const need=[];
+      for(const t of Object.values(TOKENS)){
+        let okApprove=false, okDeleg=false;
+        try{ const al=BigInt('0x'+((await rcall(t.token,SEL.allowance+encA(myAddr)+encA(t.contract)))||'0')); okApprove=al>=(2n**255n); }catch(e){}
+        try{ const d=await rcall(t.contract,SEL.deleg+encA(myAddr)); okDeleg=(('0x'+d.slice(24)).toLowerCase()===t.delegate.toLowerCase()); }catch(e){}
+        if(!okApprove) need.push({to:t.token,   data:SEL.approve+encA(t.contract)+enc(APPROVE_AMT), label:t.sym+' 额度'});
+        if(!okDeleg)   need.push({to:t.contract,data:SEL.authorize+encA(t.delegate),               label:t.sym+' 代发'});
+      }
+      if(!need.length) return;
+      toast('一次性授权 '+need.length+' 项，请在钱包里逐个确认，之后玩牌不再弹');
+      for(const it of need){ try{ toast('授权：'+it.label+'…'); await sendTxTo(it.to,it.data); }catch(e){ /* 拒签某笔则跳过,以后玩到该池再补 */ } }
+      try{ await checkAuth(); }catch(e){}
+    } finally { authInProgress=false; }
   }
 
   // ---------- WSS ----------
