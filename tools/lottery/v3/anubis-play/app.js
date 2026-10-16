@@ -24,7 +24,7 @@
   let view='table', filter='all', newAnte=10, newCount=6, newPrivate=false;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false;
+  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false;
   let tableLayout='classic';
 
   const slotMap={2:[0,3],3:[0,2,4],4:[0,2,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
@@ -99,7 +99,7 @@
   const sendTx=data=>sendTxTo(CONTRACT,data);
   async function refreshBalances(){
     if(!myAddr)return;
-    try{const b=await rcall(LGNS,SEL.bal+encA(myAddr)); const v=e9(BigInt('0x'+(b||'0'))); myBalStr=fmt(v); const e=$('jtBal'); if(e)e.textContent=myBalStr;}catch(e){}
+    try{const b=await rcall(LGNS,SEL.bal+encA(myAddr)); const v=e9(BigInt('0x'+(b||'0'))); myBalNum=v; balFetched=true; myBalStr=fmt(v); const e=$('jtBal'); if(e)e.textContent=myBalStr;}catch(e){}
     try{const wd=await rcall(CONTRACT,SEL.wd+encA(myAddr)); const v=e9(BigInt('0x'+(wd||'0'))); myClaimStr=fmt(v)+' LGNS'; myClaimPos=v>0;}catch(e){}
   }
   async function checkAuth(){
@@ -360,9 +360,12 @@
     else if(me&&me.folded){ $('jtTurnMain').textContent='已弃牌'; $('jtTurnHint').textContent='等待本局结束'; }
     else { $('jtTurnMain').textContent='其他玩家行动中'; $('jtTurnHint').textContent='轮到 '+nameOf(state.turnAddr); }
     const dis=!myTurn;
+    if(myTurn){ const now=Date.now(); if(now-_balT>1500){ _balT=now; refreshBalances().then(()=>{ if(state&&state.phase===2&&!pending)render(); }); } } // 轮到我:刷新余额判断够不够跟
+    const poor = myTurn && balFetched && myBalNum < cost; // 筹码不够跟注
     $('jtFold').disabled=dis; $('jtPeek').disabled=dis||looked; $('jtPeekSmall').textContent=looked?'已看牌':'看牌';
-    $('jtRaise').disabled=dis; $('jtCompare').disabled=dis||state.nActive<2; $('jtCall').disabled=dis;
-    if(picking&&myTurn){ $('jtTurnHint').textContent='点一个对手比牌，或再次点比牌取消'; }
+    $('jtRaise').disabled=dis||poor; $('jtCompare').disabled=dis||state.nActive<2||poor; $('jtCall').disabled=dis||poor;
+    if(poor){ $('jtTurnMain').textContent='筹码不足'; $('jtTurnHint').textContent='余额 '+fmt(myBalNum)+' < 需跟 '+fmt(cost)+' LGNS，只能弃牌；想继续先充 LGNS'; }
+    else if(picking&&myTurn){ $('jtTurnHint').textContent='点一个对手比牌，或再次点比牌取消'; }
   }
   function animateDeal(){ playSound('card'); const c=$('jtCards'); if(c){ c.classList.remove('deal'); void c.offsetWidth; c.classList.add('deal'); } }
 
