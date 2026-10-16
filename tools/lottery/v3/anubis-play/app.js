@@ -24,7 +24,7 @@
   const LABELS=['单张','对子','顺子','同花','同花顺','豹子'];
 
   // ---- 状态 ----
-  let myAddr=null, ws=null, authed=false, delegate=null, authorized=false, authInProgress=false;
+  let myAddr=null, ws=null, authed=false, delegate=null, authorized=false, authInProgress=false, pendingAutoAuth=false, _triedToken=false;
   let curHand=null, myCards=null, state=null, picking=false, lastPot='0';
   let view='table', filter='all', newAnte=10, newCount=6, newPrivate=false;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
@@ -94,6 +94,7 @@
       $('walletLabel').textContent=short(myAddr);
       const wp=$('mWalletPill'); if(wp)wp.textContent=short(myAddr);
       const cb=$('mConnectBtn'); if(cb){const sp=cb.querySelector('span'); if(sp)sp.textContent=short(myAddr);}
+      pendingAutoAuth=true; // 用户主动连钱包:本次连上后自动授权一次
       refreshBalances(); connectWS();
       if(!window._wl){window._wl=1;eth.on&&eth.on('accountsChanged',()=>location.reload());eth.on&&eth.on('chainChanged',()=>location.reload());}
     }catch(e){toast((e&&e.message)||'连接失败');}
@@ -116,7 +117,7 @@
       const d=await rcall(CONTRACT,SEL.deleg+encA(myAddr));
       const al=BigInt('0x'+((await rcall(LGNS,SEL.allowance+encA(myAddr)+encA(CONTRACT)))||'0'));
       authorized=(('0x'+d.slice(24)).toLowerCase()===delegate.toLowerCase())&&al>0n;
-    }catch(e){authorized=false;}
+    }catch(e){/* 读链失败(Anubis节点不稳)不降级authorized,避免误判成未授权又弹授权 */}
   }
   async function doAuthorize(){
     if(!myAddr){toast('请先连接钱包');return;}
@@ -136,6 +137,7 @@
 
   // ---------- WSS ----------
   function connectWS(){
+    _triedToken=false; // 每次新连接:先试会话令牌,失败再签名
     ws=new WebSocket(WSS);
     ws.onopen=()=>{ setNet(true); };
     ws.onclose=()=>{ setNet(false); setTimeout(connectWS,3000); };
@@ -152,7 +154,7 @@
     if(!TOKENS[key]||key===curToken)return;
     curToken=key; try{localStorage.setItem('ap_token',key);}catch(e){} applyToken();
     filter='all';
-    authed=false; delegate=null; authorized=false; authInProgress=false;
+    authed=false; delegate=null; authorized=false; authInProgress=false; pendingAutoAuth=true;
     myBalStr='—'; myBalNum=0; balFetched=false;
     try{ if(ws){ ws.onclose=null; ws.close(); } }catch(e){}   // 断开旧池,避免旧连接自动重连
     renderLobbyBars();
@@ -163,8 +165,12 @@
     toast('已切到 '+SYM+' 池');
   }
   async function onMsg(m){
-    if(m.t==='challenge'){ const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig}); }
-    else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth().then(maybeAutoAuthorize); if(curHand)wsend({t:'subscribe',handId:curHand}); }
+    if(m.t==='challenge'){
+      let tok=null; try{ tok=localStorage.getItem('ap_tok_'+curToken); }catch(e){}
+      if(tok && !_triedToken){ _triedToken=true; wsend({t:'auth',token:tok}); return; } // 有令牌先免签登录,失败后端会重发challenge再签
+      const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig});
+    }
+    else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.token){try{localStorage.setItem('ap_tok_'+curToken,m.token);}catch(e){}} if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth().then(()=>{ if(pendingAutoAuth){ pendingAutoAuth=false; maybeAutoAuthorize(); } }); if(curHand)wsend({t:'subscribe',handId:curHand}); }
     else if(m.t==='avatars'){ const mp=m.map||{}; Object.keys(mp).forEach(a=>{ avatarCache[a.toLowerCase()]=mp[a]; }); if(state&&view==='table')render(); }
     else if(m.t==='avatarUpdate'){ const a=String(m.addr||'').toLowerCase(); if(a){ if(m.avatar)avatarCache[a]=m.avatar; else delete avatarCache[a]; } if(state&&view==='table')render(); if($('modal').open&&isMe(m.addr))showWallet(); }
     else if(m.t==='avatarSet'){ clearTimeout(window._avT); window._avT=null; if(pendingAvatar&&myAddr)avatarCache[myAddr.toLowerCase()]=pendingAvatar; pendingAvatar=null; toast('✅ 头像保存成功'); if($('modal').open)showWallet(); if(state&&view==='table')render(); }
