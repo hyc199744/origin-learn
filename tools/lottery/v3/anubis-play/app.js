@@ -325,6 +325,7 @@
     const PH={1:'等待入座',2:'对局进行中',3:'摊牌结算',4:'本局结束',5:'已退款'};
     $('jtPill').textContent=PH[phase]||'';
     $('jtPot').textContent=fmt(pot);
+    { const u=$('jtPotUnit'); if(u)u.textContent=SYM; const bu=$('jtBalUnit'); if(bu)bu.textContent=SYM; const df=$('jtDockFoot'); if(df)df.textContent='押真 '+SYM+' · 链上公平结算 · 奖金自动到账'; }
     $('jtBet').textContent='当前单注 '+fmt(curBet)+' '+SYM;
     $('jtMeName').textContent=(myNick||'我');
     { const meAv=$('jtMeAv'); if(meAv){ const a=myAddr&&avatarCache[myAddr.toLowerCase()]; const lt=esc(myNick?[...myNick][0]:(myAddr?myAddr.slice(2,3).toUpperCase():'我')); meAv.innerHTML=a?('<img src="'+a+'" alt="" style="width:100%;height:100%;object-fit:cover">'):lt; } }
