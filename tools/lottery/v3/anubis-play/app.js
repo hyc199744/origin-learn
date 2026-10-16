@@ -566,7 +566,7 @@
   }
 
   // ---------- 音效/全屏 ----------
-  function playSound(type='click'){ if(!sound)return; try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.value=type==='win'?660:type==='card'?420:280;g.gain.setValueAtTime(.035,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.13);o.start();o.stop(audioCtx.currentTime+.15);}catch(e){sound=false;updateSound();} }
+  function playSound(type='click'){ if(!sound)return; try{if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='triangle';o.frequency.value=type==='win'?680:type==='card'?440:300;const t=audioCtx.currentTime;const peak=type==='win'?.42:.32;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+.012);g.gain.exponentialRampToValueAtTime(.0008,t+(type==='win'?.3:.2));o.start(t);o.stop(t+(type==='win'?.32:.22));}catch(e){sound=false;updateSound();} }
   function updateSound(){const s=$('jtSoundStrike');if(s)s.style.display=sound?'none':'';const b=$('jtSoundBtn');if(b)b.title=sound?'关闭音效':'开启音效';}
   // 背景音乐:五声音阶轻柔拨弦(像音乐盒/竖琴)+很轻的低音垫,舒缓不吵,可开关
   function startBGM(){
