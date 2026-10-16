@@ -386,7 +386,7 @@
     render();
     var anteV=state?fmt(e9(state.ante)):'';
     const box=$('jtEndBox');
-    if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout)+'（扣 3%）':'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' LGNS':''); }
+    if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' LGNS，赢家拿 '+fmt(payout):'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' LGNS':''); }
     if(iWon)playSound('win');
     message(iWon?'好牌！你赢得了本局':'本局已结束');
     // 记录(本地,真实观测):详细版
