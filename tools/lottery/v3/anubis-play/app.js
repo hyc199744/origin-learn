@@ -31,7 +31,7 @@
   let view='table', filter='all', newAnte=10, newCount=6, newPrivate=false;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
-  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false, qrOpen=false, walletBals={};
+  let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false, qrOpen=false, walletBals={}, _topupSeen=false, _topupOpen=false;
   let tableLayout='split';
   let avatarCache={}; // 地址(小写)->头像data URL,给座位展示
   let pendingAvatar=null; // 选好但还没点保存上传的头像
@@ -356,8 +356,11 @@
     const poor = myTurn && balFetched && myBalNum < cost; // 筹码不够跟注
     $('jtFold').disabled=dis; $('jtPeek').disabled=dis||looked; $('jtPeekSmall').textContent=looked?'已看牌':'看牌';
     $('jtRaise').disabled=dis||poor; $('jtCompare').disabled=dis||state.nActive<2||poor; $('jtCall').disabled=dis||poor;
-    if(poor){ $('jtTurnMain').textContent='筹码不足'; $('jtTurnHint').textContent='余额 '+fmt(myBalNum)+' < 需跟 '+fmt(cost)+' '+SYM+'，只能弃牌；想继续先充 '+SYM; }
+    if(poor){ $('jtTurnMain').textContent='筹码不足'; $('jtTurnHint').textContent='余额 '+fmt(myBalNum)+' < 需跟 '+fmt(cost)+' '+SYM+'，扫码充值到账后继续，或弃牌'; }
     else if(picking&&myTurn){ $('jtTurnHint').textContent='点一个对手比牌，或再次点比牌取消'; }
+    // 筹码不足:弹收款码让玩家从别的钱包转入;到账后(余额刷新)自动关闭并可继续
+    if(poor){ if(!_topupSeen){ _topupSeen=true; showTopup(cost); } const tb=$('tuBal'); if(tb)tb.textContent=fmt(myBalNum); }
+    else { if(_topupSeen && _topupOpen){ closeModal(); toast('✅ 余额已到账，继续出牌'); } _topupSeen=false; }
   }
   function animateDeal(){ playSound('card'); const c=$('jtCards'); if(c){ c.classList.remove('deal'); void c.offsetWidth; c.classList.add('deal'); } }
 
@@ -521,7 +524,24 @@
     }));
   }
   // 画收款二维码(我的钱包地址);库没加载成功就退化成显示地址文字
-  function renderWalletQR(){ try{ const box=$('mw_qr'); if(!box||!myAddr)return; box.innerHTML=''; if(window.QRCode){ new window.QRCode(box,{text:myAddr,width:160,height:160,colorDark:'#0b0f0d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); } else { box.innerHTML='<div style="color:#111;font-size:11px;word-break:break-all;padding:6px">'+esc(myAddr)+'</div>'; } }catch(e){} }
+  function renderQRInto(boxId){ try{ const box=$(boxId); if(!box||!myAddr)return; box.innerHTML=''; if(window.QRCode){ new window.QRCode(box,{text:myAddr,width:160,height:160,colorDark:'#0b0f0d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); } else { box.innerHTML='<div style="color:#111;font-size:11px;word-break:break-all;padding:6px">'+esc(myAddr)+'</div>'; } }catch(e){} }
+  function renderWalletQR(){ renderQRInto('mw_qr'); }
+  // 对局中筹码不足:弹收款码,从别的钱包转入,到账(余额自动刷新)后自动继续
+  function showTopup(cost){
+    openModal('余额不足 · 扫码充值',
+      `<div class="form-note" style="text-align:center;margin-bottom:10px">本局需 <b style="color:#e8c783">${fmt(cost)} ${SYM}</b>，你当前余额 <b id="tuBal">${fmt(myBalNum)}</b> ${SYM} 不够。<br>用<b>别的钱包</b>扫下面的码、或复制地址，把 ${SYM} 转进来，<b>到账后自动可继续出牌</b>。</div>
+       <div class="wallet-row" style="flex-direction:column;align-items:center;gap:10px">
+         <div id="tu_qr" style="width:180px;height:180px;background:#fff;border-radius:12px;padding:10px;box-sizing:border-box;display:flex;align-items:center;justify-content:center"></div>
+         <div style="font-size:12px;color:#9fb3a6;word-break:break-all;text-align:center">${esc(myAddr)}</div>
+         <button class="small-button" data-action="copy-addr">复制地址</button>
+       </div>
+       <div class="form-note" style="text-align:center;margin-top:8px;color:#e8c783">⏱ 请在本局倒计时内到账，超时会自动弃牌</div>
+       <div style="display:flex;gap:8px;margin-top:12px">
+         <button class="gold-button" style="flex:1" data-action="refresh-bal">↻ 刷新余额</button>
+         <button class="small-button" data-action="fold-close">先弃牌</button>
+       </div>`,'TOP UP');
+    _topupOpen=true; renderQRInto('tu_qr');
+  }
   function showWallet(){
     const connected=!!myAddr;
     const avatarSet=''; // 头像功能已取消,改回默认字母头像
@@ -670,7 +690,7 @@
   // ---------- 事件 ----------
   document.addEventListener('fullscreenchange',updateFullscreen);
   document.addEventListener('webkitfullscreenchange',updateFullscreen);
-  $('modal').addEventListener('close',()=>{const t=modalFocus;modalFocus=null;if(t&&t.isConnected&&!t.disabled&&t.getClientRects().length)t.focus();});
+  $('modal').addEventListener('close',()=>{_topupOpen=false;const t=modalFocus;modalFocus=null;if(t&&t.isConnected&&!t.disabled&&t.getClientRects().length)t.focus();});
   $('modal').addEventListener('click',e=>{if(e.target!==$('modal'))return;const r=$('modal').getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeModal();});
   document.addEventListener('click',async e=>{
     const b=e.target.closest('button,a[data-view]'); if(!b||b.disabled)return;
@@ -698,6 +718,7 @@
         case 'create-confirm':doCreate();break;
         case 'refresh-bal':{ if(!myAddr){toast('请先连接钱包');break;} toast('刷新中…'); await Promise.all([refreshBalances(), refreshWalletBalances()]); toast('余额已刷新'); break; }
         case 'copy-addr':{ if(!myAddr)break; try{ await navigator.clipboard.writeText(myAddr); toast('✅ 地址已复制'); }catch(e){ toast('复制失败，请长按上面的地址手动复制'); } break; }
+        case 'fold-close':{ closeModal(); doFold(); break; }
         case 'toggle-qr':{ qrOpen=!qrOpen; const w=$('mw_qrwrap'); if(w)w.style.display=qrOpen?'flex':'none'; if(b)b.textContent=(qrOpen?'▾':'▸')+' 收款码'; if(qrOpen)renderWalletQR(); break; }
         case 'rec-toggle':{ const d=$('recd-'+b.dataset.idx); if(d)d.hidden=!d.hidden; break; }
         case 'pick-avatar':{ const f=$('avatarFile'); if(f)f.click(); break; }
