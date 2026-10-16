@@ -600,7 +600,7 @@
        <div class="tier-options" role="group" aria-label="牌桌布局">${Object.keys(LAYOUTS).map(k=>`<button class="tier-button ${tableLayout===k?'selected':''}" data-tlayout="${k}" aria-pressed="${tableLayout===k}"><strong>${LAYOUTS[k].slice(0,2)}</strong><span>${LAYOUTS[k].slice(3)}</span></button>`).join('')}</div>`;
     openModal('我的', avatarSet + (connected?
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
-       <button class="small-button" data-action="toggle-qr" style="width:100%;margin-top:6px;text-align:left">${qrOpen?'▾':'▸'} 收款码（余额不足时扫码转入）</button>
+       <button class="small-button" data-action="toggle-qr" style="width:100%;margin-top:6px;text-align:left">${qrOpen?'▾':'▸'} 收款码</button>
        <div id="mw_qrwrap" style="flex-direction:column;align-items:center;gap:10px;margin-top:8px;display:${qrOpen?'flex':'none'}">
          <div id="mw_qr" style="width:180px;height:180px;background:#fff;border-radius:12px;padding:10px;box-sizing:border-box;display:flex;align-items:center;justify-content:center"></div>
          <div id="mw_addr_full" style="font-size:12px;color:#9fb3a6;word-break:break-all;text-align:center">${esc(myAddr)}</div>
@@ -763,7 +763,7 @@
         case 'create-confirm':doCreate();break;
         case 'refresh-bal':{ if(!myAddr){toast('请先连接钱包');break;} toast('刷新中…'); await Promise.all([refreshBalances(), refreshWalletBalances()]); toast('余额已刷新'); break; }
         case 'copy-addr':{ if(!myAddr)break; try{ await navigator.clipboard.writeText(myAddr); toast('✅ 地址已复制'); }catch(e){ toast('复制失败，请长按上面的地址手动复制'); } break; }
-        case 'toggle-qr':{ qrOpen=!qrOpen; const w=$('mw_qrwrap'); if(w)w.style.display=qrOpen?'flex':'none'; if(b)b.textContent=(qrOpen?'▾':'▸')+' 收款码（余额不足时扫码转入）'; if(qrOpen)renderWalletQR(); break; }
+        case 'toggle-qr':{ qrOpen=!qrOpen; const w=$('mw_qrwrap'); if(w)w.style.display=qrOpen?'flex':'none'; if(b)b.textContent=(qrOpen?'▾':'▸')+' 收款码'; if(qrOpen)renderWalletQR(); break; }
         case 'rec-toggle':{ const d=$('recd-'+b.dataset.idx); if(d)d.hidden=!d.hidden; break; }
         case 'pick-avatar':{ const f=$('avatarFile'); if(f)f.click(); break; }
         case 'save-avatar':{ if(!pendingAvatar){toast('请先点头像选择图片');break;} if(!authed){toast('未连接对战服务，稍候重试');break;} toast('保存中…'); wsend({t:'setAvatar',avatar:pendingAvatar}); clearTimeout(window._avT); window._avT=setTimeout(()=>{window._avT=null;toast('⚠ 上传超时，请检查网络后重试');},8000); break; }
