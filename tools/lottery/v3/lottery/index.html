@@ -267,13 +267,14 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   function TR(s){return window.tr?window.tr(s):s;}
   function num(hx){return parseInt(hx,16)||0;}
   function rpc(m,pr){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:m,params:pr})}).then(function(r){return r.json();}).then(function(j){return j.result;});}
-  async function getLogs(topic,addr,from){
-    var key=addr+'|'+topic;var c=_lc[key]||(_lc[key]={next:from,logs:[]});
-    var latest=num(await rpc('eth_blockNumber',[]));var f=c.next;
-    while(f<=latest){var t=Math.min(f+4999,latest);
-      try{var part=await rpc('eth_getLogs',[{address:addr,topics:[topic],fromBlock:'0x'+f.toString(16),toBlock:'0x'+t.toString(16)}]);if(part&&part.length)for(var i=0;i<part.length;i++)c.logs.push(part[i]);}catch(e){}
-      f=t+1;}
-    if(latest+1>c.next)c.next=latest+1;return c.logs;}
+  async function getLogs(topic,addr,from){ // 改用Blockscout索引接口一次查全范围(避免RPC每次5000块上限扫上千次卡死)
+    var key=addr+'|'+topic;if(_lc[key])return _lc[key];
+    try{
+      var url='https://browser.anubispace.org/api?module=logs&action=getLogs&fromBlock='+from+'&toBlock=latest&address='+addr+'&topic0='+topic;
+      var j=await fetch(url).then(function(r){return r.json();});
+      var logs=(j&&j.result&&Array.isArray(j.result))?j.result:[];
+      _lc[key]=logs;return logs;
+    }catch(e){return [];}}
   function decArr(d,off,isAddr){var n=num(d.slice(off,off+64));var a=[];for(var i=0;i<n;i++){var w=d.slice(off+64*(i+1),off+64*(i+2));a.push(isAddr?('0x'+w.slice(-40)):BigInt('0x'+(w||'0')));}return a;}
   function fmtN(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
   async function loadDraw(){
@@ -302,7 +303,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
       wl.forEach(function(l){var d=(l.data||'0x').replace(/^0x/,'');var ow=num(d.slice(0,64))*2,oa=num(d.slice(64,128))*2;var ws=decArr(d,ow,true),as=decArr(d,oa,false);for(var i=0;i<ws.length;i++){if(ws[i].toLowerCase()===me){wc++;wa+=as[i];}}});
       var D=data[sel]||{};var spent=(D.price||0n)*tk;var net=wa-spent;var neg=net<0n;var na=neg?(0n-net):net;var S=P.sym;
       box.innerHTML='<div class="mstats">'+cell(TR('累计买票'),tk.toString())+cell(TR('花费'),'≈ '+fmtN(spent,P.d)+' '+S)+cell(TR('中奖'),wc+'× · '+fmtN(wa,P.d)+' '+S)+cell(TR('净盈亏'),(neg?'-':'+')+fmtN(na,P.d)+' '+S,neg?'#ff8f8f':'var(--accent)')+'</div>';
-    }catch(e){box.innerHTML='<div class="note">'+TR('加载中…')+'</div>';}}
+    }catch(e){box.innerHTML='<div class="note">'+TR('暂无记录')+'</div>';}}
   async function loadHistory(){
     var box=document.getElementById('history');if(!box)return;box.innerHTML='<div class="note">'+TR('加载中…')+'</div>';
     var P=POOLS[sel];
