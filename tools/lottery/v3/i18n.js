@@ -135,7 +135,10 @@
   '设置':['Set'],'注资':['Seed'],'当前':['Current'],'请输入金额':['Enter an amount'],
   '票价已更新':['Ticket price updated'],'开奖周期已更新':['Round duration updated'],'注资成功！':['Seeded!'],
   '确定要把票价改为':['Change ticket price to'],'吗？':['?'],
-  '新票价':['New ticket price'],'新周期（小时）':['New duration (hours)'],'注资金额':['Seed amount']
+  '新票价':['New ticket price'],'新周期（小时）':['New duration (hours)'],'注资金额':['Seed amount'],
+  'ANUBIS PLAY · 霓虹大厅预览':['ANUBIS PLAY · Game Lobby'],'链上彩票 · ANUBIS PLAY':['On-chain Lottery · ANUBIS PLAY'],
+  '邀请奖励 · ANUBIS PLAY':['Referral Rewards · ANUBIS PLAY'],'个人中心 · ANUBIS PLAY':['Account · ANUBIS PLAY'],
+  '帮助中心 · ANUBIS PLAY':['Help Center · ANUBIS PLAY'],'平台公告 · ANUBIS PLAY':['Announcements · ANUBIS PLAY']
   };
   var LANG='zh';
   try{LANG=localStorage.getItem('aplang')||'zh';}catch(e){}
@@ -151,8 +154,10 @@
     ru:'Исследуй вселенную игр, <em>открывай Anubis</em>',
     vi:'Khám phá vũ trụ game, <em>mở ra nhiều hơn với Anubis</em>',
     es:'Explora el universo del juego, <em>descubre más de Anubis</em>'};
+  var _title='';
   window.applyLang=function(l){LANG=l;try{localStorage.setItem('aplang',l);}catch(e){}
     document.documentElement.setAttribute('lang',l==='zh'?'zh-CN':l);
+    if(_title)try{document.title=window.tr(_title,l);}catch(e){}
     for(var _i=0;_i<_tn.length;_i++){var o=_tn[_i];try{o.node.nodeValue=o.pre+window.tr(o.zh,l)+o.post;}catch(e){}}
     var hh=document.getElementById('heroH2');if(hh)hh.innerHTML=HERO[l]||HERO.zh;
     var lc=document.getElementById('langCode');if(lc){lc.innerHTML='';}
@@ -166,7 +171,7 @@
   function build(){
     if(!document.getElementById('langBackdrop')){var _bd=document.createElement('div');_bd.id='langBackdrop';_bd.hidden=true;_bd.style.cssText='position:fixed;inset:0;z-index:199;background:transparent';_bd.onclick=closeMenu;document.body.appendChild(_bd);}
     var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<a class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':'')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</a>';}).join('');}
-    collect();applyLang(LANG);
+    _title=(document.title||'').trim();collect();applyLang(LANG);
   }
   if(document.readyState!=='loading')build();else document.addEventListener('DOMContentLoaded',build);
 })();
