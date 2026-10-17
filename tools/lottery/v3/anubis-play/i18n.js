@@ -6,6 +6,14 @@
   'use strict';
   // [中文, English] —— 运行时按中文长度降序排序,长短语先替换,避免"看牌/已看牌"这类子串误伤
   var MAP = [
+    // 钱包引导
+    ["本游戏押真币、链上结算，需要在 Web3 钱包里打开。请用下方钱包打开，或在钱包 App 的浏览器里访问 anubislottery.com","This game uses real tokens settled on-chain and must be opened in a Web3 wallet. Use a wallet below, or visit anubislottery.com inside your wallet app's browser."],
+    ["已复制，去钱包App浏览器粘贴打开","Copied — paste it in your wallet app's browser"],
+    ["继续浏览（稍后连接）","Keep browsing (connect later)"],
+    ["需要 Web3 钱包","Web3 wallet required"],
+    ["在 OKX 钱包打开","Open in OKX Wallet"],
+    ["在 MetaMask 打开","Open in MetaMask"],
+    ["复制网址","Copy link"],
     // 长句 / 整段
     ["横过手机，或点右侧按钮一键横屏","Rotate your phone, or tap the button for landscape"],
     ["真人对战，押真 LGNS / DAI，链上公平结算。","Live PvP · real LGNS / DAI · provably fair on-chain."],
