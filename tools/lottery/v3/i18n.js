@@ -141,7 +141,10 @@
   '帮助中心 · ANUBIS PLAY':['Help Center · ANUBIS PLAY'],'平台公告 · ANUBIS PLAY':['Announcements · ANUBIS PLAY']
   };
   var LANG='zh';
-  try{LANG=localStorage.getItem('aplang')||'zh';}catch(e){}
+  try{
+    LANG=localStorage.getItem('aplang')||'';
+    if(!LANG){ var _bl=(navigator.language||navigator.userLanguage||'').slice(0,2).toLowerCase(); LANG=(_bl==='zh')?'zh':(ORDER.indexOf(_bl)>=0?_bl:'en'); } // 无存储则跟随浏览器语言(非中文=英文)
+  }catch(e){ LANG='zh'; }
   function idx(l){return ORDER.indexOf(l);}
   window.tr=function(zh,l){l=l||LANG;if(l==='zh')return zh;var e=D[zh];var i=idx(l);return (e&&i>=0&&e[i])||zh;};
   window.getLang=function(){return LANG;};
@@ -167,11 +170,20 @@
   };
   function closeMenu(){var m=document.getElementById('langMenu');if(m)m.hidden=true;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=true;}
   window.toggleLangMenu=function(ev){if(ev){ev.stopPropagation();ev.preventDefault();}var m=document.getElementById('langMenu');if(!m)return;var willOpen=m.hidden;m.hidden=!willOpen;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=!willOpen;};
-  window.setLang=function(l){window.applyLang(l);closeMenu();};
+  window.setLang=function(l){ try{localStorage.setItem('aplang',l);}catch(e){} location.reload(); }; // 切语言=存储后刷新,刷新后干净重译(含后渲染内容)
   function build(){
     if(!document.getElementById('langBackdrop')){var _bd=document.createElement('div');_bd.id='langBackdrop';_bd.hidden=true;_bd.style.cssText='position:fixed;inset:0;z-index:199;background:transparent';_bd.onclick=closeMenu;document.body.appendChild(_bd);}
     var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<a class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':'')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</a>';}).join('');}
     _title=(document.title||'').trim();collect();applyLang(LANG);
+    if(LANG!=='zh'){
+      // 大厅内容是JS后渲染的:持续监听DOM,把新出现的中文也翻译掉(只做文本替换,不触发业务重渲染,防循环)
+      var _tp=function(){ try{ collect(); for(var i=0;i<_tn.length;i++){var o=_tn[i]; o.node.nodeValue=o.pre+window.tr(o.zh,LANG)+o.post;} var hh=document.getElementById('heroH2'); if(hh&&HERO[LANG])hh.innerHTML=HERO[LANG]; }catch(e){} };
+      try{
+        var _o=new MutationObserver(function(){ if(window.__i18nP)return; window.__i18nP=true; (window.requestAnimationFrame||function(f){setTimeout(f,16);})(function(){ window.__i18nP=false; try{_o.disconnect();_tp();}catch(e){} try{_o.observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){} }); });
+        _o.observe(document.body,{childList:true,subtree:true,characterData:true});
+      }catch(e){}
+      setTimeout(_tp,400); setTimeout(_tp,1500); setTimeout(_tp,3500);
+    }
   }
   if(document.readyState!=='loading')build();else document.addEventListener('DOMContentLoaded',build);
 })();
