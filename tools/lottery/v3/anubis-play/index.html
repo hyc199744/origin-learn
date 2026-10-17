@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="styles.css?v=1026foldx2">
   <style>.brand-logo{height:44px;width:44px;object-fit:contain;display:block;border-radius:10px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}@media(max-width:650px){.brand-logo{height:36px;width:36px}}@media(orientation:landscape) and (max-height:600px){.brand-logo{height:32px;width:32px}}</style>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script defer src="i18n.js?v=1028wallet"></script>
+  <script defer src="i18n.js?v=1029tp"></script>
   <script defer src="app.js?v=1026foldx2"></script>
 </head>
 <body>
@@ -167,14 +167,16 @@
       if(document.getElementById('apWalletGate')) return;
       var mm='https://metamask.app.link/dapp/anubislottery.com/anubis-play/';
       var okx='okx://wallet/dapp/url?dappUrl='+encodeURIComponent(FULL);
+      var tp='tpdapp://open?params='+encodeURIComponent(JSON.stringify({url:FULL,chain:'ETH',source:'ANUBIS PLAY'}));
       var w=document.createElement('div'); w.id='apWalletGate';
       w.style.cssText='position:fixed;inset:0;z-index:99998;background:rgba(6,16,11,.93);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px';
       w.innerHTML='<div style="width:100%;max-width:380px;background:linear-gradient(180deg,#141c18,#0f1713);border:1px solid #e0bd6640;border-radius:18px;padding:22px;box-shadow:0 24px 60px #000a;text-align:center;color:#eaf3ee;font-family:Inter,system-ui,sans-serif">'
         +'<div style="font-size:34px;margin-bottom:4px">🔐</div>'
         +'<h2 style="margin:0 0 6px;font-size:19px;color:#e0bd68">需要 Web3 钱包</h2>'
-        +'<p style="margin:0 0 16px;font-size:13px;color:#9fb3a6;line-height:1.7">本游戏押真币、链上结算，需要在 Web3 钱包里打开。请用下方钱包打开，或在钱包 App 的浏览器里访问 anubislottery.com</p>'
+        +'<p style="margin:0 0 16px;font-size:13px;color:#9fb3a6;line-height:1.7">请在 Web3 钱包里打开本站。用下方钱包打开，或在钱包 App 的浏览器里访问 anubislottery.com</p>'
         +'<a href="'+okx+'" style="display:block;background:linear-gradient(180deg,#d4f06a,#b6e24a);color:#17200b;font-weight:800;font-size:15px;padding:13px;border-radius:12px;text-decoration:none;margin-bottom:10px">在 OKX 钱包打开</a>'
         +'<a href="'+mm+'" style="display:block;background:#17231b;color:#e0bd68;border:1px solid #e0bd6855;font-weight:800;font-size:15px;padding:13px;border-radius:12px;text-decoration:none;margin-bottom:10px">在 MetaMask 打开</a>'
+        +'<a href="'+tp+'" style="display:block;background:#17231b;color:#e0bd68;border:1px solid #e0bd6855;font-weight:800;font-size:15px;padding:13px;border-radius:12px;text-decoration:none;margin-bottom:10px">在 TP 钱包打开</a>'
         +'<button id="apWgCopy" type="button" style="display:block;width:100%;background:#0f1519;color:#9fb3a6;border:1px solid #ffffff1a;font-weight:700;font-size:13px;padding:11px;border-radius:12px;cursor:pointer;margin-bottom:10px">复制网址</button>'
         +'<button id="apWgSkip" type="button" style="background:none;border:0;color:#7e9583;font-size:12px;cursor:pointer;padding:6px">继续浏览（稍后连接）</button>'
         +'</div>';
