@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="styles.css?v=1018e">
   <style>.brand-logo{height:44px;width:44px;object-fit:contain;display:block;border-radius:10px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}@media(max-width:650px){.brand-logo{height:36px;width:36px}}@media(orientation:landscape) and (max-height:600px){.brand-logo{height:32px;width:32px}}</style>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script defer src="app.js?v=1018x"></script>
+  <script defer src="app.js?v=1019allin"></script>
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -102,6 +102,7 @@
             <button class="action raise" data-action="raise" id="jtRaise"><svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>加注</span></button>
             <button class="action compare" data-action="compare" id="jtCompare"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4 20 20M20 4 4 20M3 18l4 3M17 3l4 3"/></svg><span>比牌</span></button>
             <button class="action call" data-action="call" id="jtCall"><span>跟注</span><small id="jtCallAmt">0</small><svg class="icon" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
+            <button class="action allin" data-action="allin" id="jtAllIn" hidden><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v18M5 10l7-7 7 7"/></svg><span>全下比牌</span></button>
           </div>
           <p class="dock-foot" id="jtDockFoot">押真 LGNS · 链上公平结算 · 奖金自动到账</p>
         </footer>

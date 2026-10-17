@@ -9,10 +9,10 @@
 
   // ---- 多池配置:LGNS/DAI/RM/USDT,各自独立后端(WSS)/合约/代币/小数/档位。正式合约,owner=feeTo=0x4A5f8D ----
   const TOKENS={
-    lgns:{ key:'lgns', label:'LGNS', sym:'LGNS', wss:'wss://zjgame.web3origin.com',     contract:'0xC66BD371b8fc7e839b3d8Ade0CD572E04aA9F72C', token:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8', dec:9,  tiers:[10,50,100],     delegate:'0xC7fd978C49c69447313C22E8c57fC29adBb64fC9' },
-    dai: { key:'dai',  label:'DAI',  sym:'DAI',  wss:'wss://zjgame.web3origin.com/dai', contract:'0xab854E16dF42857aB3B682C0A1Ea5B1DB47f4235', token:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14', dec:18, tiers:[1,5,10,50],      delegate:'0xfaE7F7c17F10269760eb3AaF162161F362367b22' },
-    rm:  { key:'rm',   label:'RM',   sym:'RM',   wss:'wss://zjgame.web3origin.com/rm',  contract:'0x0B442160Cb7B0FDFD4C3422677958cF8F9929641', token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9,  tiers:[0.1,0.2,0.5,1], delegate:'0xc199963Bd66a104c40989a1749C85118232475A8' },
-    usdt:{ key:'usdt', label:'USDT', sym:'USDT', wss:'wss://zjgame.web3origin.com/usdt',contract:'0x24388daf4fdd198e8d021F02A37a2D82393D0DBF', token:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,  tiers:[1,5,10,50],      delegate:'0xAe88781f9B88f774A4F2254499F3ff0FF69bAD8f' }
+    lgns:{ key:'lgns', label:'LGNS', sym:'LGNS', wss:'wss://zjgame.web3origin.com',     contract:'0x628e54169677551b1C6cF77a3d68C04Bd76789E1', token:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8', dec:9,  tiers:[10,50,100],     delegate:'0xC7fd978C49c69447313C22E8c57fC29adBb64fC9' },
+    dai: { key:'dai',  label:'DAI',  sym:'DAI',  wss:'wss://zjgame.web3origin.com/dai', contract:'0x01ece8971b658483Cb0Dc33F071d1EcEFfA07A6D', token:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14', dec:18, tiers:[1,5,10,50],      delegate:'0xfaE7F7c17F10269760eb3AaF162161F362367b22' },
+    rm:  { key:'rm',   label:'RM',   sym:'RM',   wss:'wss://zjgame.web3origin.com/rm',  contract:'0x143905b577A13aeC122C37eB6e88636AF3e1b470', token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9,  tiers:[0.1,0.2,0.5,1], delegate:'0xc199963Bd66a104c40989a1749C85118232475A8' },
+    usdt:{ key:'usdt', label:'USDT', sym:'USDT', wss:'wss://zjgame.web3origin.com/usdt',contract:'0xB8d3ca7A5ae0FB079a4D0b2bffd2C2244455B7f4', token:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,  tiers:[1,5,10,50],      delegate:'0xAe88781f9B88f774A4F2254499F3ff0FF69bAD8f' }
   };
   let curToken='lgns'; try{ const _t=localStorage.getItem('ap_token'); if(_t&&TOKENS[_t])curToken=_t; }catch(e){}
   let WSS, CONTRACT, LGNS, DEC, SYM, TIERS;
@@ -345,7 +345,7 @@
     $('jtCallAmt').textContent=fmt(cost)+' '+SYM;
     const myTurn=!comparing&&mi>=0&&state.turnAddr&&isMe(state.turnAddr)&&me&&!me.folded;
     gtTick();
-    if(pending){ ['jtFold','jtPeek','jtRaise','jtCompare','jtCall'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); $('jtTurnMain').textContent='处理中…'; return; }
+    if(pending){ ['jtFold','jtPeek','jtRaise','jtCompare','jtCall','jtAllIn'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); $('jtTurnMain').textContent='处理中…'; return; }
     if(comparing){ $('jtTurnMain').textContent='比牌裁决中'; $('jtTurnHint').textContent='马上出结果'; }
     else if(myTurn){ $('jtTurnMain').textContent='轮到你行动'; $('jtTurnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' '+SYM; }
     else if(mi<0){ $('jtTurnMain').textContent='观战中'; $('jtTurnHint').textContent='本局结束后点「继续下一局」即可加入'; }
@@ -354,12 +354,17 @@
     const dis=!myTurn;
     if(myTurn){ const now=Date.now(); if(now-_balT>1500){ _balT=now; refreshBalances().then(()=>{ if(state&&state.phase===2&&!pending)render(); }); } } // 轮到我:刷新余额判断够不够跟
     const poor = myTurn && balFetched && myBalNum < cost; // 筹码不够跟注
+    const headsup = state.nActive===2;                    // 单挑(剩两人)
+    const canAllIn = poor && headsup && myTurn;            // 单挑且付不起→可全下比牌
     $('jtFold').disabled=dis; $('jtPeek').disabled=dis||looked; $('jtPeekSmall').textContent=looked?'已看牌':'看牌';
     $('jtRaise').disabled=dis||poor; $('jtCompare').disabled=dis||state.nActive<2||poor; $('jtCall').disabled=dis||poor;
-    if(poor){ $('jtTurnMain').textContent='筹码不足'; $('jtTurnHint').textContent='余额 '+fmt(myBalNum)+' < 需跟 '+fmt(cost)+' '+SYM+'，扫码充值到账后继续，或弃牌'; }
+    { const ai=$('jtAllIn'); if(ai){ ai.hidden=!canAllIn; ai.disabled=!canAllIn; } } // 全下按钮:仅单挑付不起时亮
+    if(poor){ $('jtTurnMain').textContent='筹码不足';
+      $('jtTurnHint').textContent = headsup ? '付不起跟注——可「全下比牌」押上剩余跟对手比，谁大谁赢；或弃牌'
+                                            : '余额 '+fmt(myBalNum)+' < 需跟 '+fmt(cost)+' '+SYM+'，扫码充值到账后继续，或弃牌'; }
     else if(picking&&myTurn){ $('jtTurnHint').textContent='点一个对手比牌，或再次点比牌取消'; }
-    // 筹码不足:弹收款码让玩家从别的钱包转入;到账后(余额刷新)自动关闭并可继续
-    if(poor){ if(!_topupSeen){ _topupSeen=true; showTopup(cost); } const tb=$('tuBal'); if(tb)tb.textContent=fmt(myBalNum); }
+    // 筹码不足且非单挑(无全下选项):弹收款码让玩家转入;单挑则显示全下按钮、不弹窗挡住按钮
+    if(poor && !headsup){ if(!_topupSeen){ _topupSeen=true; showTopup(cost); } const tb=$('tuBal'); if(tb)tb.textContent=fmt(myBalNum); }
     else { if(_topupSeen && _topupOpen){ closeModal(); toast('✅ 余额已到账，继续出牌'); } _topupSeen=false; }
   }
   function animateDeal(){ playSound('card'); const c=$('jtCards'); if(c){ c.classList.remove('deal'); void c.offsetWidth; c.classList.add('deal'); } }
@@ -473,7 +478,7 @@
 
   // ---------- 行动 ----------
   function act(action,extra){ wsend(Object.assign({t:'act',handId:curHand,action},extra||{})); }
-  function setPending(txt){ pending=true; cdActive=false; ['jtFold','jtPeek','jtRaise','jtCompare','jtCall'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('jtTurnMain'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
+  function setPending(txt){ pending=true; cdActive=false; ['jtFold','jtPeek','jtRaise','jtCompare','jtCall','jtAllIn'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('jtTurnMain'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
   // 乐观更新:点了立刻在本地改状态(底池/我的投入/先交出回合),链上确认后由真实state对齐
   function optimBet(extra){ const mi=meIdx(); if(mi<0||!state)return; const me=state.players[mi]; const base=BigInt(state.curBet)+(extra||0n); const cost=(me.looked||myLookedLocal)?base*2n:base; const nc=(BigInt(me.contributed)+cost).toString(); state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{contributed:nc}):p); state.pot=(BigInt(state.pot)+cost).toString(); if(extra)state.curBet=base.toString(); state.turnAddr=ZERO; }
   function optimFold(){ const mi=meIdx(); if(mi<0||!state)return; state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{folded:true}):p); state.turnAddr=ZERO; }
@@ -486,6 +491,7 @@
   function doCall(){ const wl=pendingLook;pendingLook=false; optimBet(0n); act('call',{withLook:wl}); playSound(); logAct('你 跟注'); setPending('已跟注，等其他玩家…'); render(); }
   function doRaise(){ const wl=pendingLook;pendingLook=false; try{optimBet(BigInt(state.ante));}catch(e){} act('raise',{withLook:wl}); playSound(); logAct('你 加注'); setPending('已加注，等其他玩家…'); render(); }
   function startCompare(){ if(!state||state.nActive<2){toast('暂无可比牌的对手');return;} picking=!picking; if(picking){openCompare();} render(); }
+  function doAllIn(){ if(!state||state.nActive!==2){toast('只有单挑(剩两人)才能全下比牌');return;} const wl=pendingLook;pendingLook=false; picking=false; act('allin',{withLook:wl}); playSound(); logAct('你 全下比牌'); setPending('全下比牌中…'); render(); }
   function doCompare(addr){ const wl=pendingLook;pendingLook=false; picking=false; setPending('比牌中…'); act('compare',{target:addr,withLook:wl}); logAct('你 比牌'); closeModal(); }
   async function doClaim(){ if(!myAddr)return; try{toast('领取中…');await sendTx(SEL.withdraw);toast('已领取到钱包');refreshBalances();}catch(e){toast(e.message||'暂无可领');} }
   // 头像:选图→画布裁成方形小图(100px/JPEG)压到30KB内→上链前发后端存,同桌可见
@@ -730,6 +736,7 @@
         case 'call':doCall();break;
         case 'raise':doRaise();break;
         case 'compare':startCompare();break;
+        case 'allin':doAllIn();break;
         case 'next':{ if(!curHand)break; if(!authorized){ await doAuthorize(); if(!authorized)break; } wsend({t:'rematch',handId:curHand}); toast('继续下一局…'); break; }
         case 'ready':await doReady();break;
         case 'leave':backToLobby();break;
