@@ -310,14 +310,20 @@
 
   function injectToggle(){
     if(document.getElementById('apLangToggle')) return;
-    var b=document.createElement('button');
-    b.id='apLangToggle';
-    b.type='button';
-    b.textContent = (LANG==='en' ? '中文' : 'EN');
-    b.title = (LANG==='en' ? '切换到中文' : 'Switch to English');
-    b.style.cssText='position:fixed;z-index:9999;top:calc(8px + env(safe-area-inset-top,0px));right:10px;font:700 12px/1 Inter,system-ui,sans-serif;color:#e8c783;background:rgba(10,16,13,.85);border:1px solid #e0bd6666;border-radius:999px;padding:7px 12px;cursor:pointer;backdrop-filter:blur(4px);box-shadow:0 4px 14px #0008';
-    b.onclick=function(){ var nl = (LANG==='en'?'zh':'en'); try{ localStorage.setItem('ap_lang', nl); }catch(e){} location.reload(); };
-    document.body.appendChild(b);
+    function mk(id){
+      var b=document.createElement('button'); b.id=id; b.type='button';
+      b.title=(LANG==='en'?'切换到中文':'Switch to English'); b.setAttribute('aria-label','Language');
+      b.textContent='🌐'; // 🌐 小地球
+      b.style.cssText='display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1;color:#c8f665;background:#0f1519;border:1px solid #ffffff1f;border-radius:10px;width:40px;height:40px;cursor:pointer;margin-right:8px;flex:none;padding:0';
+      b.onclick=function(){ var nl=(LANG==='en'?'zh':'en'); try{ localStorage.setItem('ap_lang', nl); }catch(e){} location.reload(); };
+      return b;
+    }
+    // 桌面:放到「连接钱包」左边
+    var hr=document.querySelector('.header-right');
+    if(hr){ var wb=hr.querySelector('.wallet-button'); var b1=mk('apLangToggle'); if(wb) hr.insertBefore(b1,wb); else hr.insertBefore(b1,hr.firstChild); }
+    // 手机:放到「连接钱包」左边
+    var mc=document.getElementById('mConnectBtn');
+    if(mc&&mc.parentNode){ var b2=mk('apLangToggleM'); mc.parentNode.insertBefore(b2,mc); }
   }
 
   function start(){
