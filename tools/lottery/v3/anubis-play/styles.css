@@ -644,8 +644,8 @@ body.force-landscape .felt-watermark{opacity:.5}
 .jt-game .seat-status{display:inline-block;padding:2px 5px;border:1px solid #b1bc9a18;border-radius:4px;background:#071c17bb;color:#98aa93;font-size:9px;line-height:1.2;max-width:95%;white-space:nowrap}
 .jt-game .seat.playing .avatar{box-shadow:0 0 0 3px #dfc3842b,0 0 20px #d9c58a2b;border-color:#f1d5a2}
 .jt-game .seat.playing .seat-status{color:#f0d99e;border-color:#cdb17855}
-.jt-game .seat.folded{opacity:.38}
-.jt-game .seat.folded .mini-hand{filter:grayscale(1)}
+.jt-game .seat.folded{opacity:.62}
+.jt-game .seat.folded .mini-hand .card{filter:grayscale(.85)}
 .jt-game .pot{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);z-index:1;text-align:center;min-width:115px}
 .jt-game .pot-label{font-size:9px;letter-spacing:3px;color:#bfccac}
 .jt-game .pot-total{display:flex;justify-content:center;align-items:baseline;gap:4px;margin:4px 0 2px}
@@ -941,4 +941,5 @@ including the preview frames. */
 
 /* 对手弃牌:牌背上盖红色叉叉(folded-x 由 app.js renderGtSeats 切换) */
 .mini-hand.folded-x{position:relative}
-.mini-hand.folded-x::after{content:'\2715';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ff3b3b;font-size:30px;font-weight:900;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.7),0 0 3px #ff3b3b;pointer-events:none;z-index:3}
+.mini-hand.folded-x::before{content:'';position:absolute;inset:-3px;background:rgba(0,0,0,.42);border-radius:7px;z-index:2;pointer-events:none}
+.mini-hand.folded-x::after{content:'\2715';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ff2020;font-size:42px;font-weight:900;line-height:1;-webkit-text-stroke:2px #fff;text-shadow:0 0 5px #000,0 2px 7px #000,0 0 12px rgba(255,32,32,.9);pointer-events:none;z-index:4}
