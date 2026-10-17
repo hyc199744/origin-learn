@@ -66,6 +66,26 @@
   async function roomPhase(id){ // 查房间当前阶段:0不存在/1等待/2下注/3摊牌/4结束/5退款, -1出错
     try{ const r=await rcall(CONTRACT,'d47f269e'+enc(id)); if(!r||r.length<64)return 0; return parseInt(r.slice(62,64),16)||0; }catch(e){ return -1; }
   }
+  // ---- 回到对局(防手滑点返回丢失当前局) ----
+  async function phaseOfContract(contract,id){ try{ const r=await rcall(contract,'d47f269e'+enc(id)); if(!r||r.length<64)return 0; return parseInt(r.slice(62,64),16)||0; }catch(e){ return -1; } }
+  function saveActiveHand(pool,id){ try{localStorage.setItem('ap_activeHand',JSON.stringify({pool,id:String(id)}));}catch(e){} }
+  function clearActiveHand(id){ try{ const r=JSON.parse(localStorage.getItem('ap_activeHand')||'null'); if(r && (id==null||String(r.id)===String(id))) localStorage.removeItem('ap_activeHand'); }catch(e){} }
+  function rememberHand(m){ try{ const me=(m.players||[]).find(p=>isMe(p.addr)); if(me && !me.folded && Number(m.phase)>=1 && Number(m.phase)<4){ saveActiveHand(curToken, m.handId); } else { clearActiveHand(m.handId); } }catch(e){} }
+  async function checkResume(){
+    const old=$('resumeBar'); if(old)old.remove();
+    let rec=null; try{ rec=JSON.parse(localStorage.getItem('ap_activeHand')||'null'); }catch(e){}
+    if(!rec||!rec.id) return;
+    const pk=(rec.pool&&TOKENS[rec.pool])?rec.pool:curToken;
+    const ph=await phaseOfContract(TOKENS[pk].contract, rec.id);
+    if(ph!==1 && ph!==2){ clearActiveHand(rec.id); return; } // 已结束/退款/不存在→清掉不显示
+    const lob=$('lobbyView'); if(!lob||view!=='lobby') return;
+    const old2=$('resumeBar'); if(old2)old2.remove();
+    const bar=document.createElement('div'); bar.id='resumeBar';
+    bar.style.cssText='margin:12px 0;padding:14px 16px;border-radius:14px;background:linear-gradient(90deg,#2a1e08,#16281f);border:1px solid #e0bd6666;display:flex;align-items:center;gap:12px;cursor:pointer';
+    bar.innerHTML='<span style="font-size:22px">⏳</span><div style="flex:1;min-width:0"><div style="font-weight:800;color:#e0bd68">你还有一局对局进行中</div><div style="font-size:12px;color:#8ba398">'+TOKENS[pk].label+' 池 · 房 #'+rec.id+'，点此回到牌桌继续（别超时被判弃）</div></div><span style="background:#e0bd68;color:#1a1200;font-weight:800;padding:9px 16px;border-radius:10px;white-space:nowrap">回到对局</span>';
+    bar.onclick=()=>{ if(pk!==curToken){ window._pendingResume=rec.id; setPool(pk); } else { joinRoom(rec.id); } };
+    lob.insertBefore(bar, lob.firstChild);
+  }
   function loadResults(){try{return JSON.parse(localStorage.getItem('anubisplay_results')||'[]');}catch(e){return [];}}
   function saveResults(){try{localStorage.setItem('anubisplay_results',JSON.stringify(results.slice(0,50)));}catch(e){}}
   function logAct(t){activity.unshift({text:t,time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})});activity=activity.slice(0,40);}
@@ -190,7 +210,7 @@
       if(tok && !_triedToken){ _triedToken=true; wsend({t:'auth',token:tok}); return; } // 有令牌先免签登录,失败后端会重发challenge再签
       const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig});
     }
-    else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.token){try{localStorage.setItem('ap_tok_'+curToken,m.token);}catch(e){}} if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); } // 不再连上就自动授权;真要玩(准备/建桌/继续)时才按需授权
+    else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.token){try{localStorage.setItem('ap_tok_'+curToken,m.token);}catch(e){}} if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); if(window._pendingResume){ const _r=window._pendingResume; window._pendingResume=null; setTimeout(()=>joinRoom(_r),120); } } // 不再连上就自动授权;真要玩(准备/建桌/继续)时才按需授权
     else if(m.t==='avatars'){ const mp=m.map||{}; Object.keys(mp).forEach(a=>{ avatarCache[a.toLowerCase()]=mp[a]; }); if(state&&view==='table')render(); }
     else if(m.t==='avatarUpdate'){ const a=String(m.addr||'').toLowerCase(); if(a){ if(m.avatar)avatarCache[a]=m.avatar; else delete avatarCache[a]; } if(state&&view==='table')render(); if($('modal').open&&isMe(m.addr))showWallet(); }
     else if(m.t==='avatarSet'){ clearTimeout(window._avT); window._avT=null; if(pendingAvatar&&myAddr)avatarCache[myAddr.toLowerCase()]=pendingAvatar; pendingAvatar=null; toast('✅ 头像保存成功'); if($('modal').open)showWallet(); if(state&&view==='table')render(); }
@@ -202,9 +222,9 @@
       enterTable(); try{ render(); }catch(e){} }
     else if(m.t==='joined'){ logAct('你已入座'); }
     else if(m.t==='left'){ toast('已退座，底注退回可领取'); backToLobby(true); }
-    else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ onState(m); } }
+    else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ onState(m); rememberHand(m); } }
     else if(m.t==='yourCards'){ if(String(m.handId)===String(curHand)){ myCards=m.cards; render(); } }
-    else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); } }
+    else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); clearActiveHand(m.handId); } }
     else if(m.t==='compareReveal'){ showCompareReveal(m); }
     else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
     else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)) toast('本局已退款'); }
@@ -446,7 +466,7 @@
   function enterTable(){ setView('table'); }
   function backToLobby(skipLeave){
     if(curHand && !skipLeave){
-      if(state&&state.phase===1&&meIdx()>=0){ wsend({t:'leaveTable',handId:curHand}); } // 开局前退座退款
+      if(state&&state.phase===1&&meIdx()>=0){ wsend({t:'leaveTable',handId:curHand}); clearActiveHand(curHand); } // 开局前退座退款(已退座无需回到对局)
       wsend({t:'unsubscribe',handId:curHand});
     }
     curHand=null; state=null; myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; picking=false; joining=false; clearTimeout(window._jt);
@@ -653,7 +673,7 @@
     document.querySelectorAll('.primary-nav [data-view]').forEach(b=>{const s=b.dataset.view===view;b.classList.toggle('active',s);s?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current');});
     const mApp=$('mApp'); if(mApp) mApp.hidden=(view!=='lobby'); // 手机:大厅显示App壳,进桌隐藏(露出绿呢牌桌)
     document.querySelectorAll('#mNav button').forEach(b=>b.classList.toggle('active', b.dataset.mtab==='lobby' && view==='lobby'));
-    if(view==='lobby'){ if(authed)wsend({t:'listTables'}); renderRooms(); }
+    if(view==='lobby'){ if(authed)wsend({t:'listTables'}); renderRooms(); checkResume(); }
     else { applyLayout(); resizeSoon(); }
     if(location.hash!=='#'+view)history.replaceState(null,'','#'+view);
   }
