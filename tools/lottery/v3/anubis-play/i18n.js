@@ -279,7 +279,8 @@
   var CN = /[一-鿿]/;
 
   function getLang(){
-    try{ var s=localStorage.getItem('ap_lang'); if(s==='en'||s==='zh') return s; }catch(e){}
+    // 与平台大厅共用 localStorage 键 aplang,形成全站语言闭环;游戏只有中/英,非中文一律英文
+    try{ var s=localStorage.getItem('aplang'); if(s){ return (s==='zh')?'zh':'en'; } }catch(e){}
     return (navigator.language||navigator.userLanguage||'').toLowerCase().indexOf('zh')===0 ? 'zh' : 'en';
   }
   var LANG = getLang();
@@ -315,7 +316,7 @@
       b.title=(LANG==='en'?'切换到中文':'Switch to English'); b.setAttribute('aria-label','Language');
       b.textContent='🌐'; // 🌐 小地球
       b.style.cssText='display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1;color:#c8f665;background:#0f1519;border:1px solid #ffffff1f;border-radius:10px;width:40px;height:40px;cursor:pointer;margin-right:8px;flex:none;padding:0';
-      b.onclick=function(){ var nl=(LANG==='en'?'zh':'en'); try{ localStorage.setItem('ap_lang', nl); }catch(e){} location.reload(); };
+      b.onclick=function(){ var nl=(LANG==='en'?'zh':'en'); try{ localStorage.setItem('aplang', nl); }catch(e){} location.reload(); };
       return b;
     }
     // 桌面:放到「连接钱包」左边
