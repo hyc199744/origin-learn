@@ -86,6 +86,16 @@
     bar.onclick=()=>{ if(pk!==curToken){ window._pendingResume=rec.id; setPool(pk); } else { joinRoom(rec.id); } };
     lob.insertBefore(bar, lob.firstChild);
   }
+  // 点「我的牌桌」时:没在桌就尝试回到记录的进行中对局(手滑点返回后从这里回去)
+  async function resumeActiveHand(){
+    let rec=null; try{ rec=JSON.parse(localStorage.getItem('ap_activeHand')||'null'); }catch(e){}
+    if(!rec||!rec.id){ toast('你还没入座牌桌，去大厅选一桌'); return; }
+    const pk=(rec.pool&&TOKENS[rec.pool])?rec.pool:curToken;
+    toast('正在回到对局 #'+rec.id+'…');
+    const ph=await phaseOfContract(TOKENS[pk].contract, rec.id);
+    if(ph!==1 && ph!==2){ clearActiveHand(rec.id); toast('那局已结束，去大厅开新的一桌吧'); return; }
+    if(pk!==curToken){ window._pendingResume=rec.id; setPool(pk); } else { joinRoom(rec.id); }
+  }
   function loadResults(){try{return JSON.parse(localStorage.getItem('anubisplay_results')||'[]');}catch(e){return [];}}
   function saveResults(){try{localStorage.setItem('anubisplay_results',JSON.stringify(results.slice(0,50)));}catch(e){}}
   function logAct(t){activity.unshift({text:t,time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})});activity=activity.slice(0,40);}
@@ -725,7 +735,7 @@
       if(b.dataset.pool){ setPool(b.dataset.pool); return; }
       if(b.dataset.filter){ filter=b.dataset.filter; syncFilters(); renderRooms(); return; }
       if(b.dataset.mfilter){ filter=b.dataset.mfilter; syncFilters(); renderRooms(); return; }
-      if(b.dataset.mtab){ const t=b.dataset.mtab; if(t==='lobby')setView('lobby'); else if(t==='mytable'){ if(curHand)setView('table'); else toast('你还没入座牌桌，去大厅选一桌'); } else if(t==='records')showRecords(); else if(t==='account')showWallet(); return; }
+      if(b.dataset.mtab){ const t=b.dataset.mtab; if(t==='lobby')setView('lobby'); else if(t==='mytable'){ if(curHand)setView('table'); else resumeActiveHand(); } else if(t==='records')showRecords(); else if(t==='account')showWallet(); return; }
       if(b.dataset.ante){ newAnte=Number(b.dataset.ante); document.querySelectorAll('[data-ante]').forEach(el=>{const s=Number(el.dataset.ante)===newAnte;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
       if(b.dataset.seats){ newCount=Number(b.dataset.seats); document.querySelectorAll('[data-seats]').forEach(el=>{const s=Number(el.dataset.seats)===newCount;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
       if(b.dataset.priv!==undefined){ newPrivate=b.dataset.priv==='1'; document.querySelectorAll('[data-priv]').forEach(el=>{const s=(el.dataset.priv==='1')===newPrivate;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); const n=$('privNote'); if(n)n.textContent=newPrivate?'私密牌桌不显示在大厅，只有拿到房号的人才能进。开桌后把房号发给朋友即可。':'开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 '+SYM+'。'; return; }
