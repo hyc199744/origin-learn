@@ -170,7 +170,7 @@
   };
   function closeMenu(){var m=document.getElementById('langMenu');if(m)m.hidden=true;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=true;}
   window.toggleLangMenu=function(ev){if(ev){ev.stopPropagation();ev.preventDefault();}var m=document.getElementById('langMenu');if(!m)return;var willOpen=m.hidden;m.hidden=!willOpen;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=!willOpen;};
-  window.setLang=function(l){ try{localStorage.setItem('aplang',l);}catch(e){} location.reload(); }; // 切语言=存储后刷新,刷新后干净重译(含后渲染内容)
+  window.setLang=function(l){ try{localStorage.setItem('aplang',l); localStorage.setItem('lottery_lang', l==='zh'?'zh':'en'); }catch(e){} location.reload(); }; // 切语言=存储后刷新;同时同步 app1 的 lottery_lang 键(它只有中/英,非中文=英文),否则大厅内容不跟着变
   function build(){
     if(!document.getElementById('langBackdrop')){var _bd=document.createElement('div');_bd.id='langBackdrop';_bd.hidden=true;_bd.style.cssText='position:fixed;inset:0;z-index:199;background:transparent';_bd.onclick=closeMenu;document.body.appendChild(_bd);}
     var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<a class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':'')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</a>';}).join('');}
