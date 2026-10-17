@@ -71,6 +71,15 @@
   function saveActiveHand(pool,id){ try{localStorage.setItem('ap_activeHand',JSON.stringify({pool,id:String(id)}));}catch(e){} }
   function clearActiveHand(id){ try{ const r=JSON.parse(localStorage.getItem('ap_activeHand')||'null'); if(r && (id==null||String(r.id)===String(id))) localStorage.removeItem('ap_activeHand'); }catch(e){} }
   function rememberHand(m){ try{ const me=(m.players||[]).find(p=>isMe(p.addr)); if(me && !me.folded && Number(m.phase)>=1 && Number(m.phase)<4){ saveActiveHand(curToken, m.handId); } else { clearActiveHand(m.handId); } }catch(e){} }
+  // 回到对局(确保连上并认证后再进桌,防电脑端点了进不去)
+  function doResume(pool,id){
+    const pk=(pool&&TOKENS[pool])?pool:curToken;
+    if(pk!==curToken){ window._pendingResume=id; setPool(pk); return; }   // 跨池:切池后由authed自动回局
+    if(authed && ws && ws.readyState===1){ joinRoom(id); return; }         // 已就绪直接进
+    window._pendingResume=id;                                              // 没就绪:登记,连上认证后authed处理里自动回局
+    if(!myAddr){ connect(); } else if(!ws || ws.readyState>1){ connectWS(); }
+    toast('正在连接并回到对局 #'+id+'…');
+  }
   async function checkResume(){
     const old=$('resumeBar'); if(old)old.remove();
     let rec=null; try{ rec=JSON.parse(localStorage.getItem('ap_activeHand')||'null'); }catch(e){}
@@ -83,7 +92,7 @@
     const bar=document.createElement('div'); bar.id='resumeBar';
     bar.style.cssText='margin:12px 0;padding:14px 16px;border-radius:14px;background:linear-gradient(90deg,#2a1e08,#16281f);border:1px solid #e0bd6666;display:flex;align-items:center;gap:12px;cursor:pointer';
     bar.innerHTML='<span style="font-size:22px">⏳</span><div style="flex:1;min-width:0"><div style="font-weight:800;color:#e0bd68">你还有一局对局进行中</div><div style="font-size:12px;color:#8ba398">'+TOKENS[pk].label+' 池 · 房 #'+rec.id+'，点此回到牌桌继续（别超时被判弃）</div></div><span style="background:#e0bd68;color:#1a1200;font-weight:800;padding:9px 16px;border-radius:10px;white-space:nowrap">回到对局</span>';
-    bar.onclick=()=>{ if(pk!==curToken){ window._pendingResume=rec.id; setPool(pk); } else { joinRoom(rec.id); } };
+    bar.onclick=()=>{ doResume(pk, rec.id); };
     lob.insertBefore(bar, lob.firstChild);
   }
   // 点「我的牌桌」时:没在桌就尝试回到记录的进行中对局(手滑点返回后从这里回去)
@@ -94,7 +103,7 @@
     toast('正在回到对局 #'+rec.id+'…');
     const ph=await phaseOfContract(TOKENS[pk].contract, rec.id);
     if(ph!==1 && ph!==2){ clearActiveHand(rec.id); toast('那局已结束，去大厅开新的一桌吧'); return; }
-    if(pk!==curToken){ window._pendingResume=rec.id; setPool(pk); } else { joinRoom(rec.id); }
+    doResume(pk, rec.id);
   }
   function loadResults(){try{return JSON.parse(localStorage.getItem('anubisplay_results')||'[]');}catch(e){return [];}}
   function saveResults(){try{localStorage.setItem('anubisplay_results',JSON.stringify(results.slice(0,50)));}catch(e){}}
@@ -234,7 +243,7 @@
     else if(m.t==='left'){ toast('已退座，底注退回可领取'); backToLobby(true); }
     else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ onState(m); rememberHand(m); } }
     else if(m.t==='yourCards'){ if(String(m.handId)===String(curHand)){ myCards=m.cards; render(); } }
-    else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); clearActiveHand(m.handId); } }
+    else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); clearActiveHand(m.handId); try{localStorage.removeItem('ap_look_'+m.handId);}catch(e){} } }
     else if(m.t==='compareReveal'){ showCompareReveal(m); }
     else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
     else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)) toast('本局已退款'); }
@@ -255,6 +264,7 @@
     prevPlayers=m.players;
     const newHandBetting = (m.phase===2 && lastDealtHand!==String(m.handId));
     state=m; if(m.pot!=='0')lastPot=m.pot;
+    { const _me=m.players.find(p=>isMe(p.addr)); if(_me&&_me.looked){ myLookedLocal=true; pendingLook=false; try{localStorage.setItem('ap_look_'+m.handId,'1');}catch(e){} } } // 链上已看牌→UI保持已看牌且不重复计费
     // 首局自动发牌:人齐且仍 OPEN,由首座玩家触发一次(后端去重)
     if(m.phase===1 && m.nPlayers>=2 && !startedHands.has(String(m.handId))){
       const first=m.players[0];
@@ -356,7 +366,7 @@
     const html = !me ? '' : [0,1,2].map(i=>{ const cd=(showFace&&myCards)?conv(myCards[i]):null; return jtCard(cd,!!cd); }).join('');
     if(c._html===html)return; c._html=html; c.innerHTML=html; // 内容没变不重画,避免牌反复闪
   }
-  function gtTick(){ const t=$('jtTimer'); if(!t||!state)return; const me=state.players[meIdx()]; const myTurn=state.phase===2&&!nz(state.cmpOpp)&&me&&!me.folded&&state.turnAddr&&isMe(state.turnAddr); if(myTurn&&state.actionDeadline){ t.textContent=Math.max(0,state.actionDeadline-Math.floor(Date.now()/1000)); } else t.textContent='–'; }
+  function gtTick(){ const t=$('jtTimer'); if(!t||!state)return; if(state.phase===2 && !nz(state.cmpOpp) && state.actionDeadline){ const s=Math.max(0,state.actionDeadline-Math.floor(Date.now()/1000)); t.textContent=s+'s'; } else t.textContent='–'; } // 下注阶段一律显示当前该行动方(你或对手)的倒计时,干等也有数
   function renderGtActions(phase,mi,me,looked,cost,ended,comparing){
     const ready=$('jtReadyRow'), acts=$('jtActions'), endBox=$('jtEndBox');
     const anteV=fmt(e9(state.ante));
@@ -484,7 +494,7 @@
   }
   async function joinRoom(id){
     if(!myAddr){ await connect(); if(!myAddr)return; }
-    curHand=String(id); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
+    curHand=String(id); myCards=null; try{myLookedLocal=localStorage.getItem('ap_look_'+id)==='1';}catch(e){myLookedLocal=false;} pendingLook=myLookedLocal; prevPlayers=null; joining=false; // 恢复"已看牌"状态(onState据链上looked再校正pendingLook)
     pending=false; picking=false; _topupSeen=false; clearTimeout(window._pt); clearTimeout(window._jt); try{closeModal();}catch(e){} // 重进对局清残留"处理中"/选牌/弹窗,防看着像卡死
     wsend({t:'subscribe',handId:id}); // 先进桌旁观,点「准备」才交底注入座
     const room=(window._rooms||[]).find(r=>String(r.handId)===String(id));
@@ -517,7 +527,7 @@
   function doPeek(){ // 看牌=纯本地翻牌(牌已在本地),不单独上链;看完按钮仍可点,look与下一步动作打包上链
     if(myLookedLocal)return;
     if(!myCards){ act('look'); setPending('看牌中…'); return; } // 兜底:牌还没到,走独立look
-    myLookedLocal=true; pendingLook=true; playSound('card'); render();
+    myLookedLocal=true; pendingLook=true; try{localStorage.setItem('ap_look_'+curHand,'1');}catch(e){} playSound('card'); render(); // 记住"已看牌",返回再进不丢
   }
   function doCall(){ const wl=pendingLook;pendingLook=false; optimBet(0n); act('call',{withLook:wl}); playSound(); logAct('你 跟注'); setPending('已跟注，等其他玩家…'); render(); }
   function doRaise(){ const wl=pendingLook;pendingLook=false; try{optimBet(BigInt(state.ante));}catch(e){} act('raise',{withLook:wl}); playSound(); logAct('你 加注'); setPending('已加注，等其他玩家…'); render(); }
