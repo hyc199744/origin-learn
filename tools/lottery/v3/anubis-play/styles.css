@@ -938,3 +938,7 @@ including the preview frames. */
 /* 币种池切换条(LGNS/DAI):与档位筛选条区分 */
 .pool-switch{margin-bottom:8px}
 .pool-switch button{font-weight:700;letter-spacing:.3px}
+
+/* 对手弃牌:牌背上盖红色叉叉(folded-x 由 app.js renderGtSeats 切换) */
+.mini-hand.folded-x{position:relative}
+.mini-hand.folded-x::after{content:'\2715';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ff3b3b;font-size:30px;font-weight:900;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.7),0 0 3px #ff3b3b;pointer-events:none;z-index:3}

@@ -357,8 +357,10 @@
       if(E._bal!==bal){ E._bal=bal; E.balEl.textContent=bal; }
       if(E._st!==st){ E._st=st; E.statusEl.textContent=st; E.seat.setAttribute('aria-label',nm+'，'+st); }
       let rev=null; if(ended){ const r=(window._reveal||[]).find(x=>x.addr.toLowerCase()===p.addr.toLowerCase()); if(r&&!r.folded)rev=r.cards.map(conv); }
-      const miniKey=rev?('r'+rev.map(c=>c.value+c.suit).join('')):'back';
+      const foldedBack = !!p.folded && !rev;                                  // 对手弃牌且没亮牌=盖红叉的牌背
+      const miniKey=rev?('r'+rev.map(c=>c.value+c.suit).join('')):(foldedBack?'fold':'back');
       if(E._mini!==miniKey){ E._mini=miniKey; E.miniBox.innerHTML=[0,1,2].map(i=>jtCard(rev?rev[i]:null,!!rev)).join(''); }
+      E.miniBox.classList.toggle('folded-x', foldedBack);                     // 弃牌:牌背上盖红色叉叉
     });
   }
   function renderGtHand(me,showFace){
