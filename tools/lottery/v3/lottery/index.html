@@ -24,10 +24,9 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 /* 顶栏 */
-.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:calc(12px + env(safe-area-inset-top,0px)) 18px 12px;background:#0d1114e6;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.back{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);font-weight:600}
-.back .ic{width:16px;height:16px}
+.top{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:10px;height:42px;padding:0 16px;background:#0d1114;border-bottom:1px solid var(--line)}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);font-weight:600}
+.back .ic{width:18px;height:18px}
 .brand{display:flex;align-items:center;gap:9px}
 .brand img{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 6px #0008)}
 .brand b{font-size:14px;font-weight:700;letter-spacing:.6px;line-height:1}
@@ -37,7 +36,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .wallet-btn.connected{background:#1f2a1f;color:var(--accent);box-shadow:none;border:1px solid #c8f66555}
 .wallet-btn .ic{width:15px;height:15px}
 /* 容器 */
-.wrap{max-width:720px;margin:0 auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:720px;margin:0 auto;padding:46px 16px calc(40px + env(safe-area-inset-bottom,0px))}
 .h1{font-family:var(--sans);font-size:22px;font-weight:600;margin:0 0 4px}
 .lead{color:var(--muted);font-size:12px;margin:0 0 20px}
 /* 池标签 */
@@ -102,8 +101,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 <body>
 <header class="top">
   <a class="back" href="../"><svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>游戏大厅</a>
-  <a class="brand" href="../"><img src="../img/logo.webp?v=2" alt="ANUBIS PLAY"><span><b>ANUBIS PLAY</b><small>链上彩票</small></span></a>
-  <button class="wallet-btn" id="langBtn" onclick="toggleLangMenu(event)" aria-label="Language" style="padding:10px 12px;background:#131a1e;color:var(--accent);border:1px solid var(--line);box-shadow:none"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span id="langCode" style="font-size:9px;font-weight:700;margin-left:2px">中</span></button><div id="langMenu" class="lang-menu" hidden></div><button class="wallet-btn" id="walletBtn" onclick="connectWallet()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h.01"/></svg><span id="walletTxt">连接钱包</span></button>
+  <span style="display:none"><button class="wallet-btn" id="langBtn" onclick="toggleLangMenu(event)" aria-label="Language"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span id="langCode"></span></button><div id="langMenu" class="lang-menu" hidden></div><button class="wallet-btn" id="walletBtn" onclick="connectWallet()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h.01"/></svg><span id="walletTxt">连接钱包</span></button></span>
 </header>
 
 <main class="wrap">
