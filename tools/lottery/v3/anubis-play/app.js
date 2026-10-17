@@ -261,7 +261,7 @@
       if(first && isMe(first.addr)){ startedHands.add(String(m.handId)); setTimeout(()=>wsend({t:'startDeal',handId:m.handId}),3000); } // 兜底:后端一般已秒发
     }
     if(newHandBetting){ lastDealtHand=String(m.handId); logAct('第 '+m.handId+' 局开始'); }
-    render();
+    try{ render(); }catch(e){ try{console.error('[render错误]',e);}catch(_){} } // 渲染异常不卡死消息循环,错误打到控制台便于定位
     if(newHandBetting) setTimeout(animateDeal,60);
   }
   const isMe=a=>myAddr&&a&&a.toLowerCase()===myAddr.toLowerCase();
@@ -485,6 +485,7 @@
   async function joinRoom(id){
     if(!myAddr){ await connect(); if(!myAddr)return; }
     curHand=String(id); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
+    pending=false; picking=false; _topupSeen=false; clearTimeout(window._pt); clearTimeout(window._jt); try{closeModal();}catch(e){} // 重进对局清残留"处理中"/选牌/弹窗,防看着像卡死
     wsend({t:'subscribe',handId:id}); // 先进桌旁观,点「准备」才交底注入座
     const room=(window._rooms||[]).find(r=>String(r.handId)===String(id));
     state={handId:String(id),phase:1,ante:room?room.ante:'0',maxPlayers:room?Number(room.maxPlayers):6,nPlayers:room?Number(room.nPlayers):0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
