@@ -300,14 +300,26 @@
     for(var c=node.firstChild;c;c=c.nextSibling) walk(c);
   }
 
-  var obs=null, pending=false;
-  function localizeAll(){
+  var OBSOPT={childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:ATTRS};
+  var obs=null, q=[], pending=false;
+  function fullLocalize(){ // 首屏/补译:整页扫一次
     if(LANG!=='en') return;
-    try{ if(obs) obs.disconnect(); walk(document.body); }
-    catch(e){}
-    finally{ if(obs) obs.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:ATTRS}); }
+    try{ if(obs) obs.disconnect(); walk(document.body); }catch(e){}
+    finally{ if(obs) obs.observe(document.body,OBSOPT); }
   }
-  function schedule(){ if(pending) return; pending=true; (window.requestAnimationFrame||setTimeout)(function(){ pending=false; localizeAll(); }); }
+  function flush(){ // 只翻译本批变化的节点,不再全页重扫(防动态页持续卡顿)
+    pending=false; if(LANG!=='en'){ q=[]; return; }
+    var batch=q; q=[];
+    try{ if(obs) obs.disconnect(); for(var i=0;i<batch.length;i++){ try{ walk(batch[i]); }catch(e){} } }
+    finally{ if(obs) obs.observe(document.body,OBSOPT); }
+  }
+  function onMut(muts){
+    for(var i=0;i<muts.length;i++){ var m=muts[i];
+      if(m.type==='childList'){ for(var j=0;j<m.addedNodes.length;j++) q.push(m.addedNodes[j]); }
+      else q.push(m.target); // characterData / attributes
+    }
+    if(!pending){ pending=true; (window.requestAnimationFrame||function(f){setTimeout(f,16);})(flush); }
+  }
 
   function injectToggle(){
     if(document.getElementById('apLangToggle')) return;
@@ -331,11 +343,11 @@
     injectToggle();
     if(LANG==='en'){
       document.documentElement.lang='en';
-      obs=new MutationObserver(schedule);
-      obs.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:ATTRS});
-      localizeAll();
-      // 开局几秒内多补几次,防首屏异步渲染漏翻
-      setTimeout(localizeAll,300); setTimeout(localizeAll,1200); setTimeout(localizeAll,3000);
+      obs=new MutationObserver(onMut);
+      obs.observe(document.body,OBSOPT);
+      fullLocalize();
+      // 首屏异步渲染补几次(整页),之后只靠增量翻译
+      setTimeout(fullLocalize,300); setTimeout(fullLocalize,1200); setTimeout(fullLocalize,3000);
     }
   }
   if(document.readyState!=='loading') start();

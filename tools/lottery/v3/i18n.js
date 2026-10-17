@@ -176,13 +176,20 @@
     var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<a class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':'')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</a>';}).join('');}
     _title=(document.title||'').trim();collect();applyLang(LANG);
     if(LANG!=='zh'){
-      // 大厅内容是JS后渲染的:持续监听DOM,把新出现的中文也翻译掉(只做文本替换,不触发业务重渲染,防循环)
-      var _tp=function(){ try{ collect(); for(var i=0;i<_tn.length;i++){var o=_tn[i]; o.node.nodeValue=o.pre+window.tr(o.zh,LANG)+o.post;} var hh=document.getElementById('heroH2'); if(hh&&HERO[LANG])hh.innerHTML=HERO[LANG]; }catch(e){} };
+      // 大厅内容是JS后渲染的:只翻译"发生变化的节点",不每次全页重扫(防动态页/倒计时持续卡顿)
+      var trNode=function(n){ if(!n)return;
+        if(n.nodeType===3){ var v=n.nodeValue; if(v){ var tt=v.trim(); if(tt&&D[tt]){ var at=v.indexOf(tt); n.nodeValue=v.slice(0,at)+window.tr(tt,LANG)+v.slice(at+tt.length); } } return; }
+        if(n.nodeType!==1||n.nodeName==='SCRIPT'||n.nodeName==='STYLE')return;
+        for(var c=n.firstChild;c;c=c.nextSibling) trNode(c);
+      };
+      var fullTp=function(){ try{ trNode(document.body); var hh=document.getElementById('heroH2'); if(hh&&HERO[LANG])hh.innerHTML=HERO[LANG]; }catch(e){} };
+      var _q=[], _p=false, _o;
+      var _flush=function(){ _p=false; var b=_q; _q=[]; try{ if(_o)_o.disconnect(); for(var i=0;i<b.length;i++){ try{trNode(b[i]);}catch(e){} } }finally{ if(_o){try{_o.observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}} } };
       try{
-        var _o=new MutationObserver(function(){ if(window.__i18nP)return; window.__i18nP=true; (window.requestAnimationFrame||function(f){setTimeout(f,16);})(function(){ window.__i18nP=false; try{_o.disconnect();_tp();}catch(e){} try{_o.observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){} }); });
+        _o=new MutationObserver(function(muts){ for(var i=0;i<muts.length;i++){ var m=muts[i]; if(m.type==='childList'){ for(var j=0;j<m.addedNodes.length;j++)_q.push(m.addedNodes[j]); } else _q.push(m.target); } if(!_p){ _p=true; (window.requestAnimationFrame||function(f){setTimeout(f,16);})(_flush); } });
         _o.observe(document.body,{childList:true,subtree:true,characterData:true});
       }catch(e){}
-      setTimeout(_tp,400); setTimeout(_tp,1500); setTimeout(_tp,3500);
+      fullTp(); setTimeout(fullTp,400); setTimeout(fullTp,1500); setTimeout(fullTp,3500);
     }
   }
   if(document.readyState!=='loading')build();else document.addEventListener('DOMContentLoaded',build);
