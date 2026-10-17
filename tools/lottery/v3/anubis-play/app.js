@@ -150,7 +150,7 @@
   async function sendTxTo(to,data){
     const eth=window.ethereum, gp=await eth.request({method:'eth_gasPrice',params:[]});
     const hash=await eth.request({method:'eth_sendTransaction',params:[{from:myAddr,to,data:'0x'+data,type:'0x0',gasPrice:gp}]});
-    for(let i=0;i<120;i++){await new Promise(r=>setTimeout(r,2000));const rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber){if(rc.status==='0x1')return rc;throw new Error('交易失败');}}
+    for(let i=0;i<300;i++){await new Promise(r=>setTimeout(r,800));const rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber){if(rc.status==='0x1')return rc;throw new Error('交易失败');}}
     throw new Error('确认超时');
   }
   const sendTx=data=>sendTxTo(CONTRACT,data);
@@ -268,7 +268,7 @@
     // 首局自动发牌:人齐且仍 OPEN,由首座玩家触发一次(后端去重)
     if(m.phase===1 && m.nPlayers>=2 && !startedHands.has(String(m.handId))){
       const first=m.players[0];
-      if(first && isMe(first.addr)){ startedHands.add(String(m.handId)); setTimeout(()=>wsend({t:'startDeal',handId:m.handId}),3000); } // 兜底:后端一般已秒发
+      if(first && isMe(first.addr)){ startedHands.add(String(m.handId)); setTimeout(()=>wsend({t:'startDeal',handId:m.handId}),1500); } // 兜底:后端一般已秒发
     }
     if(newHandBetting){ lastDealtHand=String(m.handId); logAct('第 '+m.handId+' 局开始'); }
     try{ render(); }catch(e){ try{console.error('[render错误]',e);}catch(_){} } // 渲染异常不卡死消息循环,错误打到控制台便于定位
