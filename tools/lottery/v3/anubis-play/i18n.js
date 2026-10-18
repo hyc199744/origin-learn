@@ -354,7 +354,7 @@
   }
 
   function start(){
-    injectToggle();
+    // 顶部语言按钮已取消:语言统一在「游戏大厅」切换(共用 aplang),本页加载时自动跟随,无需再放按钮。injectToggle(); 不再调用
     if(LANG==='en'){
       document.documentElement.lang='en';
       obs=new MutationObserver(onMut);
