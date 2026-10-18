@@ -170,27 +170,28 @@
   };
   function closeMenu(){var m=document.getElementById('langMenu');if(m)m.hidden=true;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=true;}
   window.toggleLangMenu=function(ev){if(ev){ev.stopPropagation();ev.preventDefault();}var m=document.getElementById('langMenu');if(!m)return;var willOpen=m.hidden;m.hidden=!willOpen;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=!willOpen;};
-  window.setLang=function(l){ try{localStorage.setItem('aplang',l); localStorage.setItem('lottery_lang', l==='zh'?'zh':'en'); }catch(e){} location.reload(); }; // 切语言=存储后刷新;同时同步 app1 的 lottery_lang 键(它只有中/英,非中文=英文),否则大厅内容不跟着变
+  // —— 整页增量翻译(模块级,首屏 build 和 setLang 实时切换共用) ——
+  var _o=null,_q=[],_p=false;
+  function trNode(n){ if(!n)return;
+    if(n.nodeType===3){ var v=n.nodeValue; if(v){ var tt=v.trim(); if(tt&&D[tt]){ var at=v.indexOf(tt); n.nodeValue=v.slice(0,at)+window.tr(tt,LANG)+v.slice(at+tt.length); } } return; }
+    if(n.nodeType!==1||n.nodeName==='SCRIPT'||n.nodeName==='STYLE')return;
+    for(var c=n.firstChild;c;c=c.nextSibling) trNode(c);
+  }
+  function fullTp(){ try{ trNode(document.body); var hh=document.getElementById('heroH2'); if(hh&&HERO[LANG])hh.innerHTML=HERO[LANG]; }catch(e){} }
+  function _flush(){ _p=false; var b=_q; _q=[]; try{ if(_o)_o.disconnect(); for(var i=0;i<b.length;i++){ try{trNode(b[i]);}catch(e){} } }finally{ if(_o){try{_o.observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}} } }
+  function startObs(){ if(_o)return; try{ _o=new MutationObserver(function(muts){ for(var i=0;i<muts.length;i++){ var m=muts[i]; if(m.type==='childList'){ for(var j=0;j<m.addedNodes.length;j++)_q.push(m.addedNodes[j]); } else _q.push(m.target); } if(!_p){ _p=true; (window.requestAnimationFrame||function(f){setTimeout(f,16);})(_flush); } }); _o.observe(document.body,{childList:true,subtree:true,characterData:true}); }catch(e){} }
+  window.setLang=function(l){
+    try{localStorage.setItem('aplang',l); localStorage.setItem('lottery_lang', l==='zh'?'zh':'en');}catch(e){} // 存储(供下次加载);同步 app1 的 lottery_lang
+    closeMenu();
+    if(l==='zh'){ location.reload(); return; }               // 切回中文:刷新还原(默认即中文,最稳)
+    LANG=l; try{applyLang(l);}catch(e){}                      // 切到外语:就地实时翻译,不刷新(防部分手机内置浏览器 reload 丢 localStorage / 被门禁打断 → 看着像没切)
+    fullTp(); startObs(); setTimeout(fullTp,300); setTimeout(fullTp,1200);
+  };
   function build(){
     if(!document.getElementById('langBackdrop')){var _bd=document.createElement('div');_bd.id='langBackdrop';_bd.hidden=true;_bd.style.cssText='position:fixed;inset:0;z-index:199;background:transparent';_bd.onclick=closeMenu;document.body.appendChild(_bd);}
     var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<a class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':'')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</a>';}).join('');}
     _title=(document.title||'').trim();collect();applyLang(LANG);
-    if(LANG!=='zh'){
-      // 大厅内容是JS后渲染的:只翻译"发生变化的节点",不每次全页重扫(防动态页/倒计时持续卡顿)
-      var trNode=function(n){ if(!n)return;
-        if(n.nodeType===3){ var v=n.nodeValue; if(v){ var tt=v.trim(); if(tt&&D[tt]){ var at=v.indexOf(tt); n.nodeValue=v.slice(0,at)+window.tr(tt,LANG)+v.slice(at+tt.length); } } return; }
-        if(n.nodeType!==1||n.nodeName==='SCRIPT'||n.nodeName==='STYLE')return;
-        for(var c=n.firstChild;c;c=c.nextSibling) trNode(c);
-      };
-      var fullTp=function(){ try{ trNode(document.body); var hh=document.getElementById('heroH2'); if(hh&&HERO[LANG])hh.innerHTML=HERO[LANG]; }catch(e){} };
-      var _q=[], _p=false, _o;
-      var _flush=function(){ _p=false; var b=_q; _q=[]; try{ if(_o)_o.disconnect(); for(var i=0;i<b.length;i++){ try{trNode(b[i]);}catch(e){} } }finally{ if(_o){try{_o.observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}} } };
-      try{
-        _o=new MutationObserver(function(muts){ for(var i=0;i<muts.length;i++){ var m=muts[i]; if(m.type==='childList'){ for(var j=0;j<m.addedNodes.length;j++)_q.push(m.addedNodes[j]); } else _q.push(m.target); } if(!_p){ _p=true; (window.requestAnimationFrame||function(f){setTimeout(f,16);})(_flush); } });
-        _o.observe(document.body,{childList:true,subtree:true,characterData:true});
-      }catch(e){}
-      fullTp(); setTimeout(fullTp,400); setTimeout(fullTp,1500); setTimeout(fullTp,3500);
-    }
+    if(LANG!=='zh'){ startObs(); fullTp(); setTimeout(fullTp,400); setTimeout(fullTp,1500); setTimeout(fullTp,3500); }
   }
   if(document.readyState!=='loading')build();else document.addEventListener('DOMContentLoaded',build);
 })();

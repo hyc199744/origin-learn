@@ -4,7 +4,7 @@
   'use strict';
   var API='https://zjgame.web3origin.com/ref';
   var ADDR=/^0x[0-9a-fA-F]{40}$/;
-  var DEFAULT_REF='0xc27e454ac42896ae08024becd832219c330cb44d'; // 兜底,启动后用 /health 校正
+  var DEFAULT_REF='0xffc31b596754137718f22d7708e1acd7a5c4dbe6'; // 官方默认推荐人兜底,启动后用 /health 校正
   function EN(){ try{var s=localStorage.getItem('aplang'); if(s==='en')return true; if(s==='zh')return false;}catch(e){} return (navigator.language||'').toLowerCase().indexOf('zh')!==0; }
   function L(zh,en){ return EN()?en:zh; }
   function g(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
@@ -69,6 +69,8 @@
       }).catch(function(){ showGate(); });
       return;
     }
+    // 已连钱包=已经在用的老用户,直接放行(不被新上的门禁挡住);无 ref/code 时不强绑上级
+    try{ var eth=window.ethereum; if(eth){ if(eth.selectedAddress){ pass(); return; } if(eth.request){ eth.request({method:'eth_accounts'}).then(function(a){ if(a&&a[0]&&!passed()) pass(); else if(!passed()) showGate(); }).catch(function(){ if(!passed()) showGate(); }); return; } } }catch(e){}
     showGate();
   }
   // 校正默认推荐人(不阻塞门禁显示)
