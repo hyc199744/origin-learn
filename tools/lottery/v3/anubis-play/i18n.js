@@ -335,7 +335,14 @@
       b.title=(LANG==='en'?'切换到中文':'Switch to English'); b.setAttribute('aria-label','Language');
       b.textContent='🌐'; // 🌐 小地球
       b.style.cssText='display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1;color:#c8f665;background:#0f1519;border:1px solid #ffffff1f;border-radius:10px;width:40px;height:40px;cursor:pointer;margin-right:8px;flex:none;padding:0';
-      b.onclick=function(){ var nl=(LANG==='en'?'zh':'en'); try{ localStorage.setItem('aplang', nl); }catch(e){} location.reload(); };
+      b.onclick=function(){
+        var nl=(LANG==='en'?'zh':'en'); try{ localStorage.setItem('aplang', nl); }catch(e){}
+        if(nl==='zh'){ location.reload(); return; }               // 切回中文:刷新还原(子串替换是单向的)
+        LANG='en'; try{document.documentElement.lang='en';}catch(e){} // 切到英文:就地实时翻译,不刷新(防手机内置浏览器 reload 丢 localStorage 切不动)
+        if(!obs){ obs=new MutationObserver(onMut); } try{ obs.observe(document.body,OBSOPT); }catch(e){}
+        fullLocalize(); setTimeout(fullLocalize,300); setTimeout(fullLocalize,1200);
+        try{ var a=document.getElementById('apLangToggle'),m=document.getElementById('apLangToggleM'); if(a)a.title='切换到中文'; if(m)m.title='切换到中文'; }catch(e){}
+      };
       return b;
     }
     // 桌面:放到「连接钱包」左边
