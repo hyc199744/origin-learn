@@ -92,20 +92,6 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   <h1 class="h1">邀请好友赚返佣</h1>
   <p class="lead">把你的专属链接发给好友，他们每次购票你都能拿返佣——直推 30%、间推 10%，从平台费里出，不影响奖池，随时领取。</p>
 
-  <section class="card">
-    <div class="eyebrow">我的邀请链接</div>
-    <div class="link-row">
-      <input id="refLink" readonly onclick="this.select()" placeholder="连接钱包后生成">
-      <button class="btn-copy" onclick="copyLink()">复制链接</button>
-    </div>
-    <div class="inv-tools">
-      <button class="tool-btn" onclick="toggleQr()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v7h-7v-3"/></svg>二维码</button>
-      <button class="tool-btn" onclick="shareLink()"><svg class="ic" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>分享</button>
-    </div>
-    <div id="qrbox"></div>
-    <div class="kv" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)"><span class="k">我的上级</span><span class="v" id="myRef">—</span></div>
-    <div class="note" style="margin-top:8px">首次购票时永久绑定邀请关系，不可更改。</div>
-  </section>
 
   <section class="card">
     <div class="rstat">
@@ -225,7 +211,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   loadLink();
 })();
 </script>
-<script defer src="../gate.js?v=2"></script>
+<script defer src="../gate.js?v=3"></script>
 <script defer src="../ref.js?v=1"></script>
 <script defer src="referral.js?v=2"></script>
 </body>

@@ -57,18 +57,42 @@
   function toast(m){ try{ var t=document.getElementById('apGateToast'); if(!t){t=document.createElement('div');t.id='apGateToast';t.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:2147483646;background:#1a2a21;border:1px solid #ffffff22;color:#eaf3ee;padding:11px 18px;border-radius:12px;font-size:13px;opacity:0;transition:.3s;font-family:Inter,system-ui,sans-serif;max-width:88%;text-align:center';document.body.appendChild(t);} t.textContent=m;t.style.opacity='1';clearTimeout(window._agt);window._agt=setTimeout(function(){t.style.opacity='0';},3200); }catch(e){} }
 
   // 启动:带链接/短码直接放行;否则弹门禁
+  var shortA=function(a){ return a?a.slice(0,6)+'…'+a.slice(-4):''; };
+  function showConfirm(inviter, code){
+    if(passed()&&gateEl) return;
+    if(gateEl) return;
+    try{ bodyOv=document.documentElement.style.overflow; document.documentElement.style.overflow='hidden'; }catch(e){}
+    var who = code ? code : shortA(inviter);
+    var b=document.createElement('div'); b.id='apGate'; gateEl=b;
+    b.style.cssText='position:fixed;inset:0;z-index:2147483600;background:radial-gradient(120% 90% at 50% 0%,#132019 0%,#0a0f0c 60%,#070a08 100%);display:flex;align-items:center;justify-content:center;padding:22px;font-family:Inter,system-ui,-apple-system,"PingFang SC",sans-serif;overflow:auto';
+    b.innerHTML=
+      '<div style="width:100%;max-width:400px;background:linear-gradient(180deg,#141d18,#0e1511);border:1px solid #c8f66540;border-radius:20px;padding:26px 22px;box-shadow:0 30px 80px #000b;text-align:center">'
+      +'<div style="font-size:12px;letter-spacing:2px;color:#7e9583;margin-bottom:6px">ANUBIS PLAY</div>'
+      +'<div style="font-size:21px;font-weight:800;color:#eaf3ee;margin-bottom:10px">'+L('你被邀请加入','You’re invited')+'</div>'
+      +'<div style="font-size:13px;color:#9fb3a6;margin-bottom:4px">'+L('邀请人 / 推荐码','Inviter / code')+'</div>'
+      +'<div style="font-size:22px;font-weight:800;letter-spacing:3px;color:#e0bd68;margin-bottom:16px">'+who+'</div>'
+      +'<div style="font-size:12.5px;color:#9fb3a6;line-height:1.7;margin-bottom:18px">'+L('接受后,你玩任何游戏产生的手续费,TA 会拿到一部分返佣——不影响你的奖池、输赢,也不会多花你的钱。绑定一次永久,不可更改。','Accept and the inviter earns a share of the platform fee from your play — it never touches your pool, winnings, or costs you extra. Binding is permanent.')+'</div>'
+      +'<button id="apGateAccept" style="width:100%;background:linear-gradient(180deg,#d4f06a,#b6e24a);color:#17200b;font-weight:800;font-size:16px;padding:14px;border-radius:13px;border:0;cursor:pointer">'+L('接受邀请并进入','Accept & enter')+'</button>'
+      +'<button id="apGateOther" style="width:100%;background:transparent;color:#7e9583;border:0;font-size:12px;padding:12px 0 0;cursor:pointer">'+L('换一个推荐码','Use a different code')+'</button>'
+      +'<div style="font-size:11px;color:#5f7268;margin-top:10px;line-height:1.6">'+L('进入即接受：参与链上游戏有风险,请理性对待,未成年人勿入。','By entering you accept: on-chain gaming carries risk, play responsibly, not for minors.')+'</div>'
+      +'</div>';
+    (document.body||document.documentElement).appendChild(b);
+    b.querySelector('#apGateAccept').onclick=function(){ pass(inviter); toast(L('已接受邀请，进入成功','Invite accepted — welcome')); };
+    b.querySelector('#apGateOther').onclick=function(){ removeGate(); showGate(); };
+  }
   function boot(){
-    if(passed()) return;
     var sp; try{ sp=new URLSearchParams(location.search); }catch(e){ sp=null; }
     var ref=sp&&sp.get('ref'), code=sp&&sp.get('code');
-    if(ref&&ADDR.test(ref)){ pass(ref); toast(L('已通过邀请进入','Entered via invite')); return; }
-    if(code){ // 短码:后端解析→有效直接进
+    // 通过邀请链接/短码进来:弹确认框显示邀请人,点「接受」才绑定(让用户看到绑定,不再静默)
+    if(ref&&ADDR.test(ref)){ showConfirm(ref.toLowerCase(), null); return; }
+    if(code){ // 短码:后端解析→显示确认
       fetch(API+'/resolve?code='+encodeURIComponent(code),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-        if(j&&j.addr){ pass(j.addr); toast(L('已通过邀请进入','Entered via invite')); }
-        else showGate(L('链接里的推荐码无效，请手动输入','The code in the link is invalid, enter one manually'));
-      }).catch(function(){ showGate(); });
+        if(j&&j.addr){ showConfirm(j.addr, (j.code||String(code).toUpperCase())); }
+        else if(!passed()){ showGate(L('链接里的推荐码无效，请手动输入','The code in the link is invalid, enter one manually')); }
+      }).catch(function(){ if(!passed()) showGate(); });
       return;
     }
+    if(passed()) return;
     // 已连钱包=已经在用的老用户,直接放行(不被新上的门禁挡住);无 ref/code 时不强绑上级
     try{ var eth=window.ethereum; if(eth){ if(eth.selectedAddress){ pass(); return; } if(eth.request){ eth.request({method:'eth_accounts'}).then(function(a){ if(a&&a[0]&&!passed()) pass(); else if(!passed()) showGate(); }).catch(function(){ if(!passed()) showGate(); }); return; } } }catch(e){}
     showGate();
