@@ -140,6 +140,7 @@
   '邀请奖励 · ANUBIS PLAY':['Referral Rewards · ANUBIS PLAY'],'个人中心 · ANUBIS PLAY':['Account · ANUBIS PLAY'],
   '帮助中心 · ANUBIS PLAY':['Help Center · ANUBIS PLAY'],'平台公告 · ANUBIS PLAY':['Announcements · ANUBIS PLAY']
   };
+  var Dr={}; try{ for(var _dk in D){ var _de=D[_dk]; if(_de&&_de[0]&&!Dr[_de[0]])Dr[_de[0]]=_dk; } }catch(e){} // 英→中反查:动态英文节点切回中文时用
   var LANG='zh';
   try{
     LANG=localStorage.getItem('aplang')||'';
@@ -173,7 +174,7 @@
   // —— 整页增量翻译(模块级,首屏 build 和 setLang 实时切换共用) ——
   var _o=null,_q=[],_p=false;
   function trNode(n){ if(!n)return;
-    if(n.nodeType===3){ var v=n.nodeValue; if(v){ var tt=v.trim(); if(tt&&D[tt]){ var at=v.indexOf(tt); n.nodeValue=v.slice(0,at)+window.tr(tt,LANG)+v.slice(at+tt.length); } } return; }
+    if(n.nodeType===3){ var v=n.nodeValue; if(v){ var tt=v.trim(); var _zk=tt?(D[tt]?tt:((LANG==='zh'&&Dr[tt])||null)):null; if(_zk){ var at=v.indexOf(tt); n.nodeValue=v.slice(0,at)+window.tr(_zk,LANG)+v.slice(at+tt.length); } } return; }
     if(n.nodeType!==1||n.nodeName==='SCRIPT'||n.nodeName==='STYLE')return;
     for(var c=n.firstChild;c;c=c.nextSibling) trNode(c);
   }
@@ -183,8 +184,7 @@
   window.setLang=function(l){
     try{localStorage.setItem('aplang',l); localStorage.setItem('lottery_lang', l==='zh'?'zh':'en');}catch(e){} // 存储(供下次加载);同步 app1 的 lottery_lang
     closeMenu();
-    if(l==='zh'){ location.reload(); return; }               // 切回中文:刷新还原(默认即中文,最稳)
-    LANG=l; try{applyLang(l);}catch(e){}                      // 切到外语:就地实时翻译,不刷新(防部分手机内置浏览器 reload 丢 localStorage / 被门禁打断 → 看着像没切)
+    LANG=l; try{applyLang(l);}catch(e){}                      // 所有语言统一就地实时翻译,不刷新(钱包内置浏览器 location.reload 会丢 localStorage/被吞 → 看着像没切)
     fullTp(); startObs(); setTimeout(fullTp,300); setTimeout(fullTp,1200);
   };
   function build(){
