@@ -81,6 +81,13 @@
     ["本桌已满","Table full"],
     ["等待加入","Waiting"],
     ["已满","Full"],
+    // —— 补漏:切英文后仍残留的中文(奖池tab/筛选/加入/连钱包引导/标题) ——
+    ["连接钱包开始","Connect wallet to start"],
+    ["点右上角「连接钱包」","Tap the “Connect wallet” button, top-right"],
+    [" 池"," Pool"],
+    ["全部","All"],
+    ["加入","Join"],
+    ["金花牌局","Golden Flower"],
     ["有空位","Open seat"],
     ["等待入座","Waiting for players"],
     ["人气推荐","Popular"],
