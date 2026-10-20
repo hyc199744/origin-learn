@@ -6,6 +6,7 @@
   'use strict';
   // [中文, English] —— 运行时按中文长度降序排序,长短语先替换,避免"看牌/已看牌"这类子串误伤
   var MAP = [
+    ["打到只剩 1 人或摊牌结算，赢家拿底池（扣 3% 手续费）。本局结束后可选择继续下一局。","Play until one remains or showdown; the winner takes the pot (minus a 3% fee). Choose whether to join the next hand."],
     // 钱包引导
     ["请在 Web3 钱包里打开本站。用下方钱包打开，或在钱包 App 的浏览器里访问 anubislottery.com","Open this site in a Web3 wallet to connect. Use a wallet below, or visit anubislottery.com inside your wallet app's browser."],
     ["在 TP 钱包打开","Open in TokenPocket"],
