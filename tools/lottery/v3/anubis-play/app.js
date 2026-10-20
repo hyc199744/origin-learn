@@ -3,6 +3,7 @@
    不在前端产生随机结果:牌序由合约种子+blockhash决定,后端按权威结果发牌,可事后核验。 */
 (function(){
   'use strict';
+  const A=window.APPlatform;
   const $=id=>document.getElementById(id);
   const icon=name=>`<svg class="icon" aria-hidden="true"><use href="#i-${name}"/></svg>`;
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -18,7 +19,7 @@
   let WSS, CONTRACT, LGNS, DEC, SYM, TIERS;
   function applyToken(){ const c=TOKENS[curToken]; WSS=c.wss; CONTRACT=c.contract; LGNS=c.token; DEC=c.dec; SYM=c.sym; TIERS=c.tiers; }
   applyToken();
-  const APPROVE_AMT=(2n**256n-1n); // 无限授权(MaxUint256):标准ERC20对其不扣减额度→一次授权永不再弹
+  // 授权额度由用户输入，连接和登录不自动发起授权。
   const ZERO='0x0000000000000000000000000000000000000000';
   const ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:'https://rpc.anubispace.org',exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
   const SEL={withdraw:'3ccfd60b',approve:'095ea7b3',allowance:'dd62ed3e',bal:'70a08231',authorize:'b6a5d7de',deleg:'8d22ea2a',wd:'ce513b6f'};
@@ -27,10 +28,11 @@
 
   // ---- 状态 ----
   let myAddr=null, ws=null, authed=false, delegate=null, authorized=false, authInProgress=false, pendingAutoAuth=false, _triedToken=false;
+  let allowLoginSignature=false,reconnectTimer=null,reconnectDelay=1000,roomsLoaded=false,claimBusy=false,createBusy=false,createTimer=null;
   let curHand=null, myCards=null, state=null, picking=false, lastPot='0';
   let view='table', filter='all', newAnte=10, newCount=6, newPrivate=false;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
-  let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
+  let lastDealtHand=null, startedHands=new Set(), activity=[], results=[];
   let prevPlayers=null, cdActive=false, cdBase='', pending=false, joining=false, myLookedLocal=false, pendingLook=false, myNick='', myNickRem=3, myBalStr='—', myClaimStr='0 LGNS', myClaimPos=false, myBalNum=0, _balT=0, balFetched=false, qrOpen=false, walletBals={}, _topupSeen=false, _topupOpen=false;
   let tableLayout='split';
   let avatarCache={}; // 地址(小写)->头像data URL,给座位展示
@@ -62,14 +64,14 @@
   function message(t){ toast(t); } // 牌桌内提示改用 toast
   function enc(v){return BigInt(v).toString(16).padStart(64,'0');}
   function encA(a){return '0'.repeat(24)+a.toLowerCase().replace(/^0x/,'');}
-  function rcall(to,d){return fetch(ANUBIS.rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to,data:'0x'+d},'latest']})}).then(r=>r.json()).then(j=>(j.result||'0x').replace(/^0x/,''));}
+  function rcall(to,d){return A.call(to,d);}
   async function roomPhase(id){ // 查房间当前阶段:0不存在/1等待/2下注/3摊牌/4结束/5退款, -1出错
     try{ const r=await rcall(CONTRACT,'d47f269e'+enc(id)); if(!r||r.length<64)return 0; return parseInt(r.slice(62,64),16)||0; }catch(e){ return -1; }
   }
   // ---- 回到对局(防手滑点返回丢失当前局) ----
   async function phaseOfContract(contract,id){ try{ const r=await rcall(contract,'d47f269e'+enc(id)); if(!r||r.length<64)return 0; return parseInt(r.slice(62,64),16)||0; }catch(e){ return -1; } }
-  function saveActiveHand(pool,id){ try{localStorage.setItem('ap_activeHand',JSON.stringify({pool,id:String(id)}));}catch(e){} }
-  function clearActiveHand(id){ try{ const r=JSON.parse(localStorage.getItem('ap_activeHand')||'null'); if(r && (id==null||String(r.id)===String(id))) localStorage.removeItem('ap_activeHand'); }catch(e){} }
+  function saveActiveHand(pool,id){ try{localStorage.setItem(A.activeKey(myAddr),JSON.stringify({pool,id:String(id)}));}catch(e){} }
+  function clearActiveHand(id){ try{ const r=JSON.parse(localStorage.getItem(A.activeKey(myAddr))||'null'); if(r && (id==null||String(r.id)===String(id))) localStorage.removeItem(A.activeKey(myAddr)); }catch(e){} }
   function rememberHand(m){ try{ const me=(m.players||[]).find(p=>isMe(p.addr)); if(me && !me.folded && Number(m.phase)>=1 && Number(m.phase)<4){ saveActiveHand(curToken, m.handId); } else { clearActiveHand(m.handId); } }catch(e){} }
   // 回到对局(确保连上并认证后再进桌,防电脑端点了进不去)
   function doResume(pool,id){
@@ -82,31 +84,33 @@
   }
   async function checkResume(){
     const old=$('resumeBar'); if(old)old.remove();
-    let rec=null; try{ rec=JSON.parse(localStorage.getItem('ap_activeHand')||'null'); }catch(e){}
+    let rec=null; try{ rec=JSON.parse(localStorage.getItem(A.activeKey(myAddr))||'null'); }catch(e){}
     if(!rec||!rec.id) return;
     const pk=(rec.pool&&TOKENS[rec.pool])?rec.pool:curToken;
     const ph=await phaseOfContract(TOKENS[pk].contract, rec.id);
-    if(ph!==1 && ph!==2){ clearActiveHand(rec.id); return; } // 已结束/退款/不存在→清掉不显示
+    if([0,4,5].includes(ph)){ clearActiveHand(rec.id); return; }
     const lob=$('lobbyView'); if(!lob||view!=='lobby') return;
     const old2=$('resumeBar'); if(old2)old2.remove();
-    const bar=document.createElement('div'); bar.id='resumeBar';
+    const bar=document.createElement('button'); bar.id='resumeBar';bar.type='button';
     bar.style.cssText='margin:12px 0;padding:14px 16px;border-radius:14px;background:linear-gradient(90deg,#2a1e08,#16281f);border:1px solid #e0bd6666;display:flex;align-items:center;gap:12px;cursor:pointer';
-    bar.innerHTML='<span style="font-size:22px">⏳</span><div style="flex:1;min-width:0"><div style="font-weight:800;color:#e0bd68">你还有一局对局进行中</div><div style="font-size:12px;color:#8ba398">'+TOKENS[pk].label+' 池 · 房 #'+rec.id+'，点此回到牌桌继续（别超时被判弃）</div></div><span style="background:#e0bd68;color:#1a1200;font-weight:800;padding:9px 16px;border-radius:10px;white-space:nowrap">回到对局</span>';
+    bar.style.width='100%';bar.style.textAlign='left';
+    bar.innerHTML='<span style="font-size:22px">⏳</span><span style="flex:1;min-width:0"><strong style="display:block;color:#e0bd68">'+A.L(ph===-1?'对局状态查询失败，记录已保留':ph===3?'对局正在等待结算':'你还有一局对局进行中',ph===-1?'Game status unavailable; record preserved':ph===3?'Game awaiting settlement':'You have an active game')+'</strong><span style="font-size:12px;color:#8ba398">'+TOKENS[pk].label+' · #'+esc(rec.id)+'</span></span><span style="background:#e0bd68;color:#1a1200;font-weight:800;padding:9px 16px;border-radius:10px;white-space:nowrap">'+A.L('回到对局','Resume')+'</span>';
     bar.onclick=()=>{ doResume(pk, rec.id); };
     lob.insertBefore(bar, lob.firstChild);
   }
   // 点「我的牌桌」时:没在桌就尝试回到记录的进行中对局(手滑点返回后从这里回去)
   async function resumeActiveHand(){
-    let rec=null; try{ rec=JSON.parse(localStorage.getItem('ap_activeHand')||'null'); }catch(e){}
+    let rec=null; try{ rec=JSON.parse(localStorage.getItem(A.activeKey(myAddr))||'null'); }catch(e){}
     if(!rec||!rec.id){ toast('你还没入座牌桌，去大厅选一桌'); return; }
     const pk=(rec.pool&&TOKENS[rec.pool])?rec.pool:curToken;
     toast('正在回到对局 #'+rec.id+'…');
     const ph=await phaseOfContract(TOKENS[pk].contract, rec.id);
-    if(ph!==1 && ph!==2){ clearActiveHand(rec.id); toast('那局已结束，去大厅开新的一桌吧'); return; }
+    if(ph===-1){toast(A.L('查询失败，已保留对局记录，请稍后重试','Query failed; game record preserved. Retry shortly.'));return;}
+    if([0,4,5].includes(ph)){ clearActiveHand(rec.id); toast(A.L('对局已结束，请核对资产与退款','Game ended; check Assets & refunds')); return; }
     doResume(pk, rec.id);
   }
-  function loadResults(){try{return JSON.parse(localStorage.getItem('anubisplay_results')||'[]');}catch(e){return [];}}
-  function saveResults(){try{localStorage.setItem('anubisplay_results',JSON.stringify(results.slice(0,50)));}catch(e){}}
+  function loadResults(){return myAddr?A.results(myAddr):[];}
+  function saveResults(){if(myAddr&&results[0])results=A.saveResult(myAddr,results[0]);}
   function logAct(t){activity.unshift({text:t,time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})});activity=activity.slice(0,40);}
 
   // 牌:后端 {r:0..12(0=2..12=A), s:0..3} → 展示 {value:2..14, suit}
@@ -134,120 +138,109 @@
 
   // ---------- 钱包 ----------
   async function connect(){
-    const eth=window.ethereum; if(!eth){toast('请在 OKX / MetaMask 钱包内置浏览器打开');return;}
     try{
-      const accs=await eth.request({method:'eth_requestAccounts'}); if(!accs.length)return; myAddr=accs[0];
-      const cid=await eth.request({method:'eth_chainId'});
-      if(parseInt(cid,16)!==ANUBIS.id){try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}}
+      myAddr=await A.connect();results=loadResults();
       $('walletLabel').textContent=short(myAddr);
-      const wp=$('mWalletPill'); if(wp)wp.textContent=short(myAddr);
-      const cb=$('mConnectBtn'); if(cb){const sp=cb.querySelector('span'); if(sp)sp.textContent=short(myAddr);}
-      refreshBalances(); connectWS();
-      authorizeCurrent(); // 连钱包只授权当前池(2笔,已做的跳过);换池玩时再按需补签那池
-      if(!window._wl){window._wl=1;eth.on&&eth.on('accountsChanged',()=>location.reload());eth.on&&eth.on('chainChanged',()=>location.reload());}
-    }catch(e){toast((e&&e.message)||'连接失败');}
+      const cb=$('mConnectBtn');if(cb&&cb.querySelector('span'))cb.querySelector('span').textContent=short(myAddr);
+      await A.requireReferral(myAddr);
+      await refreshBalances();
+      if(!authed){allowLoginSignature=true;connectWS();for(let i=0;i<150&&!authed;i++)await new Promise(r=>setTimeout(r,100));if(!authed)throw new Error(A.L('对战登录未完成，请重新连接','Game login incomplete; reconnect'));}
+      await checkAuth();
+      return true;
+    }catch(e){toast(e.message||A.L('连接失败','Connection failed'));return false;}
   }
-  async function sendTxTo(to,data){
-    const eth=window.ethereum, gp=await eth.request({method:'eth_gasPrice',params:[]});
-    const hash=await eth.request({method:'eth_sendTransaction',params:[{from:myAddr,to,data:'0x'+data,type:'0x0',gasPrice:gp}]});
-    for(let i=0;i<300;i++){await new Promise(r=>setTimeout(r,800));const rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber){if(rc.status==='0x1')return rc;throw new Error('交易失败');}}
-    throw new Error('确认超时');
-  }
+  async function sendTxTo(to,data){return A.send(myAddr,to,'0x'+data.replace(/^0x/,''),A.L('炸金花交易 ','Card-game transaction ')+SYM);}
   const sendTx=data=>sendTxTo(CONTRACT,data);
   async function refreshBalances(){
-    if(!myAddr)return;
-    try{const b=await rcall(LGNS,SEL.bal+encA(myAddr)); const v=e9(BigInt('0x'+(b||'0'))); myBalNum=v; balFetched=true; myBalStr=fmt(v); const e=$('jtBal'); if(e)e.textContent=myBalStr;}catch(e){}
-    try{const wd=await rcall(CONTRACT,SEL.wd+encA(myAddr)); const v=e9(BigInt('0x'+(wd||'0'))); myClaimStr=fmt(v)+' '+SYM; myClaimPos=v>0;}catch(e){}
+    if(!myAddr)return;const op=curToken,a=myAddr,token=LGNS,contract=CONTRACT;
+    let ok=true;
+    try{const b=await A.uintCall(token,SEL.bal+encA(a));if(op!==curToken||a!==myAddr)return;myBalNum=e9(b);balFetched=true;myBalStr=fmt(myBalNum);if($('jtBal'))$('jtBal').textContent=myBalStr;}
+    catch(e){ok=false;if(op===curToken&&a===myAddr){balFetched=false;myBalStr=A.L('查询失败','Unavailable');myBalNum=0;if($('jtBal'))$('jtBal').textContent=myBalStr;}}
+    try{const wd=await A.uintCall(contract,SEL.wd+encA(a));if(op!==curToken||a!==myAddr)return;myClaimStr=A.format(wd,DEC)+' '+SYM;myClaimPos=wd>0n;}
+    catch(e){ok=false;if(op===curToken&&a===myAddr){myClaimStr=A.L('查询失败，请重试','Query failed; retry');myClaimPos=false;}}
+    if($('mwClaim'))$('mwClaim').textContent=myClaimStr;if($('mwClaimBtn'))$('mwClaimBtn').disabled=!myClaimPos||claimBusy;
+    return ok;
   }
   async function checkAuth(){
     if(!myAddr||!delegate){authorized=false;return;}
-    try{
-      const d=await rcall(CONTRACT,SEL.deleg+encA(myAddr));
-      const al=BigInt('0x'+((await rcall(LGNS,SEL.allowance+encA(myAddr)+encA(CONTRACT)))||'0'));
-      authorized=(('0x'+d.slice(24)).toLowerCase()===delegate.toLowerCase())&&al>0n;
-    }catch(e){/* 读链失败(Anubis节点不稳)不降级authorized,避免误判成未授权又弹授权 */}
+    const op=curToken,a=myAddr,t=TOKENS[op];
+    try{const d=await rcall(t.contract,SEL.deleg+encA(a)),al=await A.uintCall(t.token,SEL.allowance+encA(a)+encA(t.contract));if(op===curToken&&a===myAddr)authorized=(('0x'+d.slice(-40)).toLowerCase()===t.delegate.toLowerCase())&&al>=toBase(TIERS[0]);}
+    catch(e){if(op===curToken&&a===myAddr)authorized=false;}
   }
   async function doAuthorize(){
-    if(!myAddr){toast('请先连接钱包');return;}
-    if(!delegate){toast('正在登录对战服务…');return;}
-    try{
-      toast('第1步：授权代币额度（一次授权，之后免弹）…'); await sendTxTo(LGNS,SEL.approve+encA(CONTRACT)+enc(APPROVE_AMT));
-      toast('第2步：授权免签代发…'); await sendTx(SEL.authorize+encA(delegate));
-      authorized=true; refreshBalances();
-    }catch(e){toast(e.message||'授权失败');}
+    if(!myAddr||!authed){toast(A.L('请先连接对战服务','Connect to the game service first'));return false;}
+    const t=TOKENS[curToken],defaultAmount=String(TIERS[0]*100);
+    openModal(A.L('确认本池操作权限','Confirm permissions for this pool'),'<p>'+A.L('授权代币额度和指定代发服务各需要一次钱包确认。额度有限，耗尽后需重新授权。','Token allowance and the designated delegate each require wallet confirmation. The allowance is finite and must be renewed when used up.')+'</p><label class="form-label" for="authAmount">'+A.L('最高可用代币额度','Maximum token allowance')+' ('+t.sym+')</label><input class="ap-input" id="authAmount" inputmode="decimal" value="'+defaultAmount+'"><p class="form-note">'+A.L('代币合约：','Token: ')+esc(t.token)+'<br>'+A.L('游戏合约：','Game: ')+esc(t.contract)+'<br>'+A.L('代发地址：','Delegate: ')+esc(t.delegate)+'</p><button class="gold-button" data-action="authorize-confirm" data-auth-pool="'+curToken+'">'+A.L('按此额度授权','Authorize this allowance')+'</button>','PERMISSIONS');return false;
   }
-  // 只授权"当前池"(approve额度+代发),连钱包时做一次;换别的池等真要玩时由doReady/doCreate/next按需补签。已授权的跳过(重连不重弹)
-  async function authorizeCurrent(){
-    if(!myAddr||authInProgress)return;
-    const t=TOKENS[curToken];
-    authInProgress=true;
-    try{
-      const need=[];
-      let okApprove=false, okDeleg=false;
-      try{ const al=BigInt('0x'+((await rcall(t.token,SEL.allowance+encA(myAddr)+encA(t.contract)))||'0')); okApprove=al>=(2n**255n); }catch(e){}
-      try{ const d=await rcall(t.contract,SEL.deleg+encA(myAddr)); okDeleg=(('0x'+d.slice(24)).toLowerCase()===t.delegate.toLowerCase()); }catch(e){}
-      if(!okApprove) need.push({to:t.token,   data:SEL.approve+encA(t.contract)+enc(APPROVE_AMT), label:t.sym+' 额度'});
-      if(!okDeleg)   need.push({to:t.contract,data:SEL.authorize+encA(t.delegate),               label:t.sym+' 代发'});
-      if(!need.length){ authorized=true; return; }
-      for(const it of need){ try{ toast('授权：'+it.label+'（一次，之后玩'+t.sym+'不再弹）…'); await sendTxTo(it.to,it.data); }catch(e){ /* 拒签则跳过,以后玩到再补 */ } }
-      authorized=true; refreshBalances();
-    } finally { authInProgress=false; }
+  async function confirmAuthorize(b){
+    if(authInProgress)return;authInProgress=true;b.disabled=true;const op=b.dataset.authPool,a=myAddr;
+    try{if(op!==curToken)throw new Error(A.L('币种池已改变，请重新确认','Pool changed; confirm again'));const t=TOKENS[op],amount=A.parseAmount($('authAmount').value,t.dec);await A.requireReferral(a);await A.authorize(t,a,amount);if(op!==curToken||a!==myAddr)throw new Error(A.L('钱包或币种已改变，请重新查询','Wallet or pool changed; refresh'));await checkAuth();if(!authorized)throw new Error(A.L('授权额度低于本池最低底注','Allowance is below the minimum ante'));closeModal();toast(A.L('授权已确认，请再次准备或创建牌桌','Permissions confirmed; prepare or create your table again'));}
+    catch(e){authorized=false;toast(e.message||A.L('授权未完成','Authorization incomplete'));}
+    finally{authInProgress=false;b.disabled=false;}
+  }
+  async function revokeAllowance(){
+    if(!myAddr||authInProgress)return;authInProgress=true;
+    try{await sendTxTo(LGNS,SEL.approve+encA(CONTRACT)+enc(0));authorized=false;toast(A.L('代币额度已撤销','Token allowance revoked'));showWallet();}catch(e){toast(e.message);}finally{authInProgress=false;}
   }
 
   // ---------- WSS ----------
   function connectWS(){
-    _triedToken=false; // 每次新连接:先试会话令牌,失败再签名
-    ws=new WebSocket(WSS);
-    ws.onopen=()=>{ setNet(true); };
-    ws.onclose=()=>{ setNet(false); setTimeout(connectWS,3000); };
-    ws.onerror=()=>{};
-    ws.onmessage=async ev=>{ let m; try{m=JSON.parse(ev.data);}catch(e){return;} await onMsg(m); };
+    if(!myAddr)return;clearTimeout(reconnectTimer);_triedToken=false;
+    if(ws){ws.onclose=null;try{ws.close();}catch(e){}}
+    authed=false;roomsLoaded=false;renderRooms();ws=new WebSocket(WSS);const sock=ws;
+    sock.onopen=()=>{if(sock===ws)setNet(false);};
+    sock.onclose=()=>{if(sock!==ws)return;authed=false;authorized=false;roomsLoaded=false;setNet(false);renderRooms();if(state)render();reconnectTimer=setTimeout(()=>{allowLoginSignature=false;connectWS();},reconnectDelay);reconnectDelay=Math.min(30000,reconnectDelay*2);};
+    sock.onerror=()=>{if(sock===ws)setNet(false);};
+    sock.onmessage=async ev=>{if(sock!==ws)return;let m;try{m=JSON.parse(ev.data);await onMsg(m);}catch(e){toast(A.L('对战消息处理失败，请重新连接','Game message failed; reconnect'));}};
   }
-  function setNet(ok){ const el=document.querySelector('.network'); if(el)el.classList.toggle('offline',!ok); }
-  function wsend(o){try{ws.send(JSON.stringify(o));}catch(e){}}
+  function setNet(ok){const el=document.querySelector('.network');if(el){el.classList.toggle('offline',!ok);el.textContent=ok?A.L('Anubis · 对战已连接','Anubis · Game connected'):A.L('Anubis · 对战未连接','Anubis · Game disconnected');}}
+  function wsend(o){if(!ws||ws.readyState!==1)return false;try{ws.send(JSON.stringify(o));return true;}catch(e){return false;}}
   // ---- 多池切换(LGNS/DAI)+档位筛选条,按当前池动态生成 ----
-  function poolBtns(activeCls){ return Object.values(TOKENS).map(t=>'<button class="'+(curToken===t.key?activeCls:'')+'" data-pool="'+t.key+'">'+t.label+' 池</button>').join(''); }
-  function tierBtns(attr,activeCls){ return '<button class="'+(filter==='all'?activeCls:'')+'" '+attr+'="all">全部</button>'+TIERS.map(n=>'<button class="'+(String(filter)===String(n)?activeCls:'')+'" '+attr+'="'+n+'">'+n+' '+SYM+'</button>').join(''); }
+  function poolBtns(activeCls){ return Object.values(TOKENS).map(t=>'<button class="'+(curToken===t.key?activeCls:'')+'" data-pool="'+t.key+'">'+t.label+A.L(' 池',' Pool')+'</button>').join(''); }
+  function tierBtns(attr,activeCls){ return '<button class="'+(filter==='all'?activeCls:'')+'" '+attr+'="all">'+A.L('全部','All')+'</button>'+TIERS.map(n=>'<button class="'+(String(filter)===String(n)?activeCls:'')+'" '+attr+'="'+n+'">'+n+' '+SYM+'</button>').join(''); }
   function renderLobbyBars(){ const ps=$('poolSwitch'); if(ps)ps.innerHTML=poolBtns('selected'); const mps=$('mPoolSwitch'); if(mps)mps.innerHTML=poolBtns('active'); const f=$('filters'); if(f)f.innerHTML=tierBtns('data-filter','selected'); const mf=$('mFilters'); if(mf)mf.innerHTML=tierBtns('data-mfilter','active'); }
+  function validHandId(id){if(!/^\d{1,78}$/.test(String(id))||BigInt(id)>=2n**256n)throw new Error(A.L('房间数据无效，请重新查询','Invalid room data; refresh'));return String(id);}
+  function tableData(r){if(!r||!/^\d+$/.test(String(r.ante)))throw new Error(A.L('牌桌金额无效','Invalid table amount'));const n=Number(r.nPlayers||0),mx=Number(r.maxPlayers);if(!Number.isInteger(n)||!Number.isInteger(mx)||n<0||mx<2||mx>6||n>mx)throw new Error(A.L('牌桌人数无效','Invalid table size'));return Object.assign({},r,{handId:validHandId(r.handId),nPlayers:n,maxPlayers:mx});}
   function setPool(key){
     if(!TOKENS[key]||key===curToken)return;
+    if(authInProgress||claimBusy||pending||joining||createBusy){toast(A.L('请等待当前操作确认后再切换币种池','Wait for the current action before switching pools'));return;}
     curToken=key; try{localStorage.setItem('ap_token',key);}catch(e){} applyToken();
     filter='all';
     authed=false; delegate=null; authorized=false; authInProgress=false;
-    myBalStr='—'; myBalNum=0; balFetched=false;
+    myBalStr='—';myClaimStr='—';myClaimPos=false;myBalNum=0;balFetched=false;roomsLoaded=false;
     try{ if(ws){ ws.onclose=null; ws.close(); } }catch(e){}   // 断开旧池,避免旧连接自动重连
     renderLobbyBars();
     backToLobby(true);          // 回大厅并清当前对局态(内部会 setView lobby)
     renderRooms([]);            // 先清空旧池房间列表,等新池 authed 后重列
-    connectWS();                // 连新池:challenge→签名→authed→自动 listTables+余额
+    if(myAddr)connectWS();                // 连新池:challenge→签名→authed→自动 listTables+余额
     if($('modal').open)showWallet();
     toast('已切到 '+SYM+' 池');
   }
   async function onMsg(m){
     if(m.t==='challenge'){
-      let tok=null; try{ tok=localStorage.getItem('ap_tok_'+curToken); }catch(e){}
+      let tok=null; try{ tok=localStorage.getItem(A.scope('session-'+curToken,myAddr)); }catch(e){}
       if(tok && !_triedToken){ _triedToken=true; wsend({t:'auth',token:tok}); return; } // 有令牌先免签登录,失败后端会重发challenge再签
-      const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig});
+      if(!allowLoginSignature){toast(A.L('会话已失效，请点击连接对战服务','Session expired; connect to the game service'));return;}allowLoginSignature=false;if(typeof m.nonce!=='string'||m.nonce.length>2048)throw new Error('Invalid login challenge');const a=myAddr,sock=ws,op=curToken;const sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,a]});if(await A.account()!==a||sock!==ws||op!==curToken)throw new Error('Wallet or connection changed');wsend({t:'auth',addr:a,sig});
     }
-    else if(m.t==='authed'){ authed=true; delegate=m.delegate; myNick=m.nick||''; myNickRem=(m.nickRemaining!=null?m.nickRemaining:3); if(m.token){try{localStorage.setItem('ap_tok_'+curToken,m.token);}catch(e){}} if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); if(window._pendingResume){ const _r=window._pendingResume; window._pendingResume=null; setTimeout(()=>joinRoom(_r),120); } } // 不再连上就自动授权;真要玩(准备/建桌/继续)时才按需授权
+    else if(m.t==='authed'){if(!m.delegate||m.delegate.toLowerCase()!==TOKENS[curToken].delegate.toLowerCase()){authed=false;authorized=false;toast(A.L('代发地址校验失败，请停止操作并联系维护','Delegate verification failed; stop and contact support'));return;}authed=true;setNet(true);reconnectDelay=1000;delegate=m.delegate; myNick=m.nick||''; myNickRem=Number.isInteger(m.nickRemaining)?Math.max(0,Math.min(3,m.nickRemaining)):3; if(m.token){try{localStorage.setItem(A.scope('session-'+curToken,myAddr),m.token);}catch(e){}} if(m.avatar&&myAddr)avatarCache[myAddr.toLowerCase()]=m.avatar; wsend({t:'listTables'}); checkAuth(); if(curHand)wsend({t:'subscribe',handId:curHand}); if(window._pendingResume){ const _r=window._pendingResume; window._pendingResume=null; setTimeout(()=>joinRoom(_r),120); } } // 不再连上就自动授权;真要玩(准备/建桌/继续)时才按需授权
     else if(m.t==='avatars'){ const mp=m.map||{}; Object.keys(mp).forEach(a=>{ avatarCache[a.toLowerCase()]=mp[a]; }); if(state&&view==='table')render(); }
     else if(m.t==='avatarUpdate'){ const a=String(m.addr||'').toLowerCase(); if(a){ if(m.avatar)avatarCache[a]=m.avatar; else delete avatarCache[a]; } if(state&&view==='table')render(); if($('modal').open&&isMe(m.addr))showWallet(); }
     else if(m.t==='avatarSet'){ clearTimeout(window._avT); window._avT=null; if(pendingAvatar&&myAddr)avatarCache[myAddr.toLowerCase()]=pendingAvatar; pendingAvatar=null; toast('✅ 头像保存成功'); if($('modal').open)showWallet(); if(state&&view==='table')render(); }
-    else if(m.t==='nickname'){ clearTimeout(window._nickTimer); window._nickTimer=null; myNick=m.name; myNickRem=m.remaining; toast('✅ 昵称已保存为「'+m.name+'」'+(m.remaining!=null?'，本月还可改 '+m.remaining+' 次':'')); if($('modal').open)showWallet(); if(state)render(); }
-    else if(m.t==='tables'){ renderRooms(m.tables); }
-    else if(m.t==='tableCreated'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
+    else if(m.t==='nickname'){ clearTimeout(window._nickTimer); window._nickTimer=null; myNick=m.name; myNickRem=Number.isInteger(m.remaining)?Math.max(0,Math.min(3,m.remaining)):0; toast('✅ 昵称已保存为「'+m.name+'」'+(m.remaining!=null?'，本月还可改 '+m.remaining+' 次':'')); if($('modal').open)showWallet(); if(state)render(); }
+    else if(m.t==='tables'){if(!Array.isArray(m.tables))throw new Error('Invalid table list');const tables=m.tables.map(tableData);roomsLoaded=true;renderRooms(tables);toast(A.L('牌桌列表已更新','Table list updated'));}
+    else if(m.t==='tableCreated'){validHandId(m.handId);createBusy=false;clearTimeout(createTimer);curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; joining=false;
       wsend({t:'subscribe',handId:curHand}); toast(m.private?('🔒 私密牌桌已开！房号 #'+m.handId+' —— 大厅看不到这桌，把房号发给朋友，他输房号才能进；你点「准备」交底注开始'):('✅ 开桌成功！房号 #'+m.handId+' —— 把这个号发给朋友，他输房号进同一桌；你点「准备」交底注开始')); // 进桌旁观,点准备才交底注
       state={handId:String(m.handId),phase:1,ante:toBase(newAnte).toString(),maxPlayers:newCount,nPlayers:0,nActive:0,pot:'0',curBet:'0',turn:0,turnAddr:ZERO,cmpChallenger:ZERO,cmpOpp:ZERO,players:[],actionDeadline:0};
       enterTable(); try{ render(); }catch(e){} }
     else if(m.t==='joined'){ logAct('你已入座'); }
-    else if(m.t==='left'){ toast('已退座，底注退回可领取'); backToLobby(true); }
+    else if(m.t==='left'){refreshBalances();toast(A.L('已退座，请到资产与退款查看可领资金','Seat left; check Assets & refunds for withdrawals')); backToLobby(true); }
     else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ onState(m); rememberHand(m); } }
     else if(m.t==='yourCards'){ if(String(m.handId)===String(curHand)){ myCards=m.cards; render(); } }
-    else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); clearActiveHand(m.handId); try{localStorage.removeItem('ap_look_'+m.handId);}catch(e){} } }
+    else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); clearActiveHand(m.handId); try{localStorage.removeItem(A.scope('look-'+m.handId,myAddr,CONTRACT));}catch(e){} } }
     else if(m.t==='compareReveal'){ showCompareReveal(m); }
     else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
-    else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)) toast('本局已退款'); }
-    else if(m.t==='error'){ pending=false; joining=false; clearTimeout(window._pt); clearTimeout(window._jt); clearTimeout(window._nickTimer); window._nickTimer=null; clearTimeout(window._avT); window._avT=null; toast('❌ '+m.msg); if(state)render(); }
+    else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)){refreshBalances();toast(A.L('本局已退款，请核对钱包和可领资金','Refund reported; verify wallet and withdrawable balance'));} }
+    else if(m.t==='error'){ pending=false; joining=false;createBusy=false;clearTimeout(createTimer); clearTimeout(window._pt); clearTimeout(window._jt); clearTimeout(window._nickTimer); window._nickTimer=null; clearTimeout(window._avT); window._avT=null; toast('❌ '+m.msg);if(curHand)wsend({t:'subscribe',handId:curHand});if(state)render(); }
   }
 
   function onState(m){
@@ -264,7 +257,7 @@
     prevPlayers=m.players;
     const newHandBetting = (m.phase===2 && lastDealtHand!==String(m.handId));
     state=m; if(m.pot!=='0')lastPot=m.pot;
-    { const _me=m.players.find(p=>isMe(p.addr)); if(_me&&_me.looked){ myLookedLocal=true; pendingLook=false; try{localStorage.setItem('ap_look_'+m.handId,'1');}catch(e){} } } // 链上已看牌→UI保持已看牌且不重复计费
+    { const _me=m.players.find(p=>isMe(p.addr)); if(_me&&_me.looked){ myLookedLocal=true; pendingLook=false; try{localStorage.setItem(A.scope('look-'+m.handId,myAddr,CONTRACT),'1');}catch(e){} } } // 链上已看牌→UI保持已看牌且不重复计费
     // 首局自动发牌:人齐且仍 OPEN,由首座玩家触发一次(后端去重)
     if(m.phase===1 && m.nPlayers>=2 && !startedHands.has(String(m.handId))){
       const first=m.players[0];
@@ -294,7 +287,7 @@
     const PH={1:'等待入座',2:'对局进行中',3:'摊牌结算',4:'本局结束',5:'已退款'};
     $('jtPill').textContent=PH[phase]||'';
     $('jtPot').textContent=fmt(pot);
-    { const u=$('jtPotUnit'); if(u)u.textContent=SYM; const bu=$('jtBalUnit'); if(bu)bu.textContent=SYM; const df=$('jtDockFoot'); if(df)df.textContent='押真 '+SYM+' · 链上公平结算 · 奖金自动到账'; }
+    { const u=$('jtPotUnit'); if(u)u.textContent=SYM; const bu=$('jtBalUnit'); if(bu)bu.textContent=SYM; const df=$('jtDockFoot'); if(df)df.textContent=A.L('押真 ','Stake ')+SYM+A.L(' · 结算后核对到账',' · Verify payment after settlement'); }
     $('jtBet').textContent='当前单注 '+fmt(curBet)+' '+SYM;
     $('jtMeName').textContent=(myNick||'我');
     $('jtOwnStack').textContent=fmt(me?e9(me.contributed):0);
@@ -376,24 +369,24 @@
     if(phase===1){
       acts.hidden=true; ready.hidden=false; $('jtTimer').textContent='–';
       if(joining){ $('jtReadyBtn').textContent='准备中…'; $('jtReadyBtn').disabled=true; $('jtTurnMain').textContent='准备中…'; $('jtTurnHint').textContent='正在上链交底注'; }
-      else if(mi<0){ $('jtReadyBtn').textContent='准备（交底注 '+anteV+'）'; $('jtReadyBtn').disabled=false; $('jtTurnMain').textContent='进桌成功'; $('jtTurnHint').textContent='点准备交底注入座，人齐自动开局'; }
+      else if(mi<0){ $('jtReadyBtn').textContent='准备（交底注 '+anteV+'）'; $('jtReadyBtn').disabled=!authed||!ws||ws.readyState!==1; $('jtTurnMain').textContent='进桌成功'; $('jtTurnHint').textContent='点准备交底注入座，人齐自动开局'; }
       else { const w=state.nPlayers<2; $('jtReadyBtn').textContent='✓ 已准备'; $('jtReadyBtn').disabled=true; $('jtTurnMain').textContent=w?'已准备':'人齐，马上开始'; $('jtTurnHint').textContent=w?'等其他玩家准备':'正在发牌…'; }
       return;
     }
     ready.hidden=true;
-    if(ended){ acts.hidden=true; $('jtTurnMain').textContent='本局已结算'; $('jtTurnHint').textContent='第 '+state.handId+' 局'; $('jtTimer').textContent='–'; return; }
+    if(ended){ acts.hidden=true; $('jtTurnMain').textContent=A.L('本局结果已生成','Result reported'); $('jtTurnHint').textContent='第 '+state.handId+' 局'; $('jtTimer').textContent='–'; return; }
     if(endBox)endBox.hidden=true;
     acts.hidden=false;
     $('jtCallAmt').textContent=fmt(cost)+' '+SYM;
     const myTurn=!comparing&&mi>=0&&state.turnAddr&&isMe(state.turnAddr)&&me&&!me.folded;
     gtTick();
-    if(pending){ ['jtFold','jtPeek','jtRaise','jtCompare','jtCall','jtAllIn'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); $('jtTurnMain').textContent='处理中…'; return; }
+    if(pending||!authed||!ws||ws.readyState!==1){ ['jtFold','jtPeek','jtRaise','jtCompare','jtCall','jtAllIn'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); $('jtTurnMain').textContent='处理中…'; return; }
     if(comparing){ $('jtTurnMain').textContent='比牌裁决中'; $('jtTurnHint').textContent='马上出结果'; }
     else if(myTurn){ $('jtTurnMain').textContent='轮到你行动'; $('jtTurnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' '+SYM; }
     else if(mi<0){ $('jtTurnMain').textContent='观战中'; $('jtTurnHint').textContent='本局结束后点「继续下一局」即可加入'; }
     else if(me&&me.folded){ $('jtTurnMain').textContent='已弃牌'; $('jtTurnHint').textContent='等待本局结束'; }
     else { $('jtTurnMain').textContent='其他玩家行动中'; $('jtTurnHint').textContent='轮到 '+nameOf(state.turnAddr); }
-    const dis=!myTurn;
+    const dis=!myTurn||!balFetched;
     if(myTurn){ const now=Date.now(); if(now-_balT>1500){ _balT=now; refreshBalances().then(()=>{ if(state&&state.phase===2&&!pending)render(); }); } } // 轮到我:刷新余额判断够不够跟
     const poor = myTurn && balFetched && myBalNum < cost; // 筹码不够跟注
     const headsup = state.nActive===2;                    // 单挑(剩两人)
@@ -415,14 +408,14 @@
     window._reveal=m.reveal||[];
     let best=-1,winAddr=null;
     (m.reveal||[]).forEach(r=>{ if(!r.folded){const sc=score(r.cards); if(sc>best){best=sc;winAddr=r.addr;}} });
-    const pot=e9(lastPot), payout=pot*0.97;
+    const pot=e9(lastPot), payout=pot*0.97; // 仅用于规则估算，不能代表已到账
     const iWon=winAddr&&isMe(winAddr);
     const meRev=(m.reveal||[]).find(r=>isMe(r.addr)); if(meRev)myCards=meRev.cards; // 没看牌也在摊牌亮出我的牌
     state=Object.assign({},state,{phase:4});
     render();
     var anteV=state?fmt(e9(state.ante)):'';
     const box=$('jtEndBox');
-    if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' '+SYM+'，赢家拿 '+fmt(payout):'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' '+SYM:''); }
+    if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' '+SYM+'，赢家拿 '+fmt(payout):'本局结束')+A.L(' · 预计金额，到账以链上结算为准',' · Estimate; verify on-chain settlement')+(anteV?'｜继续需再交底注 '+anteV+' '+SYM:''); }
     if(iWon)playSound('win');
     message(iWon?'好牌！你赢得了本局':'本局已结束');
     // 记录(本地,真实观测):详细版
@@ -438,6 +431,7 @@
       folded:!!r.folded, win:(winAddr&&r.addr.toLowerCase()===winAddr.toLowerCase())
     }));
     results.unshift({
+      sym:SYM,contract:CONTRACT.toLowerCase(),address:myAddr.toLowerCase(),chainId:ANUBIS.id,estimated:true,status:'result-reported',
       hand:state.handId, time:new Date().toLocaleString('zh-CN'),
       ante:fmt(e9(state.ante)), players:((m.reveal||[]).length||state.nPlayers||0),
       win:iWon, net:net, cost:myContrib,
@@ -459,6 +453,7 @@
     const list=(window._rooms||[]).filter(r=>filter==='all'||String(e9(r.ante))===String(filter));
     renderMRooms(list); // 手机端大厅房间
     const grid=$('roomGrid');
+    if(!authed||!roomsLoaded){const text=!myAddr?A.L('连接钱包后查询牌桌','Connect your wallet to query tables'):!authed?A.L('请连接对战服务后查询牌桌','Connect to the game service to query tables'):A.L('正在读取牌桌…','Loading tables…');grid.innerHTML='<div class="room-empty">'+text+'</div>';if($('mRooms'))$('mRooms').innerHTML='<div class="m-empty">'+text+'</div>';return;}
     if(!list.length){ grid.innerHTML='<div class="room-empty" style="opacity:.7;padding:24px;text-align:center">暂无牌桌，点「创建我的牌桌」开一桌，或等别人开。</div>'; return; }
     grid.innerHTML=list.map(r=>{
       const ante=fmt(e9(r.ante)), n=r.nPlayers||0, full=n>=r.maxPlayers;
@@ -495,8 +490,8 @@
     setView('lobby'); if(authed)wsend({t:'listTables'}); refreshBalances();
   }
   async function joinRoom(id){
-    if(!myAddr){ await connect(); if(!myAddr)return; }
-    curHand=String(id); myCards=null; try{myLookedLocal=localStorage.getItem('ap_look_'+id)==='1';}catch(e){myLookedLocal=false;} pendingLook=myLookedLocal; prevPlayers=null; joining=false; // 恢复"已看牌"状态(onState据链上looked再校正pendingLook)
+    if(!authed){if(!await connect())return;}
+    curHand=String(id); myCards=null; try{myLookedLocal=localStorage.getItem(A.scope('look-'+id,myAddr,CONTRACT))==='1';}catch(e){myLookedLocal=false;} pendingLook=myLookedLocal; prevPlayers=null; joining=false; // 恢复"已看牌"状态(onState据链上looked再校正pendingLook)
     pending=false; picking=false; _topupSeen=false; clearTimeout(window._pt); clearTimeout(window._jt); try{closeModal();}catch(e){} // 重进对局清残留"处理中"/选牌/弹窗,防看着像卡死
     wsend({t:'subscribe',handId:id}); // 先进桌旁观,点「准备」才交底注入座
     const room=(window._rooms||[]).find(r=>String(r.handId)===String(id));
@@ -505,38 +500,43 @@
   }
   async function doReady(){ // 准备=交底注入座
     if(!curHand)return;
-    if(!myAddr){ await connect(); if(!myAddr)return; }
-    if(!authorized){ await doAuthorize(); if(!authorized)return; } // 首次自动授权一次
-    joining=true;
-    wsend({t:'joinTable',handId:curHand}); toast('准备中，交底注入座…');
+    if(!authed){if(!await connect())return;}
+    await A.requireReferral(myAddr);await checkAuth();
+    if(!authorized){await doAuthorize();return;} // 首次自动授权一次
+    if(joining)return;joining=true;
+    if(!wsend({t:'joinTable',handId:curHand})){joining=false;throw new Error(A.L('连接已断开，请重试','Disconnected; retry'));} toast('准备中，交底注入座…');
     try{ render(); }catch(e){}
-    clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false; try{render();}catch(e){}} },12000);
+    clearTimeout(window._jt); window._jt=setTimeout(()=>{if(joining){toast(A.L('入座确认较慢，正在重新查询，请勿重复准备','Seat confirmation is slow; resynchronizing. Do not prepare again.'));wsend({t:'subscribe',handId:curHand});}},12000);
   }
   async function doCreate(){
-    if(!myAddr){ await connect(); if(!myAddr)return; }
+    if(createBusy){toast(A.L('开桌待确认，请先刷新查询','Table creation pending; refresh the list first'));return;}createBusy=true;let submitted=false;const op=curToken,anteValue=newAnte,count=newCount,isPrivate=newPrivate;
+    try{
+    if(!authed){if(!await connect())return;}
+    await A.requireReferral(myAddr);await checkAuth();
     if(!authorized){ closeModal(); await doAuthorize(); if(!authorized)return; }
-    const ante=toBase(newAnte).toString();
-    wsend({t:'createTable',ante,maxPlayers:newCount,private:newPrivate}); closeModal(); toast('开桌中…');
+    if(op!==curToken)throw new Error(A.L('币种池已改变，请重新确认','Pool changed; confirm again'));
+    const ante=toBase(anteValue).toString();
+    if(!wsend({t:'createTable',ante,maxPlayers:count,private:isPrivate}))throw new Error(A.L('连接已断开，请重试','Disconnected; retry'));submitted=true;closeModal();toast(A.L('开桌中…','Creating table…'));
+    createTimer=setTimeout(()=>{if(createBusy){createBusy=false;toast(A.L('开桌结果未确认，请先刷新牌桌列表核对','Table creation unconfirmed; refresh the list to check first'));wsend({t:'listTables'});}},20000);
+    }finally{if(!submitted)createBusy=false;}
   }
 
   // ---------- 行动 ----------
-  function act(action,extra){ wsend(Object.assign({t:'act',handId:curHand,action},extra||{})); }
-  function setPending(txt){ pending=true; cdActive=false; ['jtFold','jtPeek','jtRaise','jtCompare','jtCall','jtAllIn'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('jtTurnMain'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
-  // 乐观更新:点了立刻在本地改状态(底池/我的投入/先交出回合),链上确认后由真实state对齐
-  function optimBet(extra){ const mi=meIdx(); if(mi<0||!state)return; const me=state.players[mi]; const base=BigInt(state.curBet)+(extra||0n); const cost=(me.looked||myLookedLocal)?base*2n:base; const nc=(BigInt(me.contributed)+cost).toString(); state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{contributed:nc}):p); state.pot=(BigInt(state.pot)+cost).toString(); if(extra)state.curBet=base.toString(); state.turnAddr=ZERO; }
-  function optimFold(){ const mi=meIdx(); if(mi<0||!state)return; state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{folded:true}):p); state.turnAddr=ZERO; }
-  function doFold(){ const wl=pendingLook;pendingLook=false; optimFold(); act('fold',{withLook:wl}); logAct('你 弃牌'); setPending('已弃牌'); render(); }
+  function act(action,extra){if(!authed||!ws||ws.readyState!==1||pending){toast(A.L('连接未就绪或上一操作待确认，请重试','Connection not ready or an action is pending'));return false;}return wsend(Object.assign({t:'act',handId:curHand,action},extra||{}));}
+  function setPending(txt){ pending=true; cdActive=false; ['jtFold','jtPeek','jtRaise','jtCompare','jtCall','jtAllIn'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('jtTurnMain'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){toast(A.L('确认较慢，正在重新查询对局','Confirmation is slow; resynchronizing'));if(curHand)wsend({t:'subscribe',handId:curHand});render();} },7000); }
+  // 行动先等待服务确认，不在本地提前增加底池或扣筹码。
+  function doFold(){ const wl=pendingLook; if(!act('fold',{withLook:wl}))return; logAct(A.L('已请求弃牌','Fold requested')); setPending(A.L('弃牌待确认','Fold pending')); render(); }
   function doPeek(){ // 看牌=纯本地翻牌(牌已在本地),不单独上链;看完按钮仍可点,look与下一步动作打包上链
     if(myLookedLocal)return;
-    if(!myCards){ act('look'); setPending('看牌中…'); return; } // 兜底:牌还没到,走独立look
-    myLookedLocal=true; pendingLook=true; try{localStorage.setItem('ap_look_'+curHand,'1');}catch(e){} playSound('card'); render(); // 记住"已看牌",返回再进不丢
+    if(!myCards){ if(!act('look'))return;setPending('看牌中…'); return; } // 兜底:牌还没到,走独立look
+    myLookedLocal=true; pendingLook=true; try{localStorage.setItem(A.scope('look-'+curHand,myAddr,CONTRACT),'1');}catch(e){} playSound('card'); render(); // 记住"已看牌",返回再进不丢
   }
-  function doCall(){ const wl=pendingLook;pendingLook=false; optimBet(0n); act('call',{withLook:wl}); playSound(); logAct('你 跟注'); setPending('已跟注，等其他玩家…'); render(); }
-  function doRaise(){ const wl=pendingLook;pendingLook=false; try{optimBet(BigInt(state.ante));}catch(e){} act('raise',{withLook:wl}); playSound(); logAct('你 加注'); setPending('已加注，等其他玩家…'); render(); }
+  function doCall(){ const wl=pendingLook; if(!act('call',{withLook:wl}))return; playSound(); logAct(A.L('已请求跟注','Call requested')); setPending(A.L('跟注待确认','Call pending')); render(); }
+  function doRaise(){ const wl=pendingLook; if(!act('raise',{withLook:wl}))return; playSound(); logAct(A.L('已请求加注','Raise requested')); setPending(A.L('加注待确认','Raise pending')); render(); }
   function startCompare(){ if(!state||state.nActive<2){toast('暂无可比牌的对手');return;} picking=!picking; if(picking){openCompare();} render(); }
-  function doAllIn(){ if(!state||state.nActive!==2){toast('只有单挑(剩两人)才能全下比牌');return;} const wl=pendingLook;pendingLook=false; picking=false; act('allin',{withLook:wl}); playSound(); logAct('你 全下比牌'); setPending('全下比牌中…'); render(); }
-  function doCompare(addr){ const wl=pendingLook;pendingLook=false; picking=false; setPending('比牌中…'); act('compare',{target:addr,withLook:wl}); logAct('你 比牌'); closeModal(); }
-  async function doClaim(){ if(!myAddr)return; try{toast('领取中…');await sendTx(SEL.withdraw);toast('已领取到钱包');refreshBalances();}catch(e){toast(e.message||'暂无可领');} }
+  function doAllIn(){ if(!state||state.nActive!==2){toast('只有单挑(剩两人)才能全下比牌');return;} const wl=pendingLook; picking=false; if(!act('allin',{withLook:wl}))return; playSound(); logAct('你 全下比牌'); setPending('全下比牌中…'); render(); }
+  function doCompare(addr){ const wl=pendingLook; picking=false; if(!act('compare',{target:addr,withLook:wl}))return;setPending('比牌中…'); logAct('你 比牌'); closeModal(); }
+  async function doClaim(){if(!myAddr||claimBusy)return;claimBusy=true;try{await refreshBalances();if(!myClaimPos)throw new Error(A.L('暂无已确认的可领资金','No confirmed withdrawable balance'));toast(A.L('请确认领取交易','Confirm withdrawal'));await sendTx(SEL.withdraw);toast(A.L('领取交易已确认','Withdrawal confirmed'));await refreshBalances();showWallet();}catch(e){toast(e.message);}finally{claimBusy=false;if($('mwClaimBtn'))$('mwClaimBtn').disabled=!myClaimPos;}}
   // 头像:选图→画布裁成方形小图(100px/JPEG)压到30KB内→上链前发后端存,同桌可见
   function handleAvatarFile(file){
     if(!file)return;
@@ -611,6 +611,9 @@
          <button class="small-button" data-action="copy-addr">复制地址</button>
          <div class="form-note" style="text-align:center">用别的钱包扫这个码（或复制地址），把 LGNS / DAI 转进来充值。地址在 Anubis 链两种币通用。</div>
        </div>
+       <div class="ap-block"><div class="ap-row"><span>${A.L('本池合约可领资金','Withdrawable from this pool')}</span><strong id="mwClaim">${esc(myClaimStr)}</strong></div><button id="mwClaimBtn" class="gold-button" data-action="claim" ${!myClaimPos?'disabled':''}>${A.L('领取到钱包','Withdraw to wallet')}</button></div>
+       ${!authed?'<button class="gold-button" data-action="connect">'+A.L('连接对战服务','Connect to game service')+'</button>':''}
+       <a class="ap-button secondary" href="../account/">${A.L('全部资产、退款和记录','All assets, refunds & history')}</a><button class="small-button" data-action="revoke-allowance">${A.L('撤销本池代币额度','Revoke token allowance for this pool')}</button>
        <label class="form-label" style="display:flex;justify-content:space-between;align-items:center">我的余额<button class="small-button" data-action="refresh-bal" aria-label="刷新全部余额">↻ 刷新</button></label>
        ${Object.values(TOKENS).map(t=>`<div class="wallet-row"><span>${t.label}</span><strong id="mw_bal_${t.key}">${walletBals[t.key]||'—'} <small>${t.sym}</small></strong></div>`).join('')}`
       :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 ${SYM} 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
@@ -618,7 +621,7 @@
       + layoutSet
       + soundSet,
       'MY ACCOUNT');
-    if(connected){ if(qrOpen)renderWalletQR(); refreshWalletBalances(); }
+    if(connected){if(qrOpen)renderWalletQR();refreshWalletBalances();refreshBalances();}
   }
   function openCreate(){
     newAnte=TIERS[0];newCount=6;newPrivate=false;
@@ -663,14 +666,14 @@
        <ol class="rules-copy"><li>各交一份底注入座。暗牌按当前本注跟注，看牌后按 2 倍跟注。</li>
        <li>加注把本注往上提一档；按钮显示本次实际支付。</li>
        <li>轮到你可比牌：挑一个对手单挑，输的出局；牌力相同发起方出局。</li>
-       <li>打到只剩 1 人或摊牌结算，赢家拿底池（扣 3% 手续费）。一局结束自动开下一局。</li>
+       <li>打到只剩 1 人或摊牌结算，赢家拿底池（扣 3% 手续费）。本局结束后可选择继续下一局。</li>
        <li>A23 为最小顺子；花色不分大小。</li></ol>
        <div class="rules-foot">牌序由合约种子 + 区块哈希决定，后端按权威结果发牌，每局种子上链公开可事后核验。押真 ${SYM}，理性参与。</div>`,'HOW TO PLAY');
   }
   function showRecords(){
     const cardChips=arr=>(arr&&arr.length)?arr.map(cs=>{const red=cs.includes('♥')||cs.includes('♦');return '<span style="display:inline-block;min-width:26px;text-align:center;background:#fffdf0;color:'+(red?'#b9383c':'#23292a')+';border-radius:4px;padding:2px 5px;margin-right:4px;font-family:Georgia,serif;font-weight:700;font-size:13px">'+esc(cs)+'</span>';}).join(''):'<span style="color:#8b9b8e">未亮牌</span>';
     const GC='grid-template-columns:2.6em minmax(0,1fr) auto auto;gap:10px';
-    const netCell=r=>{ if(r.net===undefined||r.net===null) return '<span style="color:'+(r.win?'#65c59d':'#dd888a')+'">'+(r.win?'🏆赢':'输')+'</span>'; const n=Number(r.net); return '<span style="color:'+(r.win?'#65c59d':'#dd888a')+'">'+(r.win?'🏆':'')+(n>=0?'+':'')+fmt(n)+'</span>'; };
+    const netCell=r=>{ if(r.net===undefined||r.net===null) return '<span style="color:'+(r.win?'#65c59d':'#dd888a')+'">'+(r.win?'🏆赢':'输')+'</span>'; const n=Number(r.net); return '<span style="color:'+(r.win?'#65c59d':'#dd888a')+'">'+(r.win?'🏆':'')+(n>=0?'+':'')+(r.estimated?'≈ ':'')+fmt(n)+' '+esc(r.sym||'')+'</span>'; };
     const row=(r,i)=>`<button class="rec-row" data-action="rec-toggle" data-idx="${i}" style="display:grid;${GC};width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line,#ffffff10);padding:10px 4px;align-items:center;font-size:12.5px;color:#dbe0cf;cursor:pointer">
          <span style="color:#e8c783;font-weight:700">${esc(String(r.hand))}</span>
          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(String(r.label||'-'))}</span>
@@ -683,10 +686,10 @@
          ${(r.foes&&r.foes.length)?r.foes.map(f=>`<div style="margin-top:6px;display:flex;align-items:center;flex-wrap:wrap;gap:4px${f.folded?';opacity:.55':''}"><b style="min-width:64px;color:#c9d4c0">${esc(f.name)}${f.win?' 🏆':''}</b> ${f.folded?'<span style="color:#8b9b8e">已弃牌</span> ':''}${cardChips(f.cards)} <span>（${esc(f.label||'-')}）</span></div>`).join(''):'<div style="margin-top:6px;color:#8b9b8e">无对手牌面记录</div>'}
        </div>`;
     openModal('我的牌局记录',
-      `<div class="stats-grid" style="grid-template-columns:1fr"><div><strong>${results.length}</strong><span>对局次数</span></div></div>
-       <div style="display:grid;${GC};padding:0 4px 7px;font-size:10px;letter-spacing:1px;color:#7e9583;border-bottom:1px solid var(--line,#ffffff14)"><span>局号</span><span>牌型</span><span style="text-align:right">输赢</span><span style="text-align:right">底池</span></div>
+      `<div class="stats-grid" style="grid-template-columns:1fr"><div><strong>${results.length}</strong><span>${A.L('本机记录数','Records on this device')}</span></div></div>
+       <div style="display:grid;${GC};padding:0 4px 7px;font-size:10px;letter-spacing:1px;color:#7e9583;border-bottom:1px solid var(--line,#ffffff14)"><span>局号</span><span>牌型</span><span style="text-align:right">${A.L('输赢估算','Estimated net')}</span><span style="text-align:right">底池</span></div>
        ${results.length?results.slice(0,40).map(row).join(''):'<div style="padding:16px 4px;color:#8b9b8e;font-size:12px">暂无记录，玩一局就有了。</div>'}
-       <div class="form-note" style="margin-top:12px">点某一行展开看你的三张牌。记录存本浏览器本地，换设备或清缓存会清空；权威结果以链上为准。</div>`,'SESSION RECORDS');
+       <div class="form-note" style="margin-top:12px">点某一行展开看你的三张牌。${A.L('记录按钱包与币种隔离，仅作本机缓存。输赢是规则估算，实际结算以链上为准。','Records are scoped to this wallet and token and cached on this device. Net amounts are estimates; verify on-chain settlement.')}</div>`,'SESSION RECORDS');
   }
 
   // ---------- 视图 ----------
@@ -753,7 +756,7 @@
       if(b.dataset.seats){ newCount=Number(b.dataset.seats); document.querySelectorAll('[data-seats]').forEach(el=>{const s=Number(el.dataset.seats)===newCount;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
       if(b.dataset.priv!==undefined){ newPrivate=b.dataset.priv==='1'; document.querySelectorAll('[data-priv]').forEach(el=>{const s=(el.dataset.priv==='1')===newPrivate;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); const n=$('privNote'); if(n)n.textContent=newPrivate?'私密牌桌不显示在大厅，只有拿到房号的人才能进。开桌后把房号发给朋友即可。':'开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 '+SYM+'。'; return; }
       if(b.dataset.tlayout){ setTableLayout(b.dataset.tlayout); return; }
-      if(b.dataset.join){ joinRoom(b.dataset.join); return; }
+      if(b.dataset.join){await joinRoom(b.dataset.join);return;}
       if(b.dataset.compare){ doCompare(b.dataset.compare); return; }
       const a=b.dataset.action;
       switch(a){
@@ -762,10 +765,10 @@
         case 'connect':await connect();closeModal();showWallet();break;
         case 'rules':showRules();break;
         case 'records':showRecords();break;
-        case 'join-code':{ const box=b.closest('.m-joinbox,.join-box'); const inp=box&&box.querySelector('input'); const id=inp?String(inp.value).replace(/[^0-9]/g,''):''; if(!id){toast('请输入房号');break;} toast('查询房间 #'+id+'…'); const ph=await roomPhase(id); if(ph===0){toast('房间 #'+id+' 不存在，请让朋友重新建桌');break;} if(ph>=4){toast('房间 #'+id+' 本局已结束，请换一个房号或新建牌桌');break;} if(inp)inp.value=''; joinRoom(id); break; }
+        case 'join-code':{ const box=b.closest('.m-joinbox,.join-box'); const inp=box&&box.querySelector('input'); const id=inp?String(inp.value).replace(/[^0-9]/g,''):''; if(!id){toast('请输入房号');break;} toast('查询房间 #'+id+'…'); const ph=await roomPhase(id); if(ph===0){toast('房间 #'+id+' 不存在，请让朋友重新建桌');break;} if(ph>=4){toast('房间 #'+id+' 本局已结束，请换一个房号或新建牌桌');break;} if(inp)inp.value='';await joinRoom(id);break; }
         case 'create':openCreate();break;
-        case 'create-confirm':doCreate();break;
-        case 'refresh-bal':{ if(!myAddr){toast('请先连接钱包');break;} toast('刷新中…'); await Promise.all([refreshBalances(), refreshWalletBalances()]); toast('余额已刷新'); break; }
+        case 'create-confirm':await doCreate();break;
+        case 'refresh-bal':{ if(!myAddr){toast('请先连接钱包');break;} toast('刷新中…'); await Promise.all([refreshBalances(), refreshWalletBalances()]); toast(A.L('余额查询已完成，请核对各项状态','Balance queries finished; check each status')); break; }
         case 'copy-addr':{ if(!myAddr)break; try{ await navigator.clipboard.writeText(myAddr); toast('✅ 地址已复制'); }catch(e){ toast('复制失败，请长按上面的地址手动复制'); } break; }
         case 'fold-close':{ closeModal(); doFold(); break; }
         case 'toggle-qr':{ qrOpen=!qrOpen; const w=$('mw_qrwrap'); if(w)w.style.display=qrOpen?'flex':'none'; if(b)b.textContent=(qrOpen?'▾':'▸')+' 收款码'; if(qrOpen)renderWalletQR(); break; }
@@ -773,14 +776,16 @@
         case 'pick-avatar':{ const f=$('avatarFile'); if(f)f.click(); break; }
         case 'save-avatar':{ if(!pendingAvatar){toast('请先点头像选择图片');break;} if(!authed){toast('未连接对战服务，稍候重试');break;} toast('保存中…'); wsend({t:'setAvatar',avatar:pendingAvatar}); clearTimeout(window._avT); window._avT=setTimeout(()=>{window._avT=null;toast('⚠ 上传超时，请检查网络后重试');},8000); break; }
         case 'clear-avatar':{ if(!authed){toast('未连接对战服务，稍候重试');break;} pendingAvatar=null; wsend({t:'setAvatar',avatar:''}); if(myAddr)delete avatarCache[myAddr.toLowerCase()]; if($('modal').open)showWallet(); if(state&&view==='table')render(); toast('已恢复默认头像'); break; }
-        case 'claim':doClaim();break;
+        case 'claim':await doClaim();break;
+        case 'authorize-confirm':await confirmAuthorize(b);break;
+        case 'revoke-allowance':await revokeAllowance();break;
         case 'fold':doFold();break;
         case 'peek':doPeek();break;
         case 'call':doCall();break;
         case 'raise':doRaise();break;
         case 'compare':startCompare();break;
         case 'allin':doAllIn();break;
-        case 'next':{ if(!curHand)break; if(!authorized){ await doAuthorize(); if(!authorized)break; } wsend({t:'rematch',handId:curHand}); toast('继续下一局…'); break; }
+        case 'next':{if(pending){toast(A.L('上一操作待确认','An action is awaiting confirmation'));break;}if(!curHand)break;if(!authed){toast(A.L('请重新连接对战服务','Reconnect to the game service'));break;}await A.requireReferral(myAddr);await checkAuth();if(!authorized){await doAuthorize();break;} if(!wsend({t:'rematch',handId:curHand}))throw new Error(A.L('连接已断开，请重试','Disconnected; retry'));setPending(A.L('正在创建下一局…','Starting the next hand…'));toast('继续下一局…'); break; }
         case 'ready':await doReady();break;
         case 'leave':backToLobby();break;
         case 'fullscreen':await toggleLandscape();break;
@@ -789,7 +794,7 @@
         case 'toggle-bgm':{bgmOn=!bgmOn;try{localStorage.setItem('ap_bgm',bgmOn?'1':'0');}catch(e){}if(bgmOn)startBGM();else stopBGM();showWallet();toast(bgmOn?'背景音乐已开':'背景音乐已关');break;}
         case 'toggle-sfx':{sound=!sound;try{localStorage.setItem('ap_sfx',sound?'1':'0');}catch(e){}updateSound();if(sound)playSound();showWallet();toast(sound?'音效已开':'音效已关');break;}
         case 'dismiss-tip':{const pt=$('portraitTip');if(pt)pt.hidden=true;break;}
-        case 'refresh':{if(authed)wsend({t:'listTables'});const l=b.querySelector('span');if(l){l.textContent='刷新中';setTimeout(()=>l.textContent='刷新',500);}toast('已刷新牌桌列表');break;}
+        case 'refresh':{if(!authed||!wsend({t:'listTables'})){toast(A.L('请先连接对战服务','Connect to game service first'));break;}roomsLoaded=false;renderRooms();toast(A.L('正在查询牌桌…','Querying tables…'));break;}
       }
     }catch(err){toast((err&&err.message)||'操作失败，请重试');}
   });
@@ -816,6 +821,8 @@
   renderLobbyBars(); // 生成币种池切换(LGNS/DAI)+当前池档位筛选条
   setView('lobby'); // 通过链接进入一律默认到大厅,让用户挑桌/开桌
   renderRooms();
-  if(window.ethereum&&window.ethereum.selectedAddress){ connect(); }
-  else { const a=$('jtTurnMain'),b=$('jtTurnHint'); if(a)a.textContent='连接钱包开始'; if(b)b.textContent='点右上角「连接钱包」'; }
+  setNet(false);A.account().then(a=>{if(a){myAddr=a;results=loadResults();$('walletLabel').textContent=short(a);refreshBalances();renderRooms();}}).catch(()=>{});
+  window.addEventListener('ap:wallet-change',()=>location.reload());
+  window.addEventListener('ap:bound',()=>{toast(A.L('邀请关系已确认，请连接对战服务','Invitation confirmed; connect to the game service'));});
+  { const a=$('jtTurnMain'),b=$('jtTurnHint'); if(a)a.textContent='连接钱包开始'; if(b)b.textContent='点右上角「连接钱包」'; }
 })();
