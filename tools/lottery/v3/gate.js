@@ -1,103 +1,49 @@
-/* ANUBIS PLAY 进场门禁 — 必须有推荐人才能进:带推荐链接(?ref=0x..)或短码(?code=ABC123)直接进;
-   否则弹门禁:输短码 或 由官方默认推荐人带你进。进过一次本机不再弹。真正签名绑定仍在连钱包时由 ref.js 完成。中英双语。 */
+/* 邀请准入只信权威绑定查询；个人中心/领取/帮助始终可进入。 */
 (function(){
   'use strict';
-  var API='https://zjgame.web3origin.com/ref';
-  var ADDR=/^0x[0-9a-fA-F]{40}$/;
-  var DEFAULT_REF='0xffc31b596754137718f22d7708e1acd7a5c4dbe6'; // 官方默认推荐人兜底,启动后用 /health 校正
-  function EN(){ try{var s=localStorage.getItem('aplang'); if(s==='en')return true; if(s==='zh')return false;}catch(e){} return (navigator.language||'').toLowerCase().indexOf('zh')!==0; }
-  function L(zh,en){ return EN()?en:zh; }
-  function g(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
-  function s(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
-
-  function passed(){ return g('ap_gate_ok')==='1'; }
-  function pass(ref){ if(ref&&ADDR.test(ref)){ if(!g('ap_ref')) s('ap_ref', ref.toLowerCase()); } s('ap_gate_ok','1'); removeGate(); }
-
-  var gateEl=null, bodyOv='';
-  function removeGate(){ if(gateEl){ gateEl.remove(); gateEl=null; } try{ document.documentElement.style.overflow=bodyOv; document.body.style.overflow=''; }catch(e){} }
-
-  function showGate(errMsg){
-    if(passed()) return;
-    if(gateEl) { if(errMsg) setErr(errMsg); return; }
-    try{ bodyOv=document.documentElement.style.overflow; document.documentElement.style.overflow='hidden'; }catch(e){}
-    var b=document.createElement('div'); b.id='apGate'; gateEl=b;
-    b.style.cssText='position:fixed;inset:0;z-index:2147483600;background:radial-gradient(120% 90% at 50% 0%,#132019 0%,#0a0f0c 60%,#070a08 100%);display:flex;align-items:center;justify-content:center;padding:22px;font-family:Inter,system-ui,-apple-system,"PingFang SC",sans-serif;overflow:auto';
-    b.innerHTML=
-      '<div style="width:100%;max-width:400px;background:linear-gradient(180deg,#141d18,#0e1511);border:1px solid #c8f66540;border-radius:20px;padding:26px 22px;box-shadow:0 30px 80px #000b;text-align:center">'
-      +'<div style="font-size:12px;letter-spacing:2px;color:#7e9583;margin-bottom:6px">ANUBIS PLAY</div>'
-      +'<div style="font-size:21px;font-weight:800;color:#eaf3ee;margin-bottom:8px">'+L('受邀加入','Invite only')+'</div>'
-      +'<div style="font-size:13px;color:#9fb3a6;line-height:1.7;margin-bottom:18px">'+L('本平台仅限受邀进入。用邀请人的链接打开，或输入推荐码进入。','This platform is invite-only. Open an inviter’s link, or enter a referral code to continue.')+'</div>'
-      +'<input id="apGateCode" type="text" autocapitalize="characters" autocomplete="off" maxlength="6" placeholder="'+L('输入推荐码（6位）','Enter code (6 chars)')+'" style="width:100%;box-sizing:border-box;text-align:center;letter-spacing:4px;text-transform:uppercase;font-size:18px;font-weight:700;padding:13px;border-radius:12px;border:1px solid #ffffff22;background:#0b100d;color:#eaf3ee;outline:none">'
-      +'<div id="apGateErr" style="min-height:16px;font-size:12px;color:#ff8a8a;margin:8px 0 2px"></div>'
-      +'<button id="apGateGo" style="width:100%;background:linear-gradient(180deg,#d4f06a,#b6e24a);color:#17200b;font-weight:800;font-size:16px;padding:14px;border-radius:13px;border:0;cursor:pointer;margin-top:4px">'+L('进入','Enter')+'</button>'
-      +'<div style="margin:16px 0 4px;height:1px;background:#ffffff14"></div>'
-      +'<button id="apGateOfficial" style="width:100%;background:transparent;color:#9fb3a6;border:1px solid #ffffff1f;font-weight:600;font-size:13px;padding:12px;border-radius:13px;cursor:pointer">'+L('没有推荐码？由官方带我进入','No code? Enter via the official invite')+'</button>'
-      +'<div style="font-size:11px;color:#5f7268;margin-top:14px;line-height:1.6">'+L('进入即接受：参与链上游戏有风险，请理性对待，未成年人勿入。','By entering you accept: on-chain gaming carries risk, play responsibly, not for minors.')+'</div>'
-      +'</div>';
-    (document.body||document.documentElement).appendChild(b);
-    var inp=b.querySelector('#apGateCode');
-    b.querySelector('#apGateGo').onclick=function(){ submitCode(inp.value); };
-    inp.addEventListener('keydown',function(e){ if(e.key==='Enter') submitCode(inp.value); });
-    b.querySelector('#apGateOfficial').onclick=function(){ pass(DEFAULT_REF); toast(L('已由官方带你进入','Entered via official invite')); };
-    if(errMsg) setErr(errMsg);
-    setTimeout(function(){ try{inp.focus();}catch(e){} },100);
+  var A=window.APPlatform;if(!A)return;
+  var el=null,busy=false,current=null,seq=0,legacy=[],background=[],previousFocus=null;
+  var base=new URL('.',document.currentScript.src),path=location.pathname;
+  var protectedPage=!/(?:\/account\/|\/invite\/|\/help\/|\/news\/)/.test(path);
+  function url(p){return new URL(p,base).href;}
+  function setStatus(s,error){var e=el&&el.querySelector('[role=status]');if(e){e.textContent=s;e.classList.toggle('ap-error',!!error);}}
+  function close(){if(el){el.remove();el=null;}background.forEach(function(item){item.node.inert=item.inert;});background=[];document.documentElement.style.overflow='';if(previousFocus&&previousFocus.isConnected)previousFocus.focus();previousFocus=null;}
+  function render(){
+    document.querySelectorAll('dialog[open]').forEach(function(d){d.close();});
+    ['langMenu','langBackdrop'].forEach(function(id){var menu=document.getElementById(id);if(menu)menu.hidden=true;});
+    if(!el){previousFocus=document.activeElement;background=Array.from(document.body.children).map(function(node){var item={node:node,inert:node.inert};node.inert=true;return item;});el=document.createElement('div');el.className='ap-gate';el.id='apGate';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-labelledby','apGateTitle');document.body.appendChild(el);document.documentElement.style.overflow='hidden';}
+    var c=A.getCandidate();
+    el.innerHTML='<div class="ap-gate-card"><div class="ap-muted">ANUBIS PLAY</div><h2 id="apGateTitle">'+A.L('确认邀请，进入平台','Confirm your invitation')+'</h2>'
+      +'<p class="ap-muted">'+A.L('连接钱包后确认你的邀请人。只有绑定成功才可参与游戏；查看资产、退款和帮助始终开放。','Connect and confirm your inviter before playing. Assets, refunds and help remain accessible.')+'</p>'
+      +(current?'<div class="ap-muted">'+A.L('当前钱包','Wallet')+' '+A.esc(A.short(current))+'</div>':'<button class="ap-button" id="apGateConnect">'+A.L('连接钱包','Connect wallet')+'</button>')
+      +(c?'<div class="ap-block"><span class="ap-muted">'+A.L('待确认邀请人','Inviter to confirm')+'</span><div class="ap-code">'+A.esc(c.code||A.short(c.address))+'</div><div class="ap-muted">'+A.esc(c.address)+'</div><p class="ap-muted">'+A.L('绑定后不可更改。邀请人从平台手续费中获得返佣，不额外增加你的费用。','Binding is permanent. Your inviter earns from platform fees at no extra cost to you.')+'</p><button class="ap-button" id="apGateBind" '+(!current?'disabled':'')+'>'+A.L('确认此邀请人并签名绑定','Confirm this inviter & sign')+'</button></div>':'')
+      +'<label class="ap-muted" for="apGateCode">'+A.L('输入或更换 6 位推荐码','Enter or change a 6-character code')+'</label><input class="ap-input" id="apGateCode" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="ABC123"><button class="ap-button secondary" id="apGateResolve">'+A.L('查询推荐码','Check code')+'</button>'
+      +(legacy.length?'<div class="ap-block"><p class="ap-muted">'+A.L('检测到旧彩票邀请关系：','Existing V3 lottery inviter: ')+legacy.map(function(r){return A.esc(r.sym+' '+A.short(r.referrer));}).join(' · ')+'</p><button class="ap-button secondary" id="apGateLegacy">'+A.L('核对并沿用旧邀请人','Review & use existing inviter')+'</button></div>':'')
+      +'<button class="ap-button secondary" id="apGateOfficial">'+A.L('没有推荐码：查看官方邀请','No code: view official invitation')+'</button><button class="ap-button secondary" id="apGateRefresh">'+A.L('重新查询绑定状态','Refresh invitation status')+'</button><button class="ap-button secondary" id="apGateLanguage">English / 中文</button><div role="status" aria-live="polite"></div>'
+      +'<div class="ap-links"><a href="'+url('account/')+'">'+A.L('资产与退款','Assets & refunds')+'</a><a href="'+url('invite/')+'">'+A.L('邀请中心','Invitations')+'</a><a href="'+url('help/')+'">'+A.L('帮助','Help')+'</a></div><p class="ap-muted">'+A.L('参与可能损失本金，请理性参与，未成年人勿入。','You may lose your stake. Play responsibly. Adults only.')+'</p></div>';
+    function task(fn){return async function(){if(busy)return;busy=true;el.querySelectorAll('button').forEach(function(b){b.disabled=true;});setStatus(A.L('处理中…','Working…'));try{await fn();}catch(e){setStatus(e.message,true);}finally{busy=false;if(el)el.querySelectorAll('button').forEach(function(b){b.disabled=b.id==='apGateBind'&&!current;});}};}
+    var b=el.querySelector('#apGateConnect');if(b)b.onclick=task(async function(){current=await A.connect();var p=await A.profile(current,true);if(p.referrer){A.emit('bound',{address:current,profile:p});close();}else{legacy=(await A.legacyReferrers(current)).filter(function(r){return r.referrer;});render();}});
+    el.querySelector('#apGateResolve').onclick=task(async function(){await A.resolve(el.querySelector('#apGateCode').value);render();setStatus(A.L('请核对邀请人后确认绑定','Check the inviter before confirming'));});
+    el.querySelector('#apGateOfficial').onclick=task(async function(){var h=await A.json(A.API+'/health');if(!h.ok||!h.defaultRef)throw A.fail('官方邀请暂不可用，请重试','Official invite unavailable; retry');A.setCandidate(h.defaultRef);render();});
+    b=el.querySelector('#apGateBind');if(b)b.onclick=task(async function(){await A.bind(current);close();});
+    el.querySelector('#apGateRefresh').onclick=task(check);
+    el.querySelector('#apGateLanguage').onclick=function(){var lang=A.L('en','zh');if(window.setLang)window.setLang(lang);else{try{localStorage.setItem('aplang',lang);}catch(_){}A.emit('language',{language:lang});}render();};
+    b=el.querySelector('#apGateLegacy');if(b)b.onclick=task(async function(){var refs=Array.from(new Set(legacy.map(function(r){return r.referrer;})));if(refs.length!==1)throw A.fail('各旧奖池邀请人不同，请先处理迁移；资产领取不受影响','V3 pools have different inviters; resolve migration first. Withdrawals remain available.');A.setCandidate(refs[0]);render();});
+    var focus=el.querySelector('button:not(:disabled),input,a');if(focus)focus.focus({preventScroll:true});
   }
-  function setErr(m){ var e=gateEl&&gateEl.querySelector('#apGateErr'); if(e)e.textContent=m||''; }
-
-  function submitCode(v){
-    var code=String(v||'').toUpperCase().replace(/[^0-9A-Z]/g,'');
-    if(code.length<4){ setErr(L('请输入正确的推荐码','Enter a valid code')); return; }
-    var go=gateEl&&gateEl.querySelector('#apGateGo'); if(go){ go.disabled=true; go.textContent=L('验证中…','Checking…'); }
-    fetch(API+'/resolve?code='+encodeURIComponent(code),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-      if(j&&j.addr){ pass(j.addr); toast(L('邀请码有效，已进入','Code accepted')); }
-      else { if(go){go.disabled=false;go.textContent=L('进入','Enter');} setErr(L('推荐码不存在','Code not found')); }
-    }).catch(function(){ if(go){go.disabled=false;go.textContent=L('进入','Enter');} setErr(L('网络错误，稍后重试','Network error, try again')); });
+  async function check(){
+    var id=++seq;try{current=await A.account();legacy=[];if(id!==seq)return;if(current){var p=await A.profile(current,true);if(id!==seq)return;if(p.referrer){close();A.emit('gate-ready',{address:current});return;}legacy=(await A.legacyReferrers(current)).filter(function(r){return r.referrer;});if(id!==seq)return;}if(protectedPage)render();}
+    catch(e){if(protectedPage){render();setStatus(e.message,true);}}
   }
-
-  function toast(m){ try{ var t=document.getElementById('apGateToast'); if(!t){t=document.createElement('div');t.id='apGateToast';t.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:2147483646;background:#1a2a21;border:1px solid #ffffff22;color:#eaf3ee;padding:11px 18px;border-radius:12px;font-size:13px;opacity:0;transition:.3s;font-family:Inter,system-ui,sans-serif;max-width:88%;text-align:center';document.body.appendChild(t);} t.textContent=m;t.style.opacity='1';clearTimeout(window._agt);window._agt=setTimeout(function(){t.style.opacity='0';},3200); }catch(e){} }
-
-  // 启动:带链接/短码直接放行;否则弹门禁
-  var shortA=function(a){ return a?a.slice(0,6)+'…'+a.slice(-4):''; };
-  function showConfirm(inviter, code){
-    if(passed()&&gateEl) return;
-    if(gateEl) return;
-    try{ bodyOv=document.documentElement.style.overflow; document.documentElement.style.overflow='hidden'; }catch(e){}
-    var who = code ? code : shortA(inviter);
-    var b=document.createElement('div'); b.id='apGate'; gateEl=b;
-    b.style.cssText='position:fixed;inset:0;z-index:2147483600;background:radial-gradient(120% 90% at 50% 0%,#132019 0%,#0a0f0c 60%,#070a08 100%);display:flex;align-items:center;justify-content:center;padding:22px;font-family:Inter,system-ui,-apple-system,"PingFang SC",sans-serif;overflow:auto';
-    b.innerHTML=
-      '<div style="width:100%;max-width:400px;background:linear-gradient(180deg,#141d18,#0e1511);border:1px solid #c8f66540;border-radius:20px;padding:26px 22px;box-shadow:0 30px 80px #000b;text-align:center">'
-      +'<div style="font-size:12px;letter-spacing:2px;color:#7e9583;margin-bottom:6px">ANUBIS PLAY</div>'
-      +'<div style="font-size:21px;font-weight:800;color:#eaf3ee;margin-bottom:10px">'+L('你被邀请加入','You’re invited')+'</div>'
-      +'<div style="font-size:13px;color:#9fb3a6;margin-bottom:4px">'+L('邀请人 / 推荐码','Inviter / code')+'</div>'
-      +'<div style="font-size:22px;font-weight:800;letter-spacing:3px;color:#e0bd68;margin-bottom:16px">'+who+'</div>'
-      +'<div style="font-size:12.5px;color:#9fb3a6;line-height:1.7;margin-bottom:18px">'+L('接受后,你玩任何游戏产生的手续费,TA 会拿到一部分返佣——不影响你的奖池、输赢,也不会多花你的钱。绑定一次永久,不可更改。','Accept and the inviter earns a share of the platform fee from your play — it never touches your pool, winnings, or costs you extra. Binding is permanent.')+'</div>'
-      +'<button id="apGateAccept" style="width:100%;background:linear-gradient(180deg,#d4f06a,#b6e24a);color:#17200b;font-weight:800;font-size:16px;padding:14px;border-radius:13px;border:0;cursor:pointer">'+L('接受邀请并进入','Accept & enter')+'</button>'
-      +'<button id="apGateOther" style="width:100%;background:transparent;color:#7e9583;border:0;font-size:12px;padding:12px 0 0;cursor:pointer">'+L('换一个推荐码','Use a different code')+'</button>'
-      +'<div style="font-size:11px;color:#5f7268;margin-top:10px;line-height:1.6">'+L('进入即接受：参与链上游戏有风险,请理性对待,未成年人勿入。','By entering you accept: on-chain gaming carries risk, play responsibly, not for minors.')+'</div>'
-      +'</div>';
-    (document.body||document.documentElement).appendChild(b);
-    b.querySelector('#apGateAccept').onclick=function(){ pass(inviter); toast(L('已接受邀请，进入成功','Invite accepted — welcome')); };
-    b.querySelector('#apGateOther').onclick=function(){ removeGate(); showGate(); };
+  async function boot(){
+    try{var q=new URLSearchParams(location.search);if(q.get('ref'))A.setCandidate(q.get('ref'));else if(q.get('code'))await A.resolve(q.get('code'));}catch(e){if(protectedPage){render();setStatus(e.message,true);}}
+    await check();
   }
-  function boot(){
-    var sp; try{ sp=new URLSearchParams(location.search); }catch(e){ sp=null; }
-    var ref=sp&&sp.get('ref'), code=sp&&sp.get('code');
-    // 通过邀请链接/短码进来:弹确认框显示邀请人,点「接受」才绑定(让用户看到绑定,不再静默)
-    if(ref&&ADDR.test(ref)){ showConfirm(ref.toLowerCase(), null); return; }
-    if(code){ // 短码:后端解析→显示确认
-      fetch(API+'/resolve?code='+encodeURIComponent(code),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-        if(j&&j.addr){ showConfirm(j.addr, (j.code||String(code).toUpperCase())); }
-        else if(!passed()){ showGate(L('链接里的推荐码无效，请手动输入','The code in the link is invalid, enter one manually')); }
-      }).catch(function(){ if(!passed()) showGate(); });
-      return;
-    }
-    if(passed()) return;
-    // 已连钱包=已经在用的老用户,直接放行(不被新上的门禁挡住);无 ref/code 时不强绑上级
-    try{ var eth=window.ethereum; if(eth){ if(eth.selectedAddress){ pass(); return; } if(eth.request){ eth.request({method:'eth_accounts'}).then(function(a){ if(a&&a[0]&&!passed()) pass(); else if(!passed()) showGate(); }).catch(function(){ if(!passed()) showGate(); }); return; } } }catch(e){}
-    showGate();
-  }
-  // 校正默认推荐人(不阻塞门禁显示)
-  try{ fetch(API+'/health',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j&&j.defaultRef&&ADDR.test(j.defaultRef)) DEFAULT_REF=j.defaultRef.toLowerCase(); }).catch(function(){}); }catch(e){}
-  if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded', boot);
+  window.APInviteGate={show:render,check:check};
+  window.addEventListener('ap:binding-required',function(){render();setStatus(A.L('请完成邀请绑定后继续','Complete your invitation to continue'),true);});
+  window.addEventListener('ap:bound',close);
+  window.addEventListener('ap:wallet-change',check);
+  window.addEventListener('ap:language',function(){if(el)render();});
+  document.addEventListener('keydown',function(e){if(!el||e.key!=='Tab')return;var items=Array.from(el.querySelectorAll('button:not(:disabled),input,a')),first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
