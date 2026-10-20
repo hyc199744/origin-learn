@@ -136,7 +136,7 @@
   '票价已更新':['Ticket price updated'],'开奖周期已更新':['Round duration updated'],'注资成功！':['Seeded!'],
   '确定要把票价改为':['Change ticket price to'],'吗？':['?'],
   '新票价':['New ticket price'],'新周期（小时）':['New duration (hours)'],'注资金额':['Seed amount'],
-  'ANUBIS PLAY · 霓虹大厅预览':['ANUBIS PLAY · Game Lobby'],'链上彩票 · ANUBIS PLAY':['On-chain Lottery · ANUBIS PLAY'],
+  'ANUBIS PLAY · 霓虹大厅预览':['ANUBIS PLAY · Game Lobby'],'ANUBIS PLAY · 链上游戏平台':['ANUBIS PLAY · On-chain Games'],'链上彩票 · ANUBIS PLAY':['On-chain Lottery · ANUBIS PLAY'],
   '邀请奖励 · ANUBIS PLAY':['Referral Rewards · ANUBIS PLAY'],'个人中心 · ANUBIS PLAY':['Account · ANUBIS PLAY'],
   '帮助中心 · ANUBIS PLAY':['Help Center · ANUBIS PLAY'],'平台公告 · ANUBIS PLAY':['Announcements · ANUBIS PLAY']
   };
@@ -168,6 +168,7 @@
     document.querySelectorAll('#langMenu .lmi').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-l')===l);});
     try{if(window.__uiWallet)window.__uiWallet();}catch(e){}
     try{if(window.__poolRender)window.__poolRender();}catch(e){}
+    if(window.APPlatform)window.APPlatform.emit('language',{language:l});
   };
   function closeMenu(){var m=document.getElementById('langMenu');if(m)m.hidden=true;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=true;}
   window.toggleLangMenu=function(ev){if(ev){ev.stopPropagation();ev.preventDefault();}var m=document.getElementById('langMenu');if(!m)return;var willOpen=m.hidden;m.hidden=!willOpen;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=!willOpen;};
@@ -189,7 +190,7 @@
   };
   function build(){
     if(!document.getElementById('langBackdrop')){var _bd=document.createElement('div');_bd.id='langBackdrop';_bd.hidden=true;_bd.style.cssText='position:fixed;inset:0;z-index:199;background:transparent';_bd.onclick=closeMenu;document.body.appendChild(_bd);}
-    var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<a class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':'')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</a>';}).join('');}
+    var menu=document.getElementById('langMenu');if(menu){document.body.appendChild(menu);menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<button type="button" class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':' disabled')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</button>';}).join('');}
     _title=(document.title||'').trim();collect();applyLang(LANG);
     if(LANG!=='zh'){ startObs(); fullTp(); setTimeout(fullTp,400); setTimeout(fullTp,1500); setTimeout(fullTp,3500); }
   }
