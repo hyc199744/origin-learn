@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c140f">
+<title>炸金花·真人对战 · ANUBIS PLAY</title>
+<meta name="description" content="ANUBIS PLAY 真人实时炸金花，押真 LGNS，链上公平、可证明。">
+<link rel="icon" href="../img/logo.webp">
+<style>
+:root{--bg:#0b120e;--felt:#16402f;--felt2:#0d2a1e;--card:#131a16;--card2:#182019;--text:#eaf3ee;--muted:#8ba398;--gold:#e0bd68;--accent:#c8f665;--accent-ink:#17200b;--red:#ff6f6f;--line:#ffffff18;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color-scheme:dark;}
+*{box-sizing:border-box}html,body{margin:0;overflow-x:hidden;max-width:100%;height:100%}
+body{background:radial-gradient(140% 100% at 50% -10%,#182c20 0%,var(--bg) 55%);color:var(--text);font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased;min-height:100%}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+a{color:var(--accent);text-decoration:none}
+.wrap{max-width:720px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top,0px)) 14px calc(18px + env(safe-area-inset-bottom,0px))}
+/* 顶栏 */
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:9px}
+.brand img{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 7px #0007)}
+.brand b{font-size:15px;font-weight:800;letter-spacing:.3px;line-height:1.05;display:block}
+.brand small{display:block;font-size:8px;letter-spacing:2.5px;color:var(--gold);margin-top:2px}
+.topbtns{display:flex;gap:7px;align-items:center}
+.wbtn{font-size:12px;color:var(--accent);border:1px solid #c8f66540;border-radius:10px;padding:9px 12px;background:#0f1519;white-space:nowrap}
+.wbtn.on{color:var(--gold);border-color:#e0bd6855}
+.wbtn.sm{padding:8px 10px;color:var(--muted);border-color:var(--line)}
+.wbtn:active{transform:scale(.96)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.pill.ok{color:var(--accent);border-color:#c8f66555}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor}
+/* 卡片容器 */
+.card-box{background:linear-gradient(180deg,#141c18,#111713);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.h2{font-size:14px;font-weight:700;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.tiers{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.tier{flex:1;min-width:60px;background:#0f1519;border:1px solid var(--line);border-radius:11px;padding:11px 6px;text-align:center;font-weight:800;font-size:15px;transition:.15s}
+.tier small{display:block;font-size:9px;color:var(--muted);font-weight:500;margin-top:2px}
+.tier.sel{border-color:var(--accent);color:var(--accent);background:#bfee6612;box-shadow:0 0 0 1px var(--accent)}
+.tier:active{transform:scale(.96)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13px}.row:last-child{border-bottom:0}
+.row .k{color:var(--muted)}.row .v{font-weight:700;font-variant-numeric:tabular-nums}
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;background:linear-gradient(180deg,#d4f06a,#b6e24a);color:var(--accent-ink);font-weight:800;font-size:15px;padding:14px;border-radius:12px;margin-top:8px;box-shadow:0 4px 14px #c8f66522}
+.btn:active{transform:translateY(1px)}
+.btn.g{background:#17231b;color:var(--gold);border:1px solid #e0bd6855;box-shadow:none}
+.btn.ghost{background:#0f1519;color:var(--accent);border:1px solid #c8f66540;box-shadow:none}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none}
+.tlist .ti{display:flex;align-items:center;gap:10px;background:#0f1519;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
+.tlist .ti .meta{font-size:11.5px;color:var(--muted)}.tlist .ti b{font-size:15px;color:var(--gold)}
+.tlist .ti .j{margin-left:auto;font-size:13px;color:var(--accent-ink);background:var(--accent);border-radius:10px;padding:9px 16px;font-weight:800}
+.tlist .ti .j:active{transform:scale(.96)}
+.note{font-size:11px;color:var(--muted);line-height:1.75;margin-top:8px}
+/* 牌桌 */
+.tbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px}
+.bal{font-size:13px}.bal .v{font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums}
+.table{position:relative;background:
+   radial-gradient(130% 85% at 50% 22%,#1e5038 0%,var(--felt) 52%,var(--felt2) 100%);
+   border:2px solid #081610;border-radius:26px;box-shadow:inset 0 0 70px #0008,inset 0 0 0 6px #ffffff06,0 20px 44px #0009;padding:16px 12px 18px;margin-bottom:12px;overflow:hidden}
+.table:before{content:"";position:absolute;inset:14px;border:1px solid #ffffff10;border-radius:20px;pointer-events:none}
+.seats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;position:relative;z-index:1}
+.seat{flex:1;min-width:120px;max-width:200px;background:#0d1a14cc;border:1px solid var(--line);border-radius:14px;padding:9px 10px;transition:.2s;position:relative}
+.seat.turn{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 20px #c8f66555;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 1px var(--accent),0 0 28px #c8f66599}}
+.seat.fold{opacity:.4;filter:grayscale(.65)}.seat.me{border-color:#e0bd6866;background:#1a160dcc}
+.seat.win{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 24px #e0bd6877}
+.seat.pick{cursor:pointer;border-color:var(--gold)!important;box-shadow:0 0 0 1px var(--gold),0 0 16px #e0bd6866;animation:pulse 1s infinite}
+.seat .nm{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800}
+.seat .av{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;background:#22402f;border:1px solid var(--line);flex:none}
+.seat .st{font-size:10px;margin-top:3px;min-height:13px;color:var(--muted)}
+.seat .st .look{color:var(--accent)}.seat .st .blind{color:var(--gold)}.seat .st .f{color:var(--red)}.seat .st .c{color:var(--gold);font-weight:700}
+.seat .cc{font-size:10px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.seat .tm{position:absolute;top:7px;right:9px;font-size:10px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+.hand{display:flex;gap:4px;margin-top:7px;justify-content:center}
+.pcard{width:36px;height:50px;border-radius:7px;background:linear-gradient(160deg,#fff,#eef0e8);color:#111;position:relative;box-shadow:0 2px 6px #0007;flex:none;display:grid;place-items:center;font-weight:800;animation:deal .32s ease both}
+@keyframes deal{from{transform:translateY(-16px) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}
+.pcard .cr{position:absolute;top:3px;left:4px;font-size:11px;line-height:1;font-weight:800}
+.pcard .cr.b{top:auto;left:auto;bottom:3px;right:4px;transform:rotate(180deg)}
+.pcard .cs{font-size:18px;line-height:1}.pcard.red{color:#d81e2c}
+.pcard.back{background:linear-gradient(135deg,#2c2008,#130c02);border:1px solid #e0bd6855;color:#e0bd68;box-shadow:inset 0 0 0 2px #e0bd6822,0 2px 6px #0007}
+.pcard.back .cs{font-size:20px;opacity:.85}
+.center{text-align:center;margin:14px 0 6px;position:relative;z-index:1}
+.chips{font-size:22px;filter:drop-shadow(0 2px 3px #0008)}
+.pot .amt{font-size:27px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.1;text-shadow:0 2px 8px #0006}
+.pot .lb{font-size:10px;letter-spacing:3px;color:var(--muted);margin-top:1px}
+.meta2{display:flex;justify-content:center;gap:16px;font-size:11px;color:var(--muted);margin-top:4px;position:relative;z-index:1}.meta2 b{color:var(--accent);font-weight:800}
+.mine{margin-top:12px;background:#13160dcc;border:1px solid #e0bd6840;border-radius:14px;padding:11px;position:relative;z-index:1}
+.mine .lb{text-align:center;font-size:12px;color:var(--gold);margin-bottom:5px;font-weight:700}
+.mine .hd{text-align:center;font-size:12px;color:var(--accent);margin-top:6px;font-weight:800}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.abtn{flex:1;min-width:72px;display:flex;align-items:center;justify-content:center;gap:5px;background:#17231b;border:1px solid var(--line);color:var(--text);font-weight:800;font-size:14px;padding:14px 6px;border-radius:12px}
+.abtn:active{transform:translateY(1px)}
+.abtn.p{background:linear-gradient(180deg,#d4f06a,#b6e24a);color:var(--accent-ink);border-color:transparent}
+.abtn.g{color:var(--gold);border-color:#e0bd6855}.abtn.r{color:var(--red);border-color:#ff6f6f44}
+.abtn:disabled{opacity:.35;cursor:not-allowed}
+.hint{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;min-height:16px}.hint b{color:var(--accent)}
+.log{background:#0d1511;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:11.5px;color:var(--muted);max-height:116px;overflow:auto;line-height:1.75;font-family:ui-monospace,monospace}.log b{color:var(--accent)}.log .rd{color:var(--red)}.log .gd{color:var(--gold)}
+/* 弹层 */
+.ov{position:fixed;inset:0;background:#06100bdd;backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.ov.on{display:flex}
+.panel{width:100%;max-width:440px;background:linear-gradient(180deg,#171f1a,#121713);border:1px solid var(--line);border-radius:20px;padding:22px;max-height:88vh;overflow:auto;box-shadow:0 24px 60px #000a}
+.panel h2{margin:0 0 6px;font-size:20px;font-weight:800}.panel h2.win{color:var(--gold)}
+.panel .rk{display:flex;justify-content:space-between;font-size:12.5px;padding:5px 0;border-bottom:1px dashed var(--line);color:#c6d6cd}
+.rs{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px dashed var(--line)}.rs.lose{opacity:.5}.rs.w{background:#e0bd680d;border-radius:10px;padding:7px 8px}
+.rs .av{width:22px;height:22px;display:inline-grid;place-items:center;border-radius:50%;background:#22402f;flex:none;font-size:12px}
+.rs .nm{font-size:12.5px;min-width:60px;font-weight:700}.rs .ht{font-size:11px;color:var(--gold);margin-left:auto;font-weight:700;white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#1a2a21;border:1px solid var(--line);color:var(--text);padding:12px 18px;border-radius:13px;font-size:13px;opacity:0;transition:.3s;z-index:60;pointer-events:none;box-shadow:0 14px 30px #0009;max-width:88%}
+@media(max-width:540px){.seat{min-width:46%}.wrap{padding-left:11px;padding-right:11px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top">
+    <div class="brand"><img src="../img/logo.webp" alt="ANUBIS PLAY"><span><b>炸金花</b><small>ANUBIS PLAY</small></span></div>
+    <div class="topbtns">
+      <button class="wbtn sm" onclick="showRules()">规则</button>
+      <button class="wbtn" id="wbtn" onclick="connect()">连接钱包</button>
+    </div>
+  </div>
+
+  <!-- 大厅 -->
+  <div id="lobby">
+    <div class="card-box">
+      <div class="h2">① 免签授权</div>
+      <div id="authRow"><div class="note">连钱包后，一键授权即可免签玩牌。</div></div>
+      <div class="note">授权一次：看牌/下注/比牌/弃牌不再弹签名，由平台代你发上链（gas 平台出）。钱始终从你钱包扣、额度上限 1000 LGNS、随时可撤销。</div>
+    </div>
+    <div class="card-box">
+      <div class="h2">② 开新桌</div>
+      <div class="tiers" id="tiers"></div>
+      <div class="row"><span class="k">最多人数</span><span class="v"><select id="maxp" style="background:#0f1519;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-weight:700"><option>2</option><option>3</option><option>4</option><option>5</option><option selected>6</option></select></span></div>
+      <button class="btn" id="createBtn" onclick="createTable()" disabled>开桌</button>
+      <div class="note">开桌后各自入座交底注，人齐开局。底注 10/50/100 为正式桌，1 为测试桌。</div>
+    </div>
+    <div class="card-box">
+      <div class="h2">牌桌列表 <span class="pill" id="wsPill"><span class="dot"></span>未连接</span> <button class="wbtn sm" style="margin-left:auto" onclick="refreshTables()">刷新</button></div>
+      <div class="tlist" id="tlist"><div class="note">连接钱包后显示可加入的牌桌。</div></div>
+    </div>
+    <div class="card-box">
+      <div class="row"><span class="k">我的 LGNS</span><span class="v"><span id="myLgns">—</span></span></div>
+      <div class="row"><span class="k">待领（奖金/退款）</span><span class="v"><span id="myWd">—</span> LGNS</span></div>
+      <button class="btn ghost" onclick="doWithdraw()">领取</button>
+      <div class="note">赢的奖金一般会自动到账，这里是手动补领。</div>
+    </div>
+  </div>
+
+  <!-- 牌桌 -->
+  <div id="tableView" hidden>
+    <div class="tbar">
+      <button class="wbtn sm" onclick="leaveTable()">← 返回大厅</button>
+      <span class="bal">余额 <span class="v"><span id="tblBal">—</span></span> LGNS</span>
+    </div>
+    <div class="table">
+      <div class="seats" id="seats"></div>
+      <div class="center pot"><div class="chips">🪙</div><div class="amt"><span id="pot">0</span> <span style="font-size:13px;color:var(--muted)">LGNS</span></div><div class="lb">底池 POT</div></div>
+      <div class="meta2"><span>本注 <b id="curbet">—</b></span><span>看牌 ×2</span><span id="phaseLb">—</span></div>
+      <div class="mine" id="mine"></div>
+    </div>
+    <div class="ctrl" id="ctrl"></div>
+    <div class="hint" id="hint">—</div>
+    <div class="log" id="log"></div>
+  </div>
+</main>
+
+<div class="ov" id="ov"><div class="panel" id="panel"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var WSS="wss://zjgame.web3origin.com";
+  var CONTRACT="0x76C17ECb3ff0a5E9c6eC99D98Fa7EB55a31Cd7A2";
+  var LGNS="0x4D1D808a081FdAc440703b3765FC61f8028C06B8";
+  var APPROVE_AMT=(1000n*1000000000n);
+  var ZERO='0x0000000000000000000000000000000000000000';
+  var delegate=null, authorized=false;
+  var ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:'https://rpc.anubispace.org',exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
+  var SEL={withdraw:'3ccfd60b',approve:'095ea7b3',allowance:'dd62ed3e',bal:'70a08231',authorize:'b6a5d7de',deleg:'8d22ea2a'};
+  var RANK=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+  var SUIT=['♠','♥','♣','♦'], SRED={1:1,3:1};
+  var CAT={6:'豹子',5:'同花顺',4:'金花',3:'顺子',2:'对子',1:'散牌'};
+  var ANTES=[['1','测试'],['10','普通'],['50','进阶'],['100','高手']];
+  var myAddr=null, ws=null, authed=false, curHand=null, myCards=null, state=null, selTier='10', picking=false, lastPot='0';
+
+  function $(i){return document.getElementById(i);}
+  function short(a){return a?a.slice(0,6)+'…'+a.slice(-4):'';}
+  function toast(m){var t=$('toast');t.textContent=m;t.style.opacity='1';clearTimeout(window._tt);window._tt=setTimeout(function(){t.style.opacity='0';},3600);}
+  function logln(m,c){var l=$('log');if(!l)return;var d=document.createElement('div');if(c)d.className=c;d.innerHTML=m;l.appendChild(d);l.scrollTop=l.scrollHeight;}
+  function e9(v){return (Number(v)/1e9);}
+  function enc(v){return BigInt(v).toString(16).padStart(64,'0');}
+  function encA(a){return '0'.repeat(24)+a.toLowerCase().replace(/^0x/,'');}
+  function rcall(to,d){return fetch(ANUBIS.rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:to,data:'0x'+d},'latest']})}).then(function(r){return r.json();}).then(function(j){return (j.result||'0x').replace(/^0x/,'');});}
+  function nz(a){return a&&a.toLowerCase()!==ZERO;}
+
+  // 牌型分值(找赢家用)
+  function score(cs){var r=cs.map(function(c){return c.r;}).sort(function(a,b){return b-a;}),s=cs.map(function(c){return c.s;});
+    var fl=s[0]===s[1]&&s[1]===s[2],st=false,sh=0;
+    if(r[0]===r[1]+1&&r[1]===r[2]+1){st=true;sh=r[0];}else if(r[0]===12&&r[1]===1&&r[2]===0){st=true;sh=1;}
+    var tr=r[0]===r[1]&&r[1]===r[2],cat,t0=0,t1=0,t2=0;
+    if(tr){cat=6;t0=r[0];}else if(st&&fl){cat=5;t0=sh;}else if(fl){cat=4;t0=r[0];t1=r[1];t2=r[2];}else if(st){cat=3;t0=sh;}
+    else if(r[0]===r[1]||r[1]===r[2]){cat=2;if(r[0]===r[1]){t0=r[0];t1=r[2];}else{t0=r[1];t1=r[0];}}else{cat=1;t0=r[0];t1=r[1];t2=r[2];}
+    return cat*16777216+t0*65536+t1*256+t2;}
+  function handName(cs){var r=cs.map(function(c){return c.r;}).sort(function(a,b){return b-a;});var e=score(cs);var cat=e>>24;return CAT[cat]+'·'+r.map(function(x){return RANK[x];}).join('');}
+
+  // ---- 钱包 ----
+  window.connect=async function(){
+    var eth=window.ethereum; if(!eth){toast('请在 OKX / MetaMask 内置浏览器打开');return;}
+    try{
+      var accs=await eth.request({method:'eth_requestAccounts'}); if(!accs.length)return; myAddr=accs[0];
+      var cid=await eth.request({method:'eth_chainId'});
+      if(parseInt(cid,16)!==ANUBIS.id){try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}}
+      $('wbtn').textContent=short(myAddr); $('wbtn').classList.add('on'); $('createBtn').disabled=false;
+      refreshBalances(); connectWS();
+      if(!window._wl){window._wl=1;eth.on&&eth.on('accountsChanged',function(){location.reload();});eth.on&&eth.on('chainChanged',function(){location.reload();});}
+    }catch(e){toast((e&&e.message)||'连接失败');}
+  };
+  async function sendTx(data){
+    var eth=window.ethereum; var tx={from:myAddr,to:CONTRACT,data:'0x'+data,type:'0x0'};
+    var gp=await eth.request({method:'eth_gasPrice',params:[]}); tx.gasPrice=gp;
+    var hash=await eth.request({method:'eth_sendTransaction',params:[tx]});
+    for(var i=0;i<120;i++){await new Promise(function(r){setTimeout(r,2000);});var rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber){if(rc.status==='0x1')return rc;throw new Error('交易失败');}}
+    throw new Error('确认超时');
+  }
+  async function sendTxTo(to,data){
+    var eth=window.ethereum; var gp=await eth.request({method:'eth_gasPrice',params:[]});
+    var hash=await eth.request({method:'eth_sendTransaction',params:[{from:myAddr,to:to,data:'0x'+data,type:'0x0',gasPrice:gp}]});
+    for(var i=0;i<120;i++){await new Promise(function(r){setTimeout(r,2000);});var rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber){if(rc.status==='0x1')return rc;throw new Error('交易失败');}}
+    throw new Error('确认超时');
+  }
+  async function refreshBalances(){
+    try{var b=await rcall(LGNS,SEL.bal+encA(myAddr)); var v=e9(BigInt('0x'+(b||'0'))); if($('myLgns'))$('myLgns').textContent=v; if($('tblBal'))$('tblBal').textContent=v;}catch(e){}
+    try{var wd=await rcall(CONTRACT, 'ce513b6f'+encA(myAddr)); if($('myWd'))$('myWd').textContent=e9(BigInt('0x'+(wd||'0')));}catch(e){}
+  }
+  async function checkAuth(){
+    if(!myAddr||!delegate) return;
+    try{
+      var d=await rcall(CONTRACT, SEL.deleg+encA(myAddr));
+      var al=BigInt('0x'+((await rcall(LGNS,SEL.allowance+encA(myAddr)+encA(CONTRACT)))||'0'));
+      authorized = (('0x'+d.slice(24)).toLowerCase()===delegate.toLowerCase()) && al>0n;
+    }catch(e){ authorized=false; }
+    renderAuth();
+  }
+  function renderAuth(){
+    var el=$('authRow'); if(!el)return;
+    el.innerHTML = authorized ? '<span class="pill ok"><span class="dot"></span>已授权 · 免签玩牌</span>' : '<button class="btn" style="margin-top:0" onclick="doAuthorize()">一键授权（免签玩牌）</button>';
+  }
+  window.doAuthorize=async function(){
+    if(!myAddr){toast('先连钱包');return;}
+    if(!delegate){toast('等待登录…');return;}
+    try{
+      toast('第1步：授权代币额度…'); await sendTxTo(LGNS, SEL.approve+encA(CONTRACT)+enc(APPROVE_AMT));
+      toast('第2步：授权免签代发…'); await sendTx(SEL.authorize+encA(delegate));
+      toast('✅ 授权完成，之后玩牌不再弹签名'); authorized=true; renderAuth(); refreshBalances();
+    }catch(e){ toast(e.message||'授权失败'); }
+  };
+
+  // ---- WSS ----
+  function connectWS(){
+    ws=new WebSocket(WSS);
+    ws.onopen=function(){ $('wsPill').innerHTML='<span class="dot"></span>已连接'; $('wsPill').className='pill ok'; };
+    ws.onclose=function(){ $('wsPill').innerHTML='<span class="dot"></span>断开，重连…'; $('wsPill').className='pill'; setTimeout(connectWS,3000); };
+    ws.onerror=function(){};
+    ws.onmessage=async function(ev){ var m=JSON.parse(ev.data); await onMsg(m); };
+  }
+  function wsend(o){ try{ws.send(JSON.stringify(o));}catch(e){} }
+  async function onMsg(m){
+    if(m.t==='challenge'){ var sig=await window.ethereum.request({method:'personal_sign',params:[m.nonce,myAddr]}); wsend({t:'auth',addr:myAddr,sig:sig}); }
+    else if(m.t==='authed'){ authed=true; delegate=m.delegate; wsend({t:'listTables'}); checkAuth(); if(curHand) wsend({t:'subscribe',handId:curHand}); } // 重连自动重新订阅
+    else if(m.t==='tables'){ renderTables(m.tables); }
+    else if(m.t==='left'){ toast('已退座，底注退回待领'); leaveTable(); }
+    else if(m.t==='joined'){ logln('<b>已入座</b>'); }
+    else if(m.t==='tableCreated'){ curHand=String(m.handId); openTable(); wsend({t:'subscribe',handId:curHand}); toast('开桌成功 #'+curHand+'，请入座'); }
+    else if(m.t==='handState'){ if(String(m.handId)===String(curHand)){ state=m; if(m.pot!=='0')lastPot=m.pot; renderTable(); } }
+    else if(m.t==='yourCards'){ if(String(m.handId)===String(curHand)){ myCards=m.cards; renderTable(); } }
+    else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); } }
+    else if(m.t==='rematched'){ closeOv(); curHand=String(m.handId); myCards=null; state=null; $('log').innerHTML=''; wsend({t:'subscribe',handId:curHand}); toast('新一局开始 #'+curHand); }
+    else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)){ toast('本局已退款'); } }
+    else if(m.t==='error'){ toast(m.msg); logln('<span class="rd">'+m.msg+'</span>'); }
+  }
+  window.refreshTables=function(){ if(authed) wsend({t:'listTables'}); };
+
+  function renderTables(ts){
+    var box=$('tlist');
+    if(!ts||!ts.length){ box.innerHTML='<div class="note">暂无牌桌，点上面「开桌」建一桌，或等别人开。</div>'; return; }
+    box.innerHTML=ts.map(function(t){
+      return '<div class="ti"><div><b>#'+t.handId+'</b><div class="meta">底注 '+e9(t.ante)+' LGNS · '+(t.nPlayers||0)+'/'+t.maxPlayers+' 人</div></div><button class="j" onclick="joinTable(\''+t.handId+'\')">进入</button></div>';
+    }).join('');
+  }
+  window.joinTable=function(id){ curHand=String(id); openTable(); wsend({t:'subscribe',handId:id}); };
+  function openTable(){ $('lobby').hidden=true; $('tableView').hidden=false; $('log').innerHTML=''; myCards=null; }
+  window.leaveTable=function(){ if(curHand)wsend({t:'unsubscribe',handId:curHand}); curHand=null;state=null;myCards=null;picking=false; $('tableView').hidden=true; $('lobby').hidden=false; refreshBalances(); refreshTables(); };
+
+  // ---- 大厅 ----
+  function renderTiers(){ $('tiers').innerHTML=ANTES.map(function(a){return '<div class="tier'+(a[0]===selTier?' sel':'')+'" onclick="selTierF(\''+a[0]+'\')">'+a[0]+'<small>'+a[1]+'</small></div>';}).join(''); }
+  window.selTierF=function(t){ selTier=t; renderTiers(); };
+  window.createTable=async function(){ if(!authed){toast('等待登录…');return;} var ante=(BigInt(selTier)*1000000000n).toString(); var mp=Number($('maxp').value); wsend({t:'createTable',ante:ante,maxPlayers:mp}); toast('开桌中…'); };
+
+  // ---- 牌桌渲染 ----
+  function meSeat(){ if(!state)return -1; return state.players.findIndex(function(p){return p.addr.toLowerCase()===myAddr.toLowerCase();}); }
+  function cardHTML(c,faceUp){ if(!faceUp)return '<div class="pcard back"><div class="cs">𓂀</div></div>'; var red=SRED[c.s]?' red':''; return '<div class="pcard'+red+'"><div class="cr">'+RANK[c.r]+SUIT[c.s]+'</div><div class="cs">'+SUIT[c.s]+'</div><div class="cr b">'+RANK[c.r]+SUIT[c.s]+'</div></div>'; }
+  function renderTable(){
+    if(!state)return;
+    $('pot').textContent=e9(state.pot); $('curbet').textContent=e9(state.curBet);
+    var PH={1:'等待入座',2:'下注中',3:'摊牌结算',4:'已结束',5:'已退款'};
+    $('phaseLb').textContent=PH[state.phase]||'';
+    var ms=meSeat();
+    var comparing = nz(state.cmpOpp);
+    var now=Math.floor(Date.now()/1000);
+    $('seats').innerHTML=state.players.map(function(p,i){
+      var isMe=p.addr.toLowerCase()===myAddr.toLowerCase();
+      var isTurn=state.phase===2 && !comparing && state.turnAddr && state.turnAddr.toLowerCase()===p.addr.toLowerCase();
+      var inCmp = comparing && (p.addr.toLowerCase()===state.cmpChallenger.toLowerCase()||p.addr.toLowerCase()===state.cmpOpp.toLowerCase());
+      var st=p.folded?'<span class="f">弃牌</span>':(inCmp?'<span class="c">⚔ 比牌中</span>':(p.looked?'<span class="look">已看牌</span>':'<span class="blind">闷牌</span>'));
+      var canPick=picking && !isMe && !p.folded;
+      var cls='seat'+(p.folded?' fold':'')+(isTurn?' turn':'')+(isMe?' me':'')+(canPick?' pick':'');
+      var left = isTurn && state.actionDeadline? Math.max(0,state.actionDeadline-now):null;
+      var tm = left!==null? '<span class="tm">'+left+'s</span>':'';
+      var hand='<div class="hand">'+[0,1,2].map(function(){return cardHTML(null,false);}).join('')+'</div>';
+      return '<div class="'+cls+'" data-addr="'+p.addr+'">'+tm+'<div class="nm"><span class="av">'+(isMe?'🙂':'👤')+'</span>'+(isMe?'你':short(p.addr))+'</div><div class="st">'+st+'</div><div class="cc">投入 '+e9(p.contributed)+'</div>'+hand+'</div>';
+    }).join('');
+    if(picking){ Array.prototype.forEach.call($('seats').querySelectorAll('.seat.pick'),function(el){ el.onclick=function(){ doCompare(el.getAttribute('data-addr')); }; }); }
+    var mine=$('mine');
+    if(ms<0){ mine.innerHTML='<div style="text-align:center;font-size:12px;color:var(--muted)">你还没入座</div>'; }
+    else{
+      var meP=state.players[ms];
+      var myHand = (myCards&&meP.looked)? '<div class="hand">'+myCards.map(function(c){return cardHTML(c,true);}).join('')+'</div>' : '<div class="hand">'+[0,1,2].map(function(){return cardHTML(null,false);}).join('')+'</div>';
+      mine.innerHTML='<div class="lb">我的牌 '+(meP.looked?'':'（闷牌中，看牌才亮）')+'</div>'+myHand+(myCards&&meP.looked?'<div class="hd">'+handName(myCards)+'</div>':'');
+    }
+    renderCtrl();
+    var nn=Date.now(); if(!window._lb||nn-window._lb>4000){ window._lb=nn; refreshBalances(); }
+  }
+  function renderCtrl(){
+    var c=$('ctrl'); c.innerHTML=''; if(!state)return;
+    var ms=meSeat();
+    function b(txt,cls,fn,dis){var el=document.createElement('button');el.className='abtn'+(cls?' '+cls:'');el.innerHTML=txt;el.disabled=!!dis;if(!dis)el.onclick=fn;c.appendChild(el);}
+    if(state.phase===1){
+      if(ms<0){ b('入座（交底注 '+e9(state.ante)+'）','p',doJoin, state.nPlayers>=state.maxPlayers); $('hint').innerHTML=state.nPlayers>=state.maxPlayers?'满员了':'点「入座」交底注加入'; }
+      else { b('开局发牌','p',doStart, state.nPlayers<2); b('退座取回底注','r',doLeave); $('hint').innerHTML=state.nPlayers<2?'至少 2 人开局；不想等可「退座」拿回底注':'人齐了点「开局发牌」'; }
+      return;
+    }
+    if(state.phase===2){
+      if(nz(state.cmpOpp)){ b('⚔ 比牌裁决中…','',null,true); $('hint').innerHTML='比牌中，马上出结果…'; return; }
+      var myTurn=ms>=0 && state.turnAddr && state.turnAddr.toLowerCase()===myAddr.toLowerCase();
+      var meP=ms>=0?state.players[ms]:null;
+      if(ms<0||(meP&&meP.folded)){ b('观战中','',null,true); $('hint').innerHTML='你已不在本局，看他们打完'; picking=false; return; }
+      if(!myTurn){ b('等待其他玩家…','',null,true); $('hint').innerHTML='轮到 '+short(state.turnAddr)+' 行动'; picking=false; return; }
+      if(picking){ b('✕ 取消','r',function(){picking=false;renderTable();}); $('hint').innerHTML='点上方一个<b>对手</b>跟他比牌，或取消'; return; }
+      var cost = meP.looked ? e9(state.curBet)*2 : e9(state.curBet);
+      if(!meP.looked) b('👁 看牌','g',doLook);
+      b('跟注 '+cost,'p',doCall);
+      b('加注','',doRaise);
+      b('⚔ 比牌','g',startPickCompare, state.nActive<2);
+      b('弃牌','r',doFold);
+      $('hint').innerHTML='轮到你 — '+(meP.looked?'':'可先看牌（之后翻倍）；')+'比牌=挑对手单挑，输的出局';
+      return;
+    }
+    b('本局已结束','',null,true);
+  }
+
+  // ---- 动作 ----
+  function doJoin(){ if(!authorized){toast('请先在大厅「一键授权」');return;} wsend({t:'joinTable',handId:curHand}); toast('入座中…'); logln('你 请求 <b>入座</b>'); }
+  function doStart(){ wsend({t:'startDeal',handId:curHand}); toast('开局发牌中…'); logln('你 请求 <b>开局</b>'); }
+  function doLeave(){ wsend({t:'leaveTable',handId:curHand}); toast('退座取回中…'); logln('你 <b>退座</b>'); }
+  function doLook(){ wsend({t:'act',handId:curHand,action:'look'}); toast('看牌…'); }
+  function doCall(){ wsend({t:'act',handId:curHand,action:'call'}); toast('跟注…'); logln('你 跟注'); }
+  function doRaise(){ wsend({t:'act',handId:curHand,action:'raise'}); toast('加注…'); logln('你 <span class="gd">加注</span>'); }
+  function doFold(){ wsend({t:'act',handId:curHand,action:'fold'}); logln('你 <span class="rd">弃牌</span>'); }
+  window.doRematch=function(){ if(!authorized){toast('需先一键授权');return;} wsend({t:'rematch',handId:curHand}); toast('开新局中…'); };
+  window.startPickCompare=function(){ if(!state||state.nActive<2){toast('没有对手');return;} picking=true; renderTable(); };
+  window.doCompare=function(oppAddr){ picking=false; wsend({t:'act',handId:curHand,action:'compare',target:oppAddr}); toast('比牌中…'); logln('你 <span class="gd">⚔ 比牌</span> 挑战 '+short(oppAddr)); };
+  window.doWithdraw=async function(){ if(!myAddr){toast('先连钱包');return;} try{ toast('领取中…'); await sendTx(SEL.withdraw); toast('已领取到钱包'); refreshBalances(); }catch(e){toast(e.message||'暂无可领');} };
+
+  function showResult(m){
+    var rev=(m.reveal||[]).slice();
+    // 赢家=未弃牌中牌最大
+    var winAddr=null, best=-1;
+    rev.forEach(function(r){ if(!r.folded){ var sc=score(r.cards); if(sc>best){best=sc;winAddr=r.addr;} } });
+    var pot=e9(lastPot); var payout=(pot*0.97);
+    rev.sort(function(a,b){ return score(b.cards)-score(a.cards); });
+    var iWon=winAddr && winAddr.toLowerCase()===myAddr.toLowerCase();
+    var html='<h2 class="win">'+(iWon?'🎉 你赢了！':(winAddr?'🏆 '+short(winAddr)+' 获胜':'本局结束'))+'</h2>';
+    html+='<p style="font-size:12.5px;color:#c6d6cd;margin:2px 0 10px">底池 '+pot+' LGNS，赢家拿 '+payout.toLocaleString('en-US',{maximumFractionDigits:3})+'（扣 3% 手续费）· 奖金已自动到账</p>';
+    html+='<div style="margin:8px 0">';
+    rev.forEach(function(r){
+      var isMe=r.addr.toLowerCase()===myAddr.toLowerCase();
+      var isW=winAddr&&r.addr.toLowerCase()===winAddr.toLowerCase();
+      html+='<div class="rs'+(r.folded?' lose':'')+(isW?' w':'')+'"><span class="av">'+(isW?'👑':(isMe?'🙂':'👤'))+'</span><span class="nm">'+(isMe?'你':short(r.addr))+(r.folded?'(弃)':'')+'</span><span style="display:flex;gap:3px">'+r.cards.map(function(c){return cardHTML(c,true);}).join('')+'</span><span class="ht">'+handName(r.cards)+'</span></div>';
+    });
+    html+='</div><p style="color:var(--accent);font-size:12px;text-align:center;margin:8px 0 0">下一局即将自动开始，想退出点「返回大厅」</p>';
+    html+='<div class="ctrl"><button class="abtn p" onclick="doRematch()">🔄 立即再来</button><button class="abtn" onclick="closeOv();leaveTable();">返回大厅</button></div>';
+    $('panel').innerHTML=html; $('ov').classList.add('on');
+  }
+  window.showRules=function(){
+    $('panel').innerHTML='<h2>炸金花 · 规则</h2>'+
+      '<p style="font-size:12.5px;color:#c6d6cd;line-height:1.8">每人 3 张牌比大小。牌型从大到小：</p>'+
+      '<div class="rk"><span>① 豹子</span><span>三张同点 AAA</span></div>'+
+      '<div class="rk"><span>② 同花顺</span><span>同花色且连续</span></div>'+
+      '<div class="rk"><span>③ 金花</span><span>三张同花色</span></div>'+
+      '<div class="rk"><span>④ 顺子</span><span>连续（A23 最小，QKA 最大）</span></div>'+
+      '<div class="rk"><span>⑤ 对子</span><span>两张同点</span></div>'+
+      '<div class="rk"><span>⑥ 散牌</span><span>比最大单张</span></div>'+
+      '<p style="font-size:12.5px;color:#c6d6cd;line-height:1.85;margin-top:10px"><b style="color:var(--accent)">玩法：</b>各交底注入座 → 开局发 3 张。轮到你可「看牌」（看了下注翻倍）、「跟注」「加注」，或「比牌」挑一个对手单挑、输的出局，也可「弃牌」。打到剩一人赢走底池；一局结束自动开下一局。</p>'+
+      '<p style="font-size:11px;color:var(--muted);line-height:1.7">押真 LGNS，链上结算。授权一次后免签玩牌，钱始终从你钱包扣；每局种子上链公开，发牌与比牌可事后核验。理性参与，量力而行。</p>'+
+      '<div class="ctrl"><button class="abtn p" onclick="closeOv()">知道了</button></div>';
+    $('ov').classList.add('on');
+  };
+  window.closeOv=function(){ $('ov').classList.remove('on'); };
+
+  renderTiers();
+  setInterval(function(){ if(authed && ws && ws.readyState===1 && !curHand) wsend({t:'listTables'}); }, 5000);
+  setInterval(function(){ if(state && state.phase===2 && !$('tableView').hidden) renderTable(); }, 1000); // 倒计时刷新
+  if(window.ethereum&&window.ethereum.selectedAddress){ connect(); }
+})();
+</script>
+</body>
+</html>

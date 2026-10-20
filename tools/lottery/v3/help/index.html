@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap">
-<script src="../i18n.js?v=13"></script>
+<script src="../i18n.js?v=closure-20261020-1"></script>
 <style>
 :root{--bg:#0d1114;--card:#181e23;--card2:#20292e;--text:#eff6f3;--muted:#96a4ab;--accent:#c8f665;--accent-ink:#17200b;--line:#ffffff14;
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;color-scheme:dark;}
@@ -46,6 +46,8 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer;b
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:13px;padding:12px 18px;border-radius:11px;flex:1;min-width:140px}
 .btn.ghost{background:#0f1519;color:var(--accent);border:1px solid #c8f66540}
 </style>
+<script src="../platform.js?v=closure-20261020-1"></script>
+<link rel="stylesheet" href="../platform.css?v=closure-20261020-1">
 </head>
 <body>
 <header class="top">
@@ -58,26 +60,21 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer;b
   <h1 class="h1">帮助中心</h1>
 
   <section class="card">
-    <h2>新手三步</h2>
-    <div class="steps">
-      <div class="step"><div class="n">1</div><div><h3>连接钱包</h3><p>用支持 Anubis 链的钱包（如 OKX）打开本站并连接。</p></div></div>
-      <div class="step"><div class="n">2</div><div><h3>选奖池 · 买票</h3><p>选择 LGNS / USDT / DAI / A / RM 任一奖池，授权一次后购票。</p></div></div>
-      <div class="step"><div class="n">3</div><div><h3>开奖 · 领奖</h3><p>每期用未来区块哈希开奖，中奖与返佣全部链上可查、随时领取。</p></div></div>
-    </div>
-    <div class="cta" style="margin-top:18px">
-      <a class="btn" href="../lottery/">进入链上彩票</a>
-      <a class="btn ghost" href="../invite/">邀请好友，一起赢</a>
-    </div>
-  </section>
-
+<h2 data-ap-zh="从邀请到查询" data-ap-en="From invitation to verified history">从邀请到查询</h2>
+<p data-ap-zh="1. 用有效推荐码选择邀请人，连接钱包并核对绑定对象。绑定成功后再参与游戏。" data-ap-en="1. Choose an inviter with a valid code, connect your wallet, and verify the binding before playing.">1. 用有效推荐码选择邀请人，连接钱包并核对绑定对象。绑定成功后再参与游戏。</p>
+<p data-ap-zh="2. 确认 Anubis 网络（6714），分别准备网络 Gas 与对应游戏代币。资产页会分别展示余额。" data-ap-en="2. Use Anubis (6714). Check gas and the selected game token separately on the assets page.">2. 确认 Anubis 网络（6714），分别准备网络 Gas 与对应游戏代币。资产页会分别展示余额。</p>
+<p data-ap-zh="3. 首次使用时核对授权对象与额度。连接钱包不等于授权；拒绝授权后可重新操作。" data-ap-en="3. Review the target and finite allowance before authorizing. Connecting is not authorizing; rejected permissions can be retried.">3. 首次使用时核对授权对象与额度。连接钱包不等于授权；拒绝授权后可重新操作。</p>
+<p data-ap-zh="4. 参与后用交易哈希核对确认状态、实际支出与到账。退款与返佣在相应页面领取。" data-ap-en="4. Verify confirmation, actual spend and payment with transaction hashes. Withdraw refunds and referral rewards from their respective pages.">4. 参与后用交易哈希核对确认状态、实际支出与到账。退款与返佣在相应页面领取。</p>
+<div class="ap-actions"><a class="ap-button" href="../account/" data-ap-zh="资产、退款与记录" data-ap-en="Assets, refunds & history">资产、退款与记录</a><a class="ap-button secondary" href="../invite/" data-ap-zh="邀请与返佣" data-ap-en="Invitations & rewards">邀请与返佣</a></div>
+</section>
   <section class="card">
-    <h2>游戏规则</h2>
+    <h2 data-ap-zh="彩票规则" data-ap-en="Lottery rules">彩票规则</h2>
     <p>奖项：一等奖 1 名拿奖池 50%，二等奖 3 名各 10%，三等奖 10 名各 2%；没人中的奖项自动滚入下期。每期截止后用未来区块哈希开奖，任何人可触发，中奖奖金在开奖时自动发放。</p>
   </section>
 
   <section class="card">
     <h2>邀请返佣</h2>
-    <p>好友每次购票产生的平台费，你拿直推 30%、间推 10%，从平台费里出，不影响奖池，随时在邀请页领取。绑定在好友首次购票时自动完成，永久不可更改。</p>
+    <p data-ap-zh="直推 30%、间推 10% 按实际平台手续费计算。全平台邀请关系与 V3 彩票各池旧关系在邀请中心分别显示。旧关系冲突时先处理迁移，不影响查询或领取已有返佣与退款。" data-ap-en="Direct 30% and indirect 10% rewards are shares of actual platform fees. Platform and V3 pool relationships are displayed separately. Resolve conflicting old relationships before migrating; existing refunds and rewards remain accessible.">直推 30%、间推 10% 按实际平台手续费计算。全平台邀请关系与 V3 彩票各池旧关系在邀请中心分别显示。旧关系冲突时先处理迁移，不影响查询或领取已有返佣与退款。</p>
   </section>
 
   <section class="card">
@@ -88,7 +85,7 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer;b
   <section class="card">
     <h2>常见问题</h2>
     <div class="faq"><h3>需要什么代币？</h3><p>每个奖池只收对应代币（LGNS/USDT/DAI/A/RM），外加少量 Gas。在彩票页切换奖池即可看到票价。</p></div>
-    <div class="faq"><h3>怎么知道开奖公平？</h3><p>开奖用的是售票截止之后才产生的未来区块哈希作随机源，买票时谁也预测不了，开奖后任何人都能在链上核对。</p></div>
+    <div class="faq"><h3 data-ap-zh="怎么核对开奖？" data-ap-en="How can I verify a draw?">怎么核对开奖？</h3><p data-ap-zh="开奖使用未来区块哈希作为随机源。请用奖池合约、期号、开奖区块和开奖交易核对链上结果；目前页面尚未提供一键复算工具，随机源机制不等于绝对公平保证。" data-ap-en="The draw uses a future block hash. Check the pool contract, round, draw block and draw transaction on-chain. A one-click recomputation tool is not yet available; the random-source mechanism does not guarantee absolute fairness.">开奖使用未来区块哈希作为随机源。请用奖池合约、期号、开奖区块和开奖交易核对链上结果；目前页面尚未提供一键复算工具，随机源机制不等于绝对公平保证。</p></div>
     <div class="faq"><h3>中奖了怎么领？</h3><p>中奖奖金在开奖时由合约自动打到你钱包，无需手动领取。返佣则在邀请页手动领取。</p></div>
   </section>
 
@@ -96,6 +93,19 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer;b
     <h2>风险提示</h2>
     <p>参与链上彩票与博弈存在风险，可能损失本金。请量力而行、理性参与，未成年人请勿参与。本平台不作任何收益承诺。</p>
   </section>
+
+<section class="card" id="troubleshooting"><h2 data-ap-zh="失败后怎么处理" data-ap-en="When something fails">失败后怎么处理</h2>
+<p data-ap-zh="查询失败：点击重新查询；未知余额不代表余额为零。" data-ap-en="Query failed: refresh. An unknown balance is not a zero balance.">查询失败：点击重新查询；未知余额不代表余额为零。</p>
+<p data-ap-zh="交易确认较慢：在资产页找到原交易哈希，先核对是否成功，再决定是否重试，避免重复提交。" data-ap-en="Slow confirmation: check the original transaction hash on the assets page before retrying to avoid duplicate submissions.">交易确认较慢：在资产页找到原交易哈希，先核对是否成功，再决定是否重试，避免重复提交。</p>
+<p data-ap-zh="退座或退款：先核对钱包到账，再查看对应币种的合约可领资金。可领取资金不需要重新授权或绑定邀请。" data-ap-en="Refunds: verify wallet payment and the selected token’s withdrawable contract balance. Withdrawing does not require a new allowance or invitation.">退座或退款：先核对钱包到账，再查看对应币种的合约可领资金。可领取资金不需要重新授权或绑定邀请。</p>
+<p data-ap-zh="对战断线：恢复连接后重新同步原局，等待权威状态再操作。进行中的对局以游戏规则的超时条件处理。" data-ap-en="Game disconnected: reconnect and resynchronize the hand before acting. Active hands follow the game’s timeout rules.">对战断线：恢复连接后重新同步原局，等待权威状态再操作。进行中的对局以游戏规则的超时条件处理。</p>
+<p id="draw" data-ap-zh="开奖区块过期：保留奖池、期号和页面状态，交由维护人员按已部署合约规则核对重新锁定条件。不要反复发送会失败的开奖交易。" data-ap-en="Expired draw block: retain the pool, round and status so maintenance can check the deployed contract’s relock conditions. Avoid repeatedly sending failing draw transactions.">开奖区块过期：保留奖池、期号和页面状态，交由维护人员按已部署合约规则核对重新锁定条件。不要反复发送会失败的开奖交易。</p>
+</section>
+<section class="card"><h2 data-ap-zh="炸金花记录与结算" data-ap-en="Card-game history & settlement">炸金花记录与结算</h2>
+<p data-ap-zh="对战规则可在牌桌内查看。结果弹窗与本机战绩是查询线索，实际到账请核对链上结算与钱包余额。本机记录按钱包和币种隔离；完整跨设备牌局历史尚未开放。" data-ap-en="View card rules in the game. Result popups and local records are references; verify settlement and wallet balances on-chain. Local records are scoped by wallet and token. Complete cross-device card history is not yet available.">对战规则可在牌桌内查看。结果弹窗与本机战绩是查询线索，实际到账请核对链上结算与钱包余额。本机记录按钱包和币种隔离；完整跨设备牌局历史尚未开放。</p><a class="ap-button secondary" href="../anubis-play/" data-ap-zh="进入炸金花大厅" data-ap-en="Open card lobby">进入炸金花大厅</a></section>
+<section class="card"><h2 data-ap-zh="整理问题摘要" data-ap-en="Prepare an issue summary">整理问题摘要</h2><p class="ap-muted" data-ap-zh="填写公开交易哈希、局号与错误现象，复制后交给平台维护人员。此按钮只复制，不会自动发送。请勿填写助记词、私钥或密码。" data-ap-en="Add a public transaction hash, hand ID and error details, then copy for platform maintenance. This only copies; nothing is sent. Never enter a recovery phrase, private key or password.">填写公开交易哈希、局号与错误现象，复制后交给平台维护人员。此按钮只复制，不会自动发送。请勿填写助记词、私钥或密码。</p><label for="issueDetails" data-ap-zh="问题描述" data-ap-en="Issue details">问题描述</label><textarea class="ap-input" id="issueDetails" rows="4" maxlength="2000"></textarea><button class="ap-button secondary" id="copyIssue" data-ap-zh="复制问题摘要" data-ap-en="Copy issue summary">复制问题摘要</button><p id="issueStatus" role="status" class="ap-muted"></p></section>
 </main>
+<script defer src="../shell.js?v=closure-20261020-1"></script>
+<script defer src="help.js?v=closure-20261020-1"></script>
 </body>
 </html>

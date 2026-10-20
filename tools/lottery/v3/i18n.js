@@ -39,6 +39,9 @@
   '链上彩票':['On-chain Lottery','온체인 복권','オンチェーンロト','Ончейн-лотерея','Xổ số on-chain','Lotería on-chain'],
   '五大奖池、链上开奖、邀请返佣，全程可查。':['Five pools, on-chain draws, referral rewards — all verifiable.','5개 풀, 온체인 추첨, 추천 보상 — 모두 조회 가능.','5つのプール、オンチェーン抽選、招待報酬 — すべて検証可能。','Пять пулов, ончейн-розыгрыш, рефералы — всё проверяемо.','Năm pool, quay on-chain, thưởng giới thiệu — minh bạch.','Cinco pozos, sorteos on-chain, referidos — todo verificable.'],
   '进入游戏 →':['Play →','게임 →','プレイ →','Играть →','Vào game →','Jugar →'],
+  '炸金花':['Golden Flower'],
+  '我的币余额':['My token balances'],'金花对局次数':['Hands played'],
+  '真人实时对战，押真币、链上公平结算，LGNS / DAI / RM / USDT 多池可选。':['Live PvP · real tokens · provably fair on-chain · LGNS / DAI / RM / USDT pools.'],
   '龙虎斗':['Dragon vs Tiger','드래곤 타이거','ドラゴンタイガー','Дракон и Тигр','Rồng Hổ','Dragón vs Tigre'],
   '经典对押，押中赢取奖池，链上实时结算。':['Classic head-to-head, win the pool, settled on-chain.','클래식 대결, 풀 획득, 온체인 정산.','クラシック対決、プール獲得、オンチェーン決済。','Классическая дуэль, забери пул, расчёт ончейн.','Đối đầu kinh điển, thắng pool, quyết toán on-chain.','Duelo clásico, gana el pozo, liquidado on-chain.'],
   '幸运转盘':['Lucky Wheel','행운의 룰렛','ラッキーホイール','Колесо удачи','Vòng quay may mắn','Ruleta de la suerte'],
@@ -132,10 +135,17 @@
   '设置':['Set'],'注资':['Seed'],'当前':['Current'],'请输入金额':['Enter an amount'],
   '票价已更新':['Ticket price updated'],'开奖周期已更新':['Round duration updated'],'注资成功！':['Seeded!'],
   '确定要把票价改为':['Change ticket price to'],'吗？':['?'],
-  '新票价':['New ticket price'],'新周期（小时）':['New duration (hours)'],'注资金额':['Seed amount']
+  '新票价':['New ticket price'],'新周期（小时）':['New duration (hours)'],'注资金额':['Seed amount'],
+  'ANUBIS PLAY · 霓虹大厅预览':['ANUBIS PLAY · Game Lobby'],'ANUBIS PLAY · 链上游戏平台':['ANUBIS PLAY · On-chain Games'],'链上彩票 · ANUBIS PLAY':['On-chain Lottery · ANUBIS PLAY'],
+  '邀请奖励 · ANUBIS PLAY':['Referral Rewards · ANUBIS PLAY'],'个人中心 · ANUBIS PLAY':['Account · ANUBIS PLAY'],
+  '帮助中心 · ANUBIS PLAY':['Help Center · ANUBIS PLAY'],'平台公告 · ANUBIS PLAY':['Announcements · ANUBIS PLAY']
   };
+  var Dr={}; try{ for(var _dk in D){ var _de=D[_dk]; if(_de&&_de[0]&&!Dr[_de[0]])Dr[_de[0]]=_dk; } }catch(e){} // 英→中反查:动态英文节点切回中文时用
   var LANG='zh';
-  try{LANG=localStorage.getItem('aplang')||'zh';}catch(e){}
+  try{
+    LANG=localStorage.getItem('aplang')||'';
+    if(!LANG){ var _bl=(navigator.language||navigator.userLanguage||'').slice(0,2).toLowerCase(); LANG=(_bl==='zh')?'zh':(ORDER.indexOf(_bl)>=0?_bl:'en'); } // 无存储则跟随浏览器语言(非中文=英文)
+  }catch(e){ LANG='zh'; }
   function idx(l){return ORDER.indexOf(l);}
   window.tr=function(zh,l){l=l||LANG;if(l==='zh')return zh;var e=D[zh];var i=idx(l);return (e&&i>=0&&e[i])||zh;};
   window.getLang=function(){return LANG;};
@@ -148,22 +158,41 @@
     ru:'Исследуй вселенную игр, <em>открывай Anubis</em>',
     vi:'Khám phá vũ trụ game, <em>mở ra nhiều hơn với Anubis</em>',
     es:'Explora el universo del juego, <em>descubre más de Anubis</em>'};
+  var _title='';
   window.applyLang=function(l){LANG=l;try{localStorage.setItem('aplang',l);}catch(e){}
     document.documentElement.setAttribute('lang',l==='zh'?'zh-CN':l);
+    if(_title)try{document.title=window.tr(_title,l);}catch(e){}
     for(var _i=0;_i<_tn.length;_i++){var o=_tn[_i];try{o.node.nodeValue=o.pre+window.tr(o.zh,l)+o.post;}catch(e){}}
     var hh=document.getElementById('heroH2');if(hh)hh.innerHTML=HERO[l]||HERO.zh;
     var lc=document.getElementById('langCode');if(lc){lc.innerHTML='';}
     document.querySelectorAll('#langMenu .lmi').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-l')===l);});
     try{if(window.__uiWallet)window.__uiWallet();}catch(e){}
     try{if(window.__poolRender)window.__poolRender();}catch(e){}
+    if(window.APPlatform)window.APPlatform.emit('language',{language:l});
   };
   function closeMenu(){var m=document.getElementById('langMenu');if(m)m.hidden=true;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=true;}
   window.toggleLangMenu=function(ev){if(ev){ev.stopPropagation();ev.preventDefault();}var m=document.getElementById('langMenu');if(!m)return;var willOpen=m.hidden;m.hidden=!willOpen;var bd=document.getElementById('langBackdrop');if(bd)bd.hidden=!willOpen;};
-  window.setLang=function(l){window.applyLang(l);closeMenu();};
+  // —— 整页增量翻译(模块级,首屏 build 和 setLang 实时切换共用) ——
+  var _o=null,_q=[],_p=false;
+  function trNode(n){ if(!n)return;
+    if(n.nodeType===3){ var v=n.nodeValue; if(v){ var tt=v.trim(); var _zk=tt?(D[tt]?tt:((LANG==='zh'&&Dr[tt])||null)):null; if(_zk){ var at=v.indexOf(tt); n.nodeValue=v.slice(0,at)+window.tr(_zk,LANG)+v.slice(at+tt.length); } } return; }
+    if(n.nodeType!==1||n.nodeName==='SCRIPT'||n.nodeName==='STYLE')return;
+    for(var c=n.firstChild;c;c=c.nextSibling) trNode(c);
+  }
+  function fullTp(){ try{ trNode(document.body); var hh=document.getElementById('heroH2'); if(hh&&HERO[LANG])hh.innerHTML=HERO[LANG]; }catch(e){} }
+  function _flush(){ _p=false; var b=_q; _q=[]; try{ if(_o)_o.disconnect(); for(var i=0;i<b.length;i++){ try{trNode(b[i]);}catch(e){} } }finally{ if(_o){try{_o.observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}} } }
+  function startObs(){ if(_o)return; try{ _o=new MutationObserver(function(muts){ for(var i=0;i<muts.length;i++){ var m=muts[i]; if(m.type==='childList'){ for(var j=0;j<m.addedNodes.length;j++)_q.push(m.addedNodes[j]); } else _q.push(m.target); } if(!_p){ _p=true; (window.requestAnimationFrame||function(f){setTimeout(f,16);})(_flush); } }); _o.observe(document.body,{childList:true,subtree:true,characterData:true}); }catch(e){} }
+  window.setLang=function(l){
+    try{localStorage.setItem('aplang',l); localStorage.setItem('lottery_lang', l==='zh'?'zh':'en');}catch(e){} // 存储(供下次加载);同步 app1 的 lottery_lang
+    closeMenu();
+    LANG=l; try{applyLang(l);}catch(e){}                      // 所有语言统一就地实时翻译,不刷新(钱包内置浏览器 location.reload 会丢 localStorage/被吞 → 看着像没切)
+    fullTp(); startObs(); setTimeout(fullTp,300); setTimeout(fullTp,1200);
+  };
   function build(){
     if(!document.getElementById('langBackdrop')){var _bd=document.createElement('div');_bd.id='langBackdrop';_bd.hidden=true;_bd.style.cssText='position:fixed;inset:0;z-index:199;background:transparent';_bd.onclick=closeMenu;document.body.appendChild(_bd);}
-    var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<a class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':'')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</a>';}).join('');}
-    collect();applyLang(LANG);
+    var menu=document.getElementById('langMenu');if(menu){document.body.appendChild(menu);menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<button type="button" class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':' disabled')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</button>';}).join('');}
+    _title=(document.title||'').trim();collect();applyLang(LANG);
+    if(LANG!=='zh'){ startObs(); fullTp(); setTimeout(fullTp,400); setTimeout(fullTp,1500); setTimeout(fullTp,3500); }
   }
   if(document.readyState!=='loading')build();else document.addEventListener('DOMContentLoaded',build);
 })();

@@ -24,10 +24,9 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 /* 顶栏 */
-.top{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:calc(12px + env(safe-area-inset-top,0px)) 18px 12px;background:#0d1114e6;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.back{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);font-weight:600}
-.back .ic{width:16px;height:16px}
+.top{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:center;gap:10px;height:42px;padding:0 16px;background:#0d1114;border-bottom:1px solid var(--line)}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);font-weight:600}
+.back .ic{width:18px;height:18px}
 .brand{display:flex;align-items:center;gap:9px}
 .brand img{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 6px #0008)}
 .brand b{font-size:14px;font-weight:700;letter-spacing:.6px;line-height:1}
@@ -37,7 +36,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .wallet-btn.connected{background:#1f2a1f;color:var(--accent);box-shadow:none;border:1px solid #c8f66555}
 .wallet-btn .ic{width:15px;height:15px}
 /* 容器 */
-.wrap{max-width:720px;margin:0 auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:720px;margin:0 auto;padding:46px 16px calc(40px + env(safe-area-inset-bottom,0px))}
 .h1{font-family:var(--sans);font-size:22px;font-weight:600;margin:0 0 4px}
 .lead{color:var(--muted);font-size:12px;margin:0 0 20px}
 /* 池标签 */
@@ -97,13 +96,14 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 #ownerPanel input{flex:1;min-width:0;padding:11px 13px;background:#0d1215;border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--mono)}
 #ownerPanel .btn-set{background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:12px;padding:0 18px;border-radius:10px;white-space:nowrap}
 </style>
-<script src="../i18n.js?v=13"></script>
+<script src="../i18n.js?v=closure-20261020-1"></script>
+<script src="../platform.js?v=closure-20261020-1"></script>
+<link rel="stylesheet" href="../platform.css?v=closure-20261020-1">
 </head>
 <body>
 <header class="top">
   <a class="back" href="../"><svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>游戏大厅</a>
-  <a class="brand" href="../"><img src="../img/logo.webp?v=2" alt="ANUBIS PLAY"><span><b>ANUBIS PLAY</b><small>链上彩票</small></span></a>
-  <button class="wallet-btn" id="langBtn" onclick="toggleLangMenu(event)" aria-label="Language" style="padding:10px 12px;background:#131a1e;color:var(--accent);border:1px solid var(--line);box-shadow:none"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span id="langCode" style="font-size:9px;font-weight:700;margin-left:2px">中</span></button><div id="langMenu" class="lang-menu" hidden></div><button class="wallet-btn" id="walletBtn" onclick="connectWallet()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h.01"/></svg><span id="walletTxt">连接钱包</span></button>
+  <span style="display:none"><button class="wallet-btn" id="langBtn" onclick="toggleLangMenu(event)" aria-label="Language"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span id="langCode"></span></button><div id="langMenu" class="lang-menu" hidden></div><button class="wallet-btn" id="walletBtn" onclick="connectWallet()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h.01"/></svg><span id="walletTxt">连接钱包</span></button></span>
 </header>
 
 <main class="wrap">
@@ -143,7 +143,8 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     </div>
     <div class="total"><span class="k">合计</span><span class="v" id="totalCost">—</span></div>
     <button class="btn" id="buyBtn" onclick="mainAction()"><span id="buyTxt">连接钱包</span></button>
-    <div class="note">首次用某代币买票需先授权一次，之后直接购票。每期按比例扣少量平台费，其余按奖项派给中奖者。开奖用截止后的未来区块哈希，任何人可触发，结果链上可查。</div>
+    <button class="ap-button secondary" onclick="refreshPool()" data-ap-zh="重新查询本池" data-ap-en="Refresh this pool">重新查询本池</button>
+    <div class="note" data-ap-zh="购票前核对邀请关系、截止时间和余额。额度不足时先按本次票款授权，确认后再次购票；授权不会自动买票。开奖结果可用链上交易核对。" data-ap-en="Check your invitation, sales deadline and balance before buying. If needed, approve only this purchase amount, then click again to buy. Approval does not buy tickets automatically. Verify draw results with their on-chain transactions.">购票前核对邀请关系、截止时间和余额。额度不足时先按本次票款授权，确认后再次购票；授权不会自动买票。开奖结果可用链上交易核对。</div>
   </section>
 
   <section class="card">
@@ -204,16 +205,16 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   function enc(v){return BigInt(v).toString(16).padStart(64,'0');}
   function encA(a){return '0'.repeat(24)+a.toLowerCase().replace(/^0x/,'');}
   function toast(m){var t=$('vtoast');if(!t){t=document.createElement('div');t.id='vtoast';document.body.appendChild(t);}t.textContent=m;t.style.opacity='1';clearTimeout(window._tt);window._tt=setTimeout(function(){t.style.opacity='0';},3600);}
-  function rcall(to,d){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:to,data:'0x'+d},'latest']})}).then(function(r){return r.json();}).then(function(j){return (j.result||'0x').replace(/^0x/,'');});}
+  function rcall(to,d){return APPlatform.call(to,d);}
   function fmt(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
   function getRef(){try{var r=new URLSearchParams(location.search).get('ref');if(r&&/^0x[0-9a-fA-F]{40}$/.test(r)){if(myAddr&&r.toLowerCase()===myAddr.toLowerCase())return null;return r;}}catch(e){}return null;}
   /* 奖池数据 */
   async function loadPool(k){var P=POOLS[k];try{
     var price=BigInt('0x'+((await rcall(P.c,SEL.price))||'0'));
     var rid=BigInt('0x'+((await rcall(P.c,SEL.round))||'0'));
-    var r=await rcall(P.c,SEL.rounds+enc(rid));var w=function(i){return BigInt('0x'+(r.slice(i*64,i*64+64)||'0'));};
+    var r=await rcall(P.c,SEL.rounds+enc(rid));if(r.length<5*64||price<=0n)throw new Error(APPlatform.L('奖池数据不完整，请重试','Incomplete pool data; retry'));var w=function(i){return BigInt('0x'+r.slice(i*64,i*64+64));};
     data[k]={price:price,end:Number(w(0)),drawBlock:Number(w(1)),pool:w(3)+w(4),round:Number(rid),ok:true};
-  }catch(e){data[k]={ok:false};}if(k===sel)render();}
+  }catch(e){data[k]={ok:false,error:e.message};}if(k===sel)render();}
   function cd(end){var s=end-Math.floor(Date.now()/1000);if(s<0)s=0;var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;var p=function(v){return String(v).padStart(2,'0');};return p(h)+':'+p(m)+':'+p(x);}
   function tickTimer(){var D=data[sel]||{};var e=$('tkTimer');if(e)e.textContent=D.ok?(D.end>Math.floor(Date.now()/1000)?cd(D.end):(window.tr?window.tr('已截止'):'已截止')):'—';}
   window.__poolRender=render;function render(){var P=POOLS[sel],D=data[sel]||{};
@@ -223,41 +224,53 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     $('jkAmt').textContent=D.ok?fmt(D.pool,P.d):'—';
     $('tkPrice').textContent=D.ok?(fmt(D.price,P.d)+' '+P.sym):'—';
     tickTimer();updateTotal();updateBuy();loadDraw();loadOwner();}
-  window.selPool=function(i){sel=i;render();if(!data[i]||!data[i].ok)loadPool(i);loadMyStats();loadHistory();};
+  window.selPool=function(i){if(busy||drawBusy||!POOLS[i])return;sel=i;render();if(!data[i]||!data[i].ok)loadPool(i);loadMyStats();loadHistory();};
+  window.refreshPool=async function(){if(busy||drawBusy)return;await loadPool(sel);loadMyStats();loadHistory();};
   /* 张数 */
   function updateTotal(){var P=POOLS[sel],D=data[sel]||{};var e=$('totalCost');if(!e)return;if(D.ok){e.textContent=fmt(D.price*BigInt(n),P.d)+' '+P.sym;}else e.textContent='—';
     document.querySelectorAll('.quick .qbtn').forEach(function(b){b.classList.remove('on');});}
-  window.addN=function(d){n=Math.max(1,Math.min(200,n+d));$('buyN').value=n;updateTotal();updateBuy();};
-  window.setN=function(v){n=v;$('buyN').value=n;updateTotal();updateBuy();};
-  window.normN=function(){var v=parseInt($('buyN').value||'1',10);if(isNaN(v))v=1;n=Math.max(1,Math.min(200,v));$('buyN').value=n;updateTotal();updateBuy();};
+  window.addN=function(d){if(busy)return;n=Math.max(1,Math.min(200,n+d));$('buyN').value=n;updateTotal();updateBuy();};
+  window.setN=function(v){if(busy)return;n=v;$('buyN').value=n;updateTotal();updateBuy();};
+  window.normN=function(){if(busy){$('buyN').value=n;return;}var v=parseInt($('buyN').value||'1',10);if(isNaN(v))v=1;n=Math.max(1,Math.min(200,v));$('buyN').value=n;updateTotal();updateBuy();};
   /* 钱包 */
   window.__uiWallet=uiWallet;function uiWallet(){var x=$('walletTxt');if(x)x.textContent=myAddr?short(myAddr):'连接钱包';var b=$('walletBtn');if(b)b.classList.toggle('connected',!!myAddr);updateBuy();loadMyStats();loadOwner();}
-  window.connectWallet=async function(){var eth=window.ethereum;if(!eth){toast(window.tr?window.tr('未检测到钱包，请在 OKX / MetaMask 内置浏览器打开'):'未检测到钱包，请在 OKX / MetaMask 内置浏览器打开');return;}
-    try{var accs=await eth.request({method:'eth_requestAccounts'});if(!accs||!accs.length)return;myAddr=accs[0];
-      var cid=await eth.request({method:'eth_chainId'});
-      if(parseInt(cid,16)!==ANUBIS.id){try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}}
-      uiWallet();toast('已连接：'+short(myAddr));
-      if(!window._wl){window._wl=1;if(eth.on){eth.on('accountsChanged',function(a){myAddr=(a&&a[0])||null;uiWallet();});eth.on('chainChanged',function(){location.reload();});}}
-    }catch(e){toast((e&&e.message)||'连接失败');}};
+  window.connectWallet=async function(){try{myAddr=await APPlatform.connect();uiWallet();}catch(e){toast(e.message);}};
+  async function syncWallet(){try{myAddr=await APPlatform.account();uiWallet();}catch(e){toast(e.message);}}
+  window.addEventListener('ap:wallet',syncWallet);window.addEventListener('ap:wallet-change',syncWallet);
   /* 发交易(Anubis legacy type-0) */
-  async function sendTx(to,d){var eth=window.ethereum;var tx={from:myAddr,to:to,data:d,type:'0x0'};
-    var gp=await eth.request({method:'eth_gasPrice',params:[]});tx.gasPrice=gp;
-    var hash=await eth.request({method:'eth_sendTransaction',params:[tx]});toast(window.tr?window.tr('交易已发送，等待确认…'):'交易已发送，等待确认…');
-    for(var i=0;i<150;i++){await new Promise(function(r){setTimeout(r,2000);});var rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber&&rc.blockNumber!=='0x0'){if(rc.status==='0x1')return rc;throw new Error('交易失败(被合约回退)');}}
-    throw new Error('确认超时，请在浏览器查看');}
-  async function needApprove(){var P=POOLS[sel],D=data[sel];if(!myAddr||!D||!D.ok)return false;try{var al=BigInt('0x'+((await rcall(P.t,SEL.allowance+encA(myAddr)+encA(P.c)))||'0'));return al<D.price*BigInt(n);}catch(e){return true;}}
-  window.__updateBuy=function(){updateBuy();};async function updateBuy(){var b=$('buyBtn'),t=$('buyTxt');if(!b||!t)return;if(busy){b.disabled=true;t.textContent=(window.tr?window.tr('处理中…'):'处理中…');return;}b.disabled=false;
-    if(!myAddr){t.textContent=(window.tr?window.tr('连接钱包'):'连接钱包');return;}
-    try{t.textContent=(await needApprove())?((window.tr?window.tr('授权'):'授权')+' '+POOLS[sel].sym):((window.getLang&&window.getLang()==='en')?('Buy '+n+' tickets'):('买票 '+n+' 张'));}catch(e){t.textContent='买票 '+n+' 张';}}
-  window.mainAction=async function(){if(busy)return;busy=true;updateBuy();try{
-    if(!myAddr){await connectWallet();return;}
-    var P=POOLS[sel],D=data[sel];if(!D||!D.ok){toast(window.tr?window.tr('奖池数据未就绪'):'奖池数据未就绪');return;}
-    if(await needApprove()){await sendTx(P.t,'0x'+SEL.approve+encA(P.c)+enc(D.price*200n));toast(window.tr?window.tr('授权成功'):'授权成功');}
-    else{var ref=getRef();if(ref)await sendTx(P.c,'0x'+SEL.buyRef+enc(n)+encA(ref));else await sendTx(P.c,'0x'+SEL.buy+enc(n));toast(window.tr?window.tr('购票成功！'):'购票成功！');loadPool(sel);}
-  }catch(e){toast((e&&e.message)||e);}finally{busy=false;updateBuy();}};
+  async function sendTx(to,d){return APPlatform.send(myAddr,to,d,APPlatform.L('彩票交易','Lottery transaction'));}
+  async function needApprove(){var P=POOLS[sel],D=data[sel];if(!myAddr||!D||!D.ok)return false;var al=await APPlatform.uintCall(P.t,SEL.allowance+encA(myAddr)+encA(P.c));return al<D.price*BigInt(n);}
+  var buyUiSeq=0;
+  window.__updateBuy=function(){updateBuy();};
+  async function updateBuy(){
+    var seq=++buyUiSeq,b=$('buyBtn'),t=$('buyTxt'),D=data[sel];if(!b||!t)return;
+    b.disabled=busy;
+    if(busy){t.textContent=APPlatform.L('处理中…','Processing…');return;}
+    if(!D||!D.ok){t.textContent=APPlatform.L('数据未就绪，点击重试','Data unavailable; retry');return;}
+    if(D.end<=Math.floor(Date.now()/1000)){b.disabled=true;t.textContent=APPlatform.L('本期已截止，请查看开奖','Sales closed; view draw status');return;}
+    if(!myAddr){t.textContent=APPlatform.L('连接钱包','Connect wallet');return;}
+    try{var need=await needApprove();if(seq!==buyUiSeq)return;t.textContent=need?APPlatform.L('授权本次购票额度','Approve this purchase'):APPlatform.L('买票 ','Buy ')+n+APPlatform.L(' 张',' tickets');}catch(e){if(seq===buyUiSeq){b.disabled=true;t.textContent=e.message;}}
+  }
+  window.mainAction=async function(){
+    if(busy||drawBusy)return;var op=sel,count=n,a=myAddr;busy=true;updateBuy();
+    try{
+      if(!myAddr){await connectWallet();return;}
+      await loadPool(op);var P=POOLS[op],D=data[op];
+      if(!D||!D.ok)throw new Error(D&&D.error||APPlatform.L('奖池数据未就绪','Pool data unavailable'));
+      if(D.end<=Math.floor(Date.now()/1000))throw new Error(APPlatform.L('本期已截止','Sales have closed'));
+      var ref=await APPlatform.purchaseReferrer(P.c,a);
+      if(op!==sel||count!==n)throw new Error(APPlatform.L('奖池或张数已改变，请重新确认','Pool or quantity changed; confirm again'));
+      var balance=await APPlatform.uintCall(P.t,SEL.balanceOf+encA(a));
+      if(balance<D.price*BigInt(count))throw new Error(APPlatform.L('游戏代币余额不足','Insufficient game token balance'));
+      var allowance=await APPlatform.uintCall(P.t,SEL.allowance+encA(a)+encA(P.c));
+      if(a!==myAddr)throw new Error(APPlatform.L('钱包已切换，请重新确认','Wallet changed; confirm again'));
+      if(allowance<D.price*BigInt(count)){await APPlatform.send(a,P.t,'0x'+SEL.approve+encA(P.c)+enc(D.price*BigInt(count)),APPlatform.L('本次购票额度','Ticket purchase allowance'));toast(APPlatform.L('本次额度已授权，请再次点击购票','Purchase allowance confirmed; click again to buy'));}
+      else{await APPlatform.send(a,P.c,'0x'+SEL.buyRef+enc(count)+encA(ref),APPlatform.L('购买彩票 ','Buy tickets ')+P.sym);toast(APPlatform.L('购票交易已确认','Purchase confirmed'));await loadPool(op);_lc={};loadMyStats();loadHistory();}
+    }catch(e){toast(e.message||String(e));}finally{busy=false;updateBuy();}
+  };
   /* init */
   render();POOLS.forEach(function(_,k){loadPool(k);});
-  setInterval(tickTimer,1000);setInterval(function(){POOLS.forEach(function(_,k){loadPool(k);});},30000);
+  setInterval(function(){tickTimer();if(!busy&&data[sel]&&data[sel].end<=Date.now()/1000)updateBuy();},1000);setInterval(function(){POOLS.forEach(function(_,k){loadPool(k);});},30000);window.addEventListener('ap:refresh',function(){loadPool(sel);loadMyStats();loadHistory();});
   if(window.ethereum&&window.ethereum.request){window.ethereum.request({method:'eth_accounts'}).then(function(a){if(a&&a.length){myAddr=a[0];uiWallet();}}).catch(function(){});}
   /* 从 ?pool=N 选池 */
   try{var qp=new URLSearchParams(location.search).get('pool');if(qp!==null){var pn=parseInt(qp,10);if(pn>=0&&pn<=4)sel=pn;}}catch(e){}
@@ -268,58 +281,58 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   var _lc={};
   function TR(s){return window.tr?window.tr(s):s;}
   function num(hx){return parseInt(hx,16)||0;}
-  function rpc(m,pr){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:m,params:pr})}).then(function(r){return r.json();}).then(function(j){return j.result;});}
-  async function getLogs(topic,addr,from){
-    var key=addr+'|'+topic;var c=_lc[key]||(_lc[key]={next:from,logs:[]});
-    var latest=num(await rpc('eth_blockNumber',[]));var f=c.next;
-    while(f<=latest){var t=Math.min(f+4999,latest);
-      try{var part=await rpc('eth_getLogs',[{address:addr,topics:[topic],fromBlock:'0x'+f.toString(16),toBlock:'0x'+t.toString(16)}]);if(part&&part.length)for(var i=0;i<part.length;i++)c.logs.push(part[i]);}catch(e){}
-      f=t+1;}
-    if(latest+1>c.next)c.next=latest+1;return c.logs;}
+  function rpc(m,pr){return APPlatform.rpc(m,pr);}
+  async function getLogs(topic,addr,from){return APPlatform.logs(addr,topic,from);}
   function decArr(d,off,isAddr){var n=num(d.slice(off,off+64));var a=[];for(var i=0;i<n;i++){var w=d.slice(off+64*(i+1),off+64*(i+2));a.push(isAddr?('0x'+w.slice(-40)):BigInt('0x'+(w||'0')));}return a;}
   function fmtN(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
+  var drawSeq=0;
   async function loadDraw(){
-    var st=document.getElementById('drawStatus'),btn=document.getElementById('drawBtn'),D=data[sel];if(!st||!btn)return;
+    var seq=++drawSeq,op=sel,st=document.getElementById('drawStatus'),btn=document.getElementById('drawBtn'),D=data[sel];if(!st||!btn)return;
+    try{
     if(!D||!D.ok){st.textContent='—';btn.hidden=true;return;}
     var now=Math.floor(Date.now()/1000);
     if(now<=D.end){st.textContent=TR('本期进行中，截止后可开奖');btn.hidden=true;return;}
     if(!D.drawBlock){st.textContent=TR('已截止，可关期开奖');btn.textContent=TR('关期并锁定开奖');btn.hidden=false;window._dm='close';return;}
     var cur=num(await rpc('eth_blockNumber',[]));
-    if(cur<D.drawBlock){st.textContent=TR('已关期，等待开奖区块')+' ('+cur+' / '+D.drawBlock+')';btn.hidden=true;}
-    else{st.textContent=TR('可开奖，任何人可触发');btn.textContent=TR('立即开奖');btn.hidden=false;window._dm='draw';}}
-  window.doDraw=async function(){if(!myAddr){await connectWallet();return;}var P=POOLS[sel];try{
-    if(window._dm==='close'){await sendTx(P.c,'0x'+SEL.closeRound);toast(TR('关期成功，等待开奖区块'));}
-    else{await sendTx(P.c,'0x'+SEL.draw);toast(TR('开奖成功！'));}
-    await loadPool(sel);loadDraw();loadHistory();loadMyStats();}catch(e){toast((e&&e.message)||e);}};
+    if(seq!==drawSeq||op!==sel)return;
+    if(cur<=D.drawBlock){st.textContent=TR('已关期，等待开奖区块')+' ('+cur+' / '+D.drawBlock+')';btn.hidden=true;}
+    else if(cur>D.drawBlock+256){st.innerHTML=APPlatform.L('开奖区块已过期，请查看','Draw block expired; see')+' <a href="../help/#draw">'+APPlatform.L('开奖异常处理','draw troubleshooting')+'</a>';btn.hidden=true;}
+    else{st.textContent=TR('可开奖，任何人可触发');btn.textContent=TR('立即开奖');btn.hidden=false;window._dm='draw';}
+    }catch(e){if(seq===drawSeq&&op===sel){st.textContent=e.message;btn.hidden=true;}}}
+  var drawBusy=false;
+  window.doDraw=async function(){if(drawBusy||busy)return;drawBusy=true;try{
+    if(!myAddr){await connectWallet();return;}var op=sel,P=POOLS[op];await loadPool(op);var D=data[op];
+    if(op!==sel||!D||!D.ok)throw new Error(APPlatform.L('状态已改变，请重新查询','State changed; refresh'));
+    if(Date.now()/1000<=D.end)throw new Error(APPlatform.L('尚未截止','Sales have not closed'));
+    if(!D.drawBlock){await sendTx(P.c,'0x'+SEL.closeRound);toast(TR('关期成功，等待开奖区块'));}
+    else{var cur=Number(BigInt(await rpc('eth_blockNumber',[])));if(cur<=D.drawBlock)throw new Error(APPlatform.L('正在等待开奖区块','Waiting for the draw block'));if(cur>D.drawBlock+256)throw new Error(APPlatform.L('开奖区块已过期，请查看帮助中的开奖异常处理','Draw block expired; see draw troubleshooting in Help'));await sendTx(P.c,'0x'+SEL.draw);toast(TR('开奖成功！'));}
+    _lc={};await loadPool(op);loadHistory();loadMyStats();
+  }catch(e){toast(e.message||String(e));}finally{drawBusy=false;}};
   async function loadMyStats(){
-    var box=document.getElementById('myStats');if(!box)return;
-    if(!myAddr){box.innerHTML='<div class="note">'+TR('连接钱包查看你的战绩')+'</div>';return;}
-    box.innerHTML='<div class="note">'+TR('加载中…')+'</div>';
-    var P=POOLS[sel],me=myAddr.toLowerCase();
-    function cell(k,v,c){return '<div class="ms"><div class="k">'+k+'</div><div class="v"'+(c?' style="color:'+c+'"':'')+'>'+v+'</div></div>';}
-    try{
-      var tl=await getLogs(EV_TICKETS,P.c,P.b);var tk=0n;
-      tl.forEach(function(l){if(('0x'+l.topics[2].slice(-40)).toLowerCase()===me)tk+=BigInt('0x'+((l.data||'0x').replace(/^0x/,'').slice(0,64)||'0'));});
-      var wl=await getLogs(EV_WIN,P.c,P.b);var wc=0,wa=0n;
-      wl.forEach(function(l){var d=(l.data||'0x').replace(/^0x/,'');var ow=num(d.slice(0,64))*2,oa=num(d.slice(64,128))*2;var ws=decArr(d,ow,true),as=decArr(d,oa,false);for(var i=0;i<ws.length;i++){if(ws[i].toLowerCase()===me){wc++;wa+=as[i];}}});
-      var D=data[sel]||{};var spent=(D.price||0n)*tk;var net=wa-spent;var neg=net<0n;var na=neg?(0n-net):net;var S=P.sym;
-      box.innerHTML='<div class="mstats">'+cell(TR('累计买票'),tk.toString())+cell(TR('花费'),'≈ '+fmtN(spent,P.d)+' '+S)+cell(TR('中奖'),wc+'× · '+fmtN(wa,P.d)+' '+S)+cell(TR('净盈亏'),(neg?'-':'+')+fmtN(na,P.d)+' '+S,neg?'#ff8f8f':'var(--accent)')+'</div>';
-    }catch(e){box.innerHTML='<div class="note">'+TR('加载中…')+'</div>';}}
+    var box=document.getElementById('myStats');if(!box)return;box.classList.remove('ap-error');
+    if(!myAddr){box.textContent=APPlatform.L('连接钱包查看你的战绩','Connect to view your history');return;}
+    var op=sel,a=myAddr,P=POOLS[op],T=APPlatform.TOKENS.find(function(t){return t.sym===P.sym;});box.textContent=APPlatform.L('加载中…','Loading…');
+    try{var r=await APPlatform.lotteryLedger(T,a,P.b);if(op!==sel||a!==myAddr)return;
+      box.innerHTML='<div class="ap-row"><span>'+APPlatform.L('累计买票','Tickets purchased')+'</span><strong>'+r.tickets+'</strong></div><div class="ap-row"><span>'+APPlatform.L('实际支出（不含 Gas）','Actual spend (excl. gas)')+'</span><strong>'+(r.spent==null?APPlatform.L('记录待核对','Unverified'):APPlatform.format(r.spent,P.d)+' '+P.sym)+'</strong></div><div class="ap-row"><span>'+APPlatform.L('已开奖奖金','Drawn prizes')+'</span><strong>'+APPlatform.format(r.won,P.d)+' '+P.sym+'</strong></div>';
+    }catch(e){if(op===sel&&a===myAddr){box.textContent=e.message;box.classList.add('ap-error');}}
+  }
+  var historySeq=0;
   async function loadHistory(){
     var box=document.getElementById('history');if(!box)return;box.innerHTML='<div class="note">'+TR('加载中…')+'</div>';
-    var P=POOLS[sel];
+    var op=sel,seq=++historySeq,P=POOLS[op];
     try{
       var wl=(await getLogs(EV_WIN,P.c,P.b)).slice();
+      if(op!==sel||seq!==historySeq)return;
       if(!wl.length){box.innerHTML='<div class="note">'+TR('暂无记录')+'</div>';return;}
       wl.sort(function(a,b){return num(b.topics[1])-num(a.topics[1]);});
       var tags=[TR('一等奖'),TR('二等奖'),TR('三等奖')];var en=(window.getLang&&window.getLang()==='en');
       var html='';
-      wl.slice(0,6).forEach(function(l){var rid=num(l.topics[1]);var d=(l.data||'0x').replace(/^0x/,'');var ow=num(d.slice(0,64))*2,oa=num(d.slice(64,128))*2;var ws=decArr(d,ow,true),as=decArr(d,oa,false);
-        var rows='';var sum=0n;for(var i=0;i<ws.length;i++){sum+=as[i];var tag=i===0?tags[0]:(i<4?tags[1]:tags[2]);rows+='<div class="hw"><span><span class="tag">'+tag+'</span>'+short(ws[i])+'</span><span class="p">'+fmtN(as[i],P.d)+' '+P.sym+'</span></div>';}
+      wl.slice(0,6).forEach(function(l){if(!l.topics[1])throw new Error(APPlatform.L('开奖记录不完整','Incomplete draw record'));var rid=num(l.topics[1]),winners=APPlatform.winners(l.data);
+        var rows='';var sum=0n;winners.forEach(function(w,i){sum+=w.amount;var tag=i===0?tags[0]:(i<4?tags[1]:tags[2]);rows+='<div class="hw"><span><span class="tag">'+tag+'</span>'+short(w.address)+'</span><span class="p">'+fmtN(w.amount,P.d)+' '+P.sym+'</span></div>';});
         var lnk='<a class="lnk" href="https://browser.anubispace.org/tx/'+(l.transactionHash||'')+'" target="_blank" rel="noopener">↗</a>';
         html+='<div class="hround"><div class="hh">'+(en?('Round '+rid):('第 '+rid+' 期'))+' <span class="muted">· '+fmtN(sum,P.d)+' '+P.sym+'</span>'+lnk+'</div>'+(rows||'<div class="note">—</div>')+'</div>';});
       box.innerHTML=html;
-    }catch(e){box.innerHTML='<div class="note">'+TR('暂无记录')+'</div>';}}
+    }catch(e){if(op===sel&&seq===historySeq)box.innerHTML='<div class="note ap-error">'+APPlatform.esc(e.message)+'</div>';}}
   window.__loadLotFeat=function(){loadDraw();loadMyStats();loadHistory();};
   setTimeout(function(){loadMyStats();loadHistory();},300);
 
@@ -328,15 +341,18 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   async function loadOwner(){
     var P=POOLS[sel],panel=document.getElementById('ownerPanel');if(!panel)return;
     if(!myAddr){panel.hidden=true;return;}
-    try{var own='0x'+(await ethCall(P.c,SEL.owner)).slice(-40);
+    try{var own='0x'+(await rcall(P.c,SEL.owner)).slice(-40);
       if(own.toLowerCase()===myAddr.toLowerCase()){panel.hidden=false;var D=data[sel]||{};var cp=document.getElementById('opCur');if(cp)cp.textContent=D.ok?('('+TR('当前')+' '+fmt(D.price,P.d)+' '+P.sym+')'):'';}
       else panel.hidden=true;
     }catch(e){panel.hidden=true;}}
   window.doSetPrice=async function(){var P=POOLS[sel];var el=document.getElementById('opPrice');var v=el&&el.value;if(!v||+v<=0){toast(TR('请输入金额'));return;}var amt;try{amt=parseAmt(v,P.d);}catch(e){toast(TR('请输入金额'));return;}if(!confirm(TR('确定要把票价改为')+' '+v+' '+P.sym+' '+TR('吗？')))return;try{await sendTx(P.c,'0x'+SEL.setPrice+enc(amt));toast(TR('票价已更新'));el.value='';await loadPool(sel);}catch(e){toast((e&&e.message)||e);}};
   window.doSetDur=async function(){var P=POOLS[sel];var el=document.getElementById('opDur');var v=el&&el.value;if(!v||+v<=0){toast(TR('请输入金额'));return;}var sec=Math.round(+v*3600);try{await sendTx(P.c,'0x'+SEL.setDur+enc(sec));toast(TR('开奖周期已更新'));el.value='';}catch(e){toast((e&&e.message)||e);}};
-  window.doSeed=async function(){var P=POOLS[sel];var el=document.getElementById('opSeed');var v=el&&el.value;if(!v||+v<=0){toast(TR('请输入金额'));return;}var amt;try{amt=parseAmt(v,P.d);}catch(e){toast(TR('请输入金额'));return;}try{var al=BigInt('0x'+((await ethCall(P.t,SEL.allowance+encA(myAddr)+encA(P.c)))||'0'));if(al<amt){await sendTx(P.t,'0x'+SEL.approve+encA(P.c)+enc(amt));toast(TR('授权成功'));}await sendTx(P.c,'0x'+SEL.seed+enc(amt));toast(TR('注资成功！'));el.value='';await loadPool(sel);}catch(e){toast((e&&e.message)||e);}};
+  window.doSeed=async function(){var P=POOLS[sel];var el=document.getElementById('opSeed');var v=el&&el.value;if(!v||+v<=0){toast(TR('请输入金额'));return;}var amt;try{amt=parseAmt(v,P.d);}catch(e){toast(TR('请输入金额'));return;}try{var al=BigInt('0x'+((await rcall(P.t,SEL.allowance+encA(myAddr)+encA(P.c)))||'0'));if(al<amt){await sendTx(P.t,'0x'+SEL.approve+encA(P.c)+enc(amt));toast(TR('授权成功'));}await sendTx(P.c,'0x'+SEL.seed+enc(amt));toast(TR('注资成功！'));el.value='';await loadPool(sel);}catch(e){toast((e&&e.message)||e);}};
 
 })();
 </script>
+<script defer src="../gate.js?v=closure-20261020-1"></script>
+<script defer src="../ref.js?v=closure-20261020-1"></script>
+<script defer src="../shell.js?v=closure-20261020-1"></script>
 </body>
 </html>
