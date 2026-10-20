@@ -143,7 +143,8 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     </div>
     <div class="total"><span class="k">合计</span><span class="v" id="totalCost">—</span></div>
     <button class="btn" id="buyBtn" onclick="mainAction()"><span id="buyTxt">连接钱包</span></button>
-    <div class="note">首次用某代币买票需先授权一次，之后直接购票。每期按比例扣少量平台费，其余按奖项派给中奖者。开奖用截止后的未来区块哈希，任何人可触发，结果链上可查。</div>
+    <button class="ap-button secondary" onclick="refreshPool()" data-ap-zh="重新查询本池" data-ap-en="Refresh this pool">重新查询本池</button>
+    <div class="note" data-ap-zh="购票前核对邀请关系、截止时间和余额。额度不足时先按本次票款授权，确认后再次购票；授权不会自动买票。开奖结果可用链上交易核对。" data-ap-en="Check your invitation, sales deadline and balance before buying. If needed, approve only this purchase amount, then click again to buy. Approval does not buy tickets automatically. Verify draw results with their on-chain transactions.">购票前核对邀请关系、截止时间和余额。额度不足时先按本次票款授权，确认后再次购票；授权不会自动买票。开奖结果可用链上交易核对。</div>
   </section>
 
   <section class="card">
@@ -224,6 +225,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     $('tkPrice').textContent=D.ok?(fmt(D.price,P.d)+' '+P.sym):'—';
     tickTimer();updateTotal();updateBuy();loadDraw();loadOwner();}
   window.selPool=function(i){if(busy||drawBusy||!POOLS[i])return;sel=i;render();if(!data[i]||!data[i].ok)loadPool(i);loadMyStats();loadHistory();};
+  window.refreshPool=async function(){if(busy||drawBusy)return;await loadPool(sel);loadMyStats();loadHistory();};
   /* 张数 */
   function updateTotal(){var P=POOLS[sel],D=data[sel]||{};var e=$('totalCost');if(!e)return;if(D.ok){e.textContent=fmt(D.price*BigInt(n),P.d)+' '+P.sym;}else e.textContent='—';
     document.querySelectorAll('.quick .qbtn').forEach(function(b){b.classList.remove('on');});}
@@ -307,7 +309,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     _lc={};await loadPool(op);loadHistory();loadMyStats();
   }catch(e){toast(e.message||String(e));}finally{drawBusy=false;}};
   async function loadMyStats(){
-    var box=document.getElementById('myStats');if(!box)return;
+    var box=document.getElementById('myStats');if(!box)return;box.classList.remove('ap-error');
     if(!myAddr){box.textContent=APPlatform.L('连接钱包查看你的战绩','Connect to view your history');return;}
     var op=sel,a=myAddr,P=POOLS[op],T=APPlatform.TOKENS.find(function(t){return t.sym===P.sym;});box.textContent=APPlatform.L('加载中…','Loading…');
     try{var r=await APPlatform.lotteryLedger(T,a,P.b);if(op!==sel||a!==myAddr)return;
