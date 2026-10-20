@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d1114">
 <title>个人中心 · ANUBIS PLAY</title>
-<meta name="description" content="ANUBIS PLAY 个人中心：钱包、邀请概况、战绩、交易历史，全部链上可查。">
+<meta name="description" content="ANUBIS PLAY 个人中心：钱包余额、游戏可领资金、邀请概况、彩票链上记录与本机牌局记录。">
 <link rel="icon" href="../img/logo.webp?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=Roboto+Mono:wght@500;600&display=swap">
-<script src="../i18n.js?v=19"></script>
+<script src="../i18n.js?v=closure-20261020-1"></script>
 <style>
 :root{--bg:#0d1114;--card:#181e23;--card2:#20292e;--text:#eff6f3;--muted:#96a4ab;
   --accent:#c8f665;--accent-ink:#17200b;--line:#ffffff14;
@@ -72,11 +72,13 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 #vtoast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#20292e;color:#eff6f3;border:1px solid #ffffff22;padding:11px 18px;border-radius:10px;font-size:13px;z-index:999;max-width:88%;text-align:center;box-shadow:0 10px 30px #0008;opacity:0;transition:opacity .2s;pointer-events:none}
 @media(max-width:420px){.rstat{grid-template-columns:1fr 1fr}}
 </style>
+<script src="../platform.js?v=closure-20261020-1"></script>
+<link rel="stylesheet" href="../platform.css?v=closure-20261020-1">
 </head>
 <body>
 <header class="top">
   <a class="back" href="../"><svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>游戏大厅</a>
-  <div style="display:none">
+  <div class="ap-header-actions">
     <button class="wallet-btn" id="langBtn" onclick="toggleLangMenu(event)" aria-label="Language" style="gap:0;justify-content:center;padding:9px 11px;background:#131a1e;color:var(--accent);border:1px solid var(--line);box-shadow:none"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span id="langCode"></span></button>
     <div id="langMenu" class="lang-menu" hidden></div>
     <button class="wallet-btn" id="walletBtn" onclick="connectWallet()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h.01"/></svg><span id="walletTxt">连接钱包</span></button>
@@ -84,154 +86,24 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 </header>
 
 <main class="wrap">
-  <h1 class="h1">个人中心</h1>
-  <div id="guest" class="card" onclick="connectWallet()" style="cursor:pointer"><div class="note">连接钱包查看你的资产</div></div>
-  <div id="body" hidden>
-    <section class="card">
-      <div class="walletcard">
-        <span class="av"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
-        <div style="min-width:0"><div class="addr" id="accAddr">—</div><div class="net"><span class="dot"></span>ANUBIS · <span id="accNet">已连接</span></div></div>
-        <button class="copy" onclick="copyAddr()">复制地址</button>
-      </div>
-    </section>
+<h1 class="h1" data-ap-zh="资产与记录" data-ap-en="Assets & history">资产与记录</h1>
+<div class="ap-actions"><button class="ap-button secondary" data-account-action="refresh" data-ap-zh="刷新全部" data-ap-en="Refresh all">刷新全部</button><a class="ap-button secondary" href="../invite/" data-ap-zh="邀请返佣" data-ap-en="Referrals">邀请返佣</a></div>
+<div id="accountStatus" role="status" class="ap-error"></div>
+<div id="guest" class="card"><button class="ap-button" data-account-action="connect" data-ap-zh="连接钱包查看资产" data-ap-en="Connect to view assets">连接钱包查看资产</button></div>
+<div id="body" hidden>
+<section class="card"><div id="accAddr" class="addr"></div><p id="gasBalance" class="ap-muted"></p><div class="ap-actions"><button class="ap-button secondary" data-account-action="copy" data-ap-zh="复制地址" data-ap-en="Copy address">复制地址</button><a id="accExplorer" class="ap-button secondary" target="_blank" rel="noopener" data-ap-zh="查看全部链上交易" data-ap-en="View all on-chain transactions">查看全部链上交易</a></div></section>
+<section class="card"><h2 data-ap-zh="钱包代币余额" data-ap-en="Wallet token balances">钱包代币余额</h2><div id="assets"></div><p class="ap-muted" data-ap-zh="钱包余额与游戏合约可领资金分开展示。" data-ap-en="Wallet balances and game withdrawals are shown separately.">钱包余额与游戏合约可领资金分开展示。</p></section>
+<section class="card"><h2 data-ap-zh="炸金花合约可领资金" data-ap-en="Card-game contract withdrawals">炸金花合约可领资金</h2><p class="ap-muted" data-ap-zh="退座或退款若进入合约可领余额，请从这里领取到钱包。无需重新绑定邀请关系。" data-ap-en="Withdraw any refunded contract balance here. No new invitation is required.">退座或退款若进入合约可领余额，请从这里领取到钱包。无需重新绑定邀请关系。</p><div id="refunds"></div></section>
+<section class="card"><h2 data-ap-zh="全平台邀请概况" data-ap-en="Platform referral overview">全平台邀请概况</h2><div id="referral"></div></section>
+<section class="card"><h2 data-ap-zh="V3 彩票独立返佣" data-ap-en="Separate V3 lottery rewards">V3 彩票独立返佣</h2><div id="legacy"></div></section>
+<section class="card"><h2 data-ap-zh="彩票链上记录" data-ap-en="On-chain lottery history">彩票链上记录</h2><div id="lotteryRecords"></div></section>
+<section class="card"><h2 data-ap-zh="该钱包本机牌局记录" data-ap-en="This wallet’s card records on this device">该钱包本机牌局记录</h2><div id="gameRecords"></div></section>
+<section class="card"><h2 data-ap-zh="本机提交的交易" data-ap-en="Transactions submitted on this device">本机提交的交易</h2><div id="txlist"></div></section>
+</div></main>
 
-    <section class="card">
-      <h2>炸金花<a href="../anubis-play/">进入游戏 →</a></h2>
-      <div class="eyebrow">我的币余额</div>
-      <div id="zjhAssets" class="tags"><span class="note">加载中…</span></div>
-      <div class="kv"><span class="k">金花对局次数</span><span class="v" id="zjhRounds">—</span></div>
-    </section>
-
-    <section class="card">
-      <h2>邀请概况<a href="../invite/">去邀请页 →</a></h2>
-      <div class="rstat">
-        <div class="rs"><div class="n" id="stDirect">—</div><div class="l">直推</div></div>
-        <div class="rs"><div class="n" id="stIndirect">—</div><div class="l">间推</div></div>
-        <div class="rs"><div class="n" id="stClaim" style="font-size:13px">—</div><div class="l">可领返佣</div></div>
-        <div class="rs"><div class="n" id="stEarned" style="font-size:13px">—</div><div class="l">累计返佣</div></div>
-      </div>
-      <div class="kv"><span class="k">我的上级</span><span class="v" id="accRef">—</span></div>
-    </section>
-
-    <section class="card">
-      <h2>我的战绩</h2>
-      <div id="record"><div class="note">加载中…</div></div>
-    </section>
-
-    <section class="card">
-      <h2>玩过的游戏</h2>
-      <div id="games" class="tags"><span class="note">加载中…</span></div>
-    </section>
-
-    <section class="card">
-      <h2>交易历史</h2>
-      <div id="txlist"><div class="note">加载中…</div></div>
-    </section>
-  </div>
-</main>
-
-<script>
-(function(){
-  var RPC='https://rpc.anubispace.org';
-  var ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:RPC,exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
-  var SEL={referrer:'2cf003c2',rewards:'53aaa63b',price:'1209b1f6'};
-  var EV_BOUND='0x8ceb585bfbbc2a8c702024b1d2f212e7ba1caff58b232f071b023d184997b111';
-  var EV_REWARD='0xbfcb51139629056da37f44a10daa7f67e6ce0b9083e03a7408b3ad1a456ce097';
-  var EV_TICKETS='0xc8c5c2b0e44fb6312c0098ec42642058527713d0a1d29a5c6ccbfe34d714d41e';
-  var EV_WIN='0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627b4';
-  var COL=['#c8f665','#2E7D6A','#9A834F','#4A6B8A','#8A5A3C'];
-  var POOLS=[
-    {sym:'LGNS',c:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',d:9,b:16182340},
-    {sym:'USDT',c:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',d:6,b:16196737},
-    {sym:'DAI', c:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',d:18,b:16200709},
-    {sym:'A',   c:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',d:18,b:16202660},
-    {sym:'RM',  c:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',d:9,b:16204394}
-  ];
-  var myAddr=null, _lc={}, _bt={};
-  function $(id){return document.getElementById(id);}
-  function TR(s){return window.tr?window.tr(s):s;}
-  function en(){return window.getLang&&window.getLang()==='en';}
-  function short(a){return a?a.slice(0,6)+'…'+a.slice(-4):'';}
-  function num(h){return parseInt(h,16)||0;}
-  function encA(a){return '0'.repeat(24)+a.toLowerCase().replace(/^0x/,'');}
-  function fmt(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
-  function toast(m){var t=$('vtoast');if(!t){t=document.createElement('div');t.id='vtoast';document.body.appendChild(t);}t.textContent=m;t.style.opacity='1';clearTimeout(window._tt);window._tt=setTimeout(function(){t.style.opacity='0';},3600);}
-  function rpc(m,pr){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:m,params:pr})}).then(function(r){return r.json();}).then(function(j){return j.result;});}
-  function ethCall(to,d){return rpc('eth_call',[{to:to,data:'0x'+d},'latest']).then(function(r){return (r||'0x').replace(/^0x/,'');});}
-  async function getLogs(topic,addr,from){ // 改用Blockscout索引接口一次查全范围(避免RPC每次5000块上限扫上千次卡死)
-    var key=addr+'|'+topic; if(_lc[key])return _lc[key];
-    try{
-      var url='https://browser.anubispace.org/api?module=logs&action=getLogs&fromBlock='+from+'&toBlock=latest&address='+addr+'&topic0='+topic;
-      var j=await fetch(url).then(function(r){return r.json();});
-      var logs=(j&&j.result&&Array.isArray(j.result))?j.result:[];
-      _lc[key]=logs; return logs;
-    }catch(e){ return []; }
-  }
-  function decArr(d,off,isAddr){var n=num(d.slice(off,off+64));var a=[];for(var i=0;i<n;i++){var w=d.slice(off+64*(i+1),off+64*(i+2));a.push(isAddr?('0x'+w.slice(-40)):BigInt('0x'+(w||'0')));}return a;}
-  async function blkTime(bn){var k=String(bn);if(_bt[k])return _bt[k];try{var b=await rpc('eth_getBlockByNumber',['0x'+BigInt(bn).toString(16),false]);var ts=b&&b.timestamp?num(b.timestamp)*1000:0;_bt[k]=ts;return ts;}catch(e){return 0;}}
-  function fmtTime(ts){if(!ts)return '-';var d=new Date(ts),p=function(n){return String(n).padStart(2,'0');};return (d.getMonth()+1)+'-'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes());}
-  /* 钱包 */
-  function uiWallet(){var x=$('walletTxt');if(x)x.textContent=myAddr?short(myAddr):(window.tr?window.tr('连接钱包'):'连接钱包');var b=$('walletBtn');if(b)b.classList.toggle('connected',!!myAddr);
-    $('guest').hidden=!!myAddr;$('body').hidden=!myAddr;if(myAddr){$('accAddr').textContent=short(myAddr);loadAll();}}
-  window.__uiWallet=uiWallet;
-  window.connectWallet=async function(){var eth=window.ethereum;if(!eth){toast(TR('未检测到钱包，请在 OKX / MetaMask 内置浏览器打开'));return;}
-    try{var accs=await eth.request({method:'eth_requestAccounts'});if(!accs||!accs.length)return;myAddr=accs[0];
-      var cid=await eth.request({method:'eth_chainId'});
-      if(parseInt(cid,16)!==ANUBIS.id){try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}}
-      uiWallet();
-      if(!window._wl){window._wl=1;if(eth.on){eth.on('accountsChanged',function(a){myAddr=(a&&a[0])||null;uiWallet();});eth.on('chainChanged',function(){location.reload();});}}
-    }catch(e){toast((e&&e.message)||e);}};
-  window.copyAddr=function(){if(!myAddr)return;try{if(navigator.clipboard)navigator.clipboard.writeText(myAddr);}catch(e){}toast(TR('已复制'));};
-  /* 加载 */
-  async function loadReferral(){
-    var me=myAddr.toLowerCase();
-    try{var refs=[];for(var i=0;i<POOLS.length;i++){try{var r='0x'+(await ethCall(POOLS[i].c,SEL.referrer+encA(myAddr))).slice(-40);if(r!=='0x0000000000000000000000000000000000000000'){refs.push(short(r));break;}}catch(e){}}$('accRef').textContent=refs.length?refs[0]:TR('无，首次购票时绑定');}catch(e){}
-    try{var cl={};for(var i=0;i<POOLS.length;i++){var rw=0n;try{rw=BigInt('0x'+((await ethCall(POOLS[i].c,SEL.rewards+encA(myAddr)))||'0'));}catch(e){}if(rw>0n)cl[POOLS[i].sym]={d:POOLS[i].d,a:rw};}var cs=Object.keys(cl).map(function(s){return fmt(cl[s].a,cl[s].d)+' '+s;}).join(' · ');$('stClaim').textContent=cs||'0';}catch(e){$('stClaim').textContent='0';}
-    try{
-      var bound={};for(var i=0;i<POOLS.length;i++){var bl=await getLogs(EV_BOUND,POOLS[i].c,POOLS[i].b);bl.forEach(function(l){var buyer=('0x'+l.topics[1].slice(-40)).toLowerCase();var rf=('0x'+l.topics[2].slice(-40)).toLowerCase();if(!(buyer in bound))bound[buyer]=rf;});}
-      var direct={},dc=0;for(var b in bound){if(bound[b]===me){direct[b]=1;dc++;}}var ic=0;for(var b in bound){if(!direct[b]&&b!==me&&direct[bound[b]])ic++;}
-      var earned=0n,es={};for(var i=0;i<POOLS.length;i++){var P=POOLS[i];var rl=await getLogs(EV_REWARD,P.c,P.b);rl.forEach(function(l){var d=(l.data||'0x').replace(/^0x/,'');var r1=('0x'+d.slice(0,64).slice(-40)).toLowerCase(),a1=BigInt('0x'+(d.slice(64,128)||'0')),r2=('0x'+d.slice(128,192).slice(-40)).toLowerCase(),a2=BigInt('0x'+(d.slice(192,256)||'0'));var add=0n;if(r1===me)add+=a1;if(r2===me)add+=a2;if(add>0n){if(!es[P.sym])es[P.sym]={d:P.d,a:0n};es[P.sym].a+=add;}});}
-      $('stDirect').textContent=dc;$('stIndirect').textContent=ic;
-      var estr=Object.keys(es).map(function(s){return fmt(es[s].a,es[s].d)+' '+s;}).join(' · ');$('stEarned').textContent=estr||'0';
-    }catch(e){$('stDirect').textContent='0';$('stIndirect').textContent='0';$('stEarned').textContent='0';}
-  }
-  async function loadRecord(){
-    var box=$('record'),gbox=$('games');if(!box)return;var me=myAddr.toLowerCase();
-    var rows='',gtags='',any=false;
-    for(var i=0;i<POOLS.length;i++){var P=POOLS[i];var tk=0n,wc=0,wa=0n,price=0n;
-      try{price=BigInt('0x'+((await ethCall(P.c,SEL.price))||'0'));}catch(e){}
-      try{var tl=await getLogs(EV_TICKETS,P.c,P.b);tl.forEach(function(l){if(('0x'+l.topics[2].slice(-40)).toLowerCase()===me)tk+=BigInt('0x'+((l.data||'0x').replace(/^0x/,'').slice(0,64)||'0'));});}catch(e){}
-      try{var wl=await getLogs(EV_WIN,P.c,P.b);wl.forEach(function(l){var d=(l.data||'0x').replace(/^0x/,'');var ow=num(d.slice(0,64))*2,oa=num(d.slice(64,128))*2;var ws=decArr(d,ow,true),as=decArr(d,oa,false);for(var j=0;j<ws.length;j++){if(ws[j].toLowerCase()===me){wc++;wa+=as[j];}}});}catch(e){}
-      if(tk>0n||wc>0){any=true;var spent=price*tk;var net=wa-spent;var neg=net<0n;var na=neg?(0n-net):net;
-        rows+='<div class="rec-row"><span class="p"><span class="pd" style="background:'+COL[i]+'"></span>'+P.sym+'</span><span class="mono">'+tk.toString()+'</span><span class="mono">'+wc+'× '+fmt(wa,P.d)+'</span><span class="mono net '+(neg?'neg':'pos')+'">'+(neg?'-':'+')+fmt(na,P.d)+'</span></div>';
-        gtags+='<span class="gtag">'+P.sym+'<span class="mono">×'+tk.toString()+'</span></span>';}
-    }
-    if(any){box.innerHTML='<div class="rec-head"><span>'+TR('奖池')+'</span><span>'+TR('累计买票')+'</span><span>'+TR('中奖')+'</span><span>'+TR('净盈亏')+'</span></div>'+rows;gbox.innerHTML=gtags;}
-    else{box.innerHTML='<div class="note">'+TR('暂无记录')+'</div>';gbox.innerHTML='<span class="note">'+TR('暂无')+'</span>';}
-  }
-  async function loadTx(){
-    var box=$('txlist');if(!box)return;var me=myAddr.toLowerCase();var txs=[];
-    for(var i=0;i<POOLS.length;i++){var P=POOLS[i];try{var tl=await getLogs(EV_TICKETS,P.c,P.b);tl.forEach(function(l){if(('0x'+l.topics[2].slice(-40)).toLowerCase()===me){var cnt=num((l.data||'0x').replace(/^0x/,'').slice(0,64));txs.push({P:P,cnt:cnt,h:l.transactionHash,bn:num(l.blockNumber)});}});}catch(e){}}
-    if(!txs.length){box.innerHTML='<div class="note">'+TR('暂无记录')+'</div>';return;}
-    txs.sort(function(a,b){return b.bn-a.bn;});txs=txs.slice(0,10);
-    for(var k=0;k<txs.length;k++){txs[k].ts=await blkTime(txs[k].bn);}
-    box.innerHTML=txs.map(function(x){return '<div class="txrow"><span class="l"><span class="pd" style="background:'+COL[POOLS.indexOf(x.P)]+'"></span>'+TR('买票')+' '+x.P.sym+' ×'+x.cnt+'</span><span style="display:flex;gap:10px;align-items:center"><span class="t">'+fmtTime(x.ts)+'</span><a href="https://browser.anubispace.org/tx/'+x.h+'" target="_blank" rel="noopener">'+short(x.h)+' ↗</a></span></div>';}).join('');
-  }
-  async function loadZjh(){
-    var box=$('zjhAssets');if(!box||!myAddr)return;
-    var TOKS=[{s:'LGNS',c:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',d:9},{s:'DAI',c:'0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14',d:18},{s:'RM',c:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d',d:9},{s:'USDT',c:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e',d:6}];
-    var html='';
-    for(var i=0;i<TOKS.length;i++){var T=TOKS[i],b='-';try{var r=await ethCall(T.c,'70a08231'+encA(myAddr));b=fmt(BigInt('0x'+(r||'0')),T.d);}catch(e){b='-';}html+='<span class="gtag">'+T.s+'<span class="mono">'+b+'</span></span>';}
-    box.innerHTML=html;
-    var n=0;try{n=(JSON.parse(localStorage.getItem('anubisplay_results')||'[]')||[]).length;}catch(e){}
-    var el=$('zjhRounds');if(el)el.textContent=n;
-  }
-  function loadAll(){loadReferral();loadRecord();loadTx();loadZjh();}
-  window.__loadAccount=loadAll;
-  if(window.ethereum&&window.ethereum.request){window.ethereum.request({method:'eth_accounts'}).then(function(a){if(a&&a.length){myAddr=a[0];uiWallet();}}).catch(function(){});}
-})();
-</script>
-<script defer src="../gate.js?v=3"></script>
-<script defer src="../ref.js?v=1"></script>
+<script defer src="account.js?v=closure-20261020-1"></script>
+<script defer src="../gate.js?v=closure-20261020-1"></script>
+<script defer src="../ref.js?v=closure-20261020-1"></script>
+<script defer src="../shell.js?v=closure-20261020-1"></script>
 </body>
 </html>
