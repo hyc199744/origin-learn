@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=Roboto+Mono:wght@500;600&display=swap">
-<script src="../i18n.js?v=19"></script>
+<script src="../i18n.js?v=closure-20261020-1"></script>
 <script src="../qrcode.min.js?v=1"></script>
 <style>
 :root{--bg:#0d1114;--card:#181e23;--card2:#20292e;--text:#eff6f3;--muted:#96a4ab;
@@ -77,11 +77,13 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 #vtoast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:#20292e;color:#eff6f3;border:1px solid #ffffff22;padding:11px 18px;border-radius:10px;font-size:13px;z-index:999;max-width:88%;text-align:center;box-shadow:0 10px 30px #0008;opacity:0;transition:opacity .2s;pointer-events:none}
 @media(max-width:400px){.rstat{grid-template-columns:1fr}.rs{text-align:left;display:flex;justify-content:space-between;align-items:center}.rs .l{margin-top:0}}
 </style>
+<script src="../platform.js?v=closure-20261020-1"></script>
+<link rel="stylesheet" href="../platform.css?v=closure-20261020-1">
 </head>
 <body>
 <header class="top">
   <a class="back" href="../"><svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>游戏大厅</a>
-  <div style="display:none">
+  <div class="ap-header-actions">
     <button class="wallet-btn" id="langBtn" onclick="toggleLangMenu(event)" aria-label="Language" style="gap:0;justify-content:center;padding:9px 11px;background:#131a1e;color:var(--accent);border:1px solid var(--line);box-shadow:none"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span id="langCode"></span></button>
     <div id="langMenu" class="lang-menu" hidden></div>
     <button class="wallet-btn" id="walletBtn" onclick="connectWallet()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h.01"/></svg><span id="walletTxt">连接钱包</span></button>
@@ -89,130 +91,19 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 </header>
 
 <main class="wrap">
-  <h1 class="h1">邀请好友赚返佣</h1>
-  <p class="lead">把你的专属链接发给好友，他们每次购票你都能拿返佣——直推 30%、间推 10%，从平台费里出，不影响奖池，随时领取。</p>
-
-
-  <section class="card">
-    <div class="rstat">
-      <div class="rs"><div class="n" id="stDirect">—</div><div class="l">直推</div></div>
-      <div class="rs"><div class="n" id="stIndirect">—</div><div class="l">间推</div></div>
-      <div class="rs"><div class="n" id="stEarned" style="font-size:16px">—</div><div class="l">累计返佣</div></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>可领返佣</h2>
-    <div id="claimList"><div class="note">连接钱包查看邀请数据</div></div>
-  </section>
-
-  <section class="card">
-    <h2>返佣明细</h2>
-    <div id="detail"><div class="note">连接钱包查看邀请数据</div></div>
-  </section>
-
-  <div class="foot">
-    <span><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z"/></svg>链上可查</span>
-    <span><svg class="ic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M7 11V8a5 5 0 0110 0v3"/></svg>钱包签名</span>
-    <span><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>理性参与</span>
-  </div>
+<h1 class="h1" data-ap-zh="邀请与返佣" data-ap-en="Invitations & rewards">邀请与返佣</h1>
+<p class="ap-muted" data-ap-zh="全平台关系与 V3 彩票独立返佣分别列出，避免重复计算。" data-ap-en="Platform referrals and separate V3 lottery rewards are listed independently to avoid double counting.">全平台关系与 V3 彩票独立返佣分别列出，避免重复计算。</p>
+<div class="ap-actions"><button id="refreshInvite" class="ap-button secondary" data-ap-zh="重新查询" data-ap-en="Refresh">重新查询</button><a class="ap-button secondary" href="../account/" data-ap-zh="资产与退款" data-ap-en="Assets & refunds">资产与退款</a></div>
+<div id="inviteStatus" role="status" aria-live="polite" class="ap-muted"></div>
+<section class="card"><h2 data-ap-zh="我的推荐码与链接" data-ap-en="My referral code & link">我的推荐码与链接</h2><div class="ap-row"><strong id="inviteCode">—</strong><button id="copyCode" class="ap-button secondary" disabled data-ap-zh="复制推荐码" data-ap-en="Copy code">复制推荐码</button></div><p id="inviteLink" class="ap-muted" style="overflow-wrap:anywhere">—</p><button id="copyLink" class="ap-button secondary" disabled data-ap-zh="复制邀请链接" data-ap-en="Copy invite link">复制邀请链接</button></section>
+<section class="card"><h2 data-ap-zh="全平台关系与游戏返佣" data-ap-en="Platform referrals & game rewards">全平台关系与游戏返佣</h2><p class="ap-muted" data-ap-zh="直推 30%、间推 10% 均按实际平台手续费计算，不是按下注额计算。" data-ap-en="30% direct and 10% indirect rewards are shares of actual platform fees, not of the stake.">直推 30%、间推 10% 均按实际平台手续费计算，不是按下注额计算。</p><div id="platformReferral"></div></section>
+<section class="card" id="legacy"><h2 data-ap-zh="V3 彩票独立返佣" data-ap-en="Separate V3 lottery rewards">V3 彩票独立返佣</h2><p class="ap-muted" data-ap-zh="此处按各旧奖池合约查询并领取，不与上方服务账本直接相加。" data-ap-en="These rewards are queried and claimed from each V3 pool contract and are not added to the service ledger above.">此处按各旧奖池合约查询并领取，不与上方服务账本直接相加。</p><div id="legacyClaims"></div></section>
 </main>
 
-<script>
-(function(){
-  var RPC='https://rpc.anubispace.org';
-  var ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:RPC,exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
-  var SEL={referrer:'2cf003c2',rewards:'53aaa63b',claim:'e02f1ebd'};
-  var EV_BOUND='0x8ceb585bfbbc2a8c702024b1d2f212e7ba1caff58b232f071b023d184997b111';
-  var EV_REWARD='0xbfcb51139629056da37f44a10daa7f67e6ce0b9083e03a7408b3ad1a456ce097';
-  var COL=['#c8f665','#2E7D6A','#9A834F','#4A6B8A','#8A5A3C'];
-  var POOLS=[
-    {sym:'LGNS',c:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',d:9,b:16182340},
-    {sym:'USDT',c:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',d:6,b:16196737},
-    {sym:'DAI', c:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',d:18,b:16200709},
-    {sym:'A',   c:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',d:18,b:16202660},
-    {sym:'RM',  c:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',d:9,b:16204394}
-  ];
-  var myAddr=null, claimable={}, _det=[], _dp=0, _lc={}, busy=false;
-  function $(id){return document.getElementById(id);}
-  function TR(s){return window.tr?window.tr(s):s;}
-  function short(a){return a?a.slice(0,6)+'…'+a.slice(-4):'';}
-  function num(h){return parseInt(h,16)||0;}
-  function enc(v){return BigInt(v).toString(16).padStart(64,'0');}
-  function encA(a){return '0'.repeat(24)+a.toLowerCase().replace(/^0x/,'');}
-  function fmt(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
-  function toast(m){var t=$('vtoast');if(!t){t=document.createElement('div');t.id='vtoast';document.body.appendChild(t);}t.textContent=m;t.style.opacity='1';clearTimeout(window._tt);window._tt=setTimeout(function(){t.style.opacity='0';},3600);}
-  function rpc(m,pr){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:m,params:pr})}).then(function(r){return r.json();}).then(function(j){return j.result;});}
-  function ethCall(to,d){return rpc('eth_call',[{to:to,data:'0x'+d},'latest']).then(function(r){return (r||'0x').replace(/^0x/,'');});}
-  async function getLogs(topic,addr,from){var key=addr+'|'+topic;var c=_lc[key]||(_lc[key]={next:from,logs:[]});var latest=num(await rpc('eth_blockNumber',[]));var f=c.next;while(f<=latest){var t=Math.min(f+4999,latest);try{var part=await rpc('eth_getLogs',[{address:addr,topics:[topic],fromBlock:'0x'+f.toString(16),toBlock:'0x'+t.toString(16)}]);if(part&&part.length)for(var i=0;i<part.length;i++)c.logs.push(part[i]);}catch(e){}f=t+1;}if(latest+1>c.next)c.next=latest+1;return c.logs;}
-  /* 钱包 */
-  function uiWallet(){var x=$('walletTxt');if(x)x.textContent=myAddr?short(myAddr):(window.tr?window.tr('连接钱包'):'连接钱包');var b=$('walletBtn');if(b)b.classList.toggle('connected',!!myAddr);loadLink();loadAll();}
-  window.__uiWallet=uiWallet;
-  window.connectWallet=async function(){var eth=window.ethereum;if(!eth){toast(TR('未检测到钱包，请在 OKX / MetaMask 内置浏览器打开'));return;}
-    try{var accs=await eth.request({method:'eth_requestAccounts'});if(!accs||!accs.length)return;myAddr=accs[0];
-      var cid=await eth.request({method:'eth_chainId'});
-      if(parseInt(cid,16)!==ANUBIS.id){try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}}
-      uiWallet();
-      if(!window._wl){window._wl=1;if(eth.on){eth.on('accountsChanged',function(a){myAddr=(a&&a[0])||null;uiWallet();});eth.on('chainChanged',function(){location.reload();});}}
-    }catch(e){toast((e&&e.message)||TR('连接失败'));}};
-  async function sendTx(to,d){var eth=window.ethereum;var tx={from:myAddr,to:to,data:d,type:'0x0'};tx.gasPrice=await eth.request({method:'eth_gasPrice',params:[]});
-    var hash=await eth.request({method:'eth_sendTransaction',params:[tx]});toast(TR('交易已发送，等待确认…'));
-    for(var i=0;i<150;i++){await new Promise(function(r){setTimeout(r,2000);});var rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber&&rc.blockNumber!=='0x0'){if(rc.status==='0x1')return rc;throw new Error(TR('交易失败(被合约回退)'));}}throw new Error(TR('确认超时，请在浏览器查看'));}
-  /* 链接 + 二维码 */
-  function inviteUrl(){try{return new URL('../lottery/?ref='+myAddr, location.href).href;}catch(e){return location.origin+'/lottery/?ref='+myAddr;}}
-  function loadLink(){var el=$('refLink');if(!el)return;el.value=myAddr?inviteUrl():'';}
-  window.copyLink=function(){var el=$('refLink');if(!el||!el.value){toast(TR('连接钱包'));return;}el.select();try{if(navigator.clipboard)navigator.clipboard.writeText(el.value);else document.execCommand('copy');}catch(e){}toast(TR('已复制'));};
-  window.shareLink=function(){var el=$('refLink');if(!el||!el.value){toast(TR('连接钱包'));return;}if(navigator.share){navigator.share({title:document.title,url:el.value}).catch(function(){});}else copyLink();};
-  window.toggleQr=function(){var box=$('qrbox');if(!box)return;if(box.style.display==='block'){box.style.display='none';return;}var el=$('refLink');if(!el||!el.value){toast(TR('连接钱包'));return;}try{var qr=qrcode(0,'M');qr.addData(el.value);qr.make();box.innerHTML=qr.createImgTag(5,0);box.style.display='block';}catch(e){toast('QR');}};
-  /* 读数据 */
-  async function loadReferrer(){var el=$('myRef');if(!el)return;if(!myAddr){el.textContent='—';return;}var refs=[];for(var i=0;i<POOLS.length;i++){try{var r='0x'+(await ethCall(POOLS[i].c,SEL.referrer+encA(myAddr))).slice(-40);if(r!=='0x0000000000000000000000000000000000000000'){refs.push(short(r));break;}}catch(e){}}el.textContent=refs.length?refs[0]:TR('无，首次购票时绑定');}
-  async function loadRewards(){
-    var box=$('claimList');if(!box)return;
-    if(!myAddr){box.innerHTML='<div class="note">'+TR('连接钱包查看邀请数据')+'</div>';return;}
-    var rows='';claimable={};
-    for(var i=0;i<POOLS.length;i++){var P=POOLS[i];var rw=0n;try{rw=BigInt('0x'+((await ethCall(P.c,SEL.rewards+encA(myAddr)))||'0'));}catch(e){}claimable[i]=rw;
-      var has=rw>0n;
-      rows+='<div class="claim-row"><span class="pl"><span class="dot" style="background:'+COL[i]+'"></span>'+P.sym+'</span><span class="amt">'+fmt(rw,P.d)+' '+P.sym+'</span>'+(has?'<button class="btn-claim" onclick="claim('+i+')">'+TR('领取')+'</button>':'')+'</div>';}
-    box.innerHTML=rows;
-  }
-  window.claim=async function(i){if(busy)return;if(!myAddr){await connectWallet();return;}if(!claimable[i]||claimable[i]<=0n){toast(TR('没有可领返佣'));return;}busy=true;try{await sendTx(POOLS[i].c,'0x'+SEL.claim);toast(TR('领取成功！'));loadRewards();}catch(e){toast((e&&e.message)||e);}finally{busy=false;}};
-  async function loadStats(){
-    if(!myAddr){$('stDirect').textContent='—';$('stIndirect').textContent='—';$('stEarned').textContent='—';return;}
-    var me=myAddr.toLowerCase();
-    try{
-      var bound={};
-      for(var i=0;i<POOLS.length;i++){var bl=await getLogs(EV_BOUND,POOLS[i].c,POOLS[i].b);bl.forEach(function(l){var buyer=('0x'+l.topics[1].slice(-40)).toLowerCase();var rf=('0x'+l.topics[2].slice(-40)).toLowerCase();if(!(buyer in bound))bound[buyer]=rf;});}
-      var direct={},dc=0;for(var b in bound){if(bound[b]===me){direct[b]=1;dc++;}}
-      var ic=0;for(var b in bound){if(!direct[b]&&b!==me&&direct[bound[b]])ic++;}
-      var earned=0n,det=[];
-      for(var i=0;i<POOLS.length;i++){var P=POOLS[i];var rl=await getLogs(EV_REWARD,P.c,P.b);rl.forEach(function(l){var d=(l.data||'0x').replace(/^0x/,'');var rid=num(l.topics[1]);var buyer=('0x'+l.topics[2].slice(-40)).toLowerCase();var r1=('0x'+d.slice(0,64).slice(-40)).toLowerCase(),a1=BigInt('0x'+(d.slice(64,128)||'0')),r2=('0x'+d.slice(128,192).slice(-40)).toLowerCase(),a2=BigInt('0x'+(d.slice(192,256)||'0'));var bn=num(l.blockNumber);if(r1===me&&a1>0n){earned+=a1;det.push({lvl:1,buyer:buyer,amt:a1,P:P,tx:l.transactionHash,bn:bn,rid:rid});}if(r2===me&&a2>0n){earned+=a2;det.push({lvl:2,buyer:buyer,amt:a2,P:P,tx:l.transactionHash,bn:bn,rid:rid});}});}
-      $('stDirect').textContent=dc;$('stIndirect').textContent=ic;
-      var es={};det.forEach(function(x){if(!es[x.P.sym])es[x.P.sym]={d:x.P.d,a:0n};es[x.P.sym].a+=x.amt;});
-      var estr=Object.keys(es).map(function(s){return fmt(es[s].a,es[s].d)+' '+s;}).join(' · ');
-      $('stEarned').textContent=estr||'0';
-      det.sort(function(a,b){return b.bn-a.bn;});_det=det;_dp=0;renderDetail();
-    }catch(e){ $('stDirect').textContent='0';$('stIndirect').textContent='0';$('stEarned').textContent='0'; }
-  }
-  function renderDetail(){
-    var box=$('detail');if(!box)return;
-    if(!myAddr){box.innerHTML='<div class="note">'+TR('连接钱包查看邀请数据')+'</div>';return;}
-    if(!_det.length){box.innerHTML='<div class="note">'+TR('暂无记录')+'</div>';return;}
-    var pages=Math.ceil(_det.length/8);if(_dp>=pages)_dp=pages-1;if(_dp<0)_dp=0;
-    var sl=_det.slice(_dp*8,_dp*8+8),html='';var en=(window.getLang&&window.getLang()==='en');
-    sl.forEach(function(r){var tag=r.lvl===1?TR('直推'):TR('间推');var tc=r.lvl===1?'var(--accent)':'#9A834F';
-      html+='<div class="rdrow"><span><span class="tag" style="color:'+tc+';border:1px solid '+tc+'">'+tag+'</span><span class="dl">'+r.P.sym+' · '+(en?('R'+r.rid):('第'+r.rid+'期'))+' · '+short(r.buyer)+'</span></span><a class="tx" href="https://browser.anubispace.org/tx/'+r.tx+'" target="_blank" rel="noopener">'+short(r.tx)+' ↗</a><span class="a">+'+fmt(r.amt,r.P.d)+' '+r.P.sym+'</span></div>';});
-    if(pages>1){html+='<div class="pager"><button '+(_dp<=0?'disabled':'')+' onclick="detPage(-1)">‹</button><span class="note" style="align-self:center">'+(_dp+1)+' / '+pages+'</span><button '+(_dp>=pages-1?'disabled':'')+' onclick="detPage(1)">›</button></div>';}
-    box.innerHTML=html;
-  }
-  window.detPage=function(d){_dp+=d;renderDetail();};
-  function loadAll(){loadReferrer();loadRewards();loadStats();}
-  window.__loadInvite=loadAll;
-  if(window.ethereum&&window.ethereum.request){window.ethereum.request({method:'eth_accounts'}).then(function(a){if(a&&a.length){myAddr=a[0];uiWallet();}}).catch(function(){});}
-  loadLink();
-})();
-</script>
-<script defer src="../gate.js?v=3"></script>
-<script defer src="../ref.js?v=1"></script>
-<script defer src="referral.js?v=2"></script>
+<script defer src="invite.js?v=closure-20261020-1"></script>
+<script defer src="../gate.js?v=closure-20261020-1"></script>
+<script defer src="../ref.js?v=closure-20261020-1"></script>
+
+<script defer src="../shell.js?v=closure-20261020-1"></script>
 </body>
 </html>
