@@ -5,14 +5,16 @@
   <script>try{if(/web3origin/i.test(location.hostname)){location.replace('https://anubislottery.com/anubis-play/'+location.search+location.hash);}}catch(e){}</script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0c1412">
-  <meta name="description" content="ANUBIS PLAY 金花牌局，真人实时对战，押真 LGNS，链上公平可证明。手机横竖屏、平板与电脑自适应。">
+  <meta name="description" content="ANUBIS PLAY 金花牌局：真人实时对战、链上结算查询、资产与退款入口。支持手机横竖屏、平板与电脑。">
   <title>金花牌局 · ANUBIS PLAY</title>
   <link rel="icon" href="logo.webp">
   <link rel="stylesheet" href="styles.css?v=1026foldx2">
   <style>.brand-logo{height:44px;width:44px;object-fit:contain;display:block;border-radius:10px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}@media(max-width:650px){.brand-logo{height:36px;width:36px}}@media(orientation:landscape) and (max-height:600px){.brand-logo{height:32px;width:32px}}</style>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script defer src="i18n.js?v=1037"></script>
-  <script defer src="app.js?v=1026foldx2"></script>
+  <script defer src="i18n.js?v=closure-20261020-1"></script>
+  <script defer src="app.js?v=closure-20261020-1"></script>
+<script src="../platform.js?v=closure-20261020-1"></script>
+<link rel="stylesheet" href="../platform.css?v=closure-20261020-1">
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -106,7 +108,7 @@
             <button class="action call" data-action="call" id="jtCall"><span>跟注</span><small id="jtCallAmt">0</small><svg class="icon" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
             <button class="action allin" data-action="allin" id="jtAllIn" hidden><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v18M5 10l7-7 7 7"/></svg><span>全下比牌</span></button>
           </div>
-          <p class="dock-foot" id="jtDockFoot">押真 LGNS · 链上公平结算 · 奖金自动到账</p>
+          <p class="dock-foot" id="jtDockFoot">押真 LGNS · 链上公平结算 · 结算后核对到账</p>
         </footer>
        </main>
       </section>
@@ -134,14 +136,14 @@
         <section class="m-hero">
           <div class="m-orbit"></div>
           <div class="m-cards" aria-hidden="true"><div class="m-artcard one">Q<span>♣</span><small>Q</small></div><div class="m-artcard two">K<span>♦</span><small>K</small></div><div class="m-artcard three">A<span>♠</span><small>A</small></div><div class="m-spark">✦</div></div>
-          <div class="m-herotext"><div class="m-heroover">PRIVATE CARD CLUB</div><h2>一桌好牌<br><span>一场较量.</span></h2><p>选择底注，邀请好友<br>开启你的专属牌局</p><button class="m-gold" data-action="create"><svg class="icon"><use href="#i-plus"/></svg> 创建我的牌桌 <svg class="icon"><use href="#i-chevron"/></svg></button></div>
+          <div class="m-herotext"><div class="m-heroover">PRIVATE CARD CLUB</div><h2>一桌好牌<br><span>一场较量.</span></h2><p><span data-ap-zh="选择底注，邀请好友" data-ap-en="Pick an ante and invite friends">选择底注，邀请好友</span><br><span data-ap-zh="开启你的专属牌局" data-ap-en="Start your own table">开启你的专属牌局</span></p><button class="m-gold" data-action="create"><svg class="icon"><use href="#i-plus"/></svg> 创建我的牌桌 <svg class="icon"><use href="#i-chevron"/></svg></button></div>
         </section>
         <div class="m-quick"><button class="m-qa" data-action="create"><span class="m-qi"><svg class="icon"><use href="#i-plus"/></svg></span><span><strong>快速开桌</strong><small>自己创建房间</small></span></button><button class="m-qa alt" data-action="rules"><span class="m-qi"><svg class="icon"><use href="#i-help"/></svg></span><span><strong>玩法指南</strong><small>从入门到高手</small></span></button></div>
         <div class="m-joinbox"><input id="mRoomInput" type="text" inputmode="numeric" maxlength="8" placeholder="输入房号，和朋友同桌"><button class="m-joincode" data-action="join-code">加入</button></div>
         <div class="m-section"><h3>发现牌桌</h3><button class="m-ctrl" data-action="refresh"><svg class="icon"><use href="#i-refresh"/></svg> 刷新</button></div>
         <div class="m-filters pool-switch" id="mPoolSwitch" aria-label="选择币种池"></div><div class="m-filters" id="mFilters" aria-label="底注筛选"></div>
         <div id="mRooms"></div>
-        <div class="m-footnote"><svg class="icon"><use href="#i-shield"/></svg> 真人链上牌局，押真 LGNS / DAI，公平可证明</div>
+        <div class="m-footnote"><svg class="icon"><use href="#i-shield"/></svg><span data-ap-zh="真人对战 · 结算后核对链上结果" data-ap-en="Live games · verify settlement on-chain">真人对战 · 结算后核对链上结果</span></div>
       </div>
     </div>
     <nav class="m-nav" id="mNav">
@@ -155,7 +157,8 @@
   <dialog class="modal" id="modal" aria-labelledby="modalTitle"><header class="modal-header"><div><span class="eyebrow" id="modalEyebrow">ANUBIS PLAY</span><h2 id="modalTitle"></h2></div><button class="icon-button" data-action="close" aria-label="关闭弹窗"><svg class="icon"><use href="#i-close"/></svg></button></header><div class="modal-body" id="modalBody"></div></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <noscript><div class="noscript-note">请启用 JavaScript，以体验牌桌和横屏交互。</div></noscript>
-<script defer src="../gate.js?v=3"></script>
-<script defer src="../ref.js?v=1"></script>
+<script defer src="../gate.js?v=closure-20261020-1"></script>
+<script defer src="../ref.js?v=closure-20261020-1"></script>
+<script defer src="../shell.js?v=closure-20261020-1"></script>
 </body>
 </html>
