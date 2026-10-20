@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap">
-<script src="../i18n.js?v=14"></script>
+<script src="../i18n.js?v=closure-20261020-1"></script>
 <style>
 :root{--bg:#0d1114;--card:#181e23;--card2:#20292e;--text:#eff6f3;--muted:#96a4ab;--accent:#c8f665;--line:#ffffff14;
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;color-scheme:dark;}
@@ -38,6 +38,8 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer;b
 .anc p{font-size:13px;color:#c6d2cc;margin:0;line-height:1.8}
 .note{font-size:13px;color:var(--muted);text-align:center;padding:30px 0}
 </style>
+<script src="../platform.js?v=closure-20261020-1"></script>
+<link rel="stylesheet" href="../platform.css?v=closure-20261020-1">
 </head>
 <body>
 <header class="top">
@@ -52,20 +54,22 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer;b
 </main>
 <script>
 (function(){
-  var items=[];
+  var items=[],loadError=false;
   function TR(s){return window.tr?window.tr(s):s;}
   function en(){return window.getLang&&window.getLang()==='en';}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function render(){
     var box=document.getElementById('list');if(!box)return;
+    if(loadError){box.innerHTML='<p class="note ap-error">'+APPlatform.L('公告加载失败，请刷新重试','Announcements failed to load; refresh to retry')+'</p>';return;}
     var on=items.filter(function(x){return x.on;});
     if(!on.length){box.innerHTML='<div class="note">'+TR('暂无公告')+'</div>';return;}
     var l=en()?'en':'zh';
     box.innerHTML=on.map(function(x){var c=x[l]||x.zh||{};return '<article class="anc"><div class="date">'+esc(x.date||'')+'</div><h2>'+esc(c.t||'')+'</h2><p>'+esc(c.b||'').replace(/\n/g,'<br>')+'</p></article>';}).join('');
   }
   window.__poolRender=render; // 语言切换时重渲染
-  fetch('../announce.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){items=(j&&j.items)||[];render();}).catch(function(){items=[];render();});
+  fetch('../announce.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP');return r.json();}).then(function(j){if(!j||!Array.isArray(j.items))throw new Error('DATA');items=j.items;render();}).catch(function(){loadError=true;render();});
 })();
 </script>
+<script defer src="../shell.js?v=closure-20261020-1"></script>
 </body>
 </html>
