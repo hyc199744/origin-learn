@@ -10,8 +10,10 @@
   function g(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
   function s(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
 
-  function passed(){ return g('ap_gate_ok')==='1'; }
-  function pass(ref){ if(ref&&ADDR.test(ref)){ if(!g('ap_ref')) s('ap_ref', ref.toLowerCase()); } s('ap_gate_ok','1'); removeGate(); }
+  function ck(k){ try{ var m=document.cookie.match('(?:^|; )'+k+'=([^;]*)'); return m?decodeURIComponent(m[1]):null; }catch(e){ return null; } }
+  function sck(k,v){ try{ document.cookie=k+'='+encodeURIComponent(v)+';path=/;max-age=31536000;samesite=lax'; }catch(e){} }
+  function passed(){ return g('ap_gate_ok')==='1' || ck('ap_gate_ok')==='1'; } // cookie兜底:钱包内置浏览器丢localStorage也不反复弹
+  function pass(ref){ if(ref&&ADDR.test(ref)){ if(!g('ap_ref')&&!ck('ap_ref')){ s('ap_ref', ref.toLowerCase()); sck('ap_ref', ref.toLowerCase()); } } s('ap_gate_ok','1'); sck('ap_gate_ok','1'); removeGate(); }
 
   var gateEl=null, bodyOv='';
   function removeGate(){ if(gateEl){ gateEl.remove(); gateEl=null; } try{ document.documentElement.style.overflow=bodyOv; document.body.style.overflow=''; }catch(e){} }
@@ -83,6 +85,7 @@
   function boot(){
     var sp; try{ sp=new URLSearchParams(location.search); }catch(e){ sp=null; }
     var ref=sp&&sp.get('ref'), code=sp&&sp.get('code');
+    if(passed()) return; // ★已进过场:无论链接带不带 ?ref/?code 都不再弹门禁/确认(修"重复弹窗")
     // 通过邀请链接/短码进来:弹确认框显示邀请人,点「接受」才绑定(让用户看到绑定,不再静默)
     if(ref&&ADDR.test(ref)){ showConfirm(ref.toLowerCase(), null); return; }
     if(code){ // 短码:后端解析→显示确认
