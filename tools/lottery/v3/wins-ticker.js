@@ -20,7 +20,8 @@
   function fmt(v,dec){ try{ v=BigInt(v); var s=v.toString().padStart(dec+1,'0'); var i=s.slice(0,s.length-dec), f=s.slice(s.length-dec).slice(0,2).replace(/0+$/,''); i=i.replace(/\B(?=(\d{3})+(?!\d))/g,','); return f?i+'.'+f:i; }catch(e){ return '0'; } }
   function decArr(d,off,isAddr){ var n=num(d.slice(off,off+64)), a=[]; for(var i=0;i<n;i++){ var w=d.slice(off+64*(i+1),off+64*(i+2)); a.push(isAddr?('0x'+w.slice(-40)):(w||'0')); } return a; }
 
-  var items=[], idx=0, busy=false;
+  var queue=[], seen={}, busy=false, first=true;
+  function winKey(it){ return (it.game||'')+'|'+(it.addr||'')+'|'+(it.amount||'')+'|'+(it.ts||it._sym||''); }
   function ensureStyle(){ if(document.getElementById('winTkStyle'))return; var st=document.createElement('style'); st.id='winTkStyle';
     st.textContent='@keyframes winFly{from{transform:translateX(100vw)}to{transform:translateX(-110%)}}'
       +'#winTk{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 48px);height:30px;z-index:95;pointer-events:none;overflow:hidden}'
@@ -29,8 +30,8 @@
     document.head.appendChild(st); }
   function bar(){ var b=document.getElementById('winTk'); if(!b){ b=document.createElement('div'); b.id='winTk'; document.body.appendChild(b); } return b; }
   function flyNext(){
-    if(!items.length){ setTimeout(flyNext, 8000); return; }
-    var it=items[idx%items.length]; idx++;
+    var it=queue.shift();
+    if(!it){ setTimeout(flyNext, 5000); return; }   // 队列空=没有新中奖:安静等待,不再循环重复播放
     var sym, dec; if(it._sym){ sym=it._sym; dec=it._dec; } else { var m=TOK[it.token]||{}; sym=m.sym||''; dec=(m.dec!=null?m.dec:9); }
     var who=short(it.addr), amt=fmt(it.amount,dec);
     var b=bar(), el=document.createElement('div'); el.className='wi';
@@ -40,7 +41,7 @@
     el.style.animation='winFly 8s linear forwards';
     b.appendChild(el);
     el.addEventListener('animationend', function(){ try{el.remove();}catch(e){} });
-    setTimeout(flyNext, 3200);
+    setTimeout(flyNext, 4500);
   }
   function loadZjh(){ return fetch(API+'/wins?limit=40',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ return (j.list||[]).map(function(w){ return {game:w.game,addr:w.addr,token:w.token,amount:w.amount,ts:w.ts||0}; }); }).catch(function(){ return []; }); }
   function loadLottery(){
@@ -54,7 +55,12 @@
       }).catch(function(){ return []; });
     })).then(function(arrs){ return arrs.reduce(function(a,b){return a.concat(b);},[]); });
   }
-  function refresh(){ if(busy)return; busy=true; Promise.all([loadZjh(),loadLottery()]).then(function(r){ var z=r[0]||[], lt=r[1]||[]; var merged=[]; var mx=Math.max(z.length,lt.length); for(var i=0;i<mx;i++){ if(i<z.length)merged.push(z[i]); if(i<lt.length)merged.push(lt[i]); } items=merged; busy=false; }).catch(function(){ busy=false; }); }
+  function refresh(){ if(busy)return; busy=true; Promise.all([loadZjh(),loadLottery()]).then(function(r){
+    var z=r[0]||[], lt=r[1]||[]; var merged=z.concat(lt);
+    if(first){ merged=merged.slice(0,6); first=false; }   // 首次只取最近6条,不一次性倒一堆历史
+    merged.forEach(function(it){ var k=winKey(it); if(!seen[k]){ seen[k]=1; queue.push(it); } }); // 只入队没播过的,去重防重复
+    if(Object.keys(seen).length>400) seen={};
+    busy=false; }).catch(function(){ busy=false; }); }
   function start(){ ensureStyle(); refresh(); flyNext(); setInterval(refresh, 60000); }
   if(document.readyState!=='loading') start(); else document.addEventListener('DOMContentLoaded', start);
 })();
