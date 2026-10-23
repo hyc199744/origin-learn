@@ -102,21 +102,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
       <div class="kv"><span class="k">金花对局次数</span><span class="v" id="zjhRounds">—</span></div>
     </section>
 
-    <section class="card">
-      <h2>邀请概况<a href="../invite/">去邀请页 →</a></h2>
-      <div class="rstat">
-        <div class="rs"><div class="n" id="stDirect">—</div><div class="l">直推</div></div>
-        <div class="rs"><div class="n" id="stIndirect">—</div><div class="l">间推</div></div>
-        <div class="rs"><div class="n" id="stClaim" style="font-size:13px">—</div><div class="l">可领返佣</div></div>
-        <div class="rs"><div class="n" id="stEarned" style="font-size:13px">—</div><div class="l">累计返佣</div></div>
-      </div>
-      <div class="kv"><span class="k">我的上级</span><span class="v" id="accRef">—</span></div>
-    </section>
-
-    <section class="card">
-      <h2>返佣明细</h2>
-      <div id="refDetail"><div class="note">加载中…</div></div>
-    </section>
+    <section id="apGameRef" class="card"><div class="note">加载返佣数据…</div></section>
 
     <section class="card">
       <h2>我的战绩</h2>
@@ -237,12 +223,13 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     var n=0;try{n=(JSON.parse(localStorage.getItem('anubisplay_results')||'[]')||[]).length;}catch(e){}
     var el=$('zjhRounds');if(el)el.textContent=n;
   }
-  function loadAll(){loadReferral();loadRecord();loadTx();loadZjh();}
+  function loadAll(){loadRecord();loadTx();loadZjh();}
   window.__loadAccount=loadAll;
   if(window.ethereum&&window.ethereum.request){window.ethereum.request({method:'eth_accounts'}).then(function(a){if(a&&a.length){myAddr=a[0];uiWallet();}}).catch(function(){});}
 })();
 </script>
 <script defer src="../gate.js?v=3"></script>
 <script defer src="../ref.js?v=1"></script>
+<script defer src="../invite/referral.js?v=3"></script>
 </body>
 </html>

@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d1114">
-<title>邀请奖励 · ANUBIS PLAY</title>
-<meta name="description" content="ANUBIS PLAY 邀请奖励：专属链接，好友购票你拿返佣，直推30%间推10%，链上可查，随时领取。">
+<title>发现 · ANUBIS PLAY</title>
+<meta name="description" content="ANUBIS PLAY 发现：活动公告、收益排行榜，更多玩法持续上新。">
 <link rel="icon" href="../img/logo.webp?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=Roboto+Mono:wght@500;600&display=swap">
-<script src="../i18n.js?v=19"></script>
+<script src="../i18n.js?v=21"></script>
 <script src="../qrcode.min.js?v=1"></script>
 <style>
 :root{--bg:#0d1114;--card:#181e23;--card2:#20292e;--text:#eff6f3;--muted:#96a4ab;
@@ -89,26 +89,26 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 </header>
 
 <main class="wrap">
-  <h1 class="h1">邀请好友赚返佣</h1>
-  <p class="lead">把你的专属链接发给好友，他们每次购票你都能拿返佣——直推 30%、间推 10%，从平台费里出，不影响奖池，随时领取。</p>
-
+  <h1 class="h1">发现</h1>
+  <p class="lead">活动公告、收益排行榜，更多玩法持续上新。</p>
 
   <section class="card">
-    <div class="rstat">
-      <div class="rs"><div class="n" id="stDirect">—</div><div class="l">直推</div></div>
-      <div class="rs"><div class="n" id="stIndirect">—</div><div class="l">间推</div></div>
-      <div class="rs"><div class="n" id="stEarned" style="font-size:16px">—</div><div class="l">累计返佣</div></div>
+    <h2>活动公告</h2>
+    <div id="annList"><div class="note">加载中…</div></div>
+  </section>
+
+  <section class="card">
+    <h2>收益排行榜</h2>
+    <div id="lbList"><div class="note">加载中…</div></div>
+  </section>
+
+  <section class="card">
+    <h2>即将上线</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <span style="background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:9px 13px;font-size:12px;font-weight:600">龙虎斗 <span class="mono" style="color:var(--muted);margin-left:4px">开发中</span></span>
+      <span style="background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:9px 13px;font-size:12px;font-weight:600">幸运转盘 <span class="mono" style="color:var(--muted);margin-left:4px">开发中</span></span>
+      <span style="background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:9px 13px;font-size:12px;font-weight:600">竞技场 <span class="mono" style="color:var(--muted);margin-left:4px">开发中</span></span>
     </div>
-  </section>
-
-  <section class="card">
-    <h2>可领返佣</h2>
-    <div id="claimList"><div class="note">连接钱包查看邀请数据</div></div>
-  </section>
-
-  <section class="card">
-    <h2>返佣明细</h2>
-    <div id="detail"><div class="note">连接钱包查看邀请数据</div></div>
   </section>
 
   <div class="foot">
@@ -120,19 +120,32 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 
 <script>
 (function(){
-  var RPC='https://rpc.anubispace.org';
-  var ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:RPC,exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
-  var SEL={referrer:'2cf003c2',rewards:'53aaa63b',claim:'e02f1ebd'};
-  var EV_BOUND='0x8ceb585bfbbc2a8c702024b1d2f212e7ba1caff58b232f071b023d184997b111';
-  var EV_REWARD='0xbfcb51139629056da37f44a10daa7f67e6ce0b9083e03a7408b3ad1a456ce097';
-  var COL=['#c8f665','#2E7D6A','#9A834F','#4A6B8A','#8A5A3C'];
-  var POOLS=[
-    {sym:'LGNS',c:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',d:9,b:16182340},
-    {sym:'USDT',c:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',d:6,b:16196737},
-    {sym:'DAI', c:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',d:18,b:16200709},
-    {sym:'A',   c:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',d:18,b:16202660},
-    {sym:'RM',  c:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',d:9,b:16204394}
-  ];
+  var API='https://zjgame.web3origin.com/ref';
+  var TOK={ '0x4d1d808a081fdac440703b3765fc61f8028c06b8':{sym:'LGNS',dec:9}, '0x83fd06f0846d9d90b3016bf670efe2e0b11cde14':{sym:'DAI',dec:18}, '0x2e045e1380f5f5b6e7550328910a7377c9fce59d':{sym:'RM',dec:9}, '0xdfb6a28bc6dc51fed17c27c880f2c66cdd040a3e':{sym:'USDT',dec:6} };
+  function $(id){return document.getElementById(id);}
+  function short(a){return a?a.slice(0,6)+'…'+a.slice(-4):'';}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function fmt(s,dec){try{var v=BigInt(s||'0');var str=v.toString().padStart(dec+1,'0');var i=str.slice(0,str.length-dec),f=str.slice(str.length-dec).slice(0,2).replace(/0+$/,'');i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');return f?i+'.'+f:i;}catch(e){return '0';}}
+  function EN(){try{var s=localStorage.getItem('aplang');if(s==='en')return true;if(s==='zh')return false;}catch(e){}return (navigator.language||'').toLowerCase().indexOf('zh')!==0;}
+  function L(zh,en){return EN()?en:zh;}
+  function amt(m){var out=[];for(var tk in (m||{})){var info=TOK[tk]||TOK[String(tk).toLowerCase()]||{sym:'',dec:18};try{if(BigInt(m[tk])>0n)out.push(fmt(m[tk],info.dec)+' '+info.sym);}catch(e){}}return out.length?out.join(' · '):'0';}
+  // 活动公告
+  fetch('../announce.json?cb='+Date.now(),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+    var items=((j&&j.items)||[]).filter(function(x){return x&&x.on;});var box=$('annList');if(!box)return;
+    if(!items.length){box.innerHTML='<div class="note">'+L('暂无公告','No announcements')+'</div>';return;}
+    box.innerHTML=items.map(function(it){var t=EN()?(it.en&&it.en.t):(it.zh&&it.zh.t);var b=EN()?(it.en&&it.en.b):(it.zh&&it.zh.b);return '<div style="padding:12px 0;border-bottom:1px dashed var(--line)"><div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:5px"><b style="font-size:13.5px">'+esc(t)+'</b><span style="font-size:11px;color:var(--muted);white-space:nowrap">'+esc(it.date)+'</span></div><div style="font-size:12.5px;color:var(--muted);line-height:1.7">'+esc(b)+'</div></div>';}).join('');
+  }).catch(function(){var box=$('annList');if(box)box.innerHTML='<div class="note">'+L('公告加载失败','Failed to load')+'</div>';});
+  // 收益排行榜
+  fetch(API+'/leaderboard?limit=20',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
+    var lb=(j&&j.list)||[];var box=$('lbList');if(!box)return;
+    if(!lb.length){box.innerHTML='<div class="note">'+L('暂无数据','No data yet')+'</div>';return;}
+    box.innerHTML=lb.map(function(r){var medal=r.rank<=3?['🥇','🥈','🥉'][r.rank-1]:'#'+r.rank;return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:12.5px"><span style="width:28px;color:'+(r.rank<=3?'#e0bd68':'#7e9583')+';font-weight:800">'+medal+'</span><span style="flex:1;font-family:var(--mono)">'+short(r.addr)+'</span><span style="color:var(--muted)">'+L('直推 ','dir ')+(r.directCount||0)+'</span><span style="color:var(--accent);font-weight:700;min-width:70px;text-align:right">'+amt(r.earned)+'</span></div>';}).join('');
+  }).catch(function(){var box=$('lbList');if(box)box.innerHTML='<div class="note">'+L('排行榜加载失败','Failed to load')+'</div>';});
+})();
+</script>
+<script data-dead type="text/plain">
+(function(){
+  var _removed_POOLS=[];
   var myAddr=null, claimable={}, _det=[], _dp=0, _lc={}, busy=false;
   function $(id){return document.getElementById(id);}
   function TR(s){return window.tr?window.tr(s):s;}
@@ -213,6 +226,5 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 </script>
 <script defer src="../gate.js?v=3"></script>
 <script defer src="../ref.js?v=1"></script>
-<script defer src="referral.js?v=2"></script>
 </body>
 </html>
