@@ -287,7 +287,7 @@
 
   function getLang(){
     // 与平台大厅共用 localStorage 键 aplang,形成全站语言闭环;游戏只有中/英,非中文一律英文
-    try{ var s=localStorage.getItem('aplang'); if(s){ return (s==='zh')?'zh':'en'; } }catch(e){}
+    try{ var s=localStorage.getItem('aplang'); if(!s){ var m=document.cookie.match('(?:^|; )aplang=([^;]*)'); if(m)s=decodeURIComponent(m[1]); } if(s){ return (s==='zh')?'zh':'en'; } }catch(e){} // cookie兜底:换页/钱包浏览器丢localStorage也跟随全站语言
     return (navigator.language||navigator.userLanguage||'').toLowerCase().indexOf('zh')===0 ? 'zh' : 'en';
   }
   var LANG = getLang();

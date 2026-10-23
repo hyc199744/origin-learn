@@ -142,9 +142,11 @@
   '帮助中心 · ANUBIS PLAY':['Help Center · ANUBIS PLAY'],'平台公告 · ANUBIS PLAY':['Announcements · ANUBIS PLAY']
   };
   var Dr={}; try{ for(var _dk in D){ var _de=D[_dk]; if(_de&&_de[0]&&!Dr[_de[0]])Dr[_de[0]]=_dk; } }catch(e){} // 英→中反查:动态英文节点切回中文时用
+  function _ck(k){ try{ var m=document.cookie.match('(?:^|; )'+k+'=([^;]*)'); return m?decodeURIComponent(m[1]):null; }catch(e){ return null; } }
+  function _sck(k,v){ try{ document.cookie=k+'='+encodeURIComponent(v)+';path=/;max-age=31536000;samesite=lax'; }catch(e){} }
   var LANG='zh';
   try{
-    LANG=localStorage.getItem('aplang')||'';
+    LANG=localStorage.getItem('aplang')||_ck('aplang')||'';  // cookie兜底:换页/钱包浏览器丢localStorage也记得住语言
     if(!LANG){ var _bl=(navigator.language||navigator.userLanguage||'').slice(0,2).toLowerCase(); LANG=(_bl==='zh')?'zh':(ORDER.indexOf(_bl)>=0?_bl:'en'); } // 无存储则跟随浏览器语言(非中文=英文)
   }catch(e){ LANG='zh'; }
   function idx(l){return ORDER.indexOf(l);}
@@ -160,7 +162,7 @@
     vi:'Khám phá vũ trụ game, <em>mở ra nhiều hơn với Anubis</em>',
     es:'Explora el universo del juego, <em>descubre más de Anubis</em>'};
   var _title='';
-  window.applyLang=function(l){LANG=l;try{localStorage.setItem('aplang',l);}catch(e){}
+  window.applyLang=function(l){LANG=l;try{localStorage.setItem('aplang',l);}catch(e){}try{_sck('aplang',l);}catch(e){}
     document.documentElement.setAttribute('lang',l==='zh'?'zh-CN':l);
     if(_title)try{document.title=window.tr(_title,l);}catch(e){}
     for(var _i=0;_i<_tn.length;_i++){var o=_tn[_i];try{o.node.nodeValue=o.pre+window.tr(o.zh,l)+o.post;}catch(e){}}
@@ -183,7 +185,7 @@
   function _flush(){ _p=false; var b=_q; _q=[]; try{ if(_o)_o.disconnect(); for(var i=0;i<b.length;i++){ try{trNode(b[i]);}catch(e){} } }finally{ if(_o){try{_o.observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}} } }
   function startObs(){ if(_o)return; try{ _o=new MutationObserver(function(muts){ for(var i=0;i<muts.length;i++){ var m=muts[i]; if(m.type==='childList'){ for(var j=0;j<m.addedNodes.length;j++)_q.push(m.addedNodes[j]); } else _q.push(m.target); } if(!_p){ _p=true; (window.requestAnimationFrame||function(f){setTimeout(f,16);})(_flush); } }); _o.observe(document.body,{childList:true,subtree:true,characterData:true}); }catch(e){} }
   window.setLang=function(l){
-    try{localStorage.setItem('aplang',l); localStorage.setItem('lottery_lang', l==='zh'?'zh':'en');}catch(e){} // 存储(供下次加载);同步 app1 的 lottery_lang
+    try{localStorage.setItem('aplang',l); localStorage.setItem('lottery_lang', l==='zh'?'zh':'en');}catch(e){} try{_sck('aplang',l);}catch(e){} // 存储(供下次加载)+cookie兜底;同步 app1 的 lottery_lang
     closeMenu();
     LANG=l; try{applyLang(l);}catch(e){}                      // 所有语言统一就地实时翻译,不刷新(钱包内置浏览器 location.reload 会丢 localStorage/被吞 → 看着像没切)
     fullTp(); startObs(); setTimeout(fullTp,300); setTimeout(fullTp,1200);
