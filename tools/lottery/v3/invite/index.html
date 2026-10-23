@@ -10,8 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700&family=Roboto+Mono:wght@500;600&display=swap">
-<script src="../i18n.js?v=22"></script>
-<script src="../qrcode.min.js?v=1"></script>
+<script defer src="../i18n.js?v=22"></script>
 <style>
 :root{--bg:#0d1114;--card:#181e23;--card2:#20292e;--text:#eff6f3;--muted:#96a4ab;
   --accent:#c8f665;--accent-ink:#17200b;--line:#ffffff14;
@@ -199,7 +198,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   function loadLink(){var el=$('refLink');if(!el)return;el.value=myAddr?inviteUrl():'';}
   window.copyLink=function(){var el=$('refLink');if(!el||!el.value){toast(TR('连接钱包'));return;}el.select();try{if(navigator.clipboard)navigator.clipboard.writeText(el.value);else document.execCommand('copy');}catch(e){}toast(TR('已复制'));};
   window.shareLink=function(){var el=$('refLink');if(!el||!el.value){toast(TR('连接钱包'));return;}if(navigator.share){navigator.share({title:document.title,url:el.value}).catch(function(){});}else copyLink();};
-  window.toggleQr=function(){var box=$('qrbox');if(!box)return;if(box.style.display==='block'){box.style.display='none';return;}var el=$('refLink');if(!el||!el.value){toast(TR('连接钱包'));return;}try{var qr=qrcode(0,'M');qr.addData(el.value);qr.make();box.innerHTML=qr.createImgTag(5,0);box.style.display='block';}catch(e){toast('QR');}};
+  window.toggleQr=function(){var box=$('qrbox');if(!box)return;if(box.style.display==='block'){box.style.display='none';return;}var el=$('refLink');if(!el||!el.value){toast(TR('连接钱包'));return;}function gen(){try{var qr=qrcode(0,'M');qr.addData(el.value);qr.make();box.innerHTML=qr.createImgTag(5,0);box.style.display='block';}catch(e){toast('QR');}}if(typeof qrcode==='undefined'){box.innerHTML='<div class="note" style="padding:10px">'+TR('加载中…')+'</div>';box.style.display='block';var s=document.createElement('script');s.src='../qrcode.min.js?v=1';s.onload=gen;s.onerror=function(){toast('QR');box.style.display='none';};document.head.appendChild(s);}else gen();};
   /* 读数据 */
   async function loadReferrer(){var el=$('myRef');if(!el)return;if(!myAddr){el.textContent='—';return;}var refs=[];for(var i=0;i<POOLS.length;i++){try{var r='0x'+(await ethCall(POOLS[i].c,SEL.referrer+encA(myAddr))).slice(-40);if(r!=='0x0000000000000000000000000000000000000000'){refs.push(short(r));break;}}catch(e){}}el.textContent=refs.length?refs[0]:TR('无，首次购票时绑定');}
   async function loadRewards(){
