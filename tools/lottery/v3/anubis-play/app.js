@@ -586,13 +586,13 @@
   function renderQRInto(boxId){ try{ const box=$(boxId); if(!box||!myAddr)return; box.innerHTML=''; if(window.QRCode){ new window.QRCode(box,{text:myAddr,width:160,height:160,colorDark:'#0b0f0d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); } else { box.innerHTML='<div style="color:#111;font-size:11px;word-break:break-all;padding:6px">'+esc(myAddr)+'</div>'; } }catch(e){} }
   function renderWalletQR(){ renderQRInto('mw_qr'); }
   // ---- 「我的」转账:标准ERC20 transfer,从本人钱包直接发到对方地址(4个游戏币任选);纯链上,带二次确认+钱包签名双保险 ----
-  let sendOpen=false;
+  let sendOpen=false,sendTok='lgns';
   function fromUnits(raw,dec){ raw=BigInt(raw); const b=10n**BigInt(dec); const i=raw/b; let f=(raw%b).toString().padStart(dec,'0').replace(/0+$/,''); return f?i.toString()+'.'+f:i.toString(); }
   function toUnits(amtStr,dec){ amtStr=String(amtStr).trim(); if(!/^\d*\.?\d*$/.test(amtStr)||amtStr===''||amtStr==='.')return null; const p=amtStr.split('.'); const i=p[0]||'0', f=(p[1]||'').slice(0,dec).padEnd(dec,'0'); try{ return BigInt(i)*(10n**BigInt(dec))+BigInt(f||'0'); }catch(e){ return null; } }
-  async function doSendMax(){ if(!myAddr)return; const t=SEND_TOKENS[$('mw_sendTok').value]; try{ const raw=BigInt('0x'+((await rcall(t.token,SEL.bal+encA(myAddr)))||'0')); const a=$('mw_sendAmt'); if(a)a.value=fromUnits(raw,t.dec); }catch(e){ toast('读余额失败，稍后重试'); } }
+  async function doSendMax(){ if(!myAddr)return; const t=SEND_TOKENS[sendTok]; try{ const raw=BigInt('0x'+((await rcall(t.token,SEL.bal+encA(myAddr)))||'0')); const a=$('mw_sendAmt'); if(a)a.value=fromUnits(raw,t.dec); }catch(e){ toast('读余额失败，稍后重试'); } }
   async function doSend(){
     if(!myAddr){ toast('请先连接钱包'); return; }
-    const t=SEND_TOKENS[$('mw_sendTok').value];
+    const t=SEND_TOKENS[sendTok];
     const to=($('mw_sendTo').value||'').trim();
     const amtStr=($('mw_sendAmt').value||'').trim();
     if(!/^0x[0-9a-fA-F]{40}$/.test(to)){ toast('收款地址格式不对（应是 0x 开头 42 位）'); return; }
@@ -681,7 +681,7 @@
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
        <button class="small-button" data-action="toggle-send" style="width:100%;margin-top:6px;text-align:left">${sendOpen?'▾':'▸'} 转账</button>
        <div id="mw_sendwrap" style="flex-direction:column;gap:8px;margin-top:8px;display:${sendOpen?'flex':'none'}">
-         <select id="mw_sendTok" style="width:100%;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px">${Object.values(SEND_TOKENS).map(t=>`<option value="${t.key}">${t.label}</option>`).join('')}</select>
+         <div class="tier-options" role="group" aria-label="转账币种" style="display:flex;flex-wrap:wrap;gap:6px">${Object.values(SEND_TOKENS).map(t=>`<button type="button" class="tier-button ${sendTok===t.key?'selected':''}" data-sendtok="${t.key}" aria-pressed="${sendTok===t.key}">${t.sym}</button>`).join('')}</div>
          <div style="display:flex;gap:8px"><input id="mw_sendTo" type="text" placeholder="收款地址 0x..." autocomplete="off" spellcheck="false" style="flex:1;min-width:0;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:13px;font-family:monospace"><button class="small-button" data-action="scan-addr" style="white-space:nowrap">📷 扫一扫</button></div>
          <div style="display:flex;gap:8px"><input id="mw_sendAmt" type="text" inputmode="decimal" placeholder="数量" style="flex:1;min-width:0;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px"><button class="small-button" data-action="send-max">全部</button></div>
          <button class="gold-button" data-action="do-send" style="width:100%">确认转账</button>
@@ -836,6 +836,7 @@
       if(b.dataset.seats){ newCount=Number(b.dataset.seats); document.querySelectorAll('[data-seats]').forEach(el=>{const s=Number(el.dataset.seats)===newCount;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
       if(b.dataset.priv!==undefined){ newPrivate=b.dataset.priv==='1'; document.querySelectorAll('[data-priv]').forEach(el=>{const s=(el.dataset.priv==='1')===newPrivate;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); const n=$('privNote'); if(n)n.textContent=newPrivate?'私密牌桌不显示在大厅，只有拿到房号的人才能进。开桌后把房号发给朋友即可。':'开桌后各玩家先交一份底注入座，凑够 2 人自动发牌。押真 '+SYM+'。'; return; }
       if(b.dataset.tlayout){ setTableLayout(b.dataset.tlayout); return; }
+      if(b.dataset.sendtok){ sendTok=b.dataset.sendtok; document.querySelectorAll('[data-sendtok]').forEach(el=>{const s=el.dataset.sendtok===sendTok;el.classList.toggle('selected',s);el.setAttribute('aria-pressed',String(s));}); return; }
       if(b.dataset.join){ joinRoom(b.dataset.join); return; }
       if(b.dataset.compare){ doCompare(b.dataset.compare); return; }
       const a=b.dataset.action;
