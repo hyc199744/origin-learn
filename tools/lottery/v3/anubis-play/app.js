@@ -392,13 +392,14 @@
     else if(myTurn){ $('jtTurnMain').textContent='轮到你行动'; $('jtTurnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' '+SYM; }
     else if(mi<0){ $('jtTurnMain').textContent='观战中'; $('jtTurnHint').textContent='本局结束后点「继续下一局」即可加入'; }
     else if(me&&me.folded){ $('jtTurnMain').textContent='已弃牌'; $('jtTurnHint').textContent='等待本局结束'; }
-    else { $('jtTurnMain').textContent='其他玩家行动中'; $('jtTurnHint').textContent='轮到 '+nameOf(state.turnAddr); }
+    else { $('jtTurnMain').textContent='其他玩家行动中'; $('jtTurnHint').textContent='轮到 '+nameOf(state.turnAddr)+(looked?'':'，你可以先看牌'); }
     const dis=!myTurn;
     if(myTurn){ const now=Date.now(); if(now-_balT>1500){ _balT=now; refreshBalances().then(()=>{ if(state&&state.phase===2&&!pending)render(); }); } } // 轮到我:刷新余额判断够不够跟
     const poor = myTurn && balFetched && myBalNum < cost; // 筹码不够跟注
     const headsup = state.nActive===2;                    // 单挑(剩两人)
     const canAllIn = poor && headsup && myTurn;            // 单挑且付不起→可全下比牌
-    $('jtFold').disabled=dis; $('jtPeek').disabled=dis||looked; $('jtPeekSmall').textContent=looked?'已看牌':'看牌';
+    const canPeek = mi>=0 && me && !me.folded && !looked && (myTurn || !!myCards); // 看牌随时可点:牌发牌后已在本地,看牌=纯本地翻面不单独上链,不该被"没轮到你"挡住(等对手时也能看自己的牌)
+    $('jtFold').disabled=dis; $('jtPeek').disabled=!canPeek; $('jtPeekSmall').textContent=looked?'已看牌':'看牌';
     $('jtRaise').disabled=dis||poor; $('jtCompare').disabled=dis||state.nActive<2||poor; $('jtCall').disabled=dis||poor;
     { const ai=$('jtAllIn'); if(ai){ ai.hidden=!canAllIn; ai.disabled=!canAllIn; } } // 全下按钮:仅单挑付不起时亮
     if(poor){ $('jtTurnMain').textContent='筹码不足';
