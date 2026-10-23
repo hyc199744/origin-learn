@@ -14,6 +14,14 @@
     rm:  { key:'rm',   label:'RM',   sym:'RM',   wss:'wss://zjgame.web3origin.com/rm',  contract:'0x143905b577A13aeC122C37eB6e88636AF3e1b470', token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', dec:9,  tiers:[0.1,0.2,0.5,1], delegate:'0xc199963Bd66a104c40989a1749C85118232475A8' },
     usdt:{ key:'usdt', label:'USDT', sym:'USDT', wss:'wss://zjgame.web3origin.com/usdt',contract:'0xB8d3ca7A5ae0FB079a4D0b2bffd2C2244455B7f4', token:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6,  tiers:[1,5,10,50],      delegate:'0xAe88781f9B88f774A4F2254499F3ff0FF69bAD8f' }
   };
+  // 转账可选币种:4个游戏币 + A 代币(A不是炸金花池,仅转账用);transfer是纯ERC20,不依赖游戏合约
+  const SEND_TOKENS={
+    lgns:{key:'lgns',label:'LGNS',sym:'LGNS',token:TOKENS.lgns.token,dec:TOKENS.lgns.dec},
+    dai: {key:'dai', label:'DAI', sym:'DAI', token:TOKENS.dai.token, dec:TOKENS.dai.dec},
+    usdt:{key:'usdt',label:'USDT',sym:'USDT',token:TOKENS.usdt.token,dec:TOKENS.usdt.dec},
+    rm:  {key:'rm',  label:'RM',  sym:'RM',  token:TOKENS.rm.token,  dec:TOKENS.rm.dec},
+    a:   {key:'a',   label:'A',   sym:'A',   token:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18}
+  };
   let curToken='lgns'; try{ const _t=localStorage.getItem('ap_token'); if(_t&&TOKENS[_t])curToken=_t; }catch(e){}
   let WSS, CONTRACT, LGNS, DEC, SYM, TIERS;
   function applyToken(){ const c=TOKENS[curToken]; WSS=c.wss; CONTRACT=c.contract; LGNS=c.token; DEC=c.dec; SYM=c.sym; TIERS=c.tiers; }
@@ -581,10 +589,10 @@
   let sendOpen=false;
   function fromUnits(raw,dec){ raw=BigInt(raw); const b=10n**BigInt(dec); const i=raw/b; let f=(raw%b).toString().padStart(dec,'0').replace(/0+$/,''); return f?i.toString()+'.'+f:i.toString(); }
   function toUnits(amtStr,dec){ amtStr=String(amtStr).trim(); if(!/^\d*\.?\d*$/.test(amtStr)||amtStr===''||amtStr==='.')return null; const p=amtStr.split('.'); const i=p[0]||'0', f=(p[1]||'').slice(0,dec).padEnd(dec,'0'); try{ return BigInt(i)*(10n**BigInt(dec))+BigInt(f||'0'); }catch(e){ return null; } }
-  async function doSendMax(){ if(!myAddr)return; const t=TOKENS[$('mw_sendTok').value]; try{ const raw=BigInt('0x'+((await rcall(t.token,SEL.bal+encA(myAddr)))||'0')); const a=$('mw_sendAmt'); if(a)a.value=fromUnits(raw,t.dec); }catch(e){ toast('读余额失败，稍后重试'); } }
+  async function doSendMax(){ if(!myAddr)return; const t=SEND_TOKENS[$('mw_sendTok').value]; try{ const raw=BigInt('0x'+((await rcall(t.token,SEL.bal+encA(myAddr)))||'0')); const a=$('mw_sendAmt'); if(a)a.value=fromUnits(raw,t.dec); }catch(e){ toast('读余额失败，稍后重试'); } }
   async function doSend(){
     if(!myAddr){ toast('请先连接钱包'); return; }
-    const t=TOKENS[$('mw_sendTok').value];
+    const t=SEND_TOKENS[$('mw_sendTok').value];
     const to=($('mw_sendTo').value||'').trim();
     const amtStr=($('mw_sendAmt').value||'').trim();
     if(!/^0x[0-9a-fA-F]{40}$/.test(to)){ toast('收款地址格式不对（应是 0x 开头 42 位）'); return; }
@@ -631,6 +639,14 @@
        <div class="tier-options" role="group" aria-label="牌桌布局">${Object.keys(LAYOUTS).map(k=>`<button class="tier-button ${tableLayout===k?'selected':''}" data-tlayout="${k}" aria-pressed="${tableLayout===k}"><strong>${LAYOUTS[k].slice(0,2)}</strong><span>${LAYOUTS[k].slice(3)}</span></button>`).join('')}</div>`;
     openModal('我的', avatarSet + (connected?
       `<div class="wallet-info"><span>钱包地址</span><strong style="font-size:14px">${short(myAddr)}</strong></div>
+       <button class="small-button" data-action="toggle-send" style="width:100%;margin-top:6px;text-align:left">${sendOpen?'▾':'▸'} 转账</button>
+       <div id="mw_sendwrap" style="flex-direction:column;gap:8px;margin-top:8px;display:${sendOpen?'flex':'none'}">
+         <select id="mw_sendTok" style="width:100%;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px">${Object.values(SEND_TOKENS).map(t=>`<option value="${t.key}">${t.label}</option>`).join('')}</select>
+         <input id="mw_sendTo" type="text" placeholder="收款地址 0x..." autocomplete="off" spellcheck="false" style="width:100%;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:13px;font-family:monospace">
+         <div style="display:flex;gap:8px"><input id="mw_sendAmt" type="text" inputmode="decimal" placeholder="数量" style="flex:1;min-width:0;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px"><button class="small-button" data-action="send-max">全部</button></div>
+         <button class="gold-button" data-action="do-send" style="width:100%">确认转账</button>
+         <div class="form-note">转账是链上真实操作、不可撤回。只能转给 Anubis 链(6714)地址，务必核对收款地址。</div>
+       </div>
        <button class="small-button" data-action="toggle-qr" style="width:100%;margin-top:6px;text-align:left">${qrOpen?'▾':'▸'} 收款码</button>
        <div id="mw_qrwrap" style="flex-direction:column;align-items:center;gap:10px;margin-top:8px;display:${qrOpen?'flex':'none'}">
          <div id="mw_qr" style="width:180px;height:180px;background:#fff;border-radius:12px;padding:10px;box-sizing:border-box;display:flex;align-items:center;justify-content:center"></div>
@@ -639,15 +655,7 @@
          <div class="form-note" style="text-align:center">用别的钱包扫这个码（或复制地址），把 LGNS / DAI 转进来充值。地址在 Anubis 链两种币通用。</div>
        </div>
        <label class="form-label" style="display:flex;justify-content:space-between;align-items:center">我的余额<button class="small-button" data-action="refresh-bal" aria-label="刷新全部余额">↻ 刷新</button></label>
-       ${Object.values(TOKENS).map(t=>`<div class="wallet-row"><span>${t.label}</span><strong id="mw_bal_${t.key}">${walletBals[t.key]||'—'} <small>${t.sym}</small></strong></div>`).join('')}
-       <button class="small-button" data-action="toggle-send" style="width:100%;margin-top:6px;text-align:left">${sendOpen?'▾':'▸'} 转账</button>
-       <div id="mw_sendwrap" style="flex-direction:column;gap:8px;margin-top:8px;display:${sendOpen?'flex':'none'}">
-         <select id="mw_sendTok" style="width:100%;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px">${Object.values(TOKENS).map(t=>`<option value="${t.key}">${t.label}</option>`).join('')}</select>
-         <input id="mw_sendTo" type="text" placeholder="收款地址 0x..." autocomplete="off" spellcheck="false" style="width:100%;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:13px;font-family:monospace">
-         <div style="display:flex;gap:8px"><input id="mw_sendAmt" type="text" inputmode="decimal" placeholder="数量" style="flex:1;min-width:0;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px"><button class="small-button" data-action="send-max">全部</button></div>
-         <button class="gold-button" data-action="do-send" style="width:100%">确认转账</button>
-         <div class="form-note">转账是链上真实操作、不可撤回。只能转给 Anubis 链(6714)地址，务必核对收款地址。</div>
-       </div>`
+       ${Object.values(TOKENS).map(t=>`<div class="wallet-row"><span>${t.label}</span><strong id="mw_bal_${t.key}">${walletBals[t.key]||'—'} <small>${t.sym}</small></strong></div>`).join('')}`
       :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 ${SYM} 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
       + nickSet
       + layoutSet
