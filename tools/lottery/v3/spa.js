@@ -20,23 +20,25 @@
   function near(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(internal(a))prefetch(a.href);}
   document.addEventListener('mouseover',near,{passive:true});
   document.addEventListener('touchstart',near,{passive:true});
-  var ov,tmr;
-  function overlay(){
-    if(ov)return ov;
+  var pb,tmr;
+  function bar(){
+    if(pb)return pb;
     var s=document.createElement('style');
-    s.textContent='#__spaov{position:fixed;inset:0;z-index:2147483646;background:#0d1114;opacity:0;transition:opacity .16s ease;pointer-events:none;display:flex;align-items:center;justify-content:center}#__spaov.on{opacity:1;pointer-events:auto}#__spaov i{width:30px;height:30px;border:3px solid #c8f66540;border-top-color:#c8f665;border-radius:50%;animation:__spaspin .7s linear infinite;display:block}@keyframes __spaspin{to{transform:rotate(360deg)}}';
+    s.textContent='#__spapb{position:fixed;top:0;left:0;height:3px;width:0;z-index:2147483647;background:linear-gradient(90deg,#9fe04a,#c8f665);box-shadow:0 0 10px #c8f665cc;opacity:0;border-radius:0 3px 3px 0;pointer-events:none}';
     document.head.appendChild(s);
-    ov=document.createElement('div');ov.id='__spaov';ov.innerHTML='<i></i>';document.body.appendChild(ov);
-    return ov;
+    pb=document.createElement('div');pb.id='__spapb';document.body.appendChild(pb);
+    return pb;
   }
+  function go(){ var b=bar(); b.style.transition='none'; b.style.width='0'; b.style.opacity='1'; requestAnimationFrame(function(){ b.style.transition='width .4s cubic-bezier(.2,.8,.2,1),opacity .25s'; b.style.width='80%'; }); } // 点了立刻走到80%,等页面加载;真跳走后进度条随旧页消失
+  function stop(){ if(!pb)return; pb.style.transition='width .2s,opacity .3s'; pb.style.width='100%'; setTimeout(function(){ if(pb)pb.style.opacity='0'; },160); }
   document.addEventListener('click',function(e){
     if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
     var a=e.target&&e.target.closest&&e.target.closest('a[href]');
     if(!internal(a))return;
     prefetch(a.href);
-    var o=overlay();requestAnimationFrame(function(){o.classList.add('on');});
-    clearTimeout(tmr);tmr=setTimeout(function(){if(o)o.classList.remove('on');},3000); // 保险:没真跳走就撤遮罩
+    go();
+    clearTimeout(tmr);tmr=setTimeout(stop,2500); // 保险:没真跳走就收尾
   },true);
-  window.addEventListener('pageshow',function(){if(ov)ov.classList.remove('on');}); // bfcache返回时清遮罩
+  window.addEventListener('pageshow',function(){stop();}); // bfcache返回时收尾进度条
   window.addEventListener('pagehide',function(){clearTimeout(tmr);});
 })();
