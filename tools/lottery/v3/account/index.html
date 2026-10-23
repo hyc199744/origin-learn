@@ -114,6 +114,11 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     </section>
 
     <section class="card">
+      <h2>返佣明细</h2>
+      <div id="refDetail"><div class="note">加载中…</div></div>
+    </section>
+
+    <section class="card">
       <h2>我的战绩</h2>
       <div id="record"><div class="note">加载中…</div></div>
     </section>
@@ -193,7 +198,18 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
       $('stIndirect').textContent = j.indirectCount||0;
       $('stClaim').textContent = fmtMap(j.claimable);
       $('stEarned').textContent = fmtMap(j.earned);
-    }catch(e){ $('accRef').textContent=TR('读取失败'); $('stDirect').textContent='0';$('stIndirect').textContent='0';$('stClaim').textContent='0';$('stEarned').textContent='0'; }
+      var dbox=$('refDetail');
+      if(dbox){
+        var inv=j.invitees||[];
+        if(!inv.length){ dbox.innerHTML='<div class="note">'+TR('暂无下线，去邀请页分享你的链接')+'</div>'; }
+        else{
+          var gc='grid-template-columns:1.2fr 1fr 1fr';
+          var h='<div class="rec-head" style="'+gc+'"><span>'+TR('下线')+'</span><span>'+TR('TA产生手续费')+'</span><span>'+TR('我的返佣')+'</span></div>';
+          h+=inv.map(function(it){ return '<div class="rec-row" style="'+gc+'"><span class="p"><a href="https://browser.anubispace.org/address/'+it.addr+'" target="_blank" rel="noopener" style="color:inherit">'+short(it.addr)+'</a></span><span class="mono">'+fmtMap(it.generated)+'</span><span class="mono net pos">'+fmtMap(it.earnedFromThem)+'</span></div>'; }).join('');
+          dbox.innerHTML=h;
+        }
+      }
+    }catch(e){ $('accRef').textContent=TR('读取失败'); $('stDirect').textContent='0';$('stIndirect').textContent='0';$('stClaim').textContent='0';$('stEarned').textContent='0'; var d=$('refDetail');if(d)d.innerHTML='<div class="note">'+TR('读取失败')+'</div>'; }
   }
   async function loadRecord(){ // 炸金花本地对局战绩(与炸金花页同源共享localStorage anubisplay_results)
     var box=$('record'),gbox=$('games');if(!box)return;
