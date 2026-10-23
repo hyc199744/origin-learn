@@ -285,7 +285,7 @@ html,body{overflow-x:hidden;max-width:100%}
     </a>
     <div class="topbar-actions">
       <button class="icon-btn" aria-label="声音"><svg class="ic" viewBox="0 0 24 24"><path d="M5 9v6h4l5 4V5L9 9H5Z"/><path d="M17 8c1.5 1.5 1.5 6.5 0 8"/></svg></button>
-      <button class="icon-btn lang-btn" id="langBtn" onclick="toggleLangMenu(event)" aria-label="Language"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span id="langCode" style="font-size:9px;font-weight:700;margin-left:2px">中</span></button><div id="langMenu" class="lang-menu" hidden></div>
+      <button class="icon-btn lang-btn" id="langBtn" onclick="langToggle()" aria-label="Language" title="中 / EN"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><span id="langCode" style="font-size:9px;font-weight:700;margin-left:2px">中</span></button><div id="langMenu" class="lang-menu" hidden></div>
       <button class="wallet-btn" id="walletBtn" onclick="connectWallet()"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h.01"/></svg><span id="walletTxt">连接钱包</span></button>
     </div>
   </header>
@@ -502,7 +502,7 @@ html,body{overflow-x:hidden;max-width:100%}
   setInterval(function(){POOLS.forEach(function(_,k){loadPool(k);});},30000);
 })();
 </script>
-<script src="i18n.js?v=22"></script>
+<script src="i18n.js?v=23"></script>
 <script defer src="gate.js?v=4"></script>
 <script defer src="ref.js?v=1"></script>
 <script defer src="wins-ticker.js?v=2"></script>

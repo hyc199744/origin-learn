@@ -167,7 +167,7 @@
     if(_title)try{document.title=window.tr(_title,l);}catch(e){}
     for(var _i=0;_i<_tn.length;_i++){var o=_tn[_i];try{o.node.nodeValue=o.pre+window.tr(o.zh,l)+o.post;}catch(e){}}
     var hh=document.getElementById('heroH2');if(hh)hh.innerHTML=HERO[l]||HERO.zh;
-    var lc=document.getElementById('langCode');if(lc){lc.innerHTML='';}
+    var lc=document.getElementById('langCode');if(lc){lc.textContent=(l==='zh'?'中':'EN');}
     document.querySelectorAll('#langMenu .lmi').forEach(function(a){a.classList.toggle('on',a.getAttribute('data-l')===l);});
     try{if(window.__uiWallet)window.__uiWallet();}catch(e){}
     try{if(window.__poolRender)window.__poolRender();}catch(e){}
@@ -190,6 +190,7 @@
     LANG=l; try{applyLang(l);}catch(e){}                      // 所有语言统一就地实时翻译,不刷新(钱包内置浏览器 location.reload 会丢 localStorage/被吞 → 看着像没切)
     fullTp(); startObs(); setTimeout(fullTp,300); setTimeout(fullTp,1200);
   };
+  window.langToggle=function(){ try{ window.setLang(LANG==='zh'?'en':'zh'); }catch(e){} }; // 一键中↔英切换(替代下拉菜单,手机更可靠)
   function build(){
     if(!document.getElementById('langBackdrop')){var _bd=document.createElement('div');_bd.id='langBackdrop';_bd.hidden=true;_bd.style.cssText='position:fixed;inset:0;z-index:199;background:transparent';_bd.onclick=closeMenu;document.body.appendChild(_bd);}
     var menu=document.getElementById('langMenu');if(menu){menu.innerHTML=LANGS.map(function(x){var r=x[3];return '<a class="lmi'+(r?'':' soon')+'" data-l="'+x[0]+'"'+(r?' onclick="setLang(\''+x[0]+'\')"':'')+'>'+x[2]+'<span>'+x[1]+'</span>'+(r?'':'<em>soon</em>')+'</a>';}).join('');}
