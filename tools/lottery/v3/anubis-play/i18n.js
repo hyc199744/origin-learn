@@ -25,7 +25,7 @@
     ["各交一份底注入座。暗牌按当前本注跟注，看牌后按 2 倍跟注。","Each posts one ante to sit. Blind players call the current bet; after looking you call double."],
     ["加注把本注往上提一档；按钮显示本次实际支付。","Raising bumps the bet up a step; the button shows what you actually pay."],
     ["轮到你可比牌：挑一个对手单挑，输的出局；牌力相同发起方出局。","On your turn you can show down: pick one opponent; the loser is out, ties go against the challenger."],
-    ["打到只剩 1 人或摊牌结算，赢家拿底池（扣 3% 手续费）。一局结束自动开下一局。","Play until one remains or showdown; the winner takes the pot (minus 3% fee). The next hand starts automatically."],
+    ["打到只剩 1 人或摊牌结算，赢家拿底池。一局结束自动开下一局。","Play until one remains or showdown; the winner takes the pot. The next hand starts automatically."],
     ["A23 为最小顺子；花色不分大小。","A-2-3 is the lowest straight; suits have no rank."],
     ["选好即自动上传保存","Saved automatically once chosen"],
     ["点某一行展开看你的三张牌。记录存本浏览器本地，换设备或清缓存会清空；权威结果以链上为准。","Tap a row to see your three cards. Records are stored locally in this browser and clear on another device or cache wipe; the chain is authoritative."],
