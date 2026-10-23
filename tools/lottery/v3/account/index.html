@@ -183,31 +183,26 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     }catch(e){toast((e&&e.message)||e);}};
   window.copyAddr=function(){if(!myAddr)return;try{if(navigator.clipboard)navigator.clipboard.writeText(myAddr);}catch(e){}toast(TR('已复制'));};
   /* 加载 */
-  async function loadReferral(){
-    var me=myAddr.toLowerCase();
-    try{var refs=[];for(var i=0;i<POOLS.length;i++){try{var r='0x'+(await ethCall(POOLS[i].c,SEL.referrer+encA(myAddr))).slice(-40);if(r!=='0x0000000000000000000000000000000000000000'){refs.push(short(r));break;}}catch(e){}}$('accRef').textContent=refs.length?refs[0]:TR('无，首次购票时绑定');}catch(e){}
-    try{var cl={};for(var i=0;i<POOLS.length;i++){var rw=0n;try{rw=BigInt('0x'+((await ethCall(POOLS[i].c,SEL.rewards+encA(myAddr)))||'0'));}catch(e){}if(rw>0n)cl[POOLS[i].sym]={d:POOLS[i].d,a:rw};}var cs=Object.keys(cl).map(function(s){return fmt(cl[s].a,cl[s].d)+' '+s;}).join(' · ');$('stClaim').textContent=cs||'0';}catch(e){$('stClaim').textContent='0';}
+  async function loadReferral(){ // 接炸金花统一返佣账本(zjgame.web3origin.com/ref),显示真实上级/直推/间推/可领/累计
     try{
-      var bound={};for(var i=0;i<POOLS.length;i++){var bl=await getLogs(EV_BOUND,POOLS[i].c,POOLS[i].b);bl.forEach(function(l){var buyer=('0x'+l.topics[1].slice(-40)).toLowerCase();var rf=('0x'+l.topics[2].slice(-40)).toLowerCase();if(!(buyer in bound))bound[buyer]=rf;});}
-      var direct={},dc=0;for(var b in bound){if(bound[b]===me){direct[b]=1;dc++;}}var ic=0;for(var b in bound){if(!direct[b]&&b!==me&&direct[bound[b]])ic++;}
-      var earned=0n,es={};for(var i=0;i<POOLS.length;i++){var P=POOLS[i];var rl=await getLogs(EV_REWARD,P.c,P.b);rl.forEach(function(l){var d=(l.data||'0x').replace(/^0x/,'');var r1=('0x'+d.slice(0,64).slice(-40)).toLowerCase(),a1=BigInt('0x'+(d.slice(64,128)||'0')),r2=('0x'+d.slice(128,192).slice(-40)).toLowerCase(),a2=BigInt('0x'+(d.slice(192,256)||'0'));var add=0n;if(r1===me)add+=a1;if(r2===me)add+=a2;if(add>0n){if(!es[P.sym])es[P.sym]={d:P.d,a:0n};es[P.sym].a+=add;}});}
-      $('stDirect').textContent=dc;$('stIndirect').textContent=ic;
-      var estr=Object.keys(es).map(function(s){return fmt(es[s].a,es[s].d)+' '+s;}).join(' · ');$('stEarned').textContent=estr||'0';
-    }catch(e){$('stDirect').textContent='0';$('stIndirect').textContent='0';$('stEarned').textContent='0';}
+      var j=await fetch('https://zjgame.web3origin.com/ref/me?addr='+myAddr,{cache:'no-store'}).then(function(r){return r.json();});
+      var toks=j.tokens||{};
+      function fmtMap(m){ if(!m)return '0'; var parts=[]; Object.keys(m).forEach(function(t){ var amt=m[t]; try{ if(BigInt(amt)<=0n)return; }catch(e){ return; } var info=toks[t]||toks[t.toLowerCase()]; parts.push(fmt(amt, info?info.dec:18)+' '+(info?info.sym:'')); }); return parts.length?parts.join(' · '):'0'; }
+      $('accRef').textContent = j.referrer ? short(j.referrer) : TR('无，用邀请链接进入或开始玩后绑定');
+      $('stDirect').textContent = j.directCount||0;
+      $('stIndirect').textContent = j.indirectCount||0;
+      $('stClaim').textContent = fmtMap(j.claimable);
+      $('stEarned').textContent = fmtMap(j.earned);
+    }catch(e){ $('accRef').textContent=TR('读取失败'); $('stDirect').textContent='0';$('stIndirect').textContent='0';$('stClaim').textContent='0';$('stEarned').textContent='0'; }
   }
-  async function loadRecord(){
-    var box=$('record'),gbox=$('games');if(!box)return;var me=myAddr.toLowerCase();
-    var rows='',gtags='',any=false;
-    for(var i=0;i<POOLS.length;i++){var P=POOLS[i];var tk=0n,wc=0,wa=0n,price=0n;
-      try{price=BigInt('0x'+((await ethCall(P.c,SEL.price))||'0'));}catch(e){}
-      try{var tl=await getLogs(EV_TICKETS,P.c,P.b);tl.forEach(function(l){if(('0x'+l.topics[2].slice(-40)).toLowerCase()===me)tk+=BigInt('0x'+((l.data||'0x').replace(/^0x/,'').slice(0,64)||'0'));});}catch(e){}
-      try{var wl=await getLogs(EV_WIN,P.c,P.b);wl.forEach(function(l){var d=(l.data||'0x').replace(/^0x/,'');var ow=num(d.slice(0,64))*2,oa=num(d.slice(64,128))*2;var ws=decArr(d,ow,true),as=decArr(d,oa,false);for(var j=0;j<ws.length;j++){if(ws[j].toLowerCase()===me){wc++;wa+=as[j];}}});}catch(e){}
-      if(tk>0n||wc>0){any=true;var spent=price*tk;var net=wa-spent;var neg=net<0n;var na=neg?(0n-net):net;
-        rows+='<div class="rec-row"><span class="p"><span class="pd" style="background:'+COL[i]+'"></span>'+P.sym+'</span><span class="mono">'+tk.toString()+'</span><span class="mono">'+wc+'× '+fmt(wa,P.d)+'</span><span class="mono net '+(neg?'neg':'pos')+'">'+(neg?'-':'+')+fmt(na,P.d)+'</span></div>';
-        gtags+='<span class="gtag">'+P.sym+'<span class="mono">×'+tk.toString()+'</span></span>';}
-    }
-    if(any){box.innerHTML='<div class="rec-head"><span>'+TR('奖池')+'</span><span>'+TR('累计买票')+'</span><span>'+TR('中奖')+'</span><span>'+TR('净盈亏')+'</span></div>'+rows;gbox.innerHTML=gtags;}
-    else{box.innerHTML='<div class="note">'+TR('暂无记录')+'</div>';gbox.innerHTML='<span class="note">'+TR('暂无')+'</span>';}
+  async function loadRecord(){ // 炸金花本地对局战绩(与炸金花页同源共享localStorage anubisplay_results)
+    var box=$('record'),gbox=$('games');if(!box)return;
+    var rs=[];try{rs=JSON.parse(localStorage.getItem('anubisplay_results')||'[]')||[];}catch(e){}
+    if(!rs.length){box.innerHTML='<div class="note">'+TR('暂无炸金花战绩')+'</div>';if(gbox)gbox.innerHTML='<span class="note">'+TR('暂无')+'</span>';return;}
+    var head='<div class="rec-head"><span>'+TR('牌局')+'</span><span>'+TR('时间')+'</span><span>'+TR('结果')+'</span><span>'+TR('净盈亏')+'</span></div>';
+    var rows=rs.slice(0,30).map(function(r){var net=Number(r.net)||0,neg=net<0,na=Math.abs(net);return '<div class="rec-row"><span class="p">#'+(r.hand||'-')+'</span><span class="mono" style="font-size:11px">'+(r.time||'-')+'</span><span class="mono">'+(r.win?TR('赢'):TR('输/弃'))+'</span><span class="mono net '+(neg?'neg':'pos')+'">'+(neg?'-':'+')+na.toFixed(2)+'</span></div>';}).join('');
+    box.innerHTML=head+rows;
+    if(gbox)gbox.innerHTML='<span class="gtag">'+TR('炸金花')+'<span class="mono">×'+rs.length+'</span></span>';
   }
   async function loadTx(){
     var box=$('txlist');if(!box)return;var me=myAddr.toLowerCase();var txs=[];
