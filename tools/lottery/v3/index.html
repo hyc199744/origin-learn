@@ -473,6 +473,8 @@ html,body{overflow-x:hidden;max-width:100%}
   function enc(n){return BigInt(n).toString(16).padStart(64,'0');}
   function call(to,d){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:to,data:'0x'+d},'latest']})}).then(function(r){return r.json();}).then(function(j){return (j.result||'0x').replace(/^0x/,'');});}
   function fmt(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
+  function saveCache(){try{var o={};for(var k in data){var d=data[k];if(d&&d.ok)o[k]={price:d.price.toString(),end:d.end,pool:d.pool.toString(),round:d.round};}localStorage.setItem('ap_hall_cache',JSON.stringify(o));}catch(e){}}
+  function loadCache(){try{var o=JSON.parse(localStorage.getItem('ap_hall_cache')||'{}');for(var k in o){var d=o[k];if(d)data[k]={price:BigInt(d.price),end:d.end,pool:BigInt(d.pool),round:d.round,ok:true};}}catch(e){}}
   async function loadPool(k){
     var P=POOLS[k];
     try{
@@ -483,6 +485,7 @@ html,body{overflow-x:hidden;max-width:100%}
       data[k]={price:price,end:Number(w(0)),pool:w(3)+w(4),round:Number(rid),ok:true};
     }catch(e){data[k]={ok:false};}
     if(k===sel) render();
+    saveCache();
   }
   function cd(end){var s=end-Math.floor(Date.now()/1000);if(s<0)s=0;var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;var p=function(n){return String(n).padStart(2,'0');};return p(h)+':'+p(m)+':'+p(x);}
   function tickTimer(){var D=data[sel]||{};var e=$('tkTimer');if(!e)return;e.textContent=D.ok?(D.end>Math.floor(Date.now()/1000)?cd(D.end):'已截止'):'—';}
@@ -496,7 +499,7 @@ html,body{overflow-x:hidden;max-width:100%}
     tickTimer();
   }
   window.selPool=function(i){sel=i;render();if(!data[i]||!data[i].ok)loadPool(i);};
-  render();
+  loadCache();render();
   POOLS.forEach(function(_,k){loadPool(k);});
   setInterval(tickTimer,1000);
   setInterval(function(){POOLS.forEach(function(_,k){loadPool(k);});},30000);

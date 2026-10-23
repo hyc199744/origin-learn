@@ -205,13 +205,15 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   function rcall(to,d){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:to,data:'0x'+d},'latest']})}).then(function(r){return r.json();}).then(function(j){return (j.result||'0x').replace(/^0x/,'');});}
   function fmt(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
   function getRef(){try{var r=new URLSearchParams(location.search).get('ref');if(r&&/^0x[0-9a-fA-F]{40}$/.test(r)){if(myAddr&&r.toLowerCase()===myAddr.toLowerCase())return null;return r;}}catch(e){}return null;}
-  /* 奖池数据 */
+  /* 奖池数据 + 本地缓存(打开/切回秒显示上次值,再后台刷新) */
+  function saveCache(){try{var o={};for(var k in data){var d=data[k];if(d&&d.ok)o[k]={price:d.price.toString(),end:d.end,drawBlock:d.drawBlock,pool:d.pool.toString(),round:d.round};}localStorage.setItem('ap_lot_cache',JSON.stringify(o));}catch(e){}}
+  function loadCache(){try{var o=JSON.parse(localStorage.getItem('ap_lot_cache')||'{}');for(var k in o){var d=o[k];if(d)data[k]={price:BigInt(d.price),end:d.end,drawBlock:d.drawBlock,pool:BigInt(d.pool),round:d.round,ok:true};}}catch(e){}}
   async function loadPool(k){var P=POOLS[k];try{
     var price=BigInt('0x'+((await rcall(P.c,SEL.price))||'0'));
     var rid=BigInt('0x'+((await rcall(P.c,SEL.round))||'0'));
     var r=await rcall(P.c,SEL.rounds+enc(rid));var w=function(i){return BigInt('0x'+(r.slice(i*64,i*64+64)||'0'));};
     data[k]={price:price,end:Number(w(0)),drawBlock:Number(w(1)),pool:w(3)+w(4),round:Number(rid),ok:true};
-  }catch(e){data[k]={ok:false};}if(k===sel)render();}
+  }catch(e){data[k]={ok:false};}if(k===sel)render();saveCache();}
   function cd(end){var s=end-Math.floor(Date.now()/1000);if(s<0)s=0;var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;var p=function(v){return String(v).padStart(2,'0');};return p(h)+':'+p(m)+':'+p(x);}
   function tickTimer(){var D=data[sel]||{};var e=$('tkTimer');if(e)e.textContent=D.ok?(D.end>Math.floor(Date.now()/1000)?cd(D.end):(window.tr?window.tr('已截止'):'已截止')):'—';}
   window.__poolRender=render;function render(){var P=POOLS[sel],D=data[sel]||{};
@@ -255,7 +257,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     else{var ref=getRef();if(ref)await sendTx(P.c,'0x'+SEL.buyRef+enc(n)+encA(ref));else await sendTx(P.c,'0x'+SEL.buy+enc(n));toast(window.tr?window.tr('购票成功！'):'购票成功！');var _bb=(_lastTk[P.c]!=null?_lastTk[P.c]:0n)+BigInt(n);_pendTk[P.c]=_bb;delete _lc[P.c+'|'+EV_TICKETS];loadPool(sel);loadMyStats();}
   }catch(e){toast((e&&e.message)||e);}finally{busy=false;updateBuy();}};
   /* init */
-  render();POOLS.forEach(function(_,k){loadPool(k);});
+  loadCache();render();POOLS.forEach(function(_,k){loadPool(k);});
   setInterval(tickTimer,1000);setInterval(function(){POOLS.forEach(function(_,k){loadPool(k);});},30000);
   if(window.ethereum&&window.ethereum.request){window.ethereum.request({method:'eth_accounts'}).then(function(a){if(a&&a.length){myAddr=a[0];uiWallet();}}).catch(function(){});}
   /* 从 ?pool=N 选池 */
