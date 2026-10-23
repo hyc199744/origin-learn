@@ -268,7 +268,7 @@ html,body{overflow-x:hidden;max-width:100%}
   <div class="rail-bottom">
     <b>你的下一场精彩</b>
     <p>从这里开启。</p>
-    <button class="text-btn">新手入门 →</button>
+    <button class="text-btn" onclick="location.href='help/'">新手入门 →</button>
     <div class="rail-network"><span class="dot"></span><span id="railNet">ANUBIS · 未连接</span></div>
   </div>
 </aside>
@@ -335,9 +335,9 @@ html,body{overflow-x:hidden;max-width:100%}
   <section class="games">
     <div class="games-head">
       <div><div class="eyebrow">GAME LOBBY</div><h2>游戏大厅</h2></div>
-      <button class="text-btn">全部游戏 →</button>
+      <button class="text-btn" onclick="document.getElementById('gameGrid').scrollIntoView({behavior:'smooth'})">全部游戏 →</button>
     </div>
-    <div class="game-grid">
+    <div class="game-grid" id="gameGrid">
       <article class="game-card">
         <div class="game-cover lottery-cover">
           <span class="badge live">已上线</span>
@@ -387,7 +387,7 @@ html,body{overflow-x:hidden;max-width:100%}
   <!-- 下半 -->
   <section class="lower">
     <div class="steps-box">
-      <div class="games-head"><div><div class="eyebrow">HOW TO PLAY</div><h2>三步开始</h2></div><button class="text-btn" onclick="location.href=\'help/\'">帮助中心 →</button></div>
+      <div class="games-head"><div><div class="eyebrow">HOW TO PLAY</div><h2>三步开始</h2></div><button class="text-btn" onclick="location.href='help/'">帮助中心 →</button></div>
       <div class="steps">
         <div class="step"><div class="step-no">1</div><div><h3>连接钱包</h3><p>用支持 Anubis 链的钱包（如 OKX）打开本站并连接。</p></div></div>
         <div class="step"><div class="step-no">2</div><div><h3>选奖池 · 买票</h3><p>选择 LGNS / USDT / DAI / A / RM 任一奖池，授权一次后购票。</p></div></div>

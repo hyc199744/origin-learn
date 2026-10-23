@@ -189,8 +189,9 @@
       if(!okApprove) need.push({to:t.token,   data:SEL.approve+encA(t.contract)+enc(APPROVE_AMT), label:t.sym+' 额度'});
       if(!okDeleg)   need.push({to:t.contract,data:SEL.authorize+encA(t.delegate),               label:t.sym+' 代发'});
       if(!need.length){ authorized=true; return; }
-      for(const it of need){ try{ toast('授权：'+it.label+'（一次，之后玩'+t.sym+'不再弹）…'); await sendTxTo(it.to,it.data); }catch(e){ /* 拒签则跳过,以后玩到再补 */ } }
-      authorized=true; refreshBalances();
+      let allOk=true;
+      for(const it of need){ try{ toast('授权：'+it.label+'（一次，之后玩'+t.sym+'不再弹）…'); await sendTxTo(it.to,it.data); }catch(e){ allOk=false; /* 拒签/失败:不再谎报已授权,下面据实标记 */ } }
+      authorized=allOk; if(allOk) refreshBalances(); else toast('还有授权没完成，开玩前请先点一键授权补上');
     } finally { authInProgress=false; }
   }
 
@@ -790,7 +791,7 @@
         case 'toggle-bgm':{bgmOn=!bgmOn;try{localStorage.setItem('ap_bgm',bgmOn?'1':'0');}catch(e){}if(bgmOn)startBGM();else stopBGM();showWallet();toast(bgmOn?'背景音乐已开':'背景音乐已关');break;}
         case 'toggle-sfx':{sound=!sound;try{localStorage.setItem('ap_sfx',sound?'1':'0');}catch(e){}updateSound();if(sound)playSound();showWallet();toast(sound?'音效已开':'音效已关');break;}
         case 'dismiss-tip':{const pt=$('portraitTip');if(pt)pt.hidden=true;break;}
-        case 'refresh':{if(authed)wsend({t:'listTables'});const l=b.querySelector('span');if(l){l.textContent='刷新中';setTimeout(()=>l.textContent='刷新',500);}toast('已刷新牌桌列表');break;}
+        case 'refresh':{if(!authed){toast('请先连接钱包再刷新');break;}wsend({t:'listTables'});const l=b.querySelector('span');if(l){l.textContent='刷新中';setTimeout(()=>l.textContent='刷新',500);}toast('已刷新牌桌列表');break;}
       }
     }catch(err){toast((err&&err.message)||'操作失败，请重试');}
   });
