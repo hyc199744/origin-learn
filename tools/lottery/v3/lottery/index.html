@@ -69,7 +69,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--accent);color:var(--accent-ink);
   font-weight:700;font-size:14px;min-height:50px;border-radius:11px;box-shadow:0 6px 18px #c8f66522;transition:transform .15s}
 .btn:active{transform:scale(.99)}
-.btn:disabled{opacity:.55}
+.btn:disabled{opacity:.55}.btn[hidden]{display:none!important}
 .note{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.7}
 /* 奖项 */
 .prizes{display:flex;flex-direction:column;gap:10px;margin-top:6px}
@@ -238,7 +238,8 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
       if(!window._wl){window._wl=1;if(eth.on){eth.on('accountsChanged',function(a){myAddr=(a&&a[0])||null;uiWallet();});eth.on('chainChanged',function(){location.reload();});}}
     }catch(e){toast((e&&e.message)||'连接失败');}};
   /* 发交易(Anubis legacy type-0) */
-  async function sendTx(to,d){var eth=window.ethereum;var tx={from:myAddr,to:to,data:d,type:'0x0'};
+  async function ensureChain(){var eth=window.ethereum;if(!eth)throw new Error(window.tr?window.tr('未检测到钱包'):'未检测到钱包');var cid=await eth.request({method:'eth_chainId'});if(parseInt(cid,16)===ANUBIS.id)return;try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:ANUBIS.hex}]});}catch(e){if(e&&e.code===4902){await eth.request({method:'wallet_addEthereumChain',params:[{chainId:ANUBIS.hex,chainName:ANUBIS.name,rpcUrls:[ANUBIS.rpc],nativeCurrency:ANUBIS.native,blockExplorerUrls:[ANUBIS.exp]}]});}else throw e;}var c2=await eth.request({method:'eth_chainId'});if(parseInt(c2,16)!==ANUBIS.id)throw new Error(window.tr?window.tr('请在钱包切换到 Anubis 网络后再试'):'请在钱包切换到 Anubis 网络后再试');}
+  async function sendTx(to,d){var eth=window.ethereum;await ensureChain();var tx={from:myAddr,to:to,data:d,type:'0x0'};
     var gp=await eth.request({method:'eth_gasPrice',params:[]});tx.gasPrice=gp;
     var hash=await eth.request({method:'eth_sendTransaction',params:[tx]});toast(window.tr?window.tr('交易已发送，等待确认…'):'交易已发送，等待确认…');
     for(var i=0;i<150;i++){await new Promise(function(r){setTimeout(r,2000);});var rc=await eth.request({method:'eth_getTransactionReceipt',params:[hash]});if(rc&&rc.blockNumber&&rc.blockNumber!=='0x0'){if(rc.status==='0x1')return rc;throw new Error('交易失败(被合约回退)');}}
@@ -251,7 +252,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     if(!myAddr){await connectWallet();return;}
     var P=POOLS[sel],D=data[sel];if(!D||!D.ok){toast(window.tr?window.tr('奖池数据未就绪'):'奖池数据未就绪');return;}
     if(await needApprove()){await sendTx(P.t,'0x'+SEL.approve+encA(P.c)+enc(D.price*200n));toast(window.tr?window.tr('授权成功'):'授权成功');}
-    else{var ref=getRef();if(ref)await sendTx(P.c,'0x'+SEL.buyRef+enc(n)+encA(ref));else await sendTx(P.c,'0x'+SEL.buy+enc(n));toast(window.tr?window.tr('购票成功！'):'购票成功！');loadPool(sel);}
+    else{var ref=getRef();if(ref)await sendTx(P.c,'0x'+SEL.buyRef+enc(n)+encA(ref));else await sendTx(P.c,'0x'+SEL.buy+enc(n));toast(window.tr?window.tr('购票成功！'):'购票成功！');var _bb=(_lastTk[P.c]!=null?_lastTk[P.c]:0n)+BigInt(n);_pendTk[P.c]=_bb;delete _lc[P.c+'|'+EV_TICKETS];loadPool(sel);loadMyStats();}
   }catch(e){toast((e&&e.message)||e);}finally{busy=false;updateBuy();}};
   /* init */
   render();POOLS.forEach(function(_,k){loadPool(k);});
@@ -263,18 +264,22 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 
   var EV_WIN='0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627b4';
   var EV_TICKETS='0xc8c5c2b0e44fb6312c0098ec42642058527713d0a1d29a5c6ccbfe34d714d41e';
-  var _lc={};
+  var _lc={},_lastTk={},_pendTk={};
   function TR(s){return window.tr?window.tr(s):s;}
   function num(hx){return parseInt(hx,16)||0;}
   function rpc(m,pr){return fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:m,params:pr})}).then(function(r){return r.json();}).then(function(j){return j.result;});}
-  async function getLogs(topic,addr,from){ // 改用Blockscout索引接口一次查全范围(避免RPC每次5000块上限扫上千次卡死)
+  async function getLogs(topic,addr,from){ // Blockscout索引优先;空则RPC直连兜底抓最近区块(新合约索引滞后时也能读到刚买的票);不缓存空结果
     var key=addr+'|'+topic;if(_lc[key])return _lc[key];
+    var logs=[];
     try{
       var url='https://browser.anubispace.org/api?module=logs&action=getLogs&fromBlock='+from+'&toBlock=latest&address='+addr+'&topic0='+topic;
       var j=await fetch(url).then(function(r){return r.json();});
-      var logs=(j&&j.result&&Array.isArray(j.result))?j.result:[];
-      _lc[key]=logs;return logs;
-    }catch(e){return [];}}
+      if(j&&j.result&&Array.isArray(j.result))logs=j.result;
+    }catch(e){}
+    if(!logs.length){try{var cur=num(await rpc('eth_blockNumber',[]));var fb=Math.max(from,cur-4900);
+      var rl=await rpc('eth_getLogs',[{fromBlock:'0x'+fb.toString(16),toBlock:'latest',address:addr,topics:[topic]}]);
+      if(Array.isArray(rl))logs=rl;}catch(e){}}
+    if(logs.length)_lc[key]=logs;return logs;}
   function decArr(d,off,isAddr){var n=num(d.slice(off,off+64));var a=[];for(var i=0;i<n;i++){var w=d.slice(off+64*(i+1),off+64*(i+2));a.push(isAddr?('0x'+w.slice(-40)):BigInt('0x'+(w||'0')));}return a;}
   function fmtN(v,dec){v=BigInt(v);var s=v.toString().padStart(dec+1,'0');var i=s.slice(0,s.length-dec);var f=s.slice(s.length-dec);i=i.replace(/\B(?=(\d{3})+(?!\d))/g,',');f=f.slice(0,2).replace(/0+$/,'');return f?i+'.'+f:i;}
   async function loadDraw(){
@@ -299,6 +304,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
     try{
       var tl=await getLogs(EV_TICKETS,P.c,P.b);var tk=0n;
       tl.forEach(function(l){if(('0x'+l.topics[2].slice(-40)).toLowerCase()===me)tk+=BigInt('0x'+((l.data||'0x').replace(/^0x/,'').slice(0,64)||'0'));});
+      _lastTk[P.c]=tk;if(_pendTk[P.c]!=null){if(tk>=_pendTk[P.c])delete _pendTk[P.c];else tk=_pendTk[P.c];}
       var wl=await getLogs(EV_WIN,P.c,P.b);var wc=0,wa=0n;
       wl.forEach(function(l){var d=(l.data||'0x').replace(/^0x/,'');var ow=num(d.slice(0,64))*2,oa=num(d.slice(64,128))*2;var ws=decArr(d,ow,true),as=decArr(d,oa,false);for(var i=0;i<ws.length;i++){if(ws[i].toLowerCase()===me){wc++;wa+=as[i];}}});
       var D=data[sel]||{};var spent=(D.price||0n)*tk;var net=wa-spent;var neg=net<0n;var na=neg?(0n-net):net;var S=P.sym;
