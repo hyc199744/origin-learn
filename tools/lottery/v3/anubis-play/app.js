@@ -610,6 +610,46 @@
       refreshWalletBalances(); refreshBalances();
     }catch(e){ toast(e.message||'转账失败'); }
   }
+  // ---- 扫一扫:开摄像头扫对方收款二维码,自动把地址填进收款地址框(jsQR解码,iOS/安卓通用);扫到的二维码里取第一个0x40位地址 ----
+  let _scanStream=null,_scanRAF=null;
+  function closeScanner(){
+    try{ if(_scanRAF)cancelAnimationFrame(_scanRAF); }catch(e){} _scanRAF=null;
+    try{ if(_scanStream)_scanStream.getTracks().forEach(t=>t.stop()); }catch(e){} _scanStream=null;
+    const o=$('apScan'); if(o){ try{o.close();}catch(e){} o.remove(); }
+  }
+  async function openScanner(){
+    if(typeof jsQR!=='function'){ toast('扫码组件没加载,刷新页面重试'); return; }
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ toast('这个浏览器不支持摄像头,请手动粘贴地址'); return; }
+    const o=document.createElement('dialog'); o.id='apScan';
+    o.style.cssText='padding:0;border:0;margin:0;max-width:100vw;max-height:100vh;width:100vw;height:100vh;background:#000;overflow:hidden';
+    o.innerHTML='<video id="apScanVid" playsinline muted style="width:100%;height:100%;object-fit:cover"></video>'
+      +'<div style="position:fixed;top:0;left:0;right:0;padding:18px;text-align:center;color:#fff;font-size:15px;background:linear-gradient(#000b,transparent)">把对方的收款二维码对准框内</div>'
+      +'<div style="position:fixed;top:50%;left:50%;width:240px;height:240px;transform:translate(-50%,-50%);border:2px solid #c8f665;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)"></div>'
+      +'<button id="apScanCancel" style="position:fixed;bottom:34px;left:50%;transform:translateX(-50%);background:#fff;color:#111;border:0;border-radius:24px;padding:12px 30px;font-size:15px;font-weight:700">取消</button>';
+    document.body.appendChild(o);
+    try{ o.showModal(); }catch(e){ o.setAttribute('open',''); }
+    o.addEventListener('cancel',e=>{ e.preventDefault(); closeScanner(); });
+    $('apScanCancel').onclick=closeScanner;
+    const vid=$('apScanVid'), cvs=document.createElement('canvas'), ctx=cvs.getContext('2d',{willReadFrequently:true});
+    try{ _scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}); vid.srcObject=_scanStream; await vid.play(); }
+    catch(e){ closeScanner(); toast('打不开摄像头(可能没给权限),请手动粘贴地址'); return; }
+    const tick=()=>{
+      if(!_scanStream) return;
+      try{
+        if(vid.readyState>=2 && vid.videoWidth){
+          cvs.width=vid.videoWidth; cvs.height=vid.videoHeight;
+          ctx.drawImage(vid,0,0,cvs.width,cvs.height);
+          const img=ctx.getImageData(0,0,cvs.width,cvs.height);
+          const r=jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
+          if(r&&r.data){ const m=String(r.data).match(/0x[0-9a-fA-F]{40}/);
+            if(m){ const el=$('mw_sendTo'); if(el)el.value=m[0]; closeScanner(); toast('✅ 已填入收款地址'); try{playSound('card');}catch(e){} return; }
+          }
+        }
+      }catch(e){}
+      _scanRAF=requestAnimationFrame(tick);
+    };
+    _scanRAF=requestAnimationFrame(tick);
+  }
   // 对局中筹码不足:弹收款码,从别的钱包转入,到账(余额自动刷新)后自动继续
   function showTopup(cost){
     openModal('余额不足 · 扫码充值',
@@ -642,7 +682,7 @@
        <button class="small-button" data-action="toggle-send" style="width:100%;margin-top:6px;text-align:left">${sendOpen?'▾':'▸'} 转账</button>
        <div id="mw_sendwrap" style="flex-direction:column;gap:8px;margin-top:8px;display:${sendOpen?'flex':'none'}">
          <select id="mw_sendTok" style="width:100%;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px">${Object.values(SEND_TOKENS).map(t=>`<option value="${t.key}">${t.label}</option>`).join('')}</select>
-         <input id="mw_sendTo" type="text" placeholder="收款地址 0x..." autocomplete="off" spellcheck="false" style="width:100%;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:13px;font-family:monospace">
+         <div style="display:flex;gap:8px"><input id="mw_sendTo" type="text" placeholder="收款地址 0x..." autocomplete="off" spellcheck="false" style="flex:1;min-width:0;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:13px;font-family:monospace"><button class="small-button" data-action="scan-addr" style="white-space:nowrap">📷 扫一扫</button></div>
          <div style="display:flex;gap:8px"><input id="mw_sendAmt" type="text" inputmode="decimal" placeholder="数量" style="flex:1;min-width:0;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px"><button class="small-button" data-action="send-max">全部</button></div>
          <button class="gold-button" data-action="do-send" style="width:100%">确认转账</button>
          <div class="form-note">转账是链上真实操作、不可撤回。只能转给 Anubis 链(6714)地址，务必核对收款地址。</div>
@@ -815,6 +855,7 @@
         case 'toggle-send':{ sendOpen=!sendOpen; const w=$('mw_sendwrap'); if(w)w.style.display=sendOpen?'flex':'none'; if(b)b.textContent=(sendOpen?'▾':'▸')+' 转账'; break; }
         case 'send-max':{ doSendMax(); break; }
         case 'do-send':{ doSend(); break; }
+        case 'scan-addr':{ openScanner(); break; }
         case 'rec-toggle':{ const d=$('recd-'+b.dataset.idx); if(d)d.hidden=!d.hidden; break; }
         case 'pick-avatar':{ const f=$('avatarFile'); if(f)f.click(); break; }
         case 'save-avatar':{ if(!pendingAvatar){toast('请先点头像选择图片');break;} if(!authed){toast('未连接对战服务，稍候重试');break;} toast('保存中…'); wsend({t:'setAvatar',avatar:pendingAvatar}); clearTimeout(window._avT); window._avT=setTimeout(()=>{window._avT=null;toast('⚠ 上传超时，请检查网络后重试');},8000); break; }
