@@ -6,11 +6,11 @@
   var EXP='https://browser.anubispace.org';
   var EV_WIN='0xab9af1684355064aa9258894f5c85b041fd7a83e4fe0eb02e607c13d8cb627b4';
   var POOLS=[
-    {sym:'LGNS',c:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',d:9,b:16182340},
-    {sym:'USDT',c:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',d:6,b:16196737},
-    {sym:'DAI', c:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',d:18,b:16200709},
-    {sym:'A',   c:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',d:18,b:16202660},
-    {sym:'RM',  c:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',d:9,b:16204394}
+    {sym:'LGNS',c:'0x99d1A6c3232384326A52f026afde72d2A0cFF6FA',d:9,b:16182340},
+    {sym:'USDT',c:'0x31D4Fad032D4cB7486866af3ec122559575178a6',d:6,b:16196737},
+    {sym:'DAI', c:'0xeDad9C16C5CD0bF3E26Db0453478cF72eBf61dD7',d:18,b:16200709},
+    {sym:'A',   c:'0xa274fea62e2898fb8Deb47dF77434Fd0E1C91e79',d:18,b:16202660},
+    {sym:'RM',  c:'0x464F488449c3fE9F66050238Bc0f9270C68fef95',d:9,b:16204394}
   ];
   var TOK={ '0x4d1d808a081fdac440703b3765fc61f8028c06b8':{sym:'LGNS',dec:9}, '0x83fd06f0846d9d90b3016bf670efe2e0b11cde14':{sym:'DAI',dec:18}, '0x2e045e1380f5f5b6e7550328910a7377c9fce59d':{sym:'RM',dec:9}, '0xdfb6a28bc6dc51fed17c27c880f2c66cdd040a3e':{sym:'USDT',dec:6} };
   function EN(){ try{var s=localStorage.getItem('aplang'); if(s==='en')return true; if(s==='zh')return false;}catch(e){} return (navigator.language||'').toLowerCase().indexOf('zh')!==0; }

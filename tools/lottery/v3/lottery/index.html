@@ -96,7 +96,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 #ownerPanel input{flex:1;min-width:0;padding:11px 13px;background:#0d1215;border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--mono)}
 #ownerPanel .btn-set{background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:12px;padding:0 18px;border-radius:10px;white-space:nowrap}
 </style>
-<script src="../i18n.js?v=22"></script>
+<script src="../i18n.js?v=24"></script>
 </head>
 <body>
 <header class="top">
@@ -106,7 +106,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 
 <main class="wrap">
   <h1 class="h1">链上彩票</h1>
-  <p class="lead">五大奖池 · 每期 1 小时 · 未来区块哈希开奖，全程链上可查。</p>
+  <p class="lead">五大奖池 · 每晚 20:00 开奖 · 未来区块哈希开奖，全程链上可查。</p>
 
   <div class="pool-tabs" id="poolTabs">
     <div class="pool-tab" onclick="selPool(0)">LGNS</div>
@@ -173,7 +173,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   <section class="card" id="ownerPanel" hidden style="border-color:#c8f66540">
     <h2>房主管理 <span style="font-size:10px;color:var(--muted);font-weight:400;margin-left:8px">仅房主可见</span></h2>
     <div style="margin-bottom:16px"><div class="olab">改票价 <span id="opCur" class="mono" style="color:var(--muted)"></span></div><div class="orow"><input id="opPrice" type="number" inputmode="decimal" placeholder="新票价"><button class="btn-set" onclick="doSetPrice()">设置</button></div></div>
-    <div style="margin-bottom:16px"><div class="olab">改开奖周期（小时）</div><div class="orow"><input id="opDur" type="number" inputmode="decimal" placeholder="新周期（小时）"><button class="btn-set" onclick="doSetDur()">设置</button></div></div>
+    <div style="margin-bottom:16px"><div class="olab">改开奖时间（北京时间）</div><div class="orow"><input id="opDur" type="number" inputmode="decimal" placeholder="如 20 或 21.5"><button class="btn-set" onclick="doSetDur()">设置</button></div></div>
     <div><div class="olab">注资奖池</div><div class="orow"><input id="opSeed" type="number" inputmode="decimal" placeholder="注资金额"><button class="btn-set" onclick="doSeed()">注资</button></div></div>
   </section>
 
@@ -188,13 +188,13 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 (function(){
   var RPC='https://rpc.anubispace.org';
   var ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:RPC,exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
-  var SEL={price:'1209b1f6',round:'8a19c8bc',rounds:'8c65c81f',approve:'095ea7b3',allowance:'dd62ed3e',balanceOf:'70a08231',buy:'2f366637',buyRef:'f93afa09',closeRound:'e278fe6f',draw:'0eecae21',setPrice:'15981650',setDur:'36c92c3f',seed:'02950fb9',owner:'8da5cb5b'};
+  var SEL={price:'1209b1f6',round:'8a19c8bc',rounds:'8c65c81f',approve:'095ea7b3',allowance:'dd62ed3e',balanceOf:'70a08231',buy:'2f366637',buyRef:'f93afa09',closeRound:'e278fe6f',draw:'0eecae21',setPrice:'15981650',setDur:'294a91bd',seed:'02950fb9',owner:'8da5cb5b'};
   var POOLS=[
-    {sym:'LGNS',c:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',t:'0x4d1d808a081fdac440703b3765fc61f8028c06b8',d:9,b:16182340},
-    {sym:'USDT',c:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',t:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e',d:6,b:16196737},
-    {sym:'DAI', c:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',t:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14',d:18,b:16200709},
-    {sym:'A',   c:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',t:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177',d:18,b:16202660},
-    {sym:'RM',  c:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',t:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d',d:9,b:16204394}
+    {sym:'LGNS',c:'0x99d1A6c3232384326A52f026afde72d2A0cFF6FA',t:'0x4d1d808a081fdac440703b3765fc61f8028c06b8',d:9,b:16182340},
+    {sym:'USDT',c:'0x31D4Fad032D4cB7486866af3ec122559575178a6',t:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e',d:6,b:16196737},
+    {sym:'DAI', c:'0xeDad9C16C5CD0bF3E26Db0453478cF72eBf61dD7',t:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14',d:18,b:16200709},
+    {sym:'A',   c:'0xa274fea62e2898fb8Deb47dF77434Fd0E1C91e79',t:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177',d:18,b:16202660},
+    {sym:'RM',  c:'0x464F488449c3fE9F66050238Bc0f9270C68fef95',t:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d',d:9,b:16204394}
   ];
   var sel=0, data={}, myAddr=null, n=1, busy=false;
   function $(id){return document.getElementById(id);}
@@ -332,13 +332,13 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
       else panel.hidden=true;
     }catch(e){panel.hidden=true;}}
   window.doSetPrice=async function(){var P=POOLS[sel];var el=document.getElementById('opPrice');var v=el&&el.value;if(!v||+v<=0){toast(TR('请输入金额'));return;}var amt;try{amt=parseAmt(v,P.d);}catch(e){toast(TR('请输入金额'));return;}if(!confirm(TR('确定要把票价改为')+' '+v+' '+P.sym+' '+TR('吗？')))return;try{await sendTx(P.c,'0x'+SEL.setPrice+enc(amt));toast(TR('票价已更新'));el.value='';await loadPool(sel);}catch(e){toast((e&&e.message)||e);}};
-  window.doSetDur=async function(){var P=POOLS[sel];var el=document.getElementById('opDur');var v=el&&el.value;if(!v||+v<=0){toast(TR('请输入金额'));return;}var sec=Math.round(+v*3600);try{await sendTx(P.c,'0x'+SEL.setDur+enc(sec));toast(TR('开奖周期已更新'));el.value='';}catch(e){toast((e&&e.message)||e);}};
+  window.doSetDur=async function(){var P=POOLS[sel];var el=document.getElementById('opDur');var v=el&&el.value;if(v===''||+v<0||+v>=24){toast(TR('请输入时间'));return;}var sec=Math.round(((((+v)-8)%24)+24)%24*3600);try{await sendTx(P.c,'0x'+SEL.setDur+enc(sec));toast(TR('开奖时间已更新'));el.value='';}catch(e){toast((e&&e.message)||e);}};
   window.doSeed=async function(){var P=POOLS[sel];var el=document.getElementById('opSeed');var v=el&&el.value;if(!v||+v<=0){toast(TR('请输入金额'));return;}var amt;try{amt=parseAmt(v,P.d);}catch(e){toast(TR('请输入金额'));return;}try{var al=BigInt('0x'+((await ethCall(P.t,SEL.allowance+encA(myAddr)+encA(P.c)))||'0'));if(al<amt){await sendTx(P.t,'0x'+SEL.approve+encA(P.c)+enc(amt));toast(TR('授权成功'));}await sendTx(P.c,'0x'+SEL.seed+enc(amt));toast(TR('注资成功！'));el.value='';await loadPool(sel);}catch(e){toast((e&&e.message)||e);}};
 
 })();
 </script>
 <script defer src="../gate.js?v=4"></script>
 <script defer src="../ref.js?v=1"></script>
-<script defer src="../wins-ticker.js?v=2"></script>
+<script defer src="../wins-ticker.js?v=3"></script>
 </body>
 </html>

@@ -252,7 +252,7 @@ const CHAINS = {
     explorer: 'https://browser.anubispace.org',
     token: '0x4d1d808a081fdac440703b3765fc61f8028c06b8', // LGNS 9 位精度
     decimals: 9,
-    CONTRACT: '0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7', // 2026-10-11 V3 返佣版部署（1小时一期/返佣/0.3补贴）
+    CONTRACT: '0x99d1A6c3232384326A52f026afde72d2A0cFF6FA', // 2026-10-11 V3 返佣版部署（1小时一期/返佣/0.3补贴）
     payTokens: [ // LGNS 池只收 LGNS，直接买票
       {sym:'LGNS', addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9}
     ],
@@ -275,35 +275,35 @@ let CFG = CHAINS.anubis;
 // 双奖池：LGNS 池 / USDT 池，各自独立合约、独立开奖；切换时整体并入 CFG
 const POOLS = [
   { sym:'LGNS',
-    CONTRACT:'0xb8A20cEFDDAE4b298A4086f3376F01Bdb2d300C7',
+    CONTRACT:'0x99d1A6c3232384326A52f026afde72d2A0cFF6FA',
     token:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', decimals:9,
     deployBlock:16182340, // V3 部署块
     payTokens:[
       {sym:'LGNS', addr:'0x4d1d808a081fdac440703b3765fc61f8028c06b8', dec:9} // LGNS 池只收 LGNS，直接买票
     ] },
   { sym:'USDT',
-    CONTRACT:'0x88f94a52BA5B24Be6BC894f16d4657B12BAb2859',
+    CONTRACT:'0x31D4Fad032D4cB7486866af3ec122559575178a6',
     token:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', decimals:6,
     deployBlock:16196737, // USDT 池部署块
     payTokens:[
       {sym:'USDT', addr:'0xDfb6a28BC6DC51fed17c27C880F2c66cDd040A3e', dec:6} // USDT 池只收 USDT，直接进奖池
     ] },
   { sym:'DAI',
-    CONTRACT:'0x7EC71344CE6fffd602d4911caB54A15f53Cc01A0',
+    CONTRACT:'0xeDad9C16C5CD0bF3E26Db0453478cF72eBf61dD7',
     token:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', decimals:18,
     deployBlock:16200709, // DAI 池部署块
     payTokens:[
       {sym:'DAI', addr:'0x83fd06f0846d9d90b3016bf670efe2e0b11cde14', dec:18} // DAI 池只收 DAI，直接进奖池
     ] },
   { sym:'A',
-    CONTRACT:'0x6100cA0904E8b9c521129dEC05AfD4F5BBB9D6fb',
+    CONTRACT:'0xa274fea62e2898fb8Deb47dF77434Fd0E1C91e79',
     token:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', decimals:18,
     deployBlock:16202660, // A 池部署块
     payTokens:[
       {sym:'A', addr:'0xa921267c56b3a57696d6fd7949c9fad0a8e0c177', dec:18} // A 池只收 A，直接进奖池
     ] },
   { sym:'RM',
-    CONTRACT:'0x5beAdBd9E7C87ACcac218d25aA83Bb707A7E96A3',
+    CONTRACT:'0x464F488449c3fE9F66050238Bc0f9270C68fef95',
     token:'0x2e045e1380f5f5b6e7550328910a7377c9fce59d', decimals:9,
     deployBlock:16204394, // RM 池部署块
     payTokens:[

@@ -64,6 +64,7 @@
   '未连接':['Not connected','미연결','未接続','Не подключено','Chưa kết nối','Desconectado'],
   '已连接':['Connected','연결됨','接続済み','Подключено','Đã kết nối','Conectado'],
   '五大奖池 · 每期 1 小时 · 未来区块哈希开奖，全程链上可查。':['Five pools · 1h per round · drawn by a future block hash, all on-chain.'],
+  '五大奖池 · 每晚 20:00 开奖 · 未来区块哈希开奖，全程链上可查。':['Five pools · draws daily at 20:00 Beijing time · drawn by a future block hash, all on-chain.'],
   '购票':['Buy Tickets'],
   '1 张':['1 ticket'],'5 张':['5 tickets'],'10 张':['10 tickets'],'50 张':['50 tickets'],
   '合计':['Total'],
