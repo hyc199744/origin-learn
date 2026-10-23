@@ -37,7 +37,7 @@
     c.innerHTML=''
       +'<div class="eyebrow">'+L('全平台游戏返佣','All-games referral')+'</div>'
       +'<h2 style="margin:4px 0 6px">'+L('炸金花 等所有游戏','Golden Flower & all games')+'</h2>'
-      +'<p class="note" style="margin-bottom:12px">'+L('被你邀请的人玩任何游戏,你按手续费 直推30%/间推10% 拿返佣——从平台费出,不影响玩家。','When your invitees play any game, you earn 30% (direct) / 10% (indirect) of the platform fee — from the fee, players unaffected.')+'</p>'
+      +'<p class="note" style="margin-bottom:12px">'+L('被你邀请的人玩任何游戏,你按手续费 直推30%/间推10% 拿返佣。','When your invitees play any game, you earn 30% (direct) / 10% (indirect) of the fee.')+'</p>'
       +(myAddr?('<div style="background:#0d1310;border:1px solid #ffffff14;border-radius:14px;padding:14px;margin-bottom:14px">'
         +'<div style="font-size:12px;color:#7e9583;margin-bottom:6px">'+L('我的推荐码','My referral code')+'</div>'
         +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><div style="flex:1;font-size:26px;font-weight:800;letter-spacing:5px;color:#c8f665">'+(myCode||'…')+'</div><button id="apRefCopyCode" style="background:#17200b;color:#c8f665;border:1px solid #c8f66555;font-weight:700;font-size:12px;padding:8px 13px;border-radius:9px;cursor:pointer;flex:none">'+L('复制','Copy')+'</button></div>'
