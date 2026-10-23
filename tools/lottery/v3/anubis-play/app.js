@@ -670,8 +670,7 @@
     const connected=!!myAddr;
     const avatarSet=''; // 头像功能已取消,改回默认字母头像
     const nickSet=connected?`<label class="form-label">游戏昵称（最多 3 个字）</label>
-       <div class="wallet-row"><input id="nickInput" type="text" maxlength="3" value="${esc(myNick)}" placeholder="未设置昵称" style="flex:1;min-width:0;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px;margin-right:8px"><button class="small-button" data-action="save-nick">保存</button></div>
-       <div class="form-note" style="margin-top:6px">本月还可改 ${myNickRem} 次（每月最多 3 次），昵称会显示给同桌玩家。</div>`:'';
+       <div class="wallet-row"><input id="nickInput" type="text" maxlength="3" value="${esc(myNick)}" placeholder="未设置昵称" style="flex:1;min-width:0;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px;margin-right:8px"><button class="small-button" data-action="save-nick">保存</button></div>`:'';
     const soundSet=`<label class="form-label">声音设置</label>
        <div class="wallet-row"><span>背景音乐</span><button class="small-button" data-action="toggle-bgm">${bgmOn?'🔊 开':'🔇 关'}</button></div>
        <div class="wallet-row"><span>游戏音效</span><button class="small-button" data-action="toggle-sfx">${sound?'🔊 开':'🔇 关'}</button></div>`;
