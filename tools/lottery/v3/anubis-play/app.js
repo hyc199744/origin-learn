@@ -21,7 +21,7 @@
   const APPROVE_AMT=(2n**256n-1n); // 无限授权(MaxUint256):标准ERC20对其不扣减额度→一次授权永不再弹
   const ZERO='0x0000000000000000000000000000000000000000';
   const ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:'https://rpc.anubispace.org',exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
-  const SEL={withdraw:'3ccfd60b',approve:'095ea7b3',allowance:'dd62ed3e',bal:'70a08231',authorize:'b6a5d7de',deleg:'8d22ea2a',wd:'ce513b6f'};
+  const SEL={withdraw:'3ccfd60b',approve:'095ea7b3',allowance:'dd62ed3e',bal:'70a08231',authorize:'b6a5d7de',deleg:'8d22ea2a',wd:'ce513b6f',transfer:'a9059cbb'};
   const SUITS=['♠','♥','♣','♦'];               // 后端 s:0-3
   const LABELS=['单张','对子','顺子','同花','同花顺','豹子'];
 
@@ -577,6 +577,31 @@
   // 画收款二维码(我的钱包地址);库没加载成功就退化成显示地址文字
   function renderQRInto(boxId){ try{ const box=$(boxId); if(!box||!myAddr)return; box.innerHTML=''; if(window.QRCode){ new window.QRCode(box,{text:myAddr,width:160,height:160,colorDark:'#0b0f0d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); } else { box.innerHTML='<div style="color:#111;font-size:11px;word-break:break-all;padding:6px">'+esc(myAddr)+'</div>'; } }catch(e){} }
   function renderWalletQR(){ renderQRInto('mw_qr'); }
+  // ---- 「我的」转账:标准ERC20 transfer,从本人钱包直接发到对方地址(4个游戏币任选);纯链上,带二次确认+钱包签名双保险 ----
+  let sendOpen=false;
+  function fromUnits(raw,dec){ raw=BigInt(raw); const b=10n**BigInt(dec); const i=raw/b; let f=(raw%b).toString().padStart(dec,'0').replace(/0+$/,''); return f?i.toString()+'.'+f:i.toString(); }
+  function toUnits(amtStr,dec){ amtStr=String(amtStr).trim(); if(!/^\d*\.?\d*$/.test(amtStr)||amtStr===''||amtStr==='.')return null; const p=amtStr.split('.'); const i=p[0]||'0', f=(p[1]||'').slice(0,dec).padEnd(dec,'0'); try{ return BigInt(i)*(10n**BigInt(dec))+BigInt(f||'0'); }catch(e){ return null; } }
+  async function doSendMax(){ if(!myAddr)return; const t=TOKENS[$('mw_sendTok').value]; try{ const raw=BigInt('0x'+((await rcall(t.token,SEL.bal+encA(myAddr)))||'0')); const a=$('mw_sendAmt'); if(a)a.value=fromUnits(raw,t.dec); }catch(e){ toast('读余额失败，稍后重试'); } }
+  async function doSend(){
+    if(!myAddr){ toast('请先连接钱包'); return; }
+    const t=TOKENS[$('mw_sendTok').value];
+    const to=($('mw_sendTo').value||'').trim();
+    const amtStr=($('mw_sendAmt').value||'').trim();
+    if(!/^0x[0-9a-fA-F]{40}$/.test(to)){ toast('收款地址格式不对（应是 0x 开头 42 位）'); return; }
+    if(to.toLowerCase()===myAddr.toLowerCase()){ toast('不能转给自己'); return; }
+    const amt=toUnits(amtStr,t.dec);
+    if(amt===null||amt<=0n){ toast('请输入正确的数量'); return; }
+    let bal=0n; try{ bal=BigInt('0x'+((await rcall(t.token,SEL.bal+encA(myAddr)))||'0')); }catch(e){ toast('读余额失败，稍后重试'); return; }
+    if(amt>bal){ toast('余额不足，最多可转 '+fromUnits(bal,t.dec)+' '+t.sym); return; }
+    if(!window.confirm('确认转账\n'+amtStr+' '+t.sym+'\n→ '+to+'\n\n这是链上真实转账、不可撤回，请核对收款地址！')) return;
+    try{
+      toast('转账上链中…');
+      await sendTxTo(t.token, SEL.transfer+encA(to)+enc(amt));
+      toast('✅ 转账成功');
+      const e1=$('mw_sendTo'); if(e1)e1.value=''; const e2=$('mw_sendAmt'); if(e2)e2.value='';
+      refreshWalletBalances(); refreshBalances();
+    }catch(e){ toast(e.message||'转账失败'); }
+  }
   // 对局中筹码不足:弹收款码,从别的钱包转入,到账(余额自动刷新)后自动继续
   function showTopup(cost){
     openModal('余额不足 · 扫码充值',
@@ -614,7 +639,15 @@
          <div class="form-note" style="text-align:center">用别的钱包扫这个码（或复制地址），把 LGNS / DAI 转进来充值。地址在 Anubis 链两种币通用。</div>
        </div>
        <label class="form-label" style="display:flex;justify-content:space-between;align-items:center">我的余额<button class="small-button" data-action="refresh-bal" aria-label="刷新全部余额">↻ 刷新</button></label>
-       ${Object.values(TOKENS).map(t=>`<div class="wallet-row"><span>${t.label}</span><strong id="mw_bal_${t.key}">${walletBals[t.key]||'—'} <small>${t.sym}</small></strong></div>`).join('')}`
+       ${Object.values(TOKENS).map(t=>`<div class="wallet-row"><span>${t.label}</span><strong id="mw_bal_${t.key}">${walletBals[t.key]||'—'} <small>${t.sym}</small></strong></div>`).join('')}
+       <button class="small-button" data-action="toggle-send" style="width:100%;margin-top:6px;text-align:left">${sendOpen?'▾':'▸'} 转账</button>
+       <div id="mw_sendwrap" style="flex-direction:column;gap:8px;margin-top:8px;display:${sendOpen?'flex':'none'}">
+         <select id="mw_sendTok" style="width:100%;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px">${Object.values(TOKENS).map(t=>`<option value="${t.key}">${t.label}</option>`).join('')}</select>
+         <input id="mw_sendTo" type="text" placeholder="收款地址 0x..." autocomplete="off" spellcheck="false" style="width:100%;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:13px;font-family:monospace">
+         <div style="display:flex;gap:8px"><input id="mw_sendAmt" type="text" inputmode="decimal" placeholder="数量" style="flex:1;min-width:0;box-sizing:border-box;background:#0f1519;border:1px solid var(--line,#ffffff22);border-radius:8px;padding:9px 11px;color:#eaf3ee;font-size:14px"><button class="small-button" data-action="send-max">全部</button></div>
+         <button class="gold-button" data-action="do-send" style="width:100%">确认转账</button>
+         <div class="form-note">转账是链上真实操作、不可撤回。只能转给 Anubis 链(6714)地址，务必核对收款地址。</div>
+       </div>`
       :`<div class="notice">连接 Anubis 链钱包后即可开桌、入座、押真 ${SYM} 对战。</div><button class="gold-button" data-action="connect">${icon('wallet')}连接钱包</button>`)
       + nickSet
       + layoutSet
@@ -771,6 +804,9 @@
         case 'copy-addr':{ if(!myAddr)break; try{ await navigator.clipboard.writeText(myAddr); toast('✅ 地址已复制'); }catch(e){ toast('复制失败，请长按上面的地址手动复制'); } break; }
         case 'fold-close':{ closeModal(); doFold(); break; }
         case 'toggle-qr':{ qrOpen=!qrOpen; const w=$('mw_qrwrap'); if(w)w.style.display=qrOpen?'flex':'none'; if(b)b.textContent=(qrOpen?'▾':'▸')+' 收款码'; if(qrOpen)renderWalletQR(); break; }
+        case 'toggle-send':{ sendOpen=!sendOpen; const w=$('mw_sendwrap'); if(w)w.style.display=sendOpen?'flex':'none'; if(b)b.textContent=(sendOpen?'▾':'▸')+' 转账'; break; }
+        case 'send-max':{ doSendMax(); break; }
+        case 'do-send':{ doSend(); break; }
         case 'rec-toggle':{ const d=$('recd-'+b.dataset.idx); if(d)d.hidden=!d.hidden; break; }
         case 'pick-avatar':{ const f=$('avatarFile'); if(f)f.click(); break; }
         case 'save-avatar':{ if(!pendingAvatar){toast('请先点头像选择图片');break;} if(!authed){toast('未连接对战服务，稍候重试');break;} toast('保存中…'); wsend({t:'setAvatar',avatar:pendingAvatar}); clearTimeout(window._avT); window._avT=setTimeout(()=>{window._avT=null;toast('⚠ 上传超时，请检查网络后重试');},8000); break; }
