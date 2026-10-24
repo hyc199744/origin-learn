@@ -10,7 +10,7 @@
   const AREA={dragon:0,tiger:1,tie:2};
   const AREA_NAME={0:'dragon',1:'tiger',2:'tie'};
   // 真实赔率(净)：龙/虎 1:1(2x)，和 15:1(16x)；和局时龙/虎注退一半
-  const DEFAULT_RULES={dragon:1,tiger:1,tie:15,tiePolicy:'half',chips:[10,50,100,500,1000]};
+  const DEFAULT_RULES={dragon:1,tiger:1,tie:15,tiePolicy:'half',chips:[1,10,50,100,500]};
   const DURATIONS={WAITING:3000,BETTING:15000,LOCKED:4000,DEALING:6000,REVEALING:4000,SETTLEMENT:5500};
   const empty=()=>({dragon:0,tie:0,tiger:0});
   const sum=b=>SIDES.reduce((s,k)=>s+(b[k]||0),0);
