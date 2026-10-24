@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#080a0f">
+<title>ANUBIS DRAGON TIGER V3 · CINEMATIC DEMO</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --gold:#d4af37;--gold-lt:#f5e0a0;--bg:#0a0a10;--bg2:#141420;
+  --red:#e63946;--blue:#2a9df4;--txt:#f5e9c9;--dim:#9a8f70;
+}
+html,body{width:100%;overflow-x:hidden}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+  background:radial-gradient(1200px 600px at 50% -10%,#2a2118 0%,var(--bg) 55%,#050508 100%);
+  color:var(--txt);min-height:100vh;
+}
+/* ===== 顶栏 ===== */
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:10px 14px;background:rgba(8,8,14,.92);border-bottom:1px solid rgba(212,175,55,.35);backdrop-filter:blur(6px)}
+.logo{font-weight:800;font-size:15px;letter-spacing:1px;color:var(--gold-lt);white-space:nowrap}
+.logo small{display:block;font-size:10px;font-weight:400;color:var(--dim);letter-spacing:2px}
+.net-badge{font-size:11px;padding:4px 10px;border:1px solid var(--gold);border-radius:20px;color:var(--gold);white-space:nowrap}
+.topbar .spacer{flex:1}
+select.token-sel{background:#1c1c28;color:var(--txt);border:1px solid rgba(212,175,55,.5);border-radius:8px;
+  padding:9px 8px;font-size:13px;max-width:150px;min-height:44px}
+.balance{font-size:13px;color:var(--gold-lt);white-space:nowrap}
+.balance b{color:#fff}
+.icon-btn{background:#1c1c28;border:1px solid rgba(212,175,55,.5);color:var(--txt);border-radius:8px;
+  min-width:44px;min-height:44px;padding:8px 10px;font-size:14px;cursor:pointer}
+.icon-btn.off{opacity:.45}
+.icon-btn:active{transform:scale(.95)}
+/* ===== 代币条 ===== */
+.token-bar{padding:8px 14px;font-size:11px;color:var(--dim);border-bottom:1px dashed rgba(212,175,55,.25)}
+.token-badges{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.tk{font-size:11px;padding:3px 9px;border-radius:12px;border:1px solid #444;background:#181822;white-space:nowrap}
+.tk.verified{border-color:#3ddc84;color:#3ddc84}
+.tk.partial{border-color:#f5b301;color:#f5b301}
+.tk.pending{border-color:#777;color:#999}
+/* ===== 主区 ===== */
+.main{display:flex;gap:14px;padding:14px;max-width:1200px;margin:0 auto;align-items:flex-start}
+.stage{flex:1;min-width:0}
+/* 荷官 */
+.dealer-zone{position:relative;text-align:center;margin-bottom:6px}
+.dealer-frame{position:relative;display:inline-block}
+.dealer-img{height:300px;border-radius:14px;border:2px solid rgba(212,175,55,.55);
+  box-shadow:0 0 40px rgba(212,175,55,.25);animation:sway 4s ease-in-out infinite;object-fit:cover}
+.dealer-fallback{height:300px;width:210px;border-radius:14px;border:2px solid rgba(212,175,55,.55);
+  background:linear-gradient(160deg,#3a2b1a 0%,#141420 60%,#0a0a10 100%);
+  display:none;align-items:center;justify-content:center;font-size:60px;animation:sway 4s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:translateY(0) rotate(-.4deg)}50%{transform:translateY(-7px) rotate(.4deg)}}
+.dealer-frame.dealing .dealer-img,.dealer-frame.dealing .dealer-fallback{animation:dealLean .9s ease-in-out 2}
+@keyframes dealLean{0%,100%{transform:translateY(0)}30%{transform:translateY(14px) rotate(1deg)}}
+.dealer-frame.celebrate .dealer-img,.dealer-frame.celebrate .dealer-fallback{animation:jump .55s ease-in-out 3}
+@keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-22px)}}
+.blink{position:absolute;left:50%;top:31%;width:120px;height:14px;transform:translateX(-50%);
+  background:rgba(0,0,0,0);border-radius:50%;pointer-events:none}
+.blink.on{background:rgba(20,10,10,.55);transition:background .06s}
+.dealer-name{margin-top:6px;font-size:12px;color:var(--dim);letter-spacing:3px}
+/* 牌桌 */
+.table{position:relative;border:2px solid rgba(212,175,55,.6);border-radius:22px;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 30%,#1d2b1a 0%,#0f1a10 55%,#0a120a 100%);
+  box-shadow:0 0 50px rgba(0,0,0,.6),inset 0 0 60px rgba(0,0,0,.5)}
+.zones{display:flex;min-height:190px}
+.zone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  padding:14px 6px;cursor:pointer;position:relative;transition:filter .2s;min-height:190px;border:none;color:inherit;font:inherit;background:transparent}
+.zone:active{filter:brightness(1.35)}
+.zone h3{font-size:20px;letter-spacing:2px}
+.zone .en{font-size:11px;letter-spacing:3px;opacity:.8}
+.zone .odds{font-size:12px;opacity:.85}
+.zone .bet-amt{font-size:15px;font-weight:700;color:#fff;background:rgba(0,0,0,.45);
+  padding:3px 12px;border-radius:12px;min-width:70px;text-align:center}
+.zone-dragon{background:linear-gradient(160deg,rgba(230,57,70,.32),rgba(120,10,20,.32))}
+.zone-tiger{background:linear-gradient(160deg,rgba(42,157,244,.30),rgba(10,60,120,.30))}
+.zone-tie{background:linear-gradient(160deg,rgba(212,175,55,.30),rgba(120,85,10,.30));flex:0.9;border-left:1px solid rgba(212,175,55,.4);border-right:1px solid rgba(212,175,55,.4)}
+.zone.win-glow{animation:winglow 1s ease-in-out 3;z-index:2}
+@keyframes winglow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.9) drop-shadow(0 0 18px currentColor)}}
+/* 牌位 */
+.card-row{display:flex;justify-content:center;gap:34px;padding:12px 0 16px;position:relative;z-index:3}
+.card-slot{width:86px;height:122px;border:2px dashed rgba(212,175,55,.5);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;position:relative;background:rgba(0,0,0,.3)}
+.slot-label{position:absolute;bottom:-20px;font-size:11px;color:var(--dim);letter-spacing:2px;white-space:nowrap}
+.card{position:absolute;width:86px;height:122px;perspective:600px;z-index:10}
+.card-inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.3,.7,.4,1.2)}
+.card.flipped .card-inner{transform:rotateY(180deg)}
+.card-face{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.55)}
+.card-back{background:repeating-linear-gradient(45deg,#7a1f2b,#7a1f2b 8px,#5c1620 8px,#5c1620 16px);border:3px solid #d4af37}
+.card-back::after{content:"🐉";font-size:34px}
+.card-front{background:linear-gradient(160deg,#fffdf5,#f0e6cc);border:2px solid #d4af37;transform:rotateY(180deg)}
+.card-front .rank{font-size:34px;font-weight:800;line-height:1}
+.card-front .suit{font-size:26px}
+.card-front.red{color:#c81e2b}.card-front.black{color:#1a1a2e}
+/* 倒计时 */
+.timer-wrap{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px}
+.timer-ring{position:relative;width:74px;height:74px}
+.timer-ring svg{transform:rotate(-90deg)}
+.timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff}
+.phase-tip{font-size:14px;color:var(--gold-lt);letter-spacing:1px;text-align:center;min-height:22px}
+.skip-btn{background:rgba(212,175,55,.15);border:1px solid var(--gold);color:var(--gold-lt);
+  border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;min-height:44px}
+/* ===== 底部下注区 ===== */
+.bet-panel{max-width:1200px;margin:0 auto;padding:0 14px 14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.chip{width:56px;height:56px;border-radius:50%;border:3px dashed rgba(255,255,255,.55);font-weight:800;font-size:14px;
+  color:#fff;cursor:pointer;min-width:56px;min-height:56px}
+.chip.sel{outline:3px solid var(--gold);transform:scale(1.1)}
+.chip.c1{background:#2a9df4}.chip.c5{background:#3ddc84}.chip.c10{background:#f5b301;color:#333}
+.chip.c50{background:#9b5de5}.chip.c100{background:#e63946}.chip.c500{background:#111;border-color:var(--gold)}
+.chip.custom{background:#444;font-size:12px}
+.bet-info{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:13px;margin:8px 0}
+.bet-info .pill{background:#181822;border:1px solid rgba(212,175,55,.35);border-radius:10px;padding:6px 12px}
+.bet-info .pill b{color:#fff}
+.bet-actions{display:flex;gap:10px;justify-content:center;margin:8px 0}
+.act-btn{background:#23232f;border:1px solid #555;color:var(--txt);border-radius:10px;padding:10px 20px;
+  font-size:14px;cursor:pointer;min-height:44px}
+.act-btn.warn{border-color:var(--red);color:#ffb3b8}
+/* ===== 面板 ===== */
+.panels{max-width:1200px;margin:0 auto;padding:0 14px 30px;display:grid;gap:12px;grid-template-columns:1fr}
+.panel{background:rgba(20,20,32,.85);border:1px solid rgba(212,175,55,.3);border-radius:14px;padding:12px 14px}
+.panel h4{font-size:14px;color:var(--gold);margin-bottom:8px;letter-spacing:1px}
+.streak{display:flex;gap:6px;flex-wrap:wrap;font-size:18px}
+.streak .s{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px}
+.s.d{background:rgba(230,57,70,.25);border:1px solid var(--red)}
+.s.t{background:rgba(42,157,244,.22);border:1px solid var(--blue)}
+.s.e{background:rgba(212,175,55,.22);border:1px solid var(--gold)}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:12px}
+.stat-grid .cell{background:#101018;border-radius:8px;padding:8px;text-align:center}
+.stat-grid .cell b{display:block;font-size:16px;color:#fff;margin-top:2px}
+.stat-grid .cell.neg b{color:#ff8a8a}.stat-grid .cell.pos b{color:#7dff9e}
+.hist-table{width:100%;border-collapse:collapse;font-size:12px}
+.hist-table th,.hist-table td{padding:6px 4px;border-bottom:1px solid #2a2a3a;text-align:center}
+.hist-table th{color:var(--dim);font-weight:400}
+.res-d{color:#ff8a8a;font-weight:700}.res-t{color:#7db9ff;font-weight:700}.res-e{color:var(--gold);font-weight:700}
+.demo-note{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.6}
+/* ===== 弹窗 ===== */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal-mask.show{display:flex}
+.modal{background:#14141f;border:1px solid var(--gold);border-radius:16px;max-width:520px;width:100%;
+  max-height:85vh;overflow-y:auto;padding:20px;font-size:14px;line-height:1.8}
+.modal h3{color:var(--gold);margin-bottom:10px}
+.modal .close{float:right;background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;min-width:44px;min-height:44px}
+.modal blockquote{border-left:3px solid var(--gold);padding:4px 12px;margin:10px 0;background:rgba(212,175,55,.08);font-size:13px}
+.rule-btn{position:fixed;right:14px;bottom:14px;z-index:60;background:var(--gold);color:#222;border:none;
+  border-radius:50%;width:56px;height:56px;font-size:22px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(20,20,30,.95);
+  border:1px solid var(--gold);color:var(--txt);padding:10px 18px;border-radius:12px;font-size:13px;
+  display:none;z-index:120;max-width:90vw;text-align:center}
+.toast.show{display:block;animation:tin .25s}
+@keyframes tin{from{opacity:0;transform:translateX(-50%) translateY(10px)}}
+/* ===== 桌面宽屏 ===== */
+@media(min-width:900px){
+  .panels{grid-template-columns:1fr 1fr 1fr}
+  .dealer-img{height:380px}
+  .dealer-fallback{height:380px;width:270px}
+  .zone{min-height:230px}
+}
+
+/* ===== V2 immersive theme / responsive ===== */
+:root{--bg:#080a0f;--bg2:#101319;--gold:#d4af37;--gold-lt:#f5d77c;--dim:#9ca29c;--txt:#f8f0db;--red:#b92e3c;--blue:#2677bf}
+html{color-scheme:dark;scrollbar-color:#4b3a24 #0b0b10}
+body{background:radial-gradient(ellipse 90vw 35vw at 50% 8%,rgba(116,75,38,.21),transparent 72%),linear-gradient(180deg,#101116,#080a0f 60%,#0a0b10);padding-bottom:env(safe-area-inset-bottom);min-height:100dvh}
+button,select{touch-action:manipulation;font-family:inherit} button:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #ffe99a;outline-offset:3px}
+.topbar{border-bottom:1px solid rgba(242,203,121,.22);background:rgba(7,9,13,.96);padding:9px 15px;gap:8px;box-shadow:0 8px 24px #0004}
+.logo{font-family:Georgia,'Times New Roman',serif;font-size:17px;letter-spacing:2px;text-shadow:0 0 22px #daa44945}
+.logo small{font-family:inherit;letter-spacing:3px;padding-top:3px;color:#d9b969}
+.net-badge{border-color:#6e5734;letter-spacing:1px;background:#9f814516;font-size:10px}
+.balance{padding:5px 9px;border:1px solid #71552d66;background:#1b1820;border-radius:7px;font-variant-numeric:tabular-nums}
+.balance b{color:#ffe49c;font-size:16px}
+.icon-btn{background:linear-gradient(145deg,#222125,#111116);border:1px solid #705a35;border-radius:8px;box-shadow:inset 0 1px 0 #e4bb4720}
+select.token-sel{background:#211d21;color:#faeaca;border-color:#715a33;font-weight:700}
+.token-bar{font-size:10px;border-bottom:0;color:#99978c;padding:5px 16px 3px;max-width:1200px;margin:auto;text-align:center}
+.token-badges{justify-content:center;gap:4px;margin:2px auto 4px}
+.tk,.tk.verified,.tk.partial,.tk.pending{color:#c9bc9f;border:1px solid #72603d;background:#151419;border-radius:3px;font-size:9px;padding:2px 6px}
+.main{padding:8px 14px 0;max-width:1080px;display:block}
+.stage{position:relative;background:radial-gradient(ellipse at 50% 0%,#3f2b2244,transparent 66%);border:1px solid #8b6c313b;border-radius:18px;overflow:hidden;box-shadow:0 20px 70px #0009,inset 0 0 40px #cf8c150b;padding:9px 12px 4px}
+.stage-heading{display:flex;justify-content:space-between;gap:12px;font-size:10px;letter-spacing:2px;color:#caa86a;font-family:Georgia,serif}
+.live-pulse{color:#b6ab91;font:10px system-ui,sans-serif;letter-spacing:.6px}
+.dealer-zone{isolation:isolate;display:flex;align-items:center;flex-direction:column;justify-content:center;height:258px;margin:0;position:relative}
+.dealer-zone:before{content:"";position:absolute;z-index:-1;width:55%;height:85%;max-width:500px;border-radius:50% 50% 12% 12%;top:6%;background:radial-gradient(ellipse at center,#8b6c3240 2%,#4b2f211c 55%,transparent 73%);box-shadow:inset 0 0 0 1px #d4af3718}
+.dealer-zone:after{content:"✦  A N U B I S  ✦";position:absolute;bottom:26px;z-index:-1;color:#d9ad5766;font:20px Georgia,serif;letter-spacing:10px}
+.dealer-frame{display:flex;align-items:end;justify-content:center;width:292px;height:215px;position:relative;overflow:hidden;border-bottom:1px solid #d7a94799;filter:drop-shadow(0 3px 24px #000b)}
+.dealer-img{position:absolute;z-index:2;bottom:0;left:50%;transform:translateX(-50%);width:100%;height:100%;object-fit:cover;object-position:center top;border:0;border-radius:0;animation:none;box-shadow:none}
+.dealer-fallback{display:flex;width:100%;height:100%;align-items:end;justify-content:center;border:0;background:transparent;border-radius:0;animation:none}
+.dealer-portrait{height:100%;width:100%;overflow:visible;filter:drop-shadow(0 4px 9px #0009);transform-origin:50% 80%;animation:portrait-breathe 4.1s ease-in-out infinite}
+@keyframes portrait-breathe{0%,100%{transform:translateY(1px) scale(1)}50%{transform:translateY(-2px) scale(1.012)}}
+.portrait-eyes{transform-origin:50% 41%;animation:eyeBlink 6.7s linear infinite}
+@keyframes eyeBlink{0%,44%,48%,100%{transform:scaleY(1)}46%{transform:scaleY(.04)}}
+.dealer-hand{transform-box:fill-box;transform-origin:50% 20%;transition:transform .4s}
+.dealer-frame.dealing .dealer-hand-left{animation:dealer-left 1.5s ease-in-out 1}
+.dealer-frame.dealing .dealer-hand-right{animation:dealer-right 1.5s ease-in-out 1 .45s}
+@keyframes dealer-left{0%,100%{transform:translate(0,0) rotate(0)}40%{transform:translate(-32px,15px) rotate(-12deg)}}
+@keyframes dealer-right{0%,100%{transform:translate(0,0) rotate(0)}45%{transform:translate(33px,15px) rotate(12deg)}}
+.dealer-frame.celebrate .dealer-portrait{animation:portrait-breathe 1.1s ease-in-out 2}
+.dealer-name{font-size:12px;font-weight:700;letter-spacing:5px;color:#fbe5b2;margin-top:5px}
+.dealer-subtitle{font:9px Georgia,serif;color:#927b4c;letter-spacing:3px;margin-top:3px}
+.blink{display:none}
+.table{position:relative;overflow:visible;isolation:isolate;border:2px solid #9b783b;border-bottom:7px solid #6a4c27;border-radius:42% 42% 13px 13px / 17% 17% 13px 13px;background:radial-gradient(ellipse at 50% 15%,#2e5a47 0%,#164236 35%,#092c29 70%,#081f22 100%);box-shadow:0 9px 0 #302514,0 13px 0 #b18a48,0 18px 32px #000b,inset 0 0 0 5px #f6d27722,inset 0 12px 40px #a3cc8950,inset 0 -20px 50px #001a18;transform:perspective(1600px) rotateX(3deg);transform-origin:center 70%}
+.table:before{content:"";pointer-events:none;position:absolute;inset:13px;border:1px solid #d8c07a4a;border-radius:43% 43% 11px 11px / 18% 18% 11px 11px}
+.table-heading{font:13px Georgia,serif;letter-spacing:2px;text-align:center;color:#e6ca80;text-shadow:0 2px 7px #000;padding:11px 2px 0}
+.card-shoe{position:absolute;left:50%;top:-18px;transform:translateX(-50%);width:56px;height:42px;pointer-events:none;z-index:5;opacity:.9}
+.card-shoe i{position:absolute;top:3px;left:6px;width:47px;height:32px;border:2px solid #c6a76a;border-radius:4px;background:repeating-linear-gradient(45deg,#5b1e27 0 5px,#27121d 5px 10px);box-shadow:1px 4px 3px #0008}
+.card-shoe i:nth-child(2){top:0;left:3px}.card-shoe i:nth-child(3){top:-3px;left:0}
+.zones{min-height:128px;padding:8px 15px 5px;gap:7px}
+.zone{min-height:128px;border-radius:16px;gap:4px;border:1px solid #eddb9a52;box-shadow:inset 0 1px 0 #fff2,0 5px 15px #001a2080}
+.zone-dragon{background:radial-gradient(ellipse at 50% 20%,#a5354073,#36161d99)}
+.zone-tiger{background:radial-gradient(ellipse at 50% 20%,#2a6dba73,#142c4999)}
+.zone-tie{background:radial-gradient(ellipse at 50% 20%,#bf994d73,#55401b99);flex:.83;border:1px solid #eddb9a52}
+.zone h3{font-size:23px;font-family:Georgia,serif;color:#fff4da;text-shadow:0 2px 5px #000}
+.zone .en{font:10px Georgia,serif;letter-spacing:3px}
+.zone .odds{font-size:11px;color:#d7ccaf}
+.zone .bet-amt{font-size:13px;padding:2px 7px;border:1px solid #e6c98b3a;background:#0006;min-width:55px}
+.zone.has-bet:after{content:"";position:absolute;right:8px;top:5px;width:25px;height:25px;border:3px dashed #d8bb6f;border-radius:50%;background:radial-gradient(circle,#6a4326,#281713);box-shadow:0 3px 1px #0008}
+.zone:disabled{cursor:not-allowed;filter:saturate(.65);opacity:.76}
+.zone.win-glow{animation:winglow 1.2s ease-in-out 2;opacity:1}
+.card-row{gap:60px;min-height:133px;padding:6px 0 23px;align-items:center}
+.card-slot{width:72px;height:101px;border-radius:10px;border:1px solid #ebcb7e66;background:radial-gradient(ellipse,#00191199,#021f1c70);box-shadow:inset 0 0 10px #0009}
+.card{width:72px;height:101px;top:0;left:0;z-index:10}
+.card-inner{transition:transform .55s cubic-bezier(.25,.8,.22,1)}
+.card-face{border-radius:9px}
+.card-back{border:3px solid #f5d78d;background:repeating-linear-gradient(45deg,#651b29 0 6px,#38111b 6px 12px);box-shadow:0 8px 25px #000b,inset 0 0 0 2px #efd898,inset 0 0 0 5px #2e1018}
+.card-back::after{content:"✦";font:29px Georgia,serif;color:#edc47a;border:1px solid #d2a66e;border-radius:50%;width:40px;height:40px;display:grid;place-items:center}
+.card-front{background:linear-gradient(140deg,#fffefa,#f4eddc);border:3px solid #e4c176;box-shadow:0 9px 25px #0009,inset 0 0 0 2px white}
+.card-front .rank{font:700 30px Georgia,serif}.card-front .suit{font-size:32px}
+.card-corner{position:absolute;left:6px;top:5px;display:grid;line-height:1;font-family:Georgia,serif;font-size:11px}.card-corner.bottom{left:auto;top:auto;right:6px;bottom:5px;transform:rotate(180deg)}
+.slot-label{bottom:-18px;color:#e1c17e;font-size:9px;letter-spacing:2px}
+.result-banner{position:absolute;left:50%;bottom:-18px;transform:translate(-50%,10px);z-index:12;opacity:0;pointer-events:none;white-space:nowrap;background:linear-gradient(120deg,#2b2218,#121114);border:1px solid #b8944a;border-radius:999px;padding:8px 18px;color:#ffe3a1;box-shadow:0 8px 25px #000c;font-size:13px;font-weight:700;transition:opacity .35s,transform .35s}
+.result-banner.show{opacity:1;transform:translate(-50%,0)}
+.timer-wrap{padding:20px 10px 4px;gap:12px}.timer-ring{width:62px;height:62px}.timer-ring svg{width:62px;height:62px}.timer-ring svg circle{transform:scale(.8378);transform-origin:0 0}.timer-num{font-size:18px}.phase-tip{color:#f3d99f;font-size:14px;text-align:left;max-width:330px}.skip-btn{border-color:#755a2b;background:#1a1817;color:#e0c58b;font-size:11px;padding:8px 14px}
+.bet-panel{max-width:1080px;padding:0 8px 6px;background:#10131988;border:1px solid #75603333;border-radius:0 0 16px 16px;box-shadow:0 6px 40px #0004}
+.chips{gap:8px;margin:12px 0 6px}.chip{width:58px;height:58px;background:#373232;border:5px dashed #f5deb6aa;box-shadow:inset 0 0 0 3px #ffffff2b,0 5px 0 #0007,0 7px 12px #0008;transition:transform .14s;position:relative;font-variant-numeric:tabular-nums}
+.chip.sel{outline:2px solid #ffe69c;outline-offset:3px;transform:translateY(-5px) scale(1.04);box-shadow:inset 0 0 0 3px #ffffff40,0 8px 0 #0008,0 12px 15px #000b}
+.chip.c1{background:#275f92}.chip.c5{background:#176e4f}.chip.c10{background:#a47a18;color:#fff}.chip.c50{background:#583477}.chip.c100{background:#8b2833}.chip.c500{background:#1d202b}.chip.custom{background:#47372f}
+.bet-info .pill{background:#131719;border-color:#8f75404d;color:#bdb8aa;padding:5px 10px;font-size:12px}.bet-info .pill b{color:#f5dc9b}
+.bet-actions{margin:6px 0 8px}.act-btn{background:linear-gradient(180deg,#29241e,#131313);border-color:#67583f;border-radius:8px;padding:10px 20px;flex:0 1 200px}.act-btn.warn{border-color:#78423e;color:#f5bbbb}
+.mobile-history-toggle{max-width:1080px;margin:10px auto 0}.mobile-history-toggle>summary{display:none}
+.panels{padding:0 0 20px;gap:8px}.panel{background:linear-gradient(180deg,#18191c,#0e1115);border-color:#75613f6b}.panel h4{color:#e5bd74}.stat-grid{grid-template-columns:repeat(2,1fr)}
+.rule-btn{z-index:40;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));width:48px;height:48px;background:linear-gradient(135deg,#f0d492,#977037);border:2px solid #f6e3b0;font:700 22px Georgia,serif;box-shadow:0 3px 14px #0008}
+.modal{background:linear-gradient(#17191f,#0c0e13);max-height:80dvh}.modal .close{min-width:44px;min-height:44px}
+.toast{bottom:calc(76px + env(safe-area-inset-bottom));box-shadow:0 5px 25px #0009}
+@media(min-width:900px){.dealer-img,.dealer-fallback{height:100%;width:100%}.dealer-frame{height:215px}.dealer-zone{height:258px}.zone{min-height:128px}.panels{grid-template-columns:1fr 1fr 1.5fr}.stage{padding-left:40px;padding-right:40px}.table{max-width:880px;margin:auto}}
+@media(max-width:700px){
+  .topbar{position:relative;display:grid;grid-template-columns:1fr auto auto auto auto;gap:5px;padding:6px 9px}
+  .logo{grid-column:1/4;font-size:13px;line-height:1.1;letter-spacing:1px}.logo small{font-size:8px;letter-spacing:1px}
+  .net-badge{grid-column:4/6;justify-self:end;font-size:9px;padding:3px 5px}
+  .topbar .spacer{display:none}
+  .token-sel{grid-column:1/2;grid-row:2;max-width:none!important;width:100%;min-height:38px!important;height:38px;padding:5px!important}
+  .balance{grid-column:2/3;grid-row:2;align-self:center;font-size:9px;padding:6px 4px}.balance b{font-size:12px}
+  .balance #balanceSym{display:none}
+  .icon-btn{min-width:38px;min-height:38px;padding:4px;font-size:14px;grid-row:2}
+  #soundBtn{grid-column:3}#voiceBtn{grid-column:4}#langBtn{grid-column:5}
+  #resetBtn{grid-column:5;grid-row:1;justify-self:end;min-width:32px;min-height:32px;font-size:15px;position:relative;right:0;margin-left:0}
+  .net-badge{grid-column:4/5;font-size:8px}
+  .token-bar{font-size:9px;padding:4px 12px 2px;line-height:1.3;min-height:17px}.token-badges{display:none}
+  .main{padding:2px 6px 0}
+  .stage{padding:5px 6px 2px;border-radius:12px}
+  .stage-heading{font-size:8px;letter-spacing:1px}.live-pulse{font-size:8px}
+  .dealer-zone{height:148px}.dealer-zone:before{height:100%;width:70%}.dealer-zone:after{display:none}
+  .dealer-frame{height:125px;width:180px}.dealer-name{font-size:9px;margin-top:1px;letter-spacing:2px}.dealer-subtitle{font-size:7px;margin-top:0;letter-spacing:1px}
+  .table{border-width:2px;border-bottom-width:5px;border-radius:36% 36% 10px 10px / 9% 9% 10px 10px;transform:none;box-shadow:0 5px 0 #45331d,0 8px 0 #9a763b,inset 0 0 0 3px #e8c7822b,inset 0 6px 20px #95b07930}
+  .table:before{inset:6px;border-radius:32% 32% 8px 8px / 12% 12% 8px 8px}
+  .table-heading{font-size:9px;padding:7px 5px 0;letter-spacing:0}
+  .card-shoe{transform:translateX(-50%) scale(.65);top:-16px}
+  .zones{min-height:100px;padding:8px 7px 2px;gap:5px}
+  .zone{min-height:99px;padding:4px 0;gap:2px;border-radius:10px}
+  .zone h3{font-size:17px;letter-spacing:0}.zone .en{font-size:8px;letter-spacing:1px}.zone .odds{font-size:9px}.zone .bet-amt{font-size:12px;padding:2px 4px;min-width:45px}
+  .zone.has-bet:after{width:15px;height:15px;right:2px;top:2px;border-width:2px}
+  .card-row{min-height:103px;gap:46px;padding:5px 0 18px}
+  .card-slot,.card{width:57px;height:80px}.card-front .rank{font-size:22px}.card-front .suit{font-size:24px}.card-back:after{width:32px;height:32px;font-size:20px}.card-corner{font-size:8px}
+  .slot-label{font-size:8px;bottom:-15px}.result-banner{bottom:-13px;font-size:10px;padding:6px 12px}
+  .timer-wrap{min-height:57px;padding:12px 2px 0;gap:8px;justify-content:space-around}.timer-ring{width:47px;height:47px;flex-shrink:0}.timer-ring svg{width:47px;height:47px}.timer-ring svg circle{transform:scale(.635);transform-origin:0 0}.timer-num{font-size:14px}.phase-tip{font-size:11px;text-align:left;max-width:172px;min-height:17px}.skip-btn{font-size:10px;min-height:44px;padding:4px 8px}
+  .bet-panel{margin:0 6px;padding:0 5px 3px}.chips{margin:8px 0 5px;gap:5px}.chip{min-width:44px;min-height:44px;width:44px;height:44px;font-size:11px;border-width:3px}.chip.custom{font-size:9px}
+  .bet-info{gap:4px;margin:5px 0}.bet-info .pill{font-size:10px;padding:4px 6px}.bet-actions{margin:4px 0;gap:7px}.act-btn{min-height:44px;font-size:12px;padding:6px 10px}
+  .mobile-history-toggle{margin:4px 6px 0;background:#18181d;border:1px solid #756139;border-radius:8px}
+  .mobile-history-toggle>summary{display:block;color:#e2c285;font-size:12px;text-align:center;padding:11px;min-height:44px;cursor:pointer}
+  .panels{padding:5px;grid-template-columns:1fr}.panel{padding:10px}.rule-btn{bottom:calc(7px + env(safe-area-inset-bottom));width:44px;height:44px;right:5px;font-size:16px}
+  .hist-table{min-width:420px}
+  .demo-note{font-size:10px}
+}
+@media(max-width:355px){.balance{font-size:8px}.logo{font-size:11px}.zone h3{font-size:15px}.chips{gap:4px}.chip{width:44px;height:44px}.stage-heading{font-size:7px}.live-pulse{font-size:7px}}
+@media(max-height:700px) and (max-width:700px){.dealer-zone{height:114px}.dealer-frame{height:94px;width:145px}.dealer-subtitle{display:none}.table-heading{font-size:8px}.zones{min-height:83px}.zone{min-height:82px}.card-row{min-height:87px}.card-slot,.card{width:49px;height:68px}.timer-wrap{min-height:48px;padding-top:10px}.chips{margin-top:5px}}
+@media(orientation:landscape) and (max-height:520px) and (max-width:950px){.dealer-zone{height:105px}.dealer-frame{height:85px;width:125px}.zones{min-height:80px}.zone{min-height:78px}.card-row{min-height:78px}.card-slot,.card{width:48px;height:67px}.stage-heading{font-size:8px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+/* Finishing interactions */
+.timer-ring.urgent .timer-num{color:#ffb49d;animation:timerUrgent .9s ease-in-out infinite}
+.timer-ring.urgent #ringFg{stroke:#e38757}
+@keyframes timerUrgent{0%,100%{opacity:1}50%{opacity:.58}}
+.chip-fly{position:fixed;pointer-events:none;z-index:140;width:32px;height:32px;display:grid;place-items:center;border:3px dashed #fff5bc;border-radius:50%;background:radial-gradient(circle,#d5ac46,#674619);color:#fff;font:800 10px system-ui;box-shadow:0 4px 9px #0009;will-change:transform,opacity}
+.act-btn:disabled{opacity:.38;cursor:not-allowed}
+@media(max-width:355px) and (max-height:700px){.dealer-zone{height:92px}.dealer-frame{height:74px;width:125px}.dealer-name{font-size:8px}.timer-wrap{min-height:41px;padding-top:9px}.stage-heading{font-size:7px}}
+
+.dealer-video{position:absolute;z-index:3;inset:0;width:100%;height:100%;object-fit:cover;display:none;pointer-events:none}
+.dealer-video.ready{display:block}
+
+/* ===== V3 CINEMATIC DEALER MEDIA: poster, video layers, operator cue editor ===== */
+.dealer-frame{background:#100f12;isolation:isolate;box-shadow:inset 0 0 0 1px #c0a06b5c,0 18px 35px #0008}
+.dealer-img{z-index:2;object-fit:cover;object-position:center 28%;filter:saturate(.87) contrast(1.09);animation:dealer-living-shot 9s ease-in-out infinite;will-change:transform}
+.dealer-frame.dealing .dealer-img{animation:dealer-action-shot 2.6s ease-in-out infinite}
+@keyframes dealer-living-shot{0%,100%{transform:translateX(-50%) scale(1.015)}50%{transform:translateX(-50%) scale(1.08)}}
+@keyframes dealer-action-shot{0%,100%{transform:translateX(-50%) scale(1.03)}50%{transform:translateX(-50%) scale(1.075)}}
+.dealer-frame:after{content:"";position:absolute;z-index:6;inset:0;pointer-events:none;background:linear-gradient(90deg,#0a080d32,transparent 27%,transparent 73%,#0a080d3d),linear-gradient(0deg,#07090fff,transparent 27%,transparent 70%,#0006);box-shadow:inset 0 0 0 1px #e6b96888}
+.dealer-video{z-index:4;opacity:0;display:block;transition:opacity .3s;object-fit:cover;object-position:center 22%;filter:contrast(1.04) saturate(.91)}
+.dealer-video.ready{opacity:1}
+.dealer-film-label{position:absolute;z-index:9;top:6px;left:8px;color:#f3dbac;background:#090a0ca0;border:1px solid #ab8b5070;letter-spacing:1.2px;font:600 9px system-ui;pointer-events:none;padding:4px 7px;border-radius:20px}
+.dealer-media-trigger{position:absolute;z-index:11;right:5px;bottom:7px;min-height:44px;min-width:44px;padding:7px;border:1px solid #b8955990;background:#18171ccc;color:#ead6a6;font:600 10px system-ui;border-radius:9px;cursor:pointer}
+.dealer-media-trigger:active{filter:brightness(1.4)}
+.dealer-media-modal{max-width:600px;max-height:min(85dvh,700px);overflow:auto}
+.media-note{color:#c4b79c;font-size:12px;line-height:1.7;margin:12px 0}
+.media-file-label{display:inline-block;border:1px solid #e4bc6b;background:#46351a6e;border-radius:8px;cursor:pointer;padding:12px 15px;color:#ffe9b5;font-size:13px}
+.media-file-state{margin:8px 0;color:#afa18c;font-size:12px;word-break:break-word}
+.media-timeline-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.media-timeline-grid label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#d7bf8d}
+.media-timeline-grid input{width:100%;background:#0d1015;color:#f8efdf;border:1px solid #a88e5f;border-radius:8px;padding:12px;font-size:15px;min-height:44px}
+.media-tools{display:flex;gap:8px;flex-wrap:wrap}.media-tools button{flex:1;min-width:130px}
+.media-save{border-color:#b8944a;color:#f8daa2;background:#4c391b}
+@media(max-width:700px){.dealer-media-trigger{right:0;bottom:12px;font-size:0;padding:8px}.dealer-media-trigger:first-letter{font-size:16px}.dealer-frame{overflow:hidden}.dealer-film-label{font-size:8px;padding:2px 5px}.dealer-media-modal{padding:15px}.dealer-media-modal h3{font-size:17px}}
+@media(prefers-reduced-motion: reduce){.dealer-img,.dealer-frame.dealing .dealer-img{animation:none!important}.dealer-video{transition:none}}
+
+</style>
+</head>
+<body>
+<!-- ===== 顶栏 ===== -->
+<header class="topbar">
+  <div class="logo">ANUBIS DRAGON TIGER<small data-i18n="logoSub">阿努比斯龙虎</small></div>
+  <span class="net-badge"><span data-i18n="demoMode">演示模式</span></span>
+  <div class="spacer"></div>
+  <select class="token-sel" id="tokenSel" aria-label="token"></select>
+  <span class="balance">💰 <b id="balanceNum">10000</b> <span id="balanceSym">LGNS</span><span data-i18n="testChip">·TEST</span></span>
+  <button class="icon-btn" id="soundBtn" title="sound">🔊</button>
+  <button class="icon-btn off" id="voiceBtn" title="voice">🎙️</button>
+  <button class="icon-btn" id="langBtn">EN</button>
+  <button class="icon-btn" id="resetBtn" title="reset">↺</button>
+</header>
+
+<!-- ===== 代币状态条 ===== -->
+<div class="token-bar">
+  <div class="token-badges" id="tokenBadges"></div>
+  <div data-i18n="tokenNote">演示模式统一使用测试筹码。真钱上线前，每种代币须完成合约地址与兼容性核实。</div>
+</div>
+
+<!-- ===== 主区 ===== -->
+<div class="main">
+  <div class="stage">
+    <div class="stage-heading"><span>◈ TABLE 01 · PREMIUM DEMO</span><span class="live-pulse" data-i18n="liveDemo">● 本地演示 · 不连接钱包</span></div>
+    <!-- 荷官 -->
+    <div class="dealer-zone">
+      <div class="dealer-frame" id="dealerFrame">
+        <img class="dealer-img" id="dealerImg" src="assets/dealer/dealer-poster.webp" alt="电影风格女性荷官静态海报（非真人视频）"
+             onerror="this.style.display='none';document.getElementById('dealerFallback').style.display='flex'">
+        <div class="dealer-fallback" id="dealerFallback" aria-label="Stylized adult female dealer illustration">
+          <svg class="dealer-portrait" viewBox="0 0 300 290" role="img" aria-label="Professional adult casino dealer Anna">
+            <defs>
+              <radialGradient id="backHalo"><stop stop-color="#b78b4d" stop-opacity=".58"/><stop offset="1" stop-color="#16151a" stop-opacity="0"/></radialGradient>
+              <linearGradient id="jacket" x1="0" x2="1"><stop stop-color="#110e17"/><stop offset=".5" stop-color="#48202b"/><stop offset="1" stop-color="#120d16"/></linearGradient>
+              <linearGradient id="skin" x1="0" x2="1"><stop stop-color="#be8566"/><stop offset=".35" stop-color="#f6c6a2"/><stop offset=".75" stop-color="#e4a37e"/><stop offset="1" stop-color="#a65f4d"/></linearGradient>
+              <linearGradient id="hair" x1="0" x2="1"><stop stop-color="#100b11"/><stop offset=".58" stop-color="#372522"/><stop offset="1" stop-color="#120b0e"/></linearGradient>
+            </defs>
+            <ellipse cx="150" cy="115" rx="124" ry="120" fill="url(#backHalo)"/>
+            <path d="M89 89Q84 15 145 17Q215 10 215 103L222 205Q196 233 173 191L126 190Q91 238 75 194Z" fill="url(#hair)"/>
+            <g class="portrait-body">
+              <path d="M55 292L64 231Q78 209 120 202L138 189H162L179 203Q219 207 233 233L249 292Z" fill="url(#jacket)" stroke="#986a43" stroke-width="2"/>
+              <path d="M122 201L149 247L179 201L161 197H137Z" fill="#eddbcc"/>
+              <path d="M135 213L151 242L163 211L151 224Z" fill="#171218"/>
+              <path d="M145 242L153 241L159 287L145 287Z" fill="#bd8c37"/>
+              <path d="M78 223L110 239L106 286M220 223L188 239L193 286" fill="none" stroke="#b18a4b" stroke-width="2" opacity=".8"/>
+            </g>
+            <path d="M134 169L133 207Q150 220 169 206L165 167Z" fill="url(#skin)"/>
+            <g class="portrait-head">
+              <ellipse cx="108" cy="121" rx="9" ry="15" fill="#cb8c70"/>
+              <ellipse cx="196" cy="121" rx="9" ry="15" fill="#cb8c70"/>
+              <path d="M105 82Q105 43 148 40Q201 38 199 94L198 142Q194 174 172 184Q149 197 129 179Q105 161 105 126Z" fill="url(#skin)"/>
+              <path d="M101 112Q95 56 122 38Q160 12 199 59Q210 77 201 118L190 88Q173 86 156 65Q141 90 107 94Z" fill="url(#hair)"/>
+              <path d="M116 110Q127 102 139 110M162 110Q175 103 188 109" fill="none" stroke="#382023" stroke-width="3" stroke-linecap="round"/>
+              <g class="portrait-eyes">
+                <path d="M116 119Q127 114 140 119M164 119Q176 115 187 119" fill="none" stroke="#2b1c20" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="130" cy="119" r="3" fill="#392729"/><circle cx="175" cy="119" r="3" fill="#392729"/>
+              </g>
+              <path d="M150 119L145 145Q150 150 157 146" fill="none" stroke="#ad6b59" stroke-width="2"/>
+              <path d="M136 159Q152 167 168 157Q153 175 136 159Z" fill="#a54654"/>
+              <path d="M138 159Q153 162 166 158" fill="none" stroke="#fff0d8" stroke-width="1.6"/>
+              <path d="M106 125Q100 167 130 184" fill="none" stroke="#352328" stroke-width="10" opacity=".5"/>
+            </g>
+            <g class="dealer-hand dealer-hand-left"><path d="M82 258Q66 245 52 237Q40 232 34 243Q35 252 56 263L81 274" fill="url(#skin)" stroke="#ad725b" stroke-width="2"/></g>
+            <g class="dealer-hand dealer-hand-right"><path d="M216 258Q236 242 250 238Q265 233 273 244Q273 255 249 264L225 275" fill="url(#skin)" stroke="#ad725b" stroke-width="2"/></g>
+          </svg>
+        </div>
+        <video class="dealer-video" id="dealerVideo" muted playsinline webkit-playsinline preload="metadata" disablepictureinpicture aria-label="可选的授权真人荷官动作视频（静音，通过播放时间同步发牌）"></video><span class="dealer-film-label" id="dealerFilmLabel">PHOTO · DEMO</span>
+      </div>
+      <div class="dealer-name" data-i18n="dealerName">首席荷官 · 安娜</div>
+      <div class="dealer-subtitle">✦ ANUBIS PRIVATE TABLE ✦</div>
+      <button class="dealer-media-trigger" type="button" id="dealerMediaBtn" aria-label="设置荷官视频与动作同步">🎬 <span data-i18n="dealerSettings">视频设置</span></button>
+    </div>
+
+    <!-- 牌桌 -->
+    <div class="table">
+      <div class="table-heading">A N U B I S &nbsp; · &nbsp; D R A G O N &nbsp; T I G E R</div>
+      <div class="card-shoe" id="cardShoe" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="zones">
+        <button class="zone zone-dragon" id="zoneDragon" data-zone="dragon">
+          <h3>🐉 <span data-i18n="dragon">龙</span></h3><span class="en">DRAGON</span>
+          <span class="odds" data-i18n="odds11">赔率 1:1</span>
+          <span class="bet-amt" id="betDragon">0</span>
+        </button>
+        <button class="zone zone-tie" id="zoneTie" data-zone="tie">
+          <h3>⚖️ <span data-i18n="tie">和</span></h3><span class="en">TIE</span>
+          <span class="odds" data-i18n="odds151">赔率 15:1</span>
+          <span class="bet-amt" id="betTie">0</span>
+        </button>
+        <button class="zone zone-tiger" id="zoneTiger" data-zone="tiger">
+          <h3>🐯 <span data-i18n="tiger">虎</span></h3><span class="en">TIGER</span>
+          <span class="odds" data-i18n="odds11b">赔率 1:1</span>
+          <span class="bet-amt" id="betTiger">0</span>
+        </button>
+      </div>
+      <div class="card-row">
+        <div class="card-slot" id="slotDragon"><span class="slot-label">🐉 DRAGON</span></div>
+        <div class="card-slot" id="slotTiger"><span class="slot-label">🐯 TIGER</span></div>
+      </div>
+      <div class="result-banner" id="resultBanner" aria-live="polite"></div>
+    </div>
+
+    <!-- 倒计时 -->
+    <div class="timer-wrap">
+      <div class="timer-ring">
+        <svg width="74" height="74" viewBox="0 0 74 74">
+          <circle cx="37" cy="37" r="32" fill="none" stroke="#2a2a3a" stroke-width="7"/>
+          <circle id="ringFg" cx="37" cy="37" r="32" fill="none" stroke="#d4af37" stroke-width="7"
+                  stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-num" id="timerNum">–</div>
+      </div>
+      <div>
+        <div class="phase-tip" id="phaseTip">–</div>
+        <div style="font-size:12px;color:var(--dim);margin-top:4px"><span data-i18n="round">局号</span> <b id="roundId" style="color:#fff">#0</b></div>
+      </div>
+      <button class="skip-btn" id="skipBtn" data-i18n="skip">⏩ 跳过等待</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 底部下注区 ===== -->
+<div class="bet-panel">
+  <div class="chips" id="chips">
+    <button class="chip c1" data-chip="1">1</button>
+    <button class="chip c5" data-chip="5">5</button>
+    <button class="chip c10 sel" data-chip="10">10</button>
+    <button class="chip c50" data-chip="50">50</button>
+    <button class="chip c100" data-chip="100">100</button>
+    <button class="chip c500" data-chip="500">500</button>
+    <button class="chip custom" id="chipCustom" data-i18n="custom">自定义</button>
+  </div>
+  <div class="bet-info">
+    <span class="pill"><span data-i18n="totalBet">总下注</span>: <b id="totalBet">0</b></span>
+    <span class="pill"><span data-i18n="maxReturn">预计最高返还</span>: <b id="maxReturn">0</b></span>
+    <span class="pill"><span data-i18n="chipSel">当前筹码</span>: <b id="chipSelNum">10</b></span>
+  </div>
+  <div class="bet-actions">
+    <button class="act-btn" id="undoBtn" data-i18n="undo">↩ 撤销上注</button>
+    <button class="act-btn warn" id="clearBtn" data-i18n="clear">🗑 清空下注</button>
+  </div>
+</div>
+
+<!-- ===== 面板 ===== -->
+<details class="mobile-history-toggle"><summary data-i18n="showRecords">开奖记录与统计 · 点击展开</summary>
+<div class="panels">
+  <div class="panel">
+    <h4 data-i18n="streakTitle">📊 最近开奖</h4>
+    <div class="streak" id="streak"></div>
+    <div class="demo-note" data-i18n="localRandom">演示模式：浏览器本地随机数，仅供体验，不可用于真钱。</div>
+  </div>
+  <div class="panel">
+    <h4 data-i18n="myTitle">🧾 我的记录</h4>
+    <div class="stat-grid">
+      <div class="cell"><span data-i18n="stBet">累计下注</span><b id="stBet">0</b></div>
+      <div class="cell"><span data-i18n="stWin">累计获奖</span><b id="stWin">0</b></div>
+      <div class="cell" id="stPnlCell"><span data-i18n="stPnl">净盈亏</span><b id="stPnl">0</b></div>
+      <div class="cell"><span data-i18n="stBalance">当前测试余额</span><b id="stBalance">10000</b></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h4 data-i18n="histTitle">📜 开奖记录</h4>
+    <div style="max-height:220px;overflow:auto">
+      <table class="hist-table">
+        <thead><tr>
+          <th data-i18n="hRound">局号</th><th data-i18n="hDragon">龙牌</th><th data-i18n="hTiger">虎牌</th>
+          <th data-i18n="hResult">结果</th><th data-i18n="hToken">测试代币</th><th data-i18n="hTime">时间</th>
+        </tr></thead>
+        <tbody id="histBody"><tr><td colspan="6" style="color:var(--dim)" data-i18n="noData">暂无数据</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</details>
+<!-- ===== 规则弹窗 ===== -->
+<div class="modal-mask" id="ruleMask">
+  <div class="modal">
+    <button class="close" id="ruleClose">✕</button>
+    <h3 data-i18n="ruleTitle">📖 游戏规则</h3>
+    <div id="ruleBody"></div>
+  </div>
+</div>
+<button class="rule-btn" id="ruleBtn" aria-label="Game rules">?</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<!-- 真人荷官媒体控制与时间码校准；视频可直接选择本地文件或部署到 assets/dealer -->
+<div class="modal-mask" id="dealerMediaMask" role="dialog" aria-modal="true" aria-labelledby="dealerMediaTitle">
+  <div class="modal dealer-media-modal">
+    <button class="close" type="button" id="dealerMediaClose" aria-label="Close">×</button>
+    <h3 id="dealerMediaTitle" data-i18n="mediaTitle">🎬 真人荷官 / 发牌时间同步</h3>
+    <p class="media-note" data-i18n="mediaDisclaimer">目前默认是静态电影海报，不是真人动作视频。导入获授权的 MP4/WebM 后，可按时间码让数字扑克牌与真人动作同步。</p>
+    <label class="media-file-label" for="dealerMediaFile" data-i18n="mediaImport">＋ 导入本地真人动作视频</label>
+    <input id="dealerMediaFile" type="file" accept="video/mp4,video/webm,video/quicktime" style="position:absolute;left:-9999px;width:1px;height:1px">
+    <div id="dealerFileState" class="media-file-state" aria-live="polite">No video · Still photo fallback</div>
+    <div class="media-timeline-grid" id="cueEditor">
+      <label><span data-i18n="cueDragon">龙牌出手（秒）</span><input type="number" id="cueDragon" min="0" max="60" step="0.05" inputmode="decimal"></label>
+      <label><span data-i18n="cueTiger">虎牌出手（秒）</span><input type="number" id="cueTiger" min="0" max="60" step="0.05" inputmode="decimal"></label>
+      <label><span data-i18n="cueFlipDragon">翻开龙牌（秒）</span><input type="number" id="cueFlipDragon" min="0" max="60" step="0.05" inputmode="decimal"></label>
+      <label><span data-i18n="cueFlipTiger">翻开虎牌（秒）</span><input type="number" id="cueFlipTiger" min="0" max="60" step="0.05" inputmode="decimal"></label>
+      <label><span data-i18n="cueResult">公布结果（秒）</span><input type="number" id="cueResult" min="0" max="60" step="0.05" inputmode="decimal"></label>
+    </div>
+    <div class="media-tools"><button class="act-btn" id="cueDefaults" type="button" data-i18n="cueDefault">恢复默认时间码</button><button class="act-btn media-save" id="cueSave" type="button" data-i18n="cueApply">应用时间码</button></div>
+    <p class="media-note" data-i18n="mediaGuide">将真人视频的 5 个动作时间点填入上方，发牌会以 video.currentTime 为准；未导入视频时继续使用可靠的程序动画。刷新后需重新选本地视频；静态站可配置永久视频文件。</p>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ANUBIS DRAGON TIGER — 链上真钱版（Anubis 6714）
+   玩家自己签名直连合约，无后端。保留演示版全部 UI/动画/音效/荷官海报；
+   把本地随机/本地余额/本地结算换成链上 getRound/balanceOf/placeBet/settle。 */
+
+/* ================= i18n ================= */
+const I18N = {
+zh:{
+  logoSub:"阿努比斯龙虎", demoMode:"Anubis · 真钱", testChip:"",
+  tokenNote:"真钱模式：下注与派奖全部链上结算，用支持 Anubis 链的钱包（如 OKX）连接。牌由合约在关盘后用未来区块哈希发出，人人可事后验算；荷官为预录/海报影像。",
+  dealerName:"首席荷官 · 安娜",
+  dragon:"龙", tiger:"虎", tie:"和", odds11:"赔率 1:1", odds11b:"赔率 1:1", odds151:"赔率 15:1",
+  round:"局号", skip:"⏩ 跳过等待",
+  custom:"自定义", totalBet:"本局我的下注", maxReturn:"预计最高返还", chipSel:"当前筹码",
+  undo:"↩ 撤销篮子", clear:"🗑 清空篮子",
+  streakTitle:"📊 最近开奖", myTitle:"🧾 我的记录", histTitle:"📜 开奖记录",
+  localRandom:"链上公平：关盘后以未来区块哈希发牌，任何人可验算；派奖由合约直接打入钱包。",
+  stBet:"本局已下注", stWin:"本局返还", stPnl:"本局盈亏", stBalance:"钱包余额",
+  hRound:"局号", hDragon:"龙牌", hTiger:"虎牌", hResult:"结果", hToken:"代币", hTime:"时间", noData:"暂无数据",
+  hBets:"下注", hReturn:"返还",
+  ruleTitle:"📖 游戏规则",
+  phBetting:"🎲 下注中 · 选筹码点龙/虎/和，再「确认下注」", phLocked:"🔒 已截止，等待关盘…",
+  phDealing:"🃏 发牌中 · 等待开奖…", phSettle:"✨ 本局已结算",
+  phIdle:"等待开局…", phReveal:"开奖中…", phRefund:"本局异常 · 可退款",
+  toastNoBet:"本局已截止，等下一局", toastNoMoney:"钱包 LGNS 余额不足",
+  toastBetFirst:"请先连接钱包再下注", toastPickChip:"请先选筹码再点龙/虎/和",
+  toastNothingUndo:"篮子里没有可撤销的下注", toastUndo:"已撤销", toastClear:"已清空篮子",
+  toastEmptyBasket:"篮子是空的，先点龙/虎/和把筹码放进篮子",
+  speakNew:"新一局开始，请下注。", speakStop:"停止下注。", speakDeal:"等待开奖。",
+  speakD:"龙赢。", speakT:"虎赢。", speakE:"和局。",
+  liveDemo:"● 链上真钱 · 合约结算", showRecords:"开奖记录与统计 · 点击展开",
+  resultBanner:"本局结果", net:"净盈亏", refund:"本局返还",
+  soundTitle:"音效开关", voiceTitle:"语音开关", langTitle:"切换语言", resetTitle:"刷新链上状态",
+  speakWelcome:"欢迎来到阿努比斯龙虎。", speakDone:"本局结算完成。",
+  noHistory:"暂无开奖记录", close:"关闭", demoToken:"LGNS",
+  dealerSettings:"视频设置", mediaTitle:"🎬 真人荷官 / 发牌时间同步",
+  mediaDisclaimer:"默认是电影风格静态海报，并非真实发牌视频。可导入授权 MP4/WebM 作为发牌时的影像；牌面与结果始终以链上合约为准。",
+  mediaImport:"＋ 导入本地荷官视频", cueDragon:"龙牌出手（秒）", cueTiger:"虎牌出手（秒）",
+  cueFlipDragon:"翻开龙牌（秒）", cueFlipTiger:"翻开虎牌（秒）", cueResult:"公布结果（秒）",
+  cueDefault:"恢复默认时间码", cueApply:"应用时间码",
+  mediaGuide:"视频仅作荷官影像，牌与结果由链上合约决定。刷新页面要重新导入本地视频。",
+  ruleHTML:`<p>每局由链上合约发两张牌：第一张给<b>龙</b>，第二张给<b>虎</b>。点数 <b>A 最小</b>，2…10、J、Q、<b>K 最大</b>，花色不计大小。</p>
+  <blockquote>赔率均为<b>净盈利</b>，本金另行返还：龙赢 1:1、虎赢 1:1、和局 15:1。<br>龙 / 虎注遇到和局，只退 50% 本金。</blockquote>
+  <p><b>示例 1：</b>下 10 买龙 —— 龙赢共返 20；龙输返 0；和局返 5。</p>
+  <p><b>示例 2：</b>下 10 买和 —— 和局共返 160（15×10 盈利 + 10 本金）。</p>
+  <p style="color:#9a8f70;font-size:13px">链上公平：关盘后用未来区块哈希发牌，任何人可事后验算；派奖由合约在结算时直接打进钱包，无需领取。下注与 gas 都是真实资产，请理性参与。</p>`,
+  // 真钱版新增
+  connect:"🔗 连接钱包", connecting:"连接中…", approve:"✅ 授权 LGNS", approving:"授权中…",
+  confirm:"🎯 确认下注", confirming:"提交中…", refundBtn:"申请退款",
+  needConnect:"请先连接钱包", needApprove:"请先授权 LGNS（一次会话额度）",
+  ownerNoBet:"庄家钱包不能下注，请换普通玩家钱包",
+  basketLabel:"待确认（篮子）", confirmedLabel:"已上链",
+  errPoolLow:"奖池额度不够，接不下这么大的注，请减小注额",
+  errMinBet:"低于最小下注", errClosed:"本局已截止，等下一局", errFull:"本局注单已满，等下一局",
+  errPaused:"游戏暂停中", errTF:"请先授权 LGNS，或检查余额", errGas:"钱包里需要留少量 DAI 付 gas",
+  errChain:"请切换到 Anubis 网络后重试", errReject:"你取消了签名", errTx:"交易失败，请重试",
+  txSent:"已提交上链…", betOk:"下注已上链", approveOk:"授权成功", settleOk:"开奖完成",
+  onchainTag:"已上链不可撤销", poolTag:"奖池", minTag:"最小", viewing:"只读观看中 · 连钱包下注",
+  connected:"已连接", switchAcct:"换钱包"
+},
+en:{
+  logoSub:"Anubis Dragon Tiger", demoMode:"Anubis · Real", testChip:"",
+  tokenNote:"Real-money mode: bets and payouts settle on-chain. Connect a wallet that supports Anubis (e.g. OKX). Cards are dealt by the contract using a future block hash — verifiable by anyone. Dealer is a pre-recorded / poster image.",
+  dealerName:"Head Dealer · Anna",
+  dragon:"Dragon", tiger:"Tiger", tie:"Tie", odds11:"Pays 1:1", odds11b:"Pays 1:1", odds151:"Pays 15:1",
+  round:"Round", skip:"⏩ Skip wait",
+  custom:"Custom", totalBet:"My bet this round", maxReturn:"Est. max return", chipSel:"Chip",
+  undo:"↩ Undo basket", clear:"🗑 Clear basket",
+  streakTitle:"📊 Recent results", myTitle:"🧾 My records", histTitle:"📜 Draw history",
+  localRandom:"Provably fair: cards are drawn from a future block hash after betting closes; payouts are sent to your wallet by the contract.",
+  stBet:"Bet this round", stWin:"Returned", stPnl:"Round P/L", stBalance:"Wallet balance",
+  hRound:"Round", hDragon:"Dragon", hTiger:"Tiger", hResult:"Result", hToken:"Token", hTime:"Time", noData:"No data",
+  hBets:"Bet", hReturn:"Return",
+  ruleTitle:"📖 Rules",
+  phBetting:"🎲 Betting — pick chip, tap Dragon/Tiger/Tie, then Confirm", phLocked:"🔒 Closed, locking…",
+  phDealing:"🃏 Dealing · awaiting reveal…", phSettle:"✨ Round settled",
+  phIdle:"Waiting for round…", phReveal:"Revealing…", phRefund:"Round stuck · refund available",
+  toastNoBet:"Round closed, wait for next", toastNoMoney:"Insufficient LGNS balance",
+  toastBetFirst:"Connect wallet first", toastPickChip:"Pick a chip, then tap Dragon/Tiger/Tie",
+  toastNothingUndo:"Nothing in the basket to undo", toastUndo:"Undone", toastClear:"Basket cleared",
+  toastEmptyBasket:"Basket empty — tap Dragon/Tiger/Tie to add chips",
+  speakNew:"New round, place your bets.", speakStop:"No more bets.", speakDeal:"Awaiting reveal.",
+  speakD:"Dragon wins.", speakT:"Tiger wins.", speakE:"Tie.",
+  liveDemo:"● On-chain real money · contract settled", showRecords:"Results & stats · Expand",
+  resultBanner:"Result", net:"Net P/L", refund:"Returned",
+  soundTitle:"Toggle sound", voiceTitle:"Toggle voice", langTitle:"Switch language", resetTitle:"Refresh on-chain state",
+  speakWelcome:"Welcome to Anubis Dragon Tiger.", speakDone:"Round settled.",
+  noHistory:"No results yet", close:"Close", demoToken:"LGNS",
+  dealerSettings:"Video settings", mediaTitle:"🎬 Dealer video / hand-sync cues",
+  mediaDisclaimer:"Default is a cinematic still poster, not footage. Optionally import a licensed MP4/WebM as dealer imagery; card faces and results always follow the on-chain contract.",
+  mediaImport:"＋ Import local dealer video", cueDragon:"Deal Dragon (s)", cueTiger:"Deal Tiger (s)",
+  cueFlipDragon:"Flip Dragon (s)", cueFlipTiger:"Flip Tiger (s)", cueResult:"Reveal result (s)",
+  cueDefault:"Reset cue times", cueApply:"Apply cue times",
+  mediaGuide:"Video is dealer imagery only; cards and results are decided on-chain. Re-import local video after reload.",
+  ruleHTML:`<p>Each round the on-chain contract deals two cards: the first to <b>Dragon</b>, the second to <b>Tiger</b>. Ranks: <b>A lowest</b>, 2…10, J, Q, <b>K highest</b>; suits don't matter.</p>
+  <blockquote>Odds are <b>net profit</b>, stake returned separately: Dragon 1:1, Tiger 1:1, Tie 15:1.<br>Dragon / Tiger bets get only 50% stake back on a Tie.</blockquote>
+  <p><b>Example 1:</b> Bet 10 on Dragon — Dragon wins returns 20; loses returns 0; Tie returns 5.</p>
+  <p><b>Example 2:</b> Bet 10 on Tie — Tie returns 160 (15×10 profit + 10 stake).</p>
+  <p style="color:#9a8f70;font-size:13px">Provably fair: cards come from a future block hash after betting closes — anyone can verify. Payouts are sent to your wallet by the contract at settlement, no claim needed. Bets and gas are real assets; play responsibly.</p>`,
+  connect:"🔗 Connect Wallet", connecting:"Connecting…", approve:"✅ Approve LGNS", approving:"Approving…",
+  confirm:"🎯 Confirm bets", confirming:"Submitting…", refundBtn:"Refund round",
+  needConnect:"Connect your wallet first", needApprove:"Approve LGNS first (session allowance)",
+  ownerNoBet:"House wallet cannot bet — use a player wallet",
+  basketLabel:"Pending (basket)", confirmedLabel:"On-chain",
+  errPoolLow:"Pool can't cover this bet — reduce the amount",
+  errMinBet:"Below minimum bet", errClosed:"Round closed, wait for next", errFull:"Round is full, wait for next",
+  errPaused:"Game is paused", errTF:"Approve LGNS first, or check your balance", errGas:"Keep a little DAI in your wallet for gas",
+  errChain:"Switch to the Anubis network and retry", errReject:"You cancelled the signature", errTx:"Transaction failed, try again",
+  txSent:"Submitted on-chain…", betOk:"Bet is on-chain", approveOk:"Approved", settleOk:"Round revealed",
+  onchainTag:"On-chain · cannot undo", poolTag:"Pool", minTag:"Min", viewing:"Viewing only · connect to bet",
+  connected:"Connected", switchAcct:"Switch wallet"
+}};
+const t=k=>(I18N[S&&S.lang]&&I18N[S.lang][k])||I18N.zh[k]||k;
+
+/* ================= 链上配置 ================= */
+const CFG={
+  proxy:'0x4d127c5b2eFc63B6A7670cdddD853CA22573a8b9',
+  lgns:'0x4d1d808a081fdac440703b3765fc61f8028c06b8',
+  chainId:6714, chainIdHex:'0x1a3a',
+  rpc:'https://rpc.anubispace.org',
+  explorer:'https://browser.anubispace.org'
+};
+const SEL={
+  roundCount:'0x127f0b3f', getRound:'0x8f1327c0', betCount:'0x65381a37', getBet:'0x2301b83d',
+  freeBankroll:'0xfc958429', minBet:'0x9619367d', paused:'0x5c975abb', owner:'0x8da5cb5b',
+  placeBet:'0xda866c48', closeRound:'0x88e01a98', settle:'0x8df82800', startRound:'0x55e3f086',
+  refundRound:'0x5443b139', balanceOf:'0x70a08231', allowance:'0xdd62ed3e', approve:'0x095ea7b3'
+};
+const AREA={dragon:0,tiger:1,tie:2};
+const AREA_NAME=['dragon','tiger','tie'];
+const DEC=9n, ONE=1000000000n;                 // LGNS 9 位精度
+const APPROVE_RAW=10000n*ONE;                   // 一次会话授权 10000 LGNS（非无限）
+const CHIPS=[10,50,100,500,1000];
+const SUITS=[{s:'♠',red:false},{s:'♥',red:true},{s:'♦',red:true},{s:'♣',red:false}];
+const RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const POLL_MS=1500;
+const PREF='anubis.dragon-tiger.live.prefs';
+
+/* ================= 状态 ================= */
+const S={
+  lang:'zh', sound:true, voice:false,
+  addr:null, isOwner:false, balRaw:0n, allowanceRaw:0n,
+  block:0, roundCount:0, round:0, rd:null, phase:'idle',
+  chip:10, customChip:false,
+  basket:{dragon:0n,tiger:0n,tie:0n}, basketLog:[],
+  confirmed:{dragon:0n,tiger:0n,tie:0n},   // 本局我已上链的注（按区）
+  myRetRaw:0n, myStakeRaw:0n,              // 本局我的返还/本金（结算后）
+  minBetRaw:10n*ONE, freeBankrollRaw:1000n*ONE, paused:false,
+  history:[], revealedRound:0, settleHoldUntil:0,
+  inflight:{start:false,close:false,settle:false,refund:false,confirm:false,connect:false},
+  dealtRound:0
+};
+const $=id=>document.getElementById(id);
+
+/* ================= 编解码 ================= */
+const u256=n=>BigInt(n).toString(16).padStart(64,'0');
+const addr32=a=>{a=a.toLowerCase().replace(/^0x/,'');return a.padStart(64,'0');};
+function decRound(hex){
+  const h=hex.replace(/^0x/,''); const w=i=>h.slice(i*64,(i+1)*64);
+  const num=i=>Number(BigInt('0x'+(w(i)||'0'))); const big=i=>BigInt('0x'+(w(i)||'0'));
+  return {betEnd:num(0),closeBlock:num(1),revealBlock:num(2),dCard:num(3),tCard:num(4),
+    result:num(5),resolved:big(6)!==0n,sumD:big(7),sumT:big(8),sumTie:big(9),reserve:big(10),bets:num(11)};
+}
+function decBet(hex){
+  const h=hex.replace(/^0x/,'');
+  return {player:'0x'+h.slice(24,64),amount:BigInt('0x'+(h.slice(64,128)||'0')),area:Number(BigInt('0x'+(h.slice(128,192)||'0')))};
+}
+const fmtLgns=raw=>{raw=BigInt(raw);const neg=raw<0n;const a=neg?-raw:raw;const i=a/ONE;const f=(a%ONE).toString().padStart(9,'0').replace(/0+$/,'');return (neg?'-':'')+Number(i).toLocaleString(S.lang==='zh'?'zh-CN':'en-US')+(f?'.'+f:'');};
+const chipRaw=c=>BigInt(c)*ONE;
+function cardFromId(id){
+  if(id===undefined||id===null||id<0||id>=52)return null;
+  const val=(Math.floor(id/4)+1)%13, su=SUITS[id%4];
+  return {rank:RANKS[val],suit:su.s,red:su.red,val};
+}
+
+/* ================= RPC（只读走公共节点；写走钱包） ================= */
+async function rpcRead(method,params){
+  const r=await fetch(CFG.rpc,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});
+  const j=await r.json(); if(j.error)throw new Error(j.error.message||'rpc'); return j.result;
+}
+const callRead=(to,data)=>rpcRead('eth_call',[{to,data},'latest']);
+const callProxy=sel=>callRead(CFG.proxy,sel);
+async function sendTx(to,data){
+  if(!window.ethereum)throw new Error('NO_WALLET');
+  return window.ethereum.request({method:'eth_sendTransaction',params:[{from:S.addr,to,data}]});
+}
+async function waitTx(hash,timeoutMs=90000){
+  const start=Date.now();
+  while(Date.now()-start<timeoutMs){
+    try{const r=await rpcRead('eth_getTransactionReceipt',[hash]);
+      if(r&&r.blockNumber)return r;}catch(e){}
+    await new Promise(r=>setTimeout(r,1500));
+  }
+  throw new Error('TIMEOUT');
+}
+// 把合约 revert / 钱包错误翻译成大白话
+function explainErr(e){
+  const m=((e&&(e.message||e.data?.message||''))+'').toLowerCase();
+  if(m.includes('user rejected')||m.includes('user denied')||(e&&e.code===4001))return t('errReject');
+  if(m.includes('pool_low'))return t('errPoolLow');
+  if(m.includes('min_bet'))return t('errMinBet');
+  if(m.includes('not_betting')||m.includes('closed'))return t('errClosed');
+  if(m.includes('full'))return t('errFull');
+  if(m.includes('house_no_bet'))return t('ownerNoBet');
+  if(m.includes('paused'))return t('errPaused');
+  if(m.includes('tf_fail')||m.includes('transfer'))return t('errTF');
+  if(m.includes('insufficient funds')||m.includes('gas'))return t('errGas');
+  if(m.includes('no_wallet'))return t('needConnect');
+  return t('errTx');
+}
+
+/* ================= 钱包连接 ================= */
+async function ensureChain(){
+  const eth=window.ethereum; if(!eth)return;
+  try{const cid=await eth.request({method:'eth_chainId'});if(cid&&cid.toLowerCase()===CFG.chainIdHex)return;}catch(e){}
+  try{await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CFG.chainIdHex}]});}
+  catch(e){
+    if(e&&e.code===4902){
+      await eth.request({method:'wallet_addEthereumChain',params:[{chainId:CFG.chainIdHex,chainName:'Anubis',
+        rpcUrls:[CFG.rpc],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:[CFG.explorer]}]});
+    } else throw e;
+  }
+}
+async function connect(){
+  if(S.inflight.connect)return; const eth=window.ethereum;
+  if(!eth){toast(S.lang==='zh'?'未检测到钱包，请在 OKX 等钱包内置浏览器打开':'No wallet detected, open in a wallet browser (e.g. OKX)');return;}
+  S.inflight.connect=true; const b=$('dtConnect'); if(b)b.textContent=t('connecting');
+  try{
+    const acc=await eth.request({method:'eth_requestAccounts'}); const a=acc&&acc[0];
+    if(!a)throw new Error('no acct');
+    await ensureChain();
+    S.addr=a;
+    try{localStorage.setItem(PREF+'.addr','1');}catch(e){}
+    await refreshWallet();
+    toast(t('connected'));
+    try{eth.removeListener&&eth.removeListener('accountsChanged',onAccounts);eth.on&&eth.on('accountsChanged',onAccounts);}catch(e){}
+    try{eth.on&&eth.on('chainChanged',()=>location.reload());}catch(e){}
+  }catch(e){toast(explainErr(e));}
+  S.inflight.connect=false; renderControls();
+}
+function onAccounts(accs){
+  if(!accs||!accs.length){S.addr=null;S.isOwner=false;S.balRaw=0n;S.allowanceRaw=0n;}
+  else{S.addr=accs[0];refreshWallet();}
+  renderAll();renderControls();
+}
+async function refreshWallet(){
+  if(!S.addr)return;
+  try{
+    const [balHex,alwHex,ownerHex]=await Promise.all([
+      callRead(CFG.lgns,SEL.balanceOf+addr32(S.addr)),
+      callRead(CFG.lgns,SEL.allowance+addr32(S.addr)+addr32(CFG.proxy)),
+      callProxy(SEL.owner)
+    ]);
+    S.balRaw=BigInt(balHex); S.allowanceRaw=BigInt(alwHex);
+    S.isOwner=('0x'+ownerHex.replace(/^0x/,'').slice(24,64)).toLowerCase()===S.addr.toLowerCase();
+  }catch(e){}
+}
+
+/* ================= 音效 / 语音（沿用演示版） ================= */
+let toastId=null;
+function toast(msg){const el=$('toast');if(!el)return;el.textContent=msg;el.classList.add('show');clearTimeout(toastId);toastId=setTimeout(()=>el.classList.remove('show'),2600);}
+let AC=null;const activeSounds=new Set();
+function audio(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});return AC;}
+function stopSounds(){for(const o of activeSounds){try{o.stop();}catch(e){}try{o.disconnect();}catch(e){}}activeSounds.clear();}
+function tone(freq,dur=0.1,type='sine',vol=.06,when=0){if(!S.sound)return;const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain(),now=c.currentTime+when;o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(vol,now+.015);g.gain.exponentialRampToValueAtTime(.0001,now+Math.max(.04,dur));o.connect(g);g.connect(c.destination);o.onended=()=>{activeSounds.delete(o);o.disconnect();g.disconnect();};activeSounds.add(o);o.start(now);o.stop(now+Math.max(.04,dur)+.03);}
+const SFX={bet(){tone(650,.12,'triangle',.06);tone(940,.09,'triangle',.035,.08);},shuffle(){[500,430,680,530,710].forEach((f,i)=>tone(f,.08,'triangle',.025,i*.055));},deal(){tone(330,.1,'sine',.045);tone(520,.12,'triangle',.04,.1);},flip(){tone(980,.07,'triangle',.045);},win(){[523,659,784,1047].forEach((f,i)=>tone(f,.24,'triangle',.05,i*.11));},lose(){tone(220,.3,'sine',.045);tone(180,.32,'sine',.035,.12);},tick(){tone(900,.055,'sine',.035);}};
+function stopVoice(){try{window.speechSynthesis&&window.speechSynthesis.cancel();}catch(e){}}
+function speak(text){if(!S.voice)return;try{stopVoice();const say=new SpeechSynthesisUtterance(text);say.lang=S.lang==='zh'?'zh-CN':'en-US';say.rate=.99;say.volume=.95;window.speechSynthesis&&window.speechSynthesis.speak(say);}catch(e){}}
+
+/* ================= 荷官海报 / 可选视频（仅作影像，不决定牌） ================= */
+const DEALER_MEDIA={idle:'',dealing:'',settle:''};
+let userDealerClipURL=null,videoGen=0;
+function mediaCaption(s){const e=$('dealerFileState');if(e)e.textContent=s;}
+function stopDealerVideo(){const v=$('dealerVideo');++videoGen;if(!v)return;try{v.pause();}catch(e){}v.onended=null;v.onerror=null;v.onplaying=null;v.classList.remove('ready');const l=$('dealerFilmLabel');if(l)l.textContent='PHOTO · DEMO';}
+function playDealerClip(loop){
+  const path=userDealerClipURL||DEALER_MEDIA.dealing||DEALER_MEDIA.idle; if(!path){stopDealerVideo();return;}
+  const v=$('dealerVideo'),seq=++videoGen; v.loop=!!loop;v.muted=true;v.playsInline=true;
+  if(v.dataset.path!==path){v.src=path;v.dataset.path=path;v.load();}
+  v.onplaying=()=>{if(seq===videoGen){v.classList.add('ready');const l=$('dealerFilmLabel');if(l)l.textContent='VIDEO';}};
+  v.onerror=()=>{if(seq===videoGen){v.classList.remove('ready');const l=$('dealerFilmLabel');if(l)l.textContent='PHOTO · DEMO';}};
+  const p=v.play();if(p&&p.catch)p.catch(()=>{});
+}
+// cue 编辑器保留为纯 UI（真钱版牌由链上决定，不按视频同步发牌）
+const DEFAULT_CUES={dragon:2.60,tiger:4.10,flipDragon:6.20,flipTiger:7.60,result:8.90};
+const CUE_IDS=['dragon','tiger','flipDragon','flipTiger','result'];
+let dealerCues={...DEFAULT_CUES};
+function renderCueFields(){for(const id of CUE_IDS){const el=$('cue'+id[0].toUpperCase()+id.slice(1));if(el)el.value=dealerCues[id].toFixed(2);}}
+function saveCueFields(){const r={};for(const id of CUE_IDS){const el=$('cue'+id[0].toUpperCase()+id.slice(1)),raw=(el.value||'').trim();if(!/^\d+(?:\.\d{1,2})?$/.test(raw)){toast(S.lang==='zh'?'时间码仅支持 0–60 秒正数':'Cue 0–60s only');return;}r[id]=Number(raw);}if(CUE_IDS.some((k,i)=>i>0&&r[CUE_IDS[i-1]]>=r[k])){toast(S.lang==='zh'?'时间码必须严格递增':'Must be increasing');return;}dealerCues=r;$('dealerMediaMask').classList.remove('show');toast(S.lang==='zh'?'已保存':'Saved');}
+
+/* ================= 牌与结果动画 ================= */
+function clearCards(){document.querySelectorAll('.card').forEach(el=>el.remove());document.querySelectorAll('.zone').forEach(el=>el.classList.remove('win-glow'));const f=$('dealerFrame');if(f)f.classList.remove('dealing','celebrate');const rb=$('resultBanner');if(rb){rb.classList.remove('show');rb.textContent='';}}
+function flyCard(card,slotId){
+  const slot=$(slotId),from=$('dealerFrame'); if(!slot||!from||!card)return null;
+  const a=slot.getBoundingClientRect(),b=from.getBoundingClientRect();
+  const dx=b.left+b.width/2-(a.left+a.width/2),dy=b.top+b.height*.82-(a.top+a.height/2);
+  const el=document.createElement('div');el.className='card';
+  el.innerHTML=`<div class="card-inner"><div class="card-face card-back"></div><div class="card-face card-front ${card.red?'red':'black'}"><span class="card-corner">${card.rank}<span>${card.suit}</span></span><span class="rank">${card.rank}</span><span class="suit">${card.suit}</span><span class="card-corner bottom">${card.rank}<span>${card.suit}</span></span></div></div>`;
+  el.style.transform=`translate(${dx}px,${dy}px) scale(.55) rotate(-15deg)`;
+  el.style.transition='transform .65s cubic-bezier(.24,.75,.25,1.09)';
+  slot.append(el);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{if(el.isConnected)el.style.transform='translate(0,0) scale(1) rotate(0deg)';}));
+  SFX.deal();return el;
+}
+// settle 成功后用链上牌揭晓（程序动画，牌面来自合约）
+function revealRound(rd){
+  if(S.revealedRound===S.round)return;
+  S.revealedRound=S.round;
+  const dCard=cardFromId(rd.dCard),tCard=cardFromId(rd.tCard);
+  clearCards();
+  const f=$('dealerFrame');if(f){f.classList.remove('dealing');f.classList.add('celebrate');}
+  let elD=null,elT=null;
+  setTimeout(()=>{elD=flyCard(dCard,'slotDragon');},150);
+  setTimeout(()=>{elT=flyCard(tCard,'slotTiger');},850);
+  setTimeout(()=>{if(elD){elD.classList.add('flipped');SFX.flip();}},1600);
+  setTimeout(()=>{if(elT){elT.classList.add('flipped');SFX.flip();}},2100);
+  setTimeout(()=>{
+    const res=AREA_NAME[rd.result]||'tie';
+    const zoneId='zone'+(res==='tie'?'Tie':res==='dragon'?'Dragon':'Tiger');
+    const z=$(zoneId);if(z)z.classList.add('win-glow');
+    // 我的本局盈亏（与合约同公式）
+    const net=S.myRetRaw-S.myStakeRaw, signs=net>0n?'+':'';
+    const name=t(res);
+    const rb=$('resultBanner');
+    if(rb){rb.textContent=`${name} · ${t('refund')} ${fmtLgns(S.myRetRaw)} · ${t('net')} ${signs}${fmtLgns(net)} LGNS`;rb.classList.add('show');}
+    const tn=$('timerNum');if(tn)tn.textContent=S.lang==='zh'?({dragon:'龙',tiger:'虎',tie:'和'}[res]):({dragon:'D',tiger:'T',tie:'='}[res]);
+    (net>0n?SFX.win:SFX.lose)();
+    speak(t(res==='dragon'?'speakD':res==='tiger'?'speakT':'speakE'));
+  },2700);
+}
+
+/* ================= 本局我的注单（从链上扫） ================= */
+function myReturnRaw(stakeByArea,result){
+  // 合约口径：龙/虎赢 2x；和赢 16x；和局时龙/虎注退 50%
+  const d=stakeByArea.dragon||0n,tg=stakeByArea.tiger||0n,ti=stakeByArea.tie||0n;
+  if(result===0)return d*2n;                 // dragon
+  if(result===1)return tg*2n;                // tiger
+  if(result===2)return ti*16n + d/2n + tg/2n;// tie
+  return 0n;
+}
+async function scanMyBets(rid){
+  S.confirmed={dragon:0n,tiger:0n,tie:0n}; S.myStakeRaw=0n;
+  if(!S.addr||!rid)return;
+  try{
+    const cHex=await callProxy(SEL.betCount+u256(rid)); const n=Number(BigInt(cHex));
+    for(let i=0;i<n&&i<200;i++){
+      const b=decBet(await callProxy(SEL.getBet+u256(rid)+u256(i)));
+      if(b.player.toLowerCase()!==S.addr.toLowerCase())continue;
+      const area=AREA_NAME[b.area]; if(area){S.confirmed[area]+=b.amount;S.myStakeRaw+=b.amount;}
+    }
+  }catch(e){}
+}
+
+/* ================= 状态机（区块驱动） ================= */
+let polling=false;
+async function poll(){
+  if(polling)return; polling=true;
+  try{
+    const [blkHex,rcHex]=await Promise.all([rpcRead('eth_blockNumber',[]),callProxy(SEL.roundCount)]);
+    S.block=Number(BigInt(blkHex)); S.roundCount=Number(BigInt(rcHex));
+    if(S.roundCount===0){
+      S.round=0;S.rd=null;setPhase('idle');maybeStart();renderClock();renderAll();polling=false;return;
+    }
+    let rid=S.roundCount;
+    let rd=decRound(await callProxy(SEL.getRound+u256(rid)));
+    if(rd.betEnd===0 && rid>0){ // 兼容轮次 0-based：真正最新轮为 roundCount-1
+      const alt=decRound(await callProxy(SEL.getRound+u256(rid-1)));
+      if(alt.betEnd>0){rid=rid-1;rd=alt;}
+    }
+    const prevRound=S.round; S.round=rid; S.rd=rd;
+    // 切到新一局：清桌、清篮子确认态、扫我的注单
+    if(rid!==prevRound){clearCards();S.dealtRound=0;S.revealedRound=(rd.resolved?0:S.revealedRound);await scanMyBets(rid);refreshWallet();backfillHistory(rid);}
+    // 下注阶段周期性刷新我的已上链注单
+    else if(rd.closeBlock===0){await scanMyBets(rid);}
+
+    const block=S.block;
+    if(rd.resolved){
+      // 结算完成：拿返还、揭晓、短暂停留后开新局
+      if(S.revealedRound!==rid){
+        await scanMyBets(rid);
+        S.myRetRaw=myReturnRaw(S.confirmed,rd.result);
+        refreshWallet();
+        setPhase('settle');
+        revealRound(rd);
+        backfillHistory(rid);
+        S.settleHoldUntil=Date.now()+5000;
+      } else if(Date.now()>=S.settleHoldUntil){
+        setPhase('idle');maybeStart();
+      }
+    } else if(rd.closeBlock===0 && block<=rd.betEnd){
+      setPhase('betting');
+    } else if(rd.closeBlock===0 && block>rd.betEnd){
+      setPhase('locked');doClose(rid);
+    } else if(rd.closeBlock>0 && block<=rd.revealBlock){
+      setPhase('dealing');
+      if(S.dealtRound!==rid){S.dealtRound=rid;const f=$('dealerFrame');if(f)f.classList.add('dealing');SFX.shuffle();speak(t('speakDeal'));playDealerClip(true);}
+    } else if(block>rd.revealBlock && !rd.resolved){
+      if(block>rd.revealBlock+256){setPhase('refund');}
+      else{setPhase('dealing');doSettle(rid);}
+    }
+    renderClock();renderAll();
+  }catch(e){/* 网络抖动静默，下一拍重试 */}
+  polling=false;
+}
+function setPhase(p){if(S.phase!==p){S.phase=p;updatePhase();}}
+function updatePhase(){const key={idle:'phIdle',betting:'phBetting',locked:'phLocked',dealing:'phDealing',settle:'phSettle',refund:'phRefund'}[S.phase];const el=$('phaseTip');if(el)el.textContent=key?t(key):'';}
+
+/* 自动公共交易：谁连钱包谁触发；带防重与静默 revert */
+async function maybeStart(){
+  if(!S.addr||S.inflight.start)return;
+  S.inflight.start=true;
+  try{await sendTx(CFG.proxy,SEL.startRound);}catch(e){}
+  setTimeout(()=>{S.inflight.start=false;},4000);
+}
+async function doClose(rid){
+  if(!S.addr||S.inflight.close)return; S.inflight.close=true;
+  try{await sendTx(CFG.proxy,SEL.closeRound+u256(rid));}catch(e){}
+  setTimeout(()=>{S.inflight.close=false;},4000);
+}
+async function doSettle(rid){
+  if(!S.addr||S.inflight.settle)return; S.inflight.settle=true;
+  try{await sendTx(CFG.proxy,SEL.settle+u256(rid));}catch(e){}
+  setTimeout(()=>{S.inflight.settle=false;},5000);
+}
+async function doRefund(){
+  if(!S.addr||S.inflight.refund||!S.round)return; S.inflight.refund=true;
+  try{const h=await sendTx(CFG.proxy,SEL.refundRound+u256(S.round));toast(t('txSent'));await waitTx(h);refreshWallet();}catch(e){toast(explainErr(e));}
+  S.inflight.refund=false;
+}
+
+/* 历史路单：回填最近 ~24 局已结算 */
+let backfillBusy=false;
+async function backfillHistory(latest){
+  if(backfillBusy)return; backfillBusy=true;
+  try{
+    const have=new Set(S.history.map(h=>h.round));
+    for(let id=latest;id>=Math.max(1,latest-24);id--){
+      if(have.has(id))continue;
+      const rd=decRound(await callProxy(SEL.getRound+u256(id)));
+      if(rd.resolved){S.history.push({round:id,d:cardStr(rd.dCard),t:cardStr(rd.tCard),result:AREA_NAME[rd.result]||'tie',betEnd:rd.betEnd});}
+    }
+    S.history.sort((a,b)=>b.round-a.round); if(S.history.length>60)S.history.length=60;
+  }catch(e){}
+  backfillBusy=false;
+}
+function cardStr(id){const c=cardFromId(id);return c?c.rank+c.suit:'—';}
+
+/* ================= 下注篮子 + 确认上链 ================= */
+function addToBasket(zone){
+  if(!['dragon','tiger','tie'].includes(zone))return;
+  if(!S.addr){toast(t('needConnect'));return;}
+  if(S.isOwner){toast(t('ownerNoBet'));return;}
+  if(S.phase!=='betting'){toast(t('toastNoBet'));return;}
+  const add=chipRaw(S.chip);
+  S.basket[zone]+=add; S.basketLog.push({zone,amt:add});
+  animateChip(zone);SFX.bet();renderAll();
+}
+function undoBasket(){const b=S.basketLog.pop();if(!b){toast(t('toastNothingUndo'));return;}S.basket[b.zone]-=b.amt;if(S.basket[b.zone]<0n)S.basket[b.zone]=0n;renderAll();toast(t('toastUndo'));}
+function clearBasket(){S.basket={dragon:0n,tiger:0n,tie:0n};S.basketLog=[];renderAll();toast(t('toastClear'));}
+const basketTotal=()=>S.basket.dragon+S.basket.tiger+S.basket.tie;
+// 限红预检：新 reserve = max(2·sumD, 2·sumT, 16·sumTie + (sumD+sumT)/2) ≤ 合约余额
+function poolPrecheck(){
+  const sumD=S.rd?S.rd.sumD:0n, sumT=S.rd?S.rd.sumT:0n, sumTie=S.rd?S.rd.sumTie:0n;
+  const nD=sumD+S.basket.dragon, nT=sumT+S.basket.tiger, nTie=sumTie+S.basket.tie;
+  const reserve=[(2n*nD),(2n*nT),(16n*nTie+(nD+nT)/2n)].reduce((a,b)=>a>b?a:b,0n);
+  return reserve<=S.freeBankrollRaw+basketTotal();
+}
+async function confirmBets(){
+  if(S.inflight.confirm)return;
+  if(!S.addr){toast(t('needConnect'));return;}
+  if(S.isOwner){toast(t('ownerNoBet'));return;}
+  if(S.phase!=='betting'){toast(t('toastNoBet'));return;}
+  const total=basketTotal();
+  if(total<=0n){toast(t('toastEmptyBasket'));return;}
+  if(total>S.balRaw){toast(t('toastNoMoney'));return;}
+  if(S.minBetRaw>0n){for(const z of ['dragon','tiger','tie'])if(S.basket[z]>0n&&S.basket[z]<S.minBetRaw){toast(t('errMinBet')+' '+fmtLgns(S.minBetRaw)+' LGNS');return;}}
+  if(!poolPrecheck()){toast(t('errPoolLow'));return;}
+  S.inflight.confirm=true; const cb=$('dtConfirm'); if(cb){cb.disabled=true;cb.textContent=t('confirming');}
+  try{
+    // 授权（不足则一次性授权 10000 LGNS）
+    if(S.allowanceRaw<total){
+      const ab=$('dtApprove'); if(ab)ab.textContent=t('approving');
+      const h=await sendTx(CFG.lgns,SEL.approve+addr32(CFG.proxy)+u256(APPROVE_RAW));
+      toast(t('approveOk'));await waitTx(h);S.allowanceRaw=APPROVE_RAW;
+    }
+    const rid=S.round;
+    for(const z of ['dragon','tiger','tie']){
+      const amt=S.basket[z]; if(amt<=0n)continue;
+      const data=SEL.placeBet+u256(rid)+u256(AREA[z])+u256(amt);
+      const h=await sendTx(CFG.proxy,data); toast(t('txSent')); await waitTx(h);
+    }
+    S.basket={dragon:0n,tiger:0n,tie:0n};S.basketLog=[];
+    await scanMyBets(rid);await refreshWallet();
+    toast(t('betOk'));
+  }catch(e){toast(explainErr(e));}
+  S.inflight.confirm=false; renderAll();renderControls();
+}
+
+/* ================= 渲染 ================= */
+function animateChip(zone){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  if(document.querySelectorAll('.chip-fly').length>=12)return;
+  const src=document.querySelector('.chip.sel'),target=$('zone'+zone[0].toUpperCase()+zone.slice(1));
+  if(!src||!target)return;
+  const a=src.getBoundingClientRect(),b=target.getBoundingClientRect();
+  const x=a.left+a.width/2,y=a.top+a.height/2;
+  const chip=document.createElement('span');chip.className='chip-fly';chip.textContent=S.chip;
+  chip.style.left=(x-16)+'px';chip.style.top=(y-16)+'px';document.body.append(chip);
+  const dx=b.left+b.width/2-x,dy=b.top+b.height/2-y;
+  if(typeof chip.animate==='function'){const fx=chip.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${dx*.5}px,${dy*.7-35}px) scale(.85)`,opacity:1,offset:.55},{transform:`translate(${dx}px,${dy}px) scale(.7)`,opacity:.2}],{duration:440,easing:'cubic-bezier(.24,.65,.3,1)'});fx.onfinish=()=>chip.remove();fx.oncancel=()=>chip.remove();}else chip.remove();
+}
+function renderClock(){
+  const ring=document.querySelector('.timer-ring'); const tn=$('timerNum'); const off=$('ringFg');
+  if(!tn)return;
+  let remain=0,total=1;
+  if(S.phase==='betting'&&S.rd){remain=Math.max(0,S.rd.betEnd-S.block);total=Math.max(remain,1);}
+  else if(S.phase==='dealing'&&S.rd&&S.rd.revealBlock){remain=Math.max(0,S.rd.revealBlock-S.block);total=Math.max(remain,1);}
+  if(S.phase==='betting'||S.phase==='dealing'){
+    tn.textContent=remain>0?remain:'—';
+    if(off)off.style.strokeDashoffset=String(201*(1-Math.min(1,remain/Math.max(total,6))));
+    if(ring)ring.classList.toggle('urgent',S.phase==='betting'&&remain<=3);
+    if(S.phase==='betting'&&remain>=1&&remain<=3)SFX.tick();
+  } else if(S.phase==='settle'){ /* revealRound 会写结果字 */ }
+  else {tn.textContent='–';if(off)off.style.strokeDashoffset='0';if(ring)ring.classList.remove('urgent');}
+  const r=$('roundId');if(r)r.textContent='#'+(S.round||0);
+}
+function renderBets(){
+  for(const zone of ['dragon','tie','tiger']){
+    const cf=S.confirmed[zone]||0n, bk=S.basket[zone]||0n;
+    const el=$('bet'+zone[0].toUpperCase()+zone.slice(1));
+    if(el){
+      const parts=[];
+      if(cf>0n)parts.push(fmtLgns(cf));
+      if(bk>0n)parts.push('+'+fmtLgns(bk));
+      el.textContent=parts.length?parts.join(' '):'0';
+    }
+    const z=$('zone'+zone[0].toUpperCase()+zone.slice(1));
+    if(z){z.disabled=!(S.phase==='betting'&&S.addr&&!S.isOwner);z.classList.toggle('has-bet',(cf+bk)>0n);}
+  }
+  const tb=$('totalBet');if(tb)tb.textContent=fmtLgns(S.confirmed.dragon+S.confirmed.tiger+S.confirmed.tie+basketTotal());
+  // 预计最高返还（含篮子+已上链）
+  const d=S.confirmed.dragon+S.basket.dragon,tg=S.confirmed.tiger+S.basket.tiger,ti=S.confirmed.tie+S.basket.tie;
+  const maxRet=[myReturnRaw({dragon:d,tiger:tg,tie:ti},0),myReturnRaw({dragon:d,tiger:tg,tie:ti},1),myReturnRaw({dragon:d,tiger:tg,tie:ti},2)].reduce((a,b)=>a>b?a:b,0n);
+  const mr=$('maxReturn');if(mr)mr.textContent=fmtLgns(maxRet);
+  const cs=$('chipSelNum');if(cs)cs.textContent=S.chip.toLocaleString();
+  const bn=$('balanceNum');if(bn)bn.textContent=S.addr?fmtLgns(S.balRaw):'—';
+  const bs=$('balanceSym');if(bs)bs.textContent='LGNS';
+  const sk=$('skipBtn');if(sk)sk.style.display='none';
+  const ub=$('undoBtn'),clb=$('clearBtn');
+  if(ub)ub.disabled=!(S.phase==='betting'&&S.basketLog.length>0);
+  if(clb)clb.disabled=!(S.phase==='betting'&&basketTotal()>0n);
+  document.querySelectorAll('.chip[data-chip]').forEach(el=>{el.disabled=!(S.phase==='betting'&&S.addr&&!S.isOwner);el.classList.toggle('sel',Number(el.dataset.chip)===S.chip&&!S.customChip);});
+  const cc=$('chipCustom');if(cc)cc.classList.toggle('sel',S.customChip===true);
+}
+function renderStats(){
+  const net=S.phase==='settle'?(S.myRetRaw-S.myStakeRaw):0n;
+  const b1=$('stBet');if(b1)b1.textContent=fmtLgns(S.confirmed.dragon+S.confirmed.tiger+S.confirmed.tie);
+  const b2=$('stWin');if(b2)b2.textContent=S.phase==='settle'?fmtLgns(S.myRetRaw):'—';
+  const b3=$('stPnl');if(b3)b3.textContent=S.phase==='settle'?((net>0n?'+':'')+fmtLgns(net)):'—';
+  const b4=$('stBalance');if(b4)b4.textContent=(S.addr?fmtLgns(S.balRaw):'—')+' LGNS';
+  const cell=$('stPnlCell');if(cell)cell.className='cell '+(net>0n?'pos':net<0n?'neg':'');
+}
+function renderStreak(){
+  const node=$('streak');if(!node)return;node.replaceChildren();
+  const last=S.history.slice(0,30);
+  if(!last.length){node.textContent='—';return;}
+  for(const {result} of last){const el=document.createElement('span');el.className='s '+({dragon:'d',tiger:'t',tie:'e'}[result]);el.textContent=S.lang==='zh'?({dragon:'龙',tiger:'虎',tie:'和'}[result]):({dragon:'D',tiger:'T',tie:'='}[result]);el.title=t(result);node.append(el);}
+}
+function renderHist(){
+  const tb=$('histBody');if(!tb)return;tb.replaceChildren();
+  if(!S.history.length){const row=tb.insertRow();const cell=row.insertCell();cell.colSpan=6;cell.textContent=t('noData');cell.style.color='var(--dim)';return;}
+  for(const h of S.history.slice(0,40)){
+    const row=tb.insertRow(),items=[`#${h.round}`,h.d,h.t,t(h.result),'LGNS'];
+    items.forEach((value,i)=>{const cell=row.insertCell();cell.textContent=value;if(i===3)cell.className='res-'+({dragon:'d',tiger:'t',tie:'e'}[h.result]);});
+    const last=row.insertCell();last.textContent='#'+h.round;
+  }
+}
+function renderAll(){renderBets();renderStats();renderStreak();renderHist();}
+
+/* ================= 连钱包/授权/确认 控件（JS 注入，不改 HTML） ================= */
+function injectControls(){
+  // 隐藏演示代币选择器与重置键
+  const ts=$('tokenSel');if(ts)ts.style.display='none';
+  const rb=$('resetBtn');if(rb)rb.title=t('resetTitle');
+  // 顶栏连接按钮
+  const header=document.querySelector('header.topbar');
+  if(header&&!$('dtConnect')){
+    const c=document.createElement('button');c.className='icon-btn';c.id='dtConnect';c.style.width='auto';c.style.padding='0 10px';c.textContent=t('connect');
+    header.insertBefore(c,$('soundBtn'));
+    c.addEventListener('click',connect);
+  }
+  // 下注区：授权 + 确认
+  const acts=document.querySelector('.bet-actions');
+  if(acts&&!$('dtConfirm')){
+    const ap=document.createElement('button');ap.className='act-btn';ap.id='dtApprove';ap.textContent=t('approve');ap.style.display='none';
+    const cf=document.createElement('button');cf.className='act-btn';cf.id='dtConfirm';cf.style.background='linear-gradient(180deg,#2e7d32,#1b5e20)';cf.style.color='#fff';cf.textContent=t('confirm');
+    acts.insertBefore(cf,acts.firstChild);acts.insertBefore(ap,cf);
+    cf.addEventListener('click',confirmBets);
+    ap.addEventListener('click',async()=>{if(!S.addr){toast(t('needConnect'));return;}ap.textContent=t('approving');try{const h=await sendTx(CFG.lgns,SEL.approve+addr32(CFG.proxy)+u256(APPROVE_RAW));toast(t('approveOk'));await waitTx(h);S.allowanceRaw=APPROVE_RAW;toast(t('approveOk'));}catch(e){toast(explainErr(e));}renderControls();});
+  }
+  // 退款按钮（异常态）
+  const timerWrap=document.querySelector('.timer-wrap');
+  if(timerWrap&&!$('dtRefund')){const r=document.createElement('button');r.className='skip-btn';r.id='dtRefund';r.textContent=t('refundBtn');r.style.display='none';r.style.background='#7a2e2e';r.addEventListener('click',doRefund);timerWrap.appendChild(r);}
+}
+function renderControls(){
+  const c=$('dtConnect');
+  if(c)c.textContent=S.addr?(S.addr.slice(0,6)+'…'+S.addr.slice(-4)):t('connect');
+  const cf=$('dtConfirm'),ap=$('dtApprove');
+  const canBet=S.addr&&!S.isOwner&&S.phase==='betting';
+  if(cf){cf.style.display=canBet?'':'none';cf.disabled=!canBet||S.inflight.confirm||basketTotal()<=0n;if(!S.inflight.confirm)cf.textContent=t('confirm');}
+  if(ap){const needAppr=canBet&&basketTotal()>0n&&S.allowanceRaw<basketTotal();ap.style.display=needAppr?'':'none';if(ap.textContent!==t('approving'))ap.textContent=t('approve');}
+  const rf=$('dtRefund');if(rf)rf.style.display=(S.phase==='refund')?'':'none';
+  // 顶栏状态条文案
+  const nb=document.querySelector('.net-badge span');if(nb)nb.textContent=S.addr?(S.isOwner?(S.lang==='zh'?'庄家钱包':'House wallet'):t('connected')):t('viewing');
+}
+
+/* ================= i18n 应用 ================= */
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.dataset.i18n;if(key in I18N[S.lang])el.textContent=t(key);});
+  const rbd=$('ruleBody');if(rbd)rbd.innerHTML=t('ruleHTML');
+  document.documentElement.lang=S.lang==='zh'?'zh-CN':'en';
+  const lb=$('langBtn');if(lb)lb.textContent=S.lang==='zh'?'EN':'中';
+  for(const [id,key] of [['soundBtn','soundTitle'],['voiceBtn','voiceTitle'],['langBtn','langTitle'],['resetBtn','resetTitle']]){const e=$(id);if(e)e.title=t(key);}
+  const sb=$('soundBtn');if(sb){sb.textContent=S.sound?'🔊':'🔇';sb.classList.toggle('off',!S.sound);}
+  const vb=$('voiceBtn');if(vb)vb.classList.toggle('off',!S.voice);
+  updatePhase();renderControls();renderAll();
+}
+
+/* ================= 事件 ================= */
+function loadPrefs(){try{const p=JSON.parse(localStorage.getItem(PREF)||'null');if(p){if(['zh','en'].includes(p.lang))S.lang=p.lang;if(typeof p.sound==='boolean')S.sound=p.sound;if(typeof p.voice==='boolean')S.voice=p.voice;if(CHIPS.includes(p.chip))S.chip=p.chip;}}catch(e){}}
+function savePrefs(){try{localStorage.setItem(PREF,JSON.stringify({lang:S.lang,sound:S.sound,voice:S.voice,chip:S.chip}));}catch(e){}}
+function attachEvents(){
+  const mediaMask=$('dealerMediaMask');
+  if($('dealerMediaBtn'))$('dealerMediaBtn').addEventListener('click',()=>{renderCueFields();mediaMask.classList.add('show');});
+  if($('dealerMediaClose'))$('dealerMediaClose').addEventListener('click',()=>mediaMask.classList.remove('show'));
+  if(mediaMask)mediaMask.addEventListener('click',e=>{if(e.target===mediaMask)mediaMask.classList.remove('show');});
+  if($('dealerMediaFile'))$('dealerMediaFile').addEventListener('change',e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!/^(video\/(mp4|webm|quicktime))$/.test(file.type)||file.size>200*1024*1024){toast(S.lang==='zh'?'仅支持 200MB 内 MP4/WebM/MOV':'MP4/WebM/MOV only, under 200MB');return;}const prev=userDealerClipURL;userDealerClipURL=URL.createObjectURL(file);if(prev)URL.revokeObjectURL(prev);mediaCaption('✓ '+file.name);toast(S.lang==='zh'?'视频已选择，发牌时作为荷官影像':'Video loaded as dealer imagery');e.target.value='';});
+  if($('cueSave'))$('cueSave').addEventListener('click',saveCueFields);
+  if($('cueDefaults'))$('cueDefaults').addEventListener('click',()=>{dealerCues={...DEFAULT_CUES};renderCueFields();});
+  document.querySelectorAll('.zone').forEach(z=>z.addEventListener('click',()=>addToBasket(z.dataset.zone)));
+  document.querySelectorAll('.chip[data-chip]').forEach(chip=>chip.addEventListener('click',()=>{if(S.phase!=='betting')return;S.chip=Number(chip.dataset.chip);S.customChip=false;savePrefs();renderAll();}));
+  if($('chipCustom'))$('chipCustom').addEventListener('click',()=>{if(S.phase!=='betting')return;const v=prompt(t('custom'),String(S.chip));if(v===null)return;if(!/^[1-9]\d*$/.test(v)||Number(v)>1000000){toast(S.lang==='zh'?'请输入 1–1000000 的整数':'Enter 1–1000000');return;}S.chip=Number(v);S.customChip=true;savePrefs();renderAll();});
+  if($('undoBtn'))$('undoBtn').addEventListener('click',undoBasket);
+  if($('clearBtn'))$('clearBtn').addEventListener('click',clearBasket);
+  if($('skipBtn'))$('skipBtn').style.display='none';
+  if($('resetBtn'))$('resetBtn').addEventListener('click',()=>{poll();refreshWallet();toast(S.lang==='zh'?'已刷新链上状态':'Refreshed');});
+  if($('soundBtn'))$('soundBtn').addEventListener('click',()=>{S.sound=!S.sound;if(!S.sound)stopSounds();else audio();savePrefs();applyLang();});
+  if($('voiceBtn'))$('voiceBtn').addEventListener('click',()=>{S.voice=!S.voice;stopVoice();savePrefs();applyLang();if(S.voice)speak(t('speakWelcome'));});
+  if($('langBtn'))$('langBtn').addEventListener('click',()=>{S.lang=S.lang==='zh'?'en':'zh';stopVoice();savePrefs();applyLang();});
+  if($('ruleBtn'))$('ruleBtn').addEventListener('click',()=>$('ruleMask').classList.add('show'));
+  if($('ruleClose'))$('ruleClose').addEventListener('click',()=>$('ruleMask').classList.remove('show'));
+  if($('ruleMask'))$('ruleMask').addEventListener('click',e=>{if(e.target===$('ruleMask'))$('ruleMask').classList.remove('show');});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('ruleMask'))$('ruleMask').classList.remove('show');if(mediaMask)mediaMask.classList.remove('show');}});
+  document.addEventListener('pointerdown',function unlock(){if(S.sound)audio();document.removeEventListener('pointerdown',unlock);},{passive:true});
+}
+function setupPanels(){const d=document.querySelector('.mobile-history-toggle');if(!d)return;const q=matchMedia('(min-width:701px)');const up=()=>{d.open=q.matches;};up();if(q.addEventListener)q.addEventListener('change',up);else if(q.addListener)q.addListener(up);}
+
+/* ================= 启动 ================= */
+async function bootstrapParams(){
+  try{const [mb,fb,pz]=await Promise.all([callProxy(SEL.minBet),callProxy(SEL.freeBankroll),callProxy(SEL.paused)]);S.minBetRaw=BigInt(mb);S.freeBankrollRaw=BigInt(fb);S.paused=BigInt(pz)!==0n;}catch(e){}
+}
+async function tryEagerConnect(){
+  if(!window.ethereum)return;
+  try{const accs=await window.ethereum.request({method:'eth_accounts'});if(accs&&accs[0]){S.addr=accs[0];await refreshWallet();}}catch(e){}
+}
+loadPrefs();injectControls();attachEvents();setupPanels();applyLang();
+bootstrapParams();tryEagerConnect().then(()=>{renderControls();poll();});
+setInterval(poll,POLL_MS);
+setInterval(()=>{if(S.paused){const pt=$('phaseTip');if(pt)pt.textContent=t('errPaused');}},3000);
+</script>
+</body>
+</html>
