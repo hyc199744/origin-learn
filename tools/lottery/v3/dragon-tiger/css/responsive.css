@@ -62,3 +62,8 @@ body{padding-top:42px}
 .controls .panel-label .bal-inline b{color:#fff;font-weight:600}
 @media(max-width:560px){.topbar .game-title{font-size:12px}.topbar .lobby-link{font-size:13px;padding:4px 12px}}
 @media(max-width:380px){.topbar .lobby-link{font-size:12px;padding:4px 9px}.topbar .game-title{display:none}}
+
+/* 强制顶栏右侧按钮可见(覆盖base.css手机端隐藏) */
+.topbar .header-actions{margin:0!important;display:flex!important}
+.topbar .header-actions>.icon-btn{display:inline-flex!important;align-items:center;justify-content:center;width:28px;min-width:28px;height:28px;min-height:28px}
+.topbar .wallet-btn{display:inline-flex!important}
