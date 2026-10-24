@@ -45,7 +45,8 @@
         +'<div style="display:flex;gap:8px;align-items:center"><div style="flex:1;font-size:12px;color:#9fb3a6;word-break:break-all">'+(myCode?SITE+'?code='+myCode:'…')+'</div><button id="apRefCopyLink" style="background:#17200b;color:#c8f665;border:1px solid #c8f66555;font-weight:700;font-size:12px;padding:8px 13px;border-radius:9px;cursor:pointer;flex:none">'+L('复制','Copy')+'</button></div>'
         +'<div style="font-size:11px;color:#5f7268;margin-top:9px;line-height:1.6">'+L('把链接或推荐码发给好友,他们用它进入并玩游戏,你就能拿返佣。','Share the link or code; friends must enter with it to join — then you earn on their play.')+'</div>'
         +'</div>'):'')
-      +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;margin:0 0 12px;padding:11px 13px;background:#0d1310;border:1px solid #ffffff14;border-radius:12px"><span style="color:#7e9583">'+L('我的推荐人','My referrer')+'</span><span style="font-family:var(--mono,monospace);color:#cdd9cf">'+(data&&data.referrer?short(data.referrer):L('无','none'))+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;margin:0 0 '+((data&&data.referrer)?'12px':'8px')+';padding:11px 13px;background:#0d1310;border:1px solid #ffffff14;border-radius:12px"><span style="color:#7e9583">'+L('我的推荐人','My referrer')+'</span><span style="font-family:var(--mono,monospace);color:#cdd9cf">'+(data&&data.referrer?short(data.referrer):('<span style="color:#9fb3a6;font-family:inherit">'+L('未绑定','Not bound')+'</span>'))+'</span></div>'
+      +((myAddr&&data&&!data.referrer)?('<div style="display:flex;gap:8px;margin:0 0 12px"><input id="apBindCode" maxlength="6" placeholder="'+L('输入推荐码绑定','Enter code')+'" style="flex:1;min-width:0;padding:10px 12px;background:#0d1310;border:1px solid #ffffff14;border-radius:10px;color:#eaf3ee;font-size:14px;letter-spacing:3px;text-transform:uppercase;outline:none"><button id="apBindBtn" style="background:#17200b;color:#c8f665;border:1px solid #c8f66555;font-weight:700;font-size:13px;padding:0 18px;border-radius:10px;cursor:pointer;flex:none">'+L('绑定','Bind')+'</button></div><div style="font-size:10px;color:#5f7268;margin:-4px 0 12px;line-height:1.5">'+L('绑定后你玩游戏产生的手续费会给推荐人返佣,不影响你的输赢/奖池;首次绑定永久,不可更改。','Once bound, your inviter earns a share of your fees — never affects your play; binding is permanent.')+'</div>'):'')
       +'<div class="rstat" style="display:flex;gap:10px;margin-bottom:12px"><div class="rs" style="flex:1;text-align:center"><div class="n" style="font-size:20px;font-weight:800;color:#c8f665">'+(data?data.directCount:'—')+'</div><div class="l" style="font-size:11px;color:#7e9583">'+L('直推','Direct')+'</div></div><div class="rs" style="flex:1;text-align:center"><div class="n" style="font-size:20px;font-weight:800;color:#c8f665">'+(data?data.indirectCount:'—')+'</div><div class="l" style="font-size:11px;color:#7e9583">'+L('间推','Indirect')+'</div></div><div class="rs" style="flex:2;text-align:center"><div class="n" style="font-size:14px;font-weight:800;color:#e0bd68">'+(data?amtLine(data.earned):'—')+'</div><div class="l" style="font-size:11px;color:#7e9583">'+L('累计返佣','Total earned')+'</div></div></div>'
       +((data&&(function(){try{return BigInt(data.locked||'0')>0n;}catch(e){return false;}})())?('<div style="margin-bottom:14px;padding:12px 13px;background:#1a1410;border:1px solid #e0bd6833;border-radius:12px"><div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:7px"><span style="color:#e0bd68">🔒 '+L('待解锁','Locked')+' '+fmt(data.locked,9)+' LGNS</span><span style="color:#9fb3a6">'+L('流水','Wager')+' '+fmt(data.wager,9)+' / '+fmt(data.wagerNeed,9)+'</span></div><div style="height:6px;background:#0d1215;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+(function(){try{var n=BigInt(data.wagerNeed||'0');return n>0n?Math.min(100,Number(BigInt(data.wager||'0')*100n/n)):100;}catch(e){return 0;}})()+'%;background:linear-gradient(90deg,#d4a84a,#e0bd68);border-radius:4px"></div></div><div style="font-size:10px;color:#7e9583;margin-top:6px">'+L('签到奖励玩炸金花(LGNS/DAI/USDT)够 2 倍流水自动解锁','Check-in rewards unlock at 2× Golden-Flower wager')+'</div></div>'):'')
       +'<div style="font-size:13px;font-weight:700;margin:4px 0 2px">'+L('可领取','Claimable')+'</div>'
@@ -55,11 +56,30 @@
       +(lbRows?'<div style="font-size:13px;font-weight:700;margin:16px 0 2px">'+L('收益排行榜','Earnings leaderboard')+'</div>'+lbRows:'');
 
     var btn=document.getElementById('apRefClaim'); if(btn) btn.onclick=claim;
+    var bb=document.getElementById('apBindBtn'); if(bb) bb.onclick=bindRef;
     var cc=document.getElementById('apRefCopyCode'); if(cc) cc.onclick=function(){ cp(myCode, cc); };
     var cl=document.getElementById('apRefCopyLink'); if(cl) cl.onclick=function(){ cp(SITE+'?code='+myCode, cl); };
   }
   function cp(text,btn){ if(!text)return; try{ (navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(function(){ var o=btn.textContent; btn.textContent=L('已复制','Copied'); setTimeout(function(){btn.textContent=o;},1500); },function(){ try{var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();var o=btn.textContent;btn.textContent=L('已复制','Copied');setTimeout(function(){btn.textContent=o;},1500);}catch(e){} }); }catch(e){} }
 
+  async function bindRef(){
+    if(busy||!myAddr) return;
+    var inp=document.getElementById('apBindCode'); var code=inp&&inp.value.trim();
+    if(!code){ toast(L('请输入推荐码','Enter a code')); return; }
+    busy=true; var bb=document.getElementById('apBindBtn'); if(bb){ bb.disabled=true; bb.textContent=L('绑定中…','…'); }
+    try{
+      var rz=await fetch(API+'/resolve?code='+encodeURIComponent(code),{cache:'no-store'}).then(function(r){return r.json();});
+      var inviter=rz&&rz.addr;
+      if(!inviter){ toast(L('推荐码无效','Invalid code')); busy=false; load(); return; }
+      if(inviter.toLowerCase()===myAddr.toLowerCase()){ toast(L('不能绑定自己','Cannot bind yourself')); busy=false; load(); return; }
+      var msg='ANUBIS PLAY invite: bind '+myAddr.toLowerCase()+' -> '+inviter.toLowerCase();
+      var sig=await window.ethereum.request({method:'personal_sign',params:[msg,myAddr]});
+      var r=await fetch(API+'/bind',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({invitee:myAddr,inviter:inviter,sig:sig})}).then(function(x){return x.json();});
+      if(r&&r.ok){ toast(L('绑定成功','Bound successfully')); }
+      else toast(L('绑定失败：','Bind failed: ')+((r&&r.error)||L('稍后重试','try again')));
+    }catch(e){ toast(L('绑定失败','Bind failed')); }
+    finally{ busy=false; load(); }
+  }
   async function claim(){
     if(busy||!myAddr) return; busy=true;
     var btn=document.getElementById('apRefClaim'); if(btn){ btn.disabled=true; btn.textContent=L('领取中…','Claiming…'); }
