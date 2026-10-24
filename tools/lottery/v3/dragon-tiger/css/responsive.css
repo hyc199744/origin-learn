@@ -49,8 +49,10 @@ body{padding-top:42px}
 
 /* ===== 顶栏新布局:logo+标题(左)/返回大厅(中,放大)/音效+连接钱包(右) ===== */
 .topbar .game-title{font-size:14px;font-weight:600;color:var(--accent);white-space:nowrap;letter-spacing:.04em;margin-left:2px}
-.topbar .header-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
-.topbar .lobby-link{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;font-size:15px;font-weight:700;color:var(--accent);border:1px solid var(--accent);background:#c8f66516;border-radius:8px;padding:5px 16px;white-space:nowrap;line-height:1;margin:0}
+.topbar{overflow:hidden}
+.topbar .header-actions{margin-left:0;display:flex;align-items:center;gap:8px;flex:none}
+.topbar .brand{flex:none}
+.topbar .lobby-link{display:flex;align-items:center;font-size:15px;font-weight:700;color:var(--accent);border:1px solid var(--accent);background:#c8f66516;border-radius:8px;padding:5px 16px;white-space:nowrap;line-height:1;margin:0 auto;flex:none}
 .topbar .lobby-link:hover{filter:brightness(1.18)}
 /* 余额挪进筹码栏标题行 */
 .controls .panel-label{display:flex;align-items:baseline;justify-content:space-between}
