@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>ANUBIS CRASH · 手机版</title>
+<link rel="icon" href="../img/logo.webp">
+<link rel="apple-touch-icon" href="../img/logo.webp">
+<style>
+:root{--bg:#0b1220;--card:#16202e;--line:#1c2940;--txt:#fff;--dim:#8b98ad;--gold:#f5c518;--green:#00e701;--red:#ed4163;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{background:#000;color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;overflow:hidden;touch-action:manipulation;overscroll-behavior:none;-webkit-user-select:none;user-select:none;}
+input{-webkit-user-select:text;user-select:text;font-size:16px;}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer;border:none;background:none;color:inherit;}
+button:active{transform:scale(.97);}
+#app{position:relative;height:100vh;height:100dvh;max-width:430px;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;}
+@media(min-width:520px){#app{box-shadow:0 0 60px rgba(0,0,0,.85);}}
+/* 顶栏 */
+#topbar{flex:0 0 52px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--line);background:#0d1524;}
+.logo{font-weight:900;font-size:16px;letter-spacing:1px;white-space:nowrap;}
+.logo em{font-style:normal;color:var(--gold);}
+.balpill{flex:1;min-width:0;display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:5px 10px;font-size:13px;overflow:hidden;}
+.balpill b{font-size:14px;white-space:nowrap;}
+.demotag{font-size:10px;font-weight:800;background:var(--gold);color:#111;border-radius:4px;padding:2px 5px;flex:0 0 auto;}
+.tbtn{flex:0 0 auto;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;font-weight:700;color:var(--dim);background:var(--card);}
+.tbtn:active{transform:scale(.95);}
+/* 次栏 */
+#subbar{flex:0 0 30px;display:flex;align-items:center;gap:8px;padding:0 12px;font-size:12px;color:var(--dim);border-bottom:1px solid var(--line);}
+.sbtn{display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:6px;font-size:12px;color:var(--dim);}
+.sbtn:active{transform:scale(.95);}
+.dot{width:8px;height:8px;border-radius:50%;background:#5b6b82;display:inline-block;}
+.dot.on{background:var(--green);}
+/* 左右列（竖屏=上下，横屏=左右） */
+#leftCol{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;}
+#rightCol{flex:0 0 auto;display:flex;flex-direction:column;}
+/* 舞台 */
+#stage{position:relative;flex:1 1 auto;min-height:0;background:radial-gradient(ellipse at 50% 120%,#12233a 0%,#0b1220 70%);}
+#cv{position:absolute;inset:0;width:100%;height:100%;}
+#stageOv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+#mult{font-size:76px;font-weight:900;letter-spacing:-1px;line-height:1;text-shadow:0 2px 18px rgba(0,0,0,.6);}
+#mult.crash{color:var(--red);}
+#phaseTxt{margin-top:8px;font-size:14px;color:var(--dim);font-weight:600;}
+#countBig{font-size:15px;color:var(--gold);font-weight:800;margin-top:4px;}
+/* 历史条 */
+#histWrap{flex:0 0 36px;display:flex;align-items:center;gap:8px;padding:0 12px;border-top:1px solid var(--line);background:#0d1524;}
+.hlabel{font-size:11px;color:var(--dim);flex:0 0 auto;}
+#hist{flex:1;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
+#hist::-webkit-scrollbar{display:none;}
+.pill{flex:0 0 auto;font-size:12px;font-weight:700;border-radius:12px;padding:3px 9px;background:#1a2636;color:var(--dim);}
+.pill.win{color:var(--green);border:1px solid rgba(0,231,1,.35);}
+.pill.lose{color:var(--red);border:1px solid rgba(237,65,99,.35);}
+/* 注单折叠 */
+#betsToggle{flex:0 0 32px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--dim);border-top:1px solid var(--line);background:#0d1524;font-weight:700;}
+#betsToggle .arr{transition:transform .2s;}
+#betsToggle.open .arr{transform:rotate(180deg);}
+#betsPanel{max-height:0;overflow:hidden;transition:max-height .22s ease;background:#0d1524;}
+#betsPanel.open{max-height:132px;overflow-y:auto;}
+#betsList{padding:2px 12px 8px;}
+.betrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #141e30;font-size:13px;}
+.betrow .amt{font-weight:800;}
+.betrow .st{margin-left:auto;color:var(--dim);font-size:12px;}
+.betrow .st.lock{color:var(--gold);}
+.betrow .st.w{color:var(--green);font-weight:800;}
+.betrow .st.l{color:var(--red);font-weight:800;}
+.minicash{flex:0 0 auto;background:var(--green);color:#04140a;font-weight:900;font-size:12px;border-radius:8px;padding:8px 12px;}
+.minicash:active{transform:scale(.94);}
+.empty{text-align:center;color:#3d4a61;font-size:12px;padding:10px 0;}
+/* 操作区 */
+#action{flex:0 0 auto;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#0e1624;border-top:1px solid var(--line);}
+.panel{display:none;}
+.panel.on{display:block;}
+.bigbtn{width:100%;min-height:56px;border-radius:14px;font-size:18px;font-weight:900;}
+.bigbtn.gold{background:var(--gold);color:#231a00;}
+.bigbtn.green{background:var(--green);color:#04140a;}
+.bigbtn:active{transform:scale(.98);}
+.betrow1{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+#countdown{flex:0 0 52px;height:52px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:var(--gold);}
+#amt{flex:1;min-width:0;height:52px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:#fff;padding:0 12px;font-weight:700;outline:none;}
+#amt:focus{border-color:var(--gold);}
+.chips{display:flex;gap:8px;margin-bottom:8px;}
+.chip{flex:1;height:40px;border-radius:10px;background:var(--card);border:1px solid var(--line);font-weight:800;font-size:14px;color:var(--txt);}
+.chip:active{transform:scale(.94);background:#1e2c42;}
+.hint{margin-top:8px;font-size:11px;color:var(--dim);text-align:center;}
+.cashbtn{width:100%;min-height:78px;border-radius:16px;background:var(--green);color:#04140a;font-size:30px;font-weight:900;box-shadow:0 6px 24px rgba(0,231,1,.35);}
+.cashbtn:disabled{background:#2a3648;color:#8b98ad;box-shadow:none;}
+.cashbtn:active:not(:disabled){transform:scale(.98);}
+#resultList{margin-bottom:8px;max-height:110px;overflow-y:auto;}
+.rrow{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #141e30;}
+.rrow .w{color:var(--green);font-weight:800;}
+.rrow .l{color:var(--red);font-weight:800;}
+#pnlRow{display:flex;justify-content:space-between;font-size:14px;font-weight:900;padding:8px 0;}
+/* Toast */
+#toast{position:absolute;top:96px;left:50%;transform:translate(-50%,-10px);background:rgba(20,30,48,.96);border:1px solid var(--line);color:#fff;font-size:13px;font-weight:600;padding:10px 16px;border-radius:24px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;z-index:50;max-width:92%;overflow:hidden;text-overflow:ellipsis;}
+#toast.show{opacity:1;transform:translate(-50%,0);}
+/* 底部弹层 */
+#sheetMask{position:absolute;inset:0;background:rgba(0,0,0,.65);display:none;z-index:60;}
+#sheetMask.open{display:block;}
+#sheet{position:absolute;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .25s ease;z-index:61;max-height:78%;overflow-y:auto;}
+#sheet.open{transform:none;}
+#sheet h3{font-size:17px;margin-bottom:10px;}
+#sheet h3 em{font-style:normal;color:var(--gold);}
+#sheetBody{font-size:13.5px;line-height:1.75;color:#c6d2e2;white-space:pre-line;margin-bottom:14px;}
+.sheetbtns{display:flex;gap:10px;}
+.sheetbtns button{flex:1;min-height:48px;border-radius:12px;font-weight:800;font-size:15px;}
+#resetBtn{background:#2a3648;color:#fff;}
+#closeSheet{background:var(--gold);color:#231a00;}
+.realoff{margin-top:12px;font-size:11px;color:#5b6b82;text-align:center;}
+/* 模式切换 */
+#modebar{flex:0 0 36px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--line);background:#0d1524;}
+#modeSeg{flex:1;display:flex;background:#0a1120;border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px;min-width:0;}
+.seg{flex:1;height:26px;border-radius:7px;font-size:13px;font-weight:800;color:var(--dim);min-width:0;}
+.seg.on{background:var(--gold);color:#231a00;}
+.seg.dis{opacity:.35;}
+#gaslessBadge{display:none;font-size:11px;font-weight:800;color:#04140a;background:var(--green);border-radius:6px;padding:4px 8px;white-space:nowrap;flex:0 0 auto;}
+#gaslessBadge.on{display:block;}
+#riskBar{display:none;flex:0 0 auto;align-items:center;gap:8px;padding:7px 12px;font-size:12px;font-weight:700;color:#231a00;background:var(--gold);}
+#riskBar span{flex:1;min-width:0;}
+#riskX{font-weight:900;font-size:14px;padding:2px 8px;flex:0 0 auto;}
+#logoutBtn{display:none;}
+#logoutBtn.on{display:flex;}
+#approveBtn{margin-bottom:8px;}
+/* 横屏专用布局 */
+@media (orientation:landscape) and (max-height:540px){
+  #app{flex-direction:row;flex-wrap:wrap;}
+  #topbar{flex:0 0 100%;height:44px;}
+  #subbar{flex:0 0 100%;height:26px;}
+  #modebar{flex:0 0 100%;height:32px;}
+  #riskBar{flex:0 0 100%;}
+  #leftCol{flex:1 1 0;min-width:0;height:calc(100% - 102px);}
+  #rightCol{flex:0 0 240px;height:calc(100% - 102px);overflow-y:auto;border-left:1px solid var(--line);}
+  #mult{font-size:56px;}
+  .cashbtn{min-height:64px;font-size:24px;}
+  #toast{top:80px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="logo">ANUBIS <em>CRASH</em></div>
+    <div class="balpill"><span class="demotag" id="modeTag">DEMO</span><b id="balVal">10,000</b></div>
+    <button id="langBtn" class="tbtn">EN</button>
+  </header>
+  <div id="subbar">
+    <button id="walletBtn" class="sbtn"><i class="dot" id="walletDot"></i><span id="walletTxt">连接钱包</span></button>
+    <button id="speedBtn" class="sbtn">1x</button>
+    <button id="howBtn" class="sbtn" data-i18n="howto">玩法</button>
+    <button id="logoutBtn" class="sbtn" data-i18n="logout">退出</button>
+  </div>
+  <div id="modebar">
+    <div id="modeSeg">
+      <button id="mDemo" class="seg on" data-i18n="modeDemo">试玩模式</button>
+      <button id="mReal" class="seg" data-i18n="modeReal">真实模式</button>
+    </div>
+    <span id="gaslessBadge" data-i18n="gasless">免签模式</span>
+  </div>
+  <div id="riskBar"><span data-i18n="riskReal">真实模式使用真实 LGNS，请确认后继续</span><button id="riskX">✕</button></div>
+  <div id="leftCol">
+    <main id="stage">
+      <canvas id="cv"></canvas>
+      <div id="stageOv">
+        <div id="mult">1.00x</div>
+        <div id="phaseTxt" data-i18n="waiting">等待开局</div>
+        <div id="countBig"></div>
+      </div>
+    </main>
+    <div id="histWrap"><span class="hlabel" data-i18n="hist">历史</span><div id="hist"></div></div>
+  </div>
+  <div id="rightCol">
+    <button id="betsToggle"><span data-i18n="myBets">我的注单</span>&nbsp;<b id="betsCount">(0)</b>&nbsp;<span class="arr">▾</span></button>
+    <div id="betsPanel"><div id="betsList"></div></div>
+    <div id="action">
+      <div class="panel on" id="pIdle">
+        <button id="startBtn" class="bigbtn gold" data-i18n="start">开始新一轮</button>
+      </div>
+      <div class="panel" id="pBet">
+        <div class="betrow1">
+          <div id="countdown">8</div>
+          <input id="amt" inputmode="numeric" pattern="[0-9]*" data-i18n-ph="amountPh" placeholder="输入金额">
+        </div>
+        <div class="chips" id="chips"></div>
+        <button id="approveBtn" class="bigbtn gold" style="display:none" data-i18n="approve">授权 LGNS</button>
+        <button id="betBtn" class="bigbtn green" data-i18n="betNow">下注</button>
+        <div class="hint" id="maxWinHint"></div>
+      </div>
+      <div class="panel" id="pFly">
+        <button id="cashAll" class="cashbtn">跑！@ 1.00x</button>
+        <div class="hint" data-i18n="flyHint">点跑锁定全部注单，揭晓后统一结算</div>
+      </div>
+      <div class="panel" id="pReveal">
+        <div id="resultList"></div>
+        <div id="pnlRow"><span data-i18n="pnl">本轮输赢</span><b id="pnlVal">+0</b></div>
+        <button id="nextBtn" class="bigbtn gold" data-i18n="next">再来一轮</button>
+      </div>
+    </div>
+  </div>
+  <div id="toast"></div>
+  <div id="sheetMask"></div>
+  <div id="sheet">
+    <h3><em>ANUBIS CRASH</em> · <span data-i18n="howtoTitle">玩法说明</span></h3>
+    <div id="sheetBody"></div>
+    <div class="sheetbtns">
+      <button id="resetBtn" data-i18n="reset">重置余额</button>
+      <button id="closeSheet" data-i18n="close">关闭</button>
+    </div>
+    <div class="realoff"><span data-i18n="realOff">真实链上交易未开放</span> · <span data-i18n="simNote">模拟爆点，非链上随机</span></div>
+  </div>
+</div>
+<script>
+'use strict';
+/* ===== 合约配置 =====
+   试玩模式：不发送任何真实交易。
+   真实模式：前端不直调合约写函数，全部走 RELAYER_URL 后端 API（代发交易）。
+   RELAYER_URL 为空 = 后端未部署，真实模式按钮置灰不可用。
+   链：Anubis chainId 6714(0x1a3a)；Anubis 只认 legacy type-0 交易（只传 gasPrice）。 */
+const CFG = {
+  proxy: '0x54275ff31151ab53a100a153997019b210185543',
+  lgns:  '0x4d1d808a081fdac440703b3765fc61f8028c06b8',
+  chainId: 6714, chainIdHex: '0x1a3a',
+  rpc: 'https://rpc.anubispace.org',
+  RELAYER_URL: 'https://crash-relay.anubislottery.com',
+  REAL_MODE: false
+};
+const POOL_FREE = 1000000; // 模拟池空闲资金
+
+const I18N = {
+zh:{waiting:'等待开局',betting:'下注中',flying:'飞行中',crashed:'爆机',start:'开始新一轮',next:'再来一轮',betNow:'下注',amountPh:'输入金额',myBets:'我的注单',noBets:'暂无注单',hist:'历史',maxWin:'最高可赢',run:'跑！',locked:'已锁定',awaitReveal:'待揭晓',flyHint:'点跑锁定全部注单，揭晓后统一结算',win:'赢',lose:'输',pnl:'本轮输赢',simNote:'模拟爆点，非链上随机',realOff:'真实链上交易未开放',reset:'重置余额',close:'关闭',howto:'玩法',howtoTitle:'玩法说明',resetDone:'余额已重置为 10000 DEMO',
+howtoBody:'1. 点「开始新一轮」，8 秒下注倒计时，可下多笔注单。\n2. 倒计时结束飞机起飞，倍数每秒涨 15%，上限 100x。\n3. 飞行中点巨型「跑！」一键锁定全部注单（也可在注单里逐笔跑）。\n4. 揭晓爆点：锁定倍数 < 爆点才算赢，按锁定倍数赔付；没跑或跑晚的本金归池。\n5. 单注最高盈利 = 池子空闲资金 2%（演示池按 1,000,000 计）。\n6. 试玩余额 10000 DEMO，可随时重置，无真实资金。\n\n真实模式（后端部署后可用）：连接钱包+登录（免费签名），授权一次 LGNS 额度后，游戏中下注/跑单由后端代发交易，无需再签名。',
+errEmpty:'请输入金额',errInvalid:'金额无效（请输入正整数）',errPoor:'试玩余额不足',errPhase:'下注已截止',errNoBet:'没有可跑的注单',errDup:'请勿重复提交',noWallet:'未检测到钱包',connected:'已连接',connectWallet:'连接钱包',round:'轮',
+modeDemo:'试玩模式',modeReal:'真实模式',realSoon:'真实模式后端未部署',riskReal:'真实模式使用真实 LGNS，请确认后继续',gasless:'免签模式',loginFail:'登录失败，请重试',chainErr:'请切换到 Anubis 网络后重试',sessionExp:'会话过期，请重新连接',netErr:'网络错误，请重试',approve:'授权 LGNS',approving:'授权中…',approveOk:'授权成功',needApprove:'请先点「授权 LGNS」（唯一的链上签名）',errAmt:'金额无效',betSent:'已提交，等待上链',betOnchain:'注单已上链',betFail:'下注失败，请重试',cashFail:'跑单失败，请重试',logout:'退出',refreshRound:'刷新轮次',waitingRound:'等待后端开轮'},
+en:{waiting:'Waiting',betting:'Betting',flying:'Flying',crashed:'Crashed',start:'Start Round',next:'Next Round',betNow:'Bet',amountPh:'Amount',myBets:'My Bets',noBets:'No bets yet',hist:'History',maxWin:'Max win',run:'CASH OUT',locked:'Locked',awaitReveal:'Awaiting reveal',flyHint:'Tap to lock all bets, settled at reveal',win:'Win',lose:'Lose',pnl:'Round P&L',simNote:'Simulated crash point, not on-chain',realOff:'Real-money mode not enabled',reset:'Reset balance',close:'Close',howto:'How to',howtoTitle:'How to play',resetDone:'Balance reset to 10000 DEMO',
+howtoBody:'1. Tap "Start Round": 8s betting window, multiple bets allowed.\n2. Plane takes off, multiplier +15% per sec, capped at 100x.\n3. Tap the giant CASH OUT to lock ALL bets (or cash out per bet).\n4. Reveal: locked mult < crash point wins, paid at locked mult; uncashed bets lose stake.\n5. Max profit per bet = 2% of pool free funds (demo pool = 1,000,000).\n6. 10000 DEMO play balance, reset anytime. No real funds.\n\nReal mode (after backend deployment): connect + login (free signature), approve LGNS once, then bets and cash-outs are relayed with no more signatures.',
+errEmpty:'Enter an amount',errInvalid:'Invalid amount (positive integer)',errPoor:'Insufficient demo balance',errPhase:'Betting closed',errNoBet:'No open bets',errDup:"Don't double-tap",noWallet:'No wallet detected',connected:'Connected',connectWallet:'Connect Wallet',round:'Round',
+modeDemo:'Demo',modeReal:'Real',realSoon:'Real-mode backend not deployed',riskReal:'Real mode uses real LGNS. Please confirm to continue.',gasless:'Gasless',loginFail:'Login failed, try again',chainErr:'Please switch to Anubis network',sessionExp:'Session expired, please reconnect',netErr:'Network error, try again',approve:'Approve LGNS',approving:'Approving…',approveOk:'Approved',needApprove:'Tap "Approve LGNS" first (the only on-chain signature)',errAmt:'Invalid amount',betSent:'Submitted, waiting on-chain',betOnchain:'Bet confirmed on-chain',betFail:'Bet failed, try again',cashFail:'Cash-out failed, try again',logout:'Logout',refreshRound:'Refresh round',waitingRound:'Waiting for backend to open round'}
+};
+let lang = 'zh';
+const t = k => (I18N[lang] && I18N[lang][k]) || I18N.zh[k] || k;
+const $ = id => document.getElementById(id);
+const fmtM = p => (p/100).toFixed(2) + 'x';
+const fmtN = n => Number(n).toLocaleString('en-US');
+
+const S = {bal:10000, phase:'idle', bets:[], hist:[], n:0, crash:0, crashN:0, betLeft:0, timer:null, speed:1, round:0, addr:null, pnl:0, results:[], mode:'demo', token:null, realAddr:null};
+let betLock = false;
+
+function multAt(n){let m=100;for(let i=0;i<n;i++){m=Math.floor(m*115/100);if(m>=10000)return 10000;}return m;}
+function genCrash(){const r=Math.floor(Math.random()*10000);return r<300?100:Math.floor(970000/(10000-r));}
+
+function loop(){clearInterval(S.timer);S.timer=setInterval(tick, Math.round(1000/S.speed));}
+function tick(){
+  if(S.phase==='betting'){S.betLeft--;if(S.betLeft<=0){S.phase='flying';S.n=0;}}
+  else if(S.phase==='flying'){S.n++;if(multAt(S.n)>=S.crash){doCrash();}}
+  render();
+}
+function startRound(){
+  S.phase='betting';S.bets=[];S.results=[];S.n=0;S.betLeft=8;S.crash=genCrash();S.round++;S.pnl=0;
+  loop();render();
+}
+function doCrash(){
+  clearInterval(S.timer);S.timer=null;S.phase='reveal';S.crashN=S.n;
+  S.results=[];S.pnl=0;
+  S.bets.forEach((b,i)=>{
+    if(!b.cashMult){S.results.push({i,win:false,txt:'-'+fmtN(b.amount)});}
+    else if(b.cashMult<S.crash){
+      let pay=Math.floor(b.amount*b.cashMult/100);
+      const cap=b.amount+Math.floor(POOL_FREE/50);
+      if(pay>cap)pay=cap;
+      S.bal+=pay;S.pnl+=pay-b.amount;
+      S.results.push({i,win:true,txt:'+'+fmtN(pay-b.amount)});
+    }else{S.pnl-=b.amount;S.results.push({i,win:false,txt:'-'+fmtN(b.amount)});}
+  });
+  S.hist.unshift(S.crash);if(S.hist.length>20)S.hist.pop();
+  render();
+}
+function placeBet(){
+  if(S.phase!=='betting')return toast(t('errPhase'));
+  if(betLock)return toast(t('errDup'));
+  betLock=true;setTimeout(()=>{betLock=false;},600);
+  const v=$('amt').value.trim();
+  if(!v)return toast(t('errEmpty'));
+  if(!/^\d+$/.test(v)||parseInt(v,10)<=0)return toast(t('errInvalid'));
+  const a=parseInt(v,10);
+  if(a>S.bal)return toast(t('errPoor'));
+  S.bal-=a;S.bets.push({amount:a,cashMult:0});$('amt').value='';$('maxWinHint').textContent='';
+  render();
+}
+function cashOne(i){
+  if(S.phase!=='flying')return;
+  const b=S.bets[i];if(!b||b.cashMult)return;
+  b.cashMult=multAt(S.n);render();
+}
+function cashAll(){
+  if(S.phase!=='flying')return;
+  const open=S.bets.filter(b=>!b.cashMult);
+  if(!open.length)return toast(t('errNoBet'));
+  const m=multAt(S.n);open.forEach(b=>{b.cashMult=m;});
+  render();
+}
+
+/* ---------- 渲染 ---------- */
+function render(){
+  $('balVal').textContent=fmtN(S.bal);
+  $('betsCount').textContent='('+S.bets.length+')';
+  const multEl=$('mult'),phEl=$('phaseTxt');
+  multEl.classList.remove('crash');
+  $('countBig').textContent='';
+  if(S.phase==='idle'){multEl.textContent='1.00x';phEl.textContent=t('waiting');}
+  else if(S.phase==='betting'){multEl.textContent='1.00x';phEl.textContent=t('betting');$('countBig').textContent=S.betLeft+'s';$('countdown').textContent=S.betLeft;}
+  else if(S.phase==='flying'){const m=multAt(S.n);multEl.textContent=fmtM(m);phEl.textContent=t('flying');}
+  else{multEl.textContent=fmtM(S.crash);multEl.classList.add('crash');phEl.textContent=t('crashed')+' @ '+fmtM(S.crash);}
+  // 面板
+  ['pIdle','pBet','pFly','pReveal'].forEach(id=>$(id).classList.remove('on'));
+  $({idle:'pIdle',betting:'pBet',flying:'pFly',reveal:'pReveal'}[S.phase]).classList.add('on');
+  // 跑按钮
+  const ca=$('cashAll'),open=S.bets.filter(b=>!b.cashMult).length;
+  if(S.phase==='flying'){
+    if(open>0){ca.disabled=false;ca.textContent=t('run')+' @ '+fmtM(multAt(S.n));}
+    else{ca.disabled=true;ca.textContent=t('locked')+' · '+t('awaitReveal');}
+  }
+  // 注单
+  const bl=$('betsList');bl.innerHTML='';
+  if(!S.bets.length){bl.innerHTML='<div class="empty">'+t('noBets')+'</div>';}
+  S.bets.forEach((b,i)=>{
+    const d=document.createElement('div');d.className='betrow';
+    let st,btn='';
+    if(S.phase==='reveal'){
+      const r=S.results[i];
+      st='<span class="st '+(r.win?'w':'l')+'">'+(r.win?t('win'):t('lose'))+' '+r.txt+'</span>';
+    }else if(b.cashMult){st='<span class="st lock">'+t('locked')+' @ '+fmtM(b.cashMult)+'</span>';}
+    else{
+      st='<span class="st">'+t('awaitReveal')+'</span>';
+      if(S.phase==='flying')btn='<button class="minicash" data-i="'+i+'">'+t('run')+'</button>';
+    }
+    d.innerHTML='<span class="amt">'+fmtN(b.amount)+'</span>'+btn+st;
+    bl.appendChild(d);
+  });
+  bl.querySelectorAll('.minicash').forEach(b=>{b.onclick=e=>{e.stopPropagation();cashOne(+b.getAttribute('data-i'));};});
+  // 历史
+  const h=$('hist');h.innerHTML='';
+  S.hist.forEach(p=>{
+    const s=document.createElement('span');
+    s.className='pill '+(p<200?'lose':'win');s.textContent=fmtM(p);h.appendChild(s);
+  });
+  // 结算
+  if(S.phase==='reveal'){
+    const rl=$('resultList');rl.innerHTML='';
+    S.bets.forEach((b,i)=>{
+      const r=S.results[i];
+      const row=document.createElement('div');row.className='rrow';
+      row.innerHTML='<span>#'+(i+1)+' · '+fmtN(b.amount)+(b.cashMult?' @ '+fmtM(b.cashMult):'')+'</span><span class="'+(r.win?'w':'l')+'">'+r.txt+'</span>';
+      rl.appendChild(row);
+    });
+    if(!S.bets.length)rl.innerHTML='<div class="empty">'+t('noBets')+'</div>';
+    const pv=$('pnlVal');pv.textContent=(S.pnl>=0?'+':'')+fmtN(S.pnl);pv.style.color=S.pnl>=0?'var(--green)':'var(--red)';
+  }
+  draw();
+}
+
+/* ---------- Canvas ---------- */
+const cv=$('cv'),ctx=cv.getContext('2d');
+function sizeCv(){const r=$('stage').getBoundingClientRect();if(r.width<2||r.height<2)return;const d=Math.min(window.devicePixelRatio||1,2);cv.width=r.width*d;cv.height=r.height*d;draw();}
+function draw(){
+  const w=cv.width,h=cv.height;if(w<10||h<10)return;
+  ctx.clearRect(0,0,w,h);
+  const d=Math.min(window.devicePixelRatio||1,2),pad=34*d;
+  const crashed=S.phase==='reveal';
+  const n=S.phase==='flying'?S.n:(crashed?S.crashN:0);
+  const xMax=Math.max(12,n+2);
+  let yMax=400;for(let i=0;i<=n;i++)yMax=Math.max(yMax,multAt(i));yMax=Math.ceil(yMax*1.15/500)*500;
+  const X=i=>pad+(w-pad-10*d)*(i/xMax), Y=m=>h-14*d-((h-30*d)*((m-100)/(yMax-100)));
+  // 网格
+  ctx.strokeStyle='rgba(139,152,173,.14)';ctx.fillStyle='rgba(139,152,173,.55)';ctx.font=(10*d)+'px system-ui';ctx.lineWidth=1;
+  [100,200,500,1000,2000,5000,10000].forEach(g=>{
+    if(g>yMax)return;ctx.beginPath();ctx.moveTo(pad,Y(g));ctx.lineTo(w-10*d,Y(g));ctx.stroke();
+    ctx.fillText((g/100)+'x',6*d,Y(g)+3*d);
+  });
+  if(n<=0)return;
+  // 曲线
+  ctx.beginPath();
+  for(let i=0;i<=n;i++){const x=X(i),y=Y(multAt(i));if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+  ctx.strokeStyle=crashed?'#ed4163':'#ffffff';ctx.lineWidth=3*d;ctx.lineJoin='round';ctx.stroke();
+  // 飞机（三角）
+  const px=X(n),py=Y(multAt(n));
+  let ang=-0.5;
+  if(n>0){const qx=X(n-1),qy=Y(multAt(n-1));ang=Math.atan2(py-qy,px-qx);}
+  ctx.save();ctx.translate(px,py);ctx.rotate(ang);
+  ctx.fillStyle=crashed?'#ed4163':'#f5c518';
+  const s=9*d;ctx.beginPath();ctx.moveTo(s,0);ctx.lineTo(-s*0.7,s*0.62);ctx.lineTo(-s*0.35,0);ctx.lineTo(-s*0.7,-s*0.62);ctx.closePath();ctx.fill();
+  ctx.restore();
+  if(crashed){ctx.fillStyle='#ed4163';ctx.font='bold '+(16*d)+'px system-ui';ctx.fillText('✕ '+fmtM(S.crash),Math.min(px+8*d,w-90*d),Math.max(py-10*d,20*d));}
+}
+
+/* ---------- Toast / 弹层 / i18n ---------- */
+let toastTm=null;
+function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTm);toastTm=setTimeout(()=>el.classList.remove('show'),2200);}
+function openSheet(){$('sheet').classList.add('open');$('sheetMask').classList.add('open');}
+function closeSheet(){$('sheet').classList.remove('open');$('sheetMask').classList.remove('open');}
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.getAttribute('data-i18n'));});
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{el.placeholder=t(el.getAttribute('data-i18n-ph'));});
+  $('langBtn').textContent=lang==='zh'?'EN':'中';
+  $('sheetBody').textContent=t('howtoBody');
+  if(!S.addr&&!(S.mode==='real'&&S.realAddr))$('walletTxt').textContent=t('connectWallet');
+  if(S.mode==='real'){$('startBtn').textContent=t('refreshRound');$('nextBtn').textContent=t('refreshRound');}
+}
+function setLang(l){lang=l;applyI18n();if(S.mode==='real')renderReal();else render();}
+
+/* ---------- 事件 ---------- */
+$('startBtn').onclick=()=>{ if(S.mode==='real'){ if(!S.token) realConnect(); else realRefresh(true); } else startRound(); };
+$('nextBtn').onclick=()=>{ if(S.mode==='real') realRefresh(true); else startRound(); };
+$('betBtn').onclick=()=>{ if(S.mode==='real') realBet(); else placeBet(); };
+$('cashAll').onclick=()=>{ if(S.mode==='real') realCashAll(); else cashAll(); };
+$('approveBtn').onclick=()=>{ if(S.mode==='real') doApprove(); };
+$('amt').addEventListener('keydown',e=>{if(e.key==='Enter'){ if(S.mode==='real') realBet(); else placeBet(); }});
+$('amt').addEventListener('input',()=>{
+  const v=$('amt').value.trim(),hint=$('maxWinHint');
+  if(S.mode==='real'){
+    hint.textContent=R.maxWinRaw!=null?t('maxWin')+' '+fmtLgns(R.maxWinRaw)+' LGNS':'';
+    return;
+  }
+  if(/^\d+$/.test(v)&&parseInt(v,10)>0){hint.textContent=t('maxWin')+' '+fmtN(parseInt(v,10)+Math.floor(POOL_FREE/50))+' DEMO';}
+  else hint.textContent='';
+});
+[10,50,100,500,1000].forEach(c=>{
+  const b=document.createElement('button');b.className='chip';b.textContent=c;$('chips').appendChild(b);
+  b.onclick=()=>{$('amt').value=c;$('amt').dispatchEvent(new Event('input'));};
+});
+$('betsToggle').onclick=()=>{$('betsPanel').classList.toggle('open');$('betsToggle').classList.toggle('open');};
+$('langBtn').onclick=()=>setLang(lang==='zh'?'en':'zh');
+$('speedBtn').onclick=()=>{S.speed=S.speed===1?2:1;$('speedBtn').textContent=S.speed+'x';if(S.timer)loop();};
+$('howBtn').onclick=openSheet;
+$('closeSheet').onclick=closeSheet;
+$('sheetMask').onclick=closeSheet;
+$('resetBtn').onclick=()=>{S.bal=10000;render();toast(t('resetDone'));};
+$('walletBtn').onclick=async()=>{
+  if(S.mode==='real') return realConnect();
+  const eth=window.ethereum;
+  if(!eth)return toast(t('noWallet'));
+  try{
+    const acc=await eth.request({method:'eth_requestAccounts'});
+    if(acc&&acc[0]){S.addr=acc[0];$('walletDot').classList.add('on');$('walletTxt').textContent=S.addr.slice(0,6)+'…'+S.addr.slice(-4);toast(t('connected'));}
+  }catch(e){/* 用户拒绝 */}
+};
+$('logoutBtn').onclick=()=>{ if(S.mode==='real') realLogout(); };
+$('mDemo').onclick=()=>setMode('demo');
+$('mReal').onclick=()=>setMode('real');
+$('riskX').onclick=()=>{ $('riskBar').style.display='none'; };
+if(window.ethereum){
+  window.ethereum.on&&window.ethereum.on('accountsChanged',a=>{
+    if(S.mode==='real'){ realLogout(); return; }
+    if(a&&a[0]){S.addr=a[0];$('walletDot').classList.add('on');$('walletTxt').textContent=S.addr.slice(0,6)+'…'+S.addr.slice(-4);}
+    else{S.addr=null;$('walletDot').classList.remove('on');$('walletTxt').textContent=t('connectWallet');}
+  });
+}
+
+/* ================= 真实模式（relayer 免签） =================
+   前端不直接发合约写交易：下注/跑单全部走后端 API，由后端代发上链。
+   玩家在真实模式下唯一的链上签名是「授权 LGNS」approve。
+   token 只存内存+localStorage，绝不打日志、不进 URL。 */
+const R = {phase:'idle', roundId:0, bets:[], results:[], hist:[], histRound:-1, balRaw:0n, block:0, flightStart:0, crash:0, betEnd:0, revealBlock:0, timer:null, tick1:null, allowanceOk:false, maxWinRaw:null, busy:false};
+const APPROVE_RAW = 10000n*1000000000n;   // 会话授权额度：10000 LGNS（9位精度），不设无限
+const APPROVE_MIN = 100n*1000000000n;      // 低于 100 LGNS 视为需重新授权
+const pad32 = h => (h.slice(0,2)==='0x'?h.slice(2):h).padStart(64,'0');
+const toHex32 = b => BigInt(b).toString(16).padStart(64,'0');
+function relayerOn(){ return !!CFG.RELAYER_URL; }
+
+function fmtLgns(raw){ raw=BigInt(raw); const neg=raw<0n; const a=neg?-raw:raw; const i=a/1000000000n; const f=(a%1000000000n).toString().padStart(9,'0').replace(/0+$/,''); return (neg?'-':'')+Number(i).toLocaleString('en-US')+(f?'.'+f:''); }
+function parseLgns(str){ const p=String(str).trim().split('.'); if(p.length>2||!/^\d+$/.test(p[0]||'0')) throw 0; let f=p[1]||''; if(!/^\d*$/.test(f)||f.length>9) throw 0; return BigInt(p[0]===''?'0':p[0])*1000000000n+BigInt((f+'000000000').slice(0,9)); }
+
+async function apiPost(path, body, ms){
+  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), ms||12000);
+  try{
+    const r=await fetch(CFG.RELAYER_URL+path,{method:'POST',signal:ctl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({token:S.token},body||{}))});
+    clearTimeout(to); if(!r.ok) throw new Error('http '+r.status); return await r.json();
+  }catch(e){ clearTimeout(to); throw e; }
+}
+async function apiGet(path, ms){
+  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), ms||12000);
+  try{
+    const r=await fetch(CFG.RELAYER_URL+path,{signal:ctl.signal});
+    clearTimeout(to); if(!r.ok) throw new Error('http '+r.status); return await r.json();
+  }catch(e){ clearTimeout(to); throw e; }
+}
+async function rpcCall(method, params, id){
+  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), 10000);
+  try{
+    const r=await fetch(CFG.rpc,{method:'POST',signal:ctl.signal,headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:id||1,method,params})});
+    clearTimeout(to); const j=await r.json(); if(j.error) throw new Error(j.error.message); return j.result;
+  }catch(e){ clearTimeout(to); throw e; }
+}
+const ethCallRPC = data => rpcCall('eth_call',[{to:CFG.proxy,data},'latest']);
+
+async function ensureChain(eth){
+  try{ const cid=await eth.request({method:'eth_chainId'}); if(cid&&cid.toLowerCase()===CFG.chainIdHex) return true; }catch(e){}
+  try{ await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CFG.chainIdHex}]}); return true; }
+  catch(e){
+    if(e&&e.code===4902){
+      await eth.request({method:'wallet_addEthereumChain',params:[{chainId:CFG.chainIdHex,chainName:'Anubis',rpcUrls:[CFG.rpc],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:['https://browser.anubispace.org']}]});
+      return true;
+    }
+    throw e;
+  }
+}
+
+async function realConnect(){
+  if(!relayerOn()) return toast(t('realSoon'));
+  const eth=window.ethereum; if(!eth) return toast(t('noWallet'));
+  try{
+    const acc=await eth.request({method:'eth_requestAccounts'});
+    const addr=acc&&acc[0]; if(!addr) return;
+    await ensureChain(eth);
+    const expiry=Math.floor(Date.now()/1000)+86400;
+    const msg='ANUBIS PLAY Crash 登录\n地址: '+addr+'\n过期时间戳: '+expiry;
+    const sig=await eth.request({method:'personal_sign',params:[msg,addr]});
+    const res=await apiPost('/api/login',{address:addr,message:msg,signature:sig});
+    if(!res||!res.token) throw new Error('no token');
+    S.token=res.token; S.realAddr=addr;
+    try{ localStorage.setItem('crash_real_token',res.token); localStorage.setItem('crash_real_addr',addr); }catch(e){}
+    $('walletDot').classList.add('on'); $('walletTxt').textContent=addr.slice(0,6)+'…'+addr.slice(-4);
+    $('gaslessBadge').classList.add('on'); $('logoutBtn').classList.add('on');
+    toast(t('connected'));
+    realInit(); realRefresh(true);
+    if(!R.timer) R.timer=setInterval(()=>{ if(S.mode==='real'&&S.token) realRefresh(); },4000);
+    if(!R.tick1) R.tick1=setInterval(()=>{ if(S.mode==='real'&&R.phase==='flying'){ R.block++; renderReal(); } },1000);
+  }catch(e){ toast(t('loginFail')); }
+}
+
+function realLogout(){
+  S.token=null; S.realAddr=null;
+  try{ localStorage.removeItem('crash_real_token'); localStorage.removeItem('crash_real_addr'); }catch(e){}
+  $('gaslessBadge').classList.remove('on'); $('logoutBtn').classList.remove('on');
+  $('walletDot').classList.remove('on'); $('walletTxt').textContent=t('connectWallet');
+  R.bets=[]; R.results=[]; R.balRaw=0n; R.phase='idle'; R.hist=[]; R.allowanceOk=false;
+  renderReal();
+}
+
+async function realInit(){
+  const eth=window.ethereum; if(!eth||!S.realAddr) return;
+  try{
+    const b=await eth.request({method:'eth_call',params:[{to:CFG.lgns,data:'0x70a08231'+pad32(S.realAddr)},'latest']});
+    R.balRaw=BigInt(b);
+  }catch(e){}
+  try{
+    const a=await eth.request({method:'eth_call',params:[{to:CFG.lgns,data:'0xdd62ed3e'+pad32(S.realAddr)+pad32(CFG.proxy)},'latest']});
+    R.allowanceOk=BigInt(a)>=APPROVE_MIN;
+  }catch(e){ R.allowanceOk=false; }
+  renderReal();
+}
+
+async function doApprove(){
+  const eth=window.ethereum; if(!eth||!S.realAddr) return;
+  const btn=$('approveBtn'); btn.disabled=true; btn.textContent=t('approving');
+  try{
+    const gp=await eth.request({method:'eth_gasPrice'});
+    const data='0x095ea7b3'+pad32(CFG.proxy)+toHex32(APPROVE_RAW);
+    await eth.request({method:'eth_sendTransaction',params:[{from:S.realAddr,to:CFG.lgns,data,gasPrice:gp}]});
+    toast(t('approveOk'));
+    setTimeout(realInit,4000);
+  }catch(e){ toast(t('netErr')); }
+  btn.disabled=false; btn.textContent=t('approve');
+}
+
+async function realBet(){
+  if(!S.token) return realConnect();
+  if(R.phase!=='betting') return toast(t('errPhase'));
+  if(!R.allowanceOk) return toast(t('needApprove'));
+  if(betLock) return toast(t('errDup'));
+  betLock=true; setTimeout(()=>{betLock=false;},1500);
+  const v=$('amt').value.trim();
+  if(!v) return toast(t('errEmpty'));
+  let raw; try{ raw=parseLgns(v); if(raw<=0n) throw 0; }catch(e){ return toast(t('errAmt')); }
+  if(raw>R.balRaw) return toast(t('errPoor'));
+  try{
+    await apiPost('/api/bet',{roundId:R.roundId,amount:raw.toString()});
+    $('amt').value=''; $('maxWinHint').textContent='';
+    toast(t('betSent'));
+    setTimeout(()=>realRefresh(true),2500);
+  }catch(e){ toast(t('betFail')); }
+}
+
+async function realCashOne(i){
+  if(!S.token) return realConnect();
+  if(R.phase!=='flying') return;
+  const b=R.bets[i]; if(!b||b.cashMult) return;
+  try{ await apiPost('/api/cashout',{roundId:R.roundId,betIdx:b.betIdx}); setTimeout(()=>realRefresh(true),2000); }
+  catch(e){ toast(t('cashFail')); }
+}
+async function realCashAll(){
+  if(!S.token) return realConnect();
+  if(R.phase!=='flying') return;
+  const open=R.bets.filter(b=>!b.cashMult);
+  if(!open.length) return toast(t('errNoBet'));
+  for(const b of open){
+    try{ await apiPost('/api/cashout',{roundId:R.roundId,betIdx:b.betIdx}); }
+    catch(e){ toast(t('cashFail')); break; }
+  }
+  setTimeout(()=>realRefresh(true),2000);
+}
+
+async function realRefresh(force){
+  if(S.mode!=='real'||!S.token||R.busy) return;
+  R.busy=true;
+  try{ applyRound(await apiPost('/api/round')); }
+  catch(e){
+    try{ await rpcRoundFallback(); }
+    catch(e2){ if(force) toast(t('netErr')); }
+  }
+  R.busy=false; renderReal();
+}
+
+function applyRound(d){
+  d=d||{};
+  R.roundId=d.roundId|0; R.phase=d.phase||'idle';
+  R.betEnd=+d.betEndBlock||0; R.flightStart=+d.flightStartBlock||0; R.revealBlock=+d.revealBlock||0;
+  R.crash=+d.crashPoint||0; if(d.currentBlock) R.block=+d.currentBlock;
+  R.bets=(d.bets||[]).map(b=>({betIdx:b.betIdx|0,amountRaw:BigInt(b.amountRaw||'0'),cashMult:+b.cashMult||0}));
+  R.results=(d.results||[]).map(r=>({betIdx:r.betIdx|0,win:!!r.win,pnlRaw:BigInt(r.pnlRaw||'0')}));
+  if(Array.isArray(d.hist)&&d.hist.length) R.hist=d.hist.map(Number);
+  R.maxWinRaw=(d.maxWinRaw!=null&&d.maxWinRaw!=='')?BigInt(d.maxWinRaw):null;
+}
+
+async function rpcRoundFallback(){
+  const rc=await ethCallRPC('0x127f0b3f');
+  const n=Number(BigInt(rc));
+  const blk=await rpcCall('eth_blockNumber',[]);
+  R.block=Number(BigInt(blk));
+  if(!n){ R.phase='idle'; R.roundId=0; R.bets=[]; return; }
+  const rd=await ethCallRPC('0x8c65c81f'+toHex32(n-1));
+  const w=i=>Number(BigInt('0x'+rd.slice(2+i*64,2+(i+1)*64)));
+  const betEnd=w(0),flightStart=w(1),revealBlock=w(2),crashPoint=w(3),resolved=w(4);
+  R.roundId=n-1; R.betEnd=betEnd; R.flightStart=flightStart; R.revealBlock=revealBlock; R.crash=crashPoint;
+  const b=R.block;
+  if(resolved) R.phase='reveal';
+  else if(flightStart>0&&b<=revealBlock) R.phase='flying';
+  else if(flightStart>0) R.phase='reveal';
+  else if(b<=betEnd) R.phase='betting';
+  else R.phase='idle';
+  if(R.histRound!==R.roundId){
+    const hist=[]; const from=Math.max(0,n-8);
+    for(let i=n-1;i>=from;i--){
+      try{ const r2=await ethCallRPC('0x8c65c81f'+toHex32(i)); const cp=Number(BigInt('0x'+r2.slice(2+3*64,2+4*64))); if(cp>0) hist.push(cp); }catch(e){}
+    }
+    if(hist.length){ R.hist=hist; R.histRound=R.roundId; }
+  }
+}
+
+function drawReal(){
+  const k={phase:S.phase,n:S.n,crashN:S.crashN,crash:S.crash};
+  S.phase=R.phase;
+  S.n=R.phase==='flying'?Math.max(0,R.block-R.flightStart):0;
+  S.crashN=S.n; S.crash=R.crash||0;
+  try{ draw(); }finally{ S.phase=k.phase; S.n=k.n; S.crashN=k.crashN; S.crash=k.crash; }
+}
+
+function renderReal(){
+  $('balVal').textContent=fmtLgns(R.balRaw);
+  $('betsCount').textContent='('+R.bets.length+')';
+  const multEl=$('mult'),phEl=$('phaseTxt');
+  multEl.classList.remove('crash'); $('countBig').textContent='';
+  if(R.phase==='idle'){ multEl.textContent='1.00x'; phEl.textContent=t('waiting')+' · '+t('waitingRound'); }
+  else if(R.phase==='betting'){ multEl.textContent='1.00x'; phEl.textContent=t('betting'); if(R.betEnd>R.block) $('countBig').textContent=Math.max(0,R.betEnd-R.block)+' ⛓'; }
+  else if(R.phase==='flying'){ multEl.textContent=fmtM(multAt(Math.max(0,R.block-R.flightStart))); phEl.textContent=t('flying'); }
+  else{ multEl.textContent=fmtM(R.crash); multEl.classList.add('crash'); phEl.textContent=t('crashed')+' @ '+fmtM(R.crash); }
+  ['pIdle','pBet','pFly','pReveal'].forEach(id=>$(id).classList.remove('on'));
+  $({idle:'pIdle',betting:'pBet',flying:'pFly',reveal:'pReveal'}[R.phase]).classList.add('on');
+  $('startBtn').textContent=t('refreshRound');
+  $('nextBtn').textContent=t('refreshRound');
+  const needAppr=S.token&&R.phase==='betting'&&!R.allowanceOk;
+  $('approveBtn').style.display=needAppr?'block':'none';
+  $('betBtn').style.display=needAppr?'none':'';
+  const ca=$('cashAll'),open=R.bets.filter(b=>!b.cashMult).length;
+  if(R.phase==='flying'){
+    if(open>0){ ca.disabled=false; ca.textContent=t('run')+' @ '+fmtM(multAt(Math.max(0,R.block-R.flightStart))); }
+    else{ ca.disabled=true; ca.textContent=t('locked')+' · '+t('awaitReveal'); }
+  }
+  const bl=$('betsList'); bl.innerHTML='';
+  if(!S.token){ bl.innerHTML='<div class="empty">'+t('connectWallet')+'</div>'; }
+  else if(!R.bets.length){ bl.innerHTML='<div class="empty">'+t('noBets')+'</div>'; }
+  else R.bets.forEach((b,i)=>{
+    const d=document.createElement('div'); d.className='betrow';
+    let st,btn='';
+    if(b.cashMult) st='<span class="st lock">'+t('locked')+' @ '+fmtM(b.cashMult)+'</span>';
+    else{ st='<span class="st">'+t('awaitReveal')+'</span>'; if(R.phase==='flying') btn='<button class="minicash" data-i="'+i+'">'+t('run')+'</button>'; }
+    d.innerHTML='<span class="amt">'+fmtLgns(b.amountRaw)+'</span>'+btn+st;
+    bl.appendChild(d);
+  });
+  bl.querySelectorAll('.minicash').forEach(x=>{ x.onclick=e=>{ e.stopPropagation(); realCashOne(+x.getAttribute('data-i')); }; });
+  const h=$('hist'); h.innerHTML='';
+  R.hist.forEach(p=>{ const s=document.createElement('span'); s.className='pill '+(p<200?'lose':'win'); s.textContent=fmtM(p); h.appendChild(s); });
+  if(R.phase==='reveal'){
+    const rl=$('resultList'); rl.innerHTML='';
+    if(R.results.length){
+      R.results.forEach(r=>{
+        const b=R.bets.find(x=>x.betIdx===r.betIdx);
+        const row=document.createElement('div'); row.className='rrow';
+        row.innerHTML='<span>#'+(r.betIdx+1)+(b?' · '+fmtLgns(b.amountRaw):'')+'</span><span class="'+(r.win?'w':'l')+'">'+(r.pnlRaw>=0n?'+':'')+fmtLgns(r.pnlRaw)+'</span>';
+        rl.appendChild(row);
+      });
+    }else rl.innerHTML='<div class="empty">'+t('awaitReveal')+'</div>';
+    $('pnlVal').textContent='—'; $('pnlVal').style.color='';
+  }
+  drawReal();
+}
+
+function setMode(m){
+  if(m==='real'&&!relayerOn()){ toast(t('realSoon')); return; }
+  if(S.mode===m) return;
+  if(S.mode==='demo'){ clearInterval(S.timer); S.timer=null; }
+  else{ clearInterval(R.timer); R.timer=null; clearInterval(R.tick1); R.tick1=null; }
+  S.mode=m;
+  $('mDemo').classList.toggle('on',m==='demo');
+  $('mReal').classList.toggle('on',m==='real');
+  const real=m==='real';
+  $('riskBar').style.display=real?'flex':'none';
+  $('modeTag').textContent=real?'LGNS':'DEMO';
+  $('startBtn').textContent=real?t('refreshRound'):t('start');
+  $('nextBtn').textContent=real?t('refreshRound'):t('next');
+  $('gaslessBadge').classList.toggle('on',real&&!!S.token);
+  $('logoutBtn').classList.toggle('on',real&&!!S.token);
+  if(real){
+    if(!S.token){ try{ S.token=localStorage.getItem('crash_real_token'); S.realAddr=localStorage.getItem('crash_real_addr'); }catch(e){} }
+    if(S.token&&S.realAddr){
+      $('walletDot').classList.add('on'); $('walletTxt').textContent=S.realAddr.slice(0,6)+'…'+S.realAddr.slice(-4);
+      $('gaslessBadge').classList.add('on'); $('logoutBtn').classList.add('on');
+      realInit(); realRefresh(true);
+      if(!R.timer) R.timer=setInterval(()=>{ if(S.mode==='real'&&S.token) realRefresh(); },4000);
+      if(!R.tick1) R.tick1=setInterval(()=>{ if(S.mode==='real'&&R.phase==='flying'){ R.block++; renderReal(); } },1000);
+    }else renderReal();
+  }else{
+    if(S.phase==='betting'||S.phase==='flying') loop();
+    render();
+  }
+}
+
+/* ---------- 启动 ---------- */
+applyI18n();render();sizeCv();
+if(!relayerOn())$('mReal').classList.add('dis');
+new ResizeObserver(sizeCv).observe($('stage'));
+window.addEventListener('orientationchange',()=>setTimeout(sizeCv,300));
+if(!localStorage.getItem('crash_mobile_seen')){localStorage.setItem('crash_mobile_seen','1');setTimeout(openSheet,400);}
+</script>
+</body>
+</html>
