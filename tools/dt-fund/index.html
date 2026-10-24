@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>龙虎注资工具 · Crash 提现 → 龙虎奖池</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0b0e17; color:#e8eaf2; font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; padding:16px; }
+  .wrap { max-width:520px; margin:0 auto; }
+  h1 { font-size:20px; margin:8px 0 4px; }
+  .sub { color:#8b93a7; font-size:13px; margin-bottom:16px; }
+  .card { background:#141926; border:1px solid #232b42; border-radius:14px; padding:16px; margin-bottom:14px; }
+  .row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; font-size:14px; }
+  .row .k { color:#8b93a7; }
+  .row .v { font-weight:600; font-variant-numeric:tabular-nums; }
+  button { width:100%; padding:15px; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; margin-top:10px; background:#f5b942; color:#1a1405; }
+  button:disabled { background:#2a3350; color:#5d6585; cursor:not-allowed; }
+  button.done { background:#1f9d63; color:#fff; }
+  .step { font-size:13px; color:#8b93a7; margin-top:14px; }
+  .warn { background:#3a1620; border:1px solid #7a2436; color:#ff9db0; border-radius:10px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none; }
+  .ok { background:#12352a; border:1px solid #1f7a52; color:#7fe6bb; border-radius:10px; padding:10px 12px; font-size:13px; margin-bottom:14px; display:none; }
+  #log { font-size:12px; color:#8b93a7; white-space:pre-wrap; word-break:break-all; margin-top:12px; line-height:1.7; }
+  .addr { font-size:11px; color:#5d6585; word-break:break-all; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🐉 龙虎奖池注资</h1>
+  <div class="sub">把飞机 Crash 里闲置的 1000 LGNS 提出来，转进龙虎奖池。一共三步，都用你的主钱包签名，我碰不到你的钥匙。</div>
+
+  <div class="warn" id="warnBox"></div>
+  <div class="ok" id="okBox"></div>
+
+  <div class="card">
+    <div class="row"><span class="k">当前钱包</span><span class="v" id="stWallet">未连接</span></div>
+    <div class="row"><span class="k">飞机可提（散钱）</span><span class="v" id="stCrashFree">—</span></div>
+    <div class="row"><span class="k">你的 LGNS 余额</span><span class="v" id="stMyLgns">—</span></div>
+    <div class="row"><span class="k">已授权龙虎额度</span><span class="v" id="stAllow">—</span></div>
+    <div class="row"><span class="k">龙虎奖池余额</span><span class="v" id="stDtPool">—</span></div>
+  </div>
+
+  <button id="btnConnect">连接钱包</button>
+
+  <div class="step">第 1 步：从飞机合约提走全部散钱（现在是 1000 LGNS，直接回你的钱包）</div>
+  <button id="btnWithdraw" disabled>从飞机提走 LGNS</button>
+
+  <div class="step">第 2 步：授权龙虎合约使用 1000 LGNS（只授权这一次的额度）</div>
+  <button id="btnApprove" disabled>授权 1000 LGNS</button>
+
+  <div class="step">第 3 步：把 1000 LGNS 注进龙虎奖池（注完就能开局接客）</div>
+  <button id="btnFund" disabled>注资龙虎 1000 LGNS</button>
+
+  <div id="log"></div>
+  <div class="addr" style="margin-top:14px">
+    飞机合约 0x54275ff31151ab53a100a153997019b210185543<br>
+    龙虎合约 0x4d127c5b2eFc63B6A7670cdddD853CA22573a8b9<br>
+    LGNS 0x4d1d808a081fdac440703b3765fc61f8028c06b8 · 链 Anubis 6714
+  </div>
+</div>
+
+<script>
+const CRASH = '0x54275ff31151ab53a100a153997019b210185543';
+const DT    = '0x4d127c5b2eFc63B6A7670cdddD853CA22573a8b9';
+const LGNS  = '0x4d1d808a081fdac440703b3765fc61f8028c06b8';
+const OWNER = '0x4a5f8dd04c54f0971db6619d5d68a31735e6afe7';
+const CHAIN_ID = '0x1a3a';
+const AMOUNT = 1000000000000n; // 1000 LGNS (9 位精度)
+const SEL = {
+  freeBankroll: '0xfc958429',
+  emergencyWithdraw: '0xdb2e21bc',
+  approve: '0x095ea7b3',
+  fund: '0xca1d209d',
+  balanceOf: '0x70a08231',
+  allowance: '0xdd62ed3e'
+};
+let account = null;
+
+function $(id){ return document.getElementById(id); }
+function log(msg){ $('log').textContent += msg + '\n'; }
+function fmt(raw){ // 9 位精度转人类可读
+  const v = BigInt(raw);
+  const whole = v / 1000000000n;
+  const frac = (v % 1000000000n).toString().padStart(9,'0').replace(/0+$/,'');
+  return frac ? whole.toString() + '.' + frac : whole.toString();
+}
+function padAddr(a){ return a.toLowerCase().replace('0x','').padStart(64,'0'); }
+function padUint(v){ return v.toString(16).padStart(64,'0'); }
+
+async function rpc(method, params){
+  return await window.ethereum.request({ method, params });
+}
+async function call(to, data){
+  const r = await rpc('eth_call', [{ to, data }, 'latest']);
+  return BigInt(r);
+}
+async function sendTx(to, data){
+  const hash = await rpc('eth_sendTransaction', [{ from: account, to, data }]);
+  log('已发送交易 ' + hash + '，等确认…');
+  for (let i = 0; i < 60; i++){
+    const rc = await rpc('eth_getTransactionReceipt', [hash]);
+    if (rc){
+      if (rc.status === '0x1'){ log('✅ 已上链确认'); return hash; }
+      throw new Error('交易失败 ' + hash);
+    }
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  throw new Error('等确认超时，请去钱包里看交易状态');
+}
+
+async function refresh(){
+  try {
+    const crashFree = await call(CRASH, SEL.freeBankroll);
+    $('stCrashFree').textContent = fmt(crashFree) + ' LGNS';
+    const dtPool = await call(LGNS, SEL.balanceOf + padAddr(DT));
+    $('stDtPool').textContent = fmt(dtPool) + ' LGNS';
+    if (account){
+      $('stWallet').textContent = account.slice(0,6) + '…' + account.slice(-4);
+      const my = await call(LGNS, SEL.balanceOf + padAddr(account));
+      $('stMyLgns').textContent = fmt(my) + ' LGNS';
+      const al = await call(LGNS, SEL.allowance + padAddr(account) + padAddr(DT));
+      $('stAllow').textContent = fmt(al) + ' LGNS';
+      const isOwner = account.toLowerCase() === OWNER;
+      $('warnBox').style.display = isOwner ? 'none' : 'block';
+      if (!isOwner) $('warnBox').textContent = '⚠️ 现在连的不是主钱包。提现只能主钱包操作；授权和注资会从当前这个钱包出钱，请先切回主钱包再操作。';
+      $('btnWithdraw').disabled = !(isOwner && crashFree > 0n);
+      $('btnApprove').disabled = !(my >= AMOUNT && al < AMOUNT);
+      $('btnFund').disabled = !(my >= AMOUNT && al >= AMOUNT);
+      if (dtPool >= AMOUNT){
+        $('okBox').style.display = 'block';
+        $('okBox').textContent = '🎉 龙虎奖池已到位 ' + fmt(dtPool) + ' LGNS，可以开局接客了。';
+      }
+    }
+  } catch(e){ log('读取状态失败：' + e.message); }
+}
+
+$('btnConnect').onclick = async () => {
+  try {
+    if (!window.ethereum){ alert('没检测到钱包，请在 OKX 钱包的浏览器里打开本页'); return; }
+    const accs = await rpc('eth_requestAccounts', []);
+    account = accs[0];
+    try { await rpc('wallet_switchEthereumChain', [{ chainId: CHAIN_ID }]); }
+    catch(e){
+      if (e.code === 4902){
+        await rpc('wallet_addEthereumChain', [{ chainId: CHAIN_ID, chainName: 'Anubis', nativeCurrency: { name: 'DAI', symbol: 'DAI', decimals: 18 }, rpcUrls: ['https://rpc.anubispace.org'] }]);
+      } else throw e;
+    }
+    $('btnConnect').textContent = '已连接';
+    $('btnConnect').classList.add('done');
+    log('钱包已连接：' + account);
+    await refresh();
+  } catch(e){ log('连接失败：' + e.message); }
+};
+
+$('btnWithdraw').onclick = async () => {
+  try {
+    $('btnWithdraw').disabled = true;
+    log('从飞机提走全部散钱…（请在钱包里确认）');
+    await sendTx(CRASH, SEL.emergencyWithdraw);
+    log('✅ 飞机里的 LGNS 已回到你的钱包');
+    await refresh();
+  } catch(e){ log('提现失败：' + e.message); await refresh(); }
+};
+
+$('btnApprove').onclick = async () => {
+  try {
+    $('btnApprove').disabled = true;
+    log('授权龙虎合约 1000 LGNS…（请在钱包里确认）');
+    await sendTx(LGNS, SEL.approve + padAddr(DT) + padUint(AMOUNT));
+    log('✅ 授权完成');
+    await refresh();
+  } catch(e){ log('授权失败：' + e.message); await refresh(); }
+};
+
+$('btnFund').onclick = async () => {
+  try {
+    $('btnFund').disabled = true;
+    log('注资 1000 LGNS 进龙虎奖池…（请在钱包里确认）');
+    await sendTx(DT, SEL.fund + padUint(AMOUNT));
+    log('✅ 注资完成！龙虎奖池已开张');
+    await refresh();
+  } catch(e){ log('注资失败：' + e.message); await refresh(); }
+};
+
+refresh();
+</script>
+</body>
+</html>
