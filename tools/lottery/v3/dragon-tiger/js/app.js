@@ -2,7 +2,7 @@
  'use strict';
  const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
  const names={dragon:'龙',tiger:'虎',tie:'和'},en={dragon:'DRAGON',tiger:'TIGER',tie:'TIE'};
- const themes={royal:{name:'皇家龙虎厅',short:'皇家厅',en:'THE ROYAL SALON',number:'01'},cyber:{name:'赛博霓虹龙虎竞技场',short:'竞技场',en:'CYBER ARENA',number:'02'},minimal:{name:'极简极速龙虎',short:'极速桌',en:'THE QUICK TABLE',number:'03'}};
+ const themes={royal:{name:'Anubis龙虎厅',short:'皇家厅',en:'THE ROYAL SALON',number:'01'},cyber:{name:'赛博霓虹龙虎竞技场',short:'竞技场',en:'CYBER ARENA',number:'02'},minimal:{name:'极简极速龙虎',short:'极速桌',en:'THE QUICK TABLE',number:'03'}};
  const phases={WAITING:'准备下一轮',BETTING:'开放下注',LOCKED:'停止下注',DEALING:'正在发牌',REVEALING:'依次开牌',SETTLEMENT:'本轮已结算'};
  const money=n=>(n/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
  const signed=n=>(n>0?'+':'')+money(n);
