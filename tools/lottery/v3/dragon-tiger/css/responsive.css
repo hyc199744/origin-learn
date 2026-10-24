@@ -8,3 +8,17 @@
 
 /* Preserve the original website logo artwork and colors in every theme. */
 body[data-theme] .back-frame img{width:76%;height:auto;max-height:60%;aspect-ratio:1;object-fit:contain;filter:none;opacity:1;margin-bottom:8px}body[data-theme] .logo-mark{filter:none;opacity:1;object-fit:contain}
+
+/* ===== 顶栏固定吸顶（对齐游戏大厅样式，42px 高） ===== */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:60;height:42px!important;min-height:42px!important;max-width:none;margin:0;padding:0 16px;gap:14px;background:var(--bg);border-bottom:1px solid var(--line);flex-wrap:nowrap;align-items:center}
+body{padding-top:42px}
+.topbar .brand{gap:8px}
+.topbar .logo-mark{width:20px;height:25px}
+.topbar .wordmark{font-size:11px;letter-spacing:.14em;line-height:1.15}
+.topbar .wordmark>span{font-size:7px;letter-spacing:.3em}
+.topbar .header-actions{display:flex;align-items:center;gap:10px;margin-left:auto}
+.topbar .demo-pill{font-size:10px;padding:3px 9px}
+.topbar button{min-height:30px!important;height:30px;padding:0 10px;display:flex;align-items:center;gap:6px}
+.topbar .icon-btn{width:30px;min-width:30px;padding:0;justify-content:center}
+.topbar .wallet-btn{font-size:12px}
+@media(max-width:560px){.topbar{gap:8px;padding:0 10px}.topbar .wordmark{display:none}.topbar .demo-pill{display:none}}
