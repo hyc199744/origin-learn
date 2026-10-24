@@ -67,3 +67,13 @@ body{padding-top:42px}
 .topbar .header-actions{margin:0!important;display:flex!important}
 .topbar .header-actions>.icon-btn{display:inline-flex!important;align-items:center;justify-content:center;width:28px;min-width:28px;height:28px;min-height:28px}
 .topbar .wallet-btn{display:inline-flex!important}
+
+/* 窄屏压缩,保证顶栏右侧放得下 */
+@media(max-width:480px){
+  .topbar{gap:5px!important;padding:0 8px!important}
+  .topbar .game-title{font-size:11px}
+  .topbar .lobby-link{font-size:12px!important;padding:3px 9px!important}
+  .topbar .header-actions{gap:5px!important}
+  .topbar .header-actions>.icon-btn{width:26px;min-width:26px;height:26px;min-height:26px}
+  .topbar .wallet-btn{font-size:10px!important;padding:0 8px!important}
+}
