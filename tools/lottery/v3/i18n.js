@@ -42,6 +42,8 @@
   '炸金花':['Golden Flower'],
   '我的币余额':['My token balances'],'金花对局次数':['Hands played'],
   '真人实时对战，链上公平结算，LGNS / DAI / RM / USDT 多池可选。':['Live PvP · real tokens · provably fair on-chain · LGNS / DAI / RM / USDT pools.'],
+  'Crash 飞机':['Crash'],
+  '押飞机能飞多高，爆机前点「跑」落袋为赢；链上公平，代发免签。':['Bet how high the plane flies — cash out before it crashes. Provably fair on-chain, gasless relay.'],
   '龙虎斗':['Dragon vs Tiger','드래곤 타이거','ドラゴンタイガー','Дракон и Тигр','Rồng Hổ','Dragón vs Tigre'],
   '经典对押，押中赢取奖池，链上实时结算。':['Classic head-to-head, win the pool, settled on-chain.','클래식 대결, 풀 획득, 온체인 정산.','クラシック対決、プール獲得、オンチェーン決済。','Классическая дуэль, забери пул, расчёт ончейн.','Đối đầu kinh điển, thắng pool, quyết toán on-chain.','Duelo clásico, gana el pozo, liquidado on-chain.'],
   '幸运转盘':['Lucky Wheel','행운의 룰렛','ラッキーホイール','Колесо удачи','Vòng quay may mắn','Ruleta de la suerte'],
