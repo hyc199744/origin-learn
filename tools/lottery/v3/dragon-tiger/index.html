@@ -670,7 +670,7 @@ const PREF='anubis.dragon-tiger.live.prefs';
 const S={
   lang:'zh', sound:true, voice:false,
   addr:null, isOwner:false, balRaw:0n, allowanceRaw:0n,
-  block:0, roundCount:0, round:0, rd:null, phase:'idle',
+  block:0, roundCount:0, round:0, rd:null, phase:'idle', chainOk:false, autoCrank:false,
   chip:10, customChip:false,
   basket:{dragon:0n,tiger:0n,tie:0n}, basketLog:[],
   confirmed:{dragon:0n,tiger:0n,tie:0n},   // 本局我已上链的注（按区）
@@ -711,8 +711,21 @@ async function rpcRead(method,params){
 }
 const callRead=(to,data)=>rpcRead('eth_call',[{to,data},'latest']);
 const callProxy=sel=>callRead(CFG.proxy,sel);
+async function checkChain(){
+  if(!window.ethereum){S.chainOk=false;return false;}
+  try{const cid=await window.ethereum.request({method:'eth_chainId'});S.chainOk=!!(cid&&cid.toLowerCase()===CFG.chainIdHex);}catch(e){S.chainOk=false;}
+  return S.chainOk;
+}
 async function sendTx(to,data){
   if(!window.ethereum)throw new Error('NO_WALLET');
+  // 发送任何交易前强制确认在 Anubis 链；不在就切链，切不过去就拒发（防止发到以太坊等错链）
+  let cid=await window.ethereum.request({method:'eth_chainId'});
+  if(!cid||cid.toLowerCase()!==CFG.chainIdHex){
+    await ensureChain();
+    cid=await window.ethereum.request({method:'eth_chainId'});
+    if(!cid||cid.toLowerCase()!==CFG.chainIdHex){S.chainOk=false;throw new Error('WRONG_CHAIN');}
+  }
+  S.chainOk=true;
   return window.ethereum.request({method:'eth_sendTransaction',params:[{from:S.addr,to,data}]});
 }
 async function waitTx(hash,timeoutMs=90000){
@@ -737,6 +750,7 @@ function explainErr(e){
   if(m.includes('tf_fail')||m.includes('transfer'))return t('errTF');
   if(m.includes('insufficient funds')||m.includes('gas'))return t('errGas');
   if(m.includes('no_wallet'))return t('needConnect');
+  if(m.includes('wrong_chain'))return t('errChain');
   return t('errTx');
 }
 
@@ -760,7 +774,9 @@ async function connect(){
     const acc=await eth.request({method:'eth_requestAccounts'}); const a=acc&&acc[0];
     if(!a)throw new Error('no acct');
     await ensureChain();
-    S.addr=a;
+    await checkChain();
+    if(!S.chainOk){toast(t('errChain'));S.inflight.connect=false;const bb=$('dtConnect');if(bb)bb.textContent=t('connect');return;}
+    S.addr=a; S.autoCrank=true;
     try{localStorage.setItem(PREF+'.addr','1');}catch(e){}
     await refreshWallet();
     toast(t('connected'));
@@ -886,6 +902,7 @@ let polling=false;
 async function poll(){
   if(polling)return; polling=true;
   try{
+    if(S.addr&&window.ethereum)await checkChain();
     const [blkHex,rcHex]=await Promise.all([rpcRead('eth_blockNumber',[]),callProxy(SEL.roundCount)]);
     S.block=Number(BigInt(blkHex)); S.roundCount=Number(BigInt(rcHex));
     if(S.roundCount===0){
@@ -937,18 +954,18 @@ function updatePhase(){const key={idle:'phIdle',betting:'phBetting',locked:'phLo
 
 /* 自动公共交易：谁连钱包谁触发；带防重与静默 revert */
 async function maybeStart(){
-  if(!S.addr||S.inflight.start)return;
+  if(!S.addr||!S.chainOk||!S.autoCrank||S.inflight.start)return;
   S.inflight.start=true;
   try{await sendTx(CFG.proxy,SEL.startRound);}catch(e){}
   setTimeout(()=>{S.inflight.start=false;},4000);
 }
 async function doClose(rid){
-  if(!S.addr||S.inflight.close)return; S.inflight.close=true;
+  if(!S.addr||!S.chainOk||!S.autoCrank||S.inflight.close)return; S.inflight.close=true;
   try{await sendTx(CFG.proxy,SEL.closeRound+u256(rid));}catch(e){}
   setTimeout(()=>{S.inflight.close=false;},4000);
 }
 async function doSettle(rid){
-  if(!S.addr||S.inflight.settle)return; S.inflight.settle=true;
+  if(!S.addr||!S.chainOk||!S.autoCrank||S.inflight.settle)return; S.inflight.settle=true;
   try{await sendTx(CFG.proxy,SEL.settle+u256(rid));}catch(e){}
   setTimeout(()=>{S.inflight.settle=false;},5000);
 }
