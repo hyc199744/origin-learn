@@ -73,7 +73,7 @@
       +'<div style="font-size:21px;font-weight:800;color:#eaf3ee;margin-bottom:10px">'+L('你被邀请加入','You’re invited')+'</div>'
       +'<div style="font-size:13px;color:#9fb3a6;margin-bottom:4px">'+L('邀请人 / 推荐码','Inviter / code')+'</div>'
       +'<div style="font-size:22px;font-weight:800;letter-spacing:3px;color:#e0bd68;margin-bottom:16px">'+who+'</div>'
-      +'<div style="font-size:12.5px;color:#9fb3a6;line-height:1.7;margin-bottom:18px">'+L('接受后,你玩任何游戏产生的手续费,TA 会拿到一部分返佣——不影响你的奖池、输赢,也不会多花你的钱。绑定一次永久,不可更改。','Accept and the inviter earns a share of the platform fee from your play — it never touches your pool, winnings, or costs you extra. Binding is permanent.')+'</div>'
+      +''
       +'<button id="apGateAccept" style="width:100%;background:linear-gradient(180deg,#d4f06a,#b6e24a);color:#17200b;font-weight:800;font-size:16px;padding:14px;border-radius:13px;border:0;cursor:pointer">'+L('接受邀请并进入','Accept & enter')+'</button>'
       +'<button id="apGateOther" style="width:100%;background:transparent;color:#7e9583;border:0;font-size:12px;padding:12px 0 0;cursor:pointer">'+L('换一个推荐码','Use a different code')+'</button>'
       +'<div style="font-size:11px;color:#5f7268;margin-top:10px;line-height:1.6">'+L('进入即接受：参与链上游戏有风险,请理性对待,未成年人勿入。','By entering you accept: on-chain gaming carries risk, play responsibly, not for minors.')+'</div>'
