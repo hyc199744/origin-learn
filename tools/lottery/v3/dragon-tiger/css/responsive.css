@@ -37,6 +37,12 @@ body{padding-top:42px}
 
 /* 手机端:标题排往下一点,游戏画面往上收一点 */
 @media(max-width:700px){
-  .game-page{padding-top:26px}
+  .game-page{padding-top:36px}
   .room-heading{margin-bottom:6px}
+  .room-heading h1{font-size:15px;margin-top:0}
+  .room-tools{gap:7px}
+  .room-tools .icon-btn{width:28px;min-height:28px;height:28px;font-size:13px}
+  .room-tools .balance-block .bal-label{font-size:11px}
+  .room-tools .balance-block strong{font-size:15px}
+  .room-tools .balance-block small{font-size:9px}
 }
