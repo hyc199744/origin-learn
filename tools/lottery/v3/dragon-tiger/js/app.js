@@ -2,7 +2,7 @@
  'use strict';
  const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
  const names={dragon:'龙',tiger:'虎',tie:'和'},en={dragon:'DRAGON',tiger:'TIGER',tie:'TIE'};
- const themes={royal:{name:'黑金皇家龙虎厅',short:'皇家厅',en:'THE ROYAL SALON',number:'01'},cyber:{name:'赛博霓虹龙虎竞技场',short:'竞技场',en:'CYBER ARENA',number:'02'},minimal:{name:'极简极速龙虎',short:'极速桌',en:'THE QUICK TABLE',number:'03'}};
+ const themes={royal:{name:'皇家龙虎厅',short:'皇家厅',en:'THE ROYAL SALON',number:'01'},cyber:{name:'赛博霓虹龙虎竞技场',short:'竞技场',en:'CYBER ARENA',number:'02'},minimal:{name:'极简极速龙虎',short:'极速桌',en:'THE QUICK TABLE',number:'03'}};
  const phases={WAITING:'准备下一轮',BETTING:'开放下注',LOCKED:'停止下注',DEALING:'正在发牌',REVEALING:'依次开牌',SETTLEMENT:'本轮已结算'};
  const money=n=>(n/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
  const signed=n=>(n>0?'+':'')+money(n);
@@ -62,7 +62,7 @@
   else if(type==='settings'){$('#dialog-content').innerHTML=`<p class="eyebrow">TABLE SETTINGS</p><h2>按你的节奏。</h2><label class="setting-row"><span>轻提示音<small>点击下注与结算时播放</small></span><input type="checkbox" id="sound" ${soundEnabled?'checked':''}></label><p class="callout">默认尊重系统“减少动态效果”设置。</p>`;}
   else if(type==='history')renderRecords(true);
   else if(type==='road'){$('#dialog-content').innerHTML=road();renderHistory();}
-  else if(type==='compare'){$('#dialog-content').innerHTML=`<p class="eyebrow">THREE WAYS TO PLAY</p><h2>选一张适合你的桌。</h2><div class="compare-list"><article><b>A · 黑金皇家</b><p>牌桌占视觉中心，筹码与路单分区。适合重视赌场质感的玩家，宽屏和横屏沉浸感更强。</p></article><article><b>B · 赛博霓虹</b><p>桌面三栏，手机路单抽屉与底部筹码栏。光效和对决表现最丰富，动画成本稍高。</p></article><article><b>C · 极简极速</b><p>顶部摘要、牌面与分步下注。手机单手操作更清楚，动画更少，适合作为钱包端正式接入的首选 UI。</p></article></div><p>三款共用规则与钱包适配模块。真实链上接入均需正式 ABI、可信随机源与服务端/链上结算，现阶段均为试玩。</p>`;}
+  else if(type==='compare'){$('#dialog-content').innerHTML=`<p class="eyebrow">THREE WAYS TO PLAY</p><h2>选一张适合你的桌。</h2><div class="compare-list"><article><b>A · 皇家</b><p>牌桌占视觉中心，筹码与路单分区。适合重视赌场质感的玩家，宽屏和横屏沉浸感更强。</p></article><article><b>B · 赛博霓虹</b><p>桌面三栏，手机路单抽屉与底部筹码栏。光效和对决表现最丰富，动画成本稍高。</p></article><article><b>C · 极简极速</b><p>顶部摘要、牌面与分步下注。手机单手操作更清楚，动画更少，适合作为钱包端正式接入的首选 UI。</p></article></div><p>三款共用规则与钱包适配模块。真实链上接入均需正式 ABI、可信随机源与服务端/链上结算，现阶段均为试玩。</p>`;}
   if(!dialog.open)dialog.showModal();
  }
  function ruleExamples(){const rules=engine.state.roundRules;return `<table><thead><tr><th>结果</th><th>净赔率</th><th>押 10 的派彩</th></tr></thead><tbody>${['dragon','tiger','tie'].map(side=>`<tr><td>押${names[side]}且${side==='tie'?'和局':names[side]+'胜'}</td><td>${rules[side]} : 1</td><td>${10*(rules[side]+1)}（本金 10 + 盈利 ${10*rules[side]}）</td></tr>`).join('')}</tbody></table>`;}
