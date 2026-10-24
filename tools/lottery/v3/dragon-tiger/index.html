@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#080a0f">
-<title>ANUBIS DRAGON TIGER V3 · CINEMATIC DEMO</title>
+<title>ANUBIS DRAGON TIGER · 龙虎斗</title>
+<link rel="icon" href="../img/logo.webp">
+<link rel="apple-touch-icon" href="../img/logo.webp">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
@@ -343,7 +345,7 @@ select.token-sel{background:#211d21;color:#faeaca;border-color:#715a33;font-weig
 <!-- ===== 主区 ===== -->
 <div class="main">
   <div class="stage">
-    <div class="stage-heading"><span>◈ TABLE 01 · PREMIUM DEMO</span><span class="live-pulse" data-i18n="liveDemo">● 本地演示 · 不连接钱包</span></div>
+    <div class="stage-heading"><span>◈ TABLE 01 · ANUBIS LIVE</span><span class="live-pulse" data-i18n="liveDemo">● 本地演示 · 不连接钱包</span></div>
     <!-- 荷官 -->
     <div class="dealer-zone">
       <div class="dealer-frame" id="dealerFrame">
@@ -386,7 +388,7 @@ select.token-sel{background:#211d21;color:#faeaca;border-color:#715a33;font-weig
             <g class="dealer-hand dealer-hand-right"><path d="M216 258Q236 242 250 238Q265 233 273 244Q273 255 249 264L225 275" fill="url(#skin)" stroke="#ad725b" stroke-width="2"/></g>
           </svg>
         </div>
-        <video class="dealer-video" id="dealerVideo" muted playsinline webkit-playsinline preload="metadata" disablepictureinpicture aria-label="可选的授权真人荷官动作视频（静音，通过播放时间同步发牌）"></video><span class="dealer-film-label" id="dealerFilmLabel">PHOTO · DEMO</span>
+        <video class="dealer-video" id="dealerVideo" muted playsinline webkit-playsinline preload="metadata" disablepictureinpicture aria-label="可选的授权真人荷官动作视频（静音，通过播放时间同步发牌）"></video><span class="dealer-film-label" id="dealerFilmLabel">PHOTO</span>
       </div>
       <div class="dealer-name" data-i18n="dealerName">首席荷官 · 安娜</div>
       <div class="dealer-subtitle">✦ ANUBIS PRIVATE TABLE ✦</div>
@@ -800,13 +802,13 @@ function speak(text){if(!S.voice)return;try{stopVoice();const say=new SpeechSynt
 const DEALER_MEDIA={idle:'',dealing:'',settle:''};
 let userDealerClipURL=null,videoGen=0;
 function mediaCaption(s){const e=$('dealerFileState');if(e)e.textContent=s;}
-function stopDealerVideo(){const v=$('dealerVideo');++videoGen;if(!v)return;try{v.pause();}catch(e){}v.onended=null;v.onerror=null;v.onplaying=null;v.classList.remove('ready');const l=$('dealerFilmLabel');if(l)l.textContent='PHOTO · DEMO';}
+function stopDealerVideo(){const v=$('dealerVideo');++videoGen;if(!v)return;try{v.pause();}catch(e){}v.onended=null;v.onerror=null;v.onplaying=null;v.classList.remove('ready');const l=$('dealerFilmLabel');if(l)l.textContent='PHOTO';}
 function playDealerClip(loop){
   const path=userDealerClipURL||DEALER_MEDIA.dealing||DEALER_MEDIA.idle; if(!path){stopDealerVideo();return;}
   const v=$('dealerVideo'),seq=++videoGen; v.loop=!!loop;v.muted=true;v.playsInline=true;
   if(v.dataset.path!==path){v.src=path;v.dataset.path=path;v.load();}
   v.onplaying=()=>{if(seq===videoGen){v.classList.add('ready');const l=$('dealerFilmLabel');if(l)l.textContent='VIDEO';}};
-  v.onerror=()=>{if(seq===videoGen){v.classList.remove('ready');const l=$('dealerFilmLabel');if(l)l.textContent='PHOTO · DEMO';}};
+  v.onerror=()=>{if(seq===videoGen){v.classList.remove('ready');const l=$('dealerFilmLabel');if(l)l.textContent='PHOTO';}};
   const p=v.play();if(p&&p.catch)p.catch(()=>{});
 }
 // cue 编辑器保留为纯 UI（真钱版牌由链上决定，不按视频同步发牌）
