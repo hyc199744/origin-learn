@@ -34,3 +34,9 @@ body{padding-top:42px}
 .room-tools .balance-block strong{display:inline;font-size:19px;font-weight:600}
 .room-tools .balance-block small{font-size:11px;color:var(--muted)}
 .room-tools .balance-block small span{display:none}
+
+/* 手机端:标题排往下一点,游戏画面往上收一点 */
+@media(max-width:700px){
+  .game-page{padding-top:26px}
+  .room-heading{margin-bottom:6px}
+}
