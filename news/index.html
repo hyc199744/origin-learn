@@ -56,6 +56,16 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 .sect .l.r{background:linear-gradient(90deg,rgba(214,168,75,.5),transparent)}
 .sect h2{font-size:19px;color:var(--gold-lt);letter-spacing:3px;font-weight:600;white-space:nowrap}
 
+/* 官方/推特 分页标签 */
+.tabs{display:flex;gap:12px;justify-content:center;margin:34px 0 10px;font-family:var(--sans)}
+.tabs button{flex:0 0 auto;min-width:152px;padding:12px 22px;font-size:14.5px;font-weight:600;color:var(--soft);background:linear-gradient(180deg,rgba(33,5,7,.45),rgba(10,4,4,.55));border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:.18s;font-family:var(--sans)}
+.tabs button:hover{color:var(--gold-lt);border-color:rgba(214,168,75,.5)}
+.tabs button.on{color:#1a0608;background:linear-gradient(135deg,#e8c06a,#cf9a3c);border-color:transparent;box-shadow:0 3px 14px rgba(214,168,75,.3)}
+.tabs .tabcount{font-size:12px;font-weight:700;opacity:.78}
+.pane{display:none}.pane.on{display:block;animation:fadein .25s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(max-width:520px){.tabs{gap:8px}.tabs button{flex:1;min-width:0;padding:12px 6px;font-size:13.5px}}
+
 .load{text-align:center;color:var(--muted);font-family:var(--sans);padding:34px;font-size:14px}
 .empty{border:1px solid var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted);font-family:var(--sans);font-size:13.5px;margin:12px 0;background:rgba(33,5,7,.3)}
 
@@ -129,11 +139,16 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
     <p>Awake 官方公告与官方推特，自动同步、全文站内直读并翻译成中文。独立研究平台，不代表任何项目方。</p>
   </div>
 
-  <div class="sect"><div class="l"></div><h2>Awake 官方公告</h2><div class="l r"></div></div>
-  <div id="anns"><div class="load">正在同步官方公告…</div></div>
-
-  <div class="sect"><div class="l"></div><h2>Awake 官方 · 社区推特</h2><div class="l r"></div></div>
-  <div id="xfeed"><div class="load">正在同步推文…</div></div>
+  <div class="tabs">
+    <button id="tabA" class="on" type="button" onclick="switchTab('ann')">📢 官方消息<span class="tabcount" id="cntA"></span></button>
+    <button id="tabT" type="button" onclick="switchTab('tw')">🐦 推特动态<span class="tabcount" id="cntT"></span></button>
+  </div>
+  <div id="paneA" class="pane on">
+    <div id="anns"><div class="load">正在同步官方公告…</div></div>
+  </div>
+  <div id="paneT" class="pane">
+    <div id="xfeed"><div class="load">正在同步推文…</div></div>
+  </div>
 
   <div class="disc"><b>Web3Origin</b> 是独立的 Web3 学习与链上研究平台，不代表任何项目方。内容基于官方公开信息整理，仅供学习研究，不构成投资建议或收益承诺。请在连接钱包或操作资产前自行核验。<div class="w">⚠️ 任何网站或个人都不应向你索要助记词、私钥、钱包密码或验证码。Web3Origin 绝不会要求你填写上述信息。</div></div>
 </div>
@@ -157,6 +172,21 @@ function ymd(ct){var d=new Date(ct*1000);return d.getUTCFullYear()+"-"+String(d.
 function isZh(l){return l==="zh"||l==="zh-tw"||l==="zh-cn";}
 function langName(l){return {zh:"繁体中文","zh-tw":"繁体中文","zh-cn":"简体中文",en:"英文",ko:"韩文",hi:"印地文"}[l]||l;}
 
+function switchTab(which){
+ var isAnn=which!=='tw';
+ document.getElementById('paneA').classList.toggle('on',isAnn);
+ document.getElementById('paneT').classList.toggle('on',!isAnn);
+ document.getElementById('tabA').classList.toggle('on',isAnn);
+ document.getElementById('tabT').classList.toggle('on',!isAnn);
+ try{localStorage.setItem('w3o_news_tab',isAnn?'ann':'tw');}catch(e){}
+}
+function updateCounts(){
+ try{
+   var a=ANNS?ANNS.length:0, t=(FEED&&FEED.tweets)?FEED.tweets.length:0;
+   document.getElementById('cntA').textContent=a?(' '+a):'';
+   document.getElementById('cntT').textContent=t?(' '+t):'';
+ }catch(e){}
+}
 function renderAnns(){
  var box=document.getElementById("anns");
  if(!ANNS.length){box.innerHTML='<div class="empty">'+(FEED&&FEED.ok===false?'⚠️ 官方来源暂时无法同步，稍后自动重试。':'暂无公告。')+'</div>';return;}
@@ -242,9 +272,10 @@ function loadFeed(manual){
    FEED=j;ANNS=dedupe((j&&j.items)||[],function(a){return (a.id||"")+"|"+(a.title||"")+"|"+(a.createtime||"");});
    if(FEED&&FEED.tweets)FEED.tweets=dedupe(FEED.tweets,function(t){return (t.id||"")+"|"+String(t.handle||"").toLowerCase()+"|"+((t.text||"").slice(0,80));});
    if(j&&j.ok){dot.className='dot';st.textContent='数据源正常';}else{dot.className='dot bad';st.textContent='暂时无法更新';}
-   renderAnns();renderTweets();maybeNotify();
- }).catch(function(){FEED={ok:false};ANNS=[];dot.className='dot bad';st.textContent='连接失败';renderAnns();renderTweets();});
+   renderAnns();renderTweets();updateCounts();maybeNotify();
+ }).catch(function(){FEED={ok:false};ANNS=[];dot.className='dot bad';st.textContent='连接失败';renderAnns();renderTweets();updateCounts();});
 }
+try{if(localStorage.getItem('w3o_news_tab')==='tw')switchTab('tw');}catch(e){}
 loadFeed();
 setInterval(loadFeed,90000);
 document.addEventListener('visibilitychange',function(){if(!document.hidden)loadFeed();});
