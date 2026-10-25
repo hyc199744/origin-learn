@@ -35,7 +35,7 @@
 
   // ---- 状态 ----
   let myAddr=null, ws=null, authed=false, delegate=null, authorized=false, authInProgress=false, pendingAutoAuth=false, _triedToken=false;
-  let curHand=null, myCards=null, state=null, picking=false, lastPot='0';
+  let curHand=null, myCards=null, state=null, picking=false, lastPot='0', wantPlay=false, _autoReHand=null;
   let view='table', filter='all', newAnte=10, newCount=6, newPrivate=false;
   let sound=false, bgmOn=false, bgmNodes=null, audioCtx=null, modalFocus=null, toastTimer, msgTimer, fsBusy=false;
   let lastDealtHand=null, startedHands=new Set(), activity=[], results=loadResults();
@@ -292,7 +292,7 @@
   const gtOppSeat={0:[],1:[1],2:[2,3],3:[1,2,3],4:[2,3,4,5],5:[1,2,3,4,5]};
   function render(){
     if(!state)return;
-    const phase=state.phase, mi=meIdx(), comparing=nz(state.cmpOpp);
+    const phase=state.phase, mi=meIdx(), comparing=nz(state.cmpOpp); if(mi>=0)wantPlay=false;
     const ante=e9(state.ante), curBet=e9(state.curBet), pot=e9(state.pot);
     const me=mi>=0?state.players[mi]:null;
     const looked=me&&(me.looked||myLookedLocal);
@@ -399,7 +399,7 @@
     if(pending){ ['jtFold','jtPeek','jtRaise','jtCompare','jtCall','jtAllIn'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); $('jtTurnMain').textContent='处理中…'; return; }
     if(comparing){ $('jtTurnMain').textContent='比牌裁决中'; $('jtTurnHint').textContent='马上出结果'; }
     else if(myTurn){ $('jtTurnMain').textContent='轮到你行动'; $('jtTurnHint').textContent=(looked?'明牌':'暗牌')+'跟注 '+fmt(cost)+' '+SYM; }
-    else if(mi<0){ $('jtTurnMain').textContent='观战中'; $('jtTurnHint').textContent='本局结束后点「继续下一局」即可加入'; }
+    else if(mi<0){ if(wantPlay){ $('jtTurnMain').textContent='本局已开始'; $('jtTurnHint').textContent='已为你排到下一局，本局结束后自动加入'; } else { $('jtTurnMain').textContent='观战中'; $('jtTurnHint').textContent='本局结束后点「继续下一局」即可加入'; } }
     else if(me&&me.folded){ $('jtTurnMain').textContent='已弃牌'; $('jtTurnHint').textContent='等待本局结束'; }
     else { $('jtTurnMain').textContent='其他玩家行动中'; $('jtTurnHint').textContent='轮到 '+nameOf(state.turnAddr)+(looked?'':'，你可以先看牌'); }
     const dis=!myTurn;
@@ -433,6 +433,7 @@
     var anteV=state?fmt(e9(state.ante)):'';
     const box=$('jtEndBox');
     if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' '+SYM+'，赢家拿 '+fmt(payout):'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' '+SYM:''); }
+    if(box && wantPlay && meIdx()<0 && _autoReHand!==curHand){ _autoReHand=curHand; setTimeout(()=>{ if(wantPlay && meIdx()<0 && curHand) wsend({t:'rematch',handId:curHand}); }, 1200); } // 被挡在本局外但想玩:本局结束自动续到下一局
     if(iWon)playSound('win');
     message(iWon?'好牌！你赢得了本局':'本局已结束');
     // 记录(本地,真实观测):详细版
@@ -501,7 +502,7 @@
       if(state&&state.phase===1&&meIdx()>=0){ wsend({t:'leaveTable',handId:curHand}); clearActiveHand(curHand); } // 开局前退座退款(已退座无需回到对局)
       wsend({t:'unsubscribe',handId:curHand});
     }
-    curHand=null; state=null; myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; picking=false; joining=false; clearTimeout(window._jt);
+    curHand=null; state=null; myCards=null; myLookedLocal=false; pendingLook=false; prevPlayers=null; picking=false; joining=false; wantPlay=false; _autoReHand=null; clearTimeout(window._jt);
     setView('lobby'); if(authed)wsend({t:'listTables'}); refreshBalances();
   }
   async function joinRoom(id){
@@ -518,7 +519,7 @@
     if(!myAddr){ await connect(); if(!myAddr)return; }
     if(!authorized){ await doAuthorize(); if(!authorized)return; } // 首次自动授权一次
     joining=true;
-    wsend({t:'joinTable',handId:curHand}); toast('准备中，交底注入座…');
+    wantPlay=true; wsend({t:'joinTable',handId:curHand}); toast('准备中，交底注入座…');
     try{ render(); }catch(e){}
     clearTimeout(window._jt); window._jt=setTimeout(()=>{ if(joining){joining=false; try{render();}catch(e){}} },12000);
   }
@@ -867,7 +868,7 @@
         case 'raise':doRaise();break;
         case 'compare':startCompare();break;
         case 'allin':doAllIn();break;
-        case 'next':{ if(!curHand)break; if(!authorized){ await doAuthorize(); if(!authorized)break; } wsend({t:'rematch',handId:curHand}); toast('继续下一局…'); break; }
+        case 'next':{ if(!curHand)break; if(!authorized){ await doAuthorize(); if(!authorized)break; } wantPlay=true; wsend({t:'rematch',handId:curHand}); toast('继续下一局…'); break; }
         case 'ready':await doReady();break;
         case 'leave':backToLobby();break;
         case 'fullscreen':await toggleLandscape();break;
