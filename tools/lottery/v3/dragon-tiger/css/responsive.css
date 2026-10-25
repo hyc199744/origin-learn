@@ -82,3 +82,14 @@ body{padding-top:42px}
 .topbar{left:0!important;right:0!important;width:auto!important;max-width:none!important;box-sizing:border-box!important}
 .topbar .tb-left{flex:0 1 auto;min-width:0;overflow:hidden}
 .topbar .game-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* 中奖喜报弹窗 */
+.win-pop{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.58);backdrop-filter:blur(2px);padding:20px}
+.win-pop.show{display:flex;animation:winFade .3s}
+.win-pop .win-card{background:linear-gradient(160deg,#1f3a22,#0f1a10);border:2px solid var(--accent,#c8f665);border-radius:20px;padding:28px 40px;text-align:center;box-shadow:0 0 60px rgba(200,246,101,.4),inset 0 0 0 1px #ffffff14;animation:winPop .5s cubic-bezier(.2,1.35,.4,1);max-width:90vw}
+.win-pop .win-emoji{font-size:52px;line-height:1;filter:drop-shadow(0 0 10px #c8f66588)}
+.win-pop .win-title{font-size:19px;color:var(--accent,#c8f665);font-weight:800;letter-spacing:4px;margin-top:8px}
+.win-pop .win-amt{font-size:34px;font-weight:800;color:#ffe49c;margin:10px 0 4px;font-variant-numeric:tabular-nums;text-shadow:0 2px 14px #e8c78355}
+.win-pop .win-sub{font-size:13px;color:var(--muted,#9a8f70)}
+@keyframes winFade{from{opacity:0}}
+@keyframes winPop{0%{transform:scale(.55) translateY(10px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
