@@ -205,15 +205,16 @@
 
   // ---------- WSS ----------
   function connectWS(){
+    if(ws && ws.readyState<2) return; // 已连着/正在连:别开第二条
     _triedToken=false; // 每次新连接:先试会话令牌,失败再签名
     ws=new WebSocket(WSS);
     ws.onopen=()=>{ setNet(true); };
-    ws.onclose=()=>{ setNet(false); setTimeout(connectWS,3000); };
+    ws.onclose=()=>{ setNet(false); setTimeout(connectWS,1000); }; // 断了1秒重连(原3秒;手机切后台/换网络常断)
     ws.onerror=()=>{};
     ws.onmessage=async ev=>{ let m; try{m=JSON.parse(ev.data);}catch(e){return;} await onMsg(m); };
   }
   function setNet(ok){ const el=document.querySelector('.network'); if(el)el.classList.toggle('offline',!ok); }
-  function wsend(o){try{ws.send(JSON.stringify(o));}catch(e){}}
+  function wsend(o){ try{ if(!ws||ws.readyState!==1) return false; ws.send(JSON.stringify(o)); return true; }catch(e){ return false; } } // 返回是否真发出去了(以前断线时默默丢掉,玩家以为点了没反应)
   // ---- 多池切换(LGNS/DAI)+档位筛选条,按当前池动态生成 ----
   function poolBtns(activeCls){ return Object.values(TOKENS).map(t=>'<button class="'+(curToken===t.key?activeCls:'')+'" data-pool="'+t.key+'">'+t.label+' 池</button>').join(''); }
   function tierBtns(attr,activeCls){ return '<button class="'+(filter==='all'?activeCls:'')+'" '+attr+'="all">全部</button>'+TIERS.map(n=>'<button class="'+(String(filter)===String(n)?activeCls:'')+'" '+attr+'="'+n+'">'+n+' '+SYM+'</button>').join(''); }
@@ -254,6 +255,13 @@
     else if(m.t==='yourCards'){ if(String(m.handId)===String(curHand)){ myCards=m.cards; render(); } }
     else if(m.t==='result'){ if(String(m.handId)===String(curHand)){ showResult(m); clearActiveHand(m.handId); try{localStorage.removeItem('ap_look_'+m.handId);}catch(e){} } }
     else if(m.t==='compareReveal'){ showCompareReveal(m); }
+    else if(m.t==='actPending'){ // 服务器已收到并校验通过某人的动作,链上确认前先让全桌看到反应(0.3秒内),真实状态等确认后的handState
+      if(String(m.handId)===String(curHand) && state && state.phase===2){
+        const nm=({call:'跟注',raise:'加注',fold:'弃牌',compare:'比牌',allin:'全下比牌',look:'看牌'})[m.action]||m.action;
+        const h=$('jtTurnHint'), mn=$('jtTurnMain');
+        if(isMe(m.player)){ if(h)h.textContent='已提交，上链确认中…'; }
+        else { if(mn)mn.textContent=nameOf(m.player)+' 已'+nm; if(h)h.textContent='上链确认中，马上轮到下一位…'; if(m.action!=='look')logAct(nameOf(m.player)+' '+nm); }
+      } }
     else if(m.t==='rematched'){ curHand=String(m.handId); myCards=null; myLookedLocal=false; pendingLook=false; state=null; prevPlayers=null; picking=false; closeModal(); wsend({t:'subscribe',handId:curHand}); message('新一局开始'); }
     else if(m.t==='refunded'){ if(String(m.handId)===String(curHand)) toast('本局已退款'); }
     else if(m.t==='error'){ pending=false; joining=false; clearTimeout(window._pt); clearTimeout(window._jt); clearTimeout(window._nickTimer); window._nickTimer=null; clearTimeout(window._avT); window._avT=null; toast('❌ '+m.msg); if(state)render(); }
@@ -532,7 +540,11 @@
   }
 
   // ---------- 行动 ----------
-  function act(action,extra){ wsend(Object.assign({t:'act',handId:curHand,action},extra||{})); }
+  function act(action,extra){
+    const ok=wsend(Object.assign({t:'act',handId:curHand,action},extra||{}));
+    if(!ok){ toast('与对战服务器断开，正在重连，请稍后再点'); if(!ws||ws.readyState>1) connectWS(); setTimeout(()=>{ pending=false; clearTimeout(window._pt); try{render();}catch(e){} },0); } // 没发出去:立刻解锁按钮(调用方随后会setPending,所以放到下一拍解),不让人干等7秒
+    return ok;
+  }
   function setPending(txt){ pending=true; cdActive=false; ['jtFold','jtPeek','jtRaise','jtCompare','jtCall','jtAllIn'].forEach(id=>{const b=$(id);if(b)b.disabled=true;}); const h=$('jtTurnMain'); if(h)h.textContent=txt||'⏳ 处理中…'; clearTimeout(window._pt); window._pt=setTimeout(()=>{ if(pending){pending=false; render();} },7000); }
   // 乐观更新:点了立刻在本地改状态(底池/我的投入/先交出回合),链上确认后由真实state对齐
   function optimBet(extra){ const mi=meIdx(); if(mi<0||!state)return; const me=state.players[mi]; const base=BigInt(state.curBet)+(extra||0n); const cost=(me.looked||myLookedLocal)?base*2n:base; const nc=(BigInt(me.contributed)+cost).toString(); state.players=state.players.map((p,i)=>i===mi?Object.assign({},p,{contributed:nc}):p); state.pot=(BigInt(state.pot)+cost).toString(); if(extra)state.curBet=base.toString(); state.turnAddr=ZERO; }
@@ -913,7 +925,7 @@
   applyLayout();
   window.addEventListener('resize',resizeGame);
   window.addEventListener('orientationchange',resizeSoon);
-  document.addEventListener('visibilitychange',()=>{ if(!document.hidden)resizeSoon(); });
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ resizeSoon(); if(myAddr && (!ws||ws.readyState>1)) connectWS(); } }); // 切回前台发现断线立刻重连,不等定时器
   if(window.visualViewport)window.visualViewport.addEventListener('resize',resizeGame);
   try{ if(typeof ResizeObserver!=='undefined'){ const tv=$('tableView'); if(tv)new ResizeObserver(resizeGame).observe(tv); } }catch(e){}
   resizeSoon();
