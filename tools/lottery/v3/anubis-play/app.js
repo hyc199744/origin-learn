@@ -433,7 +433,7 @@
     render();
     var anteV=state?fmt(e9(state.ante)):'';
     const box=$('jtEndBox');
-    if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'底池 '+fmt(pot)+' '+SYM+'，赢家拿 '+fmt(payout):'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' '+SYM:''); }
+    if(box){ box.hidden=false; $('jtEndTitle').textContent=iWon?'✦ 你赢了':(winAddr?nameOf(winAddr)+' 获胜':'本局结束'); $('jtEndText').textContent=(winAddr?'赢家拿 '+fmt(payout)+' '+SYM:'本局结束')+' · 奖金自动到账'+(anteV?'｜继续需再交底注 '+anteV+' '+SYM:''); } // 2026-10-26 老板要求去掉"底池 X LGNS，"
     if(box && wantPlay && meIdx()<0 && _autoReHand!==curHand){ _autoReHand=curHand; setTimeout(()=>{ if(wantPlay && meIdx()<0 && curHand) wsend({t:'rematch',handId:curHand}); }, 1200); } // 被挡在本局外但想玩:本局结束自动续到下一局
     if(iWon)playSound('win');
     message(iWon?'好牌！你赢得了本局':'本局已结束');
