@@ -29,7 +29,7 @@
   const APPROVE_AMT=(2n**256n-1n); // 无限授权(MaxUint256):标准ERC20对其不扣减额度→一次授权永不再弹
   const ZERO='0x0000000000000000000000000000000000000000';
   const ANUBIS={id:6714,hex:'0x1A3A',name:'Anubis',rpc:'https://rpc.anubispace.org',exp:'https://browser.anubispace.org',native:{name:'DAI',symbol:'DAI',decimals:18}};
-  const SEL={withdraw:'3ccfd60b',approve:'095ea7b3',allowance:'dd62ed3e',bal:'70a08231',authorize:'b6a5d7de',deleg:'8d22ea2a',wd:'ce513b6f',transfer:'a9059cbb'};
+  const SEL={withdraw:'3ccfd60b',approve:'095ea7b3',allowance:'dd62ed3e',bal:'70a08231',authorize:'b6a5d7de',deleg:'8d22ea2a',wd:'ce513b6f',transfer:'a9059cbb',refundStuck:'78d4e4df',refund:'05f8d94c',getHand:'d47f269e'};
   const SUITS=['♠','♥','♣','♦'];               // 后端 s:0-3
   const LABELS=['单张','对子','顺子','同花','同花顺','豹子'];
 
@@ -94,13 +94,21 @@
     if(!rec||!rec.id) return;
     const pk=(rec.pool&&TOKENS[rec.pool])?rec.pool:curToken;
     const ph=await phaseOfContract(TOKENS[pk].contract, rec.id);
-    if(ph!==1 && ph!==2){ clearActiveHand(rec.id); return; } // 已结束/退款/不存在→清掉不显示
+    if(ph!==1 && ph!==2 && ph!==3){ clearActiveHand(rec.id); return; } // 已结束/退款/不存在→清掉不显示
+    // 直接读链判断这局是否卡住(服务器挂了也能判):getHand 第10/11个字=行动截止/亮牌截止
+    let stuck=false; try{ const r=await rcall(TOKENS[pk].contract,SEL.getHand+enc(rec.id)); if(r&&r.length>=64*11){ const w=i=>parseInt(r.slice(64*i,64*i+64),16); stuck=isStuck({phase:ph,actionDeadline:w(9),dealerDeadline:w(10)}); } }catch(e){}
+    if(ph===3 && !stuck) return; // 摊牌中正常走,等服务器亮牌
     const lob=$('lobbyView'); if(!lob||view!=='lobby') return;
     const old2=$('resumeBar'); if(old2)old2.remove();
     const bar=document.createElement('div'); bar.id='resumeBar';
     bar.style.cssText='margin:12px 0;padding:14px 16px;border-radius:14px;background:linear-gradient(90deg,#2a1e08,#16281f);border:1px solid #e0bd6666;display:flex;align-items:center;gap:12px;cursor:pointer';
-    bar.innerHTML='<span style="font-size:22px">⏳</span><div style="flex:1;min-width:0"><div style="font-weight:800;color:#e0bd68">你还有一局对局进行中</div><div style="font-size:12px;color:#8ba398">'+TOKENS[pk].label+' 池 · 房 #'+rec.id+'，点此回到牌桌继续（别超时被判弃）</div></div><span style="background:#e0bd68;color:#1a1200;font-weight:800;padding:9px 16px;border-radius:10px;white-space:nowrap">回到对局</span>';
-    bar.onclick=()=>{ doResume(pk, rec.id); };
+    if(stuck){
+      bar.innerHTML='<span style="font-size:22px">🧊</span><div style="flex:1;min-width:0"><div style="font-weight:800;color:#e0bd68">你有一局卡住了</div><div style="font-size:12px;color:#8ba398">'+TOKENS[pk].label+' 池 · 房 #'+rec.id+'，长时间没有推进，可申请把投入原路退回钱包</div></div><span style="background:#e0bd68;color:#1a1200;font-weight:800;padding:9px 16px;border-radius:10px;white-space:nowrap">申请退款</span>';
+      bar.onclick=()=>{ refundOnChain(TOKENS[pk].contract, rec.id, ph); };
+    } else {
+      bar.innerHTML='<span style="font-size:22px">⏳</span><div style="flex:1;min-width:0"><div style="font-weight:800;color:#e0bd68">你还有一局对局进行中</div><div style="font-size:12px;color:#8ba398">'+TOKENS[pk].label+' 池 · 房 #'+rec.id+'，点此回到牌桌继续（别超时被判弃）</div></div><span style="background:#e0bd68;color:#1a1200;font-weight:800;padding:9px 16px;border-radius:10px;white-space:nowrap">回到对局</span>';
+      bar.onclick=()=>{ doResume(pk, rec.id); };
+    }
     lob.insertBefore(bar, lob.firstChild);
   }
   // 点「我的牌桌」时:没在桌就尝试回到记录的进行中对局(手滑点返回后从这里回去)
@@ -387,9 +395,25 @@
     if(c._html===html)return; c._html=html; c.innerHTML=html; // 内容没变不重画,避免牌反复闪
   }
   function gtTick(){ const t=$('jtTimer'); if(!t||!state)return; if(state.phase===2 && !nz(state.cmpOpp) && state.actionDeadline){ const s=Math.max(0,state.actionDeadline-Math.floor(Date.now()/1000)); t.textContent=s+'s'; } else t.textContent='–'; } // 下注阶段一律显示当前该行动方(你或对手)的倒计时,干等也有数
+  // 卡局判定(与合约 forceRefundStuck/forceRefund 条件一致):下注阶段行动截止超10分钟没推进,或摊牌阶段庄家90秒没亮牌。
+  // 满足就露出「申请退款」按钮——玩家自己从钱包发交易,不依赖服务器(服务器挂了正是需要它的时候)。
+  function isStuck(st){ if(!st)return false; const now=Math.floor(Date.now()/1000); if(st.phase===2 && st.actionDeadline) return now>Number(st.actionDeadline)+600; if(st.phase===3 && st.dealerDeadline) return now>Number(st.dealerDeadline); return false; }
+  function updateStuckBtn(){ const rr=$('jtRefundRow'); if(!rr)return; const show=!!(state && isStuck(state) && meIdx()>=0); if(rr.hidden===!show)return; rr.hidden=!show; if(show){ const a=$('jtTurnMain'),b=$('jtTurnHint'); if(a)a.textContent='本局卡住了'; if(b)b.textContent='长时间没有推进，可申请把各家投入原路退回'; } }
+  async function refundOnChain(contract,id,phase){ // 发退款交易;退款进合约待领,再帮自己领回钱包
+    if(!myAddr){ await connect(); if(!myAddr)return; }
+    if(!window.confirm('确认申请退款？本局各家投入会原路退回各自钱包（约需两笔签名）。')) return;
+    try{
+      toast('退款交易上链中…'); await sendTxTo(contract,(phase===3?SEL.refund:SEL.refundStuck)+enc(id));
+      let wd=0n; try{ wd=BigInt('0x'+((await rcall(contract,SEL.wd+encA(myAddr)))||'0')); }catch(e){}
+      if(wd>0n){ toast('✅ 已退款，领回钱包…'); try{ await sendTxTo(contract,SEL.withdraw); }catch(e){} }
+      toast('✅ 退款完成，钱已回到钱包'); clearActiveHand(id); refreshBalances(); if(view==='table') backToLobby(true);
+    }catch(e){ toast((e&&e.message)||'退款失败（可能还没到可退款时间）'); }
+  }
+  function doRefund(){ if(!state||!curHand)return; refundOnChain(CONTRACT,curHand,state.phase); }
   function renderGtActions(phase,mi,me,looked,cost,ended,comparing){
     const ready=$('jtReadyRow'), acts=$('jtActions'), endBox=$('jtEndBox');
     const anteV=fmt(e9(state.ante));
+    updateStuckBtn();
     if(endBox && phase<3) endBox.hidden=true;
     if(phase===1){
       acts.hidden=true; ready.hidden=false; $('jtTimer').textContent='–';
@@ -892,6 +916,7 @@
         case 'save-avatar':{ if(!pendingAvatar){toast('请先点头像选择图片');break;} if(!authed){toast('未连接对战服务，稍候重试');break;} toast('保存中…'); wsend({t:'setAvatar',avatar:pendingAvatar}); clearTimeout(window._avT); window._avT=setTimeout(()=>{window._avT=null;toast('⚠ 上传超时，请检查网络后重试');},8000); break; }
         case 'clear-avatar':{ if(!authed){toast('未连接对战服务，稍候重试');break;} pendingAvatar=null; wsend({t:'setAvatar',avatar:''}); if(myAddr)delete avatarCache[myAddr.toLowerCase()]; if($('modal').open)showWallet(); if(state&&view==='table')render(); toast('已恢复默认头像'); break; }
         case 'claim':doClaim();break;
+        case 'refund':doRefund();break;
         case 'fold':doFold();break;
         case 'peek':doPeek();break;
         case 'call':doCall();break;
@@ -916,7 +941,7 @@
   try{ matchMedia('(orientation:landscape)').addEventListener('change',e=>{ if(e.matches)document.body.classList.remove('force-landscape'); }); }catch(e){} // 真横屏时关掉CSS旋转防重复
 
   // 倒计时:只更新一个文字,不整屏重绘(手机流畅关键)
-  setInterval(()=>{ if(state&&state.phase===2&&view==='table'&&!$('tableView').hidden) gtTick(); },1000);
+  setInterval(()=>{ if(state&&state.phase===2&&view==='table'&&!$('tableView').hidden) gtTick(); if(state&&(state.phase===2||state.phase===3)&&view==='table') updateStuckBtn(); },1000);
   setInterval(()=>{ if(authed&&ws&&ws.readyState===1&&!curHand&&view==='lobby')wsend({t:'listTables'}); },5000);
 
   // 启动

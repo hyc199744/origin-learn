@@ -10,8 +10,8 @@
   <link rel="icon" href="logo.webp">
   <link rel="stylesheet" href="styles.css?v=1026foldx2">
   <style>.brand-logo{height:44px;width:44px;object-fit:contain;display:block;border-radius:10px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}@media(max-width:650px){.brand-logo{height:36px;width:36px}}@media(orientation:landscape) and (max-height:600px){.brand-logo{height:32px;width:32px}}</style>
-  <script defer src="i18n.js?v=1041"></script>
-  <script defer src="app.js?v=1028ping"></script>
+  <script defer src="i18n.js?v=1042"></script>
+  <script defer src="app.js?v=1029refund"></script>
 </head>
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -97,6 +97,7 @@
             <div class="balance"><small>我的筹码</small><strong><b id="jtBal">—</b><span id="jtBalUnit">LGNS</span></strong></div>
           </div>
           <div class="jt-ready-row" id="jtReadyRow" hidden><button class="jt-ready-btn" data-action="ready" id="jtReadyBtn">准备</button></div>
+          <div class="jt-ready-row" id="jtRefundRow" hidden><button class="jt-ready-btn" data-action="refund" id="jtRefundBtn">本局卡住了 · 申请退款</button></div>
           <div class="actions" id="jtActions" hidden>
             <button class="action fold" data-action="fold" id="jtFold"><svg class="icon" viewBox="0 0 24 24"><path d="M5 21V3c6-3 8 4 14 0v11c-6 4-8-3-14 0"/></svg><span>弃牌</span></button>
             <button class="action peek" data-action="peek" id="jtPeek"><svg class="icon" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span id="jtPeekSmall">看牌</span></button>
