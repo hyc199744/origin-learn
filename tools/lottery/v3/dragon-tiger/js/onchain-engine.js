@@ -41,7 +41,14 @@
   async function rpcRead(method,params){
     const r=await fetch(CFG.rpc,{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});
-    const j=await r.json(); if(j.error)throw new Error(j.error.message||'rpc'); return j.result;
+    const j=await r.json();
+    if(j.error){ const e=new Error((j.error.message||'rpc')+' '+revertReason(j.error.data)); e.data=j.error.data; throw e; }
+    return j.result;
+  }
+  // 解析合约 require 的失败原因(Error(string) 0x08c379a0),把 NOT_BETTING/POOL_LOW 这类字符串挖出来
+  function revertReason(data){
+    try{ let h=typeof data==='string'?data:(data&&data.data)||''; h=h.replace(/^0x/,''); if(!h.startsWith('08c379a0'))return '';
+      const len=parseInt(h.slice(8+64,8+128),16); const hex=h.slice(8+128,8+128+len*2); let s=''; for(let i=0;i<hex.length;i+=2)s+=String.fromCharCode(parseInt(hex.slice(i,i+2),16)); return s; }catch(e){ return ''; }
   }
   const callRead=(to,data)=>rpcRead('eth_call',[{to,data},'latest']);
   const callProxy=sel=>callRead(CFG.proxy,sel);
@@ -104,6 +111,20 @@
       if(!SIDES.includes(side)||!Number.isSafeInteger(amount)||amount<=0)throw Error('请选择有效筹码');
       if(amount>this.available())throw Error('LGNS 余额不足');
       this.state.pending[side]+=amount;this.state.undo.push({side,amount});this.emit();
+      // 首次玩:一放筹码就先把授权做掉(只此一次),别等到点"确认"才授权——授权+下注两笔钱包确认会把约30秒的下注窗口耗光
+      if(this.allowanceRaw===0n) this._ensureApproval();
+    }
+    async _ensureApproval(){
+      if(this._approving||!this.addr||this.allowanceRaw>0n)return; this._approving=true;
+      try{
+        const prov=this.wallet&&this.wallet.provider; if(!prov)return;
+        this.toast('首次下注需先授权一次（以后不再弹），请在钱包确认');
+        const gp=await rpcRead('eth_gasPrice',[]).catch(()=>null);
+        const tx={from:this.addr,to:CFG.lgns,data:SEL.approve+addr32(CFG.proxy)+u256(APPROVE_RAW)}; if(gp){tx.gasPrice=gp;tx.type='0x0';}
+        const h=await prov.request({method:'eth_sendTransaction',params:[tx]});
+        await this._waitTx(h); this.allowanceRaw=APPROVE_RAW; this.toast('授权成功，可以下注了');
+      }catch(e){ this.toast(this._explain(e)); }
+      finally{ this._approving=false; }
     }
     undo(){this.assertBetting();const it=this.state.undo.pop();if(it){this.state.pending[it.side]-=it.amount;this.emit();}}
     clear(){this.assertBetting();this.state.pending=empty();this.state.undo=[];this.emit();}
@@ -128,7 +149,12 @@
       for(const s of SIDES)if(pend[s]>0&&minApp>0&&pend[s]<minApp){this.toast('单区最低 '+(minApp/100).toFixed(2)+' LGNS');return false;}
       const rid=this.state.round;
       const prov=this.wallet&&this.wallet.provider; if(!prov){this.toast('钱包不可用');return false;}
-      const send=(to,data)=>prov.request({method:'eth_sendTransaction',params:[{from:this.addr,to,data}]});
+      // 奖池可接上限(合约 POOL_LOW 规则:本轮最大赔付≤合约余额):单人押龙/虎≤可用奖池,押和≤可用奖池/15
+      { const free=rawToApp(this.freeRaw||0n); const capDT=free, capTie=Math.floor(free/15);
+        if((pend.dragon>capDT)||(pend.tiger>capDT))return this._fail('奖池只能接龙/虎单注 ≤ '+(capDT/100).toFixed(2)+' LGNS，请减少筹码');
+        if(pend.tie>capTie)return this._fail(capTie>0?('奖池只能接和局注 ≤ '+(capTie/100).toFixed(2)+' LGNS'):'当前奖池太小，暂不能押和（赔16倍需奖池≥'+(rawToApp(this.minBetRaw)*16/100).toFixed(0)+' LGNS）'); }
+      const gp=await rpcRead('eth_gasPrice',[]).catch(()=>null);
+      const send=(to,data)=>{ const tx={from:this.addr,to,data}; if(gp){tx.gasPrice=gp;tx.type='0x0';} return prov.request({method:'eth_sendTransaction',params:[tx]}); }; // Anubis 只认 legacy 交易,显式给 gasPrice 省得钱包自己猜
       try{
         this.state.notice='等待钱包确认…';this.emit();
         const totalRaw=appToRaw(total);
@@ -139,8 +165,13 @@
         }
         for(const s of SIDES){
           const amt=pend[s]; if(amt<=0)continue;
-          this.toast('请在钱包确认下注：'+({dragon:'龙',tiger:'虎',tie:'和'}[s]));
+          // 每笔下注前:①看本轮还剩几个块,不够钱包确认的时间就别发(否则钱包里才确认链上已封盘,白白失败);②先 eth_call 模拟一遍,拿到合约真实的拒绝原因
+          const [blkHex,rdHex]=await Promise.all([rpcRead('eth_blockNumber',[]),callProxy(SEL.getRound+u256(rid))]);
+          const left=decRound(rdHex).betEnd-Number(BigInt(blkHex));
+          if(left<6)throw Error('TIME_LEFT');
           const data=SEL.placeBet+u256(rid)+u256(AREA[s])+u256(appToRaw(amt));
+          await rpcRead('eth_call',[{from:this.addr,to:CFG.proxy,data},'latest']); // 会 revert 就在这抛出 NOT_BETTING/POOL_LOW 等原因
+          this.toast('请在钱包确认下注：'+({dragon:'龙',tiger:'虎',tie:'和'}[s])+'（剩约 '+left+' 秒）');
           const h=await send(CFG.proxy,data); await this._waitTx(h);
         }
         this.state.pending=empty();this.state.undo=[];this.state.notice='下注成功，等待自动开奖…';
@@ -160,12 +191,17 @@
       }
       throw Error('交易确认超时');
     }
+    _fail(msg){ this.state.notice='下注未完成';this.emit();this.toast(msg);return false; }
     _explain(e){
-      const m=((e&&(e.message||''))+'').toLowerCase();
+      const m=((e&&(e.message||''))+' '+revertReason(e&&e.data)).toLowerCase();
       if(m.includes('user rejected')||m.includes('denied')||(e&&e.code===4001))return '已取消';
-      if(m.includes('pool_low'))return '奖池不足，无法接受该注';
+      if(m.includes('time_left'))return '本轮剩余时间不够钱包确认了，请等下一轮开盘后尽早下注';
+      if(m.includes('pool_low'))return '奖池不足，接不了这么大的注，请减少筹码';
       if(m.includes('min_bet'))return '低于单注下限';
-      if(m.includes('not_betting')||m.includes('closed'))return '本轮已封盘';
+      if(m.includes('house_no_bet'))return '庄家钱包不能下注，请换一个钱包';
+      if(m.includes('not_betting')||m.includes('closed'))return '本轮已封盘，请等下一轮';
+      if(m.includes('full'))return '本轮注单已满';
+      if(m.includes('tf_fail')||m.includes('transfer'))return 'LGNS 扣款失败：余额或授权不足';
       if(m.includes('paused'))return '游戏已暂停';
       if(m.includes('insufficient'))return 'gas(DAI)或余额不足';
       return (e&&e.message)?e.message.slice(0,80):'操作未完成';
@@ -204,8 +240,8 @@
     async _poll(){
       if(this._polling)return;this._polling=true;this._lastPoll=this.now();
       try{
-        const [blkHex,rcHex]=await Promise.all([rpcRead('eth_blockNumber',[]),callProxy(SEL.roundCount)]);
-        const block=Number(BigInt(blkHex)); const roundCount=Number(BigInt(rcHex));
+        const [blkHex,rcHex,freeHex]=await Promise.all([rpcRead('eth_blockNumber',[]),callProxy(SEL.roundCount),callProxy(SEL.freeBankroll).catch(()=>null)]);
+        const block=Number(BigInt(blkHex)); const roundCount=Number(BigInt(rcHex)); if(freeHex)this.freeRaw=BigInt(freeHex);
         if(this.addr&&(this.now()%6000<POLL_MS))this._refreshWallet();
         if(roundCount===0){this._setPhase('WAITING',0,block,null);this._polling=false;return;}
         let rid=roundCount, rd=decRound(await callProxy(SEL.getRound+u256(rid)));
@@ -248,7 +284,9 @@
         s.phaseStarted=this.now();
         if(phase==='BETTING'&&rd){const left=Math.max(0,(rd.betEnd-block))*BLOCK_MS;s.deadline=this.now()+Math.max(left,800);this.durations.BETTING=Math.max(s.deadline-s.phaseStarted,1000);}
         else{s.deadline=this.now()+(this.durations[phase]||3000);}
-        s.notice=({WAITING:'等待开局…',BETTING:'请选择筹码，点击龙 / 和 / 虎下注',LOCKED:'停止下注，准备发牌',DEALING:'发牌中…',REVEALING:'开牌结算中…',SETTLEMENT:'本轮已结算'})[phase]||'';
+        const free=rawToApp(this.freeRaw||0n), capTie=Math.floor(free/15);
+        const capTxt=free>0?('（本轮奖池可接：龙/虎单注≤'+(free/100).toFixed(0)+'，和'+(capTie>=rawToApp(this.minBetRaw)?('≤'+(capTie/100).toFixed(0)):'暂不可押')+' LGNS）'):'';
+        s.notice=({WAITING:'等待开局…',BETTING:'请选择筹码，点击龙 / 和 / 虎下注'+capTxt,LOCKED:'停止下注，准备发牌',DEALING:'发牌中…',REVEALING:'开牌结算中…',SETTLEMENT:'本轮已结算'})[phase]||'';
         this._roundPhaseKey=key; this.emit();
       }else if(phase==='BETTING'&&rd){
         const left=Math.max(0,(rd.betEnd-block))*BLOCK_MS;s.deadline=this.now()+Math.max(left,0);
