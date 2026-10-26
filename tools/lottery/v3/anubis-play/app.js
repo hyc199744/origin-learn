@@ -261,6 +261,7 @@
 
   function onState(m){
     pending=false; clearTimeout(window._pt); // 新状态到达,解除"处理中"
+    try{ if(m.phase===2 && !nz(m.turnAddr) && m.players && m.players[m.turn]) m.turnAddr=m.players[m.turn].addr; }catch(e){} // 兜底:该谁行动按座位号自己算,服务器读链抖一下不至于按钮全灰等超时
     if(joining && m.players.some(p=>isMe(p.addr))){ joining=false; clearTimeout(window._jt); } // 真座位已上链,撤销乐观占位
     // 事件推断(弃牌/看牌),让"牌局动态"真实
     if(prevPlayers){
@@ -539,7 +540,12 @@
   function doFold(){ const wl=pendingLook;pendingLook=false; optimFold(); act('fold',{withLook:wl}); logAct('你 弃牌'); setPending('已弃牌'); render(); }
   function doPeek(){ // 看牌=纯本地翻牌(牌已在本地),不单独上链;看完按钮仍可点,look与下一步动作打包上链
     if(myLookedLocal)return;
-    if(!myCards){ act('look'); setPending('看牌中…'); return; } // 兜底:牌还没到,走独立look
+    if(!myCards){ // 牌还没推到(刚发牌那一两秒):最多等1.5s,到了就本地翻;实在没到才走独立look上链(以前立刻上链,多一笔交易多等3秒)
+      setPending('看牌中…'); const h=curHand; let n=0;
+      const w=setInterval(()=>{ n++; if(curHand!==h||myLookedLocal){ clearInterval(w); return; }
+        if(myCards){ clearInterval(w); pending=false; clearTimeout(window._pt); doPeek(); }
+        else if(n>=15){ clearInterval(w); if(pending) act('look'); } },100);
+      return; }
     myLookedLocal=true; pendingLook=true; try{localStorage.setItem('ap_look_'+curHand,'1');}catch(e){} playSound('card'); render(); // 记住"已看牌",返回再进不丢
   }
   function doCall(){ const wl=pendingLook;pendingLook=false; optimBet(0n); act('call',{withLook:wl}); playSound(); logAct('你 跟注'); setPending('已跟注，等其他玩家…'); render(); }
@@ -583,8 +589,20 @@
       const el=$('mw_bal_'+t.key); if(el)el.innerHTML=s+' <small>'+t.sym+'</small>';
     }));
   }
-  // 画收款二维码(我的钱包地址);库没加载成功就退化成显示地址文字
-  function renderQRInto(boxId){ try{ const box=$(boxId); if(!box||!myAddr)return; box.innerHTML=''; if(window.QRCode){ new window.QRCode(box,{text:myAddr,width:160,height:160,colorDark:'#0b0f0d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); } else { box.innerHTML='<div style="color:#111;font-size:11px;word-break:break-all;padding:6px">'+esc(myAddr)+'</div>'; } }catch(e){} }
+  // 按需加载脚本库(二维码/扫码库只在用到时才下载,不占首屏关键路径;以前 jsQR 257KB+cdnjs 的 qrcode 都挡在 app.js 前面)
+  const _lazy={};
+  function ensureLib(key,src,ready){
+    if(ready()) return Promise.resolve();
+    if(!_lazy[key]) _lazy[key]=new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.async=true; s.onload=()=>ready()?res():rej(new Error('bad lib')); s.onerror=()=>rej(new Error('load fail')); document.head.appendChild(s); }).catch(e=>{ _lazy[key]=null; throw e; });
+    return _lazy[key];
+  }
+  // 画收款二维码(我的钱包地址);库(本目录自托管 qrcode.min.js)没加载成功就退化成显示地址文字
+  function renderQRInto(boxId){
+    const box=$(boxId); if(!box||!myAddr)return;
+    box.innerHTML='<div style="color:#666;font-size:11px;padding:6px">生成中…</div>';
+    ensureLib('qr','qrcode.min.js?v=1',()=>!!window.QRCode).then(()=>{ const b=$(boxId); if(!b||!myAddr)return; b.innerHTML=''; new window.QRCode(b,{text:myAddr,width:160,height:160,colorDark:'#0b0f0d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); })
+      .catch(()=>{ const b=$(boxId); if(b) b.innerHTML='<div style="color:#111;font-size:11px;word-break:break-all;padding:6px">'+esc(myAddr)+'</div>'; });
+  }
   function renderWalletQR(){ renderQRInto('mw_qr'); }
   // ---- 「我的」转账:标准ERC20 transfer,从本人钱包直接发到对方地址(4个游戏币任选);纯链上,带二次确认+钱包签名双保险 ----
   let sendOpen=false,sendTok='lgns';
@@ -619,7 +637,7 @@
     const o=$('apScan'); if(o){ try{o.close();}catch(e){} o.remove(); }
   }
   async function openScanner(){
-    if(typeof jsQR!=='function'){ toast('扫码组件没加载,刷新页面重试'); return; }
+    if(typeof jsQR!=='function'){ toast('正在加载扫码组件…'); try{ await ensureLib('jsqr','jsQR.js?v=1',()=>typeof jsQR==='function'); }catch(e){ toast('扫码组件加载失败,请手动粘贴地址'); return; } }
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ toast('这个浏览器不支持摄像头,请手动粘贴地址'); return; }
     const o=document.createElement('dialog'); o.id='apScan';
     o.style.cssText='padding:0;border:0;margin:0;max-width:100vw;max-height:100vh;width:100vw;height:100vh;background:#000;overflow:hidden';
