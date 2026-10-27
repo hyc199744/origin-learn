@@ -93,3 +93,8 @@ body{padding-top:42px}
 .win-pop .win-sub{font-size:13px;color:var(--muted,#9a8f70)}
 @keyframes winFade{from{opacity:0}}
 @keyframes winPop{0%{transform:scale(.55) translateY(10px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+
+/* 英文版:Dragon/Tiger 比单字龙/虎宽,缩小下注区大字,赔率小字不换行,顶栏标题不截断 */
+html[lang="en"] .zone-title strong{font-size:20px;letter-spacing:0}
+html[lang="en"] .zone-title small{white-space:nowrap}
+@media(max-width:480px){html[lang="en"] .zone-title strong{font-size:17px}}
