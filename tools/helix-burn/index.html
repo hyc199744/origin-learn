@@ -52,7 +52,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div class="row"><span>授权 PowerLedger</span><span id="alw">—</span></div>
   <div class="row"><span>Gas（DAI）</span><span id="gas">—</span></div>
   <div class="row"><span>结论</span><span id="verdict">—</span></div>
-  <button class="btn sec block" id="btnApprove" disabled>授权 500 LGNS（每次只授本次用量）</button>
+  <button class="btn sec block" id="btnApprove" disabled>授权 600 LGNS</button>
 </div>
 
 <div class="card">
@@ -77,7 +77,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 const RPC='https://rpc.anubispace.org', CHAIN_ID=6714, CHAIN_HEX='0x1a3a';
 const A={LGNS:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',LEDGER:'0x9E68F61E2615cc1D2C4a2D0026bFc1EBFdf68C1b',GATE:'0xb975Fd9B03fF440d6a43a52A7F072154CB520a4B',LENS:'0xa69a60b8d97D43031C00F16742Eb6989553796fc',CLOCK:'0x6C5352E15A8327C3F44898FE220100Edc2989C58'};
 const SEL={burnForPower:'0xffa6b88a',maximumLgns:'0x7300b78e',minimumStake:'0xec5ffac2',dailyMaximumLgns:'0x020bb577',burnedLgnsToday:'0xcb9ebaf2',stakeOf:'0x42623360',burnEpochOf:'0x99e02c2d',currentDay:'0x5c9302c9',dayStart:'0x65b09d2d',currentEpoch:'0x76671808',remaining:'0xf77c6cce',balanceOf:'0x70a08231',allowance:'0xdd62ed3e',approve:'0x095ea7b3'};
-const AMOUNT=500n*10n**9n; const MAXU=(1n<<256n)-1n;
+const AMOUNT=500n*10n**9n; const APPROVE_AMT=600n*10n**9n; /* 老板定:每次授权600,烧仍是合约规定的500 */
 const $=id=>document.getElementById(id);
 const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);};
 const u256=n=>BigInt(n).toString(16).padStart(64,'0'); const addr32=a=>a.toLowerCase().replace(/^0x/,'').padStart(64,'0');
@@ -144,7 +144,7 @@ async function sendTx(to,data,gasMult){
 async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||120000)){const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;await new Promise(r=>setTimeout(r,350));}return null;}
 
 async function doApprove(){
-  try{log('请在钱包确认授权 LGNS → PowerLedger');const h=await sendTx(A.LGNS,SEL.approve+addr32(A.LEDGER)+u256(AMOUNT),1);log('授权已广播 '+h);const r=await waitTx(h);log(r&&r.status==='0x1'?'授权成功 ✓':'授权失败 ✗',r&&r.status==='0x1'?'ok':'bad');await loadWallet();}catch(e){log('授权：'+(e.message||e),'bad');}
+  try{log('请在钱包确认授权 LGNS → PowerLedger');const h=await sendTx(A.LGNS,SEL.approve+addr32(A.LEDGER)+u256(APPROVE_AMT),1);log('授权已广播 '+h);const r=await waitTx(h);log(r&&r.status==='0x1'?'授权成功 ✓':'授权失败 ✗',r&&r.status==='0x1'?'ok':'bad');await loadWallet();}catch(e){log('授权：'+(e.message||e),'bad');}
 }
 
 async function attempt(){
