@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0e1116">
+<title>Helix 抢烧助手</title>
+<style>
+:root{--bg:#0e1116;--card:#171c23;--line:#ffffff18;--text:#e9eef3;--muted:#93a0ad;--ok:#5fd08a;--bad:#ff7a7a;--warn:#f0c060;--acc:#8b7cff}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font:15px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;padding:14px 14px calc(96px + env(safe-area-inset-bottom))}
+h1{font-size:20px;margin:0 0 2px}.sub{color:var(--muted);font-size:12px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);align-items:center}.row:last-child{border:0}
+.row span:first-child{color:var(--muted);flex:0 0 auto}.row span:last-child{text-align:right;word-break:break-all}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.big{font-size:44px;font-weight:800;letter-spacing:1px;text-align:center;margin:4px 0;font-variant-numeric:tabular-nums}
+.btn{display:inline-block;border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;cursor:pointer;color:#fff;background:var(--acc);margin:4px 6px 4px 0;min-height:48px}
+.btn.sec{background:#2a3140}.btn.danger{background:#b4433f}.btn:disabled{opacity:.4}
+.btn.block{display:block;width:100%;margin:6px 0}
+#log{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b0e12;border-radius:10px;padding:10px;max-height:220px;overflow:auto;white-space:pre-wrap;color:#cfd8e3}
+.note{font-size:12px;color:var(--muted)}
+select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:14px}
+.dock{position:fixed;left:0;right:0;bottom:0;background:#11161dee;backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px}
+.dock .btn{flex:1;margin:0}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#2a3140}
+</style>
+</head>
+<body>
+<h1>Helix 抢烧助手</h1>
+<div class="sub">烧 500 LGNS 换 2 倍算力。请在钱包 App 的内置浏览器里打开本页；私钥始终在钱包里，每笔交易都要你在钱包点确认。</div>
+
+<div class="card">
+  <div class="row"><span>钱包</span><span id="addr">未连接</span></div>
+  <div class="row"><span>链</span><span id="chain">—</span></div>
+  <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
+</div>
+
+<div class="card">
+  <div class="row"><span>下一次开放（链上时钟）</span><span id="nextOpen">—</span></div>
+  <div class="big" id="countdown">--:--:--</div>
+  <div class="row"><span>今日已烧 / 上限</span><span id="quota">—</span></div>
+  <div class="row"><span>本机-链时钟偏差</span><span id="skew">—</span></div>
+</div>
+
+<div class="card">
+  <div style="font-weight:700;margin-bottom:4px">资格检查</div>
+  <div class="row"><span>长期质押合计（需≥20,000）</span><span id="stake">—</span></div>
+  <div class="row"><span>本 Epoch 已烧过？</span><span id="epoch">—</span></div>
+  <div class="row"><span>LGNS 余额（需≥500）</span><span id="bal">—</span></div>
+  <div class="row"><span>授权 PowerLedger</span><span id="alw">—</span></div>
+  <div class="row"><span>Gas（DAI）</span><span id="gas">—</span></div>
+  <div class="row"><span>结论</span><span id="verdict">—</span></div>
+  <button class="btn sec block" id="btnApprove" disabled>授权 LGNS（只需一次）</button>
+</div>
+
+<div class="card">
+  <div style="font-weight:700;margin-bottom:4px">抢烧设置</div>
+  <div class="row"><span>提前弹签名</span><span><select id="lead"><option value="1000">1 秒</option><option value="2000" selected>2 秒（手机推荐）</option><option value="3000">3 秒</option></select></span></div>
+  <div class="row"><span>状态</span><span id="armState">未开启</span></div>
+  <div class="note">开启后请保持本页在前台、钱包已解锁、别锁屏。到点前会自动弹出钱包签名并震动提醒，点"确认"即可；若那笔落在开放前一个块被拒，会马上再弹一次。额度约 40 秒抢光。</div>
+</div>
+
+<div class="card"><div style="font-weight:700;margin-bottom:4px">日志</div><div id="log"></div></div>
+
+<div class="dock">
+  <button class="btn sec" id="btnConnect">连接钱包</button>
+  <button class="btn" id="btnArm" disabled>开启自动抢</button>
+  <button class="btn danger" id="btnNow" disabled>立刻发</button>
+  <button class="btn sec" id="btnStop">停</button>
+</div>
+
+<script>
+(function(){
+'use strict';
+const RPC='https://rpc.anubispace.org', CHAIN_ID=6714, CHAIN_HEX='0x1a3a';
+const A={LGNS:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',LEDGER:'0x9E68F61E2615cc1D2C4a2D0026bFc1EBFdf68C1b',GATE:'0xb975Fd9B03fF440d6a43a52A7F072154CB520a4B',LENS:'0xa69a60b8d97D43031C00F16742Eb6989553796fc',CLOCK:'0x6C5352E15A8327C3F44898FE220100Edc2989C58'};
+const SEL={burnForPower:'0xffa6b88a',maximumLgns:'0x7300b78e',minimumStake:'0xec5ffac2',dailyMaximumLgns:'0x020bb577',burnedLgnsToday:'0xcb9ebaf2',stakeOf:'0x42623360',burnEpochOf:'0x99e02c2d',currentDay:'0x5c9302c9',dayStart:'0x65b09d2d',currentEpoch:'0x76671808',remaining:'0xf77c6cce',balanceOf:'0x70a08231',allowance:'0xdd62ed3e',approve:'0x095ea7b3'};
+const AMOUNT=500n*10n**9n; const MAXU=(1n<<256n)-1n;
+const $=id=>document.getElementById(id);
+const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);};
+const u256=n=>BigInt(n).toString(16).padStart(64,'0'); const addr32=a=>a.toLowerCase().replace(/^0x/,'').padStart(64,'0');
+const f9=v=>(Number(v)/1e9).toLocaleString('en-US',{maximumFractionDigits:2}); const f18=v=>(Number(v)/1e18).toFixed(3);
+const bj=ts=>{const d=new Date(ts*1000+8*3600e3);return d.toISOString().replace('T',' ').slice(0,19)+' 北京';};
+const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p||[200,100,200]);}catch(e){}};
+
+let me=null, eth=null, skew=0, nextStart=0, st={}, armed=false, racing=false, armTimer=null, attempts=0, won=false, wakeLock=null;
+
+async function rpc(method,params){const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});const j=await r.json();if(j.error){const e=new Error(j.error.message||'rpc');e.data=j.error.data;throw e;}return j.result;}
+const call=(to,data)=>rpc('eth_call',[{to,data},'latest']);
+const big=h=>BigInt(h&&h!=='0x'?h:'0x0');
+function reason(e){try{let h=(e&&(e.data&&(e.data.data||e.data)))||'';h=String(h).replace(/^0x/,'');if(h.startsWith('08c379a0')){const len=parseInt(h.slice(72,136),16);const hex=h.slice(136,136+len*2);let s='';for(let i=0;i<hex.length;i+=2)s+=String.fromCharCode(parseInt(hex.slice(i,i+2),16));return s;}}catch(x){}return (e&&e.message)||String(e);}
+
+async function keepAwake(){ try{ if('wakeLock' in navigator){ wakeLock=await navigator.wakeLock.request('screen'); $('wake').innerHTML='<span class="ok">已开启 ✓</span>'; wakeLock.addEventListener('release',()=>{$('wake').innerHTML='<span class="warn">已释放（切回本页会重新申请）</span>';}); } else { $('wake').innerHTML='<span class="warn">浏览器不支持，请手动把自动锁屏调长</span>'; } }catch(e){ $('wake').innerHTML='<span class="warn">未能开启：'+(e.message||e)+'</span>'; } }
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ if(armed||me) keepAwake(); syncClock().catch(()=>{}); } });
+
+async function syncClock(){const b=await rpc('eth_getBlockByNumber',['latest',false]);const ts=parseInt(b.timestamp,16);skew=Math.floor(Date.now()/1000)-ts;$('skew').textContent=skew+' 秒';return ts;}
+const chainNow=()=>Date.now()/1000-skew;
+
+async function loadState(){
+  try{
+    const [day,epoch,maxL,minStake,dailyMax,burned]=await Promise.all([call(A.CLOCK,SEL.currentDay),call(A.CLOCK,SEL.currentEpoch),call(A.GATE,SEL.maximumLgns),call(A.GATE,SEL.minimumStake),call(A.GATE,SEL.dailyMaximumLgns),call(A.GATE,SEL.burnedLgnsToday)]);
+    const ns=await call(A.CLOCK,SEL.dayStart+u256(big(day)+1n));
+    let remain=null;try{remain=big(await call(A.LENS,SEL.remaining));}catch(e){}
+    st={day:Number(big(day)),epoch:Number(big(epoch)),maxL:big(maxL),minStake:big(minStake),dailyMax:big(dailyMax),burned:big(burned),remain};
+    nextStart=Number(big(ns));
+    $('nextOpen').textContent=bj(nextStart);
+    $('quota').innerHTML=f9(st.burned)+' / '+f9(st.dailyMax)+(st.remain!==null?('，剩余 <b class="'+(st.remain>0n?'ok':'bad')+'">'+f9(st.remain)+'</b>'):'');
+    await syncClock();
+    if(me) await loadWallet();
+  }catch(e){log('读链失败：'+reason(e),'bad');}
+}
+async function loadWallet(){
+  const [stake,bEp,bal,alw,gas]=await Promise.all([call(A.GATE,SEL.stakeOf+addr32(me)),call(A.GATE,SEL.burnEpochOf+addr32(me)),call(A.LGNS,SEL.balanceOf+addr32(me)),call(A.LGNS,SEL.allowance+addr32(me)+addr32(A.LEDGER)),rpc('eth_getBalance',[me,'latest'])]);
+  const S=big(stake),E=Number(big(bEp)),B=big(bal),W=big(alw),G=big(gas);
+  const okStake=S>=st.minStake, okEp=!(E!==0&&E>=st.epoch), okBal=B>=AMOUNT, okAlw=W>=AMOUNT, okGas=G>=10n**17n;
+  $('stake').innerHTML='<span class="'+(okStake?'ok':'bad')+'">'+f9(S)+' LGNS'+(okStake?' ✓':' ✗ 不够')+'</span>';
+  $('epoch').innerHTML='<span class="'+(okEp?'ok':'bad')+'">'+(okEp?'没烧过 ✓（Epoch '+st.epoch+'）':'已烧过 ✗（记录 Epoch '+E+'）')+'</span>';
+  $('bal').innerHTML='<span class="'+(okBal?'ok':'bad')+'">'+f9(B)+(okBal?' ✓':' ✗')+'</span>';
+  $('alw').innerHTML='<span class="'+(okAlw?'ok':'warn')+'">'+(W>(1n<<200n)?'无限 ✓':f9(W)+(okAlw?' ✓':' ✗ 需授权'))+'</span>';
+  $('gas').innerHTML='<span class="'+(okGas?'ok':'bad')+'">'+f18(G)+(okGas?' ✓':' ✗ 太少')+'</span>';
+  const eligible=okStake&&okEp&&okBal&&okAlw&&okGas;
+  $('verdict').innerHTML=eligible?'<b class="ok">有资格，可以抢</b>':'<b class="bad">暂不满足，合约会拒绝</b>';
+  $('btnApprove').disabled=okAlw; $('btnArm').disabled=!eligible; $('btnNow').disabled=!eligible;
+  return eligible;
+}
+
+async function connect(){
+  eth=window.ethereum; if(!eth){log('没检测到钱包：请用 OKX / TokenPocket / imToken 等钱包 App 的内置浏览器打开本页','bad');return;}
+  try{
+    const accs=await eth.request({method:'eth_requestAccounts'}); me=accs[0]; $('addr').textContent=me.slice(0,8)+'…'+me.slice(-6);
+    let cid=parseInt(await eth.request({method:'eth_chainId'}),16);
+    if(cid!==CHAIN_ID){ try{ await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_HEX}]}); }catch(e){ if(e&&e.code===4902){ await eth.request({method:'wallet_addEthereumChain',params:[{chainId:CHAIN_HEX,chainName:'Anubis',rpcUrls:[RPC],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:['https://browser.anubispace.org']}]}); } else throw e; } cid=parseInt(await eth.request({method:'eth_chainId'}),16); }
+    $('chain').innerHTML=cid===CHAIN_ID?'<span class="ok">Anubis (6714) ✓</span>':'<span class="bad">链不对：'+cid+'，请在钱包切到 Anubis</span>';
+    eth.on&&eth.on('accountsChanged',()=>location.reload()); eth.on&&eth.on('chainChanged',()=>location.reload());
+    log('已连接 '+me); keepAwake(); await loadState();
+  }catch(e){log('连接失败：'+(e.message||e),'bad');}
+}
+async function sendTx(to,data,gasMult){
+  const gp=BigInt(await rpc('eth_gasPrice',[]))*BigInt(Math.round((gasMult||1)*10))/10n;
+  return eth.request({method:'eth_sendTransaction',params:[{from:me,to,data,type:'0x0',gasPrice:'0x'+gp.toString(16),gas:'0x'+(450000).toString(16)}]});
+}
+async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||120000)){const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;await new Promise(r=>setTimeout(r,350));}return null;}
+
+async function doApprove(){
+  try{log('请在钱包确认授权 LGNS → PowerLedger');const h=await sendTx(A.LGNS,SEL.approve+addr32(A.LEDGER)+u256(MAXU),1);log('授权已广播 '+h);const r=await waitTx(h);log(r&&r.status==='0x1'?'授权成功 ✓':'授权失败 ✗',r&&r.status==='0x1'?'ok':'bad');await loadWallet();}catch(e){log('授权：'+(e.message||e),'bad');}
+}
+
+async function attempt(){
+  attempts++;
+  try{
+    buzz(); log('第 '+attempts+' 笔：请在钱包点确认（烧 500 LGNS）','warn');
+    const h=await sendTx(A.LEDGER,SEL.burnForPower+u256(AMOUNT),2);
+    log('已广播 '+h);
+    const r=await waitTx(h,90000);
+    if(!r){log('90 秒没回执，可能网络卡了','bad');return 'fail';}
+    if(r.status==='0x1'){won=true;buzz([100,50,100,50,400]);log('🎉 抢到了！区块 '+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
+    let why='';try{await rpc('eth_call',[{from:me,to:A.LEDGER,data:SEL.burnForPower+u256(AMOUNT)},'latest']);}catch(e){why=reason(e);}
+    log('这笔被拒（'+(why||'未知原因')+'）','bad');
+    if(/epoch|already/i.test(why)){won=true;log('合约说本 Epoch 已烧过 → 之前那笔应已成功，停止','ok');return 'win';}
+    return 'fail';
+  }catch(e){ if(e&&(e.code===4001||/reject|denied|cancel/i.test(e.message||''))){log('你取消了签名','warn');return 'rejected';} log('发送出错：'+(e.message||e),'bad');return 'fail'; }
+}
+async function race(){
+  if(racing)return; racing=true; won=false; attempts=0; $('armState').textContent='抢烧中…';
+  try{
+    while(!won && attempts<8 && chainNow()<nextStart+75){
+      const r=await attempt();
+      if(r==='win'||r==='rejected')break;
+      if(chainNow()>nextStart+45){ try{await rpc('eth_call',[{from:me,to:A.LEDGER,data:SEL.burnForPower+u256(AMOUNT)},'latest']);}catch(e){ if(/daily maximum/i.test(reason(e))){log('今天额度已经满了，下次再来','bad');break;} } }
+    }
+  } finally { racing=false; armed=false; $('armState').textContent=won?'成功 🎉':'已结束'; await loadState(); }
+}
+function arm(){
+  if(armed)return; armed=true; keepAwake();
+  const lead=Number($('lead').value)||2000;
+  $('armState').innerHTML='<span class="ok">已开启</span>，到点前 '+(lead/1000)+' 秒弹签名';
+  log('自动抢已开启：'+bj(nextStart)+' 前 '+(lead/1000)+' 秒弹出钱包签名。保持本页在前台、钱包已解锁、别锁屏。');
+  clearInterval(armTimer);
+  armTimer=setInterval(()=>{ if(!armed){clearInterval(armTimer);return;} if(nextStart-chainNow()<=lead/1000){ clearInterval(armTimer); race(); } },100);
+}
+function stop(){armed=false;clearInterval(armTimer);$('armState').textContent='已停止';log('已停止自动抢');}
+function tick(){ if(!nextStart)return; const left=Math.max(0,Math.floor(nextStart-chainNow())); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s; $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
+
+$('btnConnect').onclick=connect; $('btnApprove').onclick=doApprove; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
+$('btnNow').onclick=()=>{ if(racing)return; log('手动：立刻发一笔'); racing=true; attempt().finally(()=>{racing=false;loadState();}); };
+setInterval(tick,250); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!racing) loadState(); },60000);
+loadState().then(()=>{ if(window.ethereum&&window.ethereum.selectedAddress) connect(); });
+log('页面就绪。先连接钱包，资格检查全绿后再开启自动抢。');
+})();
+</script>
+</body>
+</html>
