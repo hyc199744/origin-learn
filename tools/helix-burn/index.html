@@ -57,7 +57,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 
 <div class="card">
   <div style="font-weight:700;margin-bottom:4px">抢烧设置</div>
-  <div class="row"><span>提前弹签名</span><span><select id="lead"><option value="1000">1 秒</option><option value="2000" selected>2 秒（手机推荐）</option><option value="3000">3 秒</option></select></span></div>
+  <div class="row"><span>弹签名时机</span><span><select id="lead"><option value="-1500" selected>开放后 1.5 秒（推荐）</option><option value="-3000">开放后 3 秒</option><option value="1000">提前 1 秒（高级，可能被拒一次）</option></select></span></div>
   <div class="row"><span>状态</span><span id="armState">未开启</span></div>
   <div class="note">开启后请保持本页在前台、钱包已解锁、别锁屏。到点前会自动弹出钱包签名并震动提醒，点"确认"即可；若那笔落在开放前一个块被拒，会马上再弹一次。额度约 40 秒抢光。</div>
 </div>
@@ -137,11 +137,16 @@ async function connect(){
     log('已连接 '+me); keepAwake(); await loadState();
   }catch(e){log('连接失败：'+(e.message||e),'bad');}
 }
+const isReject=e=>!!(e&&(e.code===4001||e.code==='ACTION_REJECTED'||/reject|denied|cancel|取消|拒绝/i.test(e.message||'')));
 async function sendTx(to,data,gasMult){
-  const gp=BigInt(await rpc('eth_gasPrice',[]))*BigInt(Math.round((gasMult||1)*10))/10n;
-  return eth.request({method:'eth_sendTransaction',params:[{from:me,to,data,type:'0x0',gasPrice:'0x'+gp.toString(16),gas:'0x'+(450000).toString(16)}]});
+  let gp=null; try{ gp=BigInt(await rpc('eth_gasPrice',[]))*BigInt(Math.round((gasMult||1)*10))/10n; }catch(e){}
+  const full={from:me,to,data}; if(gp){ full.gasPrice='0x'+gp.toString(16); full.type='0x0'; full.gas='0x'+(450000).toString(16); }
+  try{ return await eth.request({method:'eth_sendTransaction',params:[full]}); }
+  catch(e){ if(isReject(e)) throw e; log('钱包不接受带 gas 参数的交易（'+(e.message||e).slice(0,60)+'），改用钱包默认参数重发','warn'); return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data}]}); } // 个别钱包对 type/gas 字段挑剔:退回最简参数再试一次
 }
-async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||120000)){const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;await new Promise(r=>setTimeout(r,350));}return null;}
+async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||120000)){try{const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;}catch(e){}await new Promise(r=>setTimeout(r,350));}return null;} // 单次 RPC 失败不中断等待
+async function burnedThisEpoch(){ try{ const e=Number(big(await call(A.GATE,SEL.burnEpochOf+addr32(me)))); return e!==0&&e>=st.epoch; }catch(e){ return false; } } // 链上直接问"本 Epoch 烧过没"=最可靠的成功判定
+async function simulate(){ try{ await rpc('eth_call',[{from:me,to:A.LEDGER,data:SEL.burnForPower+u256(AMOUNT)},'latest']); return ''; }catch(e){ return reason(e)||'unknown'; } }
 
 async function doApprove(){
   try{log('请在钱包确认授权 LGNS → PowerLedger');const h=await sendTx(A.LGNS,SEL.approve+addr32(A.LEDGER)+u256(APPROVE_AMT),1);log('授权已广播 '+h);const r=await waitTx(h);log(r&&r.status==='0x1'?'授权成功 ✓':'授权失败 ✗',r&&r.status==='0x1'?'ok':'bad');await loadWallet();}catch(e){log('授权：'+(e.message||e),'bad');}
@@ -153,32 +158,49 @@ async function attempt(){
     buzz(); log('第 '+attempts+' 笔：请在钱包点确认（烧 500 LGNS）','warn');
     const h=await sendTx(A.LEDGER,SEL.burnForPower+u256(AMOUNT),2);
     log('已广播 '+h);
-    const r=await waitTx(h,90000);
-    if(!r){log('90 秒没回执，可能网络卡了','bad');return 'fail';}
-    if(r.status==='0x1'){won=true;buzz([100,50,100,50,400]);log('🎉 抢到了！区块 '+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
-    let why='';try{await rpc('eth_call',[{from:me,to:A.LEDGER,data:SEL.burnForPower+u256(AMOUNT)},'latest']);}catch(e){why=reason(e);}
-    log('这笔被拒（'+(why||'未知原因')+'）','bad');
-    if(/epoch|already/i.test(why)){won=true;log('合约说本 Epoch 已烧过 → 之前那笔应已成功，停止','ok');return 'win';}
+    const r=await waitTx(h,60000);
+    if(r&&r.status==='0x1'){won=true;buzz([100,50,100,50,400]);log('🎉 抢到了！区块 '+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
+    if(await burnedThisEpoch()){won=true;buzz([100,50,100,50,400]);log('🎉 链上确认本 Epoch 已烧过 → 成功','ok');return 'win';} // 回执丢了/超时也不怕,直接问链
+    if(!r){log('60 秒没拿到回执，链上也没显示成功，可能网络卡了','bad');return 'fail';}
+    const why=await simulate(); log('这笔被拒（'+(why||'未知原因')+'）','bad');
     return 'fail';
-  }catch(e){ if(e&&(e.code===4001||/reject|denied|cancel/i.test(e.message||''))){log('你取消了签名','warn');return 'rejected';} log('发送出错：'+(e.message||e),'bad');return 'fail'; }
+  }catch(e){ if(isReject(e)){log('你取消了签名','warn');return 'rejected';} log('发送出错：'+(e.message||e),'bad'); if(await burnedThisEpoch()){won=true;return 'win';} return 'fail'; }
+}
+// 开放后先模拟:刚过零点那几秒链上最新块可能还是"昨天",会误报额度已满,所以给 8 秒宽限反复模拟;过了宽限还说满才算真满
+async function waitUntilOpenOrFull(){
+  const until=Math.max(chainNow(),nextStart)+8;
+  while(chainNow()<until){ const why=await simulate(); if(!why) return 'open'; if(!/daily maximum/i.test(why)) return why; await new Promise(r=>setTimeout(r,400)); }
+  return 'full';
 }
 async function race(){
-  if(racing)return; racing=true; won=false; attempts=0; $('armState').textContent='抢烧中…';
+  if(racing)return; racing=true; won=false; attempts=0; let rejects=0; $('armState').textContent='抢烧中…';
   try{
+    if(await burnedThisEpoch()){ won=true; log('这个钱包本 Epoch 已经烧过了，不用再抢','ok'); return; }
+    if(chainNow()>=nextStart-0.2){ // 开放后触发:先确认链上真开了、资格真没问题,再弹钱包(避免钱包里出现"交易可能失败"的红字)
+      const s=await waitUntilOpenOrFull();
+      if(s==='full'){ log('今天额度已经满了，下次再来','bad'); return; }
+      if(s!=='open'){ log('合约拒绝：'+s+'（不弹钱包了，先把这个问题解决）','bad'); return; }
+      log('链上已开放且模拟通过，弹钱包…','ok');
+    } else log('提前触发：第一笔可能落在开放前被拒，被拒会立刻再弹一次','warn');
     while(!won && attempts<8 && chainNow()<nextStart+75){
       const r=await attempt();
-      if(r==='win'||r==='rejected')break;
-      if(chainNow()>nextStart+45){ try{await rpc('eth_call',[{from:me,to:A.LEDGER,data:SEL.burnForPower+u256(AMOUNT)},'latest']);}catch(e){ if(/daily maximum/i.test(reason(e))){log('今天额度已经满了，下次再来','bad');break;} } }
+      if(r==='win')break;
+      if(r==='rejected'){ rejects++; if(rejects>=2){log('连续两次取消，停止。想继续点"立刻发"','warn');break;} log('再弹一次，这次请点确认','warn'); continue; }
+      if(chainNow()>nextStart+45){ const why=await simulate(); if(/daily maximum/i.test(why)){log('今天额度已经满了，下次再来','bad');break;} }
     }
   } finally { racing=false; armed=false; $('armState').textContent=won?'成功 🎉':'已结束'; await loadState(); }
 }
-function arm(){
-  if(armed)return; armed=true; keepAwake();
-  const lead=Number($('lead').value)||2000;
-  $('armState').innerHTML='<span class="ok">已开启</span>，到点前 '+(lead/1000)+' 秒弹签名';
-  log('自动抢已开启：'+bj(nextStart)+' 前 '+(lead/1000)+' 秒弹出钱包签名。保持本页在前台、钱包已解锁、别锁屏。');
-  clearInterval(armTimer);
-  armTimer=setInterval(()=>{ if(!armed){clearInterval(armTimer);return;} if(nextStart-chainNow()<=lead/1000){ clearInterval(armTimer); race(); } },100);
+async function arm(){
+  if(armed)return;
+  const ok=await loadWallet().catch(()=>false); if(!ok){ log('资格检查没通过，不能开启','bad'); return; }
+  armed=true; keepAwake();
+  const lead=Number($('lead').value); const leadS=isNaN(lead)?-1.5:lead/1000;
+  $('armState').innerHTML='<span class="ok">已开启</span>，'+(leadS>=0?('到点前 '+leadS+' 秒弹签名'):('开放后 '+(-leadS)+' 秒弹签名'));
+  log('自动抢已开启：'+bj(nextStart)+(leadS>=0?' 前 '+leadS:' 后 '+(-leadS))+' 秒弹出钱包签名。保持本页在前台、钱包已解锁、别锁屏。');
+  clearInterval(armTimer); let warned=false;
+  armTimer=setInterval(()=>{ if(!armed){clearInterval(armTimer);return;} const left=nextStart-chainNow();
+    if(!warned&&left<=30){ warned=true; buzz([80,60,80]); log('还有 30 秒，准备好点确认','warn'); loadWallet().then(ok=>{ if(!ok) log('⚠ 资格检查刚才变红了，请立刻看上面红字','bad'); }).catch(()=>{}); }
+    if(left<=leadS){ clearInterval(armTimer); race(); } },100);
 }
 function stop(){armed=false;clearInterval(armTimer);$('armState').textContent='已停止';log('已停止自动抢');}
 function tick(){ if(!nextStart)return; const left=Math.max(0,Math.floor(nextStart-chainNow())); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s; $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
