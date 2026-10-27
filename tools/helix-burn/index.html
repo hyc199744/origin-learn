@@ -52,7 +52,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div class="row"><span>授权 PowerLedger</span><span id="alw">—</span></div>
   <div class="row"><span>Gas（DAI）</span><span id="gas">—</span></div>
   <div class="row"><span>结论</span><span id="verdict">—</span></div>
-  <button class="btn sec block" id="btnApprove" disabled>授权 LGNS（只需一次）</button>
+  <button class="btn sec block" id="btnApprove" disabled>授权 500 LGNS（每次只授本次用量）</button>
 </div>
 
 <div class="card">
@@ -118,7 +118,7 @@ async function loadWallet(){
   $('stake').innerHTML='<span class="'+(okStake?'ok':'bad')+'">'+f9(S)+' LGNS'+(okStake?' ✓':' ✗ 不够')+'</span>';
   $('epoch').innerHTML='<span class="'+(okEp?'ok':'bad')+'">'+(okEp?'没烧过 ✓（Epoch '+st.epoch+'）':'已烧过 ✗（记录 Epoch '+E+'）')+'</span>';
   $('bal').innerHTML='<span class="'+(okBal?'ok':'bad')+'">'+f9(B)+(okBal?' ✓':' ✗')+'</span>';
-  $('alw').innerHTML='<span class="'+(okAlw?'ok':'warn')+'">'+(W>(1n<<200n)?'无限 ✓':f9(W)+(okAlw?' ✓':' ✗ 需授权'))+'</span>';
+  $('alw').innerHTML='<span class="'+(okAlw?'ok':'warn')+'">'+(W>(1n<<200n)?'无限（建议改为按次授权）✓':f9(W)+' LGNS'+(okAlw?' ✓':' ✗ 需授权'))+'</span>';
   $('gas').innerHTML='<span class="'+(okGas?'ok':'bad')+'">'+f18(G)+(okGas?' ✓':' ✗ 太少')+'</span>';
   const eligible=okStake&&okEp&&okBal&&okAlw&&okGas;
   $('verdict').innerHTML=eligible?'<b class="ok">有资格，可以抢</b>':'<b class="bad">暂不满足，合约会拒绝</b>';
@@ -144,7 +144,7 @@ async function sendTx(to,data,gasMult){
 async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||120000)){const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;await new Promise(r=>setTimeout(r,350));}return null;}
 
 async function doApprove(){
-  try{log('请在钱包确认授权 LGNS → PowerLedger');const h=await sendTx(A.LGNS,SEL.approve+addr32(A.LEDGER)+u256(MAXU),1);log('授权已广播 '+h);const r=await waitTx(h);log(r&&r.status==='0x1'?'授权成功 ✓':'授权失败 ✗',r&&r.status==='0x1'?'ok':'bad');await loadWallet();}catch(e){log('授权：'+(e.message||e),'bad');}
+  try{log('请在钱包确认授权 LGNS → PowerLedger');const h=await sendTx(A.LGNS,SEL.approve+addr32(A.LEDGER)+u256(AMOUNT),1);log('授权已广播 '+h);const r=await waitTx(h);log(r&&r.status==='0x1'?'授权成功 ✓':'授权失败 ✗',r&&r.status==='0x1'?'ok':'bad');await loadWallet();}catch(e){log('授权：'+(e.message||e),'bad');}
 }
 
 async function attempt(){
