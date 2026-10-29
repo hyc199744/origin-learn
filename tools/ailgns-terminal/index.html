@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AiLGNS × LGNS 双链金融数据终端</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+a{color:inherit}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+
+/* ============ THEME A : ORIGIN TERMINAL ============ */
+body[data-theme="a"]{--bg:#050807;--bg2:#090d0a;--panel:#0a100c;--panel2:#0d140f;--line:#1d2b21;--txt:#d7e2da;--dim:#7d8f83;--acc:#22ff88;--acc2:#e8c15a;--blue:#4db2ff;--red:#ff5d5d;--chip:#12241a;--radius:4px;--shadow:none;background:var(--bg);color:var(--txt)}
+/* ============ THEME B : HELIX NEXUS ============ */
+body[data-theme="b"]{--bg:#04061a;--bg2:#070b26;--panel:rgba(20,28,64,.55);--panel2:rgba(28,38,84,.5);--line:rgba(96,140,255,.25);--txt:#e6ecff;--dim:#8fa3d9;--acc:#38e1ff;--acc2:#a06bff;--blue:#5f8dff;--red:#ff6b8a;--chip:rgba(56,225,255,.12);--radius:16px;--shadow:0 8px 32px rgba(0,0,0,.45);background:radial-gradient(1100px 500px at 80% -10%,#16235e 0%,transparent 60%),radial-gradient(900px 480px at -10% 110%,#241257 0%,transparent 55%),var(--bg);color:var(--txt);min-height:100vh}
+/* ============ THEME C : AiLGNS WEALTH ============ */
+body[data-theme="c"]{--bg:#f5f2ea;--bg2:#efe9db;--panel:#ffffff;--panel2:#faf7f0;--line:#e3ddcd;--txt:#16233c;--dim:#6d7690;--acc:#0e9f6e;--acc2:#b8862e;--blue:#2456a6;--red:#d64545;--chip:#eef4ee;--radius:18px;--shadow:0 6px 24px rgba(22,35,60,.08);background:var(--bg);color:var(--txt)}
+
+#app{min-height:100vh;display:flex;flex-direction:column}
+/* top bar */
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+.logo{font-weight:800;font-size:17px;letter-spacing:.5px;white-space:nowrap}
+.logo small{display:block;font-size:10px;color:var(--dim);font-weight:500;letter-spacing:1.5px}
+body[data-theme="a"] .logo{color:var(--acc)}
+body[data-theme="b"] .logo{background:linear-gradient(90deg,#38e1ff,#a06bff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.topbar .sp{flex:1}
+.seg{display:flex;border:1px solid var(--line);border-radius:calc(var(--radius) + 4px);overflow:hidden}
+.seg button{background:transparent;border:0;color:var(--dim);padding:7px 10px;font-size:12px}
+.seg button.on{background:var(--acc);color:#04120a;font-weight:700}
+body[data-theme="c"] .seg button.on{color:#fff}
+.iconbtn{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:calc(var(--radius) + 4px);padding:7px 11px;font-size:12px}
+/* ticker */
+.ticker{display:flex;gap:18px;overflow-x:auto;padding:7px 14px;border-bottom:1px solid var(--line);background:var(--panel);font-size:12px;white-space:nowrap;scrollbar-width:none}
+.ticker::-webkit-scrollbar{display:none}
+.ticker b{color:var(--acc)}
+.ticker .neg{color:var(--red)}
+/* layout */
+.shell{flex:1;display:flex;min-height:0}
+.sidenav{display:none}
+.main{flex:1;padding:14px;max-width:1460px;margin:0 auto;width:100%;padding-bottom:92px}
+body[data-theme="a"] .sidenav{display:none}
+@media(min-width:1024px){
+  body[data-theme="a"] .sidenav{display:flex;flex-direction:column;gap:2px;width:216px;flex:none;padding:14px 10px;border-right:1px solid var(--line);background:var(--bg2);position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto}
+  body[data-theme="c"] .sidenav{display:flex;flex-direction:column;gap:2px;width:200px;flex:none;padding:14px 10px;position:sticky;top:57px;height:calc(100vh - 57px)}
+  body[data-theme="b"] .topnav{display:flex}
+}
+.sidenav button,.topnav button{background:transparent;border:0;color:var(--dim);text-align:left;padding:9px 12px;font-size:13.5px;border-radius:var(--radius);display:flex;gap:8px;align-items:center}
+.sidenav button.on,.topnav button.on{background:var(--chip);color:var(--acc);font-weight:700}
+.topnav{display:none;gap:2px;overflow-x:auto;padding:8px 14px 0;scrollbar-width:none}
+.topnav::-webkit-scrollbar{display:none}
+.topnav button{white-space:nowrap;padding:8px 13px;border:1px solid transparent}
+.topnav button.on{border-color:var(--line);background:var(--panel)}
+/* bottom nav (mobile) */
+.botnav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;background:var(--bg2);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.botnav button{flex:1;background:transparent;border:0;color:var(--dim);padding:8px 2px 7px;font-size:10.5px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.botnav button .ic{font-size:17px}
+.botnav button.on{color:var(--acc);font-weight:700}
+@media(min-width:1024px){.botnav{display:none}.main{padding-bottom:26px}}
+/* cards & grids */
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(2,1fr)}
+.g4{grid-template-columns:repeat(2,1fr)}
+@media(min-width:768px){.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1200px){.g4{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+body[data-theme="b"] .card{backdrop-filter:blur(10px)}
+.card h3{font-size:13px;color:var(--dim);font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.big{font-size:24px;font-weight:800;letter-spacing:.2px}
+body[data-theme="c"] .big{font-size:29px}
+body[data-theme="a"] .big{font-size:21px}
+.sub{font-size:12px;color:var(--dim);margin-top:4px;line-height:1.55}
+.pos{color:var(--acc)} .neg{color:var(--red)}
+.chip{display:inline-block;font-size:10.5px;padding:2px 7px;border-radius:99px;background:var(--chip);color:var(--acc);border:1px solid var(--line);white-space:nowrap}
+.chip.warn{color:var(--acc2)} .chip.bad{color:var(--red)} .chip.gray{color:var(--dim)}
+.clickable{cursor:pointer}
+.clickable:active{transform:scale(.99)}
+.sec-title{font-size:16px;font-weight:800;margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+.sec-title::before{content:"";width:4px;height:16px;background:var(--acc);border-radius:2px}
+body[data-theme="a"] .sec-title{font-size:14px;letter-spacing:1px}
+/* table */
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:520px}
+th,td{padding:9px 11px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--dim);font-weight:600;background:var(--panel2);position:sticky;top:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+/* forms */
+label.f{display:block;font-size:12px;color:var(--dim);margin:10px 0 5px}
+input[type=text],input[type=number],select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:var(--radius);padding:11px 12px;font-size:14px;outline:none}
+input:focus{border-color:var(--acc)}
+.btn{background:var(--acc);color:#04120a;border:0;border-radius:var(--radius);padding:11px 18px;font-size:14px;font-weight:700}
+body[data-theme="c"] .btn{color:#fff}
+.btn.ghost{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.addr{word-break:break-all;font-size:12px}
+.copy{font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:var(--panel2);color:var(--acc)}
+/* modal */
+.modal{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center}
+.modal.open{display:flex}
+.modal .box{background:var(--panel);color:var(--txt);width:100%;max-width:560px;max-height:86vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:18px;border:1px solid var(--line)}
+@media(min-width:768px){.modal{align-items:center}.modal .box{border-radius:18px}}
+.modal h3{font-size:16px;margin-bottom:10px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.kv span:first-child{color:var(--dim);flex:none}
+/* chart */
+.chartwrap{position:relative}
+canvas.chart{width:100%;height:230px;display:block;touch-action:pan-y}
+.rangebar{display:flex;gap:6px;margin:8px 0}
+.rangebar button{background:var(--panel2);border:1px solid var(--line);color:var(--dim);border-radius:99px;padding:5px 12px;font-size:12px}
+.rangebar button.on{background:var(--acc);color:#04120a;font-weight:700}
+body[data-theme="c"] .rangebar button.on{color:#fff}
+.tip{position:absolute;pointer-events:none;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:11.5px;display:none;z-index:5;color:var(--txt)}
+.banner{border:1px solid var(--acc2);color:var(--acc2);border-radius:var(--radius);padding:9px 12px;font-size:12.5px;margin-bottom:12px;background:var(--panel);line-height:1.6}
+.hero{padding:20px}
+.hero .big{font-size:34px}
+body[data-theme="a"] .hero .big{font-size:26px}
+.netviz{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--dim);margin-top:8px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.progress{height:8px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--acc)}
+.mutelist{font-size:12.5px;color:var(--dim);line-height:1.9}
+.hidden{display:none!important}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--bg2);color:var(--txt);border:1px solid var(--acc);padding:9px 16px;border-radius:99px;font-size:13px;z-index:99;display:none;box-shadow:var(--shadow)}
+@media(max-width:380px){.big{font-size:20px}.logo{font-size:15px}}
+</style>
+</head>
+<body data-theme="a">
+<div id="app"></div>
+<div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+<script src="data.js"></script>
+<script>
+"use strict";
+/* ================= i18n ================= */
+const I18N = {
+zh:{overview:"全网总览",lgns:"LGNS 行情",pchain:"P 链数据",ailgns:"AiLGNS 中心",treasury:"国库储备",pools:"底池与 LP 模拟",stake:"质押与债券",power:"算力中心",mintburn:"铸造与销毁",wallet:"钱包分析",calc:"收益计算器",monitor:"监控与证据",dict:"指标字典",style:"风格",lang:"EN",realMode:"真实快照模式",verified:"链上已验证",histCheck:"历史核查",pending:"待接入",doubt:"口径待复核",official:"官方文档口径",est:"情景估算",src:"来源",updated:"更新",formula:"计算公式",chain:"所属链",evidence:"链上证据",close:"关闭",copy:"复制",copied:"已复制",query:"查询",walletPh:"输入 EVM 钱包地址 0x…",viewDetail:"点击查看详情"},
+en:{overview:"Overview",lgns:"LGNS Market",pchain:"Polygon Chain",ailgns:"AiLGNS Hub",treasury:"Treasury",pools:"Pools & LP Sim",stake:"Staking & Bonds",power:"Power Hub",mintburn:"Mint & Burn",wallet:"Wallet Analyzer",calc:"Yield Calculator",monitor:"Monitor & Proof",dict:"Metric Dictionary",style:"Style",lang:"中文",realMode:"Live snapshot mode",verified:"On-chain verified",histCheck:"Historical check",pending:"Not connected",doubt:"Under review",official:"Official docs",est:"Scenario estimate",src:"Source",updated:"Updated",formula:"Formula",chain:"Chain",evidence:"On-chain proof",close:"Close",copy:"Copy",copied:"Copied",query:"Search",walletPh:"Enter EVM wallet address 0x…",viewDetail:"Tap for details"}};
+let LANG = localStorage.getItem("alt_lang") || "zh";
+const t = k => (I18N[LANG] && I18N[LANG][k]) || I18N.zh[k] || k;
+
+/* ================= state ================= */
+const NAV = [
+ ["overview","▦"],["lgns","◈"],["pchain","⬡"],["ailgns","✦"],["treasury","🏛"],["pools","💧"],
+ ["stake","🔒"],["power","⚡"],["mintburn","🔥"],["wallet","👛"],["calc","🧮"],["monitor","🛡"],["dict","📖"]];
+let state = { view: localStorage.getItem("alt_view") || "overview",
+  theme: localStorage.getItem("alt_theme") || "a",
+  range: 90, wallet: localStorage.getItem("alt_wallet") || "",
+  calc: JSON.parse(localStorage.getItem("alt_calc") || "{}") };
+function saveState(){ localStorage.setItem("alt_view",state.view); localStorage.setItem("alt_theme",state.theme);
+  localStorage.setItem("alt_wallet",state.wallet); localStorage.setItem("alt_calc",JSON.stringify(state.calc)); }
+
+/* ================= data ================= */
+const D = window.REAL_DATA || {};
+const A = D.a_chain || {};
+const EXPL = "https://browser.anubispace.org";
+const fmt = (n,d=2)=>{ if(n===null||n===undefined||isNaN(n)) return "—";
+  n=Number(n); const a=Math.abs(n);
+  if(a>=1e8) return (n/1e8).toFixed(d)+" 亿"; if(a>=1e4) return (n/1e4).toFixed(d)+" 万";
+  return n.toLocaleString("en-US",{maximumFractionDigits:d}); };
+const fmtP = n => (n===null||n===undefined||isNaN(n)) ? "—" : "$"+Number(n).toLocaleString("en-US",{maximumFractionDigits:4});
+const short = a => a ? a.slice(0,6)+"…"+a.slice(-4) : "—";
+const chip = s => ({v:'<span class="chip">'+t("verified")+'</span>',h:'<span class="chip warn">'+t("histCheck")+'</span>',
+  p:'<span class="chip gray">'+t("pending")+'</span>',d:'<span class="chip bad">'+t("doubt")+'</span>',
+  o:'<span class="chip warn">'+t("official")+'</span>',e:'<span class="chip warn">'+t("est")+'</span>'}[s]||"");
+/* metric registry: key -> detail for modal */
+const METRICS = {
+ priceA:{name:"LGNS 实时价格（A 链 / Anubis）",chain:"Anubis（chainId 6714）",src:"RocketSwap LGNS/DAI 主池储备比（本站看板采集）",formula:"池内 DAI 储备 ÷ 池内 LGNS 储备",ev:EXPL+"/address/0x32a4586797e3f561f41c0f47ca57ed08d64f3dc0"},
+ poolA:{name:"LGNS/DAI 主池储备",chain:"Anubis",src:"主池合约代币余额（本站看板采集）",formula:"getReserves / 代币余额直读",ev:EXPL+"/address/0x32a4586797e3f561f41c0f47ca57ed08d64f3dc0"},
+ holders:{name:"LGNS 持有人数",chain:"Anubis",src:"区块浏览器代币统计",formula:"持有余额 > 0 的独立地址数",ev:EXPL+"/token/0x4d1d808a081fdac440703b3765fc61f8028c06b8"},
+ supply:{name:"LGNS 总供应量",chain:"Anubis",src:"LGNS 合约 totalSupply（9 位精度，含 rebase 动态变化）",formula:"totalSupply() 直读",ev:EXPL+"/token/0x4d1d808a081fdac440703b3765fc61f8028c06b8"},
+ treasury:{name:"国库 LGNS 持仓",chain:"Anubis",src:"国库代理合约地址的 LGNS 余额（本站看板采集）",formula:"国库余额 ÷ 总供应量 = 占比；折合价值 = 余额 × 池内价（估算）",ev:EXPL+"/address/0x7a2E3fA6eA60437F0441b8eb5e60674B80339228"},
+ burn:{name:"LGNS 累计销毁（黑洞余额）",chain:"Anubis",src:"黑洞地址 0x000…dEaD 的 LGNS 余额",formula:"黑洞地址余额直读。⚠️ 2026-10-28 起浏览器接口累计序列出现断裂（此前口径约 1.56 亿 / 3.27%），当前显示值待复核，不得直接引用。",ev:EXPL+"/address/0x000000000000000000000000000000000000dEaD/token-transfers"},
+ vol24:{name:"LGNS 24 小时成交量",chain:"Anubis",src:"区块浏览器代币统计 volume_24h",formula:"浏览器按主池 Swap 事件汇总（USD 口径）",ev:EXPL+"/token/0x4d1d808a081fdac440703b3765fc61f8028c06b8"},
+ priceP:{name:"LGNS 价格（P 链 / Polygon）",chain:"Polygon",src:"GeckoTerminal QuickSwap LGNS 池日线收盘（历史序列，截至 2026-10-27）",formula:"日线 OHLCV close，非实时",ev:"https://www.geckoterminal.com/polygon_pos/pools/0x882df4b0fb50a229c3b4124eb18c759911485bfb"},
+ ailgnsSupply:{name:"AiLGNS 总供应量",chain:"Anubis",src:"官方文档口径：一次性铸造 2.1 亿、永不增发；2026-10-09 链上核查：总量约 2.1 亿、持有人约 31,921、前 4 地址约占 99.86%、约 93% 由代理合约集中持有",formula:"以代币合约 totalSupply 复核为准（待接入实时读取）",ev:EXPL},
+ epoch:{name:"HELIX 当前周期（Epoch）",chain:"Anubis",src:"官方文档口径推算：协议第 1 天 = 2026-09-28（SGT），7 天一个 Epoch",formula:"Epoch = ⌈(今天 − 2026-09-28 + 1) ÷ 7⌉；未做链上核实",ev:"https://awakehelix.io"}
+};
+const CONTRACTS = [
+ ["LGNS 代币（Anubis）","0x4d1d808a081fdac440703b3765fc61f8028c06b8","v","TransparentUpgradeableProxy，9 位精度"],
+ ["LGNS/DAI 主池（RocketSwap）","0x32a4586797e3f561f41c0f47ca57ed08d64f3dc0","v","价格与流动性来源"],
+ ["国库（代理）","0x7a2E3fA6eA60437F0441b8eb5e60674B80339228","v","持 LGNS 约 80% 供应"],
+ ["黑洞销毁地址","0x000000000000000000000000000000000000dEaD","v","累计销毁口径待复核"],
+ ["DAI 代币（Anubis）","0x83fd06F0846d9D90B3016bF670Efe2E0B11cDe14","v","规格书第 2.4 项要核查的地址即此合约：Anubis 链 DAI 代币，同时是链 Gas 资产"],
+ ["fLGNS/LGNS 池","0x4171222dfb000f1b9a2e7fb9c213f3b7c656ba9f","v","2026-10-27 起被 LGNS 合约 setRestricted，池内 LGNS 转出冻结"],
+ ["QuickSwap LGNS 池（Polygon）","0x882df4b0fb50a229c3b4124eb18c759911485bfb","v","P 链价格历史来源"],
+ ["HELIX 代币（Anubis）","0x0c520e4c4886aD784E6486260CD78A7b7128F718","h","2026-10-08 核查存在"],
+ ["PowerLedger（HELIX 算力）","0x9E68F61E2615cc1D2C4a2D0026bFc1EBFdf68C1b","h","第三方协议；算力数据待接入"],
+ ["gLGNS","0xf140a92c156e76f5a1d3d6f96284b250330f8f4c","h","2026-10-20 实查确认"],
+ ["HPNFT","0x77E6ab1C5557FD456b0656304E0e5c02a6d7DcCA","h","2026-10-08 核查存在"],
+ ["AiLGNS 代币合约","—","p","地址待核验：已知供应约 2.1 亿（2026-10-09 核查），实现合约未验证"],
+ ["P 链手续费资产地址 0x91F1…410E","0x91F1D2c2165B17a1eD2dC3B73Ae77224E6e1410E","p","待核验：所属链、用途、控制关系均未证实，不得认定为手续费收入"],
+ ["A 链冲锋池 / 激励池","—","p","待核验：须官方资料或链上证据确认地址，禁止猜测"],
+ ["LGNS 质押 / 债券合约","—","p","待接入：origindefi.io 前端为 JS 单页应用，合约地址待从官方页面与链上调用核实"]];
+
+/* ================= utils ================= */
+const $ = s => document.querySelector(s);
+function toast(msg){ const e=$("#toast"); e.textContent=msg; e.style.display="block"; setTimeout(()=>e.style.display="none",1600); }
+function copyTxt(txt){ if(navigator.clipboard) navigator.clipboard.writeText(txt).then(()=>toast(t("copied"))); else toast(txt); }
+function openMetric(key){ const m=METRICS[key]; if(!m) return;
+  $("#modalBox").innerHTML = "<h3>"+m.name+"</h3>"+
+  '<div class="kv"><span>'+t("chain")+'</span><b>'+m.chain+'</b></div>'+
+  '<div class="kv"><span>'+t("src")+'</span><b style="text-align:right;max-width:65%">'+m.src+'</b></div>'+
+  '<div class="kv"><span>'+t("formula")+'</span><b style="text-align:right;max-width:65%">'+m.formula+'</b></div>'+
+  '<div class="kv"><span>'+t("updated")+'</span><b>'+(D.snapshot_time||"—")+' CST</b></div>'+
+  '<div class="btnrow"><a class="btn ghost" style="text-decoration:none" target="_blank" rel="noopener" href="'+m.ev+'">'+t("evidence")+'</a>'+
+  '<button class="btn" onclick="closeModal()">'+t("close")+'</button></div>';
+  $("#modal").classList.add("open"); }
+function closeModal(){ $("#modal").classList.remove("open"); }
+document.addEventListener("click",e=>{ if(e.target.id==="modal") closeModal(); });
+
+/* ================= chart ================= */
+function drawChart(cv, series, color){
+  const dpr = window.devicePixelRatio||1, W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = W*dpr; cv.height = H*dpr; const ctx = cv.getContext("2d"); ctx.scale(dpr,dpr);
+  const vals = series.map(r=>r[1]); let min=Math.min(...vals), max=Math.max(...vals);
+  const pad=(max-min)*0.08||1; min-=pad; max+=pad;
+  const X=i=> i/(series.length-1)*(W-8)+4, Y=v=> H-18-((v-min)/(max-min))*(H-36);
+  const cs=getComputedStyle(document.body);
+  ctx.strokeStyle=cs.getPropertyValue("--line"); ctx.fillStyle=cs.getPropertyValue("--dim"); ctx.font="10px sans-serif";
+  ctx.beginPath(); ctx.moveTo(0,Y(max-pad)); ctx.lineTo(W,Y(max-pad)); ctx.moveTo(0,Y(min+pad)); ctx.lineTo(W,Y(min+pad)); ctx.stroke();
+  ctx.fillText(max.toPrecision(3),6,12); ctx.fillText(min.toPrecision(3),6,H-6);
+  ctx.beginPath(); series.forEach((r,i)=> i?ctx.lineTo(X(i),Y(r[1])):ctx.moveTo(X(0),Y(r[1])));
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+  ctx.lineTo(X(series.length-1),H-14); ctx.lineTo(X(0),H-14); ctx.closePath();
+  ctx.globalAlpha=.14; ctx.fillStyle=color; ctx.fill(); ctx.globalAlpha=1;
+  cv._series=series; cv._X=X; cv._Y=Y;
+}
+function bindTip(cv, tipEl, unit){
+  const move = e=>{ const s=cv._series; if(!s) return;
+    const r=cv.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    let i=Math.round((x-4)/(r.width-8)*(s.length-1)); i=Math.max(0,Math.min(s.length-1,i));
+    tipEl.style.display="block"; tipEl.style.left=Math.min(r.width-118,x+8)+"px"; tipEl.style.top="8px";
+    tipEl.innerHTML = s[i][0]+"<br><b>"+unit+s[i][1].toPrecision(4)+"</b>"; };
+  cv.addEventListener("mousemove",move); cv.addEventListener("touchstart",move,{passive:true}); cv.addEventListener("touchmove",move,{passive:true});
+  cv.addEventListener("mouseleave",()=>tipEl.style.display="none");
+}
+function sliceRange(hist, days){ if(days>=9999) return hist; return hist.slice(-days); }
+
+/* ================= shell ================= */
+function tickerHTML(){
+  const chg = pctChg(D.anubis_hist, 1);
+  return '<div class="ticker mono"><span>LGNS(A) <b>'+fmtP(A.price_dai)+'</b></span>'+
+  '<span>LGNS(P·10-27) <b>'+fmtP(D.polygon_last?D.polygon_last[1]:null)+'</b></span>'+
+  '<span>'+(LANG==="zh"?"持有人":"Holders")+' <b>'+fmt(A.holders,0)+'</b></span>'+
+  '<span>'+(LANG==="zh"?"主池 DAI":"Pool DAI")+' <b>'+fmt(A.pool_dai,0)+'</b></span>'+
+  '<span>24h Vol <b>$'+fmt(A.vol_24h_usd,0)+'</b></span>'+
+  '<span>AiLGNS <b>210,000,000</b> ('+t("official")+')</span>'+
+  '<span>Epoch <b>'+epochInfo().epoch+'</b></span></div>';
+}
+function pctChg(hist, days){ if(!hist||hist.length<2) return null;
+  const last=hist[hist.length-1][1], prev=hist[Math.max(0,hist.length-1-days)][1];
+  return prev? (last-prev)/prev*100 : null; }
+function epochInfo(){ const start=new Date("2026-09-28T00:00:00+08:00").getTime();
+  const now=new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Shanghai"})).getTime();
+  const dayIdx=Math.floor((now-start)/86400000)+1, epoch=Math.max(1,Math.ceil(dayIdx/7));
+  const es=new Date(start+(epoch-1)*7*86400000), ee=new Date(es.getTime()+6*86400000);
+  const f=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  return {dayIdx, epoch, start:f(es), end:f(ee)}; }
+function statCard(label, value, sub, status, metric, accent){
+  return '<div class="card clickable" '+(metric?'onclick="openMetric(\''+metric+'\')"':'')+'>'+
+   '<h3>'+label+' '+chip(status)+'</h3><div class="big" '+(accent?'style="color:var(--acc)"':'')+'>'+value+'</div>'+
+   '<div class="sub">'+sub+'</div></div>';
+}
+function pendingCard(label, what){
+  return '<div class="card"><h3>'+label+' '+chip("p")+'</h3><div class="big" style="color:var(--dim)">—</div><div class="sub">'+what+'</div></div>';
+}
+function render(){
+  document.body.dataset.theme = state.theme;
+  const navBtns = NAV.map(n=>'<button class="'+(state.view===n[0]?"on":"")+'" onclick="go(\''+n[0]+'\')"><span>'+n[1]+'</span>'+t(n[0])+'</button>').join("");
+  const botItems = [["overview","▦"],["lgns","◈"],["ailgns","✦"],["wallet","👛"],["calc","🧮"]];
+  $("#app").innerHTML =
+   '<div class="topbar"><div class="logo">AiLGNS × LGNS<small>'+(state.theme==="a"?"ORIGIN TERMINAL":state.theme==="b"?"HELIX NEXUS":"AiLGNS WEALTH")+'</small></div><div class="sp"></div>'+
+   '<div class="seg" title="'+t("style")+'"><button class="'+(state.theme==="a"?"on":"")+'" onclick="setTheme(\'a\')">A</button><button class="'+(state.theme==="b"?"on":"")+'" onclick="setTheme(\'b\')">B</button><button class="'+(state.theme==="c"?"on":"")+'" onclick="setTheme(\'c\')">C</button></div>'+
+   '<button class="iconbtn" onclick="toggleLang()">'+t("lang")+'</button></div>'+
+   tickerHTML()+
+   '<div class="shell"><div class="sidenav">'+navBtns+'</div><div style="flex:1;min-width:0"><div class="topnav">'+navBtns+'</div>'+
+   '<div class="main" id="main"></div></div></div>'+
+   '<div class="botnav">'+botItems.map(n=>'<button class="'+(state.view===n[0]?"on":"")+'" onclick="go(\''+n[0]+'\')"><span class="ic">'+n[1]+'</span>'+t(n[0])+'</button>').join("")+
+   '<button onclick="go(\'monitor\')"><span class="ic">☰</span>'+(LANG==="zh"?"全部":"All")+'</button></div>';
+  const v = VIEWS[state.view] || VIEWS.overview;
+  $("#main").innerHTML = v();
+  if(AFTER[state.view]) AFTER[state.view]();
+  window.scrollTo(0,0);
+}
+function go(v){ state.view=v; saveState(); render(); }
+function setTheme(x){ state.theme=x; saveState(); render(); }
+function toggleLang(){ LANG = LANG==="zh"?"en":"zh"; localStorage.setItem("alt_lang",LANG); render(); }
+function setRange(d){ state.range=d; render(); }
+
+/* ================= views ================= */
+const VIEWS = {}, AFTER = {};
+VIEWS.overview = function(){
+  const ep = epochInfo();
+  const chg7 = pctChg(D.anubis_hist,7), chg30 = pctChg(D.anubis_hist,30);
+  const spread = (D.polygon_last && A.price_dai) ? (D.polygon_last[1]-A.price_dai)/A.price_dai*100 : null;
+  let head = "";
+  if(state.theme==="c") head = '<div class="card hero" style="margin-bottom:12px"><h3>LGNS '+t("chain")+'：Anubis '+chip("v")+'</h3><div class="big">'+fmtP(A.price_dai)+'</div><div class="sub">'+(LANG==="zh"?"底池 DAI":"Pool DAI")+' '+fmt(A.pool_dai)+' · '+(LANG==="zh"?"国库":"Treasury")+' '+fmt(A.treasury)+' LGNS · '+(LANG==="zh"?"快照":"Snapshot")+' '+(D.snapshot_time||"")+' CST</div></div>';
+  if(state.theme==="b") head = nexusViz();
+  let h = '<div class="banner">📡 '+t("realMode")+'：'+(LANG==="zh"?"绿色「链上已验证」为真实链上快照（标注时间）；灰色「待接入」不编造数字；AiLGNS 供应与周期为官方文档口径，已单独标注。":"Verified = real on-chain snapshot (timestamped). Grey = not connected, never fabricated.")+'</div>'+head+
+  '<div class="grid g4">'+
+  statCard("LGNS 价格 · A 链", fmtP(A.price_dai), "7d "+(chg7===null?"—":(chg7>=0?"+":"")+chg7.toFixed(1)+"%")+" · 30d "+(chg30===null?"—":(chg30>=0?"+":"")+chg30.toFixed(1)+"%"), "v","priceA",1)+
+  statCard("LGNS 价格 · P 链", fmtP(D.polygon_last?D.polygon_last[1]:null), (LANG==="zh"?"截至":"As of")+" 2026-10-27 "+(LANG==="zh"?"日线收盘，非实时":"daily close, not live"), "h","priceP")+
+  statCard((LANG==="zh"?"P/A 价差":"P/A Spread"), spread===null?"—":"+"+spread.toFixed(0)+"%", LANG==="zh"?"两边数据日期不同，仅供参考":"Different data dates, reference only","h","priceP")+
+  statCard("AiLGNS 总供应", "2.1 亿", LANG==="zh"?"一次性铸造、永不增发（官方文档口径）；2026-10-09 链上核查总量约 2.1 亿":"Fixed 210M per official docs; on-chain checked 2026-10-09","o","ailgnsSupply")+
+  statCard(t("treasury")+" LGNS", fmt(A.treasury), (LANG==="zh"?"占总供应":"of supply")+" "+(A.treasury_pct||"—")+"% · "+(LANG==="zh"?"折合":"≈")+" "+fmt((A.treasury||0)*(A.price_dai||0),0)+" DAI","v","treasury")+
+  statCard((LANG==="zh"?"主池流动性":"Main Pool TVL"), fmt((A.pool_dai||0)*2,0)+" DAI", "LGNS "+fmt(A.pool_lgns,0)+" / DAI "+fmt(A.pool_dai,0),"v","poolA")+
+  statCard(t("holders" in METRICS?"":"")+(LANG==="zh"?"LGNS 持有人":"LGNS Holders"), fmt(A.holders,0), LANG==="zh"?"独立地址数":"Unique addresses","v","holders")+
+  statCard((LANG==="zh"?"LGNS 累计销毁":"LGNS Burned"), fmt(A.burned_reported), (LANG==="zh"?"占供应":"of supply")+" "+(A.burned_pct_reported||"—")+"% · "+(LANG==="zh"?"接口序列断裂，复核中":"Series broken, under review"), "d","burn")+
+  statCard("24h "+(LANG==="zh"?"成交量":"Volume"), "$"+fmt(A.vol_24h_usd,0), "Anubis "+(LANG==="zh"?"主池口径":"main pool"),"v","vol24")+
+  statCard("HELIX Epoch", "#"+ep.epoch, ep.start+" → "+ep.end+"（7 "+(LANG==="zh"?"天/周期":"days")+"）","o","epoch")+
+  pendingCard(LANG==="zh"?"今日买入 / 卖出":"Today Buys / Sells", LANG==="zh"?"需索引主池 Swap 事件后接入":"Needs Swap event indexing")+
+  pendingCard(LANG==="zh"?"全网总算力":"Total Power", LANG==="zh"?"PowerLedger 读数待接入":"PowerLedger reads pending")+
+  '</div>'+
+  '<div class="sec-title">'+(LANG==="zh"?"LGNS 价格走势（A 链 · 真实日线）":"LGNS Price (Anubis · real daily)")+'</div>'+
+  '<div class="card"><div class="rangebar">'+[7,30,90,9999].map(d=>'<button class="'+(state.range===d?"on":"")+'" onclick="setRange('+d+')">'+(d===9999?(LANG==="zh"?"全部":"All"):d+"d")+'</button>').join("")+'</div>'+
+  '<div class="chartwrap"><canvas class="chart" id="chA"></canvas><div class="tip" id="tipA"></div></div>'+
+  '<div class="sub">'+(LANG==="zh"?"数据":"Data")+': GeckoTerminal + '+(LANG==="zh"?"链上储备回补":"on-chain backfill")+' · 2026-05-09 → 2026-10-27 · 172 '+(LANG==="zh"?"天连续":"days")+'</div></div>'+
+  '<div class="sec-title">'+(LANG==="zh"?"快捷入口":"Shortcuts")+'</div><div class="grid g3">'+
+  '<div class="card clickable" onclick="go(\'calc\')"><h3>🧮 '+t("calc")+'</h3><div class="sub">'+(LANG==="zh"?"算力占比、投入估算、三种情景，输入即算":"Share, deposit estimate, 3 scenarios — live")+'</div></div>'+
+  '<div class="card clickable" onclick="go(\'pools\')"><h3>💧 '+t("pools")+'</h3><div class="sub">'+(LANG==="zh"?"按真实储备算价格冲击与滑点":"Price impact from real reserves")+'</div></div>'+
+  '<div class="card clickable" onclick="go(\'wallet\')"><h3>👛 '+t("wallet")+'</h3><div class="sub">'+(LANG==="zh"?"输入地址查 Anubis 链上资产（只读）":"Read-only Anubis balance lookup")+'</div></div></div>';
+  return h;
+};
+AFTER.overview = function(){ const cv=$("#chA"); if(cv){ drawChart(cv, sliceRange(D.anubis_hist,state.range), "#22c55e"); bindTip(cv,$("#tipA"),"$"); } };
+function nexusViz(){
+  return '<div class="card" style="margin-bottom:12px"><h3>⬡ '+(LANG==="zh"?"双链网络总览":"Dual-Chain Network")+' '+chip("h")+'</h3>'+
+  '<svg class="netviz" viewBox="0 0 340 150"><defs><linearGradient id="lg1" x1="0" x2="1"><stop offset="0" stop-color="#38e1ff"/><stop offset="1" stop-color="#a06bff"/></linearGradient></defs>'+
+  '<line x1="70" y1="75" x2="150" y2="75" stroke="url(#lg1)" stroke-width="2" stroke-dasharray="5 4"><animate attributeName="stroke-dashoffset" from="18" to="0" dur="1.2s" repeatCount="indefinite"/></line>'+
+  '<line x1="190" y1="75" x2="270" y2="75" stroke="url(#lg1)" stroke-width="2" stroke-dasharray="5 4"><animate attributeName="stroke-dashoffset" from="0" to="18" dur="1.2s" repeatCount="indefinite"/></line>'+
+  '<circle cx="55" cy="75" r="30" fill="rgba(56,225,255,.10)" stroke="#38e1ff"/><text x="55" y="71" text-anchor="middle" fill="#e6ecff" font-size="11" font-weight="700">P 链</text><text x="55" y="86" text-anchor="middle" fill="#8fa3d9" font-size="8.5">Polygon</text>'+
+  '<circle cx="285" cy="75" r="30" fill="rgba(160,107,255,.10)" stroke="#a06bff"/><text x="285" y="71" text-anchor="middle" fill="#e6ecff" font-size="11" font-weight="700">A 链</text><text x="285" y="86" text-anchor="middle" fill="#8fa3d9" font-size="8.5">Anubis</text>'+
+  '<rect x="140" y="52" width="60" height="46" rx="10" fill="rgba(56,225,255,.08)" stroke="url(#lg1)"/><text x="170" y="72" text-anchor="middle" fill="#e6ecff" font-size="10.5" font-weight="700">LGNS</text><text x="170" y="86" text-anchor="middle" fill="#8fa3d9" font-size="8.5">AiLGNS · HELIX</text>'+
+  '<text x="170" y="128" text-anchor="middle" fill="#8fa3d9" font-size="9">'+(LANG==="zh"?"跨链桥合约待核验 · 资金流数据待接入":"Bridge unverified · flow data pending")+'</text></svg></div>';
+}
+VIEWS.lgns = function(){
+  return '<div class="sec-title">◈ LGNS '+(LANG==="zh"?"行情中心":"Market")+' · Anubis</div><div class="grid g4">'+
+  statCard(LANG==="zh"?"池内价":"Pool Price", fmtP(A.price_dai), (LANG==="zh"?"快照":"Snapshot")+" "+(D.snapshot_time||""), "v","priceA",1)+
+  statCard(LANG==="zh"?"池内 LGNS":"Pool LGNS", fmt(A.pool_lgns,0), "RocketSwap "+short("0x32a4586797e3f561f41c0f47ca57ed08d64f3dc0"),"v","poolA")+
+  statCard(LANG==="zh"?"池内 DAI":"Pool DAI", fmt(A.pool_dai,0), LANG==="zh"?"底池稳定币一侧":"Stable side of pool","v","poolA")+
+  statCard(LANG==="zh"?"总供应":"Total Supply", fmt(A.total_supply,0), "9 "+(LANG==="zh"?"位精度 · rebase 动态":"decimals · rebase"),"v","supply")+
+  statCard(t("treasury"), fmt(A.treasury), (LANG==="zh"?"占比":"Share")+" "+(A.treasury_pct||"—")+"%","v","treasury")+
+  statCard(LANG==="zh"?"累计销毁":"Burned", fmt(A.burned_reported), LANG==="zh"?"口径待复核，点卡片看说明":"Under review — tap for note","d","burn")+
+  statCard(LANG==="zh"?"持有人":"Holders", fmt(A.holders,0), "","v","holders")+
+  statCard("24h Vol", "$"+fmt(A.vol_24h_usd,0), "","v","vol24")+'</div>'+
+  '<div class="sec-title">'+(LANG==="zh"?"价格走势（日线 · 真实数据）":"Price History (daily · real)")+'</div>'+
+  '<div class="card"><div class="rangebar">'+[7,30,90,9999].map(d=>'<button class="'+(state.range===d?"on":"")+'" onclick="setRange('+d+')">'+(d===9999?(LANG==="zh"?"全部":"All"):d+"d")+'</button>').join("")+'</div>'+
+  '<div class="chartwrap"><canvas class="chart" id="chA2"></canvas><div class="tip" id="tipA2"></div></div>'+
+  '<div class="sub">2026-05-09 '+(LANG==="zh"?"首价":"first")+' $5.00 → 2026-10-27 $0.0892 · '+(LANG==="zh"?"来源":"Source")+': GeckoTerminal + '+(LANG==="zh"?"链上回补":"backfill")+'</div></div>'+
+  '<div class="sec-title">'+(LANG==="zh"?"交易流水与换手率":"Trades & Turnover")+'</div><div class="grid g3">'+
+  pendingCard(LANG==="zh"?"实时买卖流水":"Live Trades", LANG==="zh"?"需索引主池 Swap 事件（买/卖/金额/哈希）":"Needs Swap indexing")+
+  pendingCard(LANG==="zh"?"今日净买入":"Net Buy Today", LANG==="zh"?"买入额 − 卖出额，待事件索引":"Pending event index")+
+  pendingCard(LANG==="zh"?"换手率":"Turnover", LANG==="zh"?"公式：周期成交量 ÷ 平均流通量，待成交索引":"Pending volume index")+'</div>';
+};
+AFTER.lgns = function(){ const cv=$("#chA2"); if(cv){ drawChart(cv, sliceRange(D.anubis_hist,state.range), "#22c55e"); bindTip(cv,$("#tipA2"),"$"); } };
+VIEWS.pchain = function(){
+  const last=D.polygon_last, chg30=pctChg(D.polygon_hist,30);
+  return '<div class="sec-title">⬡ P '+(LANG==="zh"?"链数据中心":"Chain")+' · Polygon</div>'+
+  '<div class="banner">⚠️ '+(LANG==="zh"?"P 链当前只有历史日线（GeckoTerminal，截至 2026-10-27），不是实时行情；实时储备与交易索引待接入。":"Polygon data is historical daily closes (to 2026-10-27), not live. Live reserves/indexing pending.")+'</div><div class="grid g4">'+
+  statCard(LANG==="zh"?"收盘价（10-27）":"Close (10-27)", fmtP(last?last[1]:null), "30d "+(chg30===null?"—":(chg30>=0?"+":"")+chg30.toFixed(1)+"%"),"h","priceP",1)+
+  statCard(LANG==="zh"?"历史窗口最高":"Window High", "$12.31", "2025-10-29（"+(LANG==="zh"?"窗口内":"in window")+"）","h","priceP")+
+  pendingCard(LANG==="zh"?"P 链底池储备":"P Pool Reserves", LANG==="zh"?"QuickSwap 池储备实时读取待接入":"Live reserve reads pending")+
+  pendingCard(LANG==="zh"?"P 链国库 / 质押":"P Treasury / Staking", "origindefi.io "+(LANG==="zh"?"合约待核实":"contracts unverified"))+'</div>'+
+  '<div class="sec-title">'+(LANG==="zh"?"价格走势（日线 · 364 天）":"Price History (daily · 364d)")+'</div>'+
+  '<div class="card"><div class="chartwrap"><canvas class="chart" id="chP"></canvas><div class="tip" id="tipP"></div></div>'+
+  '<div class="sub">2025-10-29 $12.07 → 2026-10-27 $0.2526 · QuickSwap '+(LANG==="zh"?"池":"pool")+' 0x882d…85bfb · ⚠️ 2024-03 → 2025-10 '+(LANG==="zh"?"历史段免费数据源缺失，未拼接、未编造":"segment missing from free sources — not fabricated")+'</div></div>';
+};
+AFTER.pchain = function(){ const cv=$("#chP"); if(cv){ drawChart(cv, D.polygon_hist, "#4db2ff"); bindTip(cv,$("#tipP"),"$"); } };
+VIEWS.ailgns = function(){
+  const ep=epochInfo();
+  const dist=[["Community "+(LANG==="zh"?"社区":""),78],["DAO",10],[LANG==="zh"?"初始流动性":"Initial Liquidity",5],[LANG==="zh"?"保险储备":"Insurance",5],[LANG==="zh"?"核心团队":"Team",2]];
+  return '<div class="sec-title">✦ AiLGNS '+(LANG==="zh"?"数据中心":"Hub")+' · AWAKE HELIX</div><div class="grid g4">'+
+  statCard(LANG==="zh"?"总供应（上限）":"Total Supply (cap)", "210,000,000", LANG==="zh"?"一次性铸造、永不增发":"Minted once, no inflation","o","ailgnsSupply",1)+
+  statCard(LANG==="zh"?"持有人（2026-10-09 核查）":"Holders (checked 10-09)", "31,921", LANG==="zh"?"历史核查值，非实时":"Historical check, not live","h","ailgnsSupply")+
+  statCard(LANG==="zh"?"当前周期":"Current Epoch", "#"+ep.epoch+" / 520", ep.start+" → "+ep.end,"o","epoch")+
+  statCard(LANG==="zh"?"协议运行天数":"Protocol Day", "#"+ep.dayIdx, LANG==="zh"?"第 1 天 = 2026-09-28（官方口径）":"Day 1 = 2026-09-28 (docs)","o","epoch")+
+  pendingCard("AiLGNS "+(LANG==="zh"?"实时价格":"Live Price"), LANG==="zh"?"2026-10-09 核查时无存活交易池、无链上市场价；页面 $1.00 无市场支撑。新池待核实":"No live pool found at last check")+
+  pendingCard(LANG==="zh"?"今日铸造 / 销毁":"Mint / Burn Today", LANG==="zh"?"代币合约待核验，事件索引待接入":"Token contract unverified")+
+  pendingCard(LANG==="zh"?"AiLGNS 底池":"AiLGNS Pool", LANG==="zh"?"底池地址待官方/链上核实":"Pool address unverified")+
+  pendingCard(LANG==="zh"?"AiLGNS 储备池":"Reserve Pool", LANG==="zh"?"与底池分开监控，地址待核实":"Address unverified")+'</div>'+
+  '<div class="sec-title">'+(LANG==="zh"?"发行分配（官方文档口径）":"Allocation (official docs)")+'</div><div class="card">'+
+  dist.map(x=>'<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><span>'+x[0]+'</span><b>'+x[1]+'%</b></div><div class="progress"><i style="width:'+x[1]+'%"></i></div></div>').join("")+
+  '<div class="sub">'+(LANG==="zh"?"团队部分 Epoch 1–52 全锁、53–520 线性释放（官方口径，未链上复核）。2026-10-09 核查：约 93% 供应由 2026-09-26 部署的代理合约集中持有，最大合约约每 20 秒小额释放。":"Team locked Epoch 1–52, linear 53–520 (docs). Oct-09 check: ~93% held by proxy contracts.")+'</div></div>'+
+  '<div class="sec-title">Power '+(LANG==="zh"?"倍数（官方文档口径）":"Multipliers (docs)")+'</div><div class="grid g3">'+
+  '<div class="card"><h3>DAI '+(LANG==="zh"?"激活":"Activate")+'</h3><div class="big">2.5×</div><div class="sub">Power '+(LANG==="zh"?"倍数":"multiplier")+' '+chip("o")+'</div></div>'+
+  '<div class="card"><h3>AiLGNS '+(LANG==="zh"?"销毁":"Burn")+'</h3><div class="big">2.5×</div><div class="sub">Power '+(LANG==="zh"?"倍数":"multiplier")+' '+chip("o")+'</div></div>'+
+  '<div class="card"><h3>LGNS '+(LANG==="zh"?"销毁":"Burn")+'</h3><div class="big">2.0×</div><div class="sub">Power '+(LANG==="zh"?"倍数":"multiplier")+' '+chip("o")+'</div></div></div>';
+};
+
+VIEWS.treasury = function(){
+  const val = (A.treasury||0)*(A.price_dai||0);
+  return '<div class="sec-title">🏛 '+(LANG==="zh"?"国库与资产储备":"Treasury & Reserves")+'</div><div class="grid g4">'+
+  statCard(LANG==="zh"?"国库 LGNS 持仓":"Treasury LGNS", fmt(A.treasury), short("0x7a2E3fA6eA60437F0441b8eb5e60674B80339228"),"v","treasury",1)+
+  statCard(LANG==="zh"?"占总供应":"Share of Supply", (A.treasury_pct||"—")+"%", "","v","treasury")+
+  statCard(LANG==="zh"?"折合价值（池内价估算）":"Value (pool price est.)", fmt(val,0)+" DAI", LANG==="zh"?"估算口径：持仓 × 池内价，不代表可变现价值":"Estimate only, not realizable value","e","treasury")+
+  pendingCard(LANG==="zh"?"国库 DAI 与其他资产":"Treasury DAI & Others", LANG==="zh"?"需逐资产读取国库地址余额，待接入":"Per-asset reads pending")+'</div>'+
+  '<div class="card" style="margin-top:12px"><h3>'+(LANG==="zh"?"供应结构":"Supply Structure")+'</h3>'+
+  '<div style="display:flex;justify-content:space-between;font-size:13px"><span>'+(LANG==="zh"?"国库持有":"Treasury")+'</span><b>'+(A.treasury_pct||"—")+'%</b></div><div class="progress"><i style="width:'+(A.treasury_pct||0)+'%"></i></div>'+
+  '<div style="display:flex;justify-content:space-between;font-size:13px;margin-top:10px"><span>'+(LANG==="zh"?"主池锁定":"In Main Pool")+'</span><b>'+(((A.pool_lgns||0)/(A.total_supply||1)*100).toFixed(1))+'%</b></div><div class="progress"><i style="width:'+((A.pool_lgns||0)/(A.total_supply||1)*100)+'%"></i></div>'+
+  '<div class="sub">'+(LANG==="zh"?"其余为全网 270 万地址分散持有。国库流入多含 rebase 增发，不能直接认定为协议收入；国库资金流、来源分类、覆盖率（负债口径未定义）均待接入，不编造。":"Remainder spread across 2.7M addresses. Treasury inflows include rebase — not protocol revenue. Flows/coverage pending.")+'</div></div>'+
+  '<div class="sec-title">'+(LANG==="zh"?"国库资金流":"Treasury Flows")+'</div><div class="grid g3">'+
+  pendingCard(LANG==="zh"?"今日流入 / 流出":"Flows Today", LANG==="zh"?"需索引国库地址转账事件":"Needs transfer indexing")+
+  pendingCard(LANG==="zh"?"资金来源分类":"Source Breakdown", LANG==="zh"?"手续费/债券/回购/调拨分类待规则确认":"Classification rules unconfirmed")+
+  pendingCard(LANG==="zh"?"储备覆盖率":"Coverage Ratio", LANG==="zh"?"负债无法可靠定义时不输出伪精确数值":"No fake precision without liability definition")+'</div>';
+};
+VIEWS.pools = function(){
+  const c = state.calc;
+  return '<div class="sec-title">💧 '+(LANG==="zh"?"流动性底池中心":"Liquidity Pools")+'</div><div class="grid g4">'+
+  statCard("LGNS/DAI "+(LANG==="zh"?"主池":"Main Pool"), fmt((A.pool_dai||0)*2,0)+" DAI", "LGNS "+fmt(A.pool_lgns,0)+" / DAI "+fmt(A.pool_dai,0),"v","poolA",1)+
+  '<div class="card"><h3>fLGNS/LGNS '+(LANG==="zh"?"池":"Pool")+' <span class="chip bad">'+(LANG==="zh"?"受限":"Restricted")+'</span></h3><div class="sub">'+(LANG==="zh"?"2026-10-27 起被 LGNS 合约 setRestricted：池内约 9,984 万 LGNS 转不出、fLGNS 卖出失败；买入不受影响。主池未受限。":"Restricted since 2026-10-27: ~99.84M LGNS locked in pool, fLGNS sells fail. Main pool unaffected.")+'</div></div>'+
+  pendingCard("AiLGNS "+(LANG==="zh"?"底池":"Pool"), LANG==="zh"?"地址与储备待核实":"Address & reserves unverified")+
+  pendingCard(LANG==="zh"?"冲锋池 / 激励池":"Charge / Incentive Pools", LANG==="zh"?"地址必须官方或链上核实，禁止猜测":"Must be verified, no guessing")+'</div>'+
+  '<div class="sec-title">'+(LANG==="zh"?"LP 价格冲击模拟器（主池真实储备）":"LP Price Impact Simulator (real reserves)")+'</div>'+
+  '<div class="card"><div class="grid g3"><div><label class="f">'+(LANG==="zh"?"方向":"Side")+'</label><select id="lpSide"><option value="buy" '+(c.lpSide!=="sell"?"selected":"")+'>'+(LANG==="zh"?"买入 LGNS（付 DAI）":"Buy LGNS (pay DAI)")+'</option><option value="sell" '+(c.lpSide==="sell"?"selected":"")+'>'+(LANG==="zh"?"卖出 LGNS（得 DAI）":"Sell LGNS (get DAI)")+'</option></select></div>'+
+  '<div><label class="f">'+(LANG==="zh"?"金额":"Amount")+'</label><input type="number" id="lpAmt" value="'+(c.lpAmt||1000)+'"></div>'+
+  '<div><label class="f">'+(LANG==="zh"?"手续费 %（按实际平台填）":"Fee % (enter actual)")+'</label><input type="number" id="lpFee" step="0.1" value="'+(c.lpFee===undefined?0:c.lpFee)+'"></div></div>'+
+  '<div id="lpOut" style="margin-top:14px"></div>'+
+  '<div class="sub">'+(LANG==="zh"?"模型：恒定乘积 x·y=k，储备为 2026-10-29 11:24 快照。手续费默认 0 —— 链上抽查最近卖单未见代币税；若某平台另收费用，请自行填入费率再算。":"Constant product x·y=k, reserves = 2026-10-29 11:24 snapshot. Default fee 0 — recent on-chain sells showed no token tax; add your platform fee if any.")+'</div></div>';
+};
+function lpCalc(){
+  const side=$("#lpSide").value, amt=parseFloat($("#lpAmt").value)||0, fee=(parseFloat($("#lpFee").value)||0)/100;
+  state.calc.lpSide=side; state.calc.lpAmt=amt; state.calc.lpFee=fee*100; saveState();
+  const x=A.pool_lgns||0, y=A.pool_dai||0, k=x*y, spot=y/x;
+  let out, avg, impact, nx, ny;
+  if(side==="buy"){ const eff=amt*(1-fee); ny=y+eff; nx=k/ny; out=x-nx; avg=amt/Math.max(out,1e-9); impact=(avg-spot)/spot*100; }
+  else { const eff=amt*(1-fee); nx=x+eff; ny=k/nx; out=y-ny; avg=out/Math.max(amt,1e-9); impact=(spot-avg)/spot*100; }
+  $("#lpOut").innerHTML = '<div class="grid g4">'+
+   '<div><div class="sub">'+(LANG==="zh"?"预计获得":"Est. Receive")+'</div><div class="big">'+fmt(out)+' '+(side==="buy"?"LGNS":"DAI")+'</div></div>'+
+   '<div><div class="sub">'+(LANG==="zh"?"平均成交价":"Avg Price")+'</div><div class="big">'+avg.toFixed(5)+'</div></div>'+
+   '<div><div class="sub">'+(LANG==="zh"?"价格冲击":"Price Impact")+'</div><div class="big '+(impact>5?"neg":"pos")+'">'+impact.toFixed(2)+'%</div></div>'+
+   '<div><div class="sub">'+(LANG==="zh"?"交易后池价":"Post-trade Price")+'</div><div class="big">'+(ny/nx).toFixed(5)+'</div></div></div>';
+}
+AFTER.pools = function(){ ["lpSide","lpAmt","lpFee"].forEach(id=>{ const e=document.getElementById(id); if(e){ e.addEventListener("input",lpCalc); e.addEventListener("change",lpCalc);} }); lpCalc(); };
+VIEWS.stake = function(){
+  return '<div class="sec-title">🔒 '+(LANG==="zh"?"质押与债券中心":"Staking & Bonds")+'</div>'+
+  '<div class="banner">⚠️ '+(LANG==="zh"?"质押/债券合约地址尚未从 origindefi.io 官方页面与链上调用核实，本页只列业务结构与口径，不显示任何数字。核实后逐项接入。":"Staking/bond contracts not yet verified from origindefi.io — structure only, no numbers shown.")+'</div><div class="grid g3">'+
+  pendingCard(LANG==="zh"?"活期质押总量":"Flexible Staking", "origindefi.io / astake "+(LANG==="zh"?"合约待核实":"contract unverified"))+
+  pendingCard(LANG==="zh"?"固定期限质押":"Fixed-term Staking", LANG==="zh"?"多种期限需分别统计，待核实":"Per-term stats pending")+
+  pendingCard(LANG==="zh"?"固定销毁债券体量":"Burn Bonds", LANG==="zh"?"有效/到期分布待合约接入":"Pending contract integration")+
+  pendingCard(LANG==="zh"?"质押率":"Staking Ratio", LANG==="zh"?"公式：有效质押量 ÷ 可质押供应（口径待确认）":"Definition unconfirmed")+
+  pendingCard(LANG==="zh"?"债券未来释放日历":"Bond Release Calendar", LANG==="zh"?"需债券到期事件索引":"Needs maturity indexing")+
+  pendingCard(LANG==="zh"?"参与地址数":"Participants", LANG==="zh"?"待事件索引":"Pending")+'</div>'+
+  '<div class="card" style="margin-top:12px"><h3>'+(LANG==="zh"?"口径说明":"Definitions")+'</h3><div class="mutelist">'+
+  (LANG==="zh"?"· 债券投入 ≠ 代币实际销毁 ≠ 最终结算权益，三者分开统计<br>· 活期与固定分开统计，不混算质押率<br>· 官方页面：":"· Bond deposit ≠ actual burn ≠ settlement rights — tracked separately<br>· Flexible vs fixed tracked separately<br>· Official: ")+
+  '<span class="mono">https://origindefi.io/#/mint/astake</span> · <span class="mono">https://anubis.origindefi.io/</span></div></div>';
+};
+VIEWS.power = function(){
+  const ep=epochInfo();
+  return '<div class="sec-title">⚡ HELIX Power '+(LANG==="zh"?"算力中心":"Hub")+'</div><div class="grid g4">'+
+  statCard(LANG==="zh"?"当前周期":"Current Epoch", "#"+ep.epoch+" / 520", ep.start+" → "+ep.end,"o","epoch",1)+
+  statCard(LANG==="zh"?"团队锁仓释放":"Team Unlock", "Epoch 53–520", LANG==="zh"?"Epoch 1–52 全锁（官方口径）":"Locked 1–52 (docs)","o","epoch")+
+  pendingCard(LANG==="zh"?"全网总算力":"Total Power", "PowerLedger 0x9E68…8C1b "+(LANG==="zh"?"读数待接入":"reads pending"))+
+  pendingCard(LANG==="zh"?"有效算力地址数":"Active Power Addresses", LANG==="zh"?"待接入":"Pending")+'</div>'+
+  '<div class="sec-title">'+(LANG==="zh"?"算力来源倍数（官方文档口径）":"Power Multipliers (docs)")+'</div><div class="grid g3">'+
+  '<div class="card"><h3>DAI '+(LANG==="zh"?"激活 Turbine":"Turbine")+'</h3><div class="big">2.5×</div><div class="sub">'+(LANG==="zh"?"需 1:1 真实买入 + 2.5% 激活费（官方口径）":"1:1 real buy + 2.5% activation fee (docs)")+'</div></div>'+
+  '<div class="card"><h3>'+(LANG==="zh"?"销毁 AiLGNS":"Burn AiLGNS")+'</h3><div class="big">2.5×</div><div class="sub">Power × 2.5</div></div>'+
+  '<div class="card"><h3>'+(LANG==="zh"?"销毁 LGNS":"Burn LGNS")+'</h3><div class="big">2.0×</div><div class="sub">Power × 2.0</div></div></div>'+
+  '<div class="card" style="margin-top:12px"><h3>'+(LANG==="zh"?"查我的算力":"My Power")+'</h3><div class="sub">'+(LANG==="zh"?"个人算力、等级、排名、产出需读 PowerLedger 与等级合约，待接入。用下方按钮可先查该地址的 LGNS/DAI 链上余额。":"Personal power/level needs PowerLedger reads — pending. Check balances meanwhile:")+'</div><div class="btnrow"><button class="btn" onclick="go(\'wallet\')">'+t("wallet")+'</button></div></div>';
+};
+VIEWS.mintburn = function(){
+  return '<div class="sec-title">🔥 '+(LANG==="zh"?"铸造与销毁中心":"Mint & Burn")+'</div><div class="grid g4">'+
+  statCard("LGNS "+(LANG==="zh"?"累计销毁":"Burned"), fmt(A.burned_reported), LANG==="zh"?"黑洞余额口径 · 待复核":"Black-hole balance · under review","d","burn",1)+
+  statCard("AiLGNS "+(LANG==="zh"?"供应":"Supply"), "2.1 亿", LANG==="zh"?"固定总量、无增发（官方口径）":"Fixed supply (docs)","o","ailgnsSupply")+
+  pendingCard("AiLGNS "+(LANG==="zh"?"今日销毁":"Burned Today"), LANG==="zh"?"销毁事件索引待接入":"Burn event index pending")+
+  pendingCard("LGNS "+(LANG==="zh"?"今日销毁":"Burned Today"), LANG==="zh"?"黑洞转入事件索引待接入":"Pending")+'</div>'+
+  '<div class="sec-title">'+(LANG==="zh"?"销毁参与资格检查器":"Burn Eligibility Checker")+'</div><div class="card">'+
+  '<label class="f">'+(LANG==="zh"?"钱包地址":"Wallet")+'</label><div style="display:flex;gap:8px"><input type="text" id="eligAddr" placeholder="0x…" value="'+state.wallet+'"><button class="btn" onclick="checkElig()">'+t("query")+'</button></div><div id="eligOut" style="margin-top:12px"></div>'+
+  '<div class="sub">'+(LANG==="zh"?"判定原则：官方规则未链上核实前，只输出「无法确认」，绝不凭猜测给「符合条件」。核查项：持币门槛 / 算力 / 等级 / 时间 / 是否已参与 —— 全部依赖待接入的合约读数。":"Until official rules are verified on-chain, the only honest output is Cannot Confirm.")+'</div></div>';
+};
+function checkElig(){
+  const a=($("#eligAddr").value||"").trim();
+  const valid=/^0x[0-9a-fA-F]{40}$/.test(a);
+  $("#eligOut").innerHTML = '<div class="card" style="border-color:var(--acc2)"><h3>'+(LANG==="zh"?"检查结果":"Result")+' <span class="chip warn">'+(LANG==="zh"?"无法确认":"Cannot Confirm")+'</span></h3><div class="sub">'+
+   (valid? (LANG==="zh"?"地址格式正确。":"Valid address format.") : (LANG==="zh"?"地址格式不正确，请检查。":"Invalid address format."))+'<br>'+
+   (LANG==="zh"?"原因：AiLGNS 代币合约与资格规则合约尚未核实接入，持币/算力/等级四项都读不到链上数据。接入后此处将逐项给出 ✓/✗ 与判定依据。":"Reason: token & eligibility contracts not yet integrated — holdings/power/level unreadable.")+'</div></div>';
+}
+VIEWS.wallet = function(){
+  return '<div class="sec-title">👛 '+(LANG==="zh"?"钱包智能分析":"Wallet Analyzer")+'</div><div class="card">'+
+  '<label class="f">Anubis '+(LANG==="zh"?"链钱包地址（只读查询，不连接、不签名）":"wallet (read-only, no signing)")+'</label>'+
+  '<div style="display:flex;gap:8px"><input type="text" id="wAddr" placeholder="'+t("walletPh")+'" value="'+state.wallet+'"><button class="btn" onclick="queryWallet()">'+t("query")+'</button></div>'+
+  '<div id="wOut" style="margin-top:14px"><div class="sub">'+(LANG==="zh"?"数据来源：Anubis 区块浏览器公开 API（实时）。AiLGNS 算力/等级待合约接入后显示。":"Source: Anubis explorer public API (live). AiLGNS power/level pending.")+'</div></div></div>';
+};
+async function queryWallet(){
+  const a=($("#wAddr").value||"").trim();
+  if(!/^0x[0-9a-fA-F]{40}$/.test(a)){ $("#wOut").innerHTML='<div class="sub neg">'+(LANG==="zh"?"地址格式不正确":"Invalid address")+'</div>'; return; }
+  state.wallet=a; saveState();
+  $("#wOut").innerHTML='<div class="sub">'+(LANG==="zh"?"查询中…":"Loading…")+'</div>';
+  try{
+    const r=await fetch(EXPL+"/api/v2/addresses/"+a+"/token-balances");
+    if(!r.ok) throw new Error(r.status);
+    const j=await r.json();
+    const find=sym=>{ const it=(j||[]).find(x=>x.token&&x.token.symbol===sym); return it? Number(it.value)/Math.pow(10,Number(it.token.decimals)) : 0; };
+    const lgns=find("LGNS"), dai=find("DAI");
+    const others=(j||[]).filter(x=>x.token&&x.token.symbol!=="LGNS"&&x.token.symbol!=="DAI").length;
+    $("#wOut").innerHTML='<div class="grid g3">'+
+     '<div><div class="sub">LGNS</div><div class="big">'+fmt(lgns)+'</div><div class="sub">≈ '+fmt(lgns*(A.price_dai||0))+' DAI</div></div>'+
+     '<div><div class="sub">DAI</div><div class="big">'+fmt(dai)+'</div></div>'+
+     '<div><div class="sub">'+(LANG==="zh"?"其他代币种类":"Other Tokens")+'</div><div class="big">'+others+'</div></div></div>'+
+     '<div class="sub" style="margin-top:10px">AiLGNS / '+(LANG==="zh"?"算力":"Power")+' / '+(LANG==="zh"?"等级":"Level")+' / '+(LANG==="zh"?"质押":"Staking")+'：'+t("pending")+'（'+(LANG==="zh"?"合约待接入":"contracts pending")+'）<br><a target="_blank" rel="noopener" href="'+EXPL+'/address/'+a+'">'+t("evidence")+' →</a></div>';
+  }catch(e){ $("#wOut").innerHTML='<div class="sub neg">'+(LANG==="zh"?"查询失败：浏览器 API 暂时不可达（钱包浏览器可能拦截跨域请求）。可点证据链接在浏览器里直接看这个地址。":"Query failed: explorer API unreachable. Use the proof link.")+'<br><a target="_blank" rel="noopener" href="'+EXPL+'/address/'+a+'">'+EXPL+'/address/'+a+'</a></div>'; }
+}
+VIEWS.calc = function(){
+  const c=state.calc;
+  return '<div class="sec-title">🧮 '+(LANG==="zh"?"AI 收益计算器":"Yield Calculator")+' '+chip("e")+'</div>'+
+  '<div class="banner">⚠️ '+(LANG==="zh"?"全部为情景估算，不保证实际收益。公式按官方文档口径：个人产出 = 周期可分配量 × 个人有效算力 ÷ 全网有效算力；实际还受权重、资格、周期规则影响。":"Scenario estimates only — not a guarantee. Share = cycle distribution × my power ÷ total power.")+'</div>'+
+  '<div class="grid g2"><div class="card"><h3>'+(LANG==="zh"?"模式二：个人算力收益":"Mode 2: Power Share")+'</h3>'+
+  '<label class="f">'+(LANG==="zh"?"我的有效算力 Power":"My Power")+'</label><input type="number" id="cMy" value="'+(c.my||1000)+'">'+
+  '<label class="f">'+(LANG==="zh"?"全网有效算力 Power":"Total Power")+'</label><input type="number" id="cTot" value="'+(c.tot||1000000)+'">'+
+  '<label class="f">'+(LANG==="zh"?"每周期可分配 AiLGNS":"AiLGNS per Epoch")+'</label><input type="number" id="cIssue" value="'+(c.issue||100000)+'">'+
+  '<div id="cOut1" style="margin-top:12px"></div></div>'+
+  '<div class="card"><h3>'+(LANG==="zh"?"模式一：投入金额估算":"Mode 1: Deposit Estimate")+'</h3>'+
+  '<label class="f">'+(LANG==="zh"?"投入 DAI":"Deposit DAI")+'</label><input type="number" id="cDai" value="'+(c.dai||1000)+'">'+
+  '<label class="f">'+(LANG==="zh"?"获得 Power（DAI 激活官方倍数 2.5×）":"Power Gained (DAI 2.5× per docs)")+'</label><input type="number" id="cPow" value="'+(c.pow||2500)+'">'+
+  '<label class="f">AiLGNS '+(LANG==="zh"?"参考价（DAI）":"Ref Price (DAI)")+'</label><input type="number" id="cPx" step="0.01" value="'+(c.px||1)+'">'+
+  '<label class="f">'+(LANG==="zh"?"参与周期数":"Epochs")+'</label><input type="number" id="cEp" value="'+(c.ep||52)+'">'+
+  '<div id="cOut2" style="margin-top:12px"></div></div></div>'+
+  '<div class="card" style="margin-top:12px"><h3>'+(LANG==="zh"?"模式四：情景模拟（价格 × 算力增长）":"Mode 4: Scenarios")+'</h3><div id="cOut3"></div></div>';
+};
+function calcRun(){
+  const my=parseFloat($("#cMy").value)||0, tot=parseFloat($("#cTot").value)||1, issue=parseFloat($("#cIssue").value)||0;
+  const dai=parseFloat($("#cDai").value)||0, pow=parseFloat($("#cPow").value)||0, px=parseFloat($("#cPx").value)||0, ep=parseFloat($("#cEp").value)||0;
+  Object.assign(state.calc,{my,tot,issue,dai,pow,px,ep}); saveState();
+  const share=my/Math.max(tot,1), per=issue*share;
+  $("#cOut1").innerHTML='<div class="kv"><span>'+(LANG==="zh"?"我的算力占比":"My Share")+'</span><b>'+(share*100).toFixed(4)+'%</b></div>'+
+   '<div class="kv"><span>'+(LANG==="zh"?"每周期预估产出":"Per Epoch")+'</span><b>'+fmt(per)+' AiLGNS</b></div>'+
+   '<div class="kv"><span>'+(LANG==="zh"?"每日预估（÷7）":"Per Day")+'</span><b>'+fmt(per/7)+' AiLGNS</b></div>'+
+   '<div class="kv"><span>30 '+(LANG==="zh"?"天预估":"days")+'</span><b>'+fmt(per/7*30)+' AiLGNS</b></div>';
+  const tot2=tot+pow, per2=issue*(pow/Math.max(tot2,1)), totOut=per2*ep;
+  $("#cOut2").innerHTML='<div class="kv"><span>'+(LANG==="zh"?"投入后算力占比":"Share After")+'</span><b>'+(pow/Math.max(tot2,1)*100).toFixed(4)+'%</b></div>'+
+   '<div class="kv"><span>'+(LANG==="zh"?"每周期预估产出":"Per Epoch")+'</span><b>'+fmt(per2)+' AiLGNS</b></div>'+
+   '<div class="kv"><span>'+ep+' '+(LANG==="zh"?"周期累计":"epochs total")+'</span><b>'+fmt(totOut)+' AiLGNS</b></div>'+
+   '<div class="kv"><span>'+(LANG==="zh"?"按参考价折合":"Value @ ref price")+'</span><b>'+fmt(totOut*px)+' DAI</b></div>'+
+   '<div class="kv"><span>'+(LANG==="zh"?"情景收益率":"Scenario ROI")+'</span><b>'+(dai?((totOut*px-dai)/dai*100).toFixed(1):"—")+'%</b></div>';
+  const rows=[[(LANG==="zh"?"保守":"Conservative"),0.5,2],[(LANG==="zh"?"基准":"Base"),1,1.5],[(LANG==="zh"?"乐观":"Optimistic"),2,1.2]].map(s=>{
+    const o=issue*(pow/Math.max(tot*s[2]+pow,1))*ep*s[1]; return '<tr><td>'+s[0]+'</td><td class="num">'+fmt(o)+' AiLGNS</td><td class="num">'+fmt(o*px)+' DAI</td><td class="num">'+(dai?((o*px-dai)/dai*100).toFixed(1):"—")+'%</td></tr>'; }).join("");
+  $("#cOut3").innerHTML='<div class="tscroll" style="border:0"><table style="min-width:0"><tr><th>'+(LANG==="zh"?"情景":"Scenario")+'</th><th class="num">'+(LANG==="zh"?"累计产出":"Output")+'</th><th class="num">'+(LANG==="zh"?"折合":"Value")+'</th><th class="num">ROI</th></tr>'+rows+'</table></div><div class="sub">'+(LANG==="zh"?"情景参数：价格倍数 ×0.5/×1/×2、全网算力增长 ×2/×1.5/×1.2。估算不等于承诺。":"Price ×0.5/×1/×2, network growth ×2/×1.5/×1.2. Estimates are not promises.")+'</div>';
+}
+AFTER.calc = function(){ ["cMy","cTot","cIssue","cDai","cPow","cPx","cEp"].forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener("input",calcRun); }); calcRun(); };
+VIEWS.monitor = function(){
+  const rows=CONTRACTS.map(c=>'<tr><td>'+c[0]+'</td><td class="mono" style="font-size:11px">'+(c[1]==="—"?"—":short(c[1])+' <button class="copy" onclick="copyTxt(\''+c[1]+'\')">'+t("copy")+'</button>')+'</td><td>'+chip(c[2])+'</td><td style="white-space:normal;min-width:200px">'+c[3]+'</td></tr>').join("");
+  return '<div class="sec-title">🛡 '+(LANG==="zh"?"链上监控与数据证据中心":"Monitor & Proof")+'</div>'+
+  '<div class="card" style="margin-bottom:12px"><h3>'+(LANG==="zh"?"合约与地址核验登记表":"Contract Registry")+'</h3><div class="tscroll" style="border:0"><table><tr><th>'+(LANG==="zh"?"名称":"Name")+'</th><th>'+(LANG==="zh"?"地址":"Address")+'</th><th>'+(LANG==="zh"?"状态":"Status")+'</th><th>'+(LANG==="zh"?"说明":"Note")+'</th></tr>'+rows+'</table></div></div>'+
+  '<div class="grid g2"><div class="card"><h3>'+(LANG==="zh"?"已记录的合约风险事件":"Recorded Risk Events")+'</h3><div class="mutelist">'+
+  (LANG==="zh"?"· 2026-10-27 02:21 LGNS 代理升级新实现<br>· 2026-10-27 02:23 部署者 setRestricted 限制 fLGNS/LGNS 池，池内 LGNS 冻结至今<br>· LGNS 实现可升级、可暂停（已实查）<br>· AiLGNS 实现合约未验证、约 93% 供应由代理合约集中持有（2026-10-09）":"· 2026-10-27 LGNS proxy upgraded; fLGNS pool restricted & frozen<br>· LGNS implementation upgradeable & pausable (verified)<br>· AiLGNS implementation unverified, ~93% in proxies (2026-10-09)")+'</div></div>'+
+  '<div class="card"><h3>'+(LANG==="zh"?"大额与异常监控":"Whale & Anomaly")+'</h3><div class="mutelist">'+(LANG==="zh"?"· LGNS 看板每 6 小时扫描大额转账与国库异动（运行中）<br>· 巨鲸买卖排行、自定义阈值提醒：待事件索引接入<br>· 本站不生成无依据的「安全分数」":"· Dashboard scans large transfers every 6h (live)<br>· Whale rankings & alerts: pending indexing<br>· No baseless safety scores here")+'</div></div></div>';
+};
+VIEWS.dict = function(){
+  const rows=Object.values(METRICS).map(m=>'<tr><td style="white-space:normal;min-width:160px">'+m.name+'</td><td>'+m.chain+'</td><td style="white-space:normal;min-width:220px">'+m.formula+'</td><td style="white-space:normal;min-width:200px">'+m.src+'</td></tr>').join("");
+  return '<div class="sec-title">📖 '+(LANG==="zh"?"指标字典":"Metric Dictionary")+'</div><div class="card"><div class="tscroll" style="border:0"><table><tr><th>'+(LANG==="zh"?"指标":"Metric")+'</th><th>'+t("chain")+'</th><th>'+t("formula")+'</th><th>'+t("src")+'</th></tr>'+rows+'</table></div>'+
+  '<div class="sub" style="margin-top:10px">'+(LANG==="zh"?"通用口径：净买入 = 买入额 − 卖出额（交易统计 ≠ 协议外部净流入）；换手率 = 周期成交量 ÷ 平均流通量；质押率 = 有效质押 ÷ 可质押供应；净供应变化 = 新增发行 − 永久销毁；DAI 未经汇率验证不直接等同 USD。":"Net buy = buys − sells (not protocol inflow); Turnover = volume ÷ avg float; Net supply change = minted − burned; DAI ≠ USD without rate check.")+'</div></div>';
+};
+render();
+</script>
+</body>
+</html>
