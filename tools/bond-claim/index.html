@@ -66,6 +66,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div class="row"><span>自动出价上限</span><span><select id="gcap"><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000" selected>5000 gwei（一笔最多约 2.4 DAI）</option><option value="10000">10000 gwei（最多约 5 DAI）</option></select></span></div>
   <div class="row"><span>出价格式</span><span><select id="feeMode"><option value="legacy" selected>旧式 gasPrice</option><option value="1559">EIP-1559（钱包不认旧式时用）</option></select></span></div>
   <div class="row"><span>本次出价</span><span id="bidNow">—</span></div>
+  <div class="row"><span>钱包认不认页面出价</span><span><button class="btn sec" id="btnTestFee" style="padding:6px 12px;font-size:14px" disabled>测试（0 元自转账，约 0.002 DAI）</button> <span id="feeTest">未测</span></span></div>
   <div class="row"><span>可领取少于多少就不领</span><span><select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select></span></div>
   <div class="row"><span>领到后</span><span><select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select></span></div>
   <div class="row"><span>状态</span><span id="armState">未开启</span></div>
@@ -146,7 +147,7 @@ async function loadWallet(){
   const okGas=G>=5n*10n**16n, okCl=C>0n;
   $('cnt').textContent=N+' 笔'; $('claimable').innerHTML='<b class="'+(okCl?'ok':'warn')+'">'+f9(C)+' LGNS</b>'; $('maxPiece').textContent=pieces.length?('第 '+(pieces[0].i+1)+' 笔 '+f9(pieces[0].amt)+' LGNS'):'—';
   $('gas').innerHTML='<span class="'+(okGas?'ok':'bad')+'">'+f18(G)+(okGas?' ✓':' ✗ 太少（至少 0.05）')+'</span>';
-  st.eligible=okGas&&N>0;
+  st.eligible=okGas&&N>0; $('btnTestFee').disabled=!okGas;
   const needBig=plan().amt>=10000n*10n**9n; showBid();
   $('verdict').innerHTML=!N?'<b class="bad">这个钱包没有销毁债券</b>':!okGas?'<b class="bad">gas 不够，先转点 DAI 进来</b>':!okCl?'<b class="warn">暂时没有可领的，等下次释放（每天两次记账）</b>':'<b class="ok">可以领，整点开抢</b>'+(needBig?'<br><span class="warn">大额：必须落在整点第 1 块，gas 要高</span>':'');
   $('btnArm').disabled=!st.eligible; $('btnNow').disabled=!st.eligible;
@@ -171,6 +172,7 @@ async function connect(){
     $('chain').innerHTML=cid===CHAIN_ID?'<span class="ok">Anubis (6714) ✓</span>':'<span class="bad">链不对：'+cid+'，请在钱包切到 Anubis</span>';
     eth.on&&eth.on('accountsChanged',()=>location.reload()); eth.on&&eth.on('chainChanged',()=>location.reload());
     log('已连接 '+me+(DRILL?'（演练模式）':'')); keepAwake();
+    try{ const w=eth.isOkxWallet||eth.isOKExWallet||window.okxwallet?'OKX':eth.isTokenPocket?'TokenPocket':eth.isImToken?'imToken':eth.isBitKeep?'Bitget':eth.isMetaMask?'MetaMask':'未知'; st.walletName=w; log('钱包：'+w+(w==='OKX'?'（实测 OKX 会把页面出价改成默认 12 gwei，先点「测试」看它认哪种格式）':''),w==='OKX'?'warn':''); }catch(e){}
     if(!DRILL){ try{ const [a,b]=await Promise.all([call(BONDS.lgns.addr,SEL.getUserDepositCount+addr32(me)),call(BONDS.fixed.addr,SEL.getUserDepositCount+addr32(me))]); const na=Number(big(a)), nb=Number(big(b)); log('你的债券：LGNS 销毁债券 '+na+' 张，固定价销毁债券 '+nb+' 张'); const cur=$('bond').value; if(cur==='lgns'&&na===0&&nb>0) setBond('fixed','（你只在这张有债券）'); else if(cur==='fixed'&&nb===0&&na>0) setBond('lgns','（你只在这张有债券）'); else if(na>0&&nb>0) log('两张都有债券：一个整点只能抢其中一张，想换张就在上面切换','warn'); }catch(e){} }
     await loadState();
   }catch(e){log('连接失败：'+(e.message||e),'bad');}
@@ -200,6 +202,23 @@ async function checkBid(h,bid){ // 钱包可能无视页面出价(实测 100→1
   if(!t) return; const real=Number(BigInt(t.gasPrice||t.maxFeePerGas||0))/1e9; st.realBid=real;
   if(real<bid*0.8){ const fm=$('feeMode').value; log('⚠ 钱包没按页面出价：页面要 '+bid+' gwei，钱包实际只发了 '+real+' gwei，这样排不进整点第 1 块。'+(fm==='legacy'?'已自动改成 EIP-1559 格式，下个整点再试；':'两种格式钱包都不认，')+'请在钱包确认页手动把 gas 价格改成 '+bid+' gwei，或换 TokenPocket / OKX 钱包打开本页','bad'); if(fm==='legacy'){ $('feeMode').value='1559'; LS('bc_feeMode','1559'); } }
   else log('钱包实际出价 '+real+' gwei ✓');
+}
+async function testFee(){
+  if(!me){ log('先连接钱包','warn'); return; } if(busy) return; busy=true; $('btnTestFee').disabled=true;
+  const order=[$('feeMode').value, $('feeMode').value==='1559'?'legacy':'1559']; let okFmt='';
+  try{
+    for(const fm of order){
+      const wei='0x'+(100n*10n**9n).toString(16);
+      const tx=fm==='1559'?{from:me,to:me,value:'0x0',type:'0x2',maxFeePerGas:wei,maxPriorityFeePerGas:wei,gas:'0x5208'}:{from:me,to:me,value:'0x0',type:'0x0',gasPrice:wei,gas:'0x5208'};
+      log('测试 '+(fm==='1559'?'EIP-1559':'旧式 gasPrice')+' 格式：请在钱包确认这笔 0 元自转账（页面要求 100 gwei）','warn');
+      let h; try{ h=await eth.request({method:'eth_sendTransaction',params:[tx]}); }catch(e){ if(isReject(e)){ log('你取消了测试','warn'); return; } log('该格式钱包直接拒绝（'+(e.message||e).slice(0,60)+'）','bad'); continue; }
+      let t=null; for(let i=0;i<20&&!t;i++){ try{ t=await rpc('eth_getTransactionByHash',[h]); }catch(e){} if(!t) await sleep(500); }
+      const real=t?Number(BigInt(t.gasPrice||t.maxFeePerGas||0))/1e9:NaN;
+      if(real>=80){ okFmt=fm; log('✓ 钱包按 '+(fm==='1559'?'EIP-1559':'旧式')+' 格式照办了，实际 '+real+' gwei。已设为该格式','ok'); $('feeMode').value=fm; LS('bc_feeMode',fm); $('feeTest').innerHTML='<span class="ok">认 '+(fm==='1559'?'EIP-1559':'旧式')+' ✓</span>'; break; }
+      log('✗ 该格式被钱包改成 '+(isNaN(real)?'未知':real+' gwei'),'bad');
+    }
+    if(!okFmt){ $('feeTest').innerHTML='<span class="bad">两种都不认</span>'; log('两种格式钱包都不照办。抢的时候请在钱包确认页点"网络费用"→"自定义"，把 gas 价格手动填成页面显示的"本次出价"，再确认；或换 TokenPocket 钱包打开本页（它照单全收）','bad'); }
+  }finally{ busy=false; $('btnTestFee').disabled=false; }
 }
 async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||90000)){try{const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;}catch(e){}await sleep(350);}return null;}
 async function simulate(data){ try{ await call(A.BOND,data,me); return ''; }catch(e){ return reason(e)||'unknown'; } }
@@ -291,6 +310,7 @@ function tick(){ const H=nextHour(); $('nextIn').textContent=bj(H); const left=M
 setBond(LS('bc_bond')||'lgns');
 $('bond').addEventListener('change',()=>{ setBond($('bond').value,'，重新读取额度和可领取'); sched.H=0; clearTimeout(sched.timer); calibratedHour=0; loadState().catch(()=>{}); });
 ['gwei','gcap','feeMode','mode'].forEach(id=>$(id).addEventListener('change',()=>{ try{showBid();}catch(e){} }));
+$('btnTestFee').onclick=testFee;
 $('btnConnect').onclick=connect; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=async()=>{ if(busy)return; busy=true; try{ await readCap(); await loadWallet(); const p=plan(); const why=await simulate(p.data); if(why){ log(capHit(why)?'本小时额度已领光（claim cap），现在发必败，等整点':poolEmpty(why)?'国库没币，领不了（'+why+'）':'合约拒绝：'+why,'bad'); return; } log('手动：模拟通过，立刻领一笔'); await attempt(0); }catch(e){ log('出错：'+(e.message||e),'bad'); } finally{ busy=false; loadState(); } };
 ['mode','lead','gwei','gcap','feeMode','minClaim','keep','auto'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
