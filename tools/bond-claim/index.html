@@ -113,14 +113,14 @@ function showSkew(){ $('skew').textContent=(offset===null?'粗 '+coarse.toFixed(
 const off=()=>offset===null?coarse+0.5:offset;      // 本机时间 − 链时间
 const chainNow=()=>Date.now()/1000-off();
 async function calibrate(ms){ // 轮询区块号,新块出现的本机时刻 − 块时间戳,取最小值(最新鲜的一次观察)
-  const t0=Date.now(); let last=null, best=null, n=0;
+  const t0=Date.now(); let last=null, best=null, n=0, minRtt=null;
   while(Date.now()-t0<(ms||8000)){
-    try{ const bn=parseInt(await rpc('eth_blockNumber',[]),16); const now=Date.now()/1000;
+    try{ const tq=Date.now(); const bn=parseInt(await rpc('eth_blockNumber',[]),16); const now=Date.now()/1000; const rtt=(Date.now()-tq)/1000; if(minRtt===null||rtt<minRtt)minRtt=rtt;
       if(last!==null&&bn>last){ const b=await rpc('eth_getBlockByNumber',['0x'+bn.toString(16),false]); if(b){ const o=now-parseInt(b.timestamp,16); if(best===null||o<best)best=o; n++; } }
       last=bn; }catch(e){}
     await sleep(110);
   }
-  if(best!==null){ offset=best; showSkew(); log('时钟精校准完成：'+n+' 个区块，偏差 '+best.toFixed(2)+' 秒'); } else log('精校准没抓到新区块，先用粗校准','warn');
+  if(best!==null){ offset=best-(minRtt||0)/2; showSkew(); log('时钟精校准完成：'+n+' 个区块，网络往返 '+(minRtt||0).toFixed(2)+' 秒，偏差 '+offset.toFixed(2)+' 秒（本机−链）'); } else log('精校准没抓到新区块，先用粗校准','warn');
 }
 const nextHour=()=>Math.floor(chainNow()/WINDOW)*WINDOW+WINDOW;   // 下个窗口起点(链时间)
 const tapMem=()=>Number(LS('bc_tap')||0);
@@ -180,7 +180,7 @@ function tune(delta,why){ if($('auto').value!=='1')return; const cur=Number(LS('
 async function attempt(H){
   const p=plan(); if(p.amt<=0n){ log('没有可领的','warn'); return 'fail'; }
   try{
-    buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; log('弹钱包：领 '+p.label+' LGNS，gas '+$('gwei').value+' gwei —— 请立刻点确认','warn');
+    buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; const cs=chainNow(), rel=H?cs-H:0; log('弹钱包：领 '+p.label+' LGNS，gas '+$('gwei').value+' gwei'+(H?'（估计链时间 整点'+(rel<0?'前 ':'后 +')+Math.abs(rel).toFixed(2)+' 秒）':'')+' —— 请立刻点确认','warn');
     const tTap=Date.now(); const h=await sendTx(A.BOND,p.data,Number($('gwei').value),p.gas); const tap=((Date.now()-tTap)/1000).toFixed(1);
     log('已广播（从弹出到发出 '+tap+' 秒）'+h);
     let learned=false; if(H&&$('auto').value==='1'){ const prev=tapMem(); const nt=Math.round((prev>0?prev*0.4+Number(tap)*0.6:Number(tap))*10)/10; LS('bc_tap',String(nt)); if(!prev||Math.abs(nt-prev)>=1){ learned=true; LS('bc_leadAdj','0'); log('记住你的手速 '+nt.toFixed(1)+' 秒：下次整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); } }
