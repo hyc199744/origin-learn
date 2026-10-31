@@ -62,7 +62,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div class="row"><span>领取方式</span><span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></span></div>
   <div class="row"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
   <div class="row"><span>自动微调时机</span><span><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select></span></div>
-  <div class="row"><span>Gas 价格</span><span><select id="gwei"><option value="60">60 gwei</option><option value="100" selected>100 gwei（推荐）</option><option value="200">200 gwei</option></select></span></div>
+  <div class="row"><span>Gas 价格</span><span><select id="gwei"><option value="60">60 gwei</option><option value="100" selected>100 gwei（推荐）</option><option value="200">200 gwei</option><option value="500">500 gwei（大额首选，一笔约 0.1 DAI）</option><option value="1000">1000 gwei（一笔约 0.25 DAI）</option></select></span></div>
   <div class="row"><span>可领取少于多少就不领</span><span><select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select></span></div>
   <div class="row"><span>领到后</span><span><select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select></span></div>
   <div class="row"><span>状态</span><span id="armState">未开启</span></div>
@@ -127,7 +127,7 @@ async function calibrate(ms){ // 轮询区块号,新块出现的本机时刻 −
 }
 const nextHour=()=>Math.floor(chainNow()/WINDOW)*WINDOW+WINDOW;   // 下个窗口起点(链时间)
 const tapMem=()=>Number(LS('bc_tap')||0);
-const lead=()=>{ const v=Number($('lead').value); if(v===0)return 0; const adj=Number(LS('bc_leadAdj')||0); const t=tapMem(); const base=($('auto').value==='1'&&t>0)?t+0.5:v; return Math.min(15,Math.max(0.3,base+adj)); };
+const lead=()=>{ const v=Number($('lead').value); if(v===0)return 0; const adj=Number(LS('bc_leadAdj')||0); const t=tapMem(); const aim=($('bond').value==='fixed')?0.0:0.5; const base=($('auto').value==='1'&&t>0)?t+aim:v; return Math.min(15,Math.max(0.3,base+adj)); };
 
 /* ---- 读链 ---- */
 async function readCap(){ const [c,u,p]=await Promise.all([call(A.BOND,SEL.cap),call(A.BOND,SEL.used),call(A.LGNS,SEL.balanceOf+addr32(A.TREASURY))]); st.cap=big(c); st.used=big(u); st.pool=big(p);
@@ -144,7 +144,8 @@ async function loadWallet(){
   $('cnt').textContent=N+' 笔'; $('claimable').innerHTML='<b class="'+(okCl?'ok':'warn')+'">'+f9(C)+' LGNS</b>'; $('maxPiece').textContent=pieces.length?('第 '+(pieces[0].i+1)+' 笔 '+f9(pieces[0].amt)+' LGNS'):'—';
   $('gas').innerHTML='<span class="'+(okGas?'ok':'bad')+'">'+f18(G)+(okGas?' ✓':' ✗ 太少（至少 0.05）')+'</span>';
   st.eligible=okGas&&N>0;
-  $('verdict').innerHTML=!N?'<b class="bad">这个钱包没有销毁债券</b>':!okGas?'<b class="bad">gas 不够，先转点 DAI 进来</b>':!okCl?'<b class="warn">暂时没有可领的，等下次释放（每天两次记账）</b>':'<b class="ok">可以领，整点开抢</b>';
+  const needBig=plan().amt>=10000n*10n**9n; if(needBig&&Number($('gwei').value)<500&&!LS('bc_gweiUser')){ $('gwei').value='500'; LS('bc_gwei','500'); log('这笔要 '+f9(plan().amt)+' LGNS，占整点额度两成以上：gas 已自动调到 500 gwei，确保排在同区块最前面（一笔约 0.1 DAI）','warn'); }
+  $('verdict').innerHTML=!N?'<b class="bad">这个钱包没有销毁债券</b>':!okGas?'<b class="bad">gas 不够，先转点 DAI 进来</b>':!okCl?'<b class="warn">暂时没有可领的，等下次释放（每天两次记账）</b>':'<b class="ok">可以领，整点开抢</b>'+(needBig?'<br><span class="warn">大额：必须落在整点第 1 块，gas 要高</span>':'');
   $('btnArm').disabled=!st.eligible; $('btnNow').disabled=!st.eligible;
   return st.eligible;
 }
@@ -262,6 +263,7 @@ function tick(){ const H=nextHour(); $('nextIn').textContent=bj(H); const left=M
 
 setBond(LS('bc_bond')||'lgns');
 $('bond').addEventListener('change',()=>{ setBond($('bond').value,'，重新读取额度和可领取'); sched.H=0; clearTimeout(sched.timer); calibratedHour=0; loadState().catch(()=>{}); });
+$('gwei').addEventListener('change',()=>LS('bc_gweiUser','1'));
 $('btnConnect').onclick=connect; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=async()=>{ if(busy)return; busy=true; try{ await readCap(); await loadWallet(); const p=plan(); const why=await simulate(p.data); if(why){ log(capHit(why)?'本小时额度已领光（claim cap），现在发必败，等整点':poolEmpty(why)?'国库没币，领不了（'+why+'）':'合约拒绝：'+why,'bad'); return; } log('手动：模拟通过，立刻领一笔'); await attempt(0); }catch(e){ log('出错：'+(e.message||e),'bad'); } finally{ busy=false; loadState(); } };
 ['mode','lead','gwei','minClaim','keep','auto'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
