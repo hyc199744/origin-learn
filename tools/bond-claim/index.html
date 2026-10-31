@@ -130,6 +130,7 @@ async function calibrate(ms){ // 轮询区块号,新块出现的本机时刻 −
   if(best!==null){ offset=best-(minRtt||0)/2; showSkew(); log('时钟精校准完成：'+n+' 个区块，网络往返 '+(minRtt||0).toFixed(2)+' 秒，偏差 '+offset.toFixed(2)+' 秒（本机−链）'); } else log('精校准没抓到新区块，先用粗校准','warn');
 }
 const nextHour=()=>Math.floor(chainNow()/WINDOW)*WINDOW+WINDOW;   // 下个窗口起点(链时间)
+try{ if(localStorage.getItem('bc_v')!=='9'){ localStorage.removeItem('bc_leadAdj'); localStorage.setItem('bc_v','9'); } }catch(e){} /* 10-31 22:30 换了提前量算法,旧的修正量作废一次 */
 const tapMem=()=>Number(LS('bc_tap')||0);
 const TARGET=()=>($('bond').value==='fixed')?1.0:0.4; /* 想让交易落在整点后几秒:固定价债券额度能撑 3 秒,瞄 +1.0;LGNS 债券 1~2 秒就光,瞄 +0.4 */
 const lead=()=>{ const v=Number($('lead').value); if(v===0)return 0; const adj=Number(LS('bc_leadAdj')||0); const t=tapMem(); const k=($('bond').value==='fixed')?0.65:0.85; /* 只按手速的 65%/85% 提前弹:哪怕这次点得比平时快,交易也落不到整点前 */ const base=($('auto').value==='1'&&t>0)?t*k:v; return Math.min(15,Math.max(0.3,base+adj)); };
