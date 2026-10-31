@@ -27,7 +27,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 </style>
 </head>
 <body>
-<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 10-31 22:30</span></h1>
+<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 10-31 23:45</span></h1>
 <div class="sub">anubis.origindefi.io 销毁债券领取。<b>10-29 合约升级后的新规则：两张销毁债券各自每个整点全网只放 50,000 LGNS</b>，谁的交易先进区块谁先拿，大户两三秒就领光。本页按链上时间算准整点，提前零点几秒弹钱包，你<b>立刻点确认</b>，用高 gas 抢进整点后的头一两个区块。请在钱包 App 内置浏览器打开；私钥始终在钱包里，每笔都要你点确认。</div>
 
 <div class="card">
@@ -60,7 +60,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 <div class="card">
   <div style="font-weight:700;margin-bottom:4px">抢领设置</div>
   <div class="row"><span>领取方式</span><span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></span></div>
-  <div class="row"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
+  <div class="row"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="cue">提前 8 秒弹出，震动+响声时再点确认（手慢必选）</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
   <div class="row"><span>自动微调时机</span><span><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select></span></div>
   <div class="row"><span>Gas 出价</span><span><select id="gwei"><option value="auto" selected>自动（上一整点第 1 块最高价再加三成）</option><option value="100">100 gwei</option><option value="300">300 gwei</option><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000">5000 gwei</option><option value="10000">10000 gwei</option></select></span></div>
   <div class="row"><span>自动出价上限</span><span><select id="gcap"><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000" selected>5000 gwei（一笔最多约 2.4 DAI）</option><option value="10000">10000 gwei（最多约 5 DAI）</option></select></span></div>
@@ -70,7 +70,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div class="row"><span>可领取少于多少就不领</span><span><select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select></span></div>
   <div class="row"><span>领到后</span><span><select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select></span></div>
   <div class="row"><span>状态</span><span id="armState">未开启</span></div>
-  <div class="note">开启后保持本页在前台、钱包已解锁、别锁屏。整点前 10 秒会震动提醒，整点前弹钱包并长震（第一次按你选的时机，之后按你上次点确认的手速自动提前），<b>看到就点确认，别犹豫</b>。提前弹出时钱包可能提示"交易可能失败"，那是因为它按整点前的状态模拟的，照点确认即可。出价是硬通货：同一区块按 gas 从高到低执行，大户已出到 3000 gwei，自动出价会盯着上一整点的最高价再加三成。没抢到只损失那笔 gas，下个整点自动再来。期间如果别人没领满、额度有剩，也会立刻弹钱包。</div>
+  <div class="note">开启后保持本页在前台、钱包已解锁、别锁屏。整点前 10 秒会震动提醒，整点前弹钱包并长震（第一次按你选的时机，之后按你上次点确认的手速自动提前），<b>看到就点确认，别犹豫</b>。提前弹出时钱包可能提示"交易可能失败"，那是因为它按整点前的状态模拟的，照点确认即可。出价是硬通货：同一区块按 gas 从高到低执行，大户已出到 3000 gwei，自动出价会盯着上一整点的最高价再加三成。没抢到只损失那笔 gas，下个整点自动再来。期间如果别人没领满、额度有剩，也会立刻弹钱包。<b>「提前 8 秒弹出」模式（默认）：钱包弹出后先别点，手指放在确认键上，整点前约 1 秒手机会长震并响三声，感到就点，不用自己估时间；页面会按实际落点自动微调提示时刻。</b></div>
 </div>
 
 <div class="card"><div style="font-weight:700;margin-bottom:4px">日志</div><div id="log"></div></div>
@@ -130,10 +130,12 @@ async function calibrate(ms){ // 轮询区块号,新块出现的本机时刻 −
   if(best!==null){ offset=best-(minRtt||0)/2; showSkew(); log('时钟精校准完成：'+n+' 个区块，网络往返 '+(minRtt||0).toFixed(2)+' 秒，偏差 '+offset.toFixed(2)+' 秒（本机−链）'); } else log('精校准没抓到新区块，先用粗校准','warn');
 }
 const nextHour=()=>Math.floor(chainNow()/WINDOW)*WINDOW+WINDOW;   // 下个窗口起点(链时间)
-try{ if(localStorage.getItem('bc_v')!=='9'){ localStorage.removeItem('bc_leadAdj'); localStorage.setItem('bc_v','9'); } }catch(e){} /* 10-31 22:30 换了提前量算法,旧的修正量作废一次 */
+try{ if(localStorage.getItem('bc_v')!=='10'){ localStorage.removeItem('bc_leadAdj'); localStorage.setItem('bc_lead','cue'); localStorage.setItem('bc_v','10'); } }catch(e){} /* 10-31 23:45 新增"提前弹出、震动再点"模式并设为默认:人手速差几秒就错过 2 个区块的窗口,改成由页面在最佳时刻提示点确认 */
+const CUE_POP=8; if(DRILL) window.__bc={get lead(){return lead()},get cue(){return cueLead()},get isCue(){return isCue()},tune:(d,w)=>tune(d,w),beep:()=>beep(),$:id=>$(id)}; const isCue=()=>$('lead').value==='cue'; const cueLead=()=>Math.min(4,Math.max(0.2,Number(LS('bc_cue')||1.2)));
+let AC=null; function beep(){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended')AC.resume(); const t=AC.currentTime; [0,0.22,0.44].forEach((d,i)=>{ const o=AC.createOscillator(),g=AC.createGain(); o.type='square'; o.frequency.value=i<2?880:1320; g.gain.setValueAtTime(0.0001,t+d); g.gain.exponentialRampToValueAtTime(0.5,t+d+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+d+0.18); o.connect(g).connect(AC.destination); o.start(t+d); o.stop(t+d+0.2); }); }catch(e){} }
 const tapMem=()=>Number(LS('bc_tap')||0);
-const TARGET=()=>($('bond').value==='fixed')?1.0:0.4; /* 想让交易落在整点后几秒:固定价债券额度能撑 3 秒,瞄 +1.0;LGNS 债券 1~2 秒就光,瞄 +0.4 */
-const lead=()=>{ const v=Number($('lead').value); if(v===0)return 0; const adj=Number(LS('bc_leadAdj')||0); const t=tapMem(); const k=($('bond').value==='fixed')?0.65:0.85; /* 只按手速的 65%/85% 提前弹:哪怕这次点得比平时快,交易也落不到整点前 */ const base=($('auto').value==='1'&&t>0)?t*k:v; return Math.min(15,Math.max(0.3,base+adj)); };
+const TARGET=()=>($('bond').value==='fixed')?0.5:0.4; /* 10-31 23:45 固定价 23:00 实测 +0/+1 两块就领光,目标落点从 +1.0 提前到 +0.5 */ /* 想让交易落在整点后几秒:固定价债券额度能撑 3 秒,瞄 +1.0;LGNS 债券 1~2 秒就光,瞄 +0.4 */
+const lead=()=>{ if(isCue())return CUE_POP; const v=Number($('lead').value); if(v===0)return 0; const adj=Number(LS('bc_leadAdj')||0); const t=tapMem(); const k=($('bond').value==='fixed')?0.65:0.85; /* 只按手速的 65%/85% 提前弹:哪怕这次点得比平时快,交易也落不到整点前 */ const base=($('auto').value==='1'&&t>0)?t*k:v; return Math.min(15,Math.max(0.3,base+adj)); };
 
 /* ---- 读链 ---- */
 async function readCap(){ const [c,u,p]=await Promise.all([call(A.BOND,SEL.cap),call(A.BOND,SEL.used),call(A.LGNS,SEL.balanceOf+addr32(A.TREASURY))]); st.cap=big(c); st.used=big(u); st.pool=big(p);
@@ -225,7 +227,7 @@ async function testFee(){
 }
 async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||90000)){try{const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;}catch(e){}await sleep(350);}return null;}
 async function simulate(data){ try{ await call(A.BOND,data,me); return ''; }catch(e){ return reason(e)||'unknown'; } }
-function tune(delta,why){ if($('auto').value!=='1')return; const cur=Number(LS('bc_leadAdj')||0); const nx=Math.round(Math.min(4,Math.max(-4,cur+Math.max(-1.5,Math.min(1.5,delta))))*10)/10; LS('bc_leadAdj',String(nx)); log('自动修正：'+why+'，下次改为整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); }
+function tune(delta,why){ if($('auto').value!=='1')return; if(isCue()){ const c=cueLead(); const nx=Math.round(Math.min(4,Math.max(0.2,c+Math.max(-1,Math.min(1,delta))))*10)/10; LS('bc_cue',String(nx)); log('自动修正：'+why+'，下次改为整点前 '+nx.toFixed(1)+' 秒震动提示点确认','warn'); return; } const cur=Number(LS('bc_leadAdj')||0); const nx=Math.round(Math.min(4,Math.max(-4,cur+Math.max(-1.5,Math.min(1.5,delta))))*10)/10; LS('bc_leadAdj',String(nx)); log('自动修正：'+why+'，下次改为整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); }
 /* 按落点修正:offset=落点区块相对整点的秒数(整数,取块中点 +0.5),把下次落点往目标拉 */
 function tuneTo(offset){ const T=TARGET(); const mid=offset+0.5; const d=T-mid; if(Math.abs(d)<0.4) return; tune(-d*0.9, offset<0?('发早了,落在整点前 '+(-offset)+' 秒'):('发晚了,落在整点后 '+offset+' 秒,目标 +'+T.toFixed(1))); }
 
@@ -233,11 +235,12 @@ function tuneTo(offset){ const T=TARGET(); const mid=offset+0.5; const d=T-mid; 
 async function attempt(H){
   const p=plan(); if(p.amt<=0n){ log('没有可领的','warn'); return 'fail'; }
   try{
-    buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; const cs=chainNow(), rel=H?cs-H:0; const lateMs=(H&&sched.popAt)?Date.now()-sched.popAt:0; if(lateMs>150) log('注意：弹窗比排定晚了 '+(lateMs/1000).toFixed(2)+' 秒（浏览器节流/卡顿），请保持本页前台、关省电','warn'); log('弹钱包：领 '+p.label+' LGNS，gas '+gweiNow()+' gwei'+(H?'（估计链时间 整点'+(rel<0?'前 ':'后 +')+Math.abs(rel).toFixed(2)+' 秒）':'')+' —— 请立刻点确认','warn');
+    if(isCue()){ $('armState').innerHTML='<b class="warn">钱包已弹出 · 先别点 · 等震动+响声再点确认</b>'; } else { buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; } const cs=chainNow(), rel=H?cs-H:0; const lateMs=(H&&sched.popAt)?Date.now()-sched.popAt:0; if(lateMs>150) log('注意：弹窗比排定晚了 '+(lateMs/1000).toFixed(2)+' 秒（浏览器节流/卡顿），请保持本页前台、关省电','warn'); log('弹钱包：领 '+p.label+' LGNS，gas '+gweiNow()+' gwei'+(H?'（估计链时间 整点'+(rel<0?'前 ':'后 +')+Math.abs(rel).toFixed(2)+' 秒）':'')+' —— 请立刻点确认','warn');
     const tTap=Date.now(); const bid=gweiNow(); const h=await sendTx(A.BOND,p.data,bid,p.gas); const tap=((Date.now()-tTap)/1000).toFixed(1);
     log('已广播（从弹出到发出 '+tap+' 秒，出价 '+bid+' gwei）'+h);
+    if(isCue()&&sched.cueAt){ const re=Math.round((Date.now()-sched.cueAt)/100)/10; log(re<0?'注意：你在震动提示前 '+(-re).toFixed(1)+' 秒就点了确认，没等提示':'从震动提示到发出 '+re.toFixed(1)+' 秒','warn'); }
     checkBid(h,bid).catch(()=>{});
-    let learned=false; if(H&&$('auto').value==='1'){ const prev=tapMem(); const nt=Math.round((prev>0?prev*0.4+Number(tap)*0.6:Number(tap))*10)/10; LS('bc_tap',String(nt)); if(!prev||Math.abs(nt-prev)>=1){ learned=true; log('记住你的手速 '+nt.toFixed(1)+' 秒：下次整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); } }
+    let learned=false; if(H&&$('auto').value==='1'&&!isCue()){ const prev=tapMem(); const nt=Math.round((prev>0?prev*0.4+Number(tap)*0.6:Number(tap))*10)/10; LS('bc_tap',String(nt)); if(!prev||Math.abs(nt-prev)>=1){ learned=true; log('记住你的手速 '+nt.toFixed(1)+' 秒：下次整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); } }
     const r=await waitTx(h,90000);
     let landed=null; if(r){ try{ const b=await rpc('eth_getBlockByNumber',[r.blockNumber,false]); landed=parseInt(b.timestamp,16); }catch(e){} }
     const where=(landed!==null&&H)?('，落在整点'+(landed-H>=0?'后 +':'前 ')+(landed-H)+' 秒的区块'):'';
@@ -247,7 +250,7 @@ async function attempt(H){
     if(!r){ log('90 秒没拿到回执，链上也没显示领到，可能网络卡了','bad'); return 'fail'; }
     const why=await simulate(p.data); log('这笔被拒（'+(why||'未知原因')+'）'+where,'bad');
     if(poolEmpty(why)) return 'empty';
-    if(H&&landed!==null){ const offset=landed-H; if(offset<0){ tuneTo(offset); return 'early'; } if(offset>=2){ tuneTo(offset); return 'late'; } log('落在整点后 '+offset+' 秒但没挤进去：同块里出价更高的人先领光了。自动出价下次会按本整点最高价再加三成','warn'); return 'late'; }
+    if(H&&landed!==null){ const offset=landed-H; if(offset<0){ if(isCue()&&offset<-2) log('这笔发早了：没等震动提示就点了确认。下次弹出后先别动，震动+响声时再点','bad'); else tuneTo(offset); return 'early'; } if(offset>=2){ tuneTo(offset); return 'late'; } log('落在整点后 '+offset+' 秒但没挤进去：同块里出价更高的人先领光了。自动出价下次会按本整点最高价再加三成','warn'); return 'late'; }
     return 'fail';
   }catch(e){ if(isReject(e)){log('你取消了签名','warn');return 'rejected';} log('发送出错：'+(e.message||e),'bad'); return 'fail'; }
 }
@@ -257,7 +260,7 @@ let sched={H:0,timer:null,popAt:0}, firing=false, rejects=0;
 function scheduleFire(H){
   if(sched.H===H)return; sched.H=H; const L=lead(); const popAtMs=(H-L+off())*1000;
   const d=new Date(popAtMs); log('已排好：'+bj(H)+' 整点'+(L?'前 '+L.toFixed(1)+' 秒':'后模拟通过')+'弹钱包（本机 '+d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0')+'）');
-  clearTimeout(sched.timer);
+  clearTimeout(sched.timer); clearTimeout(sched.cueTimer); sched.cueAt=0;
   sched.popAt=popAtMs;
   // 浏览器会把后台/省电状态的定时器对齐到整秒(实测晚 0.9 秒):提前 1.6 秒醒来,最后 1.1 秒同步自旋,精确到毫秒
   sched.timer=setTimeout(async()=>{ while(Date.now()<popAtMs-1100) await sleep(50); while(Date.now()<popAtMs){} if(!armed||sched.H!==H) return; await fireWindow(H,L); }, Math.max(0,popAtMs-Date.now()-1600));
@@ -266,6 +269,8 @@ async function fireWindow(H,L){
   if(firing)return; firing=true;
   try{
     let r;
+    if(isCue()&&H){ const cueAtMs=(H-cueLead()+off())*1000; sched.cueAt=cueAtMs; clearTimeout(sched.cueTimer);
+      sched.cueTimer=setTimeout(async()=>{ while(Date.now()<cueAtMs-1100) await sleep(50); while(Date.now()<cueAtMs){} if(!armed||sched.H!==H) return; buzz([700,120,700,120,1000]); beep(); $('armState').innerHTML='<b class="warn flash">就是现在，点确认！</b>'; log('⚡ 震动提示：现在点确认！（整点前 '+cueLead().toFixed(1)+' 秒）','ok'); }, Math.max(0,cueAtMs-Date.now()-1600)); }
     if(L>0){ r=await attempt(H); }
     else { const t0=Date.now(); let why='x'; while(armed&&Date.now()-t0<6500){ why=await simulate(plan().data); if(!why)break; await sleep(120); } if(why){ log('整点后 6 秒内模拟一直不过（'+why+'），这波没赶上','bad'); return; } r=await attempt(H); }
     await handleResult(r,'这个整点没成，等下个整点自动再来');
@@ -286,7 +291,7 @@ async function watch(){
       if(left<=75&&left>30&&st.bidHour!==H&&!DRILL){ st.bidHour=H; if($('gwei').value==='auto') await learnBid(H); continue; }
       if(left<=30&&calibratedHour!==H&&!DRILL){ calibratedHour=H; await calibrate(Math.min(8000,Math.max(2000,(left-8)*1000))); continue; }
       if(left<=25&&sched.H!==H) scheduleFire(H);
-      if(left<=10&&warnedHour!==H){ warnedHour=H; buzz([80,60,80,60,80]); log('还有 10 秒到整点，手指放在确认键上','warn'); }
+      if(left<=10&&warnedHour!==H){ warnedHour=H; buzz([80,60,80,60,80]); log(isCue()?'还有 10 秒到整点：钱包马上弹出，弹出后先别点，手指放在确认键上等震动+响声':'还有 10 秒到整点，手指放在确认键上','warn'); }
       if(left>40&&now-lastWallet>45){ lastWallet=now; try{ await loadWallet(); }catch(e){} }
       let rem; try{ rem=await readCap(); }catch(e){ await sleep(1000); continue; }
       const minC=BigInt(Math.round(Number($('minClaim').value)))*10n**9n; const p=plan(); const need=p.amt;
@@ -294,7 +299,7 @@ async function watch(){
       // 机会性:本小时额度还够、国库也够 → 模拟通过就直接领(大户没领满时会出现)
       const since=now-(H-WINDOW); if(rem>=need&&st.pool>=need&&left>8&&since>10){ const why=await simulate(p.data); if(!why){ log('额度还剩 '+f9(rem)+'，够领 '+p.label+'，模拟通过，立刻领','ok'); await handleResult(await attempt(0),''); await sleep(2000); continue; } }
       const L=lead();
-      $('armState').innerHTML='<span class="ok">守候中</span>，'+(left>60?'等下个整点':'整点倒计时 '+left.toFixed(1)+' 秒')+(L?'，整点前 '+L.toFixed(1)+' 秒弹钱包':'，整点后模拟通过弹钱包');
+      $('armState').innerHTML='<span class="ok">守候中</span>，'+(left>60?'等下个整点':'整点倒计时 '+left.toFixed(1)+' 秒')+(L?(isCue()?'，整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'，整点前 '+L.toFixed(1)+' 秒弹钱包'):'，整点后模拟通过弹钱包');
       if(st.pool<need&&left<=20&&now-lastCapLog>60){ lastCapLog=now; log('注意：国库只有 '+f9(st.pool)+'，不够领 '+f9(need)+'，这波大概率白发','warn'); }
       await sleep(left<=40?500:2000);
     }
@@ -305,8 +310,8 @@ $('lead').addEventListener('change',()=>{ try{localStorage.removeItem('bc_tap');
 async function arm(){
   if(armed)return;
   const ok=await loadWallet().catch(()=>false); if(!ok){ log('检查没通过，不能开启','bad'); return; }
-  armed=true; keepAwake(); await readWindow();
-  log('自动领已开启：下个整点 '+bj(nextHour())+'，'+(lead()?'整点前 '+lead().toFixed(1)+' 秒弹钱包':'整点后模拟通过再弹')+'，gas '+($('gwei').value==='auto'?'自动出价（整点前 1 分钟按上一整点定）':$('gwei').value+' gwei')+'，'+plan().label+' LGNS。保持本页在前台、钱包已解锁、别锁屏。');
+  armed=true; keepAwake(); try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); AC.resume(); }catch(e){} await readWindow();
+  log('自动领已开启：下个整点 '+bj(nextHour())+'，'+(lead()?(isCue()?'整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'整点前 '+lead().toFixed(1)+' 秒弹钱包'):'整点后模拟通过再弹')+'，gas '+($('gwei').value==='auto'?'自动出价（整点前 1 分钟按上一整点定）':$('gwei').value+' gwei')+'，'+plan().label+' LGNS。保持本页在前台、钱包已解锁、别锁屏。');
   watch();
 }
 function stop(){armed=false;$('armState').textContent='已停止';log('已停止自动领');}
