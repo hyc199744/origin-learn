@@ -59,13 +59,13 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 <div class="card">
   <div style="font-weight:700;margin-bottom:4px">抢领设置</div>
   <div class="row"><span>领取方式</span><span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></span></div>
-  <div class="row"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
-  <div class="row"><span>自动微调时机</span><span><select id="auto"><option value="1" selected>开（按上次落点自动加减 0.3 秒）</option><option value="0">关</option></select></span></div>
+  <div class="row"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
+  <div class="row"><span>自动微调时机</span><span><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select></span></div>
   <div class="row"><span>Gas 价格</span><span><select id="gwei"><option value="60">60 gwei</option><option value="100" selected>100 gwei（推荐）</option><option value="200">200 gwei</option></select></span></div>
   <div class="row"><span>可领取少于多少就不领</span><span><select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select></span></div>
   <div class="row"><span>领到后</span><span><select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select></span></div>
   <div class="row"><span>状态</span><span id="armState">未开启</span></div>
-  <div class="note">开启后保持本页在前台、钱包已解锁、别锁屏。整点前 10 秒会震动提醒，整点前约 1 秒弹钱包并长震，<b>看到就点确认，别犹豫</b>。提前弹出时钱包可能提示"交易可能失败"，那是因为它按整点前的状态模拟的，照点确认即可。没抢到只损失一点 gas（100 gwei 一笔约 0.03 DAI），下个整点自动再来。期间如果别人没领满、额度有剩，也会立刻弹钱包。</div>
+  <div class="note">开启后保持本页在前台、钱包已解锁、别锁屏。整点前 10 秒会震动提醒，整点前弹钱包并长震（第一次按你选的时机，之后按你上次点确认的手速自动提前），<b>看到就点确认，别犹豫</b>。提前弹出时钱包可能提示"交易可能失败"，那是因为它按整点前的状态模拟的，照点确认即可。没抢到只损失一点 gas（100 gwei 一笔约 0.03 DAI），下个整点自动再来。期间如果别人没领满、额度有剩，也会立刻弹钱包。</div>
 </div>
 
 <div class="card"><div style="font-weight:700;margin-bottom:4px">日志</div><div id="log"></div></div>
@@ -123,7 +123,8 @@ async function calibrate(ms){ // 轮询区块号,新块出现的本机时刻 −
   if(best!==null){ offset=best; showSkew(); log('时钟精校准完成：'+n+' 个区块，偏差 '+best.toFixed(2)+' 秒'); } else log('精校准没抓到新区块，先用粗校准','warn');
 }
 const nextHour=()=>Math.floor(chainNow()/WINDOW)*WINDOW+WINDOW;   // 下个窗口起点(链时间)
-const lead=()=>{ const v=Number($('lead').value); if(v===0)return 0; const adj=Number(LS('bc_leadAdj')||0); return Math.min(3,Math.max(0.2,v+adj)); };
+const tapMem=()=>Number(LS('bc_tap')||0);
+const lead=()=>{ const v=Number($('lead').value); if(v===0)return 0; const adj=Number(LS('bc_leadAdj')||0); const t=tapMem(); const base=($('auto').value==='1'&&t>0)?t+0.5:v; return Math.min(15,Math.max(0.3,base+adj)); };
 
 /* ---- 读链 ---- */
 async function readCap(){ const [c,u,p]=await Promise.all([call(A.BOND,SEL.cap),call(A.BOND,SEL.used),call(A.LGNS,SEL.balanceOf+addr32(A.TREASURY))]); st.cap=big(c); st.used=big(u); st.pool=big(p);
@@ -182,6 +183,7 @@ async function attempt(H){
     buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; log('弹钱包：领 '+p.label+' LGNS，gas '+$('gwei').value+' gwei —— 请立刻点确认','warn');
     const tTap=Date.now(); const h=await sendTx(A.BOND,p.data,Number($('gwei').value),p.gas); const tap=((Date.now()-tTap)/1000).toFixed(1);
     log('已广播（从弹出到发出 '+tap+' 秒）'+h);
+    let learned=false; if(H&&$('auto').value==='1'){ const prev=tapMem(); const nt=Math.round((prev>0?prev*0.4+Number(tap)*0.6:Number(tap))*10)/10; LS('bc_tap',String(nt)); if(!prev||Math.abs(nt-prev)>=1){ learned=true; LS('bc_leadAdj','0'); log('记住你的手速 '+nt.toFixed(1)+' 秒：下次整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); } }
     const r=await waitTx(h,90000);
     let landed=null; if(r){ try{ const b=await rpc('eth_getBlockByNumber',[r.blockNumber,false]); landed=parseInt(b.timestamp,16); }catch(e){} }
     const where=(landed!==null&&H)?('，落在整点'+(landed-H>=0?'后 +':'前 ')+(landed-H)+' 秒的区块'):'';
@@ -191,7 +193,7 @@ async function attempt(H){
     if(!r){ log('90 秒没拿到回执，链上也没显示领到，可能网络卡了','bad'); return 'fail'; }
     const why=await simulate(p.data); log('这笔被拒（'+(why||'未知原因')+'）'+where,'bad');
     if(poolEmpty(why)) return 'empty';
-    if(H&&landed!==null){ if(landed<H){ tune(-0.3,'发早了（落在整点前）'); return 'early'; } if(landed>=H+2){ tune(+0.3,'发晚了（落在整点后 '+(landed-H)+' 秒）'); return 'late'; } log('落在整点后 '+(landed-H)+' 秒但没挤进去：可以把 gas 调到 200，或改成"只领最大的一笔"','warn'); return 'late'; }
+    if(H&&landed!==null){ if(landed<H){ if(!learned)tune(-0.3,'发早了（落在整点前）'); return 'early'; } if(landed>=H+2){ if(!learned)tune(+0.3,'发晚了（落在整点后 '+(landed-H)+' 秒）'); return 'late'; } log('落在整点后 '+(landed-H)+' 秒但没挤进去：可以把 gas 调到 200，或改成"只领最大的一笔"','warn'); return 'late'; }
     return 'fail';
   }catch(e){ if(isReject(e)){log('你取消了签名','warn');return 'rejected';} log('发送出错：'+(e.message||e),'bad'); return 'fail'; }
 }
@@ -242,7 +244,7 @@ async function watch(){
   } finally { busy=false; clearTimeout(sched.timer); sched.H=0; if(!armed) $('armState').textContent=$('armState').textContent.includes('成功')?$('armState').textContent:'已结束'; loadState().catch(()=>{}); }
 }
 async function afterWin(){ await sleep(1500); await loadWallet().catch(()=>{}); if($('keep').value!=='1'){ armed=false; $('armState').textContent='成功 🎉 已停止'; return false; } log('继续守着，下次释放（每天两次记账）后再抢','ok'); return true; }
-$('lead').addEventListener('change',()=>{ sched.H=0; clearTimeout(sched.timer); });
+$('lead').addEventListener('change',()=>{ try{localStorage.removeItem('bc_tap');localStorage.removeItem('bc_leadAdj');}catch(e){} sched.H=0; clearTimeout(sched.timer); log('已按你选的时机重排，之前记住的手速已清除'); });
 async function arm(){
   if(armed)return;
   const ok=await loadWallet().catch(()=>false); if(!ok){ log('检查没通过，不能开启','bad'); return; }
