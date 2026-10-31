@@ -62,11 +62,14 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div class="row"><span>领取方式</span><span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></span></div>
   <div class="row"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
   <div class="row"><span>自动微调时机</span><span><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select></span></div>
-  <div class="row"><span>Gas 价格</span><span><select id="gwei"><option value="60">60 gwei</option><option value="100" selected>100 gwei（推荐）</option><option value="200">200 gwei</option><option value="500">500 gwei（大额首选，一笔约 0.1 DAI）</option><option value="1000">1000 gwei（一笔约 0.25 DAI）</option></select></span></div>
+  <div class="row"><span>Gas 出价</span><span><select id="gwei"><option value="auto" selected>自动（上一整点第 1 块最高价再加三成）</option><option value="100">100 gwei</option><option value="300">300 gwei</option><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000">5000 gwei</option><option value="10000">10000 gwei</option></select></span></div>
+  <div class="row"><span>自动出价上限</span><span><select id="gcap"><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000" selected>5000 gwei（一笔最多约 2.4 DAI）</option><option value="10000">10000 gwei（最多约 5 DAI）</option></select></span></div>
+  <div class="row"><span>出价格式</span><span><select id="feeMode"><option value="legacy" selected>旧式 gasPrice</option><option value="1559">EIP-1559（钱包不认旧式时用）</option></select></span></div>
+  <div class="row"><span>本次出价</span><span id="bidNow">—</span></div>
   <div class="row"><span>可领取少于多少就不领</span><span><select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select></span></div>
   <div class="row"><span>领到后</span><span><select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select></span></div>
   <div class="row"><span>状态</span><span id="armState">未开启</span></div>
-  <div class="note">开启后保持本页在前台、钱包已解锁、别锁屏。整点前 10 秒会震动提醒，整点前弹钱包并长震（第一次按你选的时机，之后按你上次点确认的手速自动提前），<b>看到就点确认，别犹豫</b>。提前弹出时钱包可能提示"交易可能失败"，那是因为它按整点前的状态模拟的，照点确认即可。没抢到只损失一点 gas（100 gwei 一笔约 0.03 DAI），下个整点自动再来。期间如果别人没领满、额度有剩，也会立刻弹钱包。</div>
+  <div class="note">开启后保持本页在前台、钱包已解锁、别锁屏。整点前 10 秒会震动提醒，整点前弹钱包并长震（第一次按你选的时机，之后按你上次点确认的手速自动提前），<b>看到就点确认，别犹豫</b>。提前弹出时钱包可能提示"交易可能失败"，那是因为它按整点前的状态模拟的，照点确认即可。出价是硬通货：同一区块按 gas 从高到低执行，大户已出到 3000 gwei，自动出价会盯着上一整点的最高价再加三成。没抢到只损失那笔 gas，下个整点自动再来。期间如果别人没领满、额度有剩，也会立刻弹钱包。</div>
 </div>
 
 <div class="card"><div style="font-weight:700;margin-bottom:4px">日志</div><div id="log"></div></div>
@@ -144,7 +147,7 @@ async function loadWallet(){
   $('cnt').textContent=N+' 笔'; $('claimable').innerHTML='<b class="'+(okCl?'ok':'warn')+'">'+f9(C)+' LGNS</b>'; $('maxPiece').textContent=pieces.length?('第 '+(pieces[0].i+1)+' 笔 '+f9(pieces[0].amt)+' LGNS'):'—';
   $('gas').innerHTML='<span class="'+(okGas?'ok':'bad')+'">'+f18(G)+(okGas?' ✓':' ✗ 太少（至少 0.05）')+'</span>';
   st.eligible=okGas&&N>0;
-  const needBig=plan().amt>=10000n*10n**9n; if(needBig&&Number($('gwei').value)<500&&!LS('bc_gweiUser')){ $('gwei').value='500'; LS('bc_gwei','500'); log('这笔要 '+f9(plan().amt)+' LGNS，占整点额度两成以上：gas 已自动调到 500 gwei，确保排在同区块最前面（一笔约 0.1 DAI）','warn'); }
+  const needBig=plan().amt>=10000n*10n**9n; showBid();
   $('verdict').innerHTML=!N?'<b class="bad">这个钱包没有销毁债券</b>':!okGas?'<b class="bad">gas 不够，先转点 DAI 进来</b>':!okCl?'<b class="warn">暂时没有可领的，等下次释放（每天两次记账）</b>':'<b class="ok">可以领，整点开抢</b>'+(needBig?'<br><span class="warn">大额：必须落在整点第 1 块，gas 要高</span>':'');
   $('btnArm').disabled=!st.eligible; $('btnNow').disabled=!st.eligible;
   return st.eligible;
@@ -173,10 +176,30 @@ async function connect(){
   }catch(e){log('连接失败：'+(e.message||e),'bad');}
 }
 const isReject=e=>!!(e&&(e.code===4001||e.code==='ACTION_REJECTED'||/reject|denied|cancel|取消|拒绝/i.test(e.message||'')));
+const gweiNow=()=>{ const v=$('gwei').value; if(v!=='auto') return Number(v); return st.bid||100; };
+function showBid(){ const g=gweiNow(); const cost=g*plan().gas/1e9; $('bidNow').innerHTML='<b>'+g+' gwei</b>（这笔最多约 '+cost.toFixed(2)+' DAI'+(st.prevMax?'，上一整点第 1 块最高成功价 '+st.prevMax+'）':'）'); }
+async function learnBid(H){ // 看上一整点第 1 块里本合约成功交易的最高 gasPrice,出价 = ×1.3 向上取整到 10,夹在 [100, 上限]
+  try{
+    const prevH=H-WINDOW; const latest=await rpc('eth_getBlockByNumber',['latest',false]); let hi=parseInt(latest.number,16), lo=Math.max(0,hi-8000);
+    const tsOf=async b=>parseInt((await rpc('eth_getBlockByNumber',['0x'+b.toString(16),false])).timestamp,16);
+    while(hi-lo>1){ const m=(lo+hi)>>1; (await tsOf(m))<prevH?lo=m:hi=m; }
+    const blk=await rpc('eth_getBlockByNumber',['0x'+hi.toString(16),true]); const mine=blk.transactions.filter(x=>x.to&&x.to.toLowerCase()===A.BOND.toLowerCase());
+    let maxOk=0,maxAll=0; for(const x of mine){ const gp=Number(BigInt(x.gasPrice||x.maxFeePerGas||0))/1e9; maxAll=Math.max(maxAll,gp); const r=await rpc('eth_getTransactionReceipt',[x.hash]); if(r&&r.status==='0x1') maxOk=Math.max(maxOk,gp); }
+    const base=maxOk||maxAll; st.prevMax=Math.round(base); const cap=Number($('gcap').value); st.bid=Math.min(cap,Math.max(100,Math.ceil(base*1.3/10)*10));
+    log('上一整点第 1 块：本合约 '+mine.length+' 笔，最高成功出价 '+Math.round(maxOk)+' gwei（最高出价 '+Math.round(maxAll)+'）→ 本次自动出价 '+st.bid+' gwei'+(st.bid>=cap?'（已到上限）':''),'warn'); showBid();
+  }catch(e){ log('读上一整点出价失败（'+(e.message||e).slice(0,50)+'），用 '+(st.bid||100)+' gwei','warn'); }
+}
 async function sendTx(to,data,gwei,gasLimit){
-  const full={from:me,to,data,gasPrice:'0x'+(BigInt(gwei)*10n**9n).toString(16),type:'0x0',gas:'0x'+gasLimit.toString(16)};
+  const wei='0x'+(BigInt(gwei)*10n**9n).toString(16);
+  const full=$('feeMode').value==='1559'?{from:me,to,data,type:'0x2',maxFeePerGas:wei,maxPriorityFeePerGas:wei,gas:'0x'+gasLimit.toString(16)}:{from:me,to,data,gasPrice:wei,type:'0x0',gas:'0x'+gasLimit.toString(16)};
   try{ return await eth.request({method:'eth_sendTransaction',params:[full]}); }
   catch(e){ if(isReject(e)) throw e; log('钱包不接受带 gas 参数的交易（'+(e.message||e).slice(0,60)+'），改用钱包默认参数重发','warn'); return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data}]}); }
+}
+async function checkBid(h,bid){ // 钱包可能无视页面出价(实测 100→12 gwei):取回链上这笔的真实 gasPrice 对比
+  let t=null; for(let i=0;i<8&&!t;i++){ try{ t=await rpc('eth_getTransactionByHash',[h]); }catch(e){} if(!t) await sleep(400); }
+  if(!t) return; const real=Number(BigInt(t.gasPrice||t.maxFeePerGas||0))/1e9; st.realBid=real;
+  if(real<bid*0.8){ const fm=$('feeMode').value; log('⚠ 钱包没按页面出价：页面要 '+bid+' gwei，钱包实际只发了 '+real+' gwei，这样排不进整点第 1 块。'+(fm==='legacy'?'已自动改成 EIP-1559 格式，下个整点再试；':'两种格式钱包都不认，')+'请在钱包确认页手动把 gas 价格改成 '+bid+' gwei，或换 TokenPocket / OKX 钱包打开本页','bad'); if(fm==='legacy'){ $('feeMode').value='1559'; LS('bc_feeMode','1559'); } }
+  else log('钱包实际出价 '+real+' gwei ✓');
 }
 async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||90000)){try{const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;}catch(e){}await sleep(350);}return null;}
 async function simulate(data){ try{ await call(A.BOND,data,me); return ''; }catch(e){ return reason(e)||'unknown'; } }
@@ -186,9 +209,10 @@ function tune(delta,why){ if($('auto').value!=='1')return; const cur=Number(LS('
 async function attempt(H){
   const p=plan(); if(p.amt<=0n){ log('没有可领的','warn'); return 'fail'; }
   try{
-    buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; const cs=chainNow(), rel=H?cs-H:0; const lateMs=(H&&sched.popAt)?Date.now()-sched.popAt:0; if(lateMs>150) log('注意：弹窗比排定晚了 '+(lateMs/1000).toFixed(2)+' 秒（浏览器节流/卡顿），请保持本页前台、关省电','warn'); log('弹钱包：领 '+p.label+' LGNS，gas '+$('gwei').value+' gwei'+(H?'（估计链时间 整点'+(rel<0?'前 ':'后 +')+Math.abs(rel).toFixed(2)+' 秒）':'')+' —— 请立刻点确认','warn');
-    const tTap=Date.now(); const h=await sendTx(A.BOND,p.data,Number($('gwei').value),p.gas); const tap=((Date.now()-tTap)/1000).toFixed(1);
-    log('已广播（从弹出到发出 '+tap+' 秒）'+h);
+    buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; const cs=chainNow(), rel=H?cs-H:0; const lateMs=(H&&sched.popAt)?Date.now()-sched.popAt:0; if(lateMs>150) log('注意：弹窗比排定晚了 '+(lateMs/1000).toFixed(2)+' 秒（浏览器节流/卡顿），请保持本页前台、关省电','warn'); log('弹钱包：领 '+p.label+' LGNS，gas '+gweiNow()+' gwei'+(H?'（估计链时间 整点'+(rel<0?'前 ':'后 +')+Math.abs(rel).toFixed(2)+' 秒）':'')+' —— 请立刻点确认','warn');
+    const tTap=Date.now(); const bid=gweiNow(); const h=await sendTx(A.BOND,p.data,bid,p.gas); const tap=((Date.now()-tTap)/1000).toFixed(1);
+    log('已广播（从弹出到发出 '+tap+' 秒，出价 '+bid+' gwei）'+h);
+    checkBid(h,bid).catch(()=>{});
     let learned=false; if(H&&$('auto').value==='1'){ const prev=tapMem(); const nt=Math.round((prev>0?prev*0.4+Number(tap)*0.6:Number(tap))*10)/10; LS('bc_tap',String(nt)); if(!prev||Math.abs(nt-prev)>=1){ learned=true; LS('bc_leadAdj','0'); log('记住你的手速 '+nt.toFixed(1)+' 秒：下次整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); } }
     const r=await waitTx(h,90000);
     let landed=null; if(r){ try{ const b=await rpc('eth_getBlockByNumber',[r.blockNumber,false]); landed=parseInt(b.timestamp,16); }catch(e){} }
@@ -235,6 +259,7 @@ async function watch(){
     while(armed){
       const now=chainNow(); const H=nextHour(); const left=H-now;
       if(firing||left<=4){ await sleep(50); continue; }
+      if(left<=75&&left>30&&st.bidHour!==H&&!DRILL){ st.bidHour=H; if($('gwei').value==='auto') await learnBid(H); continue; }
       if(left<=30&&calibratedHour!==H&&!DRILL){ calibratedHour=H; await calibrate(Math.min(8000,Math.max(2000,(left-8)*1000))); continue; }
       if(left<=25&&sched.H!==H) scheduleFire(H);
       if(left<=10&&warnedHour!==H){ warnedHour=H; buzz([80,60,80,60,80]); log('还有 10 秒到整点，手指放在确认键上','warn'); }
@@ -257,7 +282,7 @@ async function arm(){
   if(armed)return;
   const ok=await loadWallet().catch(()=>false); if(!ok){ log('检查没通过，不能开启','bad'); return; }
   armed=true; keepAwake(); await readWindow();
-  log('自动领已开启：下个整点 '+bj(nextHour())+'，'+(lead()?'整点前 '+lead().toFixed(1)+' 秒弹钱包':'整点后模拟通过再弹')+'，gas '+$('gwei').value+' gwei，'+plan().label+' LGNS。保持本页在前台、钱包已解锁、别锁屏。');
+  log('自动领已开启：下个整点 '+bj(nextHour())+'，'+(lead()?'整点前 '+lead().toFixed(1)+' 秒弹钱包':'整点后模拟通过再弹')+'，gas '+($('gwei').value==='auto'?'自动出价（整点前 1 分钟按上一整点定）':$('gwei').value+' gwei')+'，'+plan().label+' LGNS。保持本页在前台、钱包已解锁、别锁屏。');
   watch();
 }
 function stop(){armed=false;$('armState').textContent='已停止';log('已停止自动领');}
@@ -265,10 +290,10 @@ function tick(){ const H=nextHour(); $('nextIn').textContent=bj(H); const left=M
 
 setBond(LS('bc_bond')||'lgns');
 $('bond').addEventListener('change',()=>{ setBond($('bond').value,'，重新读取额度和可领取'); sched.H=0; clearTimeout(sched.timer); calibratedHour=0; loadState().catch(()=>{}); });
-$('gwei').addEventListener('change',()=>LS('bc_gweiUser','1'));
+['gwei','gcap','feeMode','mode'].forEach(id=>$(id).addEventListener('change',()=>{ try{showBid();}catch(e){} }));
 $('btnConnect').onclick=connect; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=async()=>{ if(busy)return; busy=true; try{ await readCap(); await loadWallet(); const p=plan(); const why=await simulate(p.data); if(why){ log(capHit(why)?'本小时额度已领光（claim cap），现在发必败，等整点':poolEmpty(why)?'国库没币，领不了（'+why+'）':'合约拒绝：'+why,'bad'); return; } log('手动：模拟通过，立刻领一笔'); await attempt(0); }catch(e){ log('出错：'+(e.message||e),'bad'); } finally{ busy=false; loadState(); } };
-['mode','lead','gwei','minClaim','keep','auto'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
+['mode','lead','gwei','gcap','feeMode','minClaim','keep','auto'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
 setInterval(tick,100); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!busy) loadState(); },20000);
 readWindow().then(loadState).then(()=>{ if(DRILL||(window.ethereum&&window.ethereum.selectedAddress)) connect(); });
 log('页面就绪（新规则版 10-30）。先连接钱包，再点"开启自动领"。'+(DRILL?' [演练模式]':''));
