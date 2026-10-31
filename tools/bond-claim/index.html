@@ -186,7 +186,7 @@ function tune(delta,why){ if($('auto').value!=='1')return; const cur=Number(LS('
 async function attempt(H){
   const p=plan(); if(p.amt<=0n){ log('没有可领的','warn'); return 'fail'; }
   try{
-    buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; const cs=chainNow(), rel=H?cs-H:0; log('弹钱包：领 '+p.label+' LGNS，gas '+$('gwei').value+' gwei'+(H?'（估计链时间 整点'+(rel<0?'前 ':'后 +')+Math.abs(rel).toFixed(2)+' 秒）':'')+' —— 请立刻点确认','warn');
+    buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; const cs=chainNow(), rel=H?cs-H:0; const lateMs=(H&&sched.popAt)?Date.now()-sched.popAt:0; if(lateMs>150) log('注意：弹窗比排定晚了 '+(lateMs/1000).toFixed(2)+' 秒（浏览器节流/卡顿），请保持本页前台、关省电','warn'); log('弹钱包：领 '+p.label+' LGNS，gas '+$('gwei').value+' gwei'+(H?'（估计链时间 整点'+(rel<0?'前 ':'后 +')+Math.abs(rel).toFixed(2)+' 秒）':'')+' —— 请立刻点确认','warn');
     const tTap=Date.now(); const h=await sendTx(A.BOND,p.data,Number($('gwei').value),p.gas); const tap=((Date.now()-tTap)/1000).toFixed(1);
     log('已广播（从弹出到发出 '+tap+' 秒）'+h);
     let learned=false; if(H&&$('auto').value==='1'){ const prev=tapMem(); const nt=Math.round((prev>0?prev*0.4+Number(tap)*0.6:Number(tap))*10)/10; LS('bc_tap',String(nt)); if(!prev||Math.abs(nt-prev)>=1){ learned=true; LS('bc_leadAdj','0'); log('记住你的手速 '+nt.toFixed(1)+' 秒：下次整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); } }
@@ -205,12 +205,14 @@ async function attempt(H){
 }
 
 /* 整点冲刺用独立定时器,不受读链快慢影响:整点前 25 秒排好本机时刻,到点前 40ms 起 3ms 一查,准点弹钱包 */
-let sched={H:0,timer:null}, firing=false, rejects=0;
+let sched={H:0,timer:null,popAt:0}, firing=false, rejects=0;
 function scheduleFire(H){
   if(sched.H===H)return; sched.H=H; const L=lead(); const popAtMs=(H-L+off())*1000;
   const d=new Date(popAtMs); log('已排好：'+bj(H)+' 整点'+(L?'前 '+L.toFixed(1)+' 秒':'后模拟通过')+'弹钱包（本机 '+d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0')+'）');
   clearTimeout(sched.timer);
-  sched.timer=setTimeout(async()=>{ while(Date.now()<popAtMs) await sleep(3); if(!armed||sched.H!==H) return; await fireWindow(H,L); }, Math.max(0,popAtMs-Date.now()-40));
+  sched.popAt=popAtMs;
+  // 浏览器会把后台/省电状态的定时器对齐到整秒(实测晚 0.9 秒):提前 1.6 秒醒来,最后 1.1 秒同步自旋,精确到毫秒
+  sched.timer=setTimeout(async()=>{ while(Date.now()<popAtMs-1100) await sleep(50); while(Date.now()<popAtMs){} if(!armed||sched.H!==H) return; await fireWindow(H,L); }, Math.max(0,popAtMs-Date.now()-1600));
 }
 async function fireWindow(H,L){
   if(firing)return; firing=true;
