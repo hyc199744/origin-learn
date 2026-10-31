@@ -28,9 +28,10 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 </head>
 <body>
 <h1>销毁债券抢领助手</h1>
-<div class="sub">anubis.origindefi.io 销毁债券领取。<b>10-29 合约升级后的新规则：每个整点全网只放 50,000 LGNS</b>，谁的交易先进区块谁先拿，大户两三秒就领光。本页按链上时间算准整点，提前零点几秒弹钱包，你<b>立刻点确认</b>，用高 gas 抢进整点后的头一两个区块。请在钱包 App 内置浏览器打开；私钥始终在钱包里，每笔都要你点确认。</div>
+<div class="sub">anubis.origindefi.io 销毁债券领取。<b>10-29 合约升级后的新规则：两张销毁债券各自每个整点全网只放 50,000 LGNS</b>，谁的交易先进区块谁先拿，大户两三秒就领光。本页按链上时间算准整点，提前零点几秒弹钱包，你<b>立刻点确认</b>，用高 gas 抢进整点后的头一两个区块。请在钱包 App 内置浏览器打开；私钥始终在钱包里，每笔都要你点确认。</div>
 
 <div class="card">
+  <div class="row"><span>抢哪张债券</span><span><select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></span></div>
   <div class="row"><span>钱包</span><span id="addr">未连接</span></div>
   <div class="row"><span>链</span><span id="chain">—</span></div>
   <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
@@ -82,7 +83,9 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 'use strict';
 const DRILL=/[?&]drill=1/.test(location.search)&&/^(127\.0\.0\.1|localhost)$/.test(location.hostname); // 本机演练:假钱包+假RPC,线上域名永不生效
 const RPC=DRILL?'http://127.0.0.1:8545/':'https://rpc.anubispace.org', CHAIN_ID=6714, CHAIN_HEX='0x1a3a';
-const A={LGNS:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',BOND:'0x11b10c9827c5b7071e96fcaa143b4e6e86b17c69',TREASURY:'0x9D46CB414E76237d3b83E2a1630481038368f217'};
+const BONDS={lgns:{addr:'0x11b10c9827c5b7071e96fcaa143b4e6e86b17c69',name:'LGNS 销毁债券'},fixed:{addr:'0x3f403751975e1EB06d95901f7FF246513444E71F',name:'固定价销毁债券'}};
+const A={LGNS:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',BOND:BONDS.lgns.addr,TREASURY:'0x9D46CB414E76237d3b83E2a1630481038368f217'};
+function setBond(k,why){ if(!BONDS[k])k='lgns'; A.BOND=BONDS[k].addr; $('bond').value=k; LS('bc_bond',k); if(why) log('已切到「'+BONDS[k].name+'」'+why); }
 // 选择器:新实现 0x8af6b336(10-29 09:58 升级)多了 cap(每窗口上限 5 万)/used(本窗口已领)/win(窗口长度 3600 秒)
 const SEL={claimAll:'0xd1058e59',claim:'0x379607f5',getTotalClaimable:'0x267e8ab6',getClaimable:'0x6f5244b1',getUserDepositCount:'0x1bae91a4',balanceOf:'0x70a08231',cap:'0x440f3da3',used:'0xa07fa7a1',win:'0xb5fb0640'};
 const $=id=>document.getElementById(id);
@@ -163,7 +166,9 @@ async function connect(){
     if(cid!==CHAIN_ID){ try{ await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_HEX}]}); }catch(e){ if(e&&e.code===4902){ await eth.request({method:'wallet_addEthereumChain',params:[{chainId:CHAIN_HEX,chainName:'Anubis',rpcUrls:[RPC],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:['https://browser.anubispace.org']}]}); } else throw e; } cid=parseInt(await eth.request({method:'eth_chainId'}),16); }
     $('chain').innerHTML=cid===CHAIN_ID?'<span class="ok">Anubis (6714) ✓</span>':'<span class="bad">链不对：'+cid+'，请在钱包切到 Anubis</span>';
     eth.on&&eth.on('accountsChanged',()=>location.reload()); eth.on&&eth.on('chainChanged',()=>location.reload());
-    log('已连接 '+me+(DRILL?'（演练模式）':'')); keepAwake(); await loadState();
+    log('已连接 '+me+(DRILL?'（演练模式）':'')); keepAwake();
+    if(!DRILL){ try{ const [a,b]=await Promise.all([call(BONDS.lgns.addr,SEL.getUserDepositCount+addr32(me)),call(BONDS.fixed.addr,SEL.getUserDepositCount+addr32(me))]); const na=Number(big(a)), nb=Number(big(b)); log('你的债券：LGNS 销毁债券 '+na+' 张，固定价销毁债券 '+nb+' 张'); const cur=$('bond').value; if(cur==='lgns'&&na===0&&nb>0) setBond('fixed','（你只在这张有债券）'); else if(cur==='fixed'&&nb===0&&na>0) setBond('lgns','（你只在这张有债券）'); else if(na>0&&nb>0) log('两张都有债券：一个整点只能抢其中一张，想换张就在上面切换','warn'); }catch(e){} }
+    await loadState();
   }catch(e){log('连接失败：'+(e.message||e),'bad');}
 }
 const isReject=e=>!!(e&&(e.code===4001||e.code==='ACTION_REJECTED'||/reject|denied|cancel|取消|拒绝/i.test(e.message||'')));
@@ -255,6 +260,8 @@ async function arm(){
 function stop(){armed=false;$('armState').textContent='已停止';log('已停止自动领');}
 function tick(){ const H=nextHour(); $('nextIn').textContent=bj(H); const left=Math.max(0,H-chainNow()); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(Math.floor(left%60)).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s+(left<60?'.'+String(Math.floor(left*10)%10):''); $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
 
+setBond(LS('bc_bond')||'lgns');
+$('bond').addEventListener('change',()=>{ setBond($('bond').value,'，重新读取额度和可领取'); sched.H=0; clearTimeout(sched.timer); calibratedHour=0; loadState().catch(()=>{}); });
 $('btnConnect').onclick=connect; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=async()=>{ if(busy)return; busy=true; try{ await readCap(); await loadWallet(); const p=plan(); const why=await simulate(p.data); if(why){ log(capHit(why)?'本小时额度已领光（claim cap），现在发必败，等整点':poolEmpty(why)?'国库没币，领不了（'+why+'）':'合约拒绝：'+why,'bad'); return; } log('手动：模拟通过，立刻领一笔'); await attempt(0); }catch(e){ log('出错：'+(e.message||e),'bad'); } finally{ busy=false; loadState(); } };
 ['mode','lead','gwei','minClaim','keep','auto'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
