@@ -27,7 +27,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 </style>
 </head>
 <body>
-<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 10-31 23:45</span></h1>
+<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 00:10</span></h1>
 <div class="sub">anubis.origindefi.io 销毁债券领取。<b>10-29 合约升级后的新规则：两张销毁债券各自每个整点全网只放 50,000 LGNS</b>，谁的交易先进区块谁先拿，大户两三秒就领光。本页按链上时间算准整点，提前零点几秒弹钱包，你<b>立刻点确认</b>，用高 gas 抢进整点后的头一两个区块。请在钱包 App 内置浏览器打开；私钥始终在钱包里，每笔都要你点确认。</div>
 
 <div class="card">
@@ -131,7 +131,7 @@ async function calibrate(ms){ // 轮询区块号,新块出现的本机时刻 −
 }
 const nextHour=()=>Math.floor(chainNow()/WINDOW)*WINDOW+WINDOW;   // 下个窗口起点(链时间)
 try{ if(localStorage.getItem('bc_v')!=='10'){ localStorage.removeItem('bc_leadAdj'); localStorage.setItem('bc_lead','cue'); localStorage.setItem('bc_v','10'); } }catch(e){} /* 10-31 23:45 新增"提前弹出、震动再点"模式并设为默认:人手速差几秒就错过 2 个区块的窗口,改成由页面在最佳时刻提示点确认 */
-const CUE_POP=8; if(DRILL) window.__bc={get lead(){return lead()},get cue(){return cueLead()},get isCue(){return isCue()},tune:(d,w)=>tune(d,w),beep:()=>beep(),$:id=>$(id)}; const isCue=()=>$('lead').value==='cue'; const cueLead=()=>Math.min(4,Math.max(0.2,Number(LS('bc_cue')||1.2)));
+const CUE_POP=8; if(DRILL) window.__bc={get lead(){return lead()},get cue(){return cueLead()},get isCue(){return isCue()},tune:(d,w)=>tune(d,w),beep:()=>beep(),$:id=>$(id)}; const isCue=()=>$('lead').value==='cue'; const cueLead=()=>Math.min(5,Math.max(0.2,Number(LS('bc_cue')||1.2)));
 let AC=null; function beep(){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended')AC.resume(); const t=AC.currentTime; [0,0.22,0.44].forEach((d,i)=>{ const o=AC.createOscillator(),g=AC.createGain(); o.type='square'; o.frequency.value=i<2?880:1320; g.gain.setValueAtTime(0.0001,t+d); g.gain.exponentialRampToValueAtTime(0.5,t+d+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+d+0.18); o.connect(g).connect(AC.destination); o.start(t+d); o.stop(t+d+0.2); }); }catch(e){} }
 const tapMem=()=>Number(LS('bc_tap')||0);
 const TARGET=()=>($('bond').value==='fixed')?0.5:0.4; /* 10-31 23:45 固定价 23:00 实测 +0/+1 两块就领光,目标落点从 +1.0 提前到 +0.5 */ /* 想让交易落在整点后几秒:固定价债券额度能撑 3 秒,瞄 +1.0;LGNS 债券 1~2 秒就光,瞄 +0.4 */
@@ -227,7 +227,7 @@ async function testFee(){
 }
 async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||90000)){try{const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;}catch(e){}await sleep(350);}return null;}
 async function simulate(data){ try{ await call(A.BOND,data,me); return ''; }catch(e){ return reason(e)||'unknown'; } }
-function tune(delta,why){ if($('auto').value!=='1')return; if(isCue()){ const c=cueLead(); const nx=Math.round(Math.min(4,Math.max(0.2,c+Math.max(-1,Math.min(1,delta))))*10)/10; LS('bc_cue',String(nx)); log('自动修正：'+why+'，下次改为整点前 '+nx.toFixed(1)+' 秒震动提示点确认','warn'); return; } const cur=Number(LS('bc_leadAdj')||0); const nx=Math.round(Math.min(4,Math.max(-4,cur+Math.max(-1.5,Math.min(1.5,delta))))*10)/10; LS('bc_leadAdj',String(nx)); log('自动修正：'+why+'，下次改为整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); }
+function tune(delta,why){ if($('auto').value!=='1')return; if(isCue()){ const c=cueLead(); const nx=Math.round(Math.min(5,Math.max(0.2,c+Math.max(-3,Math.min(3,delta))))*10)/10; /* 11-01 00:00 实测:提示后 3.3 秒才按下,落 +3 秒,单次只修 1 秒要两三个整点才追得上,改为一次修到位(±3,上限 5 秒) */ LS('bc_cue',String(nx)); log('自动修正：'+why+'，下次改为整点前 '+nx.toFixed(1)+' 秒震动提示点确认','warn'); return; } const cur=Number(LS('bc_leadAdj')||0); const nx=Math.round(Math.min(4,Math.max(-4,cur+Math.max(-1.5,Math.min(1.5,delta))))*10)/10; LS('bc_leadAdj',String(nx)); log('自动修正：'+why+'，下次改为整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); }
 /* 按落点修正:offset=落点区块相对整点的秒数(整数,取块中点 +0.5),把下次落点往目标拉 */
 function tuneTo(offset){ const T=TARGET(); const mid=offset+0.5; const d=T-mid; if(Math.abs(d)<0.4) return; tune(-d*0.9, offset<0?('发早了,落在整点前 '+(-offset)+' 秒'):('发晚了,落在整点后 '+offset+' 秒,目标 +'+T.toFixed(1))); }
 
