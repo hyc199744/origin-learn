@@ -27,8 +27,8 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 </style>
 </head>
 <body>
-<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 13:30</span></h1>
-<div class="sub">两张销毁债券每个整点全网各放 50,000 LGNS，整点后一两秒就被领光。本页按链上时间算整点，提前弹钱包、震动提示你点确认，用高 gas 抢进整点后的头一两个区块。请在钱包 App 内置浏览器打开；私钥始终在钱包里。</div>
+<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 13:45</span></h1>
+
 
 <div class="card" style="border-color:#3a4a60">
   <div class="row" style="border:0;padding:0 0 4px"><span>下个整点（北京）</span><span id="nextIn">—</span></div>
@@ -51,8 +51,8 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div style="font-weight:700;margin-bottom:4px">我的钱包与债券</div>
   <div class="row"><span>抢哪张债券</span><span><select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></span></div>
   <div class="row"><span>钱包</span><span id="addr">未连接</span></div>
-  <div class="row"><span>链</span><span id="chain">—</span></div>
-  <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
+  <div class="row" style="display:none"><span>链</span><span id="chain">—</span></div>
+  <div class="row" style="display:none"><span>屏幕常亮</span><span id="wake">—</span></div>
   <div class="row"><span>债券笔数</span><span id="cnt">—</span></div>
   <div class="row"><span>可领取合计</span><span id="claimable">—</span></div>
   <div class="row"><span>最大一笔</span><span id="maxPiece">—</span></div>
@@ -64,16 +64,16 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div class="row"><span>本小时还剩额度（全网共享，整点刷新）</span><span id="capState">—</span></div>
   <div class="big" id="remain">—</div>
   <div class="row"><span>本小时已领 / 上限</span><span id="capLine">—</span></div>
-  <div class="row"><span>时钟校准</span><span id="skew">—</span></div>
-  <div class="row"><span>国库余额（领取的前提）</span><span id="pool">—</span></div>
+  <div class="row" style="display:none"><span>时钟校准</span><span id="skew">—</span></div>
+  <div class="row" style="display:none"><span>国库余额（领取的前提）</span><span id="pool">—</span></div>
 </div>
 
 <div class="card">
   <div style="font-weight:700;margin-bottom:4px">抢领设置</div>
   <div class="row"><span>领取方式</span><span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></span></div>
-  <div class="row"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="cue">提前 8 秒弹出，震动+响声时再点确认（手慢必选）</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
+  <div class="row" style="display:none"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="cue">提前 8 秒弹出，震动+响声时再点确认（手慢必选）</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
   <div class="row"><span>整点前彩排</span><span><select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></span></div>
-  <details class="fold"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">更多设置（一般不用动）</summary>
+  <details class="fold" style="display:none"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">更多设置（一般不用动）</summary>
   <div class="row"><span>自动微调时机</span><span><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select></span></div>
   <div class="row"><span>Gas 出价</span><span><select id="gwei"><option value="auto" selected>自动（上一整点第 1 块最高价再加三成）</option><option value="100">100 gwei</option><option value="300">300 gwei</option><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000">5000 gwei</option><option value="10000">10000 gwei</option></select></span></div>
   <div class="row"><span>自动出价上限</span><span><select id="gcap"><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000" selected>5000 gwei（一笔最多约 2.4 DAI）</option><option value="10000">10000 gwei（最多约 5 DAI）</option></select></span></div>
@@ -83,10 +83,10 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div class="row"><span>可领取少于多少就不领</span><span><select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select></span></div>
   <div class="row"><span>领到后</span><span><select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select></span></div>
   </details>
-  <div class="note">出价是硬通货：同一区块按 gas 从高到低执行，自动出价会盯着上一整点的最高价再加三成（上限 5000 gwei，一笔最多约 2.4 DAI）。没抢到只损失那笔 gas。页面会按每次实际落点自动微调震动提示的时刻。</div>
+  <div class="note" style="display:none">出价是硬通货：同一区块按 gas 从高到低执行，自动出价会盯着上一整点的最高价再加三成（上限 5000 gwei，一笔最多约 2.4 DAI）。没抢到只损失那笔 gas。页面会按每次实际落点自动微调震动提示的时刻。</div>
 </div>
 
-<details class="fold" id="lkCard"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">高级：不想手点的其他抢法（本地签名 / 钱包预签 / 交易员模式，OKX 已实测只能手点）</summary>
+<details class="fold" id="lkCard" style="display:none"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">高级：不想手点的其他抢法（本地签名 / 钱包预签 / 交易员模式，OKX 已实测只能手点）</summary>
 <div class="card" style="margin-top:6px">
   <div class="row"><span>怎么抢</span><span><select id="lkUse"><option value="wallet" selected>弹钱包，我手点确认</option><option value="local">本地签名自动发（不用点确认）</option><option value="trader">OKX 交易员模式：钱包免确认，到点页面自动发</option><option value="presign">钱包预签：私钥不出钱包，提前签好，到点页面自动发</option></select></span></div>
   <div class="row"><span>本机私钥</span><span id="lkState">未设置</span></div>
@@ -109,7 +109,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 <div class="dock">
   <button class="btn sec" id="btnConnect">连接钱包</button>
   <button class="btn" id="btnArm" disabled>开启自动领</button>
-  <button class="btn danger" id="btnNow" disabled>立刻领</button>
+  <button class="btn danger" id="btnNow" disabled style="display:none">立刻领</button>
   <button class="btn sec" id="btnStop">停</button>
 </div>
 
