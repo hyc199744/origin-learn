@@ -7,86 +7,106 @@
 <meta name="theme-color" content="#0e1116">
 <title>销毁债券抢领助手</title>
 <style>
-:root{--bg:#0e1116;--card:#171c23;--line:#ffffff18;--text:#e9eef3;--muted:#93a0ad;--ok:#5fd08a;--bad:#ff7a7a;--warn:#f0c060;--acc:#d9a441}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text)}
-body{font:15px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;padding:14px 14px calc(96px + env(safe-area-inset-bottom))}
-h1{font-size:20px;margin:0 0 2px}.sub{color:var(--muted);font-size:12px;margin-bottom:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
-.row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);align-items:center}.row:last-child{border:0}
-.row span:first-child{color:var(--muted);flex:0 0 auto}.row span:last-child{text-align:right;word-break:break-all}
-.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
-.big{font-size:40px;font-weight:800;letter-spacing:1px;text-align:center;margin:4px 0;font-variant-numeric:tabular-nums}
-.btn{display:inline-block;border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:700;cursor:pointer;color:#fff;background:var(--acc);margin:4px 6px 4px 0;min-height:48px}
-.btn.sec{background:#2a3140}.btn.danger{background:#b4433f}.btn:disabled{opacity:.4}
-#log{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0b0e12;border-radius:10px;padding:10px;max-height:220px;overflow:auto;white-space:pre-wrap;color:#cfd8e3}
-.note{font-size:12px;color:var(--muted)}
-select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:14px;max-width:200px}
-.dock{position:fixed;left:0;right:0;bottom:0;background:#11161dee;backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px}
-.dock .btn{flex:1;margin:0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
 .flash{animation:fl .5s steps(2) infinite}@keyframes fl{to{opacity:.35}}
+.btn{display:inline-block;border:0;border-radius:14px;padding:14px 16px;font-size:16px;font-weight:700;cursor:pointer;color:#fff;background:var(--acc)}
+.btn.sec{background:var(--sec);color:var(--text)}.btn.danger{background:#b4433f}.btn:disabled{opacity:.4}
+select{background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;max-width:220px}
+#log{font:12px/1.55 ui-monospace,Consolas,monospace;background:var(--logbg);border-radius:12px;padding:10px;max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--text)}
+#log div{padding:3px 0;border-bottom:1px dashed var(--line)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.row>span:first-child{color:var(--muted)}
+.row:last-child{border-bottom:0}
+.note{font-size:12px;color:var(--muted);line-height:1.6}
+.hidden{display:none!important}
+
+:root{--bg:#f4f6f9;--text:#141a22;--muted:#6b7684;--line:#e3e8ee;--acc:#1f6feb;--sec:#e9eef5;--field:#fff;--logbg:#0f141a;--ok:#1d9a5e;--warn:#b7791f;--bad:#c73a3a}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:calc(14px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));max-width:620px;margin:0 auto}
+#log{color:#e6edf3}#log div{border-color:#263040}
+h1{font-size:20px;margin:4px 0 2px}
+.sub{font-size:12px;color:var(--muted);margin-bottom:12px}
+.step{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(20,30,50,.05);position:relative}
+.step .n{position:absolute;left:-1px;top:-1px;width:34px;height:34px;border-radius:17px 0 14px 0;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:800}
+.step h2{margin:0 0 10px 30px;font-size:16px}
+.step .tip{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.step .btn{width:100%}
+.cd{font-size:52px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.5px;margin:6px 0 2px}
+.center{text-align:center;color:var(--muted);font-size:13px}
+.state{text-align:center;font-size:16px;margin:8px 0 4px}
+.hint{display:block;text-align:center;background:#fff7e6;color:#8a5a00;border-radius:12px;padding:10px;font-weight:600;font-size:14px;margin-top:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.grid2 div{background:var(--sec);border-radius:12px;padding:10px 12px}
+.grid2 .k{font-size:11.5px;color:var(--muted)}.grid2 .v{font-size:17px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums;word-break:break-all}
+.big{font-size:30px;font-weight:800;text-align:center;margin:4px 0;font-variant-numeric:tabular-nums}
+.stop{background:none;border:1px solid var(--line);border-radius:12px;padding:10px;width:100%;color:var(--muted);font-size:14px;margin-top:8px}
 </style>
 </head>
 <body>
-<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 13:45</span></h1>
 
-
-<div class="card" style="border-color:#3a4a60">
-  <div class="row" style="border:0;padding:0 0 4px"><span>下个整点（北京）</span><span id="nextIn">—</span></div>
-  <div class="big" id="countdown">--:--:--</div>
-  <div class="row"><span>状态</span><span id="armState">未开启</span></div>
-  <div class="row" style="border:0"><span>现在该做什么</span><span id="hint" style="text-align:right;max-width:70%;color:#f0c060;font-weight:600">先点底下"连接钱包"</span></div>
-</div>
-
-<div class="card">
-  <div style="font-weight:700;margin-bottom:6px">怎么用（三步）</div>
-  <div class="note" style="font-size:14px;line-height:1.8;color:#dbe4ee">
-    ① 点底下"<b>连接钱包</b>"，看到可领取数字。<br>
-    ② 点"<b>开启自动领</b>"，状态变"守候中"，手机别锁屏、页面别切走。<br>
-    ③ 整点前约 2 分钟手机会震、弹一笔 0 元自转账做<b>彩排</b>：先别点，等<b>长震 + 三声响</b>再点确认。整点前 8 秒弹出正式那笔，同样<b>等长震 + 三声响再点</b>，另一只手指搭在指纹上。<br>
-    之后不用管，日志会写成没成、落在第几秒；没成下个整点自动再来，<b>别点"立刻领"</b>。
+<h1>销毁债券抢领 · 步骤版</h1>
+<div class="sub">版本 11-01 14:10 · 按 1、2、3 做就行，整点时等长震加三声响再点确认</div>
+<section class="step"><span class="n">1</span><h2>连接钱包</h2>
+  <div class="tip">用 OKX 等钱包 App 的内置浏览器打开本页，连接后下面会显示你有几张债券、能领多少。</div>
+  <button class="btn sec" id="btnConnect">连接钱包</button>
+  <div class="grid2">
+    <div><div class="k">钱包</div><div class="v" id="addr" style="font-size:13px">未连接</div></div>
+    <div><div class="k">结论</div><div class="v" id="verdict" style="font-size:13px">—</div></div>
+    <div><div class="k">可领取合计</div><div class="v" id="claimable">—</div></div>
+    <div><div class="k">最大一笔</div><div class="v" id="maxPiece" style="font-size:13px">—</div></div>
+    <div><div class="k">债券笔数</div><div class="v" id="cnt">—</div></div>
+    <div><div class="k">Gas（DAI）</div><div class="v" id="gas" style="font-size:13px">—</div></div>
   </div>
-</div>
+</section>
+<section class="step"><span class="n">2</span><h2>选好，开启</h2>
+  <div class="row"><span>抢哪张债券</span><select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></div>
+  <div class="row"><span>领取方式</span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></div>
+  <div class="row"><span>整点前彩排</span><select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></div>
+  <button class="btn" id="btnArm" disabled style="margin-top:10px">开启自动领</button>
+  <button class="stop" id="btnStop">停止</button>
+</section>
+<section class="step"><span class="n">3</span><h2>等整点，听提示点确认</h2>
+  <div class="center">下个整点（北京） <span id="nextIn">—</span></div>
+  <div class="cd" id="countdown">--:--:--</div>
+  <div class="state" id="armState">未开启</div>
+  <span class="hint" id="hint">先点上面"连接钱包"</span>
+  <div class="row" style="margin-top:10px"><span>本小时剩余额度</span><span id="remain" style="font-weight:800"></span></div>
+  <div class="row"><span>已领 / 上限</span><span id="capLine">—</span></div>
+  <div class="row"><span>额度状态</span><span id="capState">—</span></div>
+</section>
+<section class="step" style="padding:12px 14px"><h2 style="margin-left:0;font-size:14px;color:var(--muted)">日志</h2><div id="log"></div></section>
 
-<div class="card">
-  <div style="font-weight:700;margin-bottom:4px">我的钱包与债券</div>
-  <div class="row"><span>抢哪张债券</span><span><select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></span></div>
-  <div class="row"><span>钱包</span><span id="addr">未连接</span></div>
-  <div class="row" style="display:none"><span>链</span><span id="chain">—</span></div>
-  <div class="row" style="display:none"><span>屏幕常亮</span><span id="wake">—</span></div>
-  <div class="row"><span>债券笔数</span><span id="cnt">—</span></div>
-  <div class="row"><span>可领取合计</span><span id="claimable">—</span></div>
-  <div class="row"><span>最大一笔</span><span id="maxPiece">—</span></div>
-  <div class="row"><span>Gas（DAI）</span><span id="gas">—</span></div>
-  <div class="row"><span>结论</span><span id="verdict">—</span></div>
-</div>
-
-<div class="card">
-  <div class="row"><span>本小时还剩额度（全网共享，整点刷新）</span><span id="capState">—</span></div>
-  <div class="big" id="remain">—</div>
-  <div class="row"><span>本小时已领 / 上限</span><span id="capLine">—</span></div>
-  <div class="row" style="display:none"><span>时钟校准</span><span id="skew">—</span></div>
-  <div class="row" style="display:none"><span>国库余额（领取的前提）</span><span id="pool">—</span></div>
-</div>
-
-<div class="card">
-  <div style="font-weight:700;margin-bottom:4px">抢领设置</div>
-  <div class="row"><span>领取方式</span><span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></span></div>
-  <div class="row" style="display:none"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="cue">提前 8 秒弹出，震动+响声时再点确认（手慢必选）</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
-  <div class="row"><span>整点前彩排</span><span><select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></span></div>
-  <details class="fold" style="display:none"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">更多设置（一般不用动）</summary>
-  <div class="row"><span>自动微调时机</span><span><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select></span></div>
-  <div class="row"><span>Gas 出价</span><span><select id="gwei"><option value="auto" selected>自动（上一整点第 1 块最高价再加三成）</option><option value="100">100 gwei</option><option value="300">300 gwei</option><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000">5000 gwei</option><option value="10000">10000 gwei</option></select></span></div>
-  <div class="row"><span>自动出价上限</span><span><select id="gcap"><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000" selected>5000 gwei（一笔最多约 2.4 DAI）</option><option value="10000">10000 gwei（最多约 5 DAI）</option></select></span></div>
-  <div class="row"><span>出价格式</span><span><select id="feeMode"><option value="legacy" selected>旧式 gasPrice</option><option value="1559">EIP-1559（钱包不认旧式时用）</option></select></span></div>
-  <div class="row"><span>本次出价</span><span id="bidNow">—</span></div>
-  <div class="row"><span>钱包认不认页面出价</span><span><button class="btn sec" id="btnTestFee" style="padding:6px 12px;font-size:14px" disabled>测试（0 元自转账，约 0.002 DAI）</button> <span id="feeTest">未测</span></span></div>
-  <div class="row"><span>可领取少于多少就不领</span><span><select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select></span></div>
-  <div class="row"><span>领到后</span><span><select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select></span></div>
-  </details>
-  <div class="note" style="display:none">出价是硬通货：同一区块按 gas 从高到低执行，自动出价会盯着上一整点的最高价再加三成（上限 5000 gwei，一笔最多约 2.4 DAI）。没抢到只损失那笔 gas。页面会按每次实际落点自动微调震动提示的时刻。</div>
-</div>
-
-<details class="fold" id="lkCard" style="display:none"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">高级：不想手点的其他抢法（本地签名 / 钱包预签 / 交易员模式，OKX 已实测只能手点）</summary>
+<div class="hidden"><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select>
+<span id="bidNow"></span>
+<button id="btnNow"></button>
+<button id="btnTestFee"></button>
+<span id="chain"></span>
+<select id="feeMode"><option value="legacy" selected>旧式 gasPrice</option><option value="1559">EIP-1559（钱包不认旧式时用）</option></select>
+<span id="feeTest"></span>
+<select id="gcap"><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000" selected>5000 gwei（一笔最多约 2.4 DAI）</option><option value="10000">10000 gwei（最多约 5 DAI）</option></select>
+<select id="gwei"><option value="auto" selected>自动（上一整点第 1 块最高价再加三成）</option><option value="100">100 gwei</option><option value="300">300 gwei</option><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000">5000 gwei</option><option value="10000">10000 gwei</option></select>
+<select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select>
+<select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="cue">提前 8 秒弹出，震动+响声时再点确认（手慢必选）</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select>
+<button id="lkCancel"></button>
+<button id="lkDel"></button>
+<button id="lkDetect"></button>
+<button id="lkDo"></button>
+<div id="lkForm"></div>
+<input id="lkKey" type="password">
+<span id="lkLead"></span>
+<input id="lkPwd" type="password">
+<input id="lkPwd2" type="password">
+<button id="lkSave"></button>
+<button id="lkSet"></button>
+<span id="lkState"></span>
+<button id="lkTest"></button>
+<div id="lkUnlock"></div>
+<select id="lkUse"><option value="wallet" selected>弹钱包，我手点确认</option><option value="local">本地签名自动发（不用点确认）</option><option value="trader">OKX 交易员模式：钱包免确认，到点页面自动发</option><option value="presign">钱包预签：私钥不出钱包，提前签好，到点页面自动发</option></select>
+<select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select>
+<span id="pool"></span>
+<span id="skew"></span>
+<span id="wake"></span>
+<details class="fold" id="lkCardX" style="display:none"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">高级：不想手点的其他抢法（本地签名 / 钱包预签 / 交易员模式，OKX 已实测只能手点）</summary>
 <div class="card" style="margin-top:6px">
   <div class="row"><span>怎么抢</span><span><select id="lkUse"><option value="wallet" selected>弹钱包，我手点确认</option><option value="local">本地签名自动发（不用点确认）</option><option value="trader">OKX 交易员模式：钱包免确认，到点页面自动发</option><option value="presign">钱包预签：私钥不出钱包，提前签好，到点页面自动发</option></select></span></div>
   <div class="row"><span>本机私钥</span><span id="lkState">未设置</span></div>
@@ -102,17 +122,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div class="row"><span>发出时机</span><span id="lkLead">链上整点后 0.06 秒发第 1 笔，+0.4 秒补第 2 笔</span></div>
   <div class="note"><b>不想粘私钥？</b>先连接钱包，点"检测钱包能否预签"。支持的钱包可以用"钱包预签"模式：整点前 40 秒钱包弹出签名，你随时点确认（不用掐时间），签好的交易留在页面里，到点由页面自动发出，私钥全程不出钱包。不支持的钱包只能二选一：本地签名（下面说明）或弹钱包手点。<br><br>本地签名模式：私钥用你设的密码加密后<b>只存在这台手机的浏览器里</b>，不上传、不发给任何人（本页是静态网页，代码公开在 GitHub，可以查）。到点由页面直接签名、同时发到 3 个链上节点，不经过钱包 App，没有手点延迟；0.4 秒内没上链自动补第二笔。要求：开着本页在前台、别锁屏（页面会申请常亮）。换手机或清浏览器数据要重新设置；不抢了建议点"删除"。</div>
 </div>
-</details>
-
-<div class="card"><div style="font-weight:700;margin-bottom:4px">日志</div><div id="log"></div></div>
-
-<div class="dock">
-  <button class="btn sec" id="btnConnect">连接钱包</button>
-  <button class="btn" id="btnArm" disabled>开启自动领</button>
-  <button class="btn danger" id="btnNow" disabled style="display:none">立刻领</button>
-  <button class="btn sec" id="btnStop">停</button>
-</div>
-
+</details></div>
 <script>
 (function(){
 'use strict';
@@ -476,5 +486,6 @@ readWindow().then(loadState).then(()=>{ if(DRILL||(window.ethereum&&window.ether
 log('页面就绪。先点"连接钱包"，再点"开启自动领"，整点听长震+三声响点确认。'+(DRILL?' [演练模式]':''));
 })();
 </script>
+
 </body>
 </html>
