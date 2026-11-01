@@ -27,34 +27,14 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 </style>
 </head>
 <body>
-<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 13:05</span></h1>
-<div class="sub">anubis.origindefi.io 销毁债券领取。<b>10-29 合约升级后的新规则：两张销毁债券各自每个整点全网只放 50,000 LGNS</b>，谁的交易先进区块谁先拿，大户两三秒就领光。本页按链上时间算准整点，提前零点几秒弹钱包，你<b>立刻点确认</b>，用高 gas 抢进整点后的头一两个区块。请在钱包 App 内置浏览器打开；私钥始终在钱包里，每笔都要你点确认。</div>
+<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 13:30</span></h1>
+<div class="sub">两张销毁债券每个整点全网各放 50,000 LGNS，整点后一两秒就被领光。本页按链上时间算整点，提前弹钱包、震动提示你点确认，用高 gas 抢进整点后的头一两个区块。请在钱包 App 内置浏览器打开；私钥始终在钱包里。</div>
 
-<div class="card">
-  <div class="row"><span>抢哪张债券</span><span><select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></span></div>
-  <div class="row"><span>钱包</span><span id="addr">未连接</span></div>
-  <div class="row"><span>链</span><span id="chain">—</span></div>
-  <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
-</div>
-
-<div class="card">
-  <div class="row"><span>本小时还剩多少额度（全网共享）</span><span id="capState">—</span></div>
-  <div class="big" id="remain">—</div>
-  <div class="row"><span>本小时已领 / 上限</span><span id="capLine">—</span></div>
-  <div class="row"><span>下个整点（北京）</span><span id="nextIn">—</span></div>
-  <div class="row"><span>倒计时</span><span id="countdown" style="font-weight:700;font-variant-numeric:tabular-nums">--:--:--</span></div>
-  <div class="row"><span>时钟校准</span><span id="skew">—</span></div>
-  <div class="row"><span>国库余额（领取的前提）</span><span id="pool">—</span></div>
-  <div class="note">链上实测（10-30 12 点那波）：整点第 1 个区块就领走 3.4 万，第 2 个区块累计 4.6 万，第 3 个区块 4.9 万，之后只剩零头。同一区块里 gas 高的排前面。</div>
-</div>
-
-<div class="card">
-  <div style="font-weight:700;margin-bottom:4px">我的债券</div>
-  <div class="row"><span>债券笔数</span><span id="cnt">—</span></div>
-  <div class="row"><span>可领取合计</span><span id="claimable">—</span></div>
-  <div class="row"><span>最大一笔</span><span id="maxPiece">—</span></div>
-  <div class="row"><span>Gas（DAI）</span><span id="gas">—</span></div>
-  <div class="row"><span>结论</span><span id="verdict">—</span></div>
+<div class="card" style="border-color:#3a4a60">
+  <div class="row" style="border:0;padding:0 0 4px"><span>下个整点（北京）</span><span id="nextIn">—</span></div>
+  <div class="big" id="countdown">--:--:--</div>
+  <div class="row"><span>状态</span><span id="armState">未开启</span></div>
+  <div class="row" style="border:0"><span>现在该做什么</span><span id="hint" style="text-align:right;max-width:70%;color:#f0c060;font-weight:600">先点底下"连接钱包"</span></div>
 </div>
 
 <div class="card">
@@ -65,6 +45,45 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
     ③ 整点前约 2 分钟手机会震、弹一笔 0 元自转账做<b>彩排</b>：先别点，等<b>长震 + 三声响</b>再点确认。整点前 8 秒弹出正式那笔，同样<b>等长震 + 三声响再点</b>，另一只手指搭在指纹上。<br>
     之后不用管，日志会写成没成、落在第几秒；没成下个整点自动再来，<b>别点"立刻领"</b>。
   </div>
+</div>
+
+<div class="card">
+  <div style="font-weight:700;margin-bottom:4px">我的钱包与债券</div>
+  <div class="row"><span>抢哪张债券</span><span><select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></span></div>
+  <div class="row"><span>钱包</span><span id="addr">未连接</span></div>
+  <div class="row"><span>链</span><span id="chain">—</span></div>
+  <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
+  <div class="row"><span>债券笔数</span><span id="cnt">—</span></div>
+  <div class="row"><span>可领取合计</span><span id="claimable">—</span></div>
+  <div class="row"><span>最大一笔</span><span id="maxPiece">—</span></div>
+  <div class="row"><span>Gas（DAI）</span><span id="gas">—</span></div>
+  <div class="row"><span>结论</span><span id="verdict">—</span></div>
+</div>
+
+<div class="card">
+  <div class="row"><span>本小时还剩额度（全网共享，整点刷新）</span><span id="capState">—</span></div>
+  <div class="big" id="remain">—</div>
+  <div class="row"><span>本小时已领 / 上限</span><span id="capLine">—</span></div>
+  <div class="row"><span>时钟校准</span><span id="skew">—</span></div>
+  <div class="row"><span>国库余额（领取的前提）</span><span id="pool">—</span></div>
+</div>
+
+<div class="card">
+  <div style="font-weight:700;margin-bottom:4px">抢领设置</div>
+  <div class="row"><span>领取方式</span><span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></span></div>
+  <div class="row"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="cue">提前 8 秒弹出，震动+响声时再点确认（手慢必选）</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
+  <div class="row"><span>整点前彩排</span><span><select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></span></div>
+  <details class="fold"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">更多设置（一般不用动）</summary>
+  <div class="row"><span>自动微调时机</span><span><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select></span></div>
+  <div class="row"><span>Gas 出价</span><span><select id="gwei"><option value="auto" selected>自动（上一整点第 1 块最高价再加三成）</option><option value="100">100 gwei</option><option value="300">300 gwei</option><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000">5000 gwei</option><option value="10000">10000 gwei</option></select></span></div>
+  <div class="row"><span>自动出价上限</span><span><select id="gcap"><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000" selected>5000 gwei（一笔最多约 2.4 DAI）</option><option value="10000">10000 gwei（最多约 5 DAI）</option></select></span></div>
+  <div class="row"><span>出价格式</span><span><select id="feeMode"><option value="legacy" selected>旧式 gasPrice</option><option value="1559">EIP-1559（钱包不认旧式时用）</option></select></span></div>
+  <div class="row"><span>本次出价</span><span id="bidNow">—</span></div>
+  <div class="row"><span>钱包认不认页面出价</span><span><button class="btn sec" id="btnTestFee" style="padding:6px 12px;font-size:14px" disabled>测试（0 元自转账，约 0.002 DAI）</button> <span id="feeTest">未测</span></span></div>
+  <div class="row"><span>可领取少于多少就不领</span><span><select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select></span></div>
+  <div class="row"><span>领到后</span><span><select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select></span></div>
+  </details>
+  <div class="note">出价是硬通货：同一区块按 gas 从高到低执行，自动出价会盯着上一整点的最高价再加三成（上限 5000 gwei，一笔最多约 2.4 DAI）。没抢到只损失那笔 gas。页面会按每次实际落点自动微调震动提示的时刻。</div>
 </div>
 
 <details class="fold" id="lkCard"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">高级：不想手点的其他抢法（本地签名 / 钱包预签 / 交易员模式，OKX 已实测只能手点）</summary>
@@ -84,25 +103,6 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div class="note"><b>不想粘私钥？</b>先连接钱包，点"检测钱包能否预签"。支持的钱包可以用"钱包预签"模式：整点前 40 秒钱包弹出签名，你随时点确认（不用掐时间），签好的交易留在页面里，到点由页面自动发出，私钥全程不出钱包。不支持的钱包只能二选一：本地签名（下面说明）或弹钱包手点。<br><br>本地签名模式：私钥用你设的密码加密后<b>只存在这台手机的浏览器里</b>，不上传、不发给任何人（本页是静态网页，代码公开在 GitHub，可以查）。到点由页面直接签名、同时发到 3 个链上节点，不经过钱包 App，没有手点延迟；0.4 秒内没上链自动补第二笔。要求：开着本页在前台、别锁屏（页面会申请常亮）。换手机或清浏览器数据要重新设置；不抢了建议点"删除"。</div>
 </div>
 </details>
-
-<div class="card">
-  <div style="font-weight:700;margin-bottom:4px">抢领设置</div>
-  <div class="row"><span>领取方式</span><span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></span></div>
-  <div class="row"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="cue">提前 8 秒弹出，震动+响声时再点确认（手慢必选）</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
-  <div class="row"><span>整点前彩排</span><span><select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></span></div>
-  <details class="fold"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">更多设置（一般不用动）</summary>
-  <div class="row"><span>自动微调时机</span><span><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select></span></div>
-  <div class="row"><span>Gas 出价</span><span><select id="gwei"><option value="auto" selected>自动（上一整点第 1 块最高价再加三成）</option><option value="100">100 gwei</option><option value="300">300 gwei</option><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000">5000 gwei</option><option value="10000">10000 gwei</option></select></span></div>
-  <div class="row"><span>自动出价上限</span><span><select id="gcap"><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000" selected>5000 gwei（一笔最多约 2.4 DAI）</option><option value="10000">10000 gwei（最多约 5 DAI）</option></select></span></div>
-  <div class="row"><span>出价格式</span><span><select id="feeMode"><option value="legacy" selected>旧式 gasPrice</option><option value="1559">EIP-1559（钱包不认旧式时用）</option></select></span></div>
-  <div class="row"><span>本次出价</span><span id="bidNow">—</span></div>
-  <div class="row"><span>钱包认不认页面出价</span><span><button class="btn sec" id="btnTestFee" style="padding:6px 12px;font-size:14px" disabled>测试（0 元自转账，约 0.002 DAI）</button> <span id="feeTest">未测</span></span></div>
-  <div class="row"><span>可领取少于多少就不领</span><span><select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select></span></div>
-  <div class="row"><span>领到后</span><span><select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select></span></div>
-  </details>
-  <div class="row"><span>状态</span><span id="armState">未开启</span></div>
-  <div class="note">出价是硬通货：同一区块按 gas 从高到低执行，自动出价会盯着上一整点的最高价再加三成（上限 5000 gwei，一笔最多约 2.4 DAI）。没抢到只损失那笔 gas。页面会按每次实际落点自动微调震动提示的时刻。</div>
-</div>
 
 <div class="card"><div style="font-weight:700;margin-bottom:4px">日志</div><div id="log"></div></div>
 
@@ -452,7 +452,8 @@ async function arm(){
   watch();
 }
 function stop(){armed=false;$('armState').textContent='已停止';log('已停止自动领');}
-function tick(){ const H=nextHour(); $('nextIn').textContent=bj(H); const left=Math.max(0,H-chainNow()); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(Math.floor(left%60)).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s+(left<60?'.'+String(Math.floor(left*10)%10):''); $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
+function hintNow(){ const H=nextHour(); const left=H-chainNow(); let t; if(!me) t='先点底下"连接钱包"'; else if(!st.eligible) t='这个钱包没法领（看下面"结论"）'; else if(!armed) t='点底下"开启自动领"'; else if(autoSend()) t='守着就行，到点页面自动发'; else if(left<=150&&left>60) t='彩排：等长震+三声响再点确认'; else if(left<=12) t='正式：等长震+三声响立刻点确认'; else t='守候中，整点前 2 分钟会彩排一次'; const e=$('hint'); if(e&&e.textContent!==t) e.textContent=t; }
+function tick(){ hintNow(); const H=nextHour(); $('nextIn').textContent=bj(H); const left=Math.max(0,H-chainNow()); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(Math.floor(left%60)).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s+(left<60?'.'+String(Math.floor(left*10)%10):''); $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
 
 setBond(LS('bc_bond')||'lgns');
 $('bond').addEventListener('change',()=>{ setBond($('bond').value,'，重新读取额度和可领取'); sched.H=0; clearTimeout(sched.timer); calibratedHour=0; loadState().catch(()=>{}); });
