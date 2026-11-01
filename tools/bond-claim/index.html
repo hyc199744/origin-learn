@@ -473,7 +473,7 @@ $('btnNow').onclick=async()=>{ if(busy)return; busy=true; try{ await readCap(); 
 ['mode','lead','gwei','gcap','feeMode','minClaim','keep','auto','reh'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
 setInterval(tick,100); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!busy) loadState(); },20000);
 readWindow().then(loadState).then(()=>{ if(DRILL||(window.ethereum&&window.ethereum.selectedAddress)) connect(); });
-log(lkStored()?'页面就绪。本地签名模式：先输入密码解锁，再点"开启自动领"。':'页面就绪。推荐用本地签名模式：点"设置/更换私钥"粘贴私钥并设密码（只存本机），再点"开启自动领"；或切到"弹钱包"模式连接钱包手点。'+(DRILL?' [演练模式]':''));
+log('页面就绪。先点"连接钱包"，再点"开启自动领"，整点听长震+三声响点确认。'+(DRILL?' [演练模式]':''));
 })();
 </script>
 </body>
