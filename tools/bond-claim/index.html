@@ -51,7 +51,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-01 14:20 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-01 15:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -202,16 +202,26 @@ function plan(){ // 这次要发的交易
 function fakeWallet(){ // 演练用假钱包:只在本机 drill 模式存在,自动"确认",交易交给假 RPC
   return { isDrill:true, selectedAddress:'0xffc31b596754137718f22d7708e1acd7a5c4dbe6', on(){}, async request(q){ if(q.method==='eth_requestAccounts'||q.method==='eth_accounts') return [this.selectedAddress]; if(q.method==='eth_chainId') return CHAIN_HEX; if(q.method==='eth_sendTransaction'){ await sleep(Number(LS('bc_drillTap')||600)); return rpc('eth_sendTransaction',q.params); } return null; } };
 }
+function pickProvider(){
+  const w=window; const cands=[];
+  if(w.ethereum){ if(Array.isArray(w.ethereum.providers)) cands.push(...w.ethereum.providers); cands.push(w.ethereum); }
+  if(w.bitkeep&&w.bitkeep.ethereum) cands.push(w.bitkeep.ethereum);
+  if(w.okxwallet) cands.push(w.okxwallet);
+  if(w.tokenpocket&&w.tokenpocket.ethereum) cands.push(w.tokenpocket.ethereum);
+  const uniq=[...new Set(cands.filter(p=>p&&typeof p.request==='function'))];
+  // 多个注入时优先用真正的钱包 App 自己的 provider
+  return uniq.find(p=>p.isBitKeep||p.isOkxWallet||p.isOKExWallet||p.isTokenPocket||p.isImToken)||uniq[0]||null;
+}
 async function connect(){
-  eth=DRILL?fakeWallet():window.ethereum; if(!eth){log('没检测到钱包：请用 OKX / TokenPocket / imToken 等钱包 App 的内置浏览器打开本页','bad');return;}
+  eth=DRILL?fakeWallet():pickProvider(); if(!eth){log('没检测到钱包：请用 OKX / Bitget / TokenPocket / imToken 等钱包 App 的内置浏览器打开本页','bad');return;}
   try{
     const accs=await eth.request({method:'eth_requestAccounts'}); me=accs[0]; $('addr').textContent=me.slice(0,8)+'…'+me.slice(-6);
     let cid=parseInt(await eth.request({method:'eth_chainId'}),16);
-    if(cid!==CHAIN_ID){ try{ await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_HEX}]}); }catch(e){ if(e&&e.code===4902){ await eth.request({method:'wallet_addEthereumChain',params:[{chainId:CHAIN_HEX,chainName:'Anubis',rpcUrls:[RPC],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:['https://browser.anubispace.org']}]}); } else throw e; } cid=parseInt(await eth.request({method:'eth_chainId'}),16); }
+    if(cid!==CHAIN_ID){ const chainParam={chainId:CHAIN_HEX,chainName:'Anubis',rpcUrls:[RPC],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:['https://browser.anubispace.org']}; try{ await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_HEX}]}); }catch(e1){ if(isReject(e1)) throw e1; log('切链被钱包拒绝（'+(e1&&e1.code)+' '+String(e1&&e1.message||e1).slice(0,80)+'），改为请求添加 Anubis 链','warn'); try{ await eth.request({method:'wallet_addEthereumChain',params:[chainParam]}); }catch(e2){ if(isReject(e2)) throw e2; log('添加链也失败（'+(e2&&e2.code)+' '+String(e2&&e2.message||e2).slice(0,80)+'）。请在钱包里手动添加网络：名称 Anubis，Chain ID 6714，RPC '+RPC+'，代币符号 DAI，浏览器 https://browser.anubispace.org，然后切到该网络再回来','bad'); } } try{ cid=parseInt(await eth.request({method:'eth_chainId'}),16); }catch(e){} }
     $('chain').innerHTML=cid===CHAIN_ID?'<span class="ok">Anubis (6714) ✓</span>':'<span class="bad">链不对：'+cid+'，请在钱包切到 Anubis</span>';
     eth.on&&eth.on('accountsChanged',()=>location.reload()); eth.on&&eth.on('chainChanged',()=>location.reload());
     log('已连接 '+me+(DRILL?'（演练模式）':'')); keepAwake();
-    try{ const w=eth.isOkxWallet||eth.isOKExWallet||window.okxwallet?'OKX':eth.isTokenPocket?'TokenPocket':eth.isImToken?'imToken':eth.isBitKeep?'Bitget':eth.isMetaMask?'MetaMask':'未知'; st.walletName=w; log('钱包：'+w+(w==='OKX'?'（实测 OKX 会把页面出价改成默认 12 gwei，先点「测试」看它认哪种格式）':''),w==='OKX'?'warn':''); }catch(e){}
+    try{ const w=eth.isOkxWallet||eth.isOKExWallet||window.okxwallet?'OKX':eth.isTokenPocket?'TokenPocket':eth.isImToken?'imToken':(eth.isBitKeep||window.bitkeep)?'Bitget':eth.isMetaMask?'MetaMask':'未知'; st.walletName=w; log('钱包：'+w+(w==='OKX'?'（实测 OKX 会把页面出价改成默认 12 gwei，先点「测试」看它认哪种格式）':''),w==='OKX'?'warn':''); }catch(e){}
     if(!DRILL){ try{ const [a,b]=await Promise.all([call(BONDS.lgns.addr,SEL.getUserDepositCount+addr32(me)),call(BONDS.fixed.addr,SEL.getUserDepositCount+addr32(me))]); const na=Number(big(a)), nb=Number(big(b)); log('你的债券：LGNS 销毁债券 '+na+' 张，固定价销毁债券 '+nb+' 张'); const cur=$('bond').value; if(cur==='lgns'&&na===0&&nb>0) setBond('fixed','（你只在这张有债券）'); else if(cur==='fixed'&&nb===0&&na>0) setBond('lgns','（你只在这张有债券）'); else if(na>0&&nb>0) log('两张都有债券：一个整点只能抢其中一张，想换张就在上面切换','warn'); }catch(e){} }
     await loadState();
   }catch(e){log('连接失败：'+(e.message||e),'bad');}
@@ -469,7 +479,7 @@ $('lkDo').onclick=async()=>{ try{ const a=await lkUnlock($('lkPwd2').value); $('
 $('lkPwd2').addEventListener('keydown',e=>{ if(e.key==='Enter') $('lkDo').click(); });
 $('lkDel').onclick=()=>{ if(!lkStored()){ log('本机没有保存私钥'); return; } if(!confirm('确定删除本机保存的私钥？删除后要重新粘贴才能用本地签名。')) return; localStorage.removeItem('bc_lk'); localStorage.removeItem('bc_lkAdj'); LK=null; lkRender(); log('已删除本机私钥','warn'); };
 $('lkTest').onclick=testLocal; $('lkDetect').onclick=detectPresign;
-$('lkUse').addEventListener('change',async()=>{ LS('bc_lkUse',$('lkUse').value); sched.pre=null; sched.preH=0; if(localMode()&&LK) await useLocal(); else if(!localMode()&&window.ethereum&&!DRILL&&!eth) connect(); lkRender(); });
+$('lkUse').addEventListener('change',async()=>{ LS('bc_lkUse',$('lkUse').value); sched.pre=null; sched.preH=0; if(localMode()&&LK) await useLocal(); else if(!localMode()&&(window.ethereum||(window.bitkeep&&window.bitkeep.ethereum)||window.okxwallet)&&!DRILL&&!eth) connect(); lkRender(); });
 try{ const v=LS('bc_lkUse'); if(v) $('lkUse').value=v; }catch(e){} lkRender();
 $('btnConnect').onclick=connect; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=async()=>{ if(busy)return; busy=true; try{ await readCap(); await loadWallet(); const p=plan(); const rem=await readCap(); const sinceH=chainNow()-(nextHour()-WINDOW); if(sinceH<10){ log('整点刚过 '+sinceH.toFixed(0)+' 秒，这会儿节点状态还没刷新，模拟会假通过。额度剩 '+f9(rem)+'，现在手动发大概率白烧 gas，已拦住；要抢整点请用"开启自动领"','bad'); return; } if(rem<p.amt){ log('本小时额度只剩 '+f9(rem)+'，不够领 '+p.label+'，已拦住，等下个整点','bad'); return; } const why=await simulate(p.data); if(why){ log(capHit(why)?'本小时额度已领光（claim cap），现在发必败，等整点':poolEmpty(why)?'国库没币，领不了（'+why+'）':'合约拒绝：'+why,'bad'); return; } log('手动：额度够、模拟通过，立刻领一笔'); await doAttempt(0); }catch(e){ log('出错：'+(e.message||e),'bad'); } finally{ busy=false; loadState(); } };
