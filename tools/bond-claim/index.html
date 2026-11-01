@@ -27,7 +27,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 </style>
 </head>
 <body>
-<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 02:30</span></h1>
+<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 12:30</span></h1>
 <div class="sub">anubis.origindefi.io 销毁债券领取。<b>10-29 合约升级后的新规则：两张销毁债券各自每个整点全网只放 50,000 LGNS</b>，谁的交易先进区块谁先拿，大户两三秒就领光。本页按链上时间算准整点，提前零点几秒弹钱包，你<b>立刻点确认</b>，用高 gas 抢进整点后的头一两个区块。请在钱包 App 内置浏览器打开；私钥始终在钱包里，每笔都要你点确认。</div>
 
 <div class="card">
@@ -270,7 +270,7 @@ async function presignWallet(H){ // 钱包预签:eth_signTransaction 只签不�
   if(typeof raw!=='string'||!/^0x[0-9a-fA-F]{100,}$/.test(raw)) throw new Error('钱包没有返回签好的交易（返回：'+String(raw).slice(0,40)+'）');
   let realGwei=bid; try{ const E=await loadEthers(); const t=E.Transaction.from(raw); realGwei=Number(t.gasPrice||t.maxFeePerGas||0n)/1e9; }catch(e){}
   sched.pre={H,raw1:raw,raw2:null,bid:realGwei,nonce,p}; log('✓ 预签完成（nonce '+nonce+'，钱包实际出价 '+realGwei+' gwei），到点自动发，不用再点','ok'); if(realGwei<bid*0.8) log('注意：钱包把出价改成了 '+realGwei+' gwei，可能排不到首块。请在钱包确认页把网络费用改成自定义 '+bid+'','bad'); return sched.pre; }
-async function detectPresign(){ if(!eth||!me){ log('先切到"弹钱包"或"钱包预签"模式并连接钱包，再检测','warn'); return; } try{ const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16); log('检测：钱包会弹出一笔 0 元自转账的签名请求，点确认（只签名不发送，不花钱）','warn'); let raw=await eth.request({method:'eth_signTransaction',params:[{from:me,to:me,value:'0x0',gas:'0x5208',gasPrice:'0x'+(100n*10n**9n).toString(16),nonce:'0x'+nonce.toString(16),chainId:CHAIN_HEX}]}); if(raw&&typeof raw==='object') raw=raw.raw||raw.rawTransaction||raw.signedTransaction||raw.result; if(typeof raw==='string'&&/^0x[0-9a-fA-F]{100,}$/.test(raw)){ LS('bc_presignOK','1'); log('✓ 你的钱包支持预签！已自动切到"钱包预签"模式：私钥不出钱包，到点页面自动发','ok'); $('lkUse').value='presign'; LS('bc_lkUse','presign'); lkRender(); } else log('✗ 钱包返回的不是签好的交易（'+String(raw).slice(0,50)+'），不支持预签','bad'); }catch(e){ if(isReject(e)) log('你取消了检测','warn'); else log('✗ 这个钱包不支持预签（'+(e.message||e).slice(0,80)+'）。只能二选一：本地签名，或弹钱包手点','bad'); } }
+async function detectPresign(){ if(!eth||!me){ log('先切到"弹钱包"或"钱包预签"模式并连接钱包，再检测','warn'); return; } try{ const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16); log('检测：钱包会弹出一笔 0 元自转账的签名请求，点确认（只签名不发送，不花钱）','warn'); let raw=await Promise.race([eth.request({method:'eth_signTransaction',params:[{from:me,to:me,value:'0x0',gas:'0x5208',gasPrice:'0x'+(100n*10n**9n).toString(16),nonce:'0x'+nonce.toString(16),chainId:CHAIN_HEX}]}), sleep(20000).then(()=>{ throw new Error('20 秒没弹出签名也没返回：这个钱包不支持只签名'); })]); if(raw&&typeof raw==='object') raw=raw.raw||raw.rawTransaction||raw.signedTransaction||raw.result; if(typeof raw==='string'&&/^0x[0-9a-fA-F]{100,}$/.test(raw)){ LS('bc_presignOK','1'); log('✓ 你的钱包支持预签！已自动切到"钱包预签"模式：私钥不出钱包，到点页面自动发','ok'); $('lkUse').value='presign'; LS('bc_lkUse','presign'); lkRender(); } else log('✗ 钱包返回的不是签好的交易（'+String(raw).slice(0,50)+'），不支持预签','bad'); }catch(e){ if(isReject(e)) log('你取消了检测','warn'); else log('✗ 这个钱包不支持预签（'+(e.message||e).slice(0,80)+'）。换 TokenPocket 或 Coinbase Wallet 再测，或用弹钱包手点','bad'); } }
 function showBid(){ const g=gweiNow(); const cost=g*plan().gas/1e9; $('bidNow').innerHTML='<b>'+g+' gwei</b>（这笔最多约 '+cost.toFixed(2)+' DAI'+(st.prevMax?'，上一整点第 1 块最高成功价 '+st.prevMax+'）':'）'); }
 async function learnBid(H){ // 看上一整点第 1 块里本合约成功交易的最高 gasPrice,出价 = ×1.3 向上取整到 10,夹在 [100, 上限]
   try{
