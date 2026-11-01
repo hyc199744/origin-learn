@@ -21,60 +21,53 @@ select{background:var(--field);color:var(--text);border:1px solid var(--line);bo
 .note{font-size:12px;color:var(--muted);line-height:1.6}
 .hidden{display:none!important}
 
-:root{--bg:#f4f6f9;--text:#141a22;--muted:#6b7684;--line:#e3e8ee;--acc:#1f6feb;--sec:#e9eef5;--field:#fff;--logbg:#0f141a;--ok:#1d9a5e;--warn:#b7791f;--bad:#c73a3a}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:calc(14px + env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom));max-width:620px;margin:0 auto}
-#log{color:#e6edf3}#log div{border-color:#263040}
-h1{font-size:20px;margin:4px 0 2px}
-.sub{font-size:12px;color:var(--muted);margin-bottom:12px}
-.step{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 2px 10px rgba(20,30,50,.05);position:relative}
-.step .n{position:absolute;left:-1px;top:-1px;width:34px;height:34px;border-radius:17px 0 14px 0;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:800}
-.step h2{margin:0 0 10px 30px;font-size:16px}
-.step .tip{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px}
-.step .btn{width:100%}
-.cd{font-size:52px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.5px;margin:6px 0 2px}
-.center{text-align:center;color:var(--muted);font-size:13px}
-.state{text-align:center;font-size:16px;margin:8px 0 4px}
-.hint{display:block;text-align:center;background:#fff7e6;color:#8a5a00;border-radius:12px;padding:10px;font-weight:600;font-size:14px;margin-top:8px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-.grid2 div{background:var(--sec);border-radius:12px;padding:10px 12px}
-.grid2 .k{font-size:11.5px;color:var(--muted)}.grid2 .v{font-size:17px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums;word-break:break-all}
-.big{font-size:30px;font-weight:800;text-align:center;margin:4px 0;font-variant-numeric:tabular-nums}
-.stop{background:none;border:1px solid var(--line);border-radius:12px;padding:10px;width:100%;color:var(--muted);font-size:14px;margin-top:8px}
+:root{--bg:#0f1512;--text:#e6eee8;--muted:#7f8f85;--line:#2a372f;--acc:#3f8f68;--sec:#1c2620;--field:#161e19;--logbg:#0b100d;--ok:#7fd3a6;--warn:#e0b25a;--bad:#ec7f76}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:calc(12px + env(safe-area-inset-top)) 14px calc(96px + env(safe-area-inset-bottom));max-width:720px;margin:0 auto}
+.bar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.bar .lg{width:34px;height:34px;border-radius:10px;background:var(--acc);display:grid;place-items:center;font-weight:800;color:#07140d}
+.bar b{font-size:16px;display:block;line-height:1.1}.bar small{color:var(--muted);font-size:11px}
+.bar .ad{margin-left:auto;font-size:12px;color:var(--muted);font-family:ui-monospace,Consolas,monospace}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:#161e19;border:1px solid var(--line);border-radius:16px;padding:12px 14px;min-height:88px}
+.tile .k{font-size:12px;color:var(--muted)}
+.tile .v{font-size:22px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all}
+.tile.wide{grid-column:1/-1;text-align:center;padding:14px}
+.tile.wide .v{font-size:48px}
+.tile.acc{background:#1d3328;border-color:transparent}
+.banner{margin:12px 0;background:#161e19;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.banner .st{font-size:16px;font-weight:700}
+.banner .hint{margin-top:6px;color:var(--warn);font-weight:600;font-size:14px}
+.set{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+.set label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--muted);background:#161e19;border:1px solid var(--line);border-radius:12px;padding:8px}
+.set select{max-width:none;width:100%;font-size:12.5px;padding:6px}
+.card{background:#161e19;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:12px}
+.card h3{margin:0 0 6px;font-size:14px;color:var(--muted)}
+.dock{position:fixed;left:0;right:0;bottom:0;background:rgba(15,21,18,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px}
+.dock .btn{flex:1;padding:16px 10px;font-size:16px}
+.dock .btn.stop{flex:0 0 72px;background:var(--sec)}
+.big{font-size:24px;font-weight:800;text-align:center;margin:4px 0;font-variant-numeric:tabular-nums}
+@media (min-width:600px){.tiles{grid-template-columns:repeat(4,1fr)}.tile.wide{grid-column:1/3}}
 </style>
 </head>
 <body>
 
-<h1>销毁债券抢领 · 步骤版</h1>
-<div class="sub">版本 11-01 14:10 · 按 1、2、3 做就行，整点时等长震加三声响再点确认</div>
-<section class="step"><span class="n">1</span><h2>连接钱包</h2>
-  <div class="tip">用 OKX 等钱包 App 的内置浏览器打开本页，连接后下面会显示你有几张债券、能领多少。</div>
-  <button class="btn sec" id="btnConnect">连接钱包</button>
-  <div class="grid2">
-    <div><div class="k">钱包</div><div class="v" id="addr" style="font-size:13px">未连接</div></div>
-    <div><div class="k">结论</div><div class="v" id="verdict" style="font-size:13px">—</div></div>
-    <div><div class="k">可领取合计</div><div class="v" id="claimable">—</div></div>
-    <div><div class="k">最大一笔</div><div class="v" id="maxPiece" style="font-size:13px">—</div></div>
-    <div><div class="k">债券笔数</div><div class="v" id="cnt">—</div></div>
-    <div><div class="k">Gas（DAI）</div><div class="v" id="gas" style="font-size:13px">—</div></div>
-  </div>
-</section>
-<section class="step"><span class="n">2</span><h2>选好，开启</h2>
-  <div class="row"><span>抢哪张债券</span><select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></div>
-  <div class="row"><span>领取方式</span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></div>
-  <div class="row"><span>整点前彩排</span><select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></div>
-  <button class="btn" id="btnArm" disabled style="margin-top:10px">开启自动领</button>
-  <button class="stop" id="btnStop">停止</button>
-</section>
-<section class="step"><span class="n">3</span><h2>等整点，听提示点确认</h2>
-  <div class="center">下个整点（北京） <span id="nextIn">—</span></div>
-  <div class="cd" id="countdown">--:--:--</div>
-  <div class="state" id="armState">未开启</div>
-  <span class="hint" id="hint">先点上面"连接钱包"</span>
-  <div class="row" style="margin-top:10px"><span>本小时剩余额度</span><span id="remain" style="font-weight:800"></span></div>
-  <div class="row"><span>已领 / 上限</span><span id="capLine">—</span></div>
-  <div class="row"><span>额度状态</span><span id="capState">—</span></div>
-</section>
-<section class="step" style="padding:12px 14px"><h2 style="margin-left:0;font-size:14px;color:var(--muted)">日志</h2><div id="log"></div></section>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-01 14:20 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="tiles">
+  <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
+  <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
+  <div class="tile"><div class="k">我可领取</div><div class="v" id="claimable">—</div><div class="k" id="cnt" style="margin-top:4px">—</div></div>
+  <div class="tile"><div class="k">最大一笔</div><div class="v" id="maxPiece" style="font-size:15px">—</div></div>
+  <div class="tile"><div class="k">Gas（DAI）</div><div class="v" id="gas" style="font-size:15px">—</div></div>
+</div>
+<div class="banner"><div class="st" id="armState">未开启</div><div class="hint" id="hint">先点底下"连接钱包"</div><div class="row" style="margin-top:6px;border:0;padding:4px 0 0"><span>结论</span><span id="verdict">—</span></div><div class="row" style="border:0;padding:2px 0 0"><span>额度状态</span><span id="capState">—</span></div></div>
+<div class="set">
+  <label>抢哪张债券 <select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></label>
+  <label>领取方式 <select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></label>
+  <label>整点前彩排 <select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></label>
+</div>
+<div class="card"><h3>怎么用</h3><div class="note" style="color:var(--text);font-size:13.5px;line-height:1.75">连接钱包 → 开启自动领 → 整点前 2 分钟弹一笔 0 元彩排（先别点，等长震+三声响再点确认）→ 整点前 8 秒弹正式那笔，同样等长震+三声响再点。没成下个整点自动再来。</div></div>
+<div class="card"><h3>日志</h3><div id="log"></div></div>
+<div class="dock"><button class="btn sec" id="btnConnect">连接钱包</button><button class="btn" id="btnArm" disabled>开启自动领</button><button class="btn stop" id="btnStop">停</button></div>
 
 <div class="hidden"><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select>
 <span id="bidNow"></span>
