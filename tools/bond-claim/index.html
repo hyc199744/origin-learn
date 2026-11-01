@@ -27,7 +27,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 </style>
 </head>
 <body>
-<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 02:10</span></h1>
+<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 02:30</span></h1>
 <div class="sub">anubis.origindefi.io 销毁债券领取。<b>10-29 合约升级后的新规则：两张销毁债券各自每个整点全网只放 50,000 LGNS</b>，谁的交易先进区块谁先拿，大户两三秒就领光。本页按链上时间算准整点，提前零点几秒弹钱包，你<b>立刻点确认</b>，用高 gas 抢进整点后的头一两个区块。请在钱包 App 内置浏览器打开；私钥始终在钱包里，每笔都要你点确认。</div>
 
 <div class="card">
@@ -78,6 +78,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
   <div style="font-weight:700;margin-bottom:4px">抢领设置</div>
   <div class="row"><span>领取方式</span><span><select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></span></div>
   <div class="row"><span>弹钱包时机</span><span><select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="cue">提前 8 秒弹出，震动+响声时再点确认（手慢必选）</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select></span></div>
+  <div class="row"><span>整点前彩排</span><span><select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></span></div>
   <div class="row"><span>自动微调时机</span><span><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select></span></div>
   <div class="row"><span>Gas 出价</span><span><select id="gwei"><option value="auto" selected>自动（上一整点第 1 块最高价再加三成）</option><option value="100">100 gwei</option><option value="300">300 gwei</option><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000">5000 gwei</option><option value="10000">10000 gwei</option></select></span></div>
   <div class="row"><span>自动出价上限</span><span><select id="gcap"><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000" selected>5000 gwei（一笔最多约 2.4 DAI）</option><option value="10000">10000 gwei（最多约 5 DAI）</option></select></span></div>
@@ -245,6 +246,21 @@ async function attemptLocal(H){
 }
 async function testLocal(){ if(!LK){ log('先解锁本地私钥','warn'); return; } if(busy) return; busy=true; try{ await loadEthers(); const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16); const raw=await LK.wallet.signTransaction({type:0,chainId:CHAIN_ID,to:me,data:'0x',gasLimit:21000n,gasPrice:100n*10n**9n,nonce,value:0n}); const t0=Date.now(); const h=await sendRaw(raw); log('测试：0 元自转账已直发（约 0.002 DAI），节点接收用时 '+(Date.now()-t0)+' ms  '+h); const r=await waitTx(h,60000); if(r&&r.status==='0x1'){ log('✓ 测试上链成功，区块 '+parseInt(r.blockNumber,16)+'，用时 '+((Date.now()-t0)/1000).toFixed(1)+' 秒。本地签名可用，到点会自动发','ok'); } else log(r?'测试交易失败':'60 秒没见回执','bad'); }catch(e){ log('测试失败：'+(e.message||e),'bad'); } finally{ busy=false; loadState().catch(()=>{}); } }
 const doAttempt=H=>localActive()?attemptLocal(H):attempt(H);
+/* 彩排:手点模式下,整点前 2 分钟用一笔 0 元自转账完整走一遍"震动→你点确认→钱包指纹/密码→广播",量出真实反应时间,直接把震动提示时刻定成 反应+0.3 秒 */
+async function rehearse(H){
+  if(!eth||!me||busy) return; busy=true;
+  try{
+    const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16);
+    const tx={from:me,to:me,value:'0x0',type:'0x0',gasPrice:'0x'+(100n*10n**9n).toString(16),gas:'0x5208',nonce:'0x'+nonce.toString(16)};
+    log('🎬 彩排开始：钱包马上弹一笔 0 元自转账，像正式抢那样——先别点，等震动+响声再点确认（含指纹/密码）','warn');
+    await sleep(2500); buzz([700,120,700,120,1000]); beep(); const t0=Date.now(); $('armState').innerHTML='<b class="warn flash">彩排：就是现在，点确认！</b>';
+    let h; try{ h=await eth.request({method:'eth_sendTransaction',params:[tx]}); }catch(e){ if(isReject(e)){ log('彩排取消了，整点按上次的提示时刻来','warn'); return; } throw e; }
+    const react=Math.round((Date.now()-t0)/1000*10)/10; const prev=Number(LS('bc_react')||0); const ema=prev?Math.round((prev*0.3+react*0.7)*10)/10:react; LS('bc_react',String(ema));
+    const cue=Math.round(Math.min(5,Math.max(0.2,ema+0.3))*10)/10; LS('bc_cue',String(cue));
+    log('彩排完成：从震动到交易发出 '+react+' 秒（含钱包确认步骤）→ 正式整点改为提前 '+cue.toFixed(1)+' 秒震动提示。'+(react>2.5?'反应偏慢，建议在钱包设置里关掉小额交易的指纹/密码确认':''),'ok');
+    checkBid(h,100).catch(()=>{});
+  }catch(e){ log('彩排出错：'+(e.message||e),'bad'); } finally{ busy=false; }
+}
 async function presignWallet(H){ // 钱包预签:eth_signTransaction 只签不发,签好的 raw 留在页面,到点直发
   const p=plan(); if(p.amt<=0n){ log('没有可领的','warn'); return null; }
   const bid=gweiNow(); const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16);
@@ -366,6 +382,7 @@ async function watch(){
       if(left<=30&&calibratedHour!==H&&!DRILL){ calibratedHour=H; await calibrate(Math.min(8000,Math.max(2000,(left-8)*1000))); continue; }
       if(localActive()&&left<=9&&left>4&&(!sched.pre||sched.pre.H!==H)){ try{ await presignLocal(H); }catch(e){ log('预签失败：'+(e.message||e),'bad'); } continue; }
       if(presignMode()&&eth&&left<=40&&left>8&&sched.preH!==H){ sched.preH=H; presignWallet(H).catch(e=>{ log(isReject(e)?'你取消了预签，这个整点不会发':'预签失败：'+(e.message||e),'bad'); }); }
+      if(isCue()&&!autoSend()&&eth&&$('reh').value==='1'&&left<=150&&left>70&&sched.rehH!==H){ sched.rehH=H; busy=false; await rehearse(H); busy=true; continue; }
       if(left<=25&&sched.H!==H) scheduleFire(H);
       if(left<=10&&warnedHour!==H){ warnedHour=H; buzz([80,60,80,60,80]); log(autoSend()?(sched.pre&&sched.pre.H===H?'还有 10 秒到整点：交易已签好，页面会自动发，你不用动，保持本页在前台':'还有 10 秒到整点：钱包里那笔签名还没确认，快点确认，不然这轮发不出去'):isCue()?'还有 10 秒到整点：钱包马上弹出，弹出后先别点，手指放在确认键上等震动+响声':'还有 10 秒到整点，手指放在确认键上','warn'); }
       if(left>40&&now-lastWallet>45){ lastWallet=now; try{ await loadWallet(); }catch(e){} }
@@ -410,7 +427,7 @@ $('lkUse').addEventListener('change',async()=>{ LS('bc_lkUse',$('lkUse').value);
 try{ const v=LS('bc_lkUse'); if(v) $('lkUse').value=v; }catch(e){} lkRender();
 $('btnConnect').onclick=connect; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=async()=>{ if(busy)return; busy=true; try{ await readCap(); await loadWallet(); const p=plan(); const rem=await readCap(); const sinceH=chainNow()-(nextHour()-WINDOW); if(sinceH<10){ log('整点刚过 '+sinceH.toFixed(0)+' 秒，这会儿节点状态还没刷新，模拟会假通过。额度剩 '+f9(rem)+'，现在手动发大概率白烧 gas，已拦住；要抢整点请用"开启自动领"','bad'); return; } if(rem<p.amt){ log('本小时额度只剩 '+f9(rem)+'，不够领 '+p.label+'，已拦住，等下个整点','bad'); return; } const why=await simulate(p.data); if(why){ log(capHit(why)?'本小时额度已领光（claim cap），现在发必败，等整点':poolEmpty(why)?'国库没币，领不了（'+why+'）':'合约拒绝：'+why,'bad'); return; } log('手动：额度够、模拟通过，立刻领一笔'); await doAttempt(0); }catch(e){ log('出错：'+(e.message||e),'bad'); } finally{ busy=false; loadState(); } };
-['mode','lead','gwei','gcap','feeMode','minClaim','keep','auto'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
+['mode','lead','gwei','gcap','feeMode','minClaim','keep','auto','reh'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
 setInterval(tick,100); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!busy) loadState(); },20000);
 readWindow().then(loadState).then(()=>{ if(DRILL||(window.ethereum&&window.ethereum.selectedAddress)) connect(); });
 log(lkStored()?'页面就绪。本地签名模式：先输入密码解锁，再点"开启自动领"。':'页面就绪。推荐用本地签名模式：点"设置/更换私钥"粘贴私钥并设密码（只存本机），再点"开启自动领"；或切到"弹钱包"模式连接钱包手点。'+(DRILL?' [演练模式]':''));
