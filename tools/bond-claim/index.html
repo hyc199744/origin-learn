@@ -27,7 +27,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 </style>
 </head>
 <body>
-<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 12:30</span></h1>
+<h1>销毁债券抢领助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-01 12:50</span></h1>
 <div class="sub">anubis.origindefi.io 销毁债券领取。<b>10-29 合约升级后的新规则：两张销毁债券各自每个整点全网只放 50,000 LGNS</b>，谁的交易先进区块谁先拿，大户两三秒就领光。本页按链上时间算准整点，提前零点几秒弹钱包，你<b>立刻点确认</b>，用高 gas 抢进整点后的头一两个区块。请在钱包 App 内置浏览器打开；私钥始终在钱包里，每笔都要你点确认。</div>
 
 <div class="card">
@@ -59,7 +59,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 
 <div class="card" id="lkCard">
   <div style="font-weight:700;margin-bottom:4px">本地签名模式（不弹钱包，到点自动发）<span class="ok" style="font-size:12px;font-weight:400;margin-left:6px">推荐</span></div>
-  <div class="row"><span>怎么抢</span><span><select id="lkUse"><option value="local" selected>本地签名自动发（不用点确认）</option><option value="presign">钱包预签：私钥不出钱包，提前签好，到点页面自动发</option><option value="wallet">弹钱包，我手点确认</option></select></span></div>
+  <div class="row"><span>怎么抢</span><span><select id="lkUse"><option value="local" selected>本地签名自动发（不用点确认）</option><option value="trader">OKX 交易员模式：钱包免确认，到点页面自动发</option><option value="presign">钱包预签：私钥不出钱包，提前签好，到点页面自动发</option><option value="wallet">弹钱包，我手点确认</option></select></span></div>
   <div class="row"><span>本机私钥</span><span id="lkState">未设置</span></div>
   <div id="lkForm" style="display:none;margin:6px 0">
     <input id="lkKey" type="password" autocomplete="off" placeholder="粘贴这个钱包的私钥（64 位，可带 0x）" style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1px solid #3a4553;background:#0f141b;color:#e9eef3;font-size:15px;margin-bottom:6px">
@@ -207,7 +207,9 @@ let LK=null; // {pk,addr,wallet} 只在内存
 const localMode=()=>$('lkUse').value==='local';
 const localActive=()=>localMode()&&!!LK;
 const presignMode=()=>$('lkUse').value==='presign';
-const autoSend=()=>localActive()||(presignMode()&&!!eth&&!!me); // 到点由页面直发(本地签名 or 钱包预签)
+const traderMode=()=>$('lkUse').value==='trader';
+const traderActive=()=>traderMode()&&!!eth&&!!me;
+const autoSend=()=>localActive()||traderActive()||(presignMode()&&!!eth&&!!me); // 到点由页面直发(本地签名 or 钱包预签)
 function loadEthers(){ if(window.ethers) return Promise.resolve(window.ethers); return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src='ethers.umd.min.js?v=6.17'; sc.onload=()=>res(window.ethers); sc.onerror=()=>rej(new Error('签名库加载失败，刷新重试')); document.head.appendChild(sc); }); }
 const TE=new TextEncoder(), TD=new TextDecoder();
 async function kdf(pwd,salt){ const base=await crypto.subtle.importKey('raw',TE.encode(pwd),'PBKDF2',false,['deriveKey']); return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']); }
@@ -245,7 +247,32 @@ async function attemptLocal(H){
   }catch(e){ log('本地发送出错：'+(e.message||e),'bad'); sched.pre=null; return 'fail'; }
 }
 async function testLocal(){ if(!LK){ log('先解锁本地私钥','warn'); return; } if(busy) return; busy=true; try{ await loadEthers(); const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16); const raw=await LK.wallet.signTransaction({type:0,chainId:CHAIN_ID,to:me,data:'0x',gasLimit:21000n,gasPrice:100n*10n**9n,nonce,value:0n}); const t0=Date.now(); const h=await sendRaw(raw); log('测试：0 元自转账已直发（约 0.002 DAI），节点接收用时 '+(Date.now()-t0)+' ms  '+h); const r=await waitTx(h,60000); if(r&&r.status==='0x1'){ log('✓ 测试上链成功，区块 '+parseInt(r.blockNumber,16)+'，用时 '+((Date.now()-t0)/1000).toFixed(1)+' 秒。本地签名可用，到点会自动发','ok'); } else log(r?'测试交易失败':'60 秒没见回执','bad'); }catch(e){ log('测试失败：'+(e.message||e),'bad'); } finally{ busy=false; loadState().catch(()=>{}); } }
-const doAttempt=H=>localActive()?attemptLocal(H):attempt(H);
+const doAttempt=H=>localActive()?attemptLocal(H):traderActive()?attemptTrader(H):attempt(H);
+const autoAttempt=H=>traderActive()?attemptTrader(H):attemptLocal(H); // 整点自动发:本地签名/钱包预签走 attemptLocal,交易员模式走 attemptTrader
+/* OKX 交易员模式:钱包对 eth_sendTransaction 免确认直接签发 → 页面在链上整点后 0.06 秒才调用,时机由页面掌握;0.4 秒无回执再发一笔 */
+async function attemptTrader(H){
+  try{
+    const p=plan(); if(p.amt<=0n){ log('没有可领的','warn'); return 'fail'; }
+    const bid=gweiNow(); const mkTx=()=>({from:me,to:A.BOND,data:p.data,gasPrice:'0x'+(BigInt(bid)*10n**9n).toString(16),type:'0x0',gas:'0x'+p.gas.toString(16)});
+    if(H){ const fireAt=(H+0.06+Number(LS('bc_lkAdj')||0)+off())*1000; while(Date.now()<fireAt-1100) await sleep(50); while(Date.now()<fireAt){} }
+    const t1=Date.now(); let h1=null, err1=null; buzz([200]);
+    const s1=eth.request({method:'eth_sendTransaction',params:[mkTx()]}).then(h=>{ h1=h; log('⚡ 第 1 笔已由钱包免确认发出（钱包用时 '+(Date.now()-t1)+' ms'+(H?'，链时 整点'+(chainNow()-H>=0?'后 +':'前 ')+Math.abs(chainNow()-H).toFixed(2)+' 秒':'')+'，页面出价 '+bid+' gwei）'+h,'ok'); },e=>{ err1=e; });
+    await Promise.race([s1,sleep(1500)]);
+    if(!h1&&!err1){ log('钱包 1.5 秒还没返回：交易员模式可能没对这个账户生效，如果弹了确认窗就赶紧手点','warn'); await s1; }
+    if(err1){ if(isReject(err1)){ log('你取消了签名','warn'); return 'rejected'; } log('发送出错：'+(err1.message||err1),'bad'); return 'fail'; }
+    checkBid(h1,bid).catch(()=>{});
+    let hedged=false, h2=null; if(H){ const d=Date.now(); while(Date.now()-d<420) await sleep(60); const r1=await rpc('eth_getTransactionReceipt',[h1]).catch(()=>null); if(!r1){ hedged=true; eth.request({method:'eth_sendTransaction',params:[mkTx()]}).then(h=>{ h2=h; },()=>{}); log('第 1 笔 0.4 秒内未见回执，补发第 2 笔'); await sleep(1500); } }
+    const res=async h=>{ if(!h) return null; const r=await waitTx(h,60000); if(!r) return null; let ts=null; try{ ts=parseInt((await rpc('eth_getBlockByNumber',[r.blockNumber,false])).timestamp,16); }catch(e){} let gp=bid; try{ const t=await rpc('eth_getTransactionByHash',[h]); gp=Number(BigInt(t.gasPrice||t.maxFeePerGas||0))/1e9; }catch(e){} return {ok:r.status==='0x1',off:(ts!==null&&H)?ts-H:null,block:parseInt(r.blockNumber,16),gasUsed:parseInt(r.gasUsed,16),gp,h}; };
+    const R1=await res(h1); const R2=hedged?await res(h2):null;
+    const now=big(await call(A.BOND,SEL.getTotalClaimable+addr32(me)).catch(()=>'0x'+st.claimable.toString(16)));
+    const won=(R1&&R1.ok)||(R2&&R2.ok)||(now+10n**7n<st.claimable);
+    const fm=(R,k)=>R?('第 '+k+' 笔 '+(R.ok?'✅成功':'❌失败')+(R.off!==null?'，落在整点'+(R.off>=0?'后 +':'前 ')+R.off+' 秒':'')+'，区块 '+R.block+'，实际出价 '+R.gp+' gwei，gas '+(R.gasUsed*R.gp/1e9).toFixed(2)+' DAI  https://browser.anubispace.org/tx/'+R.h):('第 '+k+' 笔没上链');
+    log(fm(R1,1)+(hedged?'<br>'+fm(R2,2):''),won?'ok':'bad');
+    if(won){ buzz([100,50,100,50,400]); log('🎉 领到了 '+p.label+' LGNS！','ok'); }
+    if(H&&R1&&R1.off!==null&&$('auto').value==='1'){ let adj=Number(LS('bc_lkAdj')||0); if(R1.off<0){ adj=Math.min(0.9,adj+0.2); log('第 1 笔落在整点前，下次晚 0.2 秒发','warn'); } else if(R1.off>=1&&!R1.ok){ adj=Math.max(-0.3,adj-0.12); log('第 1 笔落在 +'+R1.off+' 秒，下次早 0.12 秒发','warn'); } LS('bc_lkAdj',String(Math.round(adj*100)/100)); lkRender(); }
+    if(won) return 'win'; const why=await simulate(p.data); if(poolEmpty(why)) return 'empty'; return 'late';
+  }catch(e){ if(isReject(e)){ log('你取消了签名','warn'); return 'rejected'; } log('发送出错：'+(e.message||e),'bad'); return 'fail'; }
+}
 /* 彩排:手点模式下,整点前 2 分钟用一笔 0 元自转账完整走一遍"震动→你点确认→钱包指纹/密码→广播",量出真实反应时间,直接把震动提示时刻定成 反应+0.3 秒 */
 async function rehearse(H){
   if(!eth||!me||busy) return; busy=true;
@@ -305,6 +332,7 @@ async function testFee(){
       const tx=fm==='1559'?{from:me,to:me,value:'0x0',type:'0x2',maxFeePerGas:wei,maxPriorityFeePerGas:wei,gas:'0x5208'}:{from:me,to:me,value:'0x0',type:'0x0',gasPrice:wei,gas:'0x5208'};
       log('测试 '+(fm==='1559'?'EIP-1559':'旧式 gasPrice')+' 格式：请在钱包确认这笔 0 元自转账（页面要求 100 gwei）','warn');
       let h; const tT=Date.now(); try{ h=await eth.request({method:'eth_sendTransaction',params:[tx]}); }catch(e){ if(isReject(e)){ log('你取消了测试','warn'); return; } log('该格式钱包直接拒绝（'+(e.message||e).slice(0,60)+'）','bad'); continue; }
+      { const dtq=Date.now()-tT; if(dtq<1500&&!DRILL){ log('✓ 钱包 '+dtq+' ms 就发出去了，没有弹确认：交易员模式对这个账户生效。已切到「OKX 交易员模式」，到点页面自动发，不用你点','ok'); $('lkUse').value='trader'; LS('bc_lkUse','trader'); lkRender(); } }
       { const tp=Math.round((Date.now()-tT)/1000*10)/10; if(!tapMem()&&tp>0.3){ LS('bc_tap',String(tp)); log('顺便记下你的手速 '+tp.toFixed(1)+' 秒（从弹出到点确认），整点会按它算提前量','warn'); } }
       let t=null; for(let i=0;i<20&&!t;i++){ try{ t=await rpc('eth_getTransactionByHash',[h]); }catch(e){} if(!t) await sleep(500); }
       const real=t?Number(BigInt(t.gasPrice||t.maxFeePerGas||0))/1e9:NaN;
@@ -358,7 +386,7 @@ async function fireWindow(H,L){
   if(firing)return; firing=true;
   try{
     let r;
-    if(autoSend()&&H){ r=await attemptLocal(H); await handleResult(r,'这个整点没成，等下个整点自动再来'); return; }
+    if(autoSend()&&H){ r=await autoAttempt(H); await handleResult(r,'这个整点没成，等下个整点自动再来'); return; }
     if(isCue()&&H){ const cueAtMs=(H-cueLead()+off())*1000; sched.cueAt=cueAtMs; clearTimeout(sched.cueTimer);
       sched.cueTimer=setTimeout(async()=>{ while(Date.now()<cueAtMs-1100) await sleep(50); while(Date.now()<cueAtMs){} if(!armed||sched.H!==H) return; buzz([700,120,700,120,1000]); beep(); $('armState').innerHTML='<b class="warn flash">就是现在，点确认！</b>'; log('⚡ 震动提示：现在点确认！（整点前 '+cueLead().toFixed(1)+' 秒）','ok'); }, Math.max(0,cueAtMs-Date.now()-1600)); }
     if(L>0){ r=await attempt(H); }
@@ -392,7 +420,7 @@ async function watch(){
       // 机会性:本小时额度还够、国库也够 → 模拟通过就直接领(大户没领满时会出现)
       const since=now-(H-WINDOW); if(rem>=need&&st.pool>=need&&left>8&&since>10){ const why=await simulate(p.data); if(!why){ log('额度还剩 '+f9(rem)+'，够领 '+p.label+'，模拟通过，立刻领','ok'); await handleResult(await doAttempt(0),''); await sleep(2000); continue; } }
       const L=lead();
-      $('armState').innerHTML='<span class="ok">守候中</span>，'+(left>60?'等下个整点':'整点倒计时 '+left.toFixed(1)+' 秒')+(autoSend()?'，整点后 '+(0.06+Number(LS('bc_lkAdj')||0)).toFixed(2)+' 秒'+(localActive()?'本地签名':'用钱包预签的交易')+'自动直发':(L?(isCue()?'，整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'，整点前 '+L.toFixed(1)+' 秒弹钱包'):'，整点后模拟通过弹钱包'));
+      $('armState').innerHTML='<span class="ok">守候中</span>，'+(left>60?'等下个整点':'整点倒计时 '+left.toFixed(1)+' 秒')+(autoSend()?'，整点后 '+(0.06+Number(LS('bc_lkAdj')||0)).toFixed(2)+' 秒'+(localActive()?'本地签名':traderActive()?'钱包免确认':'用钱包预签的交易')+'自动直发':(L?(isCue()?'，整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'，整点前 '+L.toFixed(1)+' 秒弹钱包'):'，整点后模拟通过弹钱包'));
       if(st.pool<need&&left<=20&&now-lastCapLog>60){ lastCapLog=now; log('注意：国库只有 '+f9(st.pool)+'，不够领 '+f9(need)+'，这波大概率白发','warn'); }
       await sleep(left<=40?500:2000);
     }
@@ -403,7 +431,7 @@ $('lead').addEventListener('change',()=>{ try{localStorage.removeItem('bc_tap');
 async function arm(){
   if(armed)return;
   if(localMode()){ if(!LK){ log('本地签名模式：先在上面"设置私钥"或输入密码"解锁"，再开启','bad'); return; } if(me!==LK.addr) await useLocal(); }
-  if(presignMode()&&(!eth||!me)){ log('钱包预签模式：先点"连接钱包"，再开启','bad'); return; }
+  if((presignMode()||traderMode())&&(!eth||!me)){ log((traderMode()?'交易员模式':'钱包预签模式')+'：先点"连接钱包"，再开启','bad'); return; }
   const ok=await loadWallet().catch(()=>false); if(!ok){ log('检查没通过，不能开启','bad'); return; }
   armed=true; keepAwake(); try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); AC.resume(); }catch(e){} await readWindow();
   log('自动领已开启：下个整点 '+bj(nextHour())+'，'+(lead()?(isCue()?'整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'整点前 '+lead().toFixed(1)+' 秒弹钱包'):'整点后模拟通过再弹')+'，gas '+($('gwei').value==='auto'?'自动出价（整点前 1 分钟按上一整点定）':$('gwei').value+' gwei')+'，'+plan().label+' LGNS。保持本页在前台、钱包已解锁、别锁屏。');
