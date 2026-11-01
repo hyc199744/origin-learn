@@ -28,7 +28,7 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 </style>
 </head>
 <body>
-<h1>Helix 抢烧助手</h1>
+<h1>Helix 抢烧助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-02 00:20</span></h1>
 <div class="sub">烧 500 LGNS 换 2 倍算力。请在钱包 App 的内置浏览器里打开本页；私钥始终在钱包里，每笔交易都要你在钱包点确认。</div>
 
 <div class="card">
@@ -57,9 +57,9 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 
 <div class="card">
   <div style="font-weight:700;margin-bottom:4px">抢烧设置</div>
-  <div class="row"><span>弹签名时机</span><span><select id="lead"><option value="-1500" selected>开放后 1.5 秒（推荐）</option><option value="-3000">开放后 3 秒</option><option value="1000">提前 1 秒（高级，可能被拒一次）</option></select></span></div>
+  <div class="row"><span>弹签名时机</span><span><select id="lead"><option value="-500">开放后 0.5 秒</option><option value="-1500" selected>开放后 1.5 秒（推荐）</option><option value="-3000">开放后 3 秒</option><option value="1000">提前 1 秒（高级，可能被拒一次）</option></select></span></div>
   <div class="row"><span>状态</span><span id="armState">未开启</span></div>
-  <div class="note">开启后请保持本页在前台、钱包已解锁、别锁屏。到点前会自动弹出钱包签名并震动提醒，点"确认"即可；若那笔落在开放前一个块被拒，会马上再弹一次。额度约 40 秒抢光。</div>
+  <div class="note">开启后请保持本页在前台、钱包已解锁、别锁屏。到点前会自动弹出钱包签名并震动提醒，点"确认"即可；若那笔落在开放前一个块被拒，会马上再弹一次。额度现在开放后 5 秒左右就抢光。开放时间按链上最近一天的实际开放时刻自动推算（10-31 起官方改成每天 11:59:00 开，不再是 0 点），页面会显示在"下一次开放"。</div>
 </div>
 
 <div class="card"><div style="font-weight:700;margin-bottom:4px">日志</div><div id="log"></div></div>
@@ -98,14 +98,22 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ if(arme
 async function syncClock(){const b=await rpc('eth_getBlockByNumber',['latest',false]);const ts=parseInt(b.timestamp,16);skew=Math.floor(Date.now()/1000)-ts;$('skew').textContent=skew+' 秒';return ts;}
 const chainNow=()=>Date.now()/1000-skew;
 
+let openSecCache={at:0,v:null};
+async function getOpenSec(){ // 最近一个抢满(或有成交)的协议日,从当天 0 点算起第几秒开放;读不到按 11:59:00
+  if(Date.now()-openSecCache.at<600e3&&openSecCache.v!==null) return openSecCache.v;
+  let v=43140; try{ const j=await (await fetch('https://zjgame.web3origin.com/helix/burners.json',{cache:'no-store'})).json(); const ds=(j.days||[]).filter(d=>d.full||d.count>=50); if(ds.length) v=ds[ds.length-1].openSec; }catch(e){}
+  openSecCache={at:Date.now(),v}; return v; }
 async function loadState(){
   try{
     const [day,epoch,maxL,minStake,dailyMax,burned]=await Promise.all([call(A.CLOCK,SEL.currentDay),call(A.CLOCK,SEL.currentEpoch),call(A.GATE,SEL.maximumLgns),call(A.GATE,SEL.minimumStake),call(A.GATE,SEL.dailyMaximumLgns),call(A.GATE,SEL.burnedLgnsToday)]);
     const ns=await call(A.CLOCK,SEL.dayStart+u256(big(day)+1n));
     let remain=null;try{remain=big(await call(A.LENS,SEL.remaining));}catch(e){}
     st={day:Number(big(day)),epoch:Number(big(epoch)),maxL:big(maxL),minStake:big(minStake),dailyMax:big(dailyMax),burned:big(burned),remain};
-    nextStart=Number(big(ns));
-    $('nextOpen').textContent=bj(nextStart);
+    const openSec=await getOpenSec(); const todayStart=Number(big(await call(A.CLOCK,SEL.dayStart+u256(big(day)))));
+    const todayOpen=todayStart+openSec, tomorrowOpen=Number(big(ns))+openSec; const full=st.dailyMax>0n&&st.burned>=st.dailyMax;
+    nextStart=(!full&&chainNow()<todayOpen+120)?todayOpen:tomorrowOpen; // 今天还没开(或刚开没满)→今天的开放时刻;今天已满→明天
+    const hh=String(Math.floor(openSec/3600)).padStart(2,'0'),mm=String(Math.floor(openSec%3600/60)).padStart(2,'0'),ss=String(openSec%60).padStart(2,'0');
+    $('nextOpen').textContent=bj(nextStart)+'（每天 '+hh+':'+mm+':'+ss+' 开）';
     $('quota').innerHTML=f9(st.burned)+' / '+f9(st.dailyMax)+(st.remain!==null?('，剩余 <b class="'+(st.remain>0n?'ok':'bad')+'">'+f9(st.remain)+'</b>'):'');
     await syncClock();
     if(me) await loadWallet();
@@ -177,9 +185,9 @@ async function attempt(){
 }
 // 开放后先模拟:刚过零点那几秒链上最新块可能还是"昨天",会误报额度已满,所以给 8 秒宽限反复模拟;过了宽限还说满才算真满
 async function waitUntilOpenOrFull(){
-  const until=Math.max(chainNow(),nextStart)+8;
-  while(chainNow()<until){ const why=await simulate(); if(!why) return 'open'; if(!/daily maximum/i.test(why)) return why; await new Promise(r=>setTimeout(r,400)); }
-  return 'full';
+  const until=Math.max(chainNow(),nextStart)+180; let lastWhy='';
+  while(chainNow()<until){ const why=await simulate(); if(!why) return 'open'; lastWhy=why; if(!/daily maximum|not open/i.test(why)) return why; if(/not open/i.test(why)&&chainNow()<nextStart) { await new Promise(r=>setTimeout(r,1000)); continue; } await new Promise(r=>setTimeout(r,250)); }
+  return /not open/i.test(lastWhy)?'notopen':'full';
 }
 async function race(){
   if(racing)return; racing=true; won=false; attempts=0; let rejects=0; $('armState').textContent='抢烧中…';
@@ -188,6 +196,7 @@ async function race(){
     if(chainNow()>=nextStart-0.2){ // 开放后触发:先确认链上真开了、资格真没问题,再弹钱包(避免钱包里出现"交易可能失败"的红字)
       const s=await waitUntilOpenOrFull();
       if(s==='full'){ log('今天额度已经满了，下次再来','bad'); return; }
+      if(s==='notopen'){ log('过了开放时刻 3 分钟合约还说没开（not open today），官方可能改了开放时间。页面会按最近一天的实际开放时刻重新算，请稍后刷新再开启','bad'); return; }
       if(s!=='open'){ log('合约拒绝：'+s+'（不弹钱包了，先把这个问题解决）','bad'); return; }
       log('链上已开放且模拟通过，弹钱包…','ok');
     } else log('提前触发：第一笔可能落在开放前被拒，被拒会立刻再弹一次','warn');
