@@ -88,8 +88,8 @@ label{display:block;margin-top:6px}
 <label class="muted" style="font-size:13.5px">你抢币要用的钱包地址（Anubis 链）</label>
 <input id="wIn" placeholder="0x…" autocomplete="off" spellcheck="false">
 <div class="btns"><button class="btn" data-tk="USDT">付 USDT 下单</button><button class="btn" data-tk="DAI">付 DAI 下单</button></div>
-<details style="margin-top:10px"><summary>已经开通过？输入钱包地址直接查看链接</summary>
-  <button class="btn ghost full" id="btnCheck" style="margin-top:6px">用上面的地址查看</button></details>
+<details style="margin-top:10px"><summary>已经付过款？输入订单号找回链接</summary>
+  <input id="oidIn" placeholder="订单号（付款成功页上显示的）" autocomplete="off"><button class="btn ghost full" id="btnCheck">找回</button></details>
 <div id="msg"></div>
 </div>
 </div>
@@ -116,6 +116,7 @@ label{display:block;margin-top:6px}
 <div id="vipWrap" style="display:none">
 <h1>开通成功 <span class="badge">已开通</span></h1>
 <p class="sub addr" id="vipWho"></p>
+<div class="card" style="border-color:#5a4a2a"><b>订单号：<span id="vipOid" class="addr" style="color:var(--gold);font-size:15px"></span></b><br><span class="muted" style="font-size:13px">请截图保存。换手机或清了浏览器数据，用订单号就能找回链接。</span></div>
 <div id="vip"></div>
 <button class="btn ghost full" id="btnOut">返回</button>
 </div>
@@ -132,8 +133,8 @@ function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t||''; }
 function view(v){ $('pub').style.display=v==='pub'?'':'none'; $('orderWrap').style.display=v==='order'?'':'none'; $('vipWrap').style.display=v==='vip'?'':'none'; window.scrollTo(0,0); }
 function copy(t,b){ var done=function(){ if(b){ var o=b.textContent; b.textContent='已复制 ✓'; setTimeout(function(){b.textContent=o;},1800);} };
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(done,function(){ var x=document.createElement('textarea'); x.value=t; document.body.appendChild(x); x.select(); try{document.execCommand('copy'); done();}catch(e){ prompt('长按复制',t);} x.remove(); }); }
-function showVip(html,w){
-  clearInterval(timer); LS('vip_order',null); if(w) LS('vip_wallet',w);
+function showVip(html,w,oid){
+  clearInterval(timer); if(oid) LS('vip_paid',oid); LS('vip_order',null); if(w) LS('vip_wallet',w); $('vipOid').textContent=oid||'';
   $('vip').innerHTML=html; $('vipWho').textContent=w?('抢币钱包 '+w):'';
   document.querySelectorAll('#vip [data-copy]').forEach(function(b){ b.onclick=function(){ copy(b.getAttribute('data-copy'),b); }; });
   view('vip');
@@ -151,7 +152,7 @@ async function poll(){
   if(!cur) return;
   var left=cur.expires-Math.floor(Date.now()/1000); $('oLeft').textContent=fmtLeft(left);
   try{ var r=await fetch(API+'?order='+encodeURIComponent(cur.id),{cache:'no-store'}); var j=await r.json();
-    if(j.status==='paid'){ $('oSt').textContent='已到账'; showVip(j.content,j.wallet); return; }
+    if(j.status==='paid'){ $('oSt').textContent='已到账'; showVip(j.content,j.wallet,j.id); return; }
     if(j.status==='expired'){ clearInterval(timer); $('oSt').textContent='已过期'; $('omsg').textContent='订单已过期。如果你已经转了账，请联系客服并提供交易哈希；没转就点下面重新下单。'; return; }
     if(r.status===404){ clearInterval(timer); LS('vip_order',null); view('pub'); }
   }catch(e){}
@@ -161,14 +162,14 @@ async function order(tk){
   if(!/^0x[0-9a-f]{40}$/.test(w)) return msg('请先填写你抢币要用的钱包地址（0x 开头 42 位）','bad');
   msg('正在下单…','warn');
   try{ var r=await fetch(API+'/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({wallet:w,token:tk})}); var j=await r.json();
-    if(j.already){ msg(''); showVip(j.content,w); return; }
     if(j.error) return msg(j.error,'bad');
     msg(''); LS('vip_wallet',w); showOrder(j);
   }catch(e){ msg('下单失败，网络问题，请重试','bad'); }
 }
 async function check(){
-  var w=$('wIn').value.trim().toLowerCase(); if(!/^0x[0-9a-f]{40}$/.test(w)) return msg('请先在上面填写钱包地址','bad');
-  try{ var j=await (await fetch(API+'?wallet='+w,{cache:'no-store'})).json(); if(j.member&&j.content) showVip(j.content,w); else msg('这个钱包还没开通，请下单付款。','bad'); }catch(e){ msg('查询失败，请重试','bad'); }
+  var id=$('oidIn').value.trim(); if(!id) return msg('请填写订单号','bad');
+  try{ var r=await fetch(API+'?order='+encodeURIComponent(id),{cache:'no-store'}); var j=await r.json();
+    if(j.status==='paid') showVip(j.content,j.wallet,j.id); else if(j.status==='open') showOrder(j); else msg(r.status===404?'没有这个订单号':'这个订单没有付款（已过期）','bad'); }catch(e){ msg('查询失败，请重试','bad'); }
 }
 document.querySelectorAll('[data-tk]').forEach(function(b){ b.onclick=function(){ order(b.getAttribute('data-tk')); }; });
 $('btnCheck').onclick=check;
@@ -177,9 +178,9 @@ $('cpRecv').onclick=function(){ copy(cur.recv,$('cpRecv')); };
 $('btnCancel').onclick=function(){ clearInterval(timer); LS('vip_order',null); cur=null; view('pub'); };
 $('btnOut').onclick=function(){ view('pub'); };
 var w0=LS('vip_wallet'); if(w0) $('wIn').value=w0;
-var oid=LS('vip_order');
-if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.status==='paid') showVip(j.content,j.wallet); else if(j.status==='open') showOrder(j); else LS('vip_order',null); }).catch(function(){}); }
-else if(w0){ fetch(API+'?wallet='+w0,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.member&&j.content) showVip(j.content,w0); }).catch(function(){}); }
+try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('vip_c_')===0) localStorage.removeItem(k); }); }catch(e){} // 清掉旧版缓存的链接
+var oid=LS('vip_paid')||LS('vip_order');
+if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.status==='paid') showVip(j.content,j.wallet,j.id); else if(j.status==='open') showOrder(j); else { LS('vip_order',null); LS('vip_paid',null); } }).catch(function(){}); }
 })();
 </script>
 </body>
