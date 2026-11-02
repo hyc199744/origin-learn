@@ -51,7 +51,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-02 22:10 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-02 20:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -73,7 +73,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 <div class="row" style="border:0;padding:0 0 6px"><span>止损</span><span id="lossInfo" style="font-size:13px">—</span></div>
 <div class="note" style="font-size:12.5px;margin:-2px 0 6px">LGNS 债券整点第 1 块按出价排队，12:00 实测要 5,000 以上才排得上。OKX 若在确认页设过自定义网络费会一直沿用，请改成「推荐」或填同样数值。</div>
 <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><code id="relayUrl" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div>
-<div class="card"><h3>怎么用</h3><div class="note" style="color:var(--text);font-size:13.5px;line-height:1.75"><b>托管节点接通了：</b>连接钱包 → 开启自动领 → 整点前 90 秒弹钱包，直接点确认就完事。<br><b>没接通（手点）：</b>连接钱包 → 开启自动领 → 整点前 2 分钟弹一笔 0 元彩排（先别点，等长震+三声响再点确认）→ 整点前 8 秒弹正式那笔，同样等长震+三声响再点。没成下个整点自动再来。</div></div>
+<div class="card"><h3>怎么用</h3><div class="note" style="color:var(--text);font-size:13.5px;line-height:1.75"><b>托管节点接通了：</b>连接钱包 → 开启自动领 → 整点前 45 秒弹钱包，直接点确认就完事。<br><b>没接通（手点）：</b>连接钱包 → 开启自动领 → 整点前 2 分钟弹一笔 0 元彩排（先别点，等长震+三声响再点确认）→ 整点前 8 秒弹正式那笔，同样等长震+三声响再点。没成下个整点自动再来。</div></div>
 <div class="card"><h3>日志</h3><div id="log"></div></div>
 <div class="dock"><button class="btn sec" id="btnConnect">连接钱包</button><button class="btn" id="btnArm" disabled>开启自动领</button><button class="btn stop" id="btnStop">停</button></div>
 
@@ -446,7 +446,7 @@ async function watch(){
       const now=chainNow(); const H=nextHour(); const left=H-now;
       if(firing||left<=4){ await sleep(50); continue; }
       { const prevH=H-WINDOW; if(relayOn()&&bidAuto()&&st.mktH!==prevH&&now-prevH>15&&!DRILL){ st.mktH=prevH; computeMarket(prevH).catch(()=>{}); } }
-      if(left<=75&&left>30&&st.bidHour!==H&&!DRILL){ st.bidHour=H; if($('gwei').value==='auto'&&!relayOn()) learnBid(H).catch(()=>{}); continue; } /* 11-02 12:00 实测:learnBid 逐笔查回执要几十秒,堵住了整点前 90 秒的弹窗(实际 -5.85 秒才弹),改为后台跑、托管模式不跑 */
+      if(left<=75&&left>30&&st.bidHour!==H&&!DRILL){ st.bidHour=H; if($('gwei').value==='auto'&&!relayOn()) learnBid(H).catch(()=>{}); continue; } /* 11-02 12:00 实测:learnBid 逐笔查回执要几十秒,堵住了整点前 45 秒的弹窗(实际 -5.85 秒才弹),改为后台跑、托管模式不跑 */
       if(left<=30&&calibratedHour!==H&&!DRILL){ calibratedHour=H; await calibrate(Math.min(8000,Math.max(2000,(left-8)*1000))); continue; }
       if(localActive()&&left<=9&&left>4&&(!sched.pre||sched.pre.H!==H)){ try{ await presignLocal(H); }catch(e){ log('预签失败：'+(e.message||e),'bad'); } continue; }
       if(presignMode()&&eth&&left<=40&&left>8&&sched.preH!==H){ sched.preH=H; presignWallet(H).catch(e=>{ log(isReject(e)?'你取消了预签，这个整点不会发':'预签失败：'+(e.message||e),'bad'); }); }
@@ -509,11 +509,11 @@ async function arm(){
   if((presignMode()||traderMode())&&(!eth||!me)){ log((traderMode()?'交易员模式':'钱包预签模式')+'：先点"连接钱包"，再开启','bad'); return; }
   const ok=await loadWallet().catch(()=>false); if(!ok){ log('检查没通过，不能开启','bad'); return; }
   armed=true; keepAwake(); try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); AC.resume(); }catch(e){} await readWindow();
-  log('自动领已开启：下个整点 '+bj(nextHour())+'，'+(relayOn()?'托管节点模式：整点前 90 秒弹钱包，直接点确认，东京节点到整点准时发（':'')+(lead()?(isCue()?'整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'整点前 '+lead().toFixed(1)+' 秒弹钱包'):'整点后模拟通过再弹')+(relayOn()?'；节点连不上时退回手点）':'')+'，gas '+($('gwei').value==='auto'?'自动出价（整点前 1 分钟按上一整点定）':$('gwei').value+' gwei')+'，'+plan().label+' LGNS。保持本页在前台、钱包已解锁、别锁屏。');
+  log('自动领已开启：下个整点 '+bj(nextHour())+'，'+(relayOn()?'托管节点模式：整点前 45 秒弹钱包，直接点确认，东京节点到整点准时发（':'')+(lead()?(isCue()?'整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'整点前 '+lead().toFixed(1)+' 秒弹钱包'):'整点后模拟通过再弹')+(relayOn()?'；节点连不上时退回手点）':'')+'，gas '+($('gwei').value==='auto'?'自动出价（整点前 1 分钟按上一整点定）':$('gwei').value+' gwei')+'，'+plan().label+' LGNS。保持本页在前台、钱包已解锁、别锁屏。');
   watch();
 }
 function stop(){armed=false;$('armState').textContent='已停止';log('已停止自动领');}
-function hintNow(){ const H=nextHour(); const left=H-chainNow(); let t; if(!me) t='先点底下"连接钱包"'; else if(!st.eligible) t='这个钱包没法领（看下面"结论"）'; else if(!armed) t='点底下"开启自动领"'; else if(autoSend()) t='守着就行，到点页面自动发'; else if(relayOn()) t=(left<=RELAY_POP+1&&left>0&&sched.relayH!==H)?'钱包弹出后直接点确认':'托管节点模式：整点前 90 秒弹钱包，直接点确认'; else if(left<=150&&left>60) t='彩排：等长震+三声响再点确认'; else if(left<=12) t='正式：等长震+三声响立刻点确认'; else t='守候中，整点前 2 分钟会彩排一次'; const e=$('hint'); if(e&&e.textContent!==t) e.textContent=t; }
+function hintNow(){ const H=nextHour(); const left=H-chainNow(); let t; if(!me) t='先点底下"连接钱包"'; else if(!st.eligible) t='这个钱包没法领（看下面"结论"）'; else if(!armed) t='点底下"开启自动领"'; else if(autoSend()) t='守着就行，到点页面自动发'; else if(relayOn()) t=(left<=RELAY_POP+1&&left>0&&sched.relayH!==H)?'钱包弹出后直接点确认':'托管节点模式：整点前 45 秒弹钱包，直接点确认'; else if(left<=150&&left>60) t='彩排：等长震+三声响再点确认'; else if(left<=12) t='正式：等长震+三声响立刻点确认'; else t='守候中，整点前 2 分钟会彩排一次'; const e=$('hint'); if(e&&e.textContent!==t) e.textContent=t; }
 function tick(){ hintNow(); const H=nextHour(); $('nextIn').textContent=bj(H); const left=Math.max(0,H-chainNow()); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(Math.floor(left%60)).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s+(left<60?'.'+String(Math.floor(left*10)%10):''); $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
 
 setBond(LS('bc_bond')||'lgns');
@@ -521,14 +521,14 @@ $('bond').addEventListener('change',()=>{ setBond($('bond').value,'，重新读�
 ['gwei','gcap','feeMode','mode'].forEach(id=>$(id).addEventListener('change',()=>{ try{showBid();}catch(e){} }));
 $('btnTestFee').onclick=testFee;
 /* ===== 托管节点(11-02):钱包 RPC 指向东京 bond-rpc,claim 交易在整点前 120 秒内到达会被扣住,到链上整点准时发 ===== */
-const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=90;
+const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=45;
 const relayList=()=>String(LS('bc_relay2')||'').toLowerCase().split(',').filter(Boolean), relayHas=a=>!!a&&relayList().includes(String(a).toLowerCase()), relayAdd=a=>{ const l=relayList().filter(x=>x!==String(a).toLowerCase()); l.push(String(a).toLowerCase()); LS('bc_relay2',l.join(',')); }, relayDel=a=>LS('bc_relay2',relayList().filter(x=>x!==String(a).toLowerCase()).join(','));
 const relayOn=()=>!DRILL&&!!me&&relayHas(me)&&!st.relayDown&&!autoSend();
 async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
 function relayRender(){ const el=$('relayState'); if(!el) return; $('relayUrl').textContent=RELAY;
   if(!me){ el.innerHTML='先连接钱包'; return; }
   const ok=relayHas(me);
-  el.innerHTML=relayOn()?'<b class="ok">✓ 已接通：整点前 90 秒弹钱包，直接点确认</b>':(ok&&st.relayDown?'<b class="bad">节点暂时连不上，本轮改回手点</b>':ok&&autoSend()?'<span class="warn">已接通（当前是自动发模式，不用它）</span>':'<span class="warn">未接通：按下面步骤改好钱包节点，再点检测</span>'); }
+  el.innerHTML=relayOn()?'<b class="ok">✓ 已接通：整点前 45 秒弹钱包，直接点确认</b>':(ok&&st.relayDown?'<b class="bad">节点暂时连不上，本轮改回手点</b>':ok&&autoSend()?'<span class="warn">已接通（当前是自动发模式，不用它）</span>':'<span class="warn">未接通：按下面步骤改好钱包节点，再点检测</span>'); }
 async function relayDetect(){
   if(!eth||!me){ log('先连接钱包','warn'); return; } if(busy){ log('正在忙（彩排/抢领中），稍后再点检测','warn'); return; } busy=true; $('btnRelay').disabled=true;
   try{
@@ -536,7 +536,7 @@ async function relayDetect(){
     let h=null, sendErr=''; try{ h=await eth.request({method:'eth_sendTransaction',params:[{from:me,to:A.LGNS,value:'0x0',data:'0x095ea7b3'+addr32(me)+u256(0),gas:'0x11170'}]}); }catch(e){ if(isReject(e)){ log('你取消了检测','warn'); return; } sendErr=(e.message||String(e)).slice(0,120); }
     let s=null, ok=false; for(let i=0;i<8&&!ok;i++){ await sleep(i?800:300); s=await relayGet('/seen?a='+me); ok=!!(s&&s.sendAgo!==null&&s.sendAgo<90&&(!s.sendHash||!h||String(s.sendHash).toLowerCase()===String(h).toLowerCase())); }
     if(ok&&sendErr) log('（检测交易本身没发成：'+sendErr+'，但它确实经过了托管节点）','warn');
-    if(ok){ relayAdd(me); st.relayDown=false; log('✓ 托管节点接通了：钱包发交易走的是东京定时节点。开启自动领后，整点前 90 秒弹钱包，直接点确认，节点会卡准整点发出','ok'); }
+    if(ok){ relayAdd(me); st.relayDown=false; log('✓ 托管节点接通了：钱包发交易走的是东京定时节点。开启自动领后，整点前 45 秒弹钱包，直接点确认，节点会卡准整点发出','ok'); }
     else if(!s){ log('✗ 连不上托管节点（网络问题？开着 VPN 的话换个线路再试）','bad'); }
     else { relayDel(me); if(sendErr) log('检测交易出错：'+sendErr,'bad'); log('✗ 这笔交易没经过托管节点，钱包还在用别的节点。请把钱包里 Anubis 网络的 RPC 改成 '+RELAY+' 再点检测（OKX：网络 → Anubis → 编辑）','bad'); }
   }catch(e){ log('检测出错：'+(e.message||e),'bad'); } finally{ busy=false; $('btnRelay').disabled=false; relayRender(); }

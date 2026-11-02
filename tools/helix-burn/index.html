@@ -92,12 +92,12 @@ const f9=v=>(Number(v)/1e9).toLocaleString('en-US',{maximumFractionDigits:2}); c
 const bj=ts=>{const d=new Date(ts*1000+8*3600e3);return d.toISOString().replace('T',' ').slice(0,19)+' 北京';};
 const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p||[200,100,200]);}catch(e){}};
 
-const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=90; let relayDown=false;
+const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=45; let relayDown=false;
 const LSg=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, LSs=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
 const relayList=()=>String(LSg('bc_relay2')||'').toLowerCase().split(',').filter(Boolean), relayHas=a=>!!a&&relayList().includes(String(a).toLowerCase()), relayDel=a=>LSs('bc_relay2',relayList().filter(x=>x!==String(a).toLowerCase()).join(','));
 const relayOn=()=>!!me&&relayHas(me)&&!relayDown; /* 检测记录与销毁债券抢领页共用(同站点 localStorage) */
 async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
-function relayRender(){ const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML='先连接钱包'; return; } el.innerHTML=relayOn()?'<span class="ok">已接通 ✓ 开放前 90 秒弹钱包，直接点确认</span>':(relayDown?'<span class="bad">连不上，本次改用开放后弹窗</span>':'<span class="warn">未接通（到「销毁债券抢领」页按说明改节点并检测，这里自动生效）</span>'); }
+function relayRender(){ const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML='先连接钱包'; return; } el.innerHTML=relayOn()?'<span class="ok">已接通 ✓ 开放前 45 秒弹钱包，直接点确认</span>':(relayDown?'<span class="bad">连不上，本次改用开放后弹窗</span>':'<span class="warn">未接通（到「销毁债券抢领」页按说明改节点并检测，这里自动生效）</span>'); }
 let me=null, eth=null, skew=0, nextStart=0, st={}, armed=false, racing=false, armTimer=null, attempts=0, won=false, wakeLock=null;
 
 async function rpc(method,params){const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});const j=await r.json();if(j.error){const e=new Error(j.error.message||'rpc');e.data=j.error.data;throw e;}return j.result;}
@@ -231,7 +231,7 @@ async function arm(){
   armed=true; keepAwake();
   if(relayOn()){ const ping=await relayGet('/status',3000); if(!ping){ relayDown=true; relayRender(); log('托管节点连不上，本次改用"开放后弹窗"','bad'); } }
   const lead=Number($('lead').value); const leadS=relayOn()?RELAY_POP:(isNaN(lead)?-1.5:lead/1000);
-  $('armState').innerHTML='<span class="ok">已开启</span>，'+(relayOn()?'托管：开放前 90 秒弹钱包，直接点确认':leadS>=0?('到点前 '+leadS+' 秒弹签名'):('开放后 '+(-leadS)+' 秒弹签名'));
+  $('armState').innerHTML='<span class="ok">已开启</span>，'+(relayOn()?'托管：开放前 45 秒弹钱包，直接点确认':leadS>=0?('到点前 '+leadS+' 秒弹签名'):('开放后 '+(-leadS)+' 秒弹签名'));
   log('自动抢已开启：'+bj(nextStart)+(leadS>=0?' 前 '+leadS:' 后 '+(-leadS))+' 秒弹出钱包签名。保持本页在前台、钱包已解锁、别锁屏。');
   clearInterval(armTimer); let warned=false;
   armTimer=setInterval(()=>{ if(!armed){clearInterval(armTimer);return;} const left=nextStart-chainNow();
