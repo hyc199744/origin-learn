@@ -45,6 +45,11 @@ details summary{cursor:pointer;color:var(--muted);font-size:13.5px}
 .tool ol{font-size:14px}.step{border-color:#5a4a2a}
 .badge{display:inline-block;background:var(--acc2);color:var(--ok);border-radius:20px;padding:2px 10px;font-size:13px}
 @media (max-width:420px){.btns,.linkrow{grid-template-columns:1fr}}
+.amt{font-size:32px;font-weight:800;color:var(--gold);margin:8px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.btn.sm{padding:6px 10px;font-size:13px}
+.qr{display:flex;justify-content:center;margin:12px 0}.qr img,.qr canvas{background:#fff;padding:8px;border-radius:10px}
+.lk{border-top:1px solid var(--line);padding:10px 0 2px}.lk:first-of-type{border-top:0}.lk b{display:block}.lk small{color:var(--muted);font-size:12.5px}
+label{display:block;margin-top:6px}
 </style>
 </head>
 <body>
@@ -78,108 +83,103 @@ details summary{cursor:pointer;color:var(--muted);font-size:13.5px}
 </div>
 
 <div class="card" id="buy">
-<div class="price"><span class="n">100</span><span class="u">DAI 或 USDT · 一次性买断 · Anubis 链</span></div>
-<p class="muted" style="margin:4px 0 10px;font-size:13.5px">付款钱包就是你的使用钱包，付款后自动开通，页面马上显示机器人链接、使用方法和说明。</p>
-<button class="btn full" id="btnConnect">连接钱包</button>
-<div id="who" class="addr" style="margin-top:8px"></div>
-<div id="payBox" style="display:none">
-  <div class="btns"><button class="btn" id="btnDai">付 100 DAI</button><button class="btn" id="btnUsdt">付 100 USDT</button></div>
-  <button class="btn ghost full" id="btnLogin" style="margin-top:8px">我已付过，签名进入</button>
-  <details style="margin-top:10px"><summary>付了款但页面没开通？填交易哈希补登</summary>
-    <input id="hashIn" placeholder="0x 开头的交易哈希"><button class="btn ghost full" id="btnHash">补登</button></details>
-</div>
+<div class="price"><span class="n">100</span><span class="u">USDT 或 DAI · 一次性买断 · Anubis 链</span></div>
+<p class="muted" style="margin:4px 0 10px;font-size:13.5px">下单 → 按页面给的精确金额转账 → 到账自动开通，页面马上显示两个抢币链接。不用连接钱包。</p>
+<label class="muted" style="font-size:13.5px">你抢币要用的钱包地址（Anubis 链）</label>
+<input id="wIn" placeholder="0x…" autocomplete="off" spellcheck="false">
+<div class="btns"><button class="btn" data-tk="USDT">付 USDT 下单</button><button class="btn" data-tk="DAI">付 DAI 下单</button></div>
+<details style="margin-top:10px"><summary>已经开通过？输入钱包地址直接查看链接</summary>
+  <button class="btn ghost full" id="btnCheck" style="margin-top:6px">用上面的地址查看</button></details>
 <div id="msg"></div>
-<p class="muted" style="font-size:12.5px;margin:8px 0 0">收款地址 <span class="addr" id="recv">0xbd06474ddc68e7cac60d1db70ba1056da8a1f220</span>（Anubis 链）。请只通过本页按钮付款，系统会自动核实开通。</p>
+</div>
+</div>
+
+<div id="orderWrap" style="display:none">
+<h1>请转账 <span class="badge" id="oSt">等待到账</span></h1>
+<div class="card">
+<p class="muted" style="margin:0">在 <b>Anubis 链</b>上转账 <b id="oTk1"></b>，金额必须<b class="warn">一分不差</b>，系统靠这个金额自动识别是你的订单：</p>
+<div class="amt"><span id="oAmt"></span> <span id="oTk2"></span><button class="btn ghost sm" id="cpAmt">复制金额</button></div>
+<p class="muted" style="margin:10px 0 4px">收款地址：</p>
+<div class="copyrow"><code id="oRecv"></code><button class="btn" id="cpRecv">复制</button></div>
+<div id="qr" class="qr"></div>
+<ul class="muted" style="font-size:13.5px">
+<li>用钱包或交易所转都可以。交易所提币请把手续费另算，确保<b>到账</b>正好是这个数。</li>
+<li>币种：<b id="oTk3"></b>（Anubis 链，合约 <span class="addr" id="oTkAddr"></span>）。转错链、转错币种无法自动识别。</li>
+<li>订单 <span id="oLeft"></span> 内有效。转完别关页面，到账后这里自动显示链接（一般 10~30 秒）。</li>
+<li>开通的抢币钱包：<span class="addr" id="oW"></span></li>
+</ul>
+<div id="omsg" class="warn" style="font-size:14px"></div>
+<button class="btn ghost full" id="btnCancel" style="margin-top:8px">换个币种 / 重新下单</button>
 </div>
 </div>
 
 <div id="vipWrap" style="display:none">
-<h1>欢迎使用 <span class="badge">已开通</span></h1>
+<h1>开通成功 <span class="badge">已开通</span></h1>
 <p class="sub addr" id="vipWho"></p>
 <div id="vip"></div>
-<button class="btn ghost full" id="btnOut">退出（换个钱包）</button>
+<button class="btn ghost full" id="btnOut">返回</button>
 </div>
 
+<script defer src="/assets/qrcode.min.js"></script>
 <script>
 (function(){
 "use strict";
 var API="https://zjgame.web3origin.com/bondrpc/vip";
-var CHAIN="0x1a3a", RECV="0xbd06474ddc68e7cac60d1db70ba1056da8a1f220", USDT="0xdfb6a28bc6dc51fed17c27c880f2c66cdd040a3e";
-var DAI_WEI=100n*10n**18n, USDT_UNIT=100n*10n**6n;
 var $=function(id){return document.getElementById(id);};
 var LS=function(k,v){try{if(v===undefined)return localStorage.getItem(k); if(v===null)localStorage.removeItem(k); else localStorage.setItem(k,v);}catch(e){return null;}};
-var eth=null, me="";
+var timer=null, cur=null;
 function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t||''; }
-function pick(){ var w=window,c=[]; if(w.ethereum){ if(Array.isArray(w.ethereum.providers)) c=c.concat(w.ethereum.providers); c.push(w.ethereum);} if(w.okxwallet)c.push(w.okxwallet); if(w.bitkeep&&w.bitkeep.ethereum)c.push(w.bitkeep.ethereum); if(w.tokenpocket&&w.tokenpocket.ethereum)c.push(w.tokenpocket.ethereum);
-  c=c.filter(function(p){return p&&typeof p.request==='function';}); return c.find(function(p){return p.isOkxWallet||p.isOKExWallet||p.isBitKeep||p.isTokenPocket;})||c[0]||null; }
-var pad=function(h){return String(h).replace(/^0x/,'').toLowerCase().padStart(64,'0');};
-var hex=function(n){return '0x'+n.toString(16);};
-function utf8hex(s){ var b=new TextEncoder().encode(s), h='0x'; for(var i=0;i<b.length;i++) h+=b[i].toString(16).padStart(2,'0'); return h; }
-async function post(path,body){ var r=await fetch(API+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}); var j=await r.json().catch(function(){return {error:'服务器没回应'};}); return j; }
-
-function showVip(html){
-  $('pub').style.display='none'; $('vipWrap').style.display=''; $('vip').innerHTML=html; $('vipWho').textContent='钱包 '+me;
-  document.querySelectorAll('#vip [data-copy]').forEach(function(b){ b.onclick=function(){ var t=b.getAttribute('data-copy');
-    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){b.textContent='已复制 ✓';},function(){ var x=document.createElement('textarea'); x.value=t; document.body.appendChild(x); x.select(); try{document.execCommand('copy'); b.textContent='已复制 ✓';}catch(e){ prompt('长按复制',t);} x.remove(); });
-    setTimeout(function(){b.textContent='复制';},2000); }; });
-  window.scrollTo(0,0);
+function view(v){ $('pub').style.display=v==='pub'?'':'none'; $('orderWrap').style.display=v==='order'?'':'none'; $('vipWrap').style.display=v==='vip'?'':'none'; window.scrollTo(0,0); }
+function copy(t,b){ var done=function(){ if(b){ var o=b.textContent; b.textContent='已复制 ✓'; setTimeout(function(){b.textContent=o;},1800);} };
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(done,function(){ var x=document.createElement('textarea'); x.value=t; document.body.appendChild(x); x.select(); try{document.execCommand('copy'); done();}catch(e){ prompt('长按复制',t);} x.remove(); }); }
+function showVip(html,w){
+  clearInterval(timer); LS('vip_order',null); if(w) LS('vip_wallet',w);
+  $('vip').innerHTML=html; $('vipWho').textContent=w?('抢币钱包 '+w):'';
+  document.querySelectorAll('#vip [data-copy]').forEach(function(b){ b.onclick=function(){ copy(b.getAttribute('data-copy'),b); }; });
+  view('vip');
 }
-async function ensureChain(){
-  var id=await eth.request({method:'eth_chainId'}); if(String(id).toLowerCase()===CHAIN) return;
-  try{ await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN}]}); }
-  catch(e){ if(e&&(e.code===4902||/unrecognized|not added|未添加/i.test(e.message||''))) await eth.request({method:'wallet_addEthereumChain',params:[{chainId:CHAIN,chainName:'Anubis',nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},rpcUrls:['https://zjgame.web3origin.com/bondrpc','https://rpc.anubispace.org']}]}); else throw e; }
+function fmtLeft(s){ s=Math.max(0,s); var m=Math.floor(s/60); return m>=60?(Math.floor(m/60)+' 小时 '+(m%60)+' 分'):(m+' 分 '+(s%60)+' 秒'); }
+function showOrder(o){
+  cur=o; LS('vip_order',o.id);
+  $('oAmt').textContent=o.amount; ['oTk1','oTk2','oTk3'].forEach(function(i){ $(i).textContent=o.token; }); $('oTk1').textContent=o.amount+' '+o.token;
+  $('oRecv').textContent=o.recv; $('oTkAddr').textContent=o.tokenAddr; $('oW').textContent=o.wallet;
+  $('qr').innerHTML=''; var mk=function(){ if(window.QRCode){ new QRCode($('qr'),{text:o.recv,width:180,height:180,colorDark:'#000',colorLight:'#fff'}); } else setTimeout(mk,300); }; mk();
+  view('order'); poll();
+  clearInterval(timer); timer=setInterval(poll,4000);
 }
-async function connect(){
-  eth=pick(); if(!eth){ msg('没检测到钱包。请在 OKX 等钱包 App 的「发现 / 浏览器」里打开本页。','bad'); return; }
-  try{ var a=await eth.request({method:'eth_requestAccounts'}); me=String(a[0]||'').toLowerCase(); }catch(e){ msg('没连上钱包：'+(e.message||e),'bad'); return; }
-  $('who').textContent='已连接 '+me; $('btnConnect').style.display='none'; $('payBox').style.display=''; msg('');
-  var c=LS('vip_c_'+me); if(c){ showVip(c); return; }
-  var pend=LS('vip_pend_'+me); if(pend) waitPay(pend);
+async function poll(){
+  if(!cur) return;
+  var left=cur.expires-Math.floor(Date.now()/1000); $('oLeft').textContent=fmtLeft(left);
+  try{ var r=await fetch(API+'?order='+encodeURIComponent(cur.id),{cache:'no-store'}); var j=await r.json();
+    if(j.status==='paid'){ $('oSt').textContent='已到账'; showVip(j.content,j.wallet); return; }
+    if(j.status==='expired'){ clearInterval(timer); $('oSt').textContent='已过期'; $('omsg').textContent='订单已过期。如果你已经转了账，请联系客服并提供交易哈希；没转就点下面重新下单。'; return; }
+    if(r.status===404){ clearInterval(timer); LS('vip_order',null); view('pub'); }
+  }catch(e){}
 }
-async function waitPay(hash){
-  LS('vip_pend_'+me,hash); msg('付款已发出，正在等链上确认并开通…（约 10~30 秒，别关页面）','warn');
-  for(var i=0;i<50;i++){
-    var j=await post('/pay',{addr:me,hash:hash}).catch(function(){return {pending:true};});
-    if(j.ok){ LS('vip_pend_'+me,null); LS('vip_c_'+me,j.content); msg('开通成功 ✓','ok'); showVip(j.content); return; }
-    if(j.error){ LS('vip_pend_'+me,null); msg('没开通：'+j.error,'bad'); return; }
-    await new Promise(function(r){setTimeout(r,3000);});
-  }
-  msg('链上还没确认。稍后刷新本页会自动接着核实，或在下面「补登」里填交易哈希：\n'+hash,'warn');
+async function order(tk){
+  var w=$('wIn').value.trim().toLowerCase();
+  if(!/^0x[0-9a-f]{40}$/.test(w)) return msg('请先填写你抢币要用的钱包地址（0x 开头 42 位）','bad');
+  msg('正在下单…','warn');
+  try{ var r=await fetch(API+'/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({wallet:w,token:tk})}); var j=await r.json();
+    if(j.already){ msg(''); showVip(j.content,w); return; }
+    if(j.error) return msg(j.error,'bad');
+    msg(''); LS('vip_wallet',w); showOrder(j);
+  }catch(e){ msg('下单失败，网络问题，请重试','bad'); }
 }
-async function pay(kind){
-  try{
-    await ensureChain();
-    if(kind==='dai'){
-      var bal=BigInt(await eth.request({method:'eth_getBalance',params:[me,'latest']}));
-      if(bal<DAI_WEI+10n**18n){ msg('DAI 不够：需要 100 DAI，外加约 1 DAI 手续费。','bad'); return; }
-      msg('请在钱包里确认付款 100 DAI…','warn');
-      var h=await eth.request({method:'eth_sendTransaction',params:[{from:me,to:RECV,value:hex(DAI_WEI)}]});
-      waitPay(h);
-    }else{
-      var ub=BigInt(await eth.request({method:'eth_call',params:[{to:USDT,data:'0x70a08231'+pad(me)},'latest']}));
-      if(ub<USDT_UNIT){ msg('USDT 不够：钱包里 Anubis 链 USDT 只有 '+(Number(ub)/1e6)+'，需要 100。','bad'); return; }
-      msg('请在钱包里确认付款 100 USDT…','warn');
-      var h2=await eth.request({method:'eth_sendTransaction',params:[{from:me,to:USDT,value:'0x0',data:'0xa9059cbb'+pad(RECV)+pad(hex(USDT_UNIT))}]});
-      waitPay(h2);
-    }
-  }catch(e){ msg((e&&(e.code===4001||/reject|cancel|取消|拒绝/i.test(e.message||'')))?'你取消了付款。':'付款没发出：'+((e&&e.message)||e),'bad'); }
+async function check(){
+  var w=$('wIn').value.trim().toLowerCase(); if(!/^0x[0-9a-f]{40}$/.test(w)) return msg('请先在上面填写钱包地址','bad');
+  try{ var j=await (await fetch(API+'?wallet='+w,{cache:'no-store'})).json(); if(j.member&&j.content) showVip(j.content,w); else msg('这个钱包还没开通，请下单付款。','bad'); }catch(e){ msg('查询失败，请重试','bad'); }
 }
-async function login(){
-  try{
-    var ts=Math.floor(Date.now()/1000), text='web3origin 抢币机器人 登录\n钱包: '+me+'\n时间: '+ts;
-    msg('请在钱包里签名（只是证明钱包是你的，不花钱、不授权）…','warn');
-    var sig=await eth.request({method:'personal_sign',params:[utf8hex(text),me]});
-    var j=await post('/login',{addr:me,ts:ts,sig:sig});
-    if(j.ok){ LS('vip_c_'+me,j.content); msg(''); showVip(j.content); }
-    else msg(j.notPaid?'这个钱包还没付费。用上面按钮付款即可开通。':'没进去：'+(j.error||'未知错误'),'bad');
-  }catch(e){ msg('签名取消或失败：'+((e&&e.message)||e),'bad'); }
-}
-$('btnConnect').onclick=connect;
-$('btnDai').onclick=function(){pay('dai');}; $('btnUsdt').onclick=function(){pay('usdt');};
-$('btnLogin').onclick=login;
-$('btnHash').onclick=function(){ var h=$('hashIn').value.trim().toLowerCase(); if(!/^0x[0-9a-f]{64}$/.test(h)) return msg('交易哈希格式不对','bad'); waitPay(h); };
-$('btnOut').onclick=function(){ if(me) LS('vip_c_'+me,null); location.reload(); };
-var pv=pick(); if(pv&&pv.selectedAddress) connect();
+document.querySelectorAll('[data-tk]').forEach(function(b){ b.onclick=function(){ order(b.getAttribute('data-tk')); }; });
+$('btnCheck').onclick=check;
+$('cpAmt').onclick=function(){ copy(cur.amount,$('cpAmt')); };
+$('cpRecv').onclick=function(){ copy(cur.recv,$('cpRecv')); };
+$('btnCancel').onclick=function(){ clearInterval(timer); LS('vip_order',null); cur=null; view('pub'); };
+$('btnOut').onclick=function(){ view('pub'); };
+var w0=LS('vip_wallet'); if(w0) $('wIn').value=w0;
+var oid=LS('vip_order');
+if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.status==='paid') showVip(j.content,j.wallet); else if(j.status==='open') showOrder(j); else LS('vip_order',null); }).catch(function(){}); }
+else if(w0){ fetch(API+'?wallet='+w0,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.member&&j.content) showVip(j.content,w0); }).catch(function(){}); }
 })();
 </script>
 </body>
