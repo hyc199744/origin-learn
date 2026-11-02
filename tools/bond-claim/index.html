@@ -470,7 +470,7 @@ async function watch(){
 async function attemptSplit(H){
   if(lossHit()){ const o=lossGet(); armed=false; log('🛑 止损：今天手续费 '+o.fee.toFixed(2)+' DAI、连败 '+o.streak+' 次，已自动停止。想继续请明天再来，或手动再点"开启自动领"（连败会清零）','bad'); return 'skip'; }
   if(bidAuto()&&st.mkt&&st.mkt.H===H-WINDOW&&st.mkt.bid>BID_CAP){ log('⏭ 这个整点跳过：按上一小时行情要出 '+st.mkt.bid+' gwei 才排得上，超过封顶 3 万，不发不花钱','warn'); return 'skip'; }
-  const bid=relayBid(); const GL=160000; const per=BigInt(GL)*BigInt(bid)*10n**9n;
+  const bid=relayBid(); const GL=200000; const per=BigInt(GL)*BigInt(bid)*10n**9n; /* 与上面 plan() 里同一笔 claim(i) 的 200000 对齐,否则拆单时 gas 上限和每笔预留都偏低 */
   const NW=Number($('splitN').value)||1; let K=Math.min(NW,Number((st.gas||0n)/per));
   try{ const code=await rpc('eth_getCode',[me,'latest']); if(String(code).toLowerCase().startsWith('0xef0100')&&K>1){ K=1; log('这个钱包开着「智能账户」(EIP-7702 委托)，节点只允许同时挂 1 笔，本次只发最大的 1 笔。想拆单请在 OKX 设置里关掉智能账户','warn'); } }catch(e){} const ps=(st.pieces||[]).filter(x=>x.amt>0n).slice(0,Math.max(K,0));
   if(K<1){ log('gas 不够：出价 '+bid+' gwei 每笔要预留约 '+f18(per)+' DAI，钱包只有 '+f18(st.gas||0n)+'。请往钱包转些 DAI，或把托管出价调低','bad'); return 'fail'; }
@@ -480,7 +480,8 @@ async function attemptSplit(H){
   log('拆单：连续弹 '+ps.length+' 笔，分别领 '+ps.map(x=>'第 '+(x.i+1)+' 笔 '+f9(x.amt)).join('、')+'，出价 '+bid+' gwei —— 弹一次点一次确认','warn');
   const hs=[];
   for(const x of ps){
-    if(chainNow()>H-0.8){ log('快到整点了，剩下的不弹了','warn'); break; }
+    /* 4f0bbd2 自己写的 VPN 下时钟偏晚约 1 秒,0.8 秒的闸门会被负偏移吃穿,最后一笔还没弹就 break 了 */
+    if(chainNow()>H-1.5){ log('只剩不到 1.5 秒，还有 '+(ps.length-hs.length)+' 笔这次不弹（时钟校准本身有 1 秒级误差）','warn'); break; }
     try{ const h=await sendTx(A.BOND,SEL.claim+u256(x.i),bid,GL); hs.push({h,x}); log('第 '+hs.length+' 笔已确认：领第 '+(x.i+1)+' 笔 '+f9(x.amt)+' LGNS '+h); }
     catch(e){ if(isReject(e)){ log('这笔你取消了','warn'); if(!hs.length) return 'rejected'; break; } log('发送出错：'+(e.message||e),'bad'); break; }
   }
