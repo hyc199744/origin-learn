@@ -51,7 +51,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-02 11:05 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-02 12:20 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -62,11 +62,13 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 <div class="banner"><div class="st" id="armState">未开启</div><div class="hint" id="hint">先点底下"连接钱包"</div><div class="row" style="margin-top:6px;border:0;padding:4px 0 0"><span>结论</span><span id="verdict">—</span></div><div class="row" style="border:0;padding:2px 0 0"><span>额度状态</span><span id="capState">—</span></div></div>
 <div class="set">
   <label>抢哪张债券 <select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></label>
-  <label>领取方式 <select id="mode"><option value="all" selected>整笔全领（claimAll）</option><option value="max">只领最大的一笔（更容易挤进去）</option></select></label>
+  <label>领取方式 <select id="mode"><option value="split" selected>拆单：分别领最大的 3 笔（托管节点用，最容易挤进去）</option><option value="all">整笔全领（claimAll）</option><option value="max">只领最大的一笔</option></select></label>
   <label>整点前彩排 <select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></label>
 </div>
 <div class="card" id="relayCard"><h3>托管节点 · 不拼手速（强烈推荐）</h3>
 <div class="row" style="border:0;padding:0 0 6px"><span>状态</span><span id="relayState">先连接钱包</span></div>
+<div class="row" style="border:0;padding:0 0 6px"><span>托管出价</span><span><select id="relayGwei"><option value="5000">5,000 gwei</option><option value="10000">10,000 gwei</option><option value="15000" selected>15,000 gwei（每笔约 1~2 DAI）</option><option value="20000">20,000 gwei</option><option value="30000">30,000 gwei</option></select></span></div>
+<div class="note" style="font-size:12.5px;margin:-2px 0 6px">LGNS 债券整点第 1 块按出价排队，12:00 实测要 5,000 以上才排得上。OKX 若在确认页设过自定义网络费会一直沿用，请改成「推荐」或填同样数值。</div>
 <div class="note" style="color:var(--text);font-size:13px;line-height:1.75">原理：钱包签好的领取交易先交给东京节点，节点等到链上整点再发（误差约 0.1 秒）。你只要在整点前 45 秒内点确认，快慢都没关系。私钥不经过任何服务器。<br>
 <b>设置一次就行：</b>OKX 钱包 → 右上角网络 → 找到 Anubis（链 ID 6714）→ 编辑 → 把 RPC 地址改成下面这个 → 保存。再回到本页点「检测」，确认一笔「授权 0 枚 LGNS 给自己」的合约调用（不动资产，手续费约 0.001 DAI）。<b>以前检测过的也要重新检测一次。</b></div>
 <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><code id="relayUrl" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div>
@@ -200,7 +202,7 @@ async function loadWallet(){
 async function loadState(){ try{ await readCap(); await syncClock(); if(me) await loadWallet(); }catch(e){ log('读链失败：'+reason(e),'bad'); } }
 function plan(){ // 这次要发的交易
   const mode=$('mode').value;
-  if(mode==='max'&&st.pieces.length&&st.pieces[0].amt>0n) return {data:SEL.claim+u256(st.pieces[0].i),amt:st.pieces[0].amt,label:'第 '+(st.pieces[0].i+1)+' 笔 '+f9(st.pieces[0].amt),gas:200000};
+  if((mode==='max'||mode==='split')&&st.pieces.length&&st.pieces[0].amt>0n) return {data:SEL.claim+u256(st.pieces[0].i),amt:st.pieces[0].amt,label:'第 '+(st.pieces[0].i+1)+' 笔 '+f9(st.pieces[0].amt),gas:200000};
   return {data:SEL.claimAll,amt:st.claimable,label:'全部 '+f9(st.claimable),gas:Math.min(3000000,Math.max(300000,160000+45000*st.cnt))}; // 7 笔实测 29 万
 }
 
@@ -424,7 +426,7 @@ async function fireWindow(H,L){
     if(relayOn()&&H){ const ping=await relayGet('/status',3000); if(!ping){ st.relayDown=true; sched.H=0; log('托管节点连不上，这一轮改回手点：整点前 8 秒弹钱包，等震动再点','bad'); relayRender(); return; } }
     if(isCue()&&H&&!relayOn()){ const cueAtMs=(H-cueLead()+off())*1000; sched.cueAt=cueAtMs; clearTimeout(sched.cueTimer);
       sched.cueTimer=setTimeout(async()=>{ while(Date.now()<cueAtMs-1100) await sleep(50); while(Date.now()<cueAtMs){} if(!armed||sched.H!==H) return; buzz([700,120,700,120,1000]); beep(); $('armState').innerHTML='<b class="warn flash">就是现在，点确认！</b>'; log('⚡ 震动提示：现在点确认！（整点前 '+cueLead().toFixed(1)+' 秒）','ok'); }, Math.max(0,cueAtMs-Date.now()-1600)); }
-    if(L>0){ r=await attempt(H); }
+    if(L>0){ r=(relayOn()&&$('mode').value==='split')?await attemptSplit(H):await attempt(H); }
     else { const t0=Date.now(); let why='x'; while(armed&&Date.now()-t0<6500){ why=await simulate(plan().data); if(!why)break; await sleep(120); } if(why){ log('整点后 6 秒内模拟一直不过（'+why+'），这波没赶上','bad'); return; } r=await attempt(H); }
     await handleResult(r,'这个整点没成，等下个整点自动再来');
   }catch(e){ log('冲刺出错：'+(e.message||e),'bad'); } finally{ firing=false; }
@@ -441,7 +443,7 @@ async function watch(){
     while(armed){
       const now=chainNow(); const H=nextHour(); const left=H-now;
       if(firing||left<=4){ await sleep(50); continue; }
-      if(left<=75&&left>30&&st.bidHour!==H&&!DRILL){ st.bidHour=H; if($('gwei').value==='auto') await learnBid(H); continue; }
+      if(left<=75&&left>30&&st.bidHour!==H&&!DRILL){ st.bidHour=H; if($('gwei').value==='auto'&&!relayOn()) learnBid(H).catch(()=>{}); continue; } /* 11-02 12:00 实测:learnBid 逐笔查回执要几十秒,堵住了整点前 45 秒的弹窗(实际 -5.85 秒才弹),改为后台跑、托管模式不跑 */
       if(left<=30&&calibratedHour!==H&&!DRILL){ calibratedHour=H; await calibrate(Math.min(8000,Math.max(2000,(left-8)*1000))); continue; }
       if(localActive()&&left<=9&&left>4&&(!sched.pre||sched.pre.H!==H)){ try{ await presignLocal(H); }catch(e){ log('预签失败：'+(e.message||e),'bad'); } continue; }
       if(presignMode()&&eth&&left<=40&&left>8&&sched.preH!==H){ sched.preH=H; presignWallet(H).catch(e=>{ log(isReject(e)?'你取消了预签，这个整点不会发':'预签失败：'+(e.message||e),'bad'); }); }
@@ -460,6 +462,34 @@ async function watch(){
       await sleep(left<=40?500:2000);
     }
   } finally { busy=false; clearTimeout(sched.timer); sched.H=0; if(!armed) $('armState').textContent=$('armState').textContent.includes('成功')?$('armState').textContent:'已结束'; loadState().catch(()=>{}); }
+}
+/* 托管 + 拆单(11-02 12:20):12:00 实测大户 65000 gwei 一笔拿走 4 万多,剩下零头只有小额单笔塞得进 → 整点前连续弹最大的几笔 claim(i),节点到点一起发 */
+async function attemptSplit(H){
+  const bid=relayBid(); const GL=160000; const per=BigInt(GL)*BigInt(bid)*10n**9n;
+  let K=Math.min(3,Number((st.gas||0n)/per)); const ps=(st.pieces||[]).filter(x=>x.amt>0n).slice(0,Math.max(K,0));
+  if(K<1){ log('gas 不够：出价 '+bid+' gwei 每笔要预留约 '+f18(per)+' DAI，钱包只有 '+f18(st.gas||0n)+'。请往钱包转些 DAI，或把托管出价调低','bad'); return 'fail'; }
+  if(K<3&&ps.length>K) log('gas 只够预留 '+K+' 笔（每笔约 '+f18(per)+' DAI），先发最大的 '+K+' 笔；想发 3 笔请补 DAI','warn');
+  if(!ps.length) return attempt(H);
+  buzz([300,80,300,80,300]); $('armState').innerHTML='<b class="warn flash">钱包会连续弹 '+ps.length+' 笔，每笔都点确认（整点前点完就行）</b>';
+  log('拆单：连续弹 '+ps.length+' 笔，分别领 '+ps.map(x=>'第 '+(x.i+1)+' 笔 '+f9(x.amt)).join('、')+'，出价 '+bid+' gwei —— 弹一次点一次确认','warn');
+  const hs=[];
+  for(const x of ps){
+    if(chainNow()>H-0.8){ log('快到整点了，剩下的不弹了','warn'); break; }
+    try{ const h=await sendTx(A.BOND,SEL.claim+u256(x.i),bid,GL); hs.push({h,x}); log('第 '+hs.length+' 笔已确认：领第 '+(x.i+1)+' 笔 '+f9(x.amt)+' LGNS '+h); }
+    catch(e){ if(isReject(e)){ log('这笔你取消了','warn'); if(!hs.length) return 'rejected'; break; } log('发送出错：'+(e.message||e),'bad'); break; }
+  }
+  if(!hs.length) return 'fail';
+  let got=false; const lastH=String(hs[hs.length-1].h).toLowerCase();
+  for(let i=0;i<4&&!got;i++){ const sv=await relayGet('/seen?a='+me,2500); got=!!(sv&&sv.sendHash&&String(sv.sendHash).toLowerCase()===lastH); if(!got) await sleep(400); }
+  if(!got){ LS('bc_relay2',''); relayRender(); log('✗ 这几笔没经过托管节点，已直接上链。托管模式已自动关闭，下个整点改回震动手点。请截图发给技术','bad'); }
+  else { sched.relayH=H; log('✓ '+hs.length+' 笔都交给东京定时节点，'+bj(H)+' 整点一起发出，你不用再动','ok'); }
+  const rs=await Promise.all(hs.map(o=>waitTx(o.h,120000)));
+  let won=0n, n=0, landed=null;
+  for(let k=0;k<hs.length;k++){ const r=rs[k]; if(r&&landed===null){ try{ const b=await rpc('eth_getBlockByNumber',[r.blockNumber,false]); landed=parseInt(b.timestamp,16)-H; }catch(e){} } if(r&&r.status==='0x1'){ won+=hs[k].x.amt; n++; } }
+  const where=landed!==null?('（落在整点'+(landed>=0?'后 +':'前 ')+landed+' 秒的区块）'):'';
+  if(n){ buzz([100,50,100,50,400]); log('🎉 领到 '+n+'/'+hs.length+' 笔，共约 '+f9(won)+' LGNS'+where,'ok'); return 'win'; }
+  if(rs.every(r=>!r)){ log('120 秒没拿到回执，可能网络卡了','bad'); return 'fail'; }
+  log('这 '+hs.length+' 笔都没挤进去'+where+'：同一块里出价更高的人先领光了。可以把托管出价再调高','bad'); return 'late';
 }
 async function afterWin(){ await sleep(1500); await loadWallet().catch(()=>{}); if($('keep').value!=='1'){ armed=false; $('armState').textContent='成功 🎉 已停止'; return false; } log('继续守着，下次释放（每天两次记账）后再抢','ok'); return true; }
 $('lead').addEventListener('change',()=>{ try{localStorage.removeItem('bc_tap');localStorage.removeItem('bc_leadAdj');}catch(e){} sched.H=0; clearTimeout(sched.timer); log('已按你选的时机重排，之前记住的手速已清除'); });
@@ -501,6 +531,9 @@ async function relayDetect(){
   }catch(e){ log('检测出错：'+(e.message||e),'bad'); } finally{ busy=false; $('btnRelay').disabled=false; relayRender(); }
 }
 $('btnRelay').onclick=relayDetect;
+try{ const g=LS('bc_relayGwei'); if(g&&[...$('relayGwei').options].some(o=>o.value===g)) $('relayGwei').value=g; }catch(e){}
+$('relayGwei').onchange=()=>{ LS('bc_relayGwei',$('relayGwei').value); log('托管出价改为 '+$('relayGwei').value+' gwei'); };
+const relayBid=()=>Number($('relayGwei').value)||15000;
 $('btnRelayCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(RELAY); log('已复制节点地址：'+RELAY,'ok'); }catch(e){ const r=document.createRange(); r.selectNodeContents($('relayUrl')); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); log('长按选中的地址复制：'+RELAY,'warn'); } };
 setInterval(relayRender,3000); relayRender();
 $('lkSet').onclick=()=>{ $('lkForm').style.display='block'; $('lkKey').focus(); };
@@ -514,6 +547,7 @@ $('lkUse').addEventListener('change',async()=>{ LS('bc_lkUse',$('lkUse').value);
 try{ const v=LS('bc_lkUse'); if(v) $('lkUse').value=v; }catch(e){} lkRender();
 $('btnConnect').onclick=connect; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=async()=>{ if(busy)return; busy=true; try{ await readCap(); await loadWallet(); const p=plan(); const rem=await readCap(); const sinceH=chainNow()-(nextHour()-WINDOW); if(sinceH<10){ log('整点刚过 '+sinceH.toFixed(0)+' 秒，这会儿节点状态还没刷新，模拟会假通过。额度剩 '+f9(rem)+'，现在手动发大概率白烧 gas，已拦住；要抢整点请用"开启自动领"','bad'); return; } if(rem<p.amt){ log('本小时额度只剩 '+f9(rem)+'，不够领 '+p.label+'，已拦住，等下个整点','bad'); return; } const why=await simulate(p.data); if(why){ log(capHit(why)?'本小时额度已领光（claim cap），现在发必败，等整点':poolEmpty(why)?'国库没币，领不了（'+why+'）':'合约拒绝：'+why,'bad'); return; } log('手动：额度够、模拟通过，立刻领一笔'); await doAttempt(0); }catch(e){ log('出错：'+(e.message||e),'bad'); } finally{ busy=false; loadState(); } };
+if(LS('bc_v3')!=='12'){ LS('bc_v3','12'); if(LS('bc_mode')==='all') LS('bc_mode','split'); }
 ['mode','lead','gwei','gcap','feeMode','minClaim','keep','auto','reh'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
 setInterval(tick,100); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!busy) loadState(); },20000);
 readWindow().then(loadState).then(()=>{ if(DRILL||(window.ethereum&&window.ethereum.selectedAddress)) connect(); });
