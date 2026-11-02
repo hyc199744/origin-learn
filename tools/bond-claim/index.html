@@ -491,6 +491,7 @@ async function attemptSplit(H){
   for(let i=0;i<4&&!got;i++){ const sv=await relayGet('/seen?a='+me,2500); got=!!(sv&&sv.sendHash&&String(sv.sendHash).toLowerCase()===lastH); if(!got) await sleep(400); }
   if(!got){ LS('bc_relay2',''); relayRender(); log('✗ 这几笔没经过托管节点，已直接上链。托管模式已自动关闭，下个整点改回震动手点。请截图发给技术','bad'); }
   else { sched.relayH=H; log('✓ '+hs.length+' 笔都交给东京定时节点，'+bj(H)+' 整点一起发出，你不用再动','ok'); }
+  if(got){ try{ const r=await fetch(RELAY,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_getTransactionByHash',params:[hs[0].h]})}); const j=await r.json(); const real=j&&j.result?Number(BigInt(j.result.gasPrice||0))/1e9:0; if(real){ log('钱包实际出价 '+real+' gwei'+(real<bid*0.8?'（比页面要的 '+bid+' 低：OKX 用的是你在它里面存的默认网络费，要改请在 OKX 确认页改）':' ✓'),real<bid*0.8?'warn':''); } }catch(e){} }
   const rs=await Promise.all(hs.map(o=>waitTx(o.h,120000)));
   let won=0n, n=0, landed=null;
   for(let k=0;k<hs.length;k++){ const r=rs[k]; if(r&&landed===null){ try{ const b=await rpc('eth_getBlockByNumber',[r.blockNumber,false]); landed=parseInt(b.timestamp,16)-H; }catch(e){} } if(r&&r.status==='0x1'){ won+=hs[k].x.amt; n++; } }
