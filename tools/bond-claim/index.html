@@ -389,7 +389,7 @@ async function attempt(H){
   try{
     const RL=relayOn()&&!!H; if(RL){ buzz([300,80,300]); $('armState').innerHTML='<b class="warn flash">钱包已弹出 · 现在点确认（东京节点到整点准时发）</b>'; } else if(isCue()){ $('armState').innerHTML='<b class="warn">钱包已弹出 · 先别点 · 等震动+响声再点确认</b>'; } else { buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; } const cs=chainNow(), rel=H?cs-H:0; const lateMs=(H&&sched.popAt)?Date.now()-sched.popAt:0; if(lateMs>150) log('注意：弹窗比排定晚了 '+(lateMs/1000).toFixed(2)+' 秒（浏览器节流/卡顿），请保持本页前台、关省电','warn'); log('弹钱包：领 '+p.label+' LGNS，gas '+gweiNow()+' gwei'+(H?'（估计链时间 整点'+(rel<0?'前 ':'后 +')+Math.abs(rel).toFixed(2)+' 秒）':'')+' —— 请立刻点确认','warn');
     const tTap=Date.now(); const bid=gweiNow(); const h=await sendTx(A.BOND,p.data,bid,p.gas); const tap=((Date.now()-tTap)/1000).toFixed(1);
-    if(RL){ let got=false; for(let i=0;i<4&&!got;i++){ const sv=await relayGet('/seen?a='+me,2500); got=!!(sv&&sv.sendHash&&String(sv.sendHash).toLowerCase()===String(h).toLowerCase()); if(!got) await sleep(400); } if(!got){ LS('bc_relay2',''); relayRender(); log('✗ 这笔没经过托管节点（钱包对合约交易走了自己的线路），已直接上链、等不到整点。托管模式已自动关闭，下个整点改回震动手点。请把这条截图发给技术','bad'); } }
+    if(RL){ let got=false; for(let i=0;i<4&&!got;i++){ const sv=await relayGet('/seen?a='+me,2500); got=!!(sv&&sv.sendHash&&String(sv.sendHash).toLowerCase()===String(h).toLowerCase()); if(!got) await sleep(400); } if(!got){ relayDel(me); relayRender(); log('✗ 这笔没经过托管节点（钱包对合约交易走了自己的线路），已直接上链、等不到整点。托管模式已自动关闭，下个整点改回震动手点。请把这条截图发给技术','bad'); } }
     if(RL){ sched.relayH=H; log('✓ 已交给东京定时节点（你用了 '+tap+' 秒确认），'+bj(H)+' 整点准时发出，你不用再动 '+h,'ok'); } else log('已广播（从弹出到发出 '+tap+' 秒，出价 '+bid+' gwei）'+h);
     if(isCue()&&sched.cueAt){ const re=Math.round((Date.now()-sched.cueAt)/100)/10; log(re<0?'注意：你在震动提示前 '+(-re).toFixed(1)+' 秒就点了确认，没等提示':'从震动提示到发出 '+re.toFixed(1)+' 秒','warn'); }
     if(!RL) checkBid(h,bid).catch(()=>{});
@@ -487,7 +487,7 @@ async function attemptSplit(H){
   if(!hs.length) return 'fail';
   let got=false; const lastH=String(hs[hs.length-1].h).toLowerCase();
   for(let i=0;i<4&&!got;i++){ const sv=await relayGet('/seen?a='+me,2500); got=!!(sv&&sv.sendHash&&String(sv.sendHash).toLowerCase()===lastH); if(!got) await sleep(400); }
-  if(!got){ LS('bc_relay2',''); relayRender(); log('✗ 这几笔没经过托管节点，已直接上链。托管模式已自动关闭，下个整点改回震动手点。请截图发给技术','bad'); }
+  if(!got){ relayDel(me); relayRender(); log('✗ 这几笔没经过托管节点，已直接上链。托管模式已自动关闭，下个整点改回震动手点。请截图发给技术','bad'); }
   else { sched.relayH=H; log('✓ '+hs.length+' 笔都交给东京定时节点，'+bj(H)+' 整点一起发出，你不用再动','ok'); }
   if(got){ try{ const r=await fetch(RELAY,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_getTransactionByHash',params:[hs[0].h]})}); const j=await r.json(); const real=j&&j.result?Number(BigInt(j.result.gasPrice||0))/1e9:0; if(real){ log('钱包实际出价 '+real+' gwei'+(real<bid*0.8?'（比页面要的 '+bid+' 低：OKX 用的是你在它里面存的默认网络费，要改请在 OKX 确认页改）':' ✓'),real<bid*0.8?'warn':''); } }catch(e){} }
   const rs=await Promise.all(hs.map(o=>waitTx(o.h,120000)));
@@ -522,11 +522,12 @@ $('bond').addEventListener('change',()=>{ setBond($('bond').value,'，重新读�
 $('btnTestFee').onclick=testFee;
 /* ===== 托管节点(11-02):钱包 RPC 指向东京 bond-rpc,claim 交易在整点前 120 秒内到达会被扣住,到链上整点准时发 ===== */
 const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=45;
-const relayOn=()=>!DRILL&&!!me&&LS('bc_relay2')===String(me).toLowerCase()&&!st.relayDown&&!autoSend();
+const relayList=()=>String(LS('bc_relay2')||'').toLowerCase().split(',').filter(Boolean), relayHas=a=>!!a&&relayList().includes(String(a).toLowerCase()), relayAdd=a=>{ const l=relayList().filter(x=>x!==String(a).toLowerCase()); l.push(String(a).toLowerCase()); LS('bc_relay2',l.join(',')); }, relayDel=a=>LS('bc_relay2',relayList().filter(x=>x!==String(a).toLowerCase()).join(','));
+const relayOn=()=>!DRILL&&!!me&&relayHas(me)&&!st.relayDown&&!autoSend();
 async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
 function relayRender(){ const el=$('relayState'); if(!el) return; $('relayUrl').textContent=RELAY;
   if(!me){ el.innerHTML='先连接钱包'; return; }
-  const ok=LS('bc_relay2')===String(me).toLowerCase();
+  const ok=relayHas(me);
   el.innerHTML=relayOn()?'<b class="ok">✓ 已接通：整点前 45 秒弹钱包，直接点确认</b>':(ok&&st.relayDown?'<b class="bad">节点暂时连不上，本轮改回手点</b>':ok&&autoSend()?'<span class="warn">已接通（当前是自动发模式，不用它）</span>':'<span class="warn">未接通：按下面步骤改好钱包节点，再点检测</span>'); }
 async function relayDetect(){
   if(!eth||!me){ log('先连接钱包','warn'); return; } if(busy){ log('正在忙（彩排/抢领中），稍后再点检测','warn'); return; } busy=true; $('btnRelay').disabled=true;
@@ -535,9 +536,9 @@ async function relayDetect(){
     let h=null, sendErr=''; try{ h=await eth.request({method:'eth_sendTransaction',params:[{from:me,to:A.LGNS,value:'0x0',data:'0x095ea7b3'+addr32(me)+u256(0),gas:'0x11170'}]}); }catch(e){ if(isReject(e)){ log('你取消了检测','warn'); return; } sendErr=(e.message||String(e)).slice(0,120); }
     let s=null, ok=false; for(let i=0;i<8&&!ok;i++){ await sleep(i?800:300); s=await relayGet('/seen?a='+me); ok=!!(s&&s.sendAgo!==null&&s.sendAgo<90&&(!s.sendHash||!h||String(s.sendHash).toLowerCase()===String(h).toLowerCase())); }
     if(ok&&sendErr) log('（检测交易本身没发成：'+sendErr+'，但它确实经过了托管节点）','warn');
-    if(ok){ LS('bc_relay2',String(me).toLowerCase()); st.relayDown=false; log('✓ 托管节点接通了：钱包发交易走的是东京定时节点。开启自动领后，整点前 45 秒弹钱包，直接点确认，节点会卡准整点发出','ok'); }
+    if(ok){ relayAdd(me); st.relayDown=false; log('✓ 托管节点接通了：钱包发交易走的是东京定时节点。开启自动领后，整点前 45 秒弹钱包，直接点确认，节点会卡准整点发出','ok'); }
     else if(!s){ log('✗ 连不上托管节点（网络问题？开着 VPN 的话换个线路再试）','bad'); }
-    else { LS('bc_relay2',''); if(sendErr) log('检测交易出错：'+sendErr,'bad'); log('✗ 这笔交易没经过托管节点，钱包还在用别的节点。请把钱包里 Anubis 网络的 RPC 改成 '+RELAY+' 再点检测（OKX：网络 → Anubis → 编辑）','bad'); }
+    else { relayDel(me); if(sendErr) log('检测交易出错：'+sendErr,'bad'); log('✗ 这笔交易没经过托管节点，钱包还在用别的节点。请把钱包里 Anubis 网络的 RPC 改成 '+RELAY+' 再点检测（OKX：网络 → Anubis → 编辑）','bad'); }
   }catch(e){ log('检测出错：'+(e.message||e),'bad'); } finally{ busy=false; $('btnRelay').disabled=false; relayRender(); }
 }
 $('btnRelay').onclick=relayDetect;

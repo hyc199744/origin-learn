@@ -94,7 +94,8 @@ const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p||[200,100,200]);}catch
 
 const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=45; let relayDown=false;
 const LSg=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, LSs=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
-const relayOn=()=>!!me&&LSg('bc_relay2')===String(me).toLowerCase()&&!relayDown; /* 检测记录与销毁债券抢领页共用(同站点 localStorage) */
+const relayList=()=>String(LSg('bc_relay2')||'').toLowerCase().split(',').filter(Boolean), relayHas=a=>!!a&&relayList().includes(String(a).toLowerCase()), relayDel=a=>LSs('bc_relay2',relayList().filter(x=>x!==String(a).toLowerCase()).join(','));
+const relayOn=()=>!!me&&relayHas(me)&&!relayDown; /* 检测记录与销毁债券抢领页共用(同站点 localStorage) */
 async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
 function relayRender(){ const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML='先连接钱包'; return; } el.innerHTML=relayOn()?'<span class="ok">已接通 ✓ 开放前 45 秒弹钱包，直接点确认</span>':(relayDown?'<span class="bad">连不上，本次改用开放后弹窗</span>':'<span class="warn">未接通（到「销毁债券抢领」页按说明改节点并检测，这里自动生效）</span>'); }
 let me=null, eth=null, skew=0, nextStart=0, st={}, armed=false, racing=false, armTimer=null, attempts=0, won=false, wakeLock=null;
@@ -189,7 +190,7 @@ async function attempt(){
     const h=await sendTx(A.LEDGER,SEL.burnForPower+u256(AMOUNT),2);
     if(RL){ let got=false; for(let i=0;i<4&&!got;i++){ const sv=await relayGet('/seen?a='+me,2500); got=!!(sv&&sv.sendHash&&String(sv.sendHash).toLowerCase()===String(h).toLowerCase()); if(!got) await new Promise(r=>setTimeout(r,400)); }
       if(got) log('✓ 已交给东京定时节点，'+bj(nextStart)+' 开放那一刻准点发出，你不用再动 '+h,'ok');
-      else { LSs('bc_relay2',''); relayRender(); log('✗ 这笔没经过托管节点，已直接上链（开放前会被拒）。托管已关闭，被拒后页面会马上再弹一次，请再点确认','bad'); } }
+      else { relayDel(me); relayRender(); log('✗ 这笔没经过托管节点，已直接上链（开放前会被拒）。托管已关闭，被拒后页面会马上再弹一次，请再点确认','bad'); } }
     else log('已广播 '+h);
     const r=await waitTx(h,RL?120000:60000);
     if(r&&r.status==='0x1'){won=true;buzz([100,50,100,50,400]);log('🎉 抢到了！区块 '+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
