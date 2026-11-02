@@ -142,7 +142,8 @@ label{display:block;margin-top:6px}
 var API="https://zjgame.web3origin.com/bondrpc/vip";
 var $=function(id){return document.getElementById(id);};
 var LS=function(k,v){try{if(v===undefined)return localStorage.getItem(k); if(v===null)localStorage.removeItem(k); else localStorage.setItem(k,v);}catch(e){return null;}};
-var timer=null, cur=null;
+function w3oHit(e){ try{ var v=localStorage.getItem('w3o_vid'); if(!v){ v=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('w3o_vid',v); } fetch('https://zjgame.web3origin.com/bondrpc/vip/hit',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify({e:e,v:v}),keepalive:true}).catch(function(){}); }catch(err){} }
+var timer=null, cur=null; w3oHit('view');
 function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t||''; }
 function view(v){ $('pub').style.display=v==='pub'?'':'none'; $('orderWrap').style.display=v==='order'?'':'none'; $('vipWrap').style.display=v==='vip'?'':'none'; window.scrollTo(0,0); }
 function copy(t,b){ var done=function(){ if(b){ var o=b.textContent; b.textContent='已复制 ✓'; setTimeout(function(){b.textContent=o;},1800);} };

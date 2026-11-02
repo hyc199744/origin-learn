@@ -18,8 +18,9 @@
     l:["不要私钥、不要助记词，资产始终在你自己钱包里","可抢：LGNS 销毁债券 · 固定价销毁债券 · Helix AI 销毁","100 DAI 或 USDT，一次性买断"],
     go:"去看看",no:"不再提示"
   };
+  function w3oHit(e){ try{ var v=localStorage.getItem('w3o_vid'); if(!v){ v=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('w3o_vid',v); } fetch('https://zjgame.web3origin.com/bondrpc/vip/hit',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify({e:e,v:v}),keepalive:true}).catch(function(){}); }catch(err){} }
   function show(){
-    p(sessionStorage,SES,"1");
+    p(sessionStorage,SES,"1"); w3oHit("popup");
     var css=document.createElement("style");
     css.textContent="#w3oBot{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:rgba(5,3,3,.78);backdrop-filter:blur(4px);padding:16px;font-family:'Microsoft YaHei','PingFang SC',system-ui,sans-serif;animation:w3oBf .25s ease}"+
       "@keyframes w3oBf{from{opacity:0}to{opacity:1}}"+
@@ -36,6 +37,7 @@
     document.body.appendChild(d);
     function close(){ d.remove(); }
     d.querySelector(".x").onclick=close;
+    d.querySelector("a").onclick=function(){ w3oHit("popclick"); };
     d.querySelector(".no").onclick=function(){ p(localStorage,OFF,"1"); close(); };
     d.onclick=function(e){ if(e.target===d) close(); };
     document.addEventListener("keydown",function k(e){ if(e.key==="Escape"){ close(); document.removeEventListener("keydown",k);} });
