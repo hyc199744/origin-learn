@@ -72,8 +72,6 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 <div class="row" style="border:0;padding:0 0 6px"><span>行情</span><span id="mktInfo" style="font-size:13px">—</span></div>
 <div class="row" style="border:0;padding:0 0 6px"><span>止损</span><span id="lossInfo" style="font-size:13px">—</span></div>
 <div class="note" style="font-size:12.5px;margin:-2px 0 6px">LGNS 债券整点第 1 块按出价排队，12:00 实测要 5,000 以上才排得上。OKX 若在确认页设过自定义网络费会一直沿用，请改成「推荐」或填同样数值。</div>
-<div class="note" style="color:var(--text);font-size:13px;line-height:1.75">原理：钱包签好的领取交易先交给东京节点，节点等到链上整点再发（误差约 0.1 秒）。你只要在整点前 45 秒内点确认，快慢都没关系。私钥不经过任何服务器。<br>
-<b>设置一次就行：</b>OKX 钱包 → 右上角网络 → 找到 Anubis（链 ID 6714）→ 编辑 → 把 RPC 地址改成下面这个 → 保存。再回到本页点「检测」，确认一笔「授权 0 枚 LGNS 给自己」的合约调用（不动资产，手续费约 0.001 DAI）。<b>以前检测过的也要重新检测一次。</b></div>
 <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><code id="relayUrl" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div>
 <div class="card"><h3>怎么用</h3><div class="note" style="color:var(--text);font-size:13.5px;line-height:1.75"><b>托管节点接通了：</b>连接钱包 → 开启自动领 → 整点前 45 秒弹钱包，直接点确认就完事。<br><b>没接通（手点）：</b>连接钱包 → 开启自动领 → 整点前 2 分钟弹一笔 0 元彩排（先别点，等长震+三声响再点确认）→ 整点前 8 秒弹正式那笔，同样等长震+三声响再点。没成下个整点自动再来。</div></div>
 <div class="card"><h3>日志</h3><div id="log"></div></div>
