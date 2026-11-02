@@ -140,7 +140,8 @@ async function loadWallet(){
   $('epoch').innerHTML='<span class="'+(okEp?'ok':'bad')+'">'+(okEp?'没烧过 ✓（Epoch '+st.epoch+'）':'已烧过 ✗（记录 Epoch '+E+'）')+'</span>';
   $('bal').innerHTML='<span class="'+(okBal?'ok':'bad')+'">'+f9(B)+(okBal?' ✓':' ✗')+'</span>';
   $('alw').innerHTML='<span class="'+(okAlw?'ok':'warn')+'">'+(W>(1n<<200n)?'无限（建议改为按次授权）✓':f9(W)+' LGNS'+(okAlw?' ✓':' ✗ 需授权'))+'</span>';
-  $('gas').innerHTML='<span class="'+(okGas?'ok':'bad')+'">'+f18(G)+(okGas?' ✓':' ✗ 太少')+'</span>';
+  const lowGas=okGas&&G<8n*10n**18n; /* OKX 用自己存的默认价(老板设 15000):要先预留 价×上限(约 35~45 万) ≈ 5.3~6.8 DAI */
+  $('gas').innerHTML='<span class="'+(okGas?(lowGas?'warn':'ok'):'bad')+'">'+f18(G)+(okGas?(lowGas?' ⚠ OKX 网络费若是 15000，要先预留约 7 DAI，不够会发不出去：补到 8 DAI 以上，或把 OKX 网络费改成 1000':' ✓'):' ✗ 太少')+'</span>';
   const eligible=okStake&&okEp&&okBal&&okAlw&&okGas;
   $('verdict').innerHTML=eligible?'<b class="ok">有资格，可以抢</b>':'<b class="bad">暂不满足，合约会拒绝</b>';
   $('btnApprove').disabled=okAlw; $('btnArm').disabled=!eligible; $('btnNow').disabled=!eligible;
