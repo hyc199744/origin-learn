@@ -52,6 +52,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:13.5px}
 label{display:block;margin-top:6px}
 .paym{display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px}.paym .btn{display:flex;justify-content:space-between;align-items:center;text-align:left}.paym .btn small{font-weight:400;opacity:.85;font-size:12.5px}
 .paym .btn:nth-child(n+2){background:#1f2a24;color:var(--text)}
+.kf{text-align:center}.kf img{width:200px;max-width:70%;border-radius:12px;background:#fff;display:block;margin:4px auto 0}
 </style>
 </head>
 <body>
@@ -126,6 +127,12 @@ label{display:block;margin-top:6px}
 <div class="card" style="border-color:#5a4a2a"><b>订单号：<span id="vipOid" class="addr" style="color:var(--gold);font-size:15px"></span></b><br><span class="muted" style="font-size:13px">请截图保存。换手机或清了浏览器数据，用订单号就能找回链接。</span></div>
 <div id="vip"></div>
 <button class="btn ghost full" id="btnOut">返回</button>
+</div>
+
+<div class="card kf">
+<h2>客服微信</h2>
+<img src="/assets/wechat-qr.png" alt="客服微信二维码" loading="lazy">
+<p class="muted" style="margin:6px 0 0;font-size:13.5px">付款遇到问题、到账没开通、要加钱包，扫码加客服微信。<br>手机上可以长按二维码识别，或截图后用微信扫一扫。</p>
 </div>
 
 <script defer src="/assets/qrcode.min.js"></script>
