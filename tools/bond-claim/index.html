@@ -51,7 +51,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-02 13:35 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-02 14:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -62,12 +62,13 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 <div class="banner"><div class="st" id="armState">未开启</div><div class="hint" id="hint">先点底下"连接钱包"</div><div class="row" style="margin-top:6px;border:0;padding:4px 0 0"><span>结论</span><span id="verdict">—</span></div><div class="row" style="border:0;padding:2px 0 0"><span>额度状态</span><span id="capState">—</span></div></div>
 <div class="set">
   <label>抢哪张债券 <select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></label>
-  <label>领取方式 <select id="mode"><option value="split" selected>拆单：分别领最大的 3 笔（托管节点用，最容易挤进去）</option><option value="all">整笔全领（claimAll）</option><option value="max">只领最大的一笔</option></select></label>
+  <label>领取方式 <select id="mode"><option value="split" selected>拆单：单独领最大的几笔（托管节点用，最容易挤进去）</option><option value="all">整笔全领（claimAll）</option><option value="max">只领最大的一笔</option></select></label>
   <label>整点前彩排 <select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></label>
 </div>
 <div class="card" id="relayCard"><h3>托管节点 · 不拼手速（强烈推荐）</h3>
 <div class="row" style="border:0;padding:0 0 6px"><span>状态</span><span id="relayState">先连接钱包</span></div>
 <div class="row" style="border:0;padding:0 0 6px"><span>托管出价</span><span><select id="relayGwei"><option value="5000">5,000 gwei</option><option value="10000">10,000 gwei</option><option value="15000" selected>15,000 gwei（每笔约 1~2 DAI）</option><option value="20000">20,000 gwei</option><option value="30000">30,000 gwei</option></select></span></div>
+<div class="row" style="border:0;padding:0 0 6px"><span>每次抢几笔</span><span><select id="splitN"><option value="1" selected>1 笔（只弹 1 次，抢最大的）</option><option value="2">2 笔（弹 2 次）</option><option value="3">3 笔（弹 3 次）</option></select></span></div>
 <div class="note" style="font-size:12.5px;margin:-2px 0 6px">LGNS 债券整点第 1 块按出价排队，12:00 实测要 5,000 以上才排得上。OKX 若在确认页设过自定义网络费会一直沿用，请改成「推荐」或填同样数值。</div>
 <div class="note" style="color:var(--text);font-size:13px;line-height:1.75">原理：钱包签好的领取交易先交给东京节点，节点等到链上整点再发（误差约 0.1 秒）。你只要在整点前 45 秒内点确认，快慢都没关系。私钥不经过任何服务器。<br>
 <b>设置一次就行：</b>OKX 钱包 → 右上角网络 → 找到 Anubis（链 ID 6714）→ 编辑 → 把 RPC 地址改成下面这个 → 保存。再回到本页点「检测」，确认一笔「授权 0 枚 LGNS 给自己」的合约调用（不动资产，手续费约 0.001 DAI）。<b>以前检测过的也要重新检测一次。</b></div>
@@ -466,10 +467,10 @@ async function watch(){
 /* 托管 + 拆单(11-02 12:20):12:00 实测大户 65000 gwei 一笔拿走 4 万多,剩下零头只有小额单笔塞得进 → 整点前连续弹最大的几笔 claim(i),节点到点一起发 */
 async function attemptSplit(H){
   const bid=relayBid(); const GL=160000; const per=BigInt(GL)*BigInt(bid)*10n**9n;
-  let K=Math.min(3,Number((st.gas||0n)/per));
+  const NW=Number($('splitN').value)||1; let K=Math.min(NW,Number((st.gas||0n)/per));
   try{ const code=await rpc('eth_getCode',[me,'latest']); if(String(code).toLowerCase().startsWith('0xef0100')&&K>1){ K=1; log('这个钱包开着「智能账户」(EIP-7702 委托)，节点只允许同时挂 1 笔，本次只发最大的 1 笔。想拆单请在 OKX 设置里关掉智能账户','warn'); } }catch(e){} const ps=(st.pieces||[]).filter(x=>x.amt>0n).slice(0,Math.max(K,0));
   if(K<1){ log('gas 不够：出价 '+bid+' gwei 每笔要预留约 '+f18(per)+' DAI，钱包只有 '+f18(st.gas||0n)+'。请往钱包转些 DAI，或把托管出价调低','bad'); return 'fail'; }
-  if(K<3&&ps.length>K) log('gas 只够预留 '+K+' 笔（每笔约 '+f18(per)+' DAI），先发最大的 '+K+' 笔；想发 3 笔请补 DAI','warn');
+  if(K<NW&&ps.length>K) log('gas 只够预留 '+K+' 笔（每笔约 '+f18(per)+' DAI），先发最大的 '+K+' 笔；想发 '+NW+' 笔请补 DAI','warn');
   if(!ps.length) return attempt(H);
   buzz([300,80,300,80,300]); $('armState').innerHTML='<b class="warn flash">钱包会连续弹 '+ps.length+' 笔，每笔都点确认（整点前点完就行）</b>';
   log('拆单：连续弹 '+ps.length+' 笔，分别领 '+ps.map(x=>'第 '+(x.i+1)+' 笔 '+f9(x.amt)).join('、')+'，出价 '+bid+' gwei —— 弹一次点一次确认','warn');
@@ -535,6 +536,8 @@ $('btnRelay').onclick=relayDetect;
 try{ const g=LS('bc_relayGwei'); if(g&&[...$('relayGwei').options].some(o=>o.value===g)) $('relayGwei').value=g; }catch(e){}
 $('relayGwei').onchange=()=>{ LS('bc_relayGwei',$('relayGwei').value); log('托管出价改为 '+$('relayGwei').value+' gwei'); };
 const relayBid=()=>Number($('relayGwei').value)||15000;
+try{ const n=LS('bc_splitN'); if(n&&['1','2','3'].includes(n)) $('splitN').value=n; }catch(e){}
+$('splitN').onchange=()=>{ LS('bc_splitN',$('splitN').value); log('改为每次抢 '+$('splitN').value+' 笔'); };
 $('btnRelayCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(RELAY); log('已复制节点地址：'+RELAY,'ok'); }catch(e){ const r=document.createRange(); r.selectNodeContents($('relayUrl')); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); log('长按选中的地址复制：'+RELAY,'warn'); } };
 setInterval(relayRender,3000); relayRender();
 $('lkSet').onclick=()=>{ $('lkForm').style.display='block'; $('lkKey').focus(); };
