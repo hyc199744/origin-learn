@@ -33,6 +33,16 @@ details summary{cursor:pointer;color:var(--muted);font-size:13.5px}
 .vc.safe{border-color:#3d5a49;background:#132019}
 .copyrow{display:flex;gap:8px;align-items:center;margin:6px 0 10px}.copyrow code{flex:1;min-width:0;word-break:break-all;background:#0f1512;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13.5px}
 .linkrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sec{font-size:15px;color:var(--muted);margin:18px 2px 8px;font-weight:600}
+.tool{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.tool.open{border-color:#3d5a49}
+.tool p{margin:8px 0 0;font-size:14px;color:#cfd9d2}
+.th{display:flex;align-items:center;gap:12px}.th>div{flex:1;min-width:0}.th b{display:block;font-size:16px}.th small{color:var(--muted);font-size:12.5px}
+.ti{width:44px;height:44px;border-radius:12px;background:var(--acc2);display:grid;place-items:center;font-size:24px;flex:none}
+.tag{font-size:12px;padding:3px 9px;border-radius:20px;background:var(--acc2);color:var(--ok);white-space:nowrap}.tag.lock{background:#2b2418;color:var(--gold)}
+.tl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 4px}
+.tool details{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}.tool details summary{font-weight:700;color:var(--text);font-size:14.5px}
+.tool ol{font-size:14px}.step{border-color:#5a4a2a}
 .badge{display:inline-block;background:var(--acc2);color:var(--ok);border-radius:20px;padding:2px 10px;font-size:13px}
 @media (max-width:420px){.btns,.linkrow{grid-template-columns:1fr}}
 </style>
@@ -44,14 +54,19 @@ details summary{cursor:pointer;color:var(--muted);font-size:13.5px}
 <h1>整点准时，帮你抢进第 1 个区块</h1>
 <p class="sub">Anubis 链销毁债券、固定价债券、Helix AI 销毁，开放后 1~3 秒就被抢光。机器人在开放那一刻替你准时发出，不要私钥。</p>
 
-<div class="card"><h2>能抢什么</h2>
-<div class="prod"><b>LGNS 销毁债券</b><span>每个整点 5 万 LGNS 额度，1 秒内抢光</span></div>
-<div class="prod"><b>固定价销毁债券</b><span>每个整点 5 万 LGNS 额度</span></div>
-<div class="prod"><b>Helix AI 销毁（换 2 倍算力）</b><span>每天北京时间 11:59 开放，全网 400 份</span></div>
+<h3 class="sec">付费后解锁 2 个抢币链接</h3>
+<div class="tool">
+<div class="th"><span class="ti">🔥</span><div><b>销毁债券抢领</b><small>LGNS 销毁债券 · 固定价销毁债券 · 每个整点</small></div><span class="tag lock">🔒 付费解锁</span></div>
+<p>每个整点每张债券释放 5 万 LGNS 额度，第 1 个区块（1 秒内）就被领完。开启后整点前 45 秒钱包弹出，点确认，机器人在整点那一刻准时发出。</p>
 </div>
+<div class="tool">
+<div class="th"><span class="ti">🤖</span><div><b>Helix AI 销毁抢占</b><small>烧 500 LGNS 换 2 倍算力 · 每天 11:59</small></div><span class="tag lock">🔒 付费解锁</span></div>
+<p>每天北京时间 11:59:00 开放，全网 400 份，约 3 秒抢光。11:58 点确认，机器人在开放那一刻准时发出。</p>
+</div>
+<p class="muted" style="font-size:13.5px;margin:-2px 2px 14px">解锁后每个链接里都有详细的使用方法：怎么设置节点、怎么检测、每次怎么抢。</p>
 
 <div class="card"><h2>怎么做到的</h2>
-<p style="margin:0">手点再快也有几秒误差，而额度第 1 个区块就没了。机器人的做法是：整点前 45 秒你在钱包里点确认，签好的交易先交给我们的东京定时节点，节点卡准链上时间，在开放那一刻发出，落进第 1 个区块。</p>
+<p style="margin:0">手点再快也有几秒误差，而额度第 1 个区块就没了。机器人的做法是：开放前你在钱包里点确认，签好的交易先交给我们的东京定时节点，节点卡准链上时间，在开放那一刻发出，落进第 1 个区块。</p>
 </div>
 
 <div class="card safe"><h2>🔒 安全</h2>
