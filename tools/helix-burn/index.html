@@ -28,13 +28,14 @@ select{background:#0f141a;color:var(--text);border:1px solid var(--line);border-
 </style>
 </head>
 <body>
-<h1>Helix 抢烧助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-02 00:20</span></h1>
+<h1>Helix 抢烧助手 <span style="font-size:12px;opacity:.6;font-weight:400">版本 11-02 12:30</span></h1>
 <div class="sub">烧 500 LGNS 换 2 倍算力。请在钱包 App 的内置浏览器里打开本页；私钥始终在钱包里，每笔交易都要你在钱包点确认。</div>
 
 <div class="card">
   <div class="row"><span>钱包</span><span id="addr">未连接</span></div>
   <div class="row"><span>链</span><span id="chain">—</span></div>
   <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
+  <div class="row"><span>托管节点</span><span id="relayState">先连接钱包</span></div>
 </div>
 
 <div class="card">
@@ -85,6 +86,11 @@ const f9=v=>(Number(v)/1e9).toLocaleString('en-US',{maximumFractionDigits:2}); c
 const bj=ts=>{const d=new Date(ts*1000+8*3600e3);return d.toISOString().replace('T',' ').slice(0,19)+' 北京';};
 const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p||[200,100,200]);}catch(e){}};
 
+const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=45; let relayDown=false;
+const LSg=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, LSs=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
+const relayOn=()=>!!me&&LSg('bc_relay2')===String(me).toLowerCase()&&!relayDown; /* 检测记录与销毁债券抢领页共用(同站点 localStorage) */
+async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
+function relayRender(){ const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML='先连接钱包'; return; } el.innerHTML=relayOn()?'<span class="ok">已接通 ✓ 开放前 45 秒弹钱包，直接点确认</span>':(relayDown?'<span class="bad">连不上，本次改用开放后弹窗</span>':'<span class="warn">未接通（到「销毁债券抢领」页按说明改节点并检测，这里自动生效）</span>'); }
 let me=null, eth=null, skew=0, nextStart=0, st={}, armed=false, racing=false, armTimer=null, attempts=0, won=false, wakeLock=null;
 
 async function rpc(method,params){const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});const j=await r.json();if(j.error){const e=new Error(j.error.message||'rpc');e.data=j.error.data;throw e;}return j.result;}
@@ -151,7 +157,7 @@ async function connect(){
     if(cid!==CHAIN_ID){ const chainParam={chainId:CHAIN_HEX,chainName:'Anubis',rpcUrls:[RPC],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:['https://browser.anubispace.org']}; try{ await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_HEX}]}); }catch(e1){ if(isReject(e1)) throw e1; log('切链被钱包拒绝（'+(e1&&e1.code)+' '+String(e1&&e1.message||e1).slice(0,80)+'），改为请求添加 Anubis 链','warn'); try{ await eth.request({method:'wallet_addEthereumChain',params:[chainParam]}); }catch(e2){ if(isReject(e2)) throw e2; log('添加链也失败（'+(e2&&e2.code)+' '+String(e2&&e2.message||e2).slice(0,80)+'）。请在钱包里手动添加网络：名称 Anubis，Chain ID 6714，RPC '+RPC+'，代币符号 DAI，浏览器 https://browser.anubispace.org，然后切到该网络再回来','bad'); } } try{ cid=parseInt(await eth.request({method:'eth_chainId'}),16); }catch(e){} }
     $('chain').innerHTML=cid===CHAIN_ID?'<span class="ok">Anubis (6714) ✓</span>':'<span class="bad">链不对：'+cid+'，请在钱包切到 Anubis</span>';
     eth.on&&eth.on('accountsChanged',()=>location.reload()); eth.on&&eth.on('chainChanged',()=>location.reload());
-    log('已连接 '+me); keepAwake(); await loadState();
+    log('已连接 '+me); keepAwake(); relayRender(); await loadState();
   }catch(e){log('连接失败：'+(e.message||e),'bad');}
 }
 const isReject=e=>!!(e&&(e.code===4001||e.code==='ACTION_REJECTED'||/reject|denied|cancel|取消|拒绝/i.test(e.message||'')));
@@ -173,9 +179,13 @@ async function attempt(){
   attempts++;
   try{
     buzz(); log('第 '+attempts+' 笔：请在钱包点确认（烧 500 LGNS）','warn');
+    const RL=relayOn()&&chainNow()<nextStart-0.3;
     const h=await sendTx(A.LEDGER,SEL.burnForPower+u256(AMOUNT),2);
-    log('已广播 '+h);
-    const r=await waitTx(h,60000);
+    if(RL){ let got=false; for(let i=0;i<4&&!got;i++){ const sv=await relayGet('/seen?a='+me,2500); got=!!(sv&&sv.sendHash&&String(sv.sendHash).toLowerCase()===String(h).toLowerCase()); if(!got) await new Promise(r=>setTimeout(r,400)); }
+      if(got) log('✓ 已交给东京定时节点，'+bj(nextStart)+' 开放那一刻准点发出，你不用再动 '+h,'ok');
+      else { LSs('bc_relay2',''); relayRender(); log('✗ 这笔没经过托管节点，已直接上链（开放前会被拒）。托管已关闭，被拒后页面会马上再弹一次，请再点确认','bad'); } }
+    else log('已广播 '+h);
+    const r=await waitTx(h,RL?120000:60000);
     if(r&&r.status==='0x1'){won=true;buzz([100,50,100,50,400]);log('🎉 抢到了！区块 '+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
     if(await burnedThisEpoch()){won=true;buzz([100,50,100,50,400]);log('🎉 链上确认本 Epoch 已烧过 → 成功','ok');return 'win';} // 回执丢了/超时也不怕,直接问链
     if(!r){log('60 秒没拿到回执，链上也没显示成功，可能网络卡了','bad');return 'fail';}
@@ -199,7 +209,7 @@ async function race(){
       if(s==='notopen'){ log('过了开放时刻 3 分钟合约还说没开（not open today），官方可能改了开放时间。页面会按最近一天的实际开放时刻重新算，请稍后刷新再开启','bad'); return; }
       if(s!=='open'){ log('合约拒绝：'+s+'（不弹钱包了，先把这个问题解决）','bad'); return; }
       log('链上已开放且模拟通过，弹钱包…','ok');
-    } else log('提前触发：第一笔可能落在开放前被拒，被拒会立刻再弹一次','warn');
+    } else log(relayOn()?'托管节点模式：现在弹钱包，点确认后交易在节点里等到开放那一刻':'提前触发：第一笔可能落在开放前被拒，被拒会立刻再弹一次','warn');
     while(!won && attempts<8 && chainNow()<nextStart+75){
       const r=await attempt();
       if(r==='win')break;
@@ -212,12 +222,13 @@ async function arm(){
   if(armed)return;
   const ok=await loadWallet().catch(()=>false); if(!ok){ log('资格检查没通过，不能开启','bad'); return; }
   armed=true; keepAwake();
-  const lead=Number($('lead').value); const leadS=isNaN(lead)?-1.5:lead/1000;
-  $('armState').innerHTML='<span class="ok">已开启</span>，'+(leadS>=0?('到点前 '+leadS+' 秒弹签名'):('开放后 '+(-leadS)+' 秒弹签名'));
+  if(relayOn()){ const ping=await relayGet('/status',3000); if(!ping){ relayDown=true; relayRender(); log('托管节点连不上，本次改用"开放后弹窗"','bad'); } }
+  const lead=Number($('lead').value); const leadS=relayOn()?RELAY_POP:(isNaN(lead)?-1.5:lead/1000);
+  $('armState').innerHTML='<span class="ok">已开启</span>，'+(relayOn()?'托管：开放前 45 秒弹钱包，直接点确认':leadS>=0?('到点前 '+leadS+' 秒弹签名'):('开放后 '+(-leadS)+' 秒弹签名'));
   log('自动抢已开启：'+bj(nextStart)+(leadS>=0?' 前 '+leadS:' 后 '+(-leadS))+' 秒弹出钱包签名。保持本页在前台、钱包已解锁、别锁屏。');
   clearInterval(armTimer); let warned=false;
   armTimer=setInterval(()=>{ if(!armed){clearInterval(armTimer);return;} const left=nextStart-chainNow();
-    if(!warned&&left<=30){ warned=true; buzz([80,60,80]); log('还有 30 秒，准备好点确认','warn'); loadWallet().then(ok=>{ if(!ok) log('⚠ 资格检查刚才变红了，请立刻看上面红字','bad'); }).catch(()=>{}); }
+    if(!warned&&left<=(relayOn()?RELAY_POP+15:30)){ warned=true; buzz([80,60,80]); log(relayOn()?'还有一分钟，钱包马上弹出，弹出后直接点确认':'还有 30 秒，准备好点确认','warn'); loadWallet().then(ok=>{ if(!ok) log('⚠ 资格检查刚才变红了，请立刻看上面红字','bad'); }).catch(()=>{}); }
     if(left<=leadS){ clearInterval(armTimer); race(); } },100);
 }
 function stop(){armed=false;clearInterval(armTimer);$('armState').textContent='已停止';log('已停止自动抢');}
@@ -225,7 +236,7 @@ function tick(){ if(!nextStart)return; const left=Math.max(0,Math.floor(nextStar
 
 $('btnConnect').onclick=connect; $('btnApprove').onclick=doApprove; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=()=>{ if(racing)return; log('手动：立刻发一笔'); racing=true; attempt().finally(()=>{racing=false;loadState();}); };
-setInterval(tick,250); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!racing) loadState(); },60000);
+setInterval(tick,250); setInterval(relayRender,3000); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!racing) loadState(); },60000);
 loadState().then(()=>{ const pv=pickProvider(); if(pv&&pv.selectedAddress) connect(); });
 log('页面就绪。先连接钱包，资格检查全绿后再开启自动抢。');
 })();
