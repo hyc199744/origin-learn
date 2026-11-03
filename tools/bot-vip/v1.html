@@ -1,154 +1,126 @@
 <!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
+<html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#050303"><meta name="robots" content="noindex">
 <title>起源抢币机器人</title>
-<meta name="description" content="Anubis 链销毁债券 / 固定价债券 / Helix AI 销毁准点抢领机器人。不要私钥，整点准时帮你发。">
 <style>
-:root{--bg:#050303;--card:linear-gradient(180deg,#1a0f08,#0d0805);--text:#F1DFC0;--text2:#d9c6a6;--muted:#a8936f;--line:#3a2313;--bw:1px;
---link:#D6A84B;--gold:#D6A84B;--ok:#e9c46a;--warn:#e8a54a;--bad:#e2725b;--r:14px;--r-sm:10px;
---font:"PingFang SC","Microsoft YaHei",sans-serif;--head:"STZhongsong","Songti SC","Noto Serif SC",serif;--num:"STZhongsong","Songti SC",serif;
---lg-bg:#7A0B12;--ti-bg:#2a1208;--tag-bg:#2b1d0c;--lock-bg:#3a1a10;--acc-line:#D6A84B;--gold-line:#8a6a2a;--safe-line:#6b4a1c;--safe-bg:linear-gradient(180deg,#1f1409,#120a05);
---btn-bg:linear-gradient(180deg,#9b1520,#7A0B12);--btn-c:#F1DFC0;--btn-shadow:0 0 0 1px #D6A84B inset;--ghost-bg:#140b06;--field:#0d0805;--shadow:0 10px 30px rgba(0,0,0,.45)}
-body::before{content:"";position:fixed;left:50%;top:-180px;width:620px;height:520px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(122,11,18,.55),transparent);pointer-events:none;z-index:0}
-h1{text-align:center;font-size:27px;letter-spacing:1px}h1::before,h1::after{content:"❖";color:#D6A84B;font-size:14px;margin:0 10px;vertical-align:5px}
-#pub>.sub{text-align:center}
-.card,.tool,.vc{border-color:#3a2313}.card:hover,.tool:hover{border-color:#6b4a1c}
-.sec{color:#D6A84B;text-align:center;letter-spacing:2px}
-
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.7 var(--font);padding:calc(14px + env(safe-area-inset-top)) 16px 40px;max-width:680px;margin:0 auto;position:relative}
-a{color:var(--link)}
-.top{display:flex;align-items:center;gap:10px;margin-bottom:6px;position:relative;z-index:1}.top b{font-family:var(--head)}.top a{margin-left:auto;font-size:13px;color:var(--muted);text-decoration:none}
-.lg{width:36px;height:36px;border-radius:var(--r-sm);background:var(--lg-bg);display:grid;place-items:center;font-size:20px}
-h1{font-family:var(--head);font-size:26px;margin:16px 0 6px;line-height:1.3;position:relative;z-index:1}.sub{color:var(--muted);margin:0 0 16px;position:relative;z-index:1}
-.sec{font-family:var(--head);font-size:15px;color:var(--muted);margin:20px 2px 10px;font-weight:600}
-.card,.tool,.vc{background:var(--card);border:var(--bw) solid var(--line);border-radius:var(--r);padding:15px 16px;margin-bottom:12px;position:relative;z-index:1;box-shadow:var(--shadow)}
-.card h2,.vc h2{font-family:var(--head);font-size:16px;margin:0 0 8px}
-.tool.open,.vc.links{border-color:var(--acc-line)}
-.tool p{margin:8px 0 0;font-size:14px;color:var(--text2)}
-.th{display:flex;align-items:center;gap:12px}.th>div{flex:1;min-width:0}.th b{display:block;font-size:16px;font-family:var(--head)}.th small{color:var(--muted);font-size:12.5px}
-.ti{width:44px;height:44px;border-radius:var(--r-sm);background:var(--ti-bg);display:grid;place-items:center;font-size:24px;flex:none}
-.tag{font-size:12px;padding:3px 9px;border-radius:20px;background:var(--tag-bg);color:var(--ok);white-space:nowrap}.tag.lock{background:var(--lock-bg);color:var(--gold)}
-.tl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 4px}
-.tool details,.vc details{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}details summary{cursor:pointer;color:var(--muted);font-size:13.5px}.tool details summary{font-weight:700;color:var(--text);font-size:14.5px}
-.price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.price .n{font-size:40px;font-weight:800;color:var(--gold);font-family:var(--num)}.price .u{color:var(--muted)}
-.opened{display:inline-block;margin:6px 0 2px;background:var(--lock-bg);color:var(--gold);border-radius:20px;padding:3px 12px;font-size:13.5px}.opened b{font-size:15px}
-.btn{display:inline-block;border:0;border-radius:var(--r-sm);padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer;color:var(--btn-c);background:var(--btn-bg);text-decoration:none;text-align:center;box-shadow:var(--btn-shadow)}
-.btn.ghost{background:var(--ghost-bg);color:var(--text);box-shadow:none;border:1px solid var(--line)}.btn:disabled{opacity:.45}.btn.full{width:100%}.btn.sm{padding:6px 10px;font-size:13px}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.paym{display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px}.paym .btn{display:flex;justify-content:space-between;align-items:center;text-align:left}.paym .btn small{font-weight:400;opacity:.85;font-size:12.5px}
-.paym .btn:nth-child(n+2){background:var(--ghost-bg);color:var(--text);box-shadow:none;border:1px solid var(--line)}
-.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}.muted{color:var(--muted)}
-ul,ol{padding-left:20px;margin:6px 0}li{margin:4px 0}
-.safe,.vc.safe{border-color:var(--safe-line);background:var(--safe-bg)}
-.step{border-color:var(--gold-line)}
-#msg{min-height:22px;font-size:14px;margin-top:8px;white-space:pre-wrap}
-.addr{font-family:ui-monospace,Consolas,monospace;font-size:13px;color:var(--muted)}
-input{width:100%;background:var(--field);border:1px solid var(--line);color:var(--text);border-radius:var(--r-sm);padding:11px;font-size:14px;margin:6px 0}
-label{display:block;margin-top:6px}
-.copyrow{display:flex;gap:8px;align-items:center;margin:6px 0 10px}.copyrow code{flex:1;min-width:0;word-break:break-all;background:var(--field);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;font-size:13.5px}
-.linkrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.badge{display:inline-block;background:var(--tag-bg);color:var(--ok);border-radius:20px;padding:2px 10px;font-size:13px;vertical-align:4px}
-.amt{font-size:34px;font-weight:800;color:var(--gold);margin:8px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums;font-family:var(--num)}
+#vip .vc,#vip .tool{margin-bottom:12px}#vip .tl,#vip .linkrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 4px}
+#vip .th{display:flex;align-items:center;gap:12px}#vip .th>div{flex:1;min-width:0}#vip .th b{display:block;font-size:16px}#vip .th small{font-size:12.5px;opacity:.7}
+#vip .ti{width:42px;height:42px;display:grid;place-items:center;font-size:22px;flex:none;border-radius:12px}
+#vip .tag{font-size:12px;padding:2px 9px;border-radius:20px;white-space:nowrap}
+#vip details{margin-top:8px;padding-top:8px}#vip summary{cursor:pointer;font-weight:700}
+#vip .lk{padding:10px 0 2px}#vip .lk b{display:block}#vip .lk small{opacity:.7;font-size:12.5px}
+#vip h2{font-size:16px;margin:0 0 8px}#vip ol,#vip ul{padding-left:20px;margin:6px 0}#vip li{margin:4px 0}
+.copyrow{display:flex;gap:8px;align-items:center;margin:6px 0 10px}.copyrow code{flex:1;min-width:0;word-break:break-all;padding:10px;font-size:13px}
 .qr{display:flex;justify-content:center;margin:12px 0}.qr img,.qr canvas{background:#fff;padding:8px;border-radius:10px}
-.lk{border-top:1px solid var(--line);padding:10px 0 2px}.lk:first-of-type{border-top:0}.lk b{display:block}.lk small{color:var(--muted);font-size:12.5px}
-.case{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.case:first-child{border-top:0}.case .cl,.case .cr{display:flex;flex-direction:column;min-width:0}.case .cr{text-align:right;align-items:flex-end}.case small{color:var(--muted);font-size:12px}.case b{font-size:14.5px}.case .cr b{font-family:var(--num)}
-.mtag{font-size:11px;font-weight:600;padding:1px 6px;border-radius:10px;background:var(--ghost-bg);color:var(--muted);vertical-align:2px}.mtag.on{background:var(--tag-bg);color:var(--ok)}
-.kf{text-align:center}.kf img{width:200px;max-width:70%;border-radius:12px;background:#fff;display:block;margin:4px auto 0}
-.prod{display:flex;flex-direction:column;padding:8px 0;border-top:1px solid var(--line)}
-@media (max-width:420px){.btns,.linkrow{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<div class="top"><div class="lg">🤖</div><b>起源抢币机器人</b><a href="/">← 首页</a></div>
+.kf{text-align:center}.kf img{width:190px;max-width:70%;border-radius:12px;background:#fff;display:block;margin:6px auto}
+.paym{display:grid;gap:8px;margin-top:4px}.paym .btn{display:flex;justify-content:space-between;align-items:center;text-align:left}.paym .btn small{font-weight:400;opacity:.8;font-size:12.5px}
+.btn{display:inline-block;border:0;cursor:pointer;font-weight:700;font-size:15px;padding:12px 16px;text-align:center;text-decoration:none}.btn.full{width:100%}.btn.sm{padding:6px 10px;font-size:13px}.btn:disabled{opacity:.45}
+input{width:100%;font-size:14px;padding:11px;margin:6px 0}label{display:block}
+#msg{min-height:20px;font-size:14px;margin-top:8px;white-space:pre-wrap}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;word-break:break-all}.small{font-size:13px}
+.amt{font-size:32px;font-weight:800;margin:8px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.case .cl,.case .cr{display:flex;flex-direction:column;min-width:0}.case small{font-size:12px;opacity:.75}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
 
+:root{--bg:#050303;--gold:#D6A84B;--bone:#F1DFC0;--blood:#7A0B12;--line:#3a2313;--ok:#e9c46a;--warn:#e8a54a;--bad:#e2725b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--bone);font:15px/1.7 "PingFang SC","Microsoft YaHei",sans-serif;padding-bottom:90px}
+.serif{font-family:"STZhongsong","Songti SC","Noto Serif SC",serif}
+.dim{color:#b39b76}.hl{color:var(--gold)}a{color:var(--gold)}
+.hero{position:relative;padding:calc(18px + env(safe-area-inset-top)) 18px 34px;text-align:center;overflow:hidden;background:radial-gradient(520px 380px at 50% 0%,rgba(122,11,18,.75),transparent 70%)}
+.hero .nav{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#b39b76}.hero .nav a{color:#b39b76;text-decoration:none}
+.hero .eyebrow{display:inline-block;margin-top:26px;border:1px solid var(--gold);color:var(--gold);border-radius:20px;padding:3px 14px;font-size:12.5px;letter-spacing:2px}
+.hero h1{font-family:"STZhongsong","Songti SC",serif;font-size:34px;line-height:1.25;margin:14px 0 10px;letter-spacing:2px}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{color:#cdb48c;margin:0 auto;max-width:440px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);margin:26px auto 0;max-width:520px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stats div{padding:14px 4px}.stats div+div{border-left:1px solid var(--line)}.stats b{display:block;font-family:"STZhongsong",serif;font-size:28px;color:var(--gold);line-height:1.2}.stats span{font-size:12px;color:#b39b76}
+.band{padding:30px 18px;max-width:680px;margin:0 auto}
+.band h2{font-family:"STZhongsong","Songti SC",serif;text-align:center;font-size:22px;margin:0 0 6px;letter-spacing:2px}.band h2::before,.band h2::after{content:"❖";color:var(--gold);font-size:12px;margin:0 10px;vertical-align:4px}
+.band .lead{text-align:center;color:#b39b76;font-size:13.5px;margin:0 0 18px}
+.prods{display:grid;gap:12px}.prod{display:flex;gap:14px;align-items:flex-start;padding:16px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#1a0f08,#0d0805)}
+.prod .ic{font-size:30px;line-height:1}.prod b{font-family:"STZhongsong",serif;font-size:18px}.prod p{margin:4px 0 0;font-size:13.5px;color:#cdb48c}.prod .lock{margin-left:auto;font-size:12px;color:var(--gold);white-space:nowrap}
+#casesCard{padding:30px 0 30px 18px;max-width:680px;margin:0 auto}#casesCard h2{padding-right:18px}#casesSum{text-align:center;padding-right:18px;color:#cdb48c;font-size:13.5px}
+#casesList{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 18px 10px 0;-webkit-overflow-scrolling:touch}
+#casesList .case{flex:0 0 220px;scroll-snap-align:start;display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid var(--gold);border-radius:14px;background:linear-gradient(160deg,#2a1208,#0d0805)}
+#casesList .case .cr{align-items:flex-start}#casesList .case .cr b{font-family:"STZhongsong",serif;font-size:22px;color:var(--gold)!important}#casesList .mtag{display:none}
+.how{counter-reset:s;display:grid;gap:10px}.how div{counter-increment:s;padding:12px 14px 12px 52px;position:relative;border-left:2px solid var(--blood)}.how div::before{content:counter(s);position:absolute;left:12px;top:10px;width:28px;height:28px;border-radius:50%;background:var(--blood);border:1px solid var(--gold);display:grid;place-items:center;font-family:"STZhongsong",serif;color:var(--gold)}
+.safe{border:1px solid #6b4a1c;border-radius:14px;padding:16px;background:#120a05}.safe li{margin:6px 0}
+.price{text-align:center;padding:24px 16px;border:1px solid var(--gold);border-radius:16px;background:linear-gradient(180deg,#2a1208,#0d0805)}.price .n{font-family:"STZhongsong",serif;font-size:56px;color:var(--gold);line-height:1}.price .u{color:#cdb48c}
+#opened{display:inline-block;margin-top:10px;background:#3a1a10;color:var(--gold);border-radius:20px;padding:3px 12px;font-size:13.5px}
+.box{border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(180deg,#1a0f08,#0d0805);margin:0 18px 14px}
+.ht{font-family:"STZhongsong",serif;font-size:20px;margin-bottom:8px}.pill{font-size:12px;background:#3a1a10;color:var(--gold);border-radius:20px;padding:2px 10px;vertical-align:4px;font-family:sans-serif}
+.btn{background:linear-gradient(180deg,#9b1520,#7A0B12);color:var(--bone);border-radius:10px;box-shadow:0 0 0 1px var(--gold) inset}.btn.ghost,.btn.alt{background:#140b06;box-shadow:0 0 0 1px var(--line) inset}
+input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--bone);border-radius:10px}
+#orderWrap,#vipWrap{padding:calc(16px + env(safe-area-inset-top)) 0 0}#vipWrap>.ht,#vipWrap>p{padding:0 18px}#vip{padding:0 18px}#btnOut{margin:0 18px;width:calc(100% - 36px)}
+#vip .vc,#vip .tool{border:1px solid var(--line);border-radius:14px;padding:14px;background:linear-gradient(180deg,#1a0f08,#0d0805)}#vip .ti{background:#2a1208}#vip .tag{background:#2b1d0c;color:var(--gold)}#vip .muted{color:#b39b76}#vip details,#vip .lk{border-top:1px solid var(--line)}
+.kf{margin:14px 18px}
+.cta{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,#050303 35%);z-index:9}
+.cta a{display:flex;justify-content:center;align-items:center;gap:8px;max-width:560px;margin:0 auto;padding:15px;border-radius:12px;background:linear-gradient(180deg,#a8121e,#7A0B12);border:1px solid var(--gold);color:var(--bone);font-weight:800;font-size:17px;text-decoration:none;font-family:"STZhongsong",serif;letter-spacing:2px;box-shadow:0 8px 30px rgba(122,11,18,.6)}
+</style></head><body>
 <div id="pub">
-<h1>整点准时，帮你抢进第 1 个区块</h1>
-<p class="sub">Anubis 链销毁债券、固定价债券、Helix AI 销毁，开放后 1~3 秒就被抢光。机器人在开放那一刻替你准时发出，不要私钥。</p>
+<section class="hero"><div class="nav"><span class="serif">🤖 起源抢币机器人</span><a href="/">首页 →</a></div>
+<div class="eyebrow">ANUBIS · 准点抢领</div>
+<h1>额度 1 秒抢光<br>机器人帮你<em>抢第 1 块</em></h1>
+<p>LGNS 销毁债券、固定价债券、Helix AI 销毁。整点那一刻准时发出，不要私钥。</p>
+<div class="stats"><div><b id="s1">—</b><span>真实成功</span></div><div><b id="s2">—</b><span>领到 LGNS</span></div><div><b id="s3">—</b><span>落第 1 块</span></div></div>
+</section>
 
-<h3 class="sec">付费后解锁 2 个抢币链接</h3>
-<div class="tool">
-<div class="th"><span class="ti">🔥</span><div><b>销毁债券抢领</b><small>LGNS 销毁债券 · 固定价销毁债券 · 每个整点</small></div><span class="tag lock">🔒 付费解锁</span></div>
-<p>每个整点每张债券释放 5 万 LGNS 额度，第 1 个区块（1 秒内）就被领完。开启后整点前 45 秒钱包弹出，点确认，机器人在整点那一刻准时发出。</p>
-</div>
-<div class="tool">
-<div class="th"><span class="ti">🤖</span><div><b>Helix AI 销毁抢占</b><small>烧 500 LGNS 换 2 倍算力 · 每天 11:59</small></div><span class="tag lock">🔒 付费解锁</span></div>
-<p>每天北京时间 11:59:00 开放，全网 400 份，约 3 秒抢光。11:58 点确认，机器人在开放那一刻准时发出。</p>
-</div>
-<p class="muted" style="font-size:13.5px;margin:-2px 2px 14px">解锁后每个链接里都有详细的使用方法：怎么设置节点、怎么检测、每次怎么抢。</p>
+<section class="band"><h2>能抢什么</h2><p class="lead">付费后解锁 2 个抢币链接，复制到钱包就能用</p>
+<div class="prods">
+<div class="prod"><span class="ic">🔥</span><div><b>销毁债券抢领</b><p>LGNS 销毁债券 · 固定价销毁债券。每个整点 5 万 LGNS 额度，第 1 个区块就被领完。</p></div><span class="lock">🔒 付费解锁</span></div>
+<div class="prod"><span class="ic">🤖</span><div><b>Helix AI 销毁抢占</b><p>每天 11:59 开放，全网 400 份，约 3 秒抢光。烧 500 LGNS 换 2 倍算力。</p></div><span class="lock">🔒 付费解锁</span></div>
+</div></section>
 
-<div class="card" id="casesCard" style="display:none"><h2>✅ 真实成功案例</h2>
-<p class="muted" id="casesSum" style="margin:0 0 6px;font-size:13.5px"></p>
-<div id="casesList"></div>
-<p class="muted" style="margin:8px 0 0;font-size:12.5px">每一条都是链上真实交易，点「链上查看」可以在 Anubis 区块浏览器核对。新的成功记录自动加入。机器人提高成功率但不保证每次都抢到。</p>
-</div>
+<section id="casesCard" style="display:none"><div class="band" style="padding:0 18px 0 0"><h2>真实战绩</h2></div><p id="casesSum"></p><div id="casesList"></div>
+<p class="dim small" style="text-align:center;padding-right:18px">← 左右滑动 · 每条都能点「链上查看」核对 · 不保证每次都抢到</p></section>
 
-<div class="card"><h2>怎么做到的</h2>
-<p style="margin:0">手点再快也有几秒误差，而额度第 1 个区块就没了。机器人的做法是：开放前你在钱包里点确认，签好的交易先交给我们的东京定时节点，节点卡准链上时间，在开放那一刻发出，落进第 1 个区块。</p>
-</div>
+<section class="band"><h2>怎么做到</h2><p class="lead">手点再快也有几秒误差，额度第 1 个区块就没了</p>
+<div class="how"><div>开放前 45 秒，钱包弹出，你点确认</div><div>签好的交易先交给东京定时节点</div><div>节点卡准链上时间，开放那一刻发出</div><div>落进第 1 个区块，抢到</div></div></section>
 
-<div class="card safe"><h2>🔒 安全</h2>
-<ul>
-<li><b>不要私钥、不要助记词</b>，资产始终在你自己的钱包里。</li>
-<li>每一笔都是你自己在钱包里点确认的，节点只能「按时发」或「不发」，改不了金额和收款人，动不了你的资产。</li>
-<li>不想用了，把钱包节点改回官方地址就彻底断开。</li>
-</ul>
-</div>
+<section class="band"><h2>安全</h2>
+<div class="safe"><ul><li><b>不要私钥、不要助记词</b>，资产始终在你自己的钱包里。</li><li>每一笔都是你自己点确认的，节点只能「按时发」或「不发」，改不了金额和收款人。</li><li>不想用了，钱包节点改回官方地址就彻底断开。</li></ul></div></section>
 
-<div class="card" id="buy">
-<div class="price"><span class="n">100</span><span class="u">USDT 或 DAI · 一次性买断</span></div>
-<div id="opened" class="opened" style="display:none"></div>
-<p class="muted" style="margin:4px 0 10px;font-size:13.5px">下单 → 按页面给的精确金额转账 → 到账自动开通，页面马上显示两个抢币链接。不用连接钱包。</p>
-<label class="muted" style="font-size:13.5px">① 你抢币要用的钱包地址（Anubis 链上的钱包）</label>
+<section class="band" id="buy"><h2>立即开通</h2>
+<div class="price"><div class="n">100</div><div class="u">USDT 或 DAI · 一次性买断</div><div id="opened" style="display:none"></div></div>
+<div style="margin-top:16px"><label class="dim small">① 你抢币要用的钱包地址（Anubis 链上的钱包）</label>
 <input id="wIn" placeholder="0x…" autocomplete="off" spellcheck="false">
-<label class="muted" style="font-size:13.5px;margin-top:8px">② 选付款方式下单</label>
+<label class="dim small" style="margin-top:8px">② 选付款方式下单</label>
 <div class="paym">
 <button class="btn" data-tk="PUSDT"><b>Polygon 链 USDT</b><small>交易所可直接提币</small></button>
-<button class="btn" data-tk="USDT"><b>Anubis 链 USDT</b><small>钱包转账</small></button>
-<button class="btn" data-tk="DAI"><b>Anubis 链 DAI</b><small>钱包转账</small></button>
+<button class="btn alt" data-tk="USDT"><b>Anubis 链 USDT</b><small>钱包转账</small></button>
+<button class="btn alt" data-tk="DAI"><b>Anubis 链 DAI</b><small>钱包转账</small></button>
 </div>
 <details style="margin-top:10px"><summary>已经付过款？输入订单号找回链接</summary>
-  <input id="oidIn" placeholder="订单号（付款成功页上显示的）" autocomplete="off"><button class="btn ghost full" id="btnCheck">找回</button></details>
-<div id="msg"></div>
+<input id="oidIn" placeholder="订单号（付款成功页上显示的）" autocomplete="off"><button class="btn ghost full" id="btnCheck">找回</button></details>
+<div id="msg"></div></div></section>
+<div class="cta"><a href="#buy">立即开通 · 100 U</a></div>
 </div>
-</div>
-
 <div id="orderWrap" style="display:none">
-<h1>请转账 <span class="badge" id="oSt">等待到账</span></h1>
-<div class="card">
-<p class="muted" style="margin:0">在 <b id="oChain1" class="warn"></b> 上转账 <b id="oTk1"></b>，金额必须<b class="warn">一分不差</b>，系统靠这个金额自动识别是你的订单：</p>
-<div class="amt"><span id="oAmt"></span> <span id="oTk2"></span><button class="btn ghost sm" id="cpAmt">复制金额</button></div>
-<p class="muted" style="margin:10px 0 4px">收款地址：</p>
+<div class="box"><div class="ht">请转账 <span class="pill" id="oSt">等待到账</span></div>
+<p class="dim">在 <b id="oChain1" class="hl"></b> 上转账 <b id="oTk1"></b>，金额必须<b class="hl">一分不差</b>，系统靠这个金额自动识别你的订单：</p>
+<div class="amt"><span id="oAmt"></span> <span id="oTk2"></span> <button class="btn ghost sm" id="cpAmt">复制金额</button></div>
+<p class="dim" style="margin:10px 0 4px">收款地址：</p>
 <div class="copyrow"><code id="oRecv"></code><button class="btn" id="cpRecv">复制</button></div>
 <div id="qr" class="qr"></div>
-<ul class="muted" style="font-size:13.5px">
-<li id="oHow"></li>
-<li>币种：<b id="oTk3"></b>（<span id="oChain2"></span>，合约 <span class="addr" id="oTkAddr"></span>）。<b>转错链、转错币种无法自动识别。</b></li>
-<li>订单 <span id="oLeft"></span> 内有效。转完别关页面，到账后这里自动显示链接（一般 10~30 秒）。</li>
-<li>开通的抢币钱包：<span class="addr" id="oW"></span></li>
-</ul>
-<div id="omsg" class="warn" style="font-size:14px"></div>
-<button class="btn ghost full" id="btnCancel" style="margin-top:8px">换个币种 / 重新下单</button>
-</div>
-</div>
+<ul class="dim small"><li id="oHow"></li>
+<li>币种：<b id="oTk3"></b>（<span id="oChain2"></span>，合约 <span class="mono" id="oTkAddr"></span>）。<b>转错链、转错币种无法自动识别。</b></li>
+<li>订单 <span id="oLeft"></span> 内有效。转完别关页面，到账后自动显示链接（一般 10~30 秒）。</li>
+<li>开通的抢币钱包：<span class="mono" id="oW"></span></li></ul>
+<div id="omsg" class="hl small"></div>
+<button class="btn ghost full" id="btnCancel" style="margin-top:10px">换个币种 / 重新下单</button></div></div>
 
 <div id="vipWrap" style="display:none">
-<h1>开通成功 <span class="badge">已开通</span></h1>
-<p class="sub addr" id="vipWho"></p>
-<div class="card" style="border-color:#5a4a2a"><b>订单号：<span id="vipOid" class="addr" style="color:var(--gold);font-size:15px"></span></b><br><span class="muted" style="font-size:13px">请截图保存。换手机或清了浏览器数据，用订单号就能找回链接。</span></div>
+<div class="ht" style="margin:6px 0 4px">开通成功 <span class="pill">已开通</span></div>
+<p class="dim mono" id="vipWho"></p>
+<div class="box"><b>订单号：<span id="vipOid" class="mono hl"></span></b><br><span class="dim small">请截图保存，换手机或清了数据用订单号找回链接。</span></div>
 <div id="vip"></div>
 <button class="btn ghost full" id="btnOut">返回</button>
 </div>
 
-<div class="card kf">
-<h2>客服微信</h2>
-<img src="/assets/wechat-qr.png" alt="客服微信二维码" loading="lazy">
-<p class="muted" style="margin:6px 0 0;font-size:13.5px">付款遇到问题、到账没开通、要加钱包，扫码加客服微信。<br>手机上可以长按二维码识别，或截图后用微信扫一扫。</p>
-</div>
-
+<div class="box kf"><div class="ht">客服微信</div>
+<img src="/assets/wechat-qr.png" alt="客服微信二维码">
+<p class="dim small">付款遇到问题、到账没开通、要加钱包，扫码加客服微信。手机上可以长按二维码识别。</p></div>
 <script defer src="/assets/qrcode.min.js"></script>
 <script>
 (function(){
@@ -221,5 +193,6 @@ var oid=LS('vip_paid')||LS('vip_order');
 if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.status==='paid') showVip(j.content,j.wallet,j.id); else if(j.status==='open') showOrder(j); else { LS('vip_order',null); LS('vip_paid',null); } }).catch(function(){}); }
 })();
 </script>
+<script>(function(){fetch("https://zjgame.web3origin.com/bondrpc/vip/cases",{cache:"no-store"}).then(function(r){return r.json();}).then(function(c){if(!c||!c.total)return;var f=function(n){return Number(n).toLocaleString("zh-CN",{maximumFractionDigits:0});};var g=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v;};g("s1",c.total+" 次");g("s2",f(c.lgns));g("s3",c.first+" 次");}).catch(function(){});})();</script>
 </body>
 </html>
