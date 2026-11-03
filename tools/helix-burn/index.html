@@ -148,21 +148,36 @@ async function loadWallet(){
   return eligible;
 }
 
-function pickProvider(){
+function allProviders(){
   const w=window; const cands=[];
   if(w.ethereum){ if(Array.isArray(w.ethereum.providers)) cands.push(...w.ethereum.providers); cands.push(w.ethereum); }
   if(w.bitkeep&&w.bitkeep.ethereum) cands.push(w.bitkeep.ethereum);
   if(w.okxwallet) cands.push(w.okxwallet);
   if(w.tokenpocket&&w.tokenpocket.ethereum) cands.push(w.tokenpocket.ethereum);
   const uniq=[...new Set(cands.filter(p=>p&&typeof p.request==='function'))];
-  return uniq.find(p=>p.isBitKeep||p.isOkxWallet||p.isOKExWallet||p.isTokenPocket||p.isImToken)||uniq[0]||null;
+  // 多个注入时优先用真正的钱包 App 自己的 provider
+  const best=uniq.find(p=>p.isBitKeep||p.isOkxWallet||p.isOKExWallet||p.isTokenPocket||p.isImToken);
+  return best?[best,...uniq.filter(p=>p!==best)]:uniq;
+}
+function pickProvider(){ return allProviders()[0]||null; }
+const provName=p=>p.isBitKeep?'Bitget':(p.isOkxWallet||p.isOKExWallet)?'OKX':p.isTokenPocket?'TokenPocket':p.isImToken?'imToken':p.isMetaMask?'MetaMask式':'未知';
+const withTO=(pr,ms,tag)=>Promise.race([pr,new Promise((_,rej)=>setTimeout(()=>rej(Object.assign(new Error(tag+'：钱包 '+Math.round(ms/1000)+' 秒没回应'),{code:'TIMEOUT'})),ms))]);
+async function askAccounts(){ // 钱包没回应就换下一个注入接口再试,最后试 eth_accounts
+  const list=allProviders(); let lastErr=null;
+  log('正在连接钱包…（检测到 '+(list.map(provName).join(' / ')||'无')+'，如钱包弹出授权请点「连接/确认」）');
+  for(const p of list){
+    try{ const a=await withTO(p.request({method:'eth_requestAccounts'}),15000,'请求连接('+provName(p)+')'); if(a&&a[0]){ eth=p; return a; } }
+    catch(e){ if(isReject(e)) throw e; lastErr=e; log((e.message||String(e)).slice(0,120)+(list.length>1?'，换下一个接口再试':''),'warn'); }
+  }
+  for(const p of list){ try{ const a=await withTO(p.request({method:'eth_accounts'}),5000,'读取地址'); if(a&&a[0]){ eth=p; return a; } }catch(e){ lastErr=e; } }
+  throw new Error('钱包一直没给地址（'+((lastErr&&lastErr.message)||'无回应')+'）。请：① 钱包里先切到 Anubis 网络；② 关掉这个页面，在钱包「发现」里重新打开；③ 仍不行把日志截图发客服');
 }
 async function connect(){
   eth=pickProvider(); if(!eth){log('没检测到钱包：请用 OKX / Bitget / TokenPocket / imToken 等钱包 App 的内置浏览器打开本页','bad');return;}
   try{
-    const accs=await eth.request({method:'eth_requestAccounts'}); me=accs[0]; $('addr').textContent=me.slice(0,8)+'…'+me.slice(-6);
-    let cid=parseInt(await eth.request({method:'eth_chainId'}),16);
-    if(cid!==CHAIN_ID){ const chainParam={chainId:CHAIN_HEX,chainName:'Anubis',rpcUrls:[RPC],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:['https://browser.anubispace.org']}; try{ await eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_HEX}]}); }catch(e1){ if(isReject(e1)) throw e1; log('切链被钱包拒绝（'+(e1&&e1.code)+' '+String(e1&&e1.message||e1).slice(0,80)+'），改为请求添加 Anubis 链','warn'); try{ await eth.request({method:'wallet_addEthereumChain',params:[chainParam]}); }catch(e2){ if(isReject(e2)) throw e2; log('添加链也失败（'+(e2&&e2.code)+' '+String(e2&&e2.message||e2).slice(0,80)+'）。请在钱包里手动添加网络：名称 Anubis，Chain ID 6714，RPC '+RPC+'，代币符号 DAI，浏览器 https://browser.anubispace.org，然后切到该网络再回来','bad'); } } try{ cid=parseInt(await eth.request({method:'eth_chainId'}),16); }catch(e){} }
+    const accs=await askAccounts(); me=accs[0]; $('addr').textContent=me.slice(0,8)+'…'+me.slice(-6);
+    let cid=parseInt(await withTO(eth.request({method:'eth_chainId'}),10000,'读取当前网络'),16);
+    if(cid!==CHAIN_ID){ const chainParam={chainId:CHAIN_HEX,chainName:'Anubis',rpcUrls:[RPC],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:['https://browser.anubispace.org']}; try{ await withTO(eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_HEX}]}),20000,'切换到 Anubis 网络'); }catch(e1){ if(isReject(e1)) throw e1; log('切链被钱包拒绝（'+(e1&&e1.code)+' '+String(e1&&e1.message||e1).slice(0,80)+'），改为请求添加 Anubis 链','warn'); try{ await withTO(eth.request({method:'wallet_addEthereumChain',params:[chainParam]}),25000,'添加 Anubis 网络'); }catch(e2){ if(isReject(e2)) throw e2; log('添加链也失败（'+(e2&&e2.code)+' '+String(e2&&e2.message||e2).slice(0,80)+'）。请在钱包里手动添加网络：名称 Anubis，Chain ID 6714，RPC '+RPC+'，代币符号 DAI，浏览器 https://browser.anubispace.org，然后切到该网络再回来','bad'); } } try{ cid=parseInt(await eth.request({method:'eth_chainId'}),16); }catch(e){} }
     $('chain').innerHTML=cid===CHAIN_ID?'<span class="ok">Anubis (6714) ✓</span>':'<span class="bad">链不对：'+cid+'，请在钱包切到 Anubis</span>';
     eth.on&&eth.on('accountsChanged',()=>location.reload()); eth.on&&eth.on('chainChanged',()=>location.reload());
     log('已连接 '+me); keepAwake(); relayRender(); await loadState();
