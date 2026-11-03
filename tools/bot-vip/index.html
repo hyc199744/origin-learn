@@ -53,6 +53,7 @@ label{display:block;margin-top:6px}
 .paym{display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px}.paym .btn{display:flex;justify-content:space-between;align-items:center;text-align:left}.paym .btn small{font-weight:400;opacity:.85;font-size:12.5px}
 .paym .btn:nth-child(n+2){background:#1f2a24;color:var(--text)}
 .kf{text-align:center}.kf img{width:200px;max-width:70%;border-radius:12px;background:#fff;display:block;margin:4px auto 0}
+.opened{display:inline-block;margin:6px 0 2px;background:#2b2418;color:var(--gold);border-radius:20px;padding:3px 12px;font-size:13.5px}.opened b{font-size:15px}
 </style>
 </head>
 <body>
@@ -87,6 +88,7 @@ label{display:block;margin-top:6px}
 
 <div class="card" id="buy">
 <div class="price"><span class="n">100</span><span class="u">USDT 或 DAI · 一次性买断</span></div>
+<div id="opened" class="opened" style="display:none"></div>
 <p class="muted" style="margin:4px 0 10px;font-size:13.5px">下单 → 按页面给的精确金额转账 → 到账自动开通，页面马上显示两个抢币链接。不用连接钱包。</p>
 <label class="muted" style="font-size:13.5px">① 你抢币要用的钱包地址（Anubis 链上的钱包）</label>
 <input id="wIn" placeholder="0x…" autocomplete="off" spellcheck="false">
@@ -144,6 +146,7 @@ var $=function(id){return document.getElementById(id);};
 var LS=function(k,v){try{if(v===undefined)return localStorage.getItem(k); if(v===null)localStorage.removeItem(k); else localStorage.setItem(k,v);}catch(e){return null;}};
 function w3oHit(e){ try{ var v=localStorage.getItem('w3o_vid'); if(!v){ v=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('w3o_vid',v); } fetch('https://zjgame.web3origin.com/bondrpc/vip/hit',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify({e:e,v:v}),keepalive:true}).catch(function(){}); }catch(err){} }
 var timer=null, cur=null; w3oHit('view');
+fetch(API,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.opened>0){ var el=$('opened'); el.innerHTML='🔥 已有 <b>'+j.opened+'</b> 人开通'; el.style.display=''; } }).catch(function(){});
 function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t||''; }
 function view(v){ $('pub').style.display=v==='pub'?'':'none'; $('orderWrap').style.display=v==='order'?'':'none'; $('vipWrap').style.display=v==='vip'?'':'none'; window.scrollTo(0,0); }
 function copy(t,b){ var done=function(){ if(b){ var o=b.textContent; b.textContent='已复制 ✓'; setTimeout(function(){b.textContent=o;},1800);} };
