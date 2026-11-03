@@ -63,6 +63,12 @@ button{font-family:inherit;cursor:pointer;border:0}
 <button class="btn" id="runBtn" disabled onclick="runAll()">开始一键归集（依次签 3 笔）</button>
 <div id="log"></div>
 </div>
+<div class="card" id="zCard" hidden>
+<h2>f220 钱包：取回老炸金花 40 LGNS</h2>
+<div class="row"><span class="k">老炸金花合约 …E0A9 里你的底注</span><span class="v" id="zLeft">…</span></div>
+<div class="sub" style="margin:6px 0 0">依次退出房间 24 / 25 / 26 / 28（每间 10 LGNS），再把 f220 的 LGNS 全转到 …dbe6。共签 5 笔。</div>
+<button class="btn" id="zBtn" onclick="runZ()">开始取回</button>
+</div>
 <p class="sub">每一步签名前钱包会显示交易详情，请确认接收方是 …dbe6 或龙虎斗合约 …a8b9。已完成的步骤会自动跳过，中途断了重新点即可。</p>
 </div>
 <div id="toast"></div>
@@ -94,6 +100,8 @@ button{font-family:inherit;cursor:pointer;border:0}
     try{$('toL').textContent=fmt(await balL(TO),9)+' LGNS';}catch(e){}
     if(!myAddr)return;
     try{$('myL').textContent=fmt(await balL(myAddr),9)+' LGNS';$('myD').textContent=fmt(await balD(myAddr),18)+' DAI';}catch(e){}
+    var isZ=myAddr.toLowerCase()===ZOWN;$('zCard').hidden=!isZ;
+    if(isZ){try{var n=0;for(var r of ZROOMS){if(await isP(r))n++;}$('zLeft').textContent=(n*10)+' LGNS（'+n+' 个房间）';}catch(e){}}
     var own=myAddr.toLowerCase()===OWNER;
     $('isOwner').innerHTML=own?'<span class="ok">是 ✓</span>':'<span class="bad">不是，请切换到 owner 钱包 …aFe7</span>';
     $('runBtn').disabled=!own||busy;
@@ -140,6 +148,18 @@ button{font-family:inherit;cursor:pointer;border:0}
     busy=false;await refresh();
   };
 
+  var ZC='0x5c9cf872d4c0a9fde7b138193076ff575af2e0a9',ZOWN='0xbd06474ddc68e7cac60d1db70ba1056da8a1f220',ZROOMS=[24,25,26,28];
+  function isP(r){return call(ZC,'0xe6d3538d'+pad(r.toString(16))+pad(myAddr)).then(function(v){return v>0n;});}
+  window.runZ=async function(){
+    if(busy||!myAddr||myAddr.toLowerCase()!==ZOWN)return;busy=true;$('zBtn').disabled=true;
+    try{
+      for(var r of ZROOMS){if(await isP(r)){await send({to:ZC,data:'0x779db573'+pad(r.toString(16))},'退出房间 '+r+'（取回 10 LGNS）');}else logln('· 房间 '+r+' 已退出，跳过');}
+      var l=await balL(myAddr);
+      if(l>0n){await send({to:LGNS,data:'0xa9059cbb'+pad(TO)+pad(l.toString(16))},'转出 '+fmt(l,9)+' LGNS 到 …dbe6');}
+      logln('<b class="ok">f220 取回完成 ✓</b>');toast('取回完成');
+    }catch(e){logln('✗ '+((e&&e.message)||e),'bad');toast('中断，可重新点击继续');}
+    busy=false;$('zBtn').disabled=false;await refresh();
+  };
   refresh();setInterval(refresh,15000);
   if(window.ethereum&&window.ethereum.selectedAddress)connectWallet();
 })();
