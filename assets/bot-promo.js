@@ -10,12 +10,12 @@
   var T=en?{
     t:"🤖 Origin Claim Bot is live",
     b:"LGNS burn bonds, fixed-price bonds and Helix AI burns sell out within 1–3 seconds of opening. The bot sends your signed claim at the exact opening moment so it lands in the first block.",
-    l:["No private key or seed phrase — your assets never leave your wallet","Covers: LGNS burn bond · fixed-price burn bond · Helix AI burn","100 DAI or USDT, one-time payment"],
+    l:["No private key or seed phrase — your assets never leave your wallet","Covers: LGNS burn bond · fixed-price burn bond · Helix AI burn","50 USDT or DAI, one-time payment"],
     go:"Take a look",no:"Don't show again"
   }:{
     t:"🤖 起源抢币机器人上线了",
     b:"LGNS 销毁债券、固定价债券、Helix AI 销毁，开放后 1~3 秒就被抢光。机器人在开放那一刻替你准时发出，抢进第 1 个区块。",
-    l:["不要私钥、不要助记词，资产始终在你自己钱包里","可抢：LGNS 销毁债券 · 固定价销毁债券 · Helix AI 销毁","100 DAI 或 USDT，一次性买断"],
+    l:["不要私钥、不要助记词，资产始终在你自己钱包里","可抢：LGNS 销毁债券 · 固定价销毁债券 · Helix AI 销毁","50 USDT 或 DAI，一次性买断"],
     go:"去看看",no:"不再提示"
   };
   function w3oHit(e){ try{ var v=localStorage.getItem('w3o_vid'); if(!v){ v=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('w3o_vid',v); } fetch('https://zjgame.web3origin.com/bondrpc/vip/hit',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify({e:e,v:v}),keepalive:true}).catch(function(){}); }catch(err){} }
