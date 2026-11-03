@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4f6f5"><meta name="robots" content="noindex">
+<title>起源抢币机器人</title>
+<meta name="description" content="Anubis 链销毁债券 / 固定价债券 / Helix AI 销毁准点抢领机器人。不要私钥，整点准时帮你发。">
+<style>
+:root{--bg:#f4f6f5;--card:#ffffff;--text:#16211b;--text2:#3c4a42;--muted:#738279;--line:#e3e9e5;--bw:1px;
+--link:#14905a;--gold:#14905a;--ok:#14905a;--warn:#b7791f;--bad:#d14343;--r:20px;--r-sm:14px;
+--font:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;--head:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;--num:-apple-system,"SF Pro Display","PingFang SC",sans-serif;
+--lg-bg:#e3f5ec;--ti-bg:#eef7f2;--tag-bg:#e3f5ec;--lock-bg:#fff4e0;--acc-line:#9fd8bb;--gold-line:#f0d9a8;--safe-line:#cfe9dc;--safe-bg:#f3fbf7;
+--btn-bg:#14905a;--btn-c:#fff;--btn-shadow:0 6px 16px rgba(20,144,90,.25);--ghost-bg:#f1f4f2;--field:#f7f9f8;--shadow:0 2px 12px rgba(20,40,30,.06)}
+.tag.lock,.opened{color:#b7791f}
+h1{font-size:28px;font-weight:800;letter-spacing:-.3px}
+.price .n,.amt{color:#16211b}
+.sec{color:#16211b;font-size:17px;font-weight:800}
+.kf img,.qr img,.qr canvas{box-shadow:0 0 0 1px #e3e9e5}
+.case .cr b.ok{color:#14905a}
+body::before{content:"";position:absolute;left:0;right:0;top:0;height:220px;background:linear-gradient(180deg,#e3f5ec,transparent);z-index:0;pointer-events:none}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.7 var(--font);padding:calc(14px + env(safe-area-inset-top)) 16px 40px;max-width:680px;margin:0 auto;position:relative}
+a{color:var(--link)}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:6px;position:relative;z-index:1}.top b{font-family:var(--head)}.top a{margin-left:auto;font-size:13px;color:var(--muted);text-decoration:none}
+.lg{width:36px;height:36px;border-radius:var(--r-sm);background:var(--lg-bg);display:grid;place-items:center;font-size:20px}
+h1{font-family:var(--head);font-size:26px;margin:16px 0 6px;line-height:1.3;position:relative;z-index:1}.sub{color:var(--muted);margin:0 0 16px;position:relative;z-index:1}
+.sec{font-family:var(--head);font-size:15px;color:var(--muted);margin:20px 2px 10px;font-weight:600}
+.card,.tool,.vc{background:var(--card);border:var(--bw) solid var(--line);border-radius:var(--r);padding:15px 16px;margin-bottom:12px;position:relative;z-index:1;box-shadow:var(--shadow)}
+.card h2,.vc h2{font-family:var(--head);font-size:16px;margin:0 0 8px}
+.tool.open,.vc.links{border-color:var(--acc-line)}
+.tool p{margin:8px 0 0;font-size:14px;color:var(--text2)}
+.th{display:flex;align-items:center;gap:12px}.th>div{flex:1;min-width:0}.th b{display:block;font-size:16px;font-family:var(--head)}.th small{color:var(--muted);font-size:12.5px}
+.ti{width:44px;height:44px;border-radius:var(--r-sm);background:var(--ti-bg);display:grid;place-items:center;font-size:24px;flex:none}
+.tag{font-size:12px;padding:3px 9px;border-radius:20px;background:var(--tag-bg);color:var(--ok);white-space:nowrap}.tag.lock{background:var(--lock-bg);color:var(--gold)}
+.tl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 4px}
+.tool details,.vc details{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}details summary{cursor:pointer;color:var(--muted);font-size:13.5px}.tool details summary{font-weight:700;color:var(--text);font-size:14.5px}
+.price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.price .n{font-size:40px;font-weight:800;color:var(--gold);font-family:var(--num)}.price .u{color:var(--muted)}
+.opened{display:inline-block;margin:6px 0 2px;background:var(--lock-bg);color:var(--gold);border-radius:20px;padding:3px 12px;font-size:13.5px}.opened b{font-size:15px}
+.btn{display:inline-block;border:0;border-radius:var(--r-sm);padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer;color:var(--btn-c);background:var(--btn-bg);text-decoration:none;text-align:center;box-shadow:var(--btn-shadow)}
+.btn.ghost{background:var(--ghost-bg);color:var(--text);box-shadow:none;border:1px solid var(--line)}.btn:disabled{opacity:.45}.btn.full{width:100%}.btn.sm{padding:6px 10px;font-size:13px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.paym{display:grid;grid-template-columns:1fr;gap:8px;margin-top:4px}.paym .btn{display:flex;justify-content:space-between;align-items:center;text-align:left}.paym .btn small{font-weight:400;opacity:.85;font-size:12.5px}
+.paym .btn:nth-child(n+2){background:var(--ghost-bg);color:var(--text);box-shadow:none;border:1px solid var(--line)}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}.muted{color:var(--muted)}
+ul,ol{padding-left:20px;margin:6px 0}li{margin:4px 0}
+.safe,.vc.safe{border-color:var(--safe-line);background:var(--safe-bg)}
+.step{border-color:var(--gold-line)}
+#msg{min-height:22px;font-size:14px;margin-top:8px;white-space:pre-wrap}
+.addr{font-family:ui-monospace,Consolas,monospace;font-size:13px;color:var(--muted)}
+input{width:100%;background:var(--field);border:1px solid var(--line);color:var(--text);border-radius:var(--r-sm);padding:11px;font-size:14px;margin:6px 0}
+label{display:block;margin-top:6px}
+.copyrow{display:flex;gap:8px;align-items:center;margin:6px 0 10px}.copyrow code{flex:1;min-width:0;word-break:break-all;background:var(--field);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;font-size:13.5px}
+.linkrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.badge{display:inline-block;background:var(--tag-bg);color:var(--ok);border-radius:20px;padding:2px 10px;font-size:13px;vertical-align:4px}
+.amt{font-size:34px;font-weight:800;color:var(--gold);margin:8px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-variant-numeric:tabular-nums;font-family:var(--num)}
+.qr{display:flex;justify-content:center;margin:12px 0}.qr img,.qr canvas{background:#fff;padding:8px;border-radius:10px}
+.lk{border-top:1px solid var(--line);padding:10px 0 2px}.lk:first-of-type{border-top:0}.lk b{display:block}.lk small{color:var(--muted);font-size:12.5px}
+.case{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.case:first-child{border-top:0}.case .cl,.case .cr{display:flex;flex-direction:column;min-width:0}.case .cr{text-align:right;align-items:flex-end}.case small{color:var(--muted);font-size:12px}.case b{font-size:14.5px}.case .cr b{font-family:var(--num)}
+.mtag{font-size:11px;font-weight:600;padding:1px 6px;border-radius:10px;background:var(--ghost-bg);color:var(--muted);vertical-align:2px}.mtag.on{background:var(--tag-bg);color:var(--ok)}
+.kf{text-align:center}.kf img{width:200px;max-width:70%;border-radius:12px;background:#fff;display:block;margin:4px auto 0}
+.prod{display:flex;flex-direction:column;padding:8px 0;border-top:1px solid var(--line)}
+@media (max-width:420px){.btns,.linkrow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top"><div class="lg">🤖</div><b>起源抢币机器人</b><a href="/">← 首页</a></div>
+
+<div id="pub">
+<h1>整点准时，帮你抢进第 1 个区块</h1>
+<p class="sub">Anubis 链销毁债券、固定价债券、Helix AI 销毁，开放后 1~3 秒就被抢光。机器人在开放那一刻替你准时发出，不要私钥。</p>
+
+<h3 class="sec">付费后解锁 2 个抢币链接</h3>
+<div class="tool">
+<div class="th"><span class="ti">🔥</span><div><b>销毁债券抢领</b><small>LGNS 销毁债券 · 固定价销毁债券 · 每个整点</small></div><span class="tag lock">🔒 付费解锁</span></div>
+<p>每个整点每张债券释放 5 万 LGNS 额度，第 1 个区块（1 秒内）就被领完。开启后整点前 45 秒钱包弹出，点确认，机器人在整点那一刻准时发出。</p>
+</div>
+<div class="tool">
+<div class="th"><span class="ti">🤖</span><div><b>Helix AI 销毁抢占</b><small>烧 500 LGNS 换 2 倍算力 · 每天 11:59</small></div><span class="tag lock">🔒 付费解锁</span></div>
+<p>每天北京时间 11:59:00 开放，全网 400 份，约 3 秒抢光。11:58 点确认，机器人在开放那一刻准时发出。</p>
+</div>
+<p class="muted" style="font-size:13.5px;margin:-2px 2px 14px">解锁后每个链接里都有详细的使用方法：怎么设置节点、怎么检测、每次怎么抢。</p>
+
+<div class="card" id="casesCard" style="display:none"><h2>✅ 真实成功案例</h2>
+<p class="muted" id="casesSum" style="margin:0 0 6px;font-size:13.5px"></p>
+<div id="casesList"></div>
+<p class="muted" style="margin:8px 0 0;font-size:12.5px">每一条都是链上真实交易，点「链上查看」可以在 Anubis 区块浏览器核对。新的成功记录自动加入。机器人提高成功率但不保证每次都抢到。</p>
+</div>
+
+<div class="card"><h2>怎么做到的</h2>
+<p style="margin:0">手点再快也有几秒误差，而额度第 1 个区块就没了。机器人的做法是：开放前你在钱包里点确认，签好的交易先交给我们的东京定时节点，节点卡准链上时间，在开放那一刻发出，落进第 1 个区块。</p>
+</div>
+
+<div class="card safe"><h2>🔒 安全</h2>
+<ul>
+<li><b>不要私钥、不要助记词</b>，资产始终在你自己的钱包里。</li>
+<li>每一笔都是你自己在钱包里点确认的，节点只能「按时发」或「不发」，改不了金额和收款人，动不了你的资产。</li>
+<li>不想用了，把钱包节点改回官方地址就彻底断开。</li>
+</ul>
+</div>
+
+<div class="card" id="buy">
+<div class="price"><span class="n">100</span><span class="u">USDT 或 DAI · 一次性买断</span></div>
+<div id="opened" class="opened" style="display:none"></div>
+<p class="muted" style="margin:4px 0 10px;font-size:13.5px">下单 → 按页面给的精确金额转账 → 到账自动开通，页面马上显示两个抢币链接。不用连接钱包。</p>
+<label class="muted" style="font-size:13.5px">① 你抢币要用的钱包地址（Anubis 链上的钱包）</label>
+<input id="wIn" placeholder="0x…" autocomplete="off" spellcheck="false">
+<label class="muted" style="font-size:13.5px;margin-top:8px">② 选付款方式下单</label>
+<div class="paym">
+<button class="btn" data-tk="PUSDT"><b>Polygon 链 USDT</b><small>交易所可直接提币</small></button>
+<button class="btn" data-tk="USDT"><b>Anubis 链 USDT</b><small>钱包转账</small></button>
+<button class="btn" data-tk="DAI"><b>Anubis 链 DAI</b><small>钱包转账</small></button>
+</div>
+<details style="margin-top:10px"><summary>已经付过款？输入订单号找回链接</summary>
+  <input id="oidIn" placeholder="订单号（付款成功页上显示的）" autocomplete="off"><button class="btn ghost full" id="btnCheck">找回</button></details>
+<div id="msg"></div>
+</div>
+</div>
+
+<div id="orderWrap" style="display:none">
+<h1>请转账 <span class="badge" id="oSt">等待到账</span></h1>
+<div class="card">
+<p class="muted" style="margin:0">在 <b id="oChain1" class="warn"></b> 上转账 <b id="oTk1"></b>，金额必须<b class="warn">一分不差</b>，系统靠这个金额自动识别是你的订单：</p>
+<div class="amt"><span id="oAmt"></span> <span id="oTk2"></span><button class="btn ghost sm" id="cpAmt">复制金额</button></div>
+<p class="muted" style="margin:10px 0 4px">收款地址：</p>
+<div class="copyrow"><code id="oRecv"></code><button class="btn" id="cpRecv">复制</button></div>
+<div id="qr" class="qr"></div>
+<ul class="muted" style="font-size:13.5px">
+<li id="oHow"></li>
+<li>币种：<b id="oTk3"></b>（<span id="oChain2"></span>，合约 <span class="addr" id="oTkAddr"></span>）。<b>转错链、转错币种无法自动识别。</b></li>
+<li>订单 <span id="oLeft"></span> 内有效。转完别关页面，到账后这里自动显示链接（一般 10~30 秒）。</li>
+<li>开通的抢币钱包：<span class="addr" id="oW"></span></li>
+</ul>
+<div id="omsg" class="warn" style="font-size:14px"></div>
+<button class="btn ghost full" id="btnCancel" style="margin-top:8px">换个币种 / 重新下单</button>
+</div>
+</div>
+
+<div id="vipWrap" style="display:none">
+<h1>开通成功 <span class="badge">已开通</span></h1>
+<p class="sub addr" id="vipWho"></p>
+<div class="card" style="border-color:#5a4a2a"><b>订单号：<span id="vipOid" class="addr" style="color:var(--gold);font-size:15px"></span></b><br><span class="muted" style="font-size:13px">请截图保存。换手机或清了浏览器数据，用订单号就能找回链接。</span></div>
+<div id="vip"></div>
+<button class="btn ghost full" id="btnOut">返回</button>
+</div>
+
+<div class="card kf">
+<h2>客服微信</h2>
+<img src="/assets/wechat-qr.png" alt="客服微信二维码" loading="lazy">
+<p class="muted" style="margin:6px 0 0;font-size:13.5px">付款遇到问题、到账没开通、要加钱包，扫码加客服微信。<br>手机上可以长按二维码识别，或截图后用微信扫一扫。</p>
+</div>
+
+<script defer src="/assets/qrcode.min.js"></script>
+<script>
+(function(){
+"use strict";
+var API="https://zjgame.web3origin.com/bondrpc/vip";
+var $=function(id){return document.getElementById(id);};
+var LS=function(k,v){try{if(v===undefined)return localStorage.getItem(k); if(v===null)localStorage.removeItem(k); else localStorage.setItem(k,v);}catch(e){return null;}};
+function w3oHit(e){ try{ var v=localStorage.getItem('w3o_vid'); if(!v){ v=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('w3o_vid',v); } fetch('https://zjgame.web3origin.com/bondrpc/vip/hit',{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify({e:e,v:v}),keepalive:true}).catch(function(){}); }catch(err){} }
+var timer=null, cur=null; w3oHit('view');
+fetch(API+'/cases',{cache:'no-store'}).then(function(r){return r.json();}).then(function(c){ if(!c||!c.rows||!c.rows.length) return;
+  var f=function(n,d){ return Number(n).toLocaleString('zh-CN',{maximumFractionDigits:d==null?2:d}); };
+  var bjt=function(t){ var d=new Date((t+28800)*1000).toISOString(); return d.slice(5,10).replace('-','/')+' '+d.slice(11,16); };
+  $('casesSum').innerHTML='已成功 <b class="ok">'+c.total+'</b> 次：债券累计领到 <b>'+f(c.lgns,0)+'</b> LGNS'+(c.helix?'，Helix 抢到 <b>'+c.helix+'</b> 次':'')+'。其中走<b>机器人节点</b>的 '+c.relay+' 次，<b class="ok">'+c.relayFirst+' 次全部落在开放后第 1 个区块</b>。';
+  $('casesList').innerHTML=c.rows.slice(0,20).map(function(r){ return '<div class="case"><div class="cl"><b>'+r.product+' <span class="mtag'+(r.mode==='relay'?' on':'')+'">'+(r.mode==='relay'?'机器人节点':'抢领页')+'</span></b><small>'+bjt(r.t)+' · 钱包 '+r.wallet+'</small></div><div class="cr"><b class="ok">'+(r.helix?'500 LGNS → 1000 算力':'+'+f(r.amt)+' LGNS')+'</b><small>'+(r.off===0?'第 1 块 ✓':'开放后 '+r.off+' 秒')+' · <a href="https://browser.anubispace.org/tx/'+r.tx+'" target="_blank" rel="noopener">链上查看 ↗</a></small></div></div>'; }).join('');
+  $('casesCard').style.display=''; }).catch(function(){});
+fetch(API,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.opened>0){ var el=$('opened'); el.innerHTML='🔥 已有 <b>'+j.opened+'</b> 人开通'; el.style.display=''; } }).catch(function(){});
+function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t||''; }
+function view(v){ $('pub').style.display=v==='pub'?'':'none'; $('orderWrap').style.display=v==='order'?'':'none'; $('vipWrap').style.display=v==='vip'?'':'none'; window.scrollTo(0,0); }
+function copy(t,b){ var done=function(){ if(b){ var o=b.textContent; b.textContent='已复制 ✓'; setTimeout(function(){b.textContent=o;},1800);} };
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(done,function(){ var x=document.createElement('textarea'); x.value=t; document.body.appendChild(x); x.select(); try{document.execCommand('copy'); done();}catch(e){ prompt('长按复制',t);} x.remove(); }); }
+function showVip(html,w,oid){
+  clearInterval(timer); if(oid) LS('vip_paid',oid); LS('vip_order',null); if(w) LS('vip_wallet',w); $('vipOid').textContent=oid||'';
+  $('vip').innerHTML=html; $('vipWho').textContent=w?('抢币钱包 '+w):'';
+  document.querySelectorAll('#vip [data-copy]').forEach(function(b){ b.onclick=function(){ copy(b.getAttribute('data-copy'),b); }; });
+  view('vip');
+}
+function fmtLeft(s){ s=Math.max(0,s); var m=Math.floor(s/60); return m>=60?(Math.floor(m/60)+' 小时 '+(m%60)+' 分'):(m+' 分 '+(s%60)+' 秒'); }
+function showOrder(o){
+  cur=o; LS('vip_order',o.id);
+  var lb=o.label||o.token; $('oAmt').textContent=o.amount; ['oTk2','oTk3'].forEach(function(i){ $(i).textContent=lb; }); $('oTk1').textContent=o.amount+' '+lb;
+  $('oChain1').textContent=o.chainName||'Anubis 链'; $('oChain2').textContent=o.chainName||'Anubis 链';
+  $('oHow').innerHTML=o.chain==='polygon'?'币安、OKX 等交易所提币：网络选 <b>Polygon（MATIC / POL）</b>，提币地址填上面的收款地址。交易所会扣手续费，请把手续费加上，确保<b>到账</b>正好是这个数。也可以用钱包在 Polygon 链上转。':'交易所不支持 Anubis 链，请用 <b>OKX 等钱包</b>切到 Anubis 网络转账（DAI / USDT 都是代币转账，正常点「发送」即可）。';
+  $('oRecv').textContent=o.recv; $('oTkAddr').textContent=o.tokenAddr; $('oW').textContent=o.wallet;
+  $('qr').innerHTML=''; var mk=function(){ if(window.QRCode){ new QRCode($('qr'),{text:o.recv,width:180,height:180,colorDark:'#000',colorLight:'#fff'}); } else setTimeout(mk,300); }; mk();
+  view('order'); poll();
+  clearInterval(timer); timer=setInterval(poll,4000);
+}
+async function poll(){
+  if(!cur) return;
+  var left=cur.expires-Math.floor(Date.now()/1000); $('oLeft').textContent=fmtLeft(left);
+  try{ var r=await fetch(API+'?order='+encodeURIComponent(cur.id),{cache:'no-store'}); var j=await r.json();
+    if(j.status==='paid'){ $('oSt').textContent='已到账'; showVip(j.content,j.wallet,j.id); return; }
+    if(j.status==='expired'){ clearInterval(timer); $('oSt').textContent='已过期'; $('omsg').textContent='订单已过期。如果你已经转了账，请联系客服并提供交易哈希；没转就点下面重新下单。'; return; }
+    if(r.status===404){ clearInterval(timer); LS('vip_order',null); view('pub'); }
+  }catch(e){}
+}
+async function order(tk){
+  var w=$('wIn').value.trim().toLowerCase();
+  if(!/^0x[0-9a-f]{40}$/.test(w)) return msg('请先填写你抢币要用的钱包地址（0x 开头 42 位）','bad');
+  msg('正在下单…','warn');
+  try{ var r=await fetch(API+'/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({wallet:w,token:tk})}); var j=await r.json();
+    if(j.error) return msg(j.error,'bad');
+    msg(''); LS('vip_wallet',w); showOrder(j);
+  }catch(e){ msg('下单失败，网络问题，请重试','bad'); }
+}
+async function check(){
+  var id=$('oidIn').value.trim(); if(!id) return msg('请填写订单号','bad');
+  try{ var r=await fetch(API+'?order='+encodeURIComponent(id),{cache:'no-store'}); var j=await r.json();
+    if(j.status==='paid') showVip(j.content,j.wallet,j.id); else if(j.status==='open') showOrder(j); else msg(r.status===404?'没有这个订单号':'这个订单没有付款（已过期）','bad'); }catch(e){ msg('查询失败，请重试','bad'); }
+}
+document.querySelectorAll('[data-tk]').forEach(function(b){ b.onclick=function(){ order(b.getAttribute('data-tk')); }; });
+$('btnCheck').onclick=check;
+$('cpAmt').onclick=function(){ copy(cur.amount,$('cpAmt')); };
+$('cpRecv').onclick=function(){ copy(cur.recv,$('cpRecv')); };
+$('btnCancel').onclick=function(){ clearInterval(timer); LS('vip_order',null); cur=null; view('pub'); };
+$('btnOut').onclick=function(){ view('pub'); };
+var w0=LS('vip_wallet'); if(w0) $('wIn').value=w0;
+try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('vip_c_')===0) localStorage.removeItem(k); }); }catch(e){} // 清掉旧版缓存的链接
+var oid=LS('vip_paid')||LS('vip_order');
+if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.status==='paid') showVip(j.content,j.wallet,j.id); else if(j.status==='open') showOrder(j); else { LS('vip_order',null); LS('vip_paid',null); } }).catch(function(){}); }
+})();
+</script>
+</body>
+</html>
