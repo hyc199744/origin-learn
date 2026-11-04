@@ -76,7 +76,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-05 01:10 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-05 01:20 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -100,7 +100,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 <div class="row" style="border:0;padding:0 0 6px"><span>止损</span><span id="lossInfo" style="font-size:13px">—</span></div>
 <div class="note" style="font-size:12.5px;margin:-2px 0 6px">LGNS 债券整点第 1 块按出价排队，最近要 15 万～30 万 gwei 才排得上（抢到一次约 20～40 DAI）；固定价债券 1.5 万就够。OKX 会用它自己存的网络费，钱包弹出时请按上面「开抢前检查」里的数手动填。</div>
 <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><code id="relayUrl" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div>
-<div class="card"><h3>怎么用</h3><div class="note" style="color:var(--text);font-size:13.5px;line-height:1.75"><b>托管节点接通了：</b>连接钱包 → 开启自动领 → 整点前 45 秒弹钱包，直接点确认就完事。<br><b>没接通（手点）：</b>连接钱包 → 开启自动领 → 整点前 2 分钟弹一笔 0 元彩排（先别点，等长震+三声响再点确认）→ 整点前 8 秒弹正式那笔，同样等长震+三声响再点。没成下个整点自动再来。</div></div>
+<div class="card"><h3>怎么用</h3><div class="note" style="color:var(--text);font-size:13.5px;line-height:1.75"><b>托管节点接通了：</b>连接钱包 → 开启自动领 → 整点前 45 秒弹钱包，直接点确认就完事。<br><b>没接通：</b>先点上面「托管节点设置」里的「检测」。</div></div>
 <div class="card"><h3>现在怎么样</h3><div id="easy"><div class="ez first"><i>👇</i><div><b>还没开始</b><span>先点下面「连接钱包」，再点绿色的「开启自动领」</span></div></div></div><details class="raw"><summary>详细日志（给技术看 · 出问题时展开截图发客服）</summary><div id="log"></div><button class="btn sec" id="btnLogCopy" style="margin-top:8px;padding:8px 12px;font-size:13px">复制日志</button></details></div>
 <div class="dock"><button class="btn sec" id="btnConnect">连接钱包</button><button class="btn" id="btnArm" disabled>开启自动领</button><button class="btn stop" id="btnStop">停</button></div>
 
