@@ -76,7 +76,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-05 00:10 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-05 00:40 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -564,7 +564,7 @@ async function watch(){
       // 机会性:本小时额度还够、国库也够 → 模拟通过就直接领(大户没领满时会出现)
       const since=now-(H-WINDOW); if(rem>=need&&st.pool>=need&&left>8&&since>10){ const why=await simulate(p.data); if(!why){ log('额度还剩 '+f9(rem)+'，够领 '+p.label+'，模拟通过，立刻领','ok'); await handleResult(await doAttempt(0),''); await sleep(2000); continue; } }
       const L=lead();
-      $('armState').innerHTML='<span class="ok">守候中</span>，'+(left>60?'等下个整点':'整点倒计时 '+left.toFixed(1)+' 秒')+(autoSend()?'，整点后 '+(0.06+Number(LS('bc_lkAdj')||0)).toFixed(2)+' 秒'+(localActive()?'本地签名':traderActive()?'钱包免确认':'用钱包预签的交易')+'自动直发':(L?(isCue()?'，整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'，整点前 '+L.toFixed(1)+' 秒弹钱包'):'，整点后模拟通过弹钱包'));
+      $('armState').innerHTML='<span class="ok">守候中</span>，'+(left>60?'等下个整点':'整点倒计时 '+left.toFixed(1)+' 秒')+(relayOn()?'，托管节点模式：整点前 45 秒弹钱包，弹出直接点确认':autoSend()?'，整点后 '+(0.06+Number(LS('bc_lkAdj')||0)).toFixed(2)+' 秒'+(localActive()?'本地签名':traderActive()?'钱包免确认':'用钱包预签的交易')+'自动直发':(L?(isCue()?'，整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'，整点前 '+L.toFixed(1)+' 秒弹钱包'):'，整点后模拟通过弹钱包'));
       if(st.pool<need&&left<=20&&now-lastCapLog>60){ lastCapLog=now; log('注意：国库只有 '+f9(st.pool)+'，不够领 '+f9(need)+'，这波大概率白发','warn'); }
       await sleep(left<=40?500:2000);
     }
