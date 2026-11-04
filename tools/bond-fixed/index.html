@@ -61,7 +61,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>固定价销毁债券抢领</b><small>专用页 · 基于 11-04 13:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>固定价销毁债券抢领</b><small>独立页 · 基于 11-04 13:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -73,7 +73,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 <div id="fillTip" class="hidden"></div>
 <div class="banner"><div class="st" id="armState">未开启</div><div class="hint" id="hint">先点底下"连接钱包"</div><div class="row" style="margin-top:6px;border:0;padding:4px 0 0"><span>结论</span><span id="verdict">—</span></div><div class="row" style="border:0;padding:2px 0 0"><span>额度状态</span><span id="capState">—</span></div></div>
 <div class="set">
-  <label class="hidden">抢哪张债券 <select id="bond"><option value="lgns">LGNS 销毁债券</option><option value="fixed" selected>固定价销毁债券</option></select></label><div style="font-size:14px;padding:4px 0 8px">本页只抢 <b>固定价销毁债券</b>（1 LGNS=1 DAI·200%），出价固定 15000 gwei。LGNS 销毁债券请用 <a href="./" style="color:#e0b25a">原抢领页</a>。</div>
+  <label class="hidden">抢哪张债券 <select id="bond"><option value="lgns">LGNS 销毁债券</option><option value="fixed" selected>固定价销毁债券</option></select></label><div style="font-size:14px;padding:4px 0 8px">本页只抢 <b>固定价销毁债券</b>（出价固定 15000 gwei）。LGNS 销毁债券请用 <a style="color:#e0b25a" href="/tools/bond-lgns/">LGNS 销毁债券抢领页</a>。</div>
   <label>领取方式 <select id="mode"><option value="split" selected>拆单：单独领最大的几笔（托管节点用，最容易挤进去）</option><option value="all">整笔全领（claimAll）</option><option value="max">只领最大的一笔</option></select></label>
   <label>整点前彩排 <select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></label>
 </div>
@@ -143,7 +143,7 @@ const DRILL=/[?&]drill=1/.test(location.search)&&/^(127\.0\.0\.1|localhost)$/.te
 const RPC=DRILL?'http://127.0.0.1:8545/':'https://rpc.anubispace.org', CHAIN_ID=6714, CHAIN_HEX='0x1a3a';
 const BONDS={lgns:{addr:'0x11b10c9827c5b7071e96fcaa143b4e6e86b17c69',name:'LGNS 销毁债券'},fixed:{addr:'0x3f403751975e1EB06d95901f7FF246513444E71F',name:'固定价销毁债券'}};
 const A={LGNS:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',BOND:BONDS.lgns.addr,TREASURY:'0x9D46CB414E76237d3b83E2a1630481038368f217'};
-function setBond(k,why){ A.BOND=BONDS.fixed.addr; $('bond').value='fixed'; if(k!=='fixed'&&why) log('这个钱包没有固定价销毁债券，本页只抢固定价。LGNS 销毁债券请打开原抢领页 /tools/bond-claim/','bad'); } /* 固定价专用页:锁死固定价,不写 bc_bond,不影响原页 */
+function setBond(k,why){ A.BOND=BONDS.fixed.addr; $('bond').value='fixed'; if(k!=='fixed'&&why) log('这个钱包没有固定价销毁债券，本页只抢固定价销毁债券。LGNS 销毁债券请打开 /tools/bond-lgns/','bad'); } /* 独立页:锁死债券,不写 bc_bond */
 // 选择器:新实现 0x8af6b336(10-29 09:58 升级)多了 cap(每窗口上限 5 万)/used(本窗口已领)/win(窗口长度 3600 秒)
 const SEL={claimAll:'0xd1058e59',claim:'0x379607f5',getTotalClaimable:'0x267e8ab6',getClaimable:'0x6f5244b1',getUserDepositCount:'0x1bae91a4',balanceOf:'0x70a08231',cap:'0x440f3da3',used:'0xa07fa7a1',win:'0xb5fb0640'};
 const $=id=>document.getElementById(id);
@@ -317,7 +317,7 @@ const presignMode=()=>$('lkUse').value==='presign';
 const traderMode=()=>$('lkUse').value==='trader';
 const traderActive=()=>traderMode()&&!!eth&&!!me;
 const autoSend=()=>localActive()||traderActive()||(presignMode()&&!!eth&&!!me); // 到点由页面直发(本地签名 or 钱包预签)
-function loadEthers(){ if(window.ethers) return Promise.resolve(window.ethers); return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src='ethers.umd.min.js?v=6.17'; sc.onload=()=>res(window.ethers); sc.onerror=()=>rej(new Error('签名库加载失败，刷新重试')); document.head.appendChild(sc); }); }
+function loadEthers(){ if(window.ethers) return Promise.resolve(window.ethers); return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src='/tools/bond-claim/ethers.umd.min.js?v=6.17'; sc.onload=()=>res(window.ethers); sc.onerror=()=>rej(new Error('签名库加载失败，刷新重试')); document.head.appendChild(sc); }); }
 const TE=new TextEncoder(), TD=new TextDecoder();
 async function kdf(pwd,salt){ const base=await crypto.subtle.importKey('raw',TE.encode(pwd),'PBKDF2',false,['deriveKey']); return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']); }
 const b64=u=>btoa(String.fromCharCode.apply(null,new Uint8Array(u))), ub64=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
@@ -597,7 +597,7 @@ let chkWarned=0;
 function chkRender(){ const el=$('chkList'); if(!el) return;
   const b=recBid(), lim=recLimit(), needDai=b*lim/1e9, have=me?Number(st.gas)/1e18:null, lgns=$('bond').value==='lgns';
   const okBond=!!me&&st.eligible&&st.claimable>0n;
-  const bondWhy=!me?'连接后自动检查':(!st.cnt?'这个钱包在这张债券里没有存款：本页只抢固定价，请换有固定价债券的钱包':(st.claimable<=0n?'暂时没有可领的，等下次释放（每天两次记账）':'gas 不够，先往钱包转点 DAI'));
+  const bondWhy=!me?'连接后自动检查':(!st.cnt?'这个钱包在这张债券里没有存款：本页只抢固定价销毁债券，请换钱包或打开LGNS 销毁债券抢领页':(st.claimable<=0n?'暂时没有可领的，等下次释放（每天两次记账）':'gas 不够，先往钱包转点 DAI'));
   const rows=[
     [!!me, '钱包已连接', '先点下面「连接钱包」'],
     [okBond, '有可领的（'+f9(st.claimable)+' LGNS）', bondWhy],
