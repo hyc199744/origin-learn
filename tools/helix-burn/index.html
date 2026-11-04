@@ -73,13 +73,13 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
   <div class="row"><span>托管节点</span><span id="relayState">先连接钱包</span></div>
   <div class="row" style="border:0;flex-wrap:wrap;gap:8px"><span style="font-size:12.5px;flex:1 1 160px;min-width:0;word-break:break-all">钱包 RPC 要改成 https://zjgame.web3origin.com/bondrpc</span><button class="btn ghost" id="btnRelay" style="flex:0 0 auto;width:auto;padding:8px 14px;margin:0">检测节点和 Gas</button></div>
   <div class="row"><span>钱包 Gas 上限</span><span id="gasTest">没测过</span></div>
-  <div class="row" style="flex-wrap:wrap;gap:8px"><span style="font-size:12.5px;flex:1 1 160px;min-width:0;color:var(--muted)">预演：弹一笔真的「烧 500 LGNS」，看钱包里 Gas 上限是不是 45 万。还没开放，节点不会发，不扣钱</span><button class="btn ghost" id="btnRehearse" style="flex:0 0 auto;width:auto;padding:8px 14px;margin:0">预演一次</button></div>
+  <div class="row" style="flex-wrap:wrap;gap:8px"><span style="font-size:12.5px;flex:1 1 160px;min-width:0;color:var(--muted)">预演：弹一笔真的「烧 500 LGNS」，看钱包里 Gas 上限是不是 45 万。节点不会发、不扣钱，钱包提示「RPC 节点数据异常」是正常的</span><button class="btn ghost" id="btnRehearse" style="flex:0 0 auto;width:auto;padding:8px 14px;margin:0">预演一次</button></div>
   <div class="row"><span>没托管时弹窗时机</span><span><select id="lead"><option value="-500">开放后 0.5 秒</option><option value="-1500" selected>开放后 1.5 秒（推荐）</option><option value="-3000">开放后 3 秒</option><option value="1000">提前 1 秒（高级，可能被拒一次）</option></select></span></div>
   <details><summary>更多信息</summary>
     <div class="row"><span>链</span><span id="chain">—</span></div>
     <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
     <div class="row"><span>本机-链时钟偏差</span><span id="skew">—</span></div>
-    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 22:50</div>
+    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 23:30</div>
   </details>
 </div>
 <div class="sec"><div id="log"></div></div>
@@ -348,13 +348,13 @@ async function rehearse(){
   if(racing||nextStart-chainNow()<180){ log('开放前 3 分钟内不能预演（会变成真抢），等自动弹窗就行','warn'); return; }
   $('btnRehearse').disabled=true;
   try{
-    log('预演：钱包会弹一笔「烧 500 LGNS」。先点「网络费用」看 Gas 上限是多少，然后直接确认。节点不会发出去，不扣钱','warn');
+    log('预演：钱包会弹一笔「烧 500 LGNS」。先点「网络费用」看 Gas 上限是多少，然后直接确认。节点不会发出去，不扣钱。确认后钱包会提示「RPC 节点数据异常」或「交易失败」，这是节点故意不发，正常','warn');
     let h=null, err='';
     try{ h=await sendTx(A.LEDGER,SEL.burnForPower+u256(AMOUNT),'fill'); }catch(e){ if(isReject(e)){ log('你取消了预演','warn'); return; } err=String(e.message||e); }
     let tr=null; for(let i=0;i<8&&!tr;i++){ const sv=await relayGet('/seen?a='+me,2500); if(sv&&sv.hxTry&&sv.hxTry.ago<60) tr=sv.hxTry; else await new Promise(r=>setTimeout(r,500)); }
     if(!tr){ const m=err.match(/Gas 上限 (\d+)、价格 (\d+)/); if(m) tr={gas:Number(m[1]),gwei:Number(m[2])}; } /* 节点回的报错里也带了上限,/seen 没读到就用它 */
     if(tr){ LSs(gasKey(),String(tr.gas)); gasRender();
-      if(tr.gas>=GAS_MIN) log('✓ 预演通过：钱包给的 Gas 上限 '+tr.gas+'，价格 '+tr.gwei+' gwei。抢的时候弹出来直接点确认就行（这次节点没发，不扣钱）','ok');
+      if(tr.gas>=GAS_MIN) log('✓ 预演通过：钱包给的 Gas 上限 '+tr.gas+'，价格 '+tr.gwei+' gwei。抢的时候弹出来直接点确认就行（这次节点没发，不扣钱；钱包刚才提示「RPC 节点数据异常」就是这个，正常）','ok');
       else { buzz([300,80,300]); log('✗ 预演发现钱包 Gas 上限只有 '+tr.gas+'，这样抢一定失败。抢的时候要点「网络费用 → 自定义」把上限改成 450000（这次节点没发，不扣钱）','bad'); } }
     else if(h){ log('⚠ 这笔被发出去了，没经过托管节点（'+h+'）。请重新点「检测节点和 Gas」','bad'); relayDel(me); markBypass(); relayRender(); }
     else log('预演没拿到结果：'+err.slice(0,150),'warn');
