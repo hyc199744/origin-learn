@@ -78,7 +78,7 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
     <div class="row"><span>链</span><span id="chain">—</span></div>
     <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
     <div class="row"><span>本机-链时钟偏差</span><span id="skew">—</span></div>
-    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 16:00</div>
+    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 18:05</div>
   </details>
 </div>
 <div class="sec"><div id="log"></div></div>
@@ -326,7 +326,7 @@ function chkRender(){ const el=$('chkList'); if(!el) return;
   el.innerHTML=rows.map((r,i)=>'<div class="ck"><i>'+(r[0]?'✅':(i===LAST?'👉':'❌'))+'</i><span class="'+(r[0]?'ok':(i===LAST?'warn':'bad'))+'">'+(r[0]?r[1]:r[2])+'</span></div>').join('');
   $('fillLine').innerHTML='钱包弹出时这样填：<b>网络费用 → 自定义</b>，Gas 价格 <b>'+FILL_GWEI+'</b>，Gas 上限 <b>'+FILL_LIMIT+'</b>（抢到约花 '+(FILL_GWEI*300000/1e9).toFixed(1)+' DAI）。别勾「保存为默认」';
   const left=nextStart?nextStart-chainNow():1e9;
-  if(me&&!st.epDone&&left<=600&&left>60&&chkWarned!==nextStart&&rows.slice(1,LAST).some(r=>!r[0])){ chkWarned=nextStart; buzz([400,100,400,100,400]); log('⚠ 还有 '+Math.ceil(left/60)+' 分钟开抢，这几项还没好：'+rows.slice(1,LAST).filter(r=>!r[0]).map(r=>r[2]).join('；'),'bad'); }
+  if(me&&st.G!==undefined&&!st.epDone&&left<=600&&left>60&&chkWarned!==nextStart&&rows.slice(1,LAST).some(r=>!r[0])){ chkWarned=nextStart; buzz([400,100,400,100,400]); log('⚠ 还有 '+Math.ceil(left/60)+' 分钟开抢，这几项还没好：'+rows.slice(1,LAST).filter(r=>!r[0]).map(r=>r[2]).join('；'),'bad'); }
 }
 setInterval(()=>{ try{ chkRender(); }catch(e){} },1000);
 function stop(){armed=false;clearInterval(armTimer);$('armState').textContent='已停止';log('已停止自动抢');}
