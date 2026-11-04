@@ -15,6 +15,13 @@
 select{background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;max-width:220px}
 #log{font:12px/1.55 ui-monospace,Consolas,monospace;background:var(--logbg);border-radius:12px;padding:10px;max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--text)}
 #log div{padding:3px 0;border-bottom:1px dashed var(--line)}
+#easy .ez{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}#easy .ez:last-child{border-bottom:0}
+#easy .ez i{font-style:normal;font-size:22px;line-height:1.2;flex:0 0 28px;text-align:center}
+#easy .ez b{display:block;font-size:15.5px;line-height:1.35}#easy .ez span{display:block;font-size:13px;color:var(--muted);line-height:1.55;margin-top:2px}
+#easy .ez small{color:var(--muted);font-size:11px;font-family:ui-monospace,Consolas,monospace}
+#easy .ez.ok b{color:var(--ok)}#easy .ez.warn b{color:var(--warn)}#easy .ez.bad b{color:var(--bad)}
+#easy .ez.first{background:rgba(127,127,127,.08);border-radius:12px;padding:12px 10px;border:0;margin-bottom:4px}#easy .ez.first b{font-size:17px}
+details.raw{margin-top:10px}details.raw summary{cursor:pointer;color:var(--muted);font-size:13px;padding:6px 0}
 .row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
 .row>span:first-child{color:var(--muted)}
 .row:last-child{border-bottom:0}
@@ -51,7 +58,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-04 00:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-04 10:07 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -74,7 +81,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 <div class="note" style="font-size:12.5px;margin:-2px 0 6px">LGNS 债券整点第 1 块按出价排队，12:00 实测要 5,000 以上才排得上。OKX 若在确认页设过自定义网络费会一直沿用，请改成「推荐」或填同样数值。</div>
 <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><code id="relayUrl" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div>
 <div class="card"><h3>怎么用</h3><div class="note" style="color:var(--text);font-size:13.5px;line-height:1.75"><b>托管节点接通了：</b>连接钱包 → 开启自动领 → 整点前 45 秒弹钱包，直接点确认就完事。<br><b>没接通（手点）：</b>连接钱包 → 开启自动领 → 整点前 2 分钟弹一笔 0 元彩排（先别点，等长震+三声响再点确认）→ 整点前 8 秒弹正式那笔，同样等长震+三声响再点。没成下个整点自动再来。</div></div>
-<div class="card"><h3>日志</h3><div id="log"></div></div>
+<div class="card"><h3>现在怎么样</h3><div id="easy"><div class="ez first"><i>👇</i><div><b>还没开始</b><span>先点下面「连接钱包」，再点绿色的「开启自动领」</span></div></div></div><details class="raw"><summary>详细日志（给技术看 · 出问题时展开截图发客服）</summary><div id="log"></div><button class="btn sec" id="btnLogCopy" style="margin-top:8px;padding:8px 12px;font-size:13px">复制日志</button></details></div>
 <div class="dock"><button class="btn sec" id="btnConnect">连接钱包</button><button class="btn" id="btnArm" disabled>开启自动领</button><button class="btn stop" id="btnStop">停</button></div>
 
 <div class="hidden"><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select>
@@ -135,7 +142,48 @@ function setBond(k,why){ if(!BONDS[k])k='lgns'; A.BOND=BONDS[k].addr; $('bond').
 // 选择器:新实现 0x8af6b336(10-29 09:58 升级)多了 cap(每窗口上限 5 万)/used(本窗口已领)/win(窗口长度 3600 秒)
 const SEL={claimAll:'0xd1058e59',claim:'0x379607f5',getTotalClaimable:'0x267e8ab6',getClaimable:'0x6f5244b1',getUserDepositCount:'0x1bae91a4',balanceOf:'0x70a08231',cap:'0x440f3da3',used:'0xa07fa7a1',win:'0xb5fb0640'};
 const $=id=>document.getElementById(id);
-const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);while(el.childNodes.length>300)el.removeChild(el.lastChild);};
+const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);while(el.childNodes.length>300)el.removeChild(el.lastChild);try{easy(String(m),cls,t);}catch(e){}};
+/* 11-04 小白版:把技术日志翻成「发生了什么 + 下一步做什么」,只挑关键几条 */
+function easyOf(m,cls){
+  const rl=()=>{try{return relayOn();}catch(e){return false;}}, cue=()=>{try{return isCue();}catch(e){return false;}};
+  let x;
+  if(/^🎉/.test(m)){ x=m.match(/领到了 ([\d.,]+) LGNS/); return {i:'🎉',t:x?'抢到了 '+x[1]+' LGNS！':'抢到了！',s:'已经领到你的钱包，可以去钱包里看。下个整点还会自动继续抢',c:'ok'}; }
+  if(/^这笔被拒/.test(m)){
+    x=m.match(/整点(后 \+|前 )(\d+) 秒/); const empty=/余额|不足|pool|treasury|empty/i.test(m);
+    if(empty) return {i:'😶',t:'没抢到：这一轮额度没了',s:'债券这个整点的额度已经发完了，下个整点自动再来',c:'bad'};
+    if(x&&x[1]==='前 ') return {i:'⏪',t:'没抢到：发早了',s:'还没到整点交易就上链了。页面会自动调整，下个整点再来',c:'bad'};
+    if(x&&Number(x[2])>=1) return {i:'🐢',t:'没抢到：晚了 '+x[2]+' 秒',s:'交易落在整点后第 '+(Number(x[2])+1)+' 个区块，额度已经被领光。下次钱包一弹出来就马上点确认，越早越好',c:'bad'};
+    if(x) return {i:'💸',t:'没抢到：手续费出低了',s:'时间是准的，但同一个区块里大家按手续费排队，出得高的先领光了。下次在钱包确认页把「网络费用 → 自定义 → Gas 价格」调高',c:'bad'};
+    return {i:'❌',t:'没抢到',s:'下个整点会自动再试。想知道原因，展开下面的详细日志截图发客服',c:'bad'};
+  }
+  if(/链上可领取已减少/.test(m)) return {i:'🎉',t:'抢到了！',s:'链上显示已经领到，可以去钱包里看',c:'ok'};
+  if(/^✓ 已交给东京定时节点/.test(m)) return {i:'✅',t:'已交给节点，你不用再动了',s:'到整点会准时帮你发出，结果出来会显示在这里。页面别关',c:'ok'};
+  if(/^弹钱包：/.test(m)) return rl()?{i:'👉',t:'钱包弹出来了，现在就点确认',s:'先确认网络费用（Gas 价格）填好了，然后马上点确认，越早越好',c:'warn'}:cue()?{i:'✋',t:'钱包弹出来了，先别点',s:'手指放在确认键上，等手机长震 + 响声再点',c:'warn'}:{i:'👉',t:'钱包弹出来了，马上点确认',s:'越快越好',c:'warn'};
+  if(/^⚡ 震动提示/.test(m)) return {i:'👉',t:'就是现在，点确认！',s:'',c:'ok'};
+  if(/^已广播/.test(m)) return {i:'📤',t:'交易已发出，等结果…',s:'几秒钟后这里会显示抢没抢到',c:''};
+  if(/^已排好：/.test(m)){ x=m.match(/已排好：(\S+?) 整点/); return {i:'⏰',t:'已开启，等'+(x?' '+x[1]+' ':'')+'整点',s:'整点前钱包会自动弹出来，到时按提示点确认。页面留在前台、手机别锁屏',c:''}; }
+  if(/^还有 10 秒到整点/.test(m)) return {i:'⏳',t:'还有 10 秒到整点',s:m.replace(/^还有 10 秒到整点[：:]?/,''),c:'warn'};
+  if(/^已连接 /.test(m)) return {i:'✅',t:'钱包已连接',s:'下一步：点下面绿色的「开启自动领」',c:'ok'};
+  if(/^你的债券：/.test(m)) return {i:'📄',t:'你的债券',s:m.replace(/^你的债券：/,''),c:''};
+  if(/连续两次取消/.test(m)) return {i:'⏹',t:'已停止',s:'连续取消了两次。想继续抢，再点「开启自动领」',c:'warn'};
+  if(/^你取消了/.test(m)) return {i:'✋',t:'你取消了',s:'这一笔不会发出',c:'warn'};
+  if(/托管节点连不上/.test(m)) return {i:'⚠️',t:'节点暂时连不上，这一轮改成手点',s:'整点前 8 秒钱包会弹出来，等手机震动 + 响声再点确认',c:'bad'};
+  if(/没检测到钱包/.test(m)) return {i:'⚠️',t:'没检测到钱包',s:'请在 OKX、TokenPocket、Bitget 等钱包 App 里打开这个页面',c:'bad'};
+  if(/这笔没经过托管节点/.test(m)) return {i:'⚠️',t:'这笔没走节点，已直接上链',s:'已自动改回手点模式。请展开详细日志截图发客服',c:'bad'};
+  if(/钱包没按页面出价|钱包把出价改成了/.test(m)) return {i:'⚠️',t:'钱包没按设定的手续费发',s:'在钱包确认页点「网络费用 → 自定义」，手动把 Gas 价格填上再确认',c:'bad'};
+  if(/^连接失败/.test(m)) return {i:'⚠️',t:'钱包没连上',s:'关掉页面，在钱包 App 的「发现 / 浏览器」里重新打开再试',c:'bad'};
+  if(/国库只有/.test(m)) return {i:'⚠️',t:'这一轮额度可能不够',s:'债券池子里剩的不多，这个整点大概率抢不到',c:'warn'};
+  if(cls==='bad'&&!/落在整点后|节点会自动校正|自动修正/.test(m)) return {i:'⚠️',t:'出了点问题',s:m.slice(0,70)+(m.length>70?'…':'')+'（展开详细日志截图发客服）',c:'bad'};
+  return null;
+}
+function easy(m,cls,t){
+  const e=easyOf(m,cls); if(!e) return; const box=$('easy'); if(!box) return;
+  const old=box.querySelector('.ez.first'); if(old){ old.classList.remove('first'); if(!old.querySelector('small')) old.remove(); }
+  const d=document.createElement('div'); d.className='ez first'+(e.c?' '+e.c:'');
+  d.innerHTML='<i></i><div><b></b><span></span><small></small></div>'; d.querySelector('i').textContent=e.i; d.querySelector('b').textContent=e.t;
+  const sp=d.querySelector('span'); if(e.s) sp.textContent=e.s; else sp.remove(); d.querySelector('small').textContent=t.slice(0,8);
+  box.prepend(d); while(box.childNodes.length>8) box.removeChild(box.lastChild);
+}
 const addr32=a=>a.toLowerCase().replace(/^0x/,'').padStart(64,'0'); const u256=n=>BigInt(n).toString(16).padStart(64,'0');
 const f9=v=>(Number(v)/1e9).toLocaleString('en-US',{maximumFractionDigits:2}); const f18=v=>(Number(v)/1e18).toFixed(3);
 const bj=ts=>{const d=new Date(ts*1000+8*3600e3);return d.toISOString().replace('T',' ').slice(5,19);};
@@ -537,6 +585,7 @@ $('btnTestFee').onclick=testFee;
 /* ===== 托管节点(11-02):钱包 RPC 指向东京 bond-rpc,claim 交易在整点前 120 秒内到达会被扣住,到链上整点准时发 ===== */
 const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=45;
 const relayList=()=>String(LS('bc_relay2')||'').toLowerCase().split(',').filter(Boolean), relayHas=a=>!!a&&relayList().includes(String(a).toLowerCase()), relayAdd=a=>{ const l=relayList().filter(x=>x!==String(a).toLowerCase()); l.push(String(a).toLowerCase()); LS('bc_relay2',l.join(',')); }, relayDel=a=>LS('bc_relay2',relayList().filter(x=>x!==String(a).toLowerCase()).join(','));
+try{ document.getElementById('btnLogCopy').onclick=()=>{ const tx=[...document.querySelectorAll('#log div')].map(d=>d.textContent).join('\n'); (navigator.clipboard?navigator.clipboard.writeText(tx):Promise.reject()).then(()=>{ document.getElementById('btnLogCopy').textContent='已复制 ✓'; },()=>{ const a=document.createElement('textarea'); a.value=tx; document.body.appendChild(a); a.select(); try{document.execCommand('copy');}catch(e){} a.remove(); document.getElementById('btnLogCopy').textContent='已复制 ✓'; }); }; }catch(e){}
 const relayOn=()=>!DRILL&&!!me&&relayHas(me)&&!st.relayDown&&!autoSend();
 async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
 function relayRender(){ const el=$('relayState'); if(!el) return; $('relayUrl').textContent=RELAY;
