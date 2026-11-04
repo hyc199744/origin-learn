@@ -61,7 +61,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>固定价销毁债券抢领</b><small>独立页 · 基于 11-04 13:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>固定价销毁债券抢领</b><small>独立页 · 基于 11-04 17:00 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -705,6 +705,44 @@ log('页面就绪。先点"连接钱包"，再点"开启自动领"，整点听�
 })();
 </script>
 
+<!-- 11-04 自绘下拉:部分钱包内置浏览器(OKX 等)点原生 <select> 不展开,统一换成按钮+底部选项面板;原 select 隐藏保留,值/change 事件照旧 -->
+<style>
+.pk{display:flex;justify-content:space-between;align-items:center;gap:6px;width:100%;max-width:220px;background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.35;text-align:left;font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.set .pk{max-width:none;font-size:12.5px;padding:6px}
+.pk span{flex:1;min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all}
+.pk:after{content:"▾";color:var(--muted);flex:0 0 auto}
+.pk:disabled{opacity:.5}
+#pkMask{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:flex-end;justify-content:center}
+#pkMask.pkHide{display:none}
+#pkBox{background:var(--sec);color:var(--text);width:100%;max-width:520px;max-height:75vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:16px 16px 0 0;padding:10px 12px calc(14px + env(safe-area-inset-bottom));box-sizing:border-box}
+#pkBox h4{margin:4px 2px 6px;font-size:14px;color:var(--muted);font-weight:normal}
+#pkBox button{display:block;width:100%;box-sizing:border-box;text-align:left;background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;margin:6px 0;font-size:15px;line-height:1.4;font-family:inherit;-webkit-appearance:none;appearance:none;touch-action:manipulation}
+#pkBox button.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+#pkBox button.on:before{content:"✓ ";color:var(--ok)}
+#pkBox button.pkCancel{text-align:center;color:var(--muted);background:transparent}
+</style>
+<script>
+(function(){
+  var mask=document.createElement('div'); mask.id='pkMask'; mask.className='pkHide'; mask.innerHTML='<div id="pkBox"></div>'; document.body.appendChild(mask);
+  var box=mask.firstChild, list=[];
+  function close(){ mask.className='pkHide'; }
+  mask.addEventListener('click',function(e){ if(e.target===mask) close(); });
+  function title(s){ var l=s.parentNode; while(l&&l!==document.body&&l.tagName!=='LABEL'&&!(l.classList&&l.classList.contains('row'))) l=l.parentNode;
+    if(l&&l.tagName==='LABEL'){ var t=l.firstChild; return t&&t.nodeType===3?t.textContent.trim():''; }
+    if(l&&l.classList&&l.classList.contains('row')&&l.firstElementChild) return l.firstElementChild.textContent.trim(); return ''; }
+  function fire(s){ var ev; try{ ev=new Event('change',{bubbles:true}); }catch(e){ ev=document.createEvent('Event'); ev.initEvent('change',true,true); } s.dispatchEvent(ev); }
+  function open(s){ box.innerHTML=''; var h=document.createElement('h4'); h.textContent=title(s)||'请选择'; box.appendChild(h);
+    for(var i=0;i<s.options.length;i++){ (function(o){ if(o.disabled) return; var x=document.createElement('button'); x.type='button'; x.textContent=o.textContent; if(o.value===s.value) x.className='on';
+      x.addEventListener('click',function(){ close(); if(s.value!==o.value){ s.value=o.value; fire(s); } sync(); }); box.appendChild(x); })(s.options[i]); }
+    var c=document.createElement('button'); c.type='button'; c.className='pkCancel'; c.textContent='取消'; c.addEventListener('click',close); box.appendChild(c);
+    mask.className=''; box.scrollTop=0; }
+  function enhance(s){ if(s.__pk) return; var b=document.createElement('button'); b.type='button'; b.className='pk'; b.innerHTML='<span></span>'; s.__pk=b;
+    s.parentNode.insertBefore(b,s.nextSibling); s.style.display='none'; b.addEventListener('click',function(){ if(!s.disabled) open(s); }); list.push(s); }
+  function sync(){ for(var i=0;i<list.length;i++){ var s=list[i], o=s.options[s.selectedIndex], t=o?o.textContent:'', sp=s.__pk.firstChild; if(sp.textContent!==t) sp.textContent=t; if(s.__pk.disabled!==s.disabled) s.__pk.disabled=s.disabled; } }
+  var all=document.querySelectorAll('select'); for(var i=0;i<all.length;i++) enhance(all[i]);
+  sync(); setInterval(sync,400); window.__pkSync=sync;
+})();
+</script>
 <script defer src="/assets/bot-gate.js?v=1"></script>
 </body>
 </html>
