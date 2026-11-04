@@ -78,7 +78,7 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
     <div class="row"><span>链</span><span id="chain">—</span></div>
     <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
     <div class="row"><span>本机-链时钟偏差</span><span id="skew">—</span></div>
-    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 15:50</div>
+    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 16:00</div>
   </details>
 </div>
 <div class="sec"><div id="log"></div></div>
@@ -332,7 +332,7 @@ setInterval(()=>{ try{ chkRender(); }catch(e){} },1000);
 function stop(){armed=false;clearInterval(armTimer);$('armState').textContent='已停止';log('已停止自动抢');}
 function tick(){ if(!nextStart)return; const ep=!!(me&&st.epDone&&st.nextEp); const tgt=ep?st.nextEp:nextStart; /* 本周期已烧过:倒数到这个钱包下次可抢,别让人以为明天还能抢 */
   $('heroLbl').textContent=ep?'本周期已烧过 · 距下次可抢':'距 离 开 放'; if(ep) $('nextOpen').textContent=bj(st.nextEp)+'（这个钱包下次可抢）';
-  const left=Math.max(0,Math.floor(tgt-chainNow())); const dd=Math.floor(left/86400),h=String(Math.floor(left%86400/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0'); $('countdown').textContent=(dd?dd+'天 ':'')+h+':'+m+':'+s; $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
+  const left=Math.max(0,Math.floor(tgt-chainNow())); const dd=Math.floor(left/86400),h=String(Math.floor(left%86400/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0'); $('countdown').textContent=(dd?dd+'天 ':'')+h+':'+m+':'+s; $('countdown').style.fontSize=dd?'50px':''; $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
 
 $('btnRelay').onclick=relayDetect; $('btnConnect').onclick=connect; $('btnApprove').onclick=doApprove; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=()=>{ if(racing)return; log('手动：立刻发一笔'); racing=true; attempt().finally(()=>{racing=false;loadState();}); };
