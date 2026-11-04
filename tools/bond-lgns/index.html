@@ -58,10 +58,25 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 .big{font-size:24px;font-weight:800;text-align:center;margin:4px 0;font-variant-numeric:tabular-nums}
 @media (min-width:600px){.tiles{grid-template-columns:repeat(4,1fr)}.tile.wide{grid-column:1/3}}
 </style>
+<style>/* 11-04 老板选定日志样式:第 1 款 时间线 */
+#easy{padding-left:2px}
+#easy .ez{position:relative;border:0;padding:8px 0 8px 40px;display:block}
+#easy .ez:before{content:"";position:absolute;left:15px;top:0;bottom:0;width:2px;background:var(--line)}
+#easy .ez:first-child:before{top:20px}#easy .ez:last-child:before{bottom:auto;height:20px}#easy .ez:only-child:before{display:none}
+#easy .ez i{position:absolute;left:0;top:6px;width:32px;height:32px;border-radius:50%;background:var(--field);border:2px solid var(--line);font-size:15px;line-height:28px;text-align:center;z-index:1;box-sizing:border-box}
+#easy .ez.ok i{border-color:var(--ok)}#easy .ez.warn i{border-color:var(--warn)}#easy .ez.bad i{border-color:var(--bad)}
+#easy .ez>div{padding:4px 0}
+#easy .ez b{font-size:14.5px}#easy .ez span{font-size:12.5px}
+#easy .ez small{display:inline-block;margin-top:3px}
+#easy .ez.first{background:transparent;border-radius:0;padding:8px 0 12px 40px;margin:0}
+#easy .ez.first>div{background:var(--field);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+#easy .ez.first.ok>div{border-color:var(--ok)}#easy .ez.first.warn>div{border-color:var(--warn)}#easy .ez.first.bad>div{border-color:var(--bad)}
+#easy .ez.first i{width:36px;height:36px;line-height:32px;font-size:17px;left:-2px;top:10px;box-shadow:0 0 0 4px var(--sec)}
+</style>
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>LGNS 销毁债券抢领</b><small>独立页 · 基于 11-04 17:05 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>LGNS 销毁债券抢领</b><small>独立页 · 基于 11-04 17:20 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
