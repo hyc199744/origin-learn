@@ -76,7 +76,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-05 01:40 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-05 01:50 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -164,6 +164,13 @@ const $=id=>document.getElementById(id);
 const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);while(el.childNodes.length>300)el.removeChild(el.lastChild);try{easy(String(m),cls,t);}catch(e){}};
 /* 11-04 小白版:把技术日志翻成「发生了什么 + 下一步做什么」,只挑关键几条 */
 function easyOf(m,cls){
+  /* 11-05 检测结果显示到卡片上(原来只进折叠日志,用户以为没反应) */
+  if(/^检测托管节点：钱包会弹/.test(m)) return {i:'👆',t:'检测中：钱包会弹一笔 0 枚授权',s:'点确认就行（约 0.001 DAI，不动资产）',c:'warn'};
+  if(/^✓ 托管节点接通了/.test(m)) return {i:'✅',t:'检测通过，节点已接通',s:'不用再点检测了。点绿色「开启自动领」，整点前 45 秒钱包会弹出，直接点确认',c:'ok'};
+  if(/正在忙（彩排\/抢领中）/.test(m)) return {i:'ℹ️',t:'自动领已经开着，不用再检测',s:'节点已接通就直接等整点；想重新检测先点「停」',c:'warn'};
+  if(/^你取消了检测/.test(m)) return {i:'↩️',t:'你取消了检测',s:'要检测就再点一次，钱包弹出点确认',c:'warn'};
+  if(/^✗ 连不上托管节点/.test(m)) return {i:'⚠️',t:'检测没通过：连不上托管节点',s:'网络问题，换个网络或 VPN 线路再点检测',c:'bad'};
+  if(/^✗ 这笔交易没经过托管节点/.test(m)) return {i:'⚠️',t:'检测没通过：钱包没走我们的节点',s:'把钱包里 Anubis 网络的 RPC 改成 zjgame.web3origin.com/bondrpc，再点检测',c:'bad'};
   const rl=()=>{try{return relayOn();}catch(e){return false;}}, cue=()=>{try{return isCue();}catch(e){return false;}};
   let x;
   if(/^🎉/.test(m)){ x=m.match(/领到了 ([\d.,]+) LGNS/); return {i:'🎉',t:x?'抢到了 '+x[1]+' LGNS！':'抢到了！',s:'已经领到你的钱包，可以去钱包里看。下个整点还会自动继续抢',c:'ok'}; }
