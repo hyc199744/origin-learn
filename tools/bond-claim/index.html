@@ -76,7 +76,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-04 18:50 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-04 20:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -219,7 +219,17 @@ const LS=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorag
 let me=null, eth=null, offset=null, coarse=0, armed=false, busy=false, wakeLock=null, warnedHour=0, calibratedHour=0, WINDOW=3600;
 let st={pool:0n,cap:0n,used:0n,claimable:0n,cnt:0,pieces:[],gas:0n,eligible:false};
 
-async function rpc(method,params){const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});const j=await r.json();if(j.error){const e=new Error(j.error.message||'rpc');e.data=j.error.data;throw e;}return j.result;}
+/* 11-04 20:30 读链改多节点+超时:原来只连 rpc.anubispace.org 且不超时,整点前后/国内网络一卡页面就全是「—」、误报没存款、甚至不弹窗 */
+const RPC_LIST=DRILL?[RPC]:['https://rpc.anubispace.org','https://rpc3.anubispace.org','https://rpc2.anubispace.org','https://zjgame.web3origin.com/bondrpc']; let RPC_I=0;
+async function rpc(method,params){ let last=null;
+  for(let k=0;k<RPC_LIST.length;k++){ const i=(RPC_I+k)%RPC_LIST.length; let ctl=null; try{ ctl=window.AbortController?new AbortController():null; }catch(e){}
+    try{ const body=JSON.stringify({jsonrpc:'2.0',id:1,method,params});
+      const j=await Promise.race([ fetch(RPC_LIST[i],{method:'POST',headers:{'Content-Type':'application/json'},body,signal:ctl?ctl.signal:undefined}).then(r=>r.json()), new Promise((_,rej)=>setTimeout(()=>{ try{ ctl&&ctl.abort(); }catch(e){} rej(new Error('读链超时')); },6000)) ]);
+      if(j&&j.error){ const e=new Error(j.error.message||'rpc'); e.data=j.error.data; e.rpcErr=true; throw e; }
+      if(RPC_I!==i){ RPC_I=i; try{ console.log('读链切到 '+RPC_LIST[i]); }catch(e){} } st.rpcOk=Date.now(); return j.result;
+    }catch(e){ if(e&&e.rpcErr) throw e; last=e; } }
+  st.rpcBad=Date.now(); throw last||new Error('读链失败'); }
+const readBad=()=>!!(me&&st.rpcBad&&(!st.rpcOk||st.rpcBad>st.rpcOk));
 const call=(to,data,from)=>rpc('eth_call',[from?{from,to,data}:{to,data},'latest']);
 const big=h=>BigInt(h&&h!=='0x'?h:'0x0');
 function reason(e){try{let h=(e&&(e.data&&(e.data.data||e.data)))||'';h=String(h).replace(/^0x/,'');if(!h.startsWith('08c379a0')){const m=String((e&&e.message)||'').match(/08c379a0[0-9a-fA-F]+/);if(m)h=m[0];}if(h.startsWith('08c379a0')){const len=parseInt(h.slice(72,136),16);const hex=h.slice(136,136+len*2);let s='';for(let i=0;i<hex.length;i+=2)s+=String.fromCharCode(parseInt(hex.slice(i,i+2),16));return s;}}catch(x){}return (e&&e.message)||String(e);}
@@ -616,12 +626,12 @@ let chkWarned=0;
 function chkRender(){ const el=$('chkList'); if(!el) return;
   const b=recBid(), lim=recLimit(), needDai=b*lim/1e9, have=me?Number(st.gas)/1e18:null, lgns=$('bond').value==='lgns';
   const okBond=!!me&&st.eligible&&st.claimable>0n;
-  const bondWhy=!me?'连接后自动检查':(!st.cnt?'这个钱包在这张债券里没有存款：换上面「抢哪张债券」或换钱包':(st.claimable<=0n?'暂时没有可领的，等下次释放（每天两次记账）':'gas 不够，先往钱包转点 DAI'));
+  const bondWhy=!me?'连接后自动检查':readBad()?'网络卡，读不到链上数据，页面在自动重试（换个网络或刷新也行）':(!st.cnt?'这个钱包在这张债券里没有存款：换上面「抢哪张债券」或换钱包':(st.claimable<=0n?'暂时没有可领的，等下次释放（每天两次记账）':'gas 不够，先往钱包转点 DAI'));
   const rows=[
     [!!me, '钱包已连接', '先点下面「连接钱包」'],
     [okBond, '有可领的（'+f9(st.claimable)+' LGNS）', bondWhy],
     [!!me&&relayOn(), '托管节点已接通', '节点没接通：点上面托管节点里的「检测」（没接通要拼手速）'],
-    [have!==null&&have>=needDai+0.3, 'DAI 够手续费（有 '+(have===null?'—':have.toFixed(2))+'）', '这个整点不会弹窗：钱包 DAI '+(have===null?'—':'只有 '+have.toFixed(2))+'，按出价 '+b+' gwei 至少要 '+(needDai+0.3).toFixed(1)+' DAI。请往钱包补 DAI，或把「托管出价」调低'],
+    [have!==null&&have>=needDai+0.3, 'DAI 够手续费（有 '+(have===null?'—':have.toFixed(2))+'）', readBad()?'网络卡，读不到钱包余额，正在自动重试':'这个整点不会弹窗：钱包 DAI '+(have===null?'—':'只有 '+have.toFixed(2))+'，按出价 '+b+' gwei 至少要 '+(needDai+0.3).toFixed(1)+' DAI。请往钱包补 DAI，或把「托管出价」调低'],
     [!!armed, '已开启自动领', '最后一步：点下面绿色「开启自动领」'] ];
   el.innerHTML=rows.map((r,i)=>'<div class="ck"><i>'+(r[0]?'✅':(i===4?'👉':'❌'))+'</i><span class="'+(r[0]?'ok':(i===4?'warn':'bad'))+'">'+(r[0]?r[1]:r[2])+'</span></div>').join('');
   $('fillLine').innerHTML='钱包弹出时这样填：<b>网络费用 → 自定义</b>，Gas 价格 <b>'+b+'</b>，Gas 上限 <b>'+lim+'</b>（抢到约花 '+(b*131000/1e9).toFixed(1)+' DAI）。别勾「保存为默认」'+(lgns&&b>=50000?'<br><span class="warn">LGNS 债券现在竞争激烈，一次要花约 '+(b*131000/1e9).toFixed(0)+' DAI，没抢到也扣约一半；固定价债券便宜得多</span>':'');
