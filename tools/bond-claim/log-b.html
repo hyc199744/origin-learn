@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0e1116">
+<title>日志样式 B · 消息卡片</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.flash{animation:fl .5s steps(2) infinite}@keyframes fl{to{opacity:.35}}
+.btn{display:inline-block;border:0;border-radius:14px;padding:14px 16px;font-size:16px;font-weight:700;cursor:pointer;color:#fff;background:var(--acc)}
+.btn.sec{background:var(--sec);color:var(--text)}.btn.danger{background:#b4433f}.btn:disabled{opacity:.4}
+select{background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;max-width:220px}
+#log{font:12px/1.55 ui-monospace,Consolas,monospace;background:var(--logbg);border-radius:12px;padding:10px;max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--text)}
+#log div{padding:3px 0;border-bottom:1px dashed var(--line)}
+#easy .ez{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}#easy .ez:last-child{border-bottom:0}
+#easy .ez i{font-style:normal;font-size:22px;line-height:1.2;flex:0 0 28px;text-align:center}
+#easy .ez b{display:block;font-size:15.5px;line-height:1.35}#easy .ez span{display:block;font-size:13px;color:var(--muted);line-height:1.55;margin-top:2px}
+#easy .ez small{color:var(--muted);font-size:11px;font-family:ui-monospace,Consolas,monospace}
+#easy .ez.ok b{color:var(--ok)}#easy .ez.warn b{color:var(--warn)}#easy .ez.bad b{color:var(--bad)}
+#easy .ez.first{background:rgba(127,127,127,.08);border-radius:12px;padding:12px 10px;border:0;margin-bottom:4px}#easy .ez.first b{font-size:17px}
+details.raw{margin-top:10px}details.raw summary{cursor:pointer;color:var(--muted);font-size:13px;padding:6px 0}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.row>span:first-child{color:var(--muted)}
+.row:last-child{border-bottom:0}
+.note{font-size:12px;color:var(--muted);line-height:1.6}
+.hidden{display:none!important}
+#chk .ck{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:14px;line-height:1.5}#chk .ck i{font-style:normal;flex:0 0 20px}
+#chk .fill{margin-top:8px;padding:9px 10px;border-radius:10px;background:rgba(224,178,90,.12);color:#f3d9a4;font-size:13.5px;line-height:1.6}#chk .fill b{color:#fff}
+#fillTip{position:fixed;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));z-index:9999;background:#3a2a06;border:2px solid #e0b25a;color:#ffe7b0;border-radius:14px;padding:12px 14px;font-size:16px;line-height:1.65;box-shadow:0 8px 30px rgba(0,0,0,.6)}#fillTip b{color:#fff;font-size:20px}
+
+:root{--bg:#0f1512;--text:#e6eee8;--muted:#7f8f85;--line:#2a372f;--acc:#3f8f68;--sec:#1c2620;--field:#161e19;--logbg:#0b100d;--ok:#7fd3a6;--warn:#e0b25a;--bad:#ec7f76}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:calc(12px + env(safe-area-inset-top)) 14px calc(96px + env(safe-area-inset-bottom));max-width:720px;margin:0 auto}
+.bar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.bar .lg{width:34px;height:34px;border-radius:10px;background:var(--acc);display:grid;place-items:center;font-weight:800;color:#07140d}
+.bar b{font-size:16px;display:block;line-height:1.1}.bar small{color:var(--muted);font-size:11px}
+.bar .ad{margin-left:auto;font-size:12px;color:var(--muted);font-family:ui-monospace,Consolas,monospace}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:#161e19;border:1px solid var(--line);border-radius:16px;padding:12px 14px;min-height:88px}
+.tile .k{font-size:12px;color:var(--muted)}
+.tile .v{font-size:22px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;line-height:1.15;word-break:break-all}
+.tile.wide{grid-column:1/-1;text-align:center;padding:14px}
+.tile.wide .v{font-size:48px}
+.tile.acc{background:#1d3328;border-color:transparent}
+.banner{margin:12px 0;background:#161e19;border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.banner .st{font-size:16px;font-weight:700}
+.banner .hint{margin-top:6px;color:var(--warn);font-weight:600;font-size:14px}
+.set{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+.set label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--muted);background:#161e19;border:1px solid var(--line);border-radius:12px;padding:8px}
+.set select{max-width:none;width:100%;font-size:12.5px;padding:6px}
+.card{background:#161e19;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:12px}
+.card h3{margin:0 0 6px;font-size:14px;color:var(--muted)}
+.dock{position:fixed;left:0;right:0;bottom:0;background:rgba(15,21,18,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px}
+.dock .btn{flex:1;padding:16px 10px;font-size:16px}
+.dock .btn.stop{flex:0 0 72px;background:var(--sec)}
+.big{font-size:24px;font-weight:800;text-align:center;margin:4px 0;font-variant-numeric:tabular-nums}
+@media (min-width:600px){.tiles{grid-template-columns:repeat(4,1fr)}.tile.wide{grid-column:1/3}}
+</style>
+<meta name="robots" content="noindex">
+<style>/* 日志样式 b 消息卡片 */
+#easy .ez{position:relative;background:var(--field);border:1px solid var(--line);border-left:4px solid var(--muted);border-radius:12px;padding:10px 12px;margin:8px 0;gap:10px}
+#easy .ez:last-child{border-bottom:1px solid var(--line)}
+#easy .ez.ok{border-left-color:var(--ok)}#easy .ez.warn{border-left-color:var(--warn)}#easy .ez.bad{border-left-color:var(--bad)}
+#easy .ez i{font-size:19px;flex:0 0 24px}
+#easy .ez b{font-size:14.5px;padding-right:60px}
+#easy .ez span{font-size:12.5px}
+#easy .ez small{position:absolute;right:12px;top:11px}
+#easy .ez.first{background:var(--field);border-radius:14px;border:1px solid var(--line);border-left:6px solid var(--muted);padding:14px 14px;margin:4px 0 12px;box-shadow:0 8px 22px rgba(0,0,0,.28)}
+#easy .ez.first.ok{border-left-color:var(--ok)}#easy .ez.first.warn{border-left-color:var(--warn)}#easy .ez.first.bad{border-left-color:var(--bad)}#easy .ez.first b{font-size:17.5px}#easy .ez.first span{font-size:13.5px;color:var(--text);opacity:.85}
+#easy .ez.first i{font-size:24px;flex-basis:30px}
+#easy .ez.first small{top:15px}
+</style>
+</head>
+<body>
+
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-04 17:05 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="tiles">
+  <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
+  <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
+  <div class="tile"><div class="k">我可领取</div><div class="v" id="claimable">—</div><div class="k" id="cnt" style="margin-top:4px">—</div></div>
+  <div class="tile"><div class="k">最大一笔</div><div class="v" id="maxPiece" style="font-size:15px">—</div></div>
+  <div class="tile"><div class="k">Gas（DAI）</div><div class="v" id="gas" style="font-size:15px">—</div></div>
+</div>
+<div class="card" id="chk"><h3>开抢前检查</h3><div id="chkList"></div><div class="fill" id="fillLine"></div></div>
+<div id="fillTip" class="hidden"></div>
+<div class="banner"><div class="st" id="armState">未开启</div><div class="hint" id="hint">先点底下"连接钱包"</div><div class="row" style="margin-top:6px;border:0;padding:4px 0 0"><span>结论</span><span id="verdict">—</span></div><div class="row" style="border:0;padding:2px 0 0"><span>额度状态</span><span id="capState">—</span></div></div>
+<div class="set">
+  <label>抢哪张债券 <select id="bond"><option value="lgns" selected>LGNS 销毁债券（250%·每期0.4%）</option><option value="fixed">固定价销毁债券（1 LGNS=1 DAI·200%）</option></select></label>
+  <label>领取方式 <select id="mode"><option value="split" selected>拆单：单独领最大的几笔（托管节点用，最容易挤进去）</option><option value="all">整笔全领（claimAll）</option><option value="max">只领最大的一笔</option></select></label>
+  <label>整点前彩排 <select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></label>
+</div>
+<div class="card" id="relayCard"><h3>托管节点 · 不拼手速（强烈推荐）</h3>
+<div class="row" style="border:0;padding:0 0 6px"><span>状态</span><span id="relayState">先连接钱包</span></div>
+<div class="row" style="border:0;padding:0 0 6px"><span>托管出价</span><span><select id="relayGwei"><option value="auto" selected>看行情自动（按上小时第 1 块成交价，最高 30 万）</option><option value="5000">5,000 gwei</option><option value="10000">10,000 gwei</option><option value="15000">15,000 gwei</option><option value="20000">20,000 gwei</option><option value="30000">30,000 gwei</option></select></span></div>
+<div class="row" style="border:0;padding:0 0 6px"><span>每次抢几笔</span><span><select id="splitN"><option value="1" selected>1 笔（只弹 1 次，抢最大的）</option><option value="2">2 笔（弹 2 次）</option><option value="3">3 笔（弹 3 次）</option></select></span></div>
+<div class="row" style="border:0;padding:0 0 6px"><span>行情</span><span id="mktInfo" style="font-size:13px">—</span></div>
+<div class="row" style="border:0;padding:0 0 6px"><span>止损</span><span id="lossInfo" style="font-size:13px">—</span></div>
+<div class="note" style="font-size:12.5px;margin:-2px 0 6px">LGNS 债券整点第 1 块按出价排队，最近要 15 万～30 万 gwei 才排得上（抢到一次约 20～40 DAI）；固定价债券 1.5 万就够。OKX 会用它自己存的网络费，钱包弹出时请按上面「开抢前检查」里的数手动填。</div>
+<div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><code id="relayUrl" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div>
+<div class="card"><h3>怎么用</h3><div class="note" style="color:var(--text);font-size:13.5px;line-height:1.75"><b>托管节点接通了：</b>连接钱包 → 开启自动领 → 整点前 45 秒弹钱包，直接点确认就完事。<br><b>没接通（手点）：</b>连接钱包 → 开启自动领 → 整点前 2 分钟弹一笔 0 元彩排（先别点，等长震+三声响再点确认）→ 整点前 8 秒弹正式那笔，同样等长震+三声响再点。没成下个整点自动再来。</div></div>
+<div class="card"><h3>现在怎么样</h3><div id="easy"><div class="ez first"><i>👇</i><div><b>还没开始</b><span>先点下面「连接钱包」，再点绿色的「开启自动领」</span></div></div></div><details class="raw"><summary>详细日志（给技术看 · 出问题时展开截图发客服）</summary><div id="log"></div><button class="btn sec" id="btnLogCopy" style="margin-top:8px;padding:8px 12px;font-size:13px">复制日志</button></details></div>
+<div class="dock"><button class="btn sec" id="btnConnect">连接钱包</button><button class="btn" id="btnArm" disabled>开启自动领</button><button class="btn stop" id="btnStop">停</button></div>
+
+<div class="hidden"><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select>
+<span id="bidNow"></span>
+<button id="btnNow"></button>
+<button id="btnTestFee"></button>
+<span id="chain"></span>
+<select id="feeMode"><option value="legacy" selected>旧式 gasPrice</option><option value="1559">EIP-1559（钱包不认旧式时用）</option></select>
+<span id="feeTest"></span>
+<select id="gcap"><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000" selected>5000 gwei（一笔最多约 2.4 DAI）</option><option value="10000">10000 gwei（最多约 5 DAI）</option></select>
+<select id="gwei"><option value="auto" selected>自动（上一整点第 1 块最高价再加三成）</option><option value="100">100 gwei</option><option value="300">300 gwei</option><option value="1000">1000 gwei</option><option value="3000">3000 gwei</option><option value="5000">5000 gwei</option><option value="10000">10000 gwei</option></select>
+<select id="keep"><option value="1" selected>继续守着，下次释放后再领</option><option value="0">停止</option></select>
+<select id="lead"><option value="0.6">整点前 0.6 秒</option><option value="1" selected>整点前 1 秒（推荐）</option><option value="1.5">整点前 1.5 秒</option><option value="2">整点前 2 秒</option><option value="3">整点前 3 秒</option><option value="4">整点前 4 秒</option><option value="5">整点前 5 秒（手慢选这个）</option><option value="6">整点前 6 秒</option><option value="cue">提前 8 秒弹出，震动+响声时再点确认（手慢必选）</option><option value="0">整点后模拟通过再弹（稳但慢）</option></select>
+<button id="lkCancel"></button>
+<button id="lkDel"></button>
+<button id="lkDetect"></button>
+<button id="lkDo"></button>
+<div id="lkForm"></div>
+<input id="lkKey" type="password">
+<span id="lkLead"></span>
+<input id="lkPwd" type="password">
+<input id="lkPwd2" type="password">
+<button id="lkSave"></button>
+<button id="lkSet"></button>
+<span id="lkState"></span>
+<button id="lkTest"></button>
+<div id="lkUnlock"></div>
+<select id="lkUse"><option value="wallet" selected>弹钱包，我手点确认</option><option value="local">本地签名自动发（不用点确认）</option><option value="trader">OKX 交易员模式：钱包免确认，到点页面自动发</option><option value="presign">钱包预签：私钥不出钱包，提前签好，到点页面自动发</option></select>
+<select id="minClaim"><option value="1">1 LGNS</option><option value="20" selected>20 LGNS</option><option value="100">100 LGNS</option><option value="300">300 LGNS</option></select>
+<span id="pool"></span>
+<span id="skew"></span>
+<span id="wake"></span>
+<details class="fold" id="lkCardX" style="display:none"><summary style="cursor:pointer;color:#9fb0c3;font-size:14px;padding:6px 0;list-style:none">高级：不想手点的其他抢法（本地签名 / 钱包预签 / 交易员模式，OKX 已实测只能手点）</summary>
+<div class="card" style="margin-top:6px">
+  <div class="row"><span>怎么抢</span><span><select id="lkUse"><option value="wallet" selected>弹钱包，我手点确认</option><option value="local">本地签名自动发（不用点确认）</option><option value="trader">OKX 交易员模式：钱包免确认，到点页面自动发</option><option value="presign">钱包预签：私钥不出钱包，提前签好，到点页面自动发</option></select></span></div>
+  <div class="row"><span>本机私钥</span><span id="lkState">未设置</span></div>
+  <div id="lkForm" style="display:none;margin:6px 0">
+    <input id="lkKey" type="password" autocomplete="off" placeholder="粘贴这个钱包的私钥（64 位，可带 0x）" style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1px solid #3a4553;background:#0f141b;color:#e9eef3;font-size:15px;margin-bottom:6px">
+    <input id="lkPwd" type="password" autocomplete="new-password" placeholder="设一个解锁密码（以后每次打开页面要输）" style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1px solid #3a4553;background:#0f141b;color:#e9eef3;font-size:15px;margin-bottom:6px">
+    <div style="display:flex;gap:8px"><button class="btn" id="lkSave" style="flex:1">加密保存到本机</button><button class="btn sec" id="lkCancel">取消</button></div>
+  </div>
+  <div id="lkUnlock" style="display:none;margin:6px 0">
+    <div style="display:flex;gap:8px"><input id="lkPwd2" type="password" autocomplete="current-password" placeholder="输入解锁密码" style="flex:1;box-sizing:border-box;padding:10px;border-radius:10px;border:1px solid #3a4553;background:#0f141b;color:#e9eef3;font-size:15px"><button class="btn" id="lkDo">解锁</button></div>
+  </div>
+  <div class="row"><span>操作</span><span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn sec" id="lkSet" style="padding:6px 12px;font-size:14px">设置/更换私钥</button><button class="btn sec" id="lkTest" style="padding:6px 12px;font-size:14px" disabled>测试发一笔</button><button class="btn sec" id="lkDel" style="padding:6px 12px;font-size:14px">删除</button><button class="btn sec" id="lkDetect" style="padding:6px 12px;font-size:14px">检测钱包能否预签</button></span></div>
+  <div class="row"><span>发出时机</span><span id="lkLead">链上整点后 0.06 秒发第 1 笔，+0.4 秒补第 2 笔</span></div>
+  <div class="note"><b>不想粘私钥？</b>先连接钱包，点"检测钱包能否预签"。支持的钱包可以用"钱包预签"模式：整点前 40 秒钱包弹出签名，你随时点确认（不用掐时间），签好的交易留在页面里，到点由页面自动发出，私钥全程不出钱包。不支持的钱包只能二选一：本地签名（下面说明）或弹钱包手点。<br><br>本地签名模式：私钥用你设的密码加密后<b>只存在这台手机的浏览器里</b>，不上传、不发给任何人（本页是静态网页，代码公开在 GitHub，可以查）。到点由页面直接签名、同时发到 3 个链上节点，不经过钱包 App，没有手点延迟；0.4 秒内没上链自动补第二笔。要求：开着本页在前台、别锁屏（页面会申请常亮）。换手机或清浏览器数据要重新设置；不抢了建议点"删除"。</div>
+</div>
+</details></div>
+<script>
+(function(){
+'use strict';
+const DRILL=/[?&]drill=1/.test(location.search)&&/^(127\.0\.0\.1|localhost)$/.test(location.hostname); // 本机演练:假钱包+假RPC,线上域名永不生效
+const RPC=DRILL?'http://127.0.0.1:8545/':'https://rpc.anubispace.org', CHAIN_ID=6714, CHAIN_HEX='0x1a3a';
+const BONDS={lgns:{addr:'0x11b10c9827c5b7071e96fcaa143b4e6e86b17c69',name:'LGNS 销毁债券'},fixed:{addr:'0x3f403751975e1EB06d95901f7FF246513444E71F',name:'固定价销毁债券'}};
+const A={LGNS:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',BOND:BONDS.lgns.addr,TREASURY:'0x9D46CB414E76237d3b83E2a1630481038368f217'};
+function setBond(k,why){ if(!BONDS[k])k='lgns'; A.BOND=BONDS[k].addr; $('bond').value=k; LS('bc_bond',k); if(why) log('已切到「'+BONDS[k].name+'」'+why); }
+// 选择器:新实现 0x8af6b336(10-29 09:58 升级)多了 cap(每窗口上限 5 万)/used(本窗口已领)/win(窗口长度 3600 秒)
+const SEL={claimAll:'0xd1058e59',claim:'0x379607f5',getTotalClaimable:'0x267e8ab6',getClaimable:'0x6f5244b1',getUserDepositCount:'0x1bae91a4',balanceOf:'0x70a08231',cap:'0x440f3da3',used:'0xa07fa7a1',win:'0xb5fb0640'};
+const $=id=>document.getElementById(id);
+const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);while(el.childNodes.length>300)el.removeChild(el.lastChild);try{easy(String(m),cls,t);}catch(e){}};
+/* 11-04 小白版:把技术日志翻成「发生了什么 + 下一步做什么」,只挑关键几条 */
+function easyOf(m,cls){
+  const rl=()=>{try{return relayOn();}catch(e){return false;}}, cue=()=>{try{return isCue();}catch(e){return false;}};
+  let x;
+  if(/^🎉/.test(m)){ x=m.match(/领到了 ([\d.,]+) LGNS/); return {i:'🎉',t:x?'抢到了 '+x[1]+' LGNS！':'抢到了！',s:'已经领到你的钱包，可以去钱包里看。下个整点还会自动继续抢',c:'ok'}; }
+  if(/^这笔被拒/.test(m)){
+    x=m.match(/整点(后 \+|前 )(\d+) 秒/); const empty=/余额|不足|pool|treasury|empty/i.test(m);
+    if(empty) return {i:'😶',t:'没抢到：这一轮额度没了',s:'债券这个整点的额度已经发完了，下个整点自动再来',c:'bad'};
+    if(x&&x[1]==='前 ') return {i:'⏪',t:'没抢到：发早了',s:'还没到整点交易就上链了。页面会自动调整，下个整点再来',c:'bad'};
+    if(x&&Number(x[2])>=1) return {i:'🐢',t:'没抢到：晚了 '+x[2]+' 秒',s:'交易落在整点后第 '+(Number(x[2])+1)+' 个区块，额度已经被领光。下次钱包一弹出来就马上点确认，越早越好',c:'bad'};
+    if(x) return {i:'💸',t:'没抢到：手续费出低了',s:'时间是准的，但同一个区块里大家按手续费排队，出得高的先领光了。下次在钱包确认页把「网络费用 → 自定义 → Gas 价格」调高',c:'bad'};
+    return {i:'❌',t:'没抢到',s:'下个整点会自动再试。想知道原因，展开下面的详细日志截图发客服',c:'bad'};
+  }
+  if(/链上可领取已减少/.test(m)) return {i:'🎉',t:'抢到了！',s:'链上显示已经领到，可以去钱包里看',c:'ok'};
+  if(/^✓ 已交给东京定时节点/.test(m)) return {i:'✅',t:'已交给节点，你不用再动了',s:'到整点会准时帮你发出，结果出来会显示在这里。页面别关',c:'ok'};
+  if(/^弹钱包：/.test(m)) return rl()?{i:'👉',t:'钱包弹出来了，现在就点确认',s:'先确认网络费用（Gas 价格）填好了，然后马上点确认，越早越好',c:'warn'}:cue()?{i:'✋',t:'钱包弹出来了，先别点',s:'手指放在确认键上，等手机长震 + 响声再点',c:'warn'}:{i:'👉',t:'钱包弹出来了，马上点确认',s:'越快越好',c:'warn'};
+  if(/^⚡ 震动提示/.test(m)) return {i:'👉',t:'就是现在，点确认！',s:'',c:'ok'};
+  if(/^已广播/.test(m)) return {i:'📤',t:'交易已发出，等结果…',s:'几秒钟后这里会显示抢没抢到',c:''};
+  if(/^已排好：/.test(m)){ x=m.match(/已排好：(\S+?) 整点/); return {i:'⏰',t:'已开启，等'+(x?' '+x[1]+' ':'')+'整点',s:'整点前钱包会自动弹出来，到时按提示点确认。页面留在前台、手机别锁屏',c:''}; }
+  if(/^还有 10 秒到整点/.test(m)) return {i:'⏳',t:'还有 10 秒到整点',s:m.replace(/^还有 10 秒到整点[：:]?/,''),c:'warn'};
+  if(/^自动领已开启/.test(m)){ x=m.match(/下个整点 \S+ (\d\d:\d\d)/); return {i:'✅',t:'自动领已开启'+(x?'，等 '+x[1]+' 整点':''),s:rl()?'整点前约 45 秒钱包会弹出来，弹出后马上点确认。页面留在前台、手机别锁屏':'整点前钱包会弹出来，按提示点确认。页面留在前台、手机别锁屏',c:'ok'}; }
+  if(/^检查没通过/.test(m)) return {i:'⚠️',t:'没能开启',s:(m.split('：')[1]||'')+'。没有债券换个钱包；gas 不够先往钱包转点 DAI',c:'bad'};
+  if(/^自动领已经开着了/.test(m)) return {i:'✅',t:'自动领已经开着了',s:'不用再点，等整点就行',c:'ok'};
+  if(/^已连接 /.test(m)) return {i:'✅',t:'钱包已连接',s:'下一步：点下面绿色的「开启自动领」',c:'ok'};
+  if(/^你的债券：/.test(m)) return {i:'📄',t:'你的债券',s:m.replace(/^你的债券：/,''),c:''};
+  if(/连续两次取消/.test(m)) return {i:'⏹',t:'已停止',s:'连续取消了两次。想继续抢，再点「开启自动领」',c:'warn'};
+  if(/^你取消了/.test(m)) return {i:'✋',t:'你取消了',s:'这一笔不会发出',c:'warn'};
+  if(/托管节点连不上/.test(m)) return {i:'⚠️',t:'节点暂时连不上，这一轮改成手点',s:'整点前 8 秒钱包会弹出来，等手机震动 + 响声再点确认',c:'bad'};
+  if(/没检测到钱包/.test(m)) return {i:'⚠️',t:'没检测到钱包',s:'请在 OKX、TokenPocket、Bitget 等钱包 App 里打开这个页面',c:'bad'};
+  if(/这笔没经过托管节点/.test(m)) return {i:'⚠️',t:'这笔没走节点，已直接上链',s:'已自动改回手点模式。请展开详细日志截图发客服',c:'bad'};
+  if(/^钱包实际出价 [\d.]+ gwei（比/.test(m)){ x=m.match(/^钱包实际出价 ([\d.]+) gwei/); return {i:'⚠️',t:'这次手续费只填了 '+(x?x[1]:'很低的')+' gwei，大概率排不上',s:'钱包没按页面的出价发（OKX 用的是它自己存的网络费）。这笔已经交出去改不了，下次钱包弹出后点「网络费用 → 自定义」，把 Gas 价格填高再确认',c:'bad'}; }
+  if(/钱包没按页面出价|钱包把出价改成了/.test(m)) return {i:'⚠️',t:'钱包没按设定的手续费发',s:'在钱包确认页点「网络费用 → 自定义」，手动把 Gas 价格填上再确认',c:'bad'};
+  if(/^连接失败/.test(m)) return {i:'⚠️',t:'钱包没连上',s:'关掉页面，在钱包 App 的「发现 / 浏览器」里重新打开再试',c:'bad'};
+  if(/国库只有/.test(m)) return {i:'⚠️',t:'这一轮额度可能不够',s:'债券池子里剩的不多，这个整点大概率抢不到',c:'warn'};
+  if(cls==='bad'&&!/落在整点后|节点会自动校正|自动修正/.test(m)) return {i:'⚠️',t:'出了点问题',s:m.slice(0,70)+(m.length>70?'…':'')+'（展开详细日志截图发客服）',c:'bad'};
+  return null;
+}
+function easy(m,cls,t){
+  if(/^✓ |^已广播|^你取消了|^这笔你取消了|^🎉|连续两次取消/.test(m)) showFill(false);
+  const e=easyOf(m,cls); if(!e) return; const box=$('easy'); if(!box) return;
+  const old=box.querySelector('.ez.first'); if(old){ old.classList.remove('first'); if(!old.querySelector('small')) old.remove(); }
+  const d=document.createElement('div'); d.className='ez first'+(e.c?' '+e.c:'');
+  d.innerHTML='<i></i><div><b></b><span></span><small></small></div>'; d.querySelector('i').textContent=e.i; d.querySelector('b').textContent=e.t;
+  const sp=d.querySelector('span'); if(e.s) sp.textContent=e.s; else sp.remove(); d.querySelector('small').textContent=t.slice(0,8);
+  box.prepend(d); while(box.childNodes.length>8) box.removeChild(box.lastChild);
+}
+const addr32=a=>a.toLowerCase().replace(/^0x/,'').padStart(64,'0'); const u256=n=>BigInt(n).toString(16).padStart(64,'0');
+const f9=v=>(Number(v)/1e9).toLocaleString('en-US',{maximumFractionDigits:2}); const f18=v=>(Number(v)/1e18).toFixed(3);
+const bj=ts=>{const d=new Date(ts*1000+8*3600e3);return d.toISOString().replace('T',' ').slice(5,19);};
+const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p||[200,100,200]);}catch(e){}};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const LS=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}};
+
+let me=null, eth=null, offset=null, coarse=0, armed=false, busy=false, wakeLock=null, warnedHour=0, calibratedHour=0, WINDOW=3600;
+let st={pool:0n,cap:0n,used:0n,claimable:0n,cnt:0,pieces:[],gas:0n,eligible:false};
+
+async function rpc(method,params){const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});const j=await r.json();if(j.error){const e=new Error(j.error.message||'rpc');e.data=j.error.data;throw e;}return j.result;}
+const call=(to,data,from)=>rpc('eth_call',[from?{from,to,data}:{to,data},'latest']);
+const big=h=>BigInt(h&&h!=='0x'?h:'0x0');
+function reason(e){try{let h=(e&&(e.data&&(e.data.data||e.data)))||'';h=String(h).replace(/^0x/,'');if(!h.startsWith('08c379a0')){const m=String((e&&e.message)||'').match(/08c379a0[0-9a-fA-F]+/);if(m)h=m[0];}if(h.startsWith('08c379a0')){const len=parseInt(h.slice(72,136),16);const hex=h.slice(136,136+len*2);let s='';for(let i=0;i<hex.length;i+=2)s+=String.fromCharCode(parseInt(hex.slice(i,i+2),16));return s;}}catch(x){}return (e&&e.message)||String(e);}
+const poolEmpty=why=>/subtraction overflow|insufficient|exceeds balance/i.test(why||''); // 国库没币
+const capHit=why=>/claim cap/i.test(why||'');                                           // 本小时 5 万额度用完
+
+async function keepAwake(){ try{ if('wakeLock' in navigator){ wakeLock=await navigator.wakeLock.request('screen'); $('wake').innerHTML='<span class="ok">已开启 ✓</span>'; wakeLock.addEventListener('release',()=>{$('wake').innerHTML='<span class="warn">已释放（切回本页会重新申请）</span>';}); } else { $('wake').innerHTML='<span class="warn">浏览器不支持，请手动把自动锁屏调长</span>'; } }catch(e){ $('wake').innerHTML='<span class="warn">未能开启：'+(e.message||e)+'</span>'; } }
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ if(armed||me) keepAwake(); syncClock().catch(()=>{}); } });
+
+/* ---- 时钟:粗校准=最新区块时间戳;精校准=盯区块到达的瞬间(整点前 30 秒做),把本机时间对齐到链的秒边界 ---- */
+async function syncClock(){const b=await rpc('eth_getBlockByNumber',['latest',false]);const ts=parseInt(b.timestamp,16);coarse=Date.now()/1000-ts;if(offset===null)showSkew();return ts;}
+function showSkew(){ $('skew').textContent=(offset===null?'粗 '+coarse.toFixed(1):'精 '+offset.toFixed(2))+' 秒（本机−链）'; }
+const off=()=>offset===null?coarse+0.5:offset;      // 本机时间 − 链时间
+const chainNow=()=>Date.now()/1000-off();
+async function calibrate(ms){ // 轮询区块号,新块出现的本机时刻 − 块时间戳,取最小值(最新鲜的一次观察)
+  const t0=Date.now(); let last=null, best=null, n=0, minRtt=null;
+  while(Date.now()-t0<(ms||8000)){
+    try{ const tq=Date.now(); const bn=parseInt(await rpc('eth_blockNumber',[]),16); const now=Date.now()/1000; const rtt=(Date.now()-tq)/1000; if(minRtt===null||rtt<minRtt)minRtt=rtt;
+      if(last!==null&&bn>last){ const b=await rpc('eth_getBlockByNumber',['0x'+bn.toString(16),false]); if(b){ const o=now-parseInt(b.timestamp,16); if(best===null||o<best)best=o; n++; } }
+      last=bn; }catch(e){}
+    await sleep(110);
+  }
+  if(best!==null){ offset=best-(minRtt||0)/2; showSkew(); log('时钟精校准完成：'+n+' 个区块，网络往返 '+(minRtt||0).toFixed(2)+' 秒，偏差 '+offset.toFixed(2)+' 秒（本机−链）'); } else log('精校准没抓到新区块，先用粗校准','warn');
+}
+const nextHour=()=>Math.floor(chainNow()/WINDOW)*WINDOW+WINDOW;   // 下个窗口起点(链时间)
+try{ if(localStorage.getItem('bc_v')!=='10'){ localStorage.removeItem('bc_leadAdj'); localStorage.setItem('bc_lead','cue'); localStorage.setItem('bc_v','10'); } }catch(e){} /* 10-31 23:45 新增"提前弹出、震动再点"模式并设为默认:人手速差几秒就错过 2 个区块的窗口,改成由页面在最佳时刻提示点确认 */
+const CUE_POP=8; if(DRILL) window.__bc={get lead(){return lead()},get cue(){return cueLead()},get isCue(){return isCue()},tune:(d,w)=>tune(d,w),beep:()=>beep(),$:id=>$(id)}; const isCue=()=>$('lead').value==='cue'; const cueLead=()=>Math.min(5,Math.max(0.2,Number(LS('bc_cue')||1.2)));
+let AC=null; function beep(){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==='suspended')AC.resume(); const t=AC.currentTime; [0,0.22,0.44].forEach((d,i)=>{ const o=AC.createOscillator(),g=AC.createGain(); o.type='square'; o.frequency.value=i<2?880:1320; g.gain.setValueAtTime(0.0001,t+d); g.gain.exponentialRampToValueAtTime(0.5,t+d+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+d+0.18); o.connect(g).connect(AC.destination); o.start(t+d); o.stop(t+d+0.2); }); }catch(e){} }
+try{ if(localStorage.getItem('bc_v2')!=='11'){ if(Number(localStorage.getItem('bc_tap')||0)>8) localStorage.removeItem('bc_tap'); if(localStorage.getItem('bc_lkUse')==='local'&&!localStorage.getItem('bc_lk')) localStorage.setItem('bc_lkUse','wallet'); localStorage.setItem('bc_v2','11'); } }catch(e){}
+const tapMem=()=>Number(LS('bc_tap')||0);
+const TARGET=()=>($('bond').value==='fixed')?0.5:0.4; /* 10-31 23:45 固定价 23:00 实测 +0/+1 两块就领光,目标落点从 +1.0 提前到 +0.5 */ /* 想让交易落在整点后几秒:固定价债券额度能撑 3 秒,瞄 +1.0;LGNS 债券 1~2 秒就光,瞄 +0.4 */
+const lead=()=>{ if(isCue())return CUE_POP; const v=Number($('lead').value); if(v===0)return 0; const adj=Number(LS('bc_leadAdj')||0); const t=tapMem(); const k=($('bond').value==='fixed')?0.65:0.85; /* 只按手速的 65%/85% 提前弹:哪怕这次点得比平时快,交易也落不到整点前 */ const base=($('auto').value==='1'&&t>0)?t*k:v; return Math.min(15,Math.max(0.3,base+adj)); };
+
+/* ---- 读链 ---- */
+async function readCap(){ const [c,u,p]=await Promise.all([call(A.BOND,SEL.cap),call(A.BOND,SEL.used),call(A.LGNS,SEL.balanceOf+addr32(A.TREASURY))]); st.cap=big(c); st.used=big(u); st.pool=big(p);
+  const rem=st.cap>st.used?st.cap-st.used:0n; const has=rem>=10n**9n;
+  $('remain').textContent=f9(rem); $('remain').style.color=has?'#5fd08a':'#ff7a7a'; $('capState').innerHTML=has?'<span class="ok">还有 ✓</span>':'<span class="bad">领光了（等下个整点）</span>';
+  $('capLine').textContent=f9(st.used)+' / '+f9(st.cap)+' LGNS'; $('pool').innerHTML=(st.pool>=10n**9n?'<span class="ok">':'<span class="bad">')+f9(st.pool)+' LGNS</span>'; return rem; }
+async function readWindow(){ try{ const w=Number(big(await call(A.BOND,SEL.win))); if(w>=10&&w<=86400) WINDOW=w; }catch(e){} }
+async function loadWallet(){
+  const [cl,cnt,gas]=await Promise.all([call(A.BOND,SEL.getTotalClaimable+addr32(me)),call(A.BOND,SEL.getUserDepositCount+addr32(me)),rpc('eth_getBalance',[me,'latest'])]);
+  const C=big(cl),N=Number(big(cnt)),G=big(gas); st.claimable=C; st.cnt=N; st.gas=G;
+  const pieces=[]; for(let i=0;i<Math.min(N,40);i++){ try{ pieces.push({i,amt:big(await call(A.BOND,SEL.getClaimable+addr32(me)+u256(i)))}); }catch(e){} }
+  pieces.sort((a,b)=>a.amt>b.amt?-1:a.amt<b.amt?1:0); st.pieces=pieces;
+  const okGas=G>=5n*10n**16n, okCl=C>0n;
+  $('cnt').textContent=N+' 笔'; $('claimable').innerHTML='<b class="'+(okCl?'ok':'warn')+'">'+f9(C)+' LGNS</b>'; $('maxPiece').textContent=pieces.length?('第 '+(pieces[0].i+1)+' 笔 '+f9(pieces[0].amt)+' LGNS'):'—';
+  $('gas').innerHTML='<span class="'+(okGas?'ok':'bad')+'">'+f18(G)+(okGas?' ✓':' ✗ 太少（至少 0.05）')+'</span>';
+  st.eligible=okGas&&N>0; $('btnTestFee').disabled=!okGas;
+  const needBig=plan().amt>=10000n*10n**9n; showBid();
+  $('verdict').innerHTML=!N?'<b class="bad">这个钱包没有销毁债券</b>':!okGas?'<b class="bad">gas 不够，先转点 DAI 进来</b>':!okCl?'<b class="warn">暂时没有可领的，等下次释放（每天两次记账）</b>':'<b class="ok">可以领，整点开抢</b>'+(needBig?'<br><span class="warn">大额：必须落在整点第 1 块，gas 要高</span>':'');
+  $('btnArm').disabled=!st.eligible; $('btnNow').disabled=!st.eligible;
+  return st.eligible;
+}
+async function loadState(){ try{ await readCap(); await syncClock(); if(me) await loadWallet(); }catch(e){ log('读链失败：'+reason(e),'bad'); } }
+function plan(){ // 这次要发的交易
+  const mode=$('mode').value;
+  if((mode==='max'||mode==='split')&&st.pieces.length&&st.pieces[0].amt>0n) return {data:SEL.claim+u256(st.pieces[0].i),amt:st.pieces[0].amt,label:'第 '+(st.pieces[0].i+1)+' 笔 '+f9(st.pieces[0].amt),gas:200000};
+  return {data:SEL.claimAll,amt:st.claimable,label:'全部 '+f9(st.claimable),gas:Math.min(3000000,Math.max(300000,160000+45000*st.cnt))}; // 7 笔实测 29 万
+}
+
+function fakeWallet(){ // 演练用假钱包:只在本机 drill 模式存在,自动"确认",交易交给假 RPC
+  return { isDrill:true, selectedAddress:'0xffc31b596754137718f22d7708e1acd7a5c4dbe6', on(){}, async request(q){ if(q.method==='eth_requestAccounts'||q.method==='eth_accounts') return [this.selectedAddress]; if(q.method==='eth_chainId') return CHAIN_HEX; if(q.method==='eth_sendTransaction'){ await sleep(Number(LS('bc_drillTap')||600)); return rpc('eth_sendTransaction',q.params); } return null; } };
+}
+function allProviders(){
+  const w=window; const cands=[];
+  if(w.ethereum){ if(Array.isArray(w.ethereum.providers)) cands.push(...w.ethereum.providers); cands.push(w.ethereum); }
+  if(w.bitkeep&&w.bitkeep.ethereum) cands.push(w.bitkeep.ethereum);
+  if(w.okxwallet) cands.push(w.okxwallet);
+  if(w.tokenpocket&&w.tokenpocket.ethereum) cands.push(w.tokenpocket.ethereum);
+  const uniq=[...new Set(cands.filter(p=>p&&typeof p.request==='function'))];
+  // 多个注入时优先用真正的钱包 App 自己的 provider
+  const best=uniq.find(p=>p.isBitKeep||p.isOkxWallet||p.isOKExWallet||p.isTokenPocket||p.isImToken);
+  return best?[best,...uniq.filter(p=>p!==best)]:uniq;
+}
+function pickProvider(){ return allProviders()[0]||null; }
+const provName=p=>p.isBitKeep?'Bitget':(p.isOkxWallet||p.isOKExWallet)?'OKX':p.isTokenPocket?'TokenPocket':p.isImToken?'imToken':p.isMetaMask?'MetaMask式':'未知';
+const withTO=(pr,ms,tag)=>Promise.race([pr,new Promise((_,rej)=>setTimeout(()=>rej(Object.assign(new Error(tag+'：钱包 '+Math.round(ms/1000)+' 秒没回应'),{code:'TIMEOUT'})),ms))]);
+async function askAccounts(){ // 钱包没回应就换下一个注入接口再试,最后试 eth_accounts
+  const list=allProviders(); let lastErr=null;
+  log('正在连接钱包…（检测到 '+(list.map(provName).join(' / ')||'无')+'，如钱包弹出授权请点「连接/确认」）');
+  for(const p of list){
+    try{ const a=await withTO(p.request({method:'eth_requestAccounts'}),15000,'请求连接('+provName(p)+')'); if(a&&a[0]){ eth=p; return a; } }
+    catch(e){ if(isReject(e)) throw e; lastErr=e; log((e.message||String(e)).slice(0,120)+(list.length>1?'，换下一个接口再试':''),'warn'); }
+  }
+  for(const p of list){ try{ const a=await withTO(p.request({method:'eth_accounts'}),5000,'读取地址'); if(a&&a[0]){ eth=p; return a; } }catch(e){ lastErr=e; } }
+  throw new Error('钱包一直没给地址（'+((lastErr&&lastErr.message)||'无回应')+'）。请：① 钱包里先切到 Anubis 网络；② 关掉这个页面，在钱包「发现」里重新打开；③ 仍不行把日志截图发客服');
+}
+async function connect(){
+  eth=DRILL?fakeWallet():pickProvider(); if(!eth){log('没检测到钱包：请用 OKX / Bitget / TokenPocket / imToken 等钱包 App 的内置浏览器打开本页','bad');return;}
+  try{
+    const accs=DRILL?await eth.request({method:'eth_requestAccounts'}):await askAccounts(); me=accs[0]; $('addr').textContent=me.slice(0,8)+'…'+me.slice(-6);
+    let cid=parseInt(await withTO(eth.request({method:'eth_chainId'}),10000,'读取当前网络'),16);
+    if(cid!==CHAIN_ID){ const chainParam={chainId:CHAIN_HEX,chainName:'Anubis',rpcUrls:(DRILL?[RPC]:['https://zjgame.web3origin.com/bondrpc',RPC]),nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:['https://browser.anubispace.org']}; try{ await withTO(eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_HEX}]}),20000,'切换到 Anubis 网络'); }catch(e1){ if(isReject(e1)) throw e1; log('切链被钱包拒绝（'+(e1&&e1.code)+' '+String(e1&&e1.message||e1).slice(0,80)+'），改为请求添加 Anubis 链','warn'); try{ await withTO(eth.request({method:'wallet_addEthereumChain',params:[chainParam]}),25000,'添加 Anubis 网络'); }catch(e2){ if(isReject(e2)) throw e2; log('添加链也失败（'+(e2&&e2.code)+' '+String(e2&&e2.message||e2).slice(0,80)+'）。请在钱包里手动添加网络：名称 Anubis，Chain ID 6714，RPC '+RPC+'，代币符号 DAI，浏览器 https://browser.anubispace.org，然后切到该网络再回来','bad'); } } try{ cid=parseInt(await eth.request({method:'eth_chainId'}),16); }catch(e){} }
+    $('chain').innerHTML=cid===CHAIN_ID?'<span class="ok">Anubis (6714) ✓</span>':'<span class="bad">链不对：'+cid+'，请在钱包切到 Anubis</span>';
+    eth.on&&eth.on('accountsChanged',()=>location.reload()); eth.on&&eth.on('chainChanged',()=>location.reload());
+    log('已连接 '+me+(DRILL?'（演练模式）':'')); keepAwake();
+    try{ const w=eth.isOkxWallet||eth.isOKExWallet||window.okxwallet?'OKX':eth.isTokenPocket?'TokenPocket':eth.isImToken?'imToken':(eth.isBitKeep||window.bitkeep)?'Bitget':eth.isMetaMask?'MetaMask':'未知'; st.walletName=w; log('钱包：'+w+(w==='OKX'?'（实测 OKX 会把页面出价改成默认 12 gwei，先点「测试」看它认哪种格式）':''),w==='OKX'?'warn':''); }catch(e){}
+    if(!DRILL){ try{ const [a,b]=await Promise.all([call(BONDS.lgns.addr,SEL.getUserDepositCount+addr32(me)),call(BONDS.fixed.addr,SEL.getUserDepositCount+addr32(me))]); const na=Number(big(a)), nb=Number(big(b)); log('你的债券：LGNS 销毁债券 '+na+' 张，固定价销毁债券 '+nb+' 张'); const cur=$('bond').value; if(cur==='lgns'&&na===0&&nb>0) setBond('fixed','（你只在这张有债券）'); else if(cur==='fixed'&&nb===0&&na>0) setBond('lgns','（你只在这张有债券）'); else if(na>0&&nb>0) log('两张都有债券：一个整点只能抢其中一张，想换张就在上面切换','warn'); }catch(e){} }
+    await loadState();
+  }catch(e){log('连接失败：'+(e.message||e),'bad');}
+}
+const isReject=e=>!!(e&&(e.code===4001||e.code==='ACTION_REJECTED'||/reject|denied|cancel|取消|拒绝/i.test(e.message||'')));
+const gweiNow=()=>{ const v=$('gwei').value; if(v!=='auto') return Number(v); return Math.max(localActive()?1500:0, st.bid||100); };
+/* ===================== 本地签名模式:私钥只存本机(AES-GCM+PBKDF2),到点页面自己签名直发 3 个节点 ===================== */
+const RPCS=DRILL?[RPC]:['https://rpc3.anubispace.org','https://rpc.anubispace.org','https://rpc2.anubispace.org'];
+let LK=null; // {pk,addr,wallet} 只在内存
+const localMode=()=>$('lkUse').value==='local';
+const localActive=()=>localMode()&&!!LK;
+const presignMode=()=>$('lkUse').value==='presign';
+const traderMode=()=>$('lkUse').value==='trader';
+const traderActive=()=>traderMode()&&!!eth&&!!me;
+const autoSend=()=>localActive()||traderActive()||(presignMode()&&!!eth&&!!me); // 到点由页面直发(本地签名 or 钱包预签)
+function loadEthers(){ if(window.ethers) return Promise.resolve(window.ethers); return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src='ethers.umd.min.js?v=6.17'; sc.onload=()=>res(window.ethers); sc.onerror=()=>rej(new Error('签名库加载失败，刷新重试')); document.head.appendChild(sc); }); }
+const TE=new TextEncoder(), TD=new TextDecoder();
+async function kdf(pwd,salt){ const base=await crypto.subtle.importKey('raw',TE.encode(pwd),'PBKDF2',false,['deriveKey']); return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']); }
+const b64=u=>btoa(String.fromCharCode.apply(null,new Uint8Array(u))), ub64=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
+function lkStored(){ try{ return JSON.parse(localStorage.getItem('bc_lk')||'null'); }catch(e){ return null; } }
+async function lkSave(pk,pwd){ const E=await loadEthers(); pk=pk.trim().replace(/\s+/g,''); if(!/^0x/i.test(pk)) pk='0x'+pk; if(!/^0x[0-9a-fA-F]{64}$/.test(pk)) throw new Error('私钥格式不对：应是 64 位十六进制'); if(pwd.length<4) throw new Error('密码至少 4 位'); const w=new E.Wallet(pk); const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12)); const key=await kdf(pwd,salt); const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,TE.encode(pk)); localStorage.setItem('bc_lk',JSON.stringify({addr:w.address,salt:b64(salt),iv:b64(iv),ct:b64(ct)})); LK={pk,addr:w.address.toLowerCase(),wallet:w}; return w.address; }
+async function lkUnlock(pwd){ const j=lkStored(); if(!j) throw new Error('没有保存的私钥'); const E=await loadEthers(); const key=await kdf(pwd,ub64(j.salt)); let pk; try{ pk=TD.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:ub64(j.iv)},key,ub64(j.ct))); }catch(e){ throw new Error('密码不对'); } const w=new E.Wallet(pk); LK={pk,addr:w.address.toLowerCase(),wallet:w}; return w.address; }
+function lkRender(){ const j=lkStored(); $('lkState').innerHTML=!j?'<span class="warn">未设置</span>':LK?'<span class="ok">已解锁 '+LK.addr.slice(0,6)+'…'+LK.addr.slice(-4)+' ✓</span>':'<span class="warn">已保存 '+j.addr.slice(0,6)+'…'+j.addr.slice(-4)+'，待解锁</span>'; $('lkUnlock').style.display=(j&&!LK)?'block':'none'; $('lkTest').disabled=!LK; const adj=Number(LS('bc_lkAdj')||0); $('lkLead').textContent='链上整点后 '+(0.06+adj).toFixed(2)+' 秒发第 1 笔，+0.4 秒补第 2 笔（按落点自动微调）'; }
+async function useLocal(){ if(!LK) return false; me=LK.addr; eth=null; $('addr').textContent=me.slice(0,8)+'…'+me.slice(-6); $('chain').innerHTML='<span class="ok">Anubis (6714) · 本地签名 ✓</span>'; st.walletName='本地签名'; keepAwake();
+  if(!DRILL){ try{ const [a,b]=await Promise.all([call(BONDS.lgns.addr,SEL.getUserDepositCount+addr32(me)),call(BONDS.fixed.addr,SEL.getUserDepositCount+addr32(me))]); const na=Number(big(a)), nb=Number(big(b)); log('本地私钥地址 '+me.slice(0,8)+'… 的债券：LGNS 销毁债券 '+na+' 张，固定价销毁债券 '+nb+' 张'); const cur=$('bond').value; if(cur==='lgns'&&na===0&&nb>0) setBond('fixed','（你只在这张有债券）'); else if(cur==='fixed'&&nb===0&&na>0) setBond('lgns','（你只在这张有债券）'); }catch(e){} }
+  await loadState(); return true; }
+function sendRaw(raw){ const one=u=>fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_sendRawTransaction',params:[raw]})}).then(r=>r.json()).then(j=>{ if(j.error) throw new Error(j.error.message||'rpc'); return j.result; }); return Promise.any(RPCS.map(one)).catch(e=>{ const first=(e&&e.errors&&e.errors[0])||e; const m=String((first&&first.message)||first||''); throw new Error(/insufficient funds/i.test(m)?'钱包 DAI 不够付 gas':/nonce too low/i.test(m)?'nonce 已被用（上一笔刚发出），稍后再试':/underpriced|replacement/i.test(m)?'出价低于节点要求':m||'节点拒收'); }); }
+async function presignLocal(H){ const p=plan(); if(p.amt<=0n) return null; const bid=gweiNow(); const gp=BigInt(bid)*10n**9n; const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16);
+  const mk=n=>LK.wallet.signTransaction({type:0,chainId:CHAIN_ID,to:A.BOND,data:p.data,gasLimit:BigInt(p.gas),gasPrice:gp,nonce:n,value:0n});
+  const [raw1,raw2]=await Promise.all([mk(nonce),mk(nonce+1)]); sched.pre={H,raw1,raw2,bid,nonce,p}; log('已预签 2 笔（nonce '+nonce+' / '+(nonce+1)+'，出价 '+bid+' gwei，领 '+p.label+'），等链上整点直发','ok'); return sched.pre; }
+async function attemptLocal(H){
+  try{
+    let pre=(sched.pre&&sched.pre.H===H)?sched.pre:null; if(!pre){ if(!LK){ log('预签还没完成（钱包里那笔签名没点确认），这轮错过','bad'); return 'fail'; } pre=await presignLocal(H||0); if(!pre){ log('没有可领的','warn'); return 'fail'; } }
+    const E=await loadEthers(); const h1=E.keccak256(pre.raw1), h2=pre.raw2?E.keccak256(pre.raw2):null;
+    if(H){ const fireAt=(H+0.06+Number(LS('bc_lkAdj')||0)+off())*1000; while(Date.now()<fireAt-1100) await sleep(50); while(Date.now()<fireAt){} }
+    const t1=Date.now(); let err1=''; sendRaw(pre.raw1).catch(e=>{ err1=e.message||String(e); }); buzz([200]);
+    log('⚡ 第 1 笔已直发'+(H?'（链时 整点'+(chainNow()-H>=0?'后 +':'前 ')+Math.abs(chainNow()-H).toFixed(2)+' 秒）':'')+'，出价 '+pre.bid+' gwei','ok');
+    let hedged=false; if(H&&pre.raw2){ while(Date.now()-t1<420) await sleep(60); const r1=await rpc('eth_getTransactionReceipt',[h1]).catch(()=>null); if(!r1){ sendRaw(pre.raw2).catch(()=>{}); hedged=true; log('第 1 笔 0.4 秒内未见回执，补发第 2 笔（nonce '+(pre.nonce+1)+'）'); } }
+    const res=async h=>{ const r=await waitTx(h,60000); if(!r) return null; let ts=null; try{ ts=parseInt((await rpc('eth_getBlockByNumber',[r.blockNumber,false])).timestamp,16); }catch(e){} return {ok:r.status==='0x1',off:(ts!==null&&H)?ts-H:null,block:parseInt(r.blockNumber,16),gasUsed:parseInt(r.gasUsed,16)}; };
+    const R1=await res(h1); const R2=hedged?await res(h2):null;
+    if(!R1&&!R2&&err1) log('节点拒收：'+err1,'bad');
+    const now=big(await call(A.BOND,SEL.getTotalClaimable+addr32(me)).catch(()=>'0x'+st.claimable.toString(16)));
+    const won=(R1&&R1.ok)||(R2&&R2.ok)||(now+10n**7n<st.claimable);
+    const fm=(R,k)=>R?('第 '+k+' 笔 '+(R.ok?'✅成功':'❌失败')+(R.off!==null?'，落在整点'+(R.off>=0?'后 +':'前 ')+R.off+' 秒':'')+'，区块 '+R.block+'，gas '+(R.gasUsed*pre.bid/1e9).toFixed(2)+' DAI  https://browser.anubispace.org/tx/'+(k===1?h1:h2)):('第 '+k+' 笔没上链');
+    log(fm(R1,1)+(hedged?'<br>'+fm(R2,2):''),won?'ok':'bad');
+    if(won){ buzz([100,50,100,50,400]); log('🎉 领到了 '+pre.p.label+' LGNS！','ok'); }
+    if(H&&R1&&R1.off!==null&&$('auto').value==='1'){ let adj=Number(LS('bc_lkAdj')||0); if(R1.off<0){ adj=Math.min(0.9,adj+0.2); log('第 1 笔落在整点前，下次晚 0.2 秒发','warn'); } else if(R1.off>=1&&!R1.ok){ adj=Math.max(-0.3,adj-0.12); log('第 1 笔落在 +'+R1.off+' 秒，下次早 0.12 秒发','warn'); } LS('bc_lkAdj',String(Math.round(adj*100)/100)); lkRender(); }
+    sched.pre=null;
+    if(won) return 'win'; const why=await simulate(pre.p.data); if(poolEmpty(why)) return 'empty'; return 'late';
+  }catch(e){ log('本地发送出错：'+(e.message||e),'bad'); sched.pre=null; return 'fail'; }
+}
+async function testLocal(){ if(!LK){ log('先解锁本地私钥','warn'); return; } if(busy) return; busy=true; try{ await loadEthers(); const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16); const raw=await LK.wallet.signTransaction({type:0,chainId:CHAIN_ID,to:me,data:'0x',gasLimit:21000n,gasPrice:100n*10n**9n,nonce,value:0n}); const t0=Date.now(); const h=await sendRaw(raw); log('测试：0 元自转账已直发（约 0.002 DAI），节点接收用时 '+(Date.now()-t0)+' ms  '+h); const r=await waitTx(h,60000); if(r&&r.status==='0x1'){ log('✓ 测试上链成功，区块 '+parseInt(r.blockNumber,16)+'，用时 '+((Date.now()-t0)/1000).toFixed(1)+' 秒。本地签名可用，到点会自动发','ok'); } else log(r?'测试交易失败':'60 秒没见回执','bad'); }catch(e){ log('测试失败：'+(e.message||e),'bad'); } finally{ busy=false; loadState().catch(()=>{}); } }
+const doAttempt=H=>localActive()?attemptLocal(H):traderActive()?attemptTrader(H):attempt(H);
+const autoAttempt=H=>traderActive()?attemptTrader(H):attemptLocal(H); // 整点自动发:本地签名/钱包预签走 attemptLocal,交易员模式走 attemptTrader
+/* OKX 交易员模式:钱包对 eth_sendTransaction 免确认直接签发 → 页面在链上整点后 0.06 秒才调用,时机由页面掌握;0.4 秒无回执再发一笔 */
+async function attemptTrader(H){
+  try{
+    const p=plan(); if(p.amt<=0n){ log('没有可领的','warn'); return 'fail'; }
+    const bid=gweiNow(); const mkTx=()=>({from:me,to:A.BOND,data:p.data,gasPrice:'0x'+(BigInt(bid)*10n**9n).toString(16),type:'0x0',gas:'0x'+p.gas.toString(16)});
+    if(H){ const fireAt=(H+0.06+Number(LS('bc_lkAdj')||0)+off())*1000; while(Date.now()<fireAt-1100) await sleep(50); while(Date.now()<fireAt){} }
+    const t1=Date.now(); let h1=null, err1=null; buzz([200]);
+    const s1=eth.request({method:'eth_sendTransaction',params:[mkTx()]}).then(h=>{ h1=h; log('⚡ 第 1 笔已由钱包免确认发出（钱包用时 '+(Date.now()-t1)+' ms'+(H?'，链时 整点'+(chainNow()-H>=0?'后 +':'前 ')+Math.abs(chainNow()-H).toFixed(2)+' 秒':'')+'，页面出价 '+bid+' gwei）'+h,'ok'); },e=>{ err1=e; });
+    await Promise.race([s1,sleep(1500)]);
+    if(!h1&&!err1){ log('钱包 1.5 秒还没返回：交易员模式可能没对这个账户生效，如果弹了确认窗就赶紧手点','warn'); await s1; }
+    if(err1){ if(isReject(err1)){ log('你取消了签名','warn'); return 'rejected'; } log('发送出错：'+(err1.message||err1),'bad'); return 'fail'; }
+    checkBid(h1,bid).catch(()=>{});
+    let hedged=false, h2=null; if(H){ const d=Date.now(); while(Date.now()-d<420) await sleep(60); const r1=await rpc('eth_getTransactionReceipt',[h1]).catch(()=>null); if(!r1){ hedged=true; eth.request({method:'eth_sendTransaction',params:[mkTx()]}).then(h=>{ h2=h; },()=>{}); log('第 1 笔 0.4 秒内未见回执，补发第 2 笔'); await sleep(1500); } }
+    const res=async h=>{ if(!h) return null; const r=await waitTx(h,60000); if(!r) return null; let ts=null; try{ ts=parseInt((await rpc('eth_getBlockByNumber',[r.blockNumber,false])).timestamp,16); }catch(e){} let gp=bid; try{ const t=await rpc('eth_getTransactionByHash',[h]); gp=Number(BigInt(t.gasPrice||t.maxFeePerGas||0))/1e9; }catch(e){} return {ok:r.status==='0x1',off:(ts!==null&&H)?ts-H:null,block:parseInt(r.blockNumber,16),gasUsed:parseInt(r.gasUsed,16),gp,h}; };
+    const R1=await res(h1); const R2=hedged?await res(h2):null;
+    const now=big(await call(A.BOND,SEL.getTotalClaimable+addr32(me)).catch(()=>'0x'+st.claimable.toString(16)));
+    const won=(R1&&R1.ok)||(R2&&R2.ok)||(now+10n**7n<st.claimable);
+    const fm=(R,k)=>R?('第 '+k+' 笔 '+(R.ok?'✅成功':'❌失败')+(R.off!==null?'，落在整点'+(R.off>=0?'后 +':'前 ')+R.off+' 秒':'')+'，区块 '+R.block+'，实际出价 '+R.gp+' gwei，gas '+(R.gasUsed*R.gp/1e9).toFixed(2)+' DAI  https://browser.anubispace.org/tx/'+R.h):('第 '+k+' 笔没上链');
+    log(fm(R1,1)+(hedged?'<br>'+fm(R2,2):''),won?'ok':'bad');
+    if(won){ buzz([100,50,100,50,400]); log('🎉 领到了 '+p.label+' LGNS！','ok'); }
+    if(H&&R1&&R1.off!==null&&$('auto').value==='1'){ let adj=Number(LS('bc_lkAdj')||0); if(R1.off<0){ adj=Math.min(0.9,adj+0.2); log('第 1 笔落在整点前，下次晚 0.2 秒发','warn'); } else if(R1.off>=1&&!R1.ok){ adj=Math.max(-0.3,adj-0.12); log('第 1 笔落在 +'+R1.off+' 秒，下次早 0.12 秒发','warn'); } LS('bc_lkAdj',String(Math.round(adj*100)/100)); lkRender(); }
+    if(won) return 'win'; const why=await simulate(p.data); if(poolEmpty(why)) return 'empty'; return 'late';
+  }catch(e){ if(isReject(e)){ log('你取消了签名','warn'); return 'rejected'; } log('发送出错：'+(e.message||e),'bad'); return 'fail'; }
+}
+/* 彩排:手点模式下,整点前 2 分钟用一笔 0 元自转账完整走一遍"震动→你点确认→钱包指纹/密码→广播",量出真实反应时间,直接把震动提示时刻定成 反应+0.3 秒 */
+async function rehearse(H){
+  if(!eth||!me||busy) return; busy=true;
+  try{
+    const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16);
+    const tx={from:me,to:me,value:'0x0',type:'0x0',gasPrice:'0x'+(100n*10n**9n).toString(16),gas:'0x5208',nonce:'0x'+nonce.toString(16)};
+    log('🎬 彩排开始：钱包马上弹一笔 0 元自转账，像正式抢那样——先别点，等震动+响声再点确认（含指纹/密码）','warn');
+    await sleep(2500); buzz([700,120,700,120,1000]); beep(); const t0=Date.now(); $('armState').innerHTML='<b class="warn flash">彩排：就是现在，点确认！</b>';
+    let h; try{ h=await eth.request({method:'eth_sendTransaction',params:[tx]}); }catch(e){ if(isReject(e)){ log('彩排取消了，整点按上次的提示时刻来','warn'); return; } throw e; }
+    const react=Math.round((Date.now()-t0)/1000*10)/10; const prev=Number(LS('bc_react')||0); const ema=prev?Math.round((prev*0.3+react*0.7)*10)/10:react; LS('bc_react',String(ema));
+    const cue=Math.round(Math.min(5,Math.max(0.2,ema+0.3))*10)/10; LS('bc_cue',String(cue));
+    log('彩排完成：从震动到交易发出 '+react+' 秒（含钱包确认步骤）→ 正式整点改为提前 '+cue.toFixed(1)+' 秒震动提示。'+(react>2.5?'反应偏慢，建议在钱包设置里关掉小额交易的指纹/密码确认':''),'ok');
+    checkBid(h,100).catch(()=>{});
+  }catch(e){ log('彩排出错：'+(e.message||e),'bad'); } finally{ busy=false; }
+}
+async function presignWallet(H){ // 钱包预签:eth_signTransaction 只签不发,签好的 raw 留在页面,到点直发
+  const p=plan(); if(p.amt<=0n){ log('没有可领的','warn'); return null; }
+  const bid=gweiNow(); const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16);
+  const tx={from:me,to:A.BOND,data:p.data,gas:'0x'+p.gas.toString(16),gasPrice:'0x'+(BigInt(bid)*10n**9n).toString(16),nonce:'0x'+nonce.toString(16),chainId:CHAIN_HEX,value:'0x0'};
+  buzz([300,80,300]); log('钱包弹出签名：这是 '+bj(H)+' 整点要发的那笔（领 '+p.label+'，出价 '+bid+' gwei），现在随时点确认即可，页面到点自动发','warn');
+  let raw=await eth.request({method:'eth_signTransaction',params:[tx]}); if(raw&&typeof raw==='object') raw=raw.raw||raw.rawTransaction||raw.signedTransaction||raw.result;
+  if(typeof raw!=='string'||!/^0x[0-9a-fA-F]{100,}$/.test(raw)) throw new Error('钱包没有返回签好的交易（返回：'+String(raw).slice(0,40)+'）');
+  let realGwei=bid; try{ const E=await loadEthers(); const t=E.Transaction.from(raw); realGwei=Number(t.gasPrice||t.maxFeePerGas||0n)/1e9; }catch(e){}
+  sched.pre={H,raw1:raw,raw2:null,bid:realGwei,nonce,p}; log('✓ 预签完成（nonce '+nonce+'，钱包实际出价 '+realGwei+' gwei），到点自动发，不用再点','ok'); if(realGwei<bid*0.8) log('注意：钱包把出价改成了 '+realGwei+' gwei，可能排不到首块。请在钱包确认页把网络费用改成自定义 '+bid+'','bad'); return sched.pre; }
+async function detectPresign(){ if(!eth||!me){ log('先切到"弹钱包"或"钱包预签"模式并连接钱包，再检测','warn'); return; } try{ const nonce=parseInt(await rpc('eth_getTransactionCount',[me,'pending']),16); log('检测：钱包会弹出一笔 0 元自转账的签名请求，点确认（只签名不发送，不花钱）','warn'); let raw=await Promise.race([eth.request({method:'eth_signTransaction',params:[{from:me,to:me,value:'0x0',gas:'0x5208',gasPrice:'0x'+(100n*10n**9n).toString(16),nonce:'0x'+nonce.toString(16),chainId:CHAIN_HEX}]}), sleep(20000).then(()=>{ throw new Error('20 秒没弹出签名也没返回：这个钱包不支持只签名'); })]); if(raw&&typeof raw==='object') raw=raw.raw||raw.rawTransaction||raw.signedTransaction||raw.result; if(typeof raw==='string'&&/^0x[0-9a-fA-F]{100,}$/.test(raw)){ LS('bc_presignOK','1'); log('✓ 你的钱包支持预签！已自动切到"钱包预签"模式：私钥不出钱包，到点页面自动发','ok'); $('lkUse').value='presign'; LS('bc_lkUse','presign'); lkRender(); } else log('✗ 钱包返回的不是签好的交易（'+String(raw).slice(0,50)+'），不支持预签','bad'); }catch(e){ if(isReject(e)) log('你取消了检测','warn'); else log('✗ 这个钱包不支持预签（'+(e.message||e).slice(0,80)+'）。换 TokenPocket 或 Coinbase Wallet 再测，或用弹钱包手点','bad'); } }
+function showBid(){ const g=gweiNow(); const cost=g*plan().gas/1e9; $('bidNow').innerHTML='<b>'+g+' gwei</b>（这笔最多约 '+cost.toFixed(2)+' DAI'+(st.prevMax?'，上一整点第 1 块最高成功价 '+st.prevMax+'）':'）'); }
+async function learnBid(H){ // 看上一整点第 1 块里本合约成功交易的最高 gasPrice,出价 = ×1.3 向上取整到 10,夹在 [100, 上限]
+  try{
+    const prevH=H-WINDOW; const latest=await rpc('eth_getBlockByNumber',['latest',false]); let hi=parseInt(latest.number,16), lo=Math.max(0,hi-8000);
+    const tsOf=async b=>parseInt((await rpc('eth_getBlockByNumber',['0x'+b.toString(16),false])).timestamp,16);
+    while(hi-lo>1){ const m=(lo+hi)>>1; (await tsOf(m))<prevH?lo=m:hi=m; }
+    const blk=await rpc('eth_getBlockByNumber',['0x'+hi.toString(16),true]); const mine=blk.transactions.filter(x=>x.to&&x.to.toLowerCase()===A.BOND.toLowerCase());
+    let maxOk=0,maxAll=0; for(const x of mine){ const gp=Number(BigInt(x.gasPrice||x.maxFeePerGas||0))/1e9; maxAll=Math.max(maxAll,gp); const r=await rpc('eth_getTransactionReceipt',[x.hash]); if(r&&r.status==='0x1') maxOk=Math.max(maxOk,gp); }
+    const base=maxOk||maxAll; st.prevMax=Math.round(base); const cap=Number($('gcap').value); st.bid=Math.min(cap,Math.max(100,Math.ceil(base*1.3/10)*10));
+    log('上一整点第 1 块：本合约 '+mine.length+' 笔，最高成功出价 '+Math.round(maxOk)+' gwei（最高出价 '+Math.round(maxAll)+'）→ 本次自动出价 '+st.bid+' gwei'+(st.bid>=cap?'（已到上限）':''),'warn'); showBid();
+  }catch(e){ log('读上一整点出价失败（'+(e.message||e).slice(0,50)+'），用 '+(st.bid||100)+' gwei','warn'); }
+}
+async function sendTx(to,data,gwei,gasLimit){
+  const wei='0x'+(BigInt(gwei)*10n**9n).toString(16);
+  const full=$('feeMode').value==='1559'?{from:me,to,data,type:'0x2',maxFeePerGas:wei,maxPriorityFeePerGas:wei,gas:'0x'+gasLimit.toString(16)}:{from:me,to,data,gasPrice:wei,type:'0x0',gas:'0x'+gasLimit.toString(16)};
+  try{ return await eth.request({method:'eth_sendTransaction',params:[full]}); }
+  catch(e){ if(isReject(e)) throw e; log('钱包不接受带 gas 参数的交易（'+(e.message||e).slice(0,60)+'），改用钱包默认参数重发','warn'); return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data}]}); }
+}
+async function checkBid(h,bid){ // 钱包可能无视页面出价(实测 100→12 gwei):取回链上这笔的真实 gasPrice 对比
+  let t=null; for(let i=0;i<8&&!t;i++){ try{ t=await rpc('eth_getTransactionByHash',[h]); }catch(e){} if(!t) await sleep(400); }
+  if(!t) return; const real=Number(BigInt(t.gasPrice||t.maxFeePerGas||0))/1e9; st.realBid=real;
+  if(real<bid*0.8){ const fm=$('feeMode').value; log('⚠ 钱包没按页面出价：页面要 '+bid+' gwei，钱包实际只发了 '+real+' gwei，这样排不进整点第 1 块。'+(fm==='legacy'?'已自动改成 EIP-1559 格式，下个整点再试；':'两种格式钱包都不认，')+'请在钱包确认页手动把 gas 价格改成 '+bid+' gwei，或换 TokenPocket / OKX 钱包打开本页','bad'); if(fm==='legacy'){ $('feeMode').value='1559'; LS('bc_feeMode','1559'); } }
+  else log('钱包实际出价 '+real+' gwei ✓');
+}
+async function testFee(){
+  if(!eth){ log('本地签名模式请用上面的"测试发一笔"','warn'); return; }
+  if(!me){ log('先连接钱包','warn'); return; } if(busy) return; busy=true; $('btnTestFee').disabled=true;
+  const order=[$('feeMode').value, $('feeMode').value==='1559'?'legacy':'1559']; let okFmt='';
+  try{
+    for(const fm of order){
+      const wei='0x'+(100n*10n**9n).toString(16);
+      const tx=fm==='1559'?{from:me,to:me,value:'0x0',type:'0x2',maxFeePerGas:wei,maxPriorityFeePerGas:wei,gas:'0x5208'}:{from:me,to:me,value:'0x0',type:'0x0',gasPrice:wei,gas:'0x5208'};
+      log('测试 '+(fm==='1559'?'EIP-1559':'旧式 gasPrice')+' 格式：请在钱包确认这笔 0 元自转账（页面要求 100 gwei）','warn');
+      let h; const tT=Date.now(); try{ h=await eth.request({method:'eth_sendTransaction',params:[tx]}); }catch(e){ if(isReject(e)){ log('你取消了测试','warn'); return; } log('该格式钱包直接拒绝（'+(e.message||e).slice(0,60)+'）','bad'); continue; }
+      { const dtq=Date.now()-tT; if(dtq<1500&&!DRILL){ log('✓ 钱包 '+dtq+' ms 就发出去了，没有弹确认：交易员模式对这个账户生效。已切到「OKX 交易员模式」，到点页面自动发，不用你点','ok'); $('lkUse').value='trader'; LS('bc_lkUse','trader'); lkRender(); } }
+      { const tp=Math.round((Date.now()-tT)/1000*10)/10; if(!isCue()&&!tapMem()&&tp>0.3&&tp<8){ LS('bc_tap',String(tp)); log('顺便记下你的手速 '+tp.toFixed(1)+' 秒（从弹出到点确认），整点会按它算提前量','warn'); } }
+      let t=null; for(let i=0;i<20&&!t;i++){ try{ t=await rpc('eth_getTransactionByHash',[h]); }catch(e){} if(!t) await sleep(500); }
+      const real=t?Number(BigInt(t.gasPrice||t.maxFeePerGas||0))/1e9:NaN;
+      if(real>=80){ okFmt=fm; log('✓ 钱包按 '+(fm==='1559'?'EIP-1559':'旧式')+' 格式照办了，实际 '+real+' gwei。已设为该格式','ok'); $('feeMode').value=fm; LS('bc_feeMode',fm); $('feeTest').innerHTML='<span class="ok">认 '+(fm==='1559'?'EIP-1559':'旧式')+' ✓</span>'; break; }
+      log('✗ 该格式被钱包改成 '+(isNaN(real)?'未知':real+' gwei'),'bad');
+    }
+    if(!okFmt){ $('feeTest').innerHTML='<span class="bad">两种都不认</span>'; log('两种格式钱包都不照办。抢的时候请在钱包确认页点"网络费用"→"自定义"，把 gas 价格手动填成页面显示的"本次出价"，再确认；或换 TokenPocket 钱包打开本页（它照单全收）','bad'); }
+  }finally{ busy=false; $('btnTestFee').disabled=false; }
+}
+async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||90000)){try{const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;}catch(e){}await sleep(350);}return null;}
+async function simulate(data){ try{ await call(A.BOND,data,me); return ''; }catch(e){ return reason(e)||'unknown'; } }
+function tune(delta,why){ if($('auto').value!=='1')return; if(isCue()){ const c=cueLead(); const nx=Math.round(Math.min(5,Math.max(0.2,c+Math.max(-3,Math.min(3,delta))))*10)/10; /* 11-01 00:00 实测:提示后 3.3 秒才按下,落 +3 秒,单次只修 1 秒要两三个整点才追得上,改为一次修到位(±3,上限 5 秒) */ LS('bc_cue',String(nx)); log('自动修正：'+why+'，下次改为整点前 '+nx.toFixed(1)+' 秒震动提示点确认','warn'); return; } const cur=Number(LS('bc_leadAdj')||0); const nx=Math.round(Math.min(4,Math.max(-4,cur+Math.max(-1.5,Math.min(1.5,delta))))*10)/10; LS('bc_leadAdj',String(nx)); log('自动修正：'+why+'，下次改为整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); }
+/* 按落点修正:offset=落点区块相对整点的秒数(整数,取块中点 +0.5),把下次落点往目标拉 */
+function tuneTo(offset){ const T=TARGET(); const mid=offset+0.5; const d=T-mid; if(Math.abs(d)<0.4) return; tune(-d*0.9, offset<0?('发早了,落在整点前 '+(-offset)+' 秒'):('发晚了,落在整点后 '+offset+' 秒,目标 +'+T.toFixed(1))); }
+
+/* 发一笔:返回 win / early / late / empty / rejected / fail。H=这次瞄准的窗口起点(链时间),整点外的机会性领取传 0 */
+async function attempt(H){
+  const p=plan(); if(p.amt<=0n){ log('没有可领的','warn'); return 'fail'; }
+  try{
+    showFill(true); const RL=relayOn()&&!!H; if(RL){ buzz([300,80,300]); $('armState').innerHTML='<b class="warn flash">钱包已弹出 · 现在点确认（东京节点到整点准时发）</b>'; } else if(isCue()){ $('armState').innerHTML='<b class="warn">钱包已弹出 · 先别点 · 等震动+响声再点确认</b>'; } else { buzz([300,80,300,80,500]); $('armState').innerHTML='<b class="warn flash">快点确认！</b>'; } const cs=chainNow(), rel=H?cs-H:0; const lateMs=(H&&sched.popAt)?Date.now()-sched.popAt:0; if(lateMs>150) log('注意：弹窗比排定晚了 '+(lateMs/1000).toFixed(2)+' 秒（浏览器节流/卡顿），请保持本页前台、关省电','warn'); log('弹钱包：领 '+p.label+' LGNS，gas '+gweiNow()+' gwei'+(H?'（估计链时间 整点'+(rel<0?'前 ':'后 +')+Math.abs(rel).toFixed(2)+' 秒）':'')+' —— 请立刻点确认','warn');
+    const tTap=Date.now(); const bid=gweiNow(); const h=await sendTx(A.BOND,p.data,bid,p.gas); const tap=((Date.now()-tTap)/1000).toFixed(1);
+    if(RL){ let got=false; for(let i=0;i<4&&!got;i++){ const sv=await relayGet('/seen?a='+me,2500); got=!!(sv&&sv.sendHash&&String(sv.sendHash).toLowerCase()===String(h).toLowerCase()); if(!got) await sleep(400); } if(!got){ relayDel(me); markBypass(); relayRender(); log('✗ 这笔没经过托管节点（钱包对合约交易走了自己的线路），已直接上链、等不到整点。托管模式已自动关闭，下个整点改回震动手点。请把这条截图发给技术','bad'); } }
+    if(RL){ sched.relayH=H; log('✓ 已交给东京定时节点（你用了 '+tap+' 秒确认），'+bj(H)+' 整点准时发出，你不用再动 '+h,'ok'); } else log('已广播（从弹出到发出 '+tap+' 秒，出价 '+bid+' gwei）'+h);
+    if(isCue()&&sched.cueAt){ const re=Math.round((Date.now()-sched.cueAt)/100)/10; log(re<0?'注意：你在震动提示前 '+(-re).toFixed(1)+' 秒就点了确认，没等提示':'从震动提示到发出 '+re.toFixed(1)+' 秒','warn'); }
+    if(!RL) checkBid(h,bid).catch(()=>{});
+    let learned=false; if(H&&$('auto').value==='1'&&!isCue()&&!RL){ const prev=tapMem(); const nt=Math.round((prev>0?prev*0.4+Number(tap)*0.6:Number(tap))*10)/10; LS('bc_tap',String(nt)); if(!prev||Math.abs(nt-prev)>=1){ learned=true; log('记住你的手速 '+nt.toFixed(1)+' 秒：下次整点前 '+lead().toFixed(1)+' 秒弹钱包','warn'); } }
+    const r=await waitTx(h,90000);
+    let landed=null; if(r){ try{ const b=await rpc('eth_getBlockByNumber',[r.blockNumber,false]); landed=parseInt(b.timestamp,16); }catch(e){} }
+    const where=(landed!==null&&H)?('，落在整点'+(landed-H>=0?'后 +':'前 ')+(landed-H)+' 秒的区块'):'';
+    if(r&&r.status==='0x1'){ buzz([100,50,100,50,400]); log('🎉 领到了 '+p.label+' LGNS！区块 '+parseInt(r.blockNumber,16)+where+'  https://browser.anubispace.org/tx/'+h,'ok'); if(H&&landed!==null&&landed-H>=2&&!RL) tuneTo(landed-H); return 'win'; }
+    const now=big(await call(A.BOND,SEL.getTotalClaimable+addr32(me)).catch(()=>'0x'+st.claimable.toString(16)));
+    if(now+10n**7n<st.claimable){ buzz([100,50,100,50,400]); log('🎉 链上可领取已减少 → 领取成功','ok'); return 'win'; }
+    if(!r){ log('90 秒没拿到回执，链上也没显示领到，可能网络卡了','bad'); return 'fail'; }
+    const why=await simulate(p.data); log('这笔被拒（'+(why||'未知原因')+'）'+where,'bad');
+    if(poolEmpty(why)) return 'empty';
+    if(RL&&H&&landed!==null){ log('托管节点这笔落在整点'+(landed-H>=0?'后 +':'前 ')+(landed-H)+' 秒，节点会自动校正发送时刻','warn'); return landed<H?'early':'late'; }
+    if(H&&landed!==null){ const offset=landed-H; if(offset<0){ if(isCue()&&offset<-2) log('这笔发早了：没等震动提示就点了确认。下次弹出后先别动，震动+响声时再点','bad'); else tuneTo(offset); return 'early'; } if(offset>=2){ tuneTo(offset); return 'late'; } log('落在整点后 '+offset+' 秒但没挤进去：同块里出价更高的人先领光了。自动出价下次会按本整点最高价再加三成','warn'); return 'late'; }
+    return 'fail';
+  }catch(e){ if(isReject(e)){log('你取消了签名','warn');return 'rejected';} log('发送出错：'+(e.message||e),'bad'); return 'fail'; }
+}
+
+/* 整点冲刺用独立定时器,不受读链快慢影响:整点前 25 秒排好本机时刻,到点前 40ms 起 3ms 一查,准点弹钱包 */
+let sched={H:0,timer:null,popAt:0}, firing=false, rejects=0;
+function scheduleFire(H){
+  if(sched.H===H)return; sched.H=H; const L=autoSend()?1.5:relayOn()?RELAY_POP:lead(); const popAtMs=(H-L+off())*1000;
+  const d=new Date(popAtMs); log('已排好：'+bj(H)+' 整点'+(autoSend()?'后 '+(0.06+Number(LS('bc_lkAdj')||0)).toFixed(2)+' 秒本地签名直发':(L?'前 '+L.toFixed(1)+' 秒弹钱包':'后模拟通过弹钱包'))+'（本机 '+d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0')+'）');
+  clearTimeout(sched.timer); clearTimeout(sched.cueTimer); sched.cueAt=0;
+  sched.popAt=popAtMs;
+  // 浏览器会把后台/省电状态的定时器对齐到整秒(实测晚 0.9 秒):提前 1.6 秒醒来,最后 1.1 秒同步自旋,精确到毫秒
+  sched.timer=setTimeout(async()=>{ while(Date.now()<popAtMs-1100) await sleep(50); while(Date.now()<popAtMs){} if(!armed||sched.H!==H) return; await fireWindow(H,L); }, Math.max(0,popAtMs-Date.now()-1600));
+}
+async function fireWindow(H,L){
+  if(firing)return; firing=true;
+  try{
+    let r;
+    if(autoSend()&&H){ r=await autoAttempt(H); await handleResult(r,'这个整点没成，等下个整点自动再来'); return; }
+    if(relayOn()&&H){ const ping=await relayGet('/status',3000); if(!ping){ st.relayDown=true; sched.H=0; log('托管节点连不上，这一轮改回手点：整点前 8 秒弹钱包，等震动再点','bad'); relayRender(); return; } }
+    if(isCue()&&H&&!relayOn()){ const cueAtMs=(H-cueLead()+off())*1000; sched.cueAt=cueAtMs; clearTimeout(sched.cueTimer);
+      sched.cueTimer=setTimeout(async()=>{ while(Date.now()<cueAtMs-1100) await sleep(50); while(Date.now()<cueAtMs){} if(!armed||sched.H!==H) return; buzz([700,120,700,120,1000]); beep(); $('armState').innerHTML='<b class="warn flash">就是现在，点确认！</b>'; log('⚡ 震动提示：现在点确认！（整点前 '+cueLead().toFixed(1)+' 秒）','ok'); }, Math.max(0,cueAtMs-Date.now()-1600)); }
+    if(L>0){ r=(relayOn()&&$('mode').value==='split')?await attemptSplit(H):await attempt(H); }
+    else { const t0=Date.now(); let why='x'; while(armed&&Date.now()-t0<6500){ why=await simulate(plan().data); if(!why)break; await sleep(120); } if(why){ log('整点后 6 秒内模拟一直不过（'+why+'），这波没赶上','bad'); return; } r=await attempt(H); }
+    await handleResult(r,'这个整点没成，等下个整点自动再来');
+  }catch(e){ log('冲刺出错：'+(e.message||e),'bad'); } finally{ firing=false; }
+}
+async function handleResult(r,missMsg){
+  if(r==='skip') return;
+  if(r==='win'){ rejects=0; await afterWin(); return; }
+  if(r==='rejected'){ if(++rejects>=2){ log('连续两次取消，停止。想继续再点"开启自动领"','warn'); armed=false; } return; }
+  if(missMsg) log(missMsg,'warn');
+}
+/* 核心循环:平时每 2 秒看额度,有剩且够就模拟后立刻领;整点前 30 秒精校准 → 25 秒排定时器 → 10 秒震动;最后 4 秒不读链,让路给定时器 */
+async function watch(){
+  if(busy)return; busy=true; let lastWallet=0, lastCapLog=0;
+  try{
+    while(armed){
+      const now=chainNow(); const H=nextHour(); const left=H-now;
+      if(firing||left<=4){ await sleep(50); continue; }
+      { const prevH=H-WINDOW; if(relayOn()&&bidAuto()&&st.mktH!==prevH&&now-prevH>15&&!DRILL){ st.mktH=prevH; computeMarket(prevH).catch(()=>{}); } }
+      if(left<=75&&left>30&&st.bidHour!==H&&!DRILL){ st.bidHour=H; if($('gwei').value==='auto'&&!relayOn()) learnBid(H).catch(()=>{}); continue; } /* 11-02 12:00 实测:learnBid 逐笔查回执要几十秒,堵住了整点前 45 秒的弹窗(实际 -5.85 秒才弹),改为后台跑、托管模式不跑 */
+      if(left<=30&&calibratedHour!==H&&!DRILL){ calibratedHour=H; await calibrate(Math.min(8000,Math.max(2000,(left-8)*1000))); continue; }
+      if(localActive()&&left<=9&&left>4&&(!sched.pre||sched.pre.H!==H)){ try{ await presignLocal(H); }catch(e){ log('预签失败：'+(e.message||e),'bad'); } continue; }
+      if(presignMode()&&eth&&left<=40&&left>8&&sched.preH!==H){ sched.preH=H; presignWallet(H).catch(e=>{ log(isReject(e)?'你取消了预签，这个整点不会发':'预签失败：'+(e.message||e),'bad'); }); }
+      if(isCue()&&!autoSend()&&!relayOn()&&eth&&$('reh').value==='1'&&left<=150&&left>70&&sched.rehH!==H){ sched.rehH=H; busy=false; await rehearse(H); busy=true; continue; }
+      if(left<=(relayOn()?RELAY_POP+12:25)&&sched.H!==H) scheduleFire(H);
+      if(left<=10&&warnedHour!==H){ warnedHour=H; buzz([80,60,80,60,80]); if(relayOn()&&sched.relayH!==H) log('还有 10 秒到整点：钱包那笔还没确认的话，马上点确认（整点前点都算数）','warn'); else if(relayOn()) log('还有 10 秒到整点：交易已在东京节点排好，到点自动发，你不用动'); else log(autoSend()?(sched.pre&&sched.pre.H===H?'还有 10 秒到整点：交易已签好，页面会自动发，你不用动，保持本页在前台':'还有 10 秒到整点：钱包里那笔签名还没确认，快点确认，不然这轮发不出去'):isCue()?'还有 10 秒到整点：钱包马上弹出，弹出后先别点，手指放在确认键上等震动+响声':'还有 10 秒到整点，手指放在确认键上','warn'); }
+      if(left>40&&now-lastWallet>45){ lastWallet=now; try{ await loadWallet(); }catch(e){} }
+      let rem; try{ rem=await readCap(); }catch(e){ await sleep(1000); continue; }
+      const minC=BigInt(Math.round(Number($('minClaim').value)))*10n**9n; const p=plan(); const need=p.amt;
+      if(need<minC){ $('armState').innerHTML='<span class="ok">守候中</span>，可领取 '+f9(need)+' 不到 '+f9(minC)+'，等下次释放'; await sleep(5000); continue; }
+      // 机会性:本小时额度还够、国库也够 → 模拟通过就直接领(大户没领满时会出现)
+      const since=now-(H-WINDOW); if(rem>=need&&st.pool>=need&&left>8&&since>10){ const why=await simulate(p.data); if(!why){ log('额度还剩 '+f9(rem)+'，够领 '+p.label+'，模拟通过，立刻领','ok'); await handleResult(await doAttempt(0),''); await sleep(2000); continue; } }
+      const L=lead();
+      $('armState').innerHTML='<span class="ok">守候中</span>，'+(left>60?'等下个整点':'整点倒计时 '+left.toFixed(1)+' 秒')+(autoSend()?'，整点后 '+(0.06+Number(LS('bc_lkAdj')||0)).toFixed(2)+' 秒'+(localActive()?'本地签名':traderActive()?'钱包免确认':'用钱包预签的交易')+'自动直发':(L?(isCue()?'，整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'，整点前 '+L.toFixed(1)+' 秒弹钱包'):'，整点后模拟通过弹钱包'));
+      if(st.pool<need&&left<=20&&now-lastCapLog>60){ lastCapLog=now; log('注意：国库只有 '+f9(st.pool)+'，不够领 '+f9(need)+'，这波大概率白发','warn'); }
+      await sleep(left<=40?500:2000);
+    }
+  } finally { busy=false; clearTimeout(sched.timer); sched.H=0; if(!armed) $('armState').textContent=$('armState').textContent.includes('成功')?$('armState').textContent:'已结束'; loadState().catch(()=>{}); }
+}
+/* 托管 + 拆单(11-02 12:20):12:00 实测大户 65000 gwei 一笔拿走 4 万多,剩下零头只有小额单笔塞得进 → 整点前连续弹最大的几笔 claim(i),节点到点一起发 */
+async function attemptSplit(H){
+  if(lossHit()){ const o=lossGet(); armed=false; log('🛑 止损：今天手续费 '+o.fee.toFixed(2)+' DAI、连败 '+o.streak+' 次，已自动停止。想继续请明天再来，或手动再点"开启自动领"（连败会清零）','bad'); return 'skip'; }
+  if(bidAuto()&&st.mkt&&st.mkt.H===H-WINDOW&&st.mkt.bid>BID_CAP){ log('⏭ 这个整点跳过：按上一小时行情要出 '+st.mkt.bid+' gwei 才排得上，超过封顶 30 万，不发不花钱','warn'); return 'skip'; }
+  const bid=relayBid(); const GL=160000; const per=BigInt(GL)*BigInt(bid)*10n**9n;
+  const NW=Number($('splitN').value)||1; let K=Math.min(NW,Number((st.gas||0n)/per));
+  try{ const code=await rpc('eth_getCode',[me,'latest']); if(String(code).toLowerCase().startsWith('0xef0100')&&K>1){ K=1; log('这个钱包开着「智能账户」(EIP-7702 委托)，节点只允许同时挂 1 笔，本次只发最大的 1 笔。想拆单请在 OKX 设置里关掉智能账户','warn'); } }catch(e){} const ps=(st.pieces||[]).filter(x=>x.amt>0n).slice(0,Math.max(K,0));
+  if(K<1){ buzz([500,150,500]); $('armState').innerHTML='<b class="bad">这个整点没弹窗：DAI 不够（出价 '+bid+' gwei 要预留约 '+f18(per)+' DAI，钱包只有 '+f18(st.gas||0n)+'）</b>'; log('gas 不够：出价 '+bid+' gwei 每笔要预留约 '+f18(per)+' DAI，钱包只有 '+f18(st.gas||0n)+'。这个整点没弹窗。请往钱包转些 DAI，或把托管出价调低','bad'); return 'skip'; }
+  if(K<NW&&ps.length>K) log('gas 只够预留 '+K+' 笔（每笔约 '+f18(per)+' DAI），先发最大的 '+K+' 笔；想发 '+NW+' 笔请补 DAI','warn');
+  if(!ps.length) return attempt(H);
+  showFill(true); buzz([300,80,300,80,300]); $('armState').innerHTML='<b class="warn flash">钱包会连续弹 '+ps.length+' 笔，每笔都点确认（整点前点完就行）</b>';
+  log('拆单：连续弹 '+ps.length+' 笔，分别领 '+ps.map(x=>'第 '+(x.i+1)+' 笔 '+f9(x.amt)).join('、')+'，出价 '+bid+' gwei —— 弹一次点一次确认','warn');
+  const hs=[];
+  for(const x of ps){
+    if(chainNow()>H-0.8){ log('快到整点了，剩下的不弹了','warn'); break; }
+    try{ const h=await sendTx(A.BOND,SEL.claim+u256(x.i),bid,GL); hs.push({h,x}); log('第 '+hs.length+' 笔已确认：领第 '+(x.i+1)+' 笔 '+f9(x.amt)+' LGNS '+h); }
+    catch(e){ if(isReject(e)){ log('这笔你取消了','warn'); if(!hs.length) return 'rejected'; break; } log('发送出错：'+(e.message||e),'bad'); break; }
+  }
+  if(!hs.length) return 'fail';
+  let got=false; const lastH=String(hs[hs.length-1].h).toLowerCase();
+  for(let i=0;i<4&&!got;i++){ const sv=await relayGet('/seen?a='+me,2500); got=!!(sv&&sv.sendHash&&String(sv.sendHash).toLowerCase()===lastH); if(!got) await sleep(400); }
+  if(!got){ relayDel(me); markBypass(); relayRender(); log('✗ 这几笔没经过托管节点，已直接上链。托管模式已自动关闭，下个整点改回震动手点。请截图发给技术','bad'); }
+  else { sched.relayH=H; log('✓ '+hs.length+' 笔都交给东京定时节点，'+bj(H)+' 整点一起发出，你不用再动','ok'); }
+  if(got){ try{ const r=await fetch(RELAY,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_getTransactionByHash',params:[hs[0].h]})}); const j=await r.json(); const real=j&&j.result?Number(BigInt(j.result.gasPrice||0))/1e9:0; if(real){ log('钱包实际出价 '+real+' gwei'+(real<bid*0.8?'（比页面要的 '+bid+' 低：OKX 用的是你在它里面存的默认网络费，要改请在 OKX 确认页改）':' ✓'),real<bid*0.8?'warn':''); } }catch(e){} }
+  const rs=await Promise.all(hs.map(o=>waitTx(o.h,120000)));
+  let won=0n, n=0, landed=null;
+  for(let k=0;k<hs.length;k++){ const r=rs[k]; if(r&&landed===null){ try{ const b=await rpc('eth_getBlockByNumber',[r.blockNumber,false]); landed=parseInt(b.timestamp,16)-H; }catch(e){} } if(r&&r.status==='0x1'){ won+=hs[k].x.amt; n++; } }
+  const where=landed!==null?('（落在整点'+(landed>=0?'后 +':'前 ')+landed+' 秒的区块）'):'';
+  { let fee=0; for(let k=0;k<hs.length;k++){ const r=rs[k]; if(r) fee+=Number(BigInt(r.gasUsed||0)*BigInt(r.effectiveGasPrice||('0x'+(BigInt(bid)*10n**9n).toString(16))))/1e18; } const o=lossGet(); o.fee+=fee; o.streak=n?0:o.streak+1; LS('bc_loss',JSON.stringify(o)); log('这轮手续费 '+fee.toFixed(3)+' DAI；今天累计 '+o.fee.toFixed(2)+' DAI，连败 '+o.streak+' 次'); lossRender(); }
+  if(n){ buzz([100,50,100,50,400]); log('🎉 领到 '+n+'/'+hs.length+' 笔，共约 '+f9(won)+' LGNS'+where,'ok'); return 'win'; }
+  if(rs.every(r=>!r)){ log('120 秒没拿到回执，可能网络卡了','bad'); return 'fail'; }
+  log('这 '+hs.length+' 笔都没挤进去'+where+'：同一块里出价更高的人先领光了。可以把托管出价再调高','bad'); return 'late';
+}
+function lossResetStreak(){ const o=lossGet(); if(o.streak){ o.streak=0; LS('bc_loss',JSON.stringify(o)); } }
+async function afterWin(){ await sleep(1500); await loadWallet().catch(()=>{}); if($('keep').value!=='1'){ armed=false; $('armState').textContent='成功 🎉 已停止'; return false; } log('继续守着，下次释放（每天两次记账）后再抢','ok'); return true; }
+$('lead').addEventListener('change',()=>{ try{localStorage.removeItem('bc_tap');localStorage.removeItem('bc_leadAdj');}catch(e){} sched.H=0; clearTimeout(sched.timer); log('已按你选的时机重排，之前记住的手速已清除'); });
+async function arm(){
+  try{ lossResetStreak(); }catch(e){}
+  if(armed){ log('自动领已经开着了，不用再点','ok'); return; }
+  $('armState').innerHTML='<span class="warn">正在检查钱包…（几秒钟）</span>';
+  if(localMode()){ if(!LK){ log('本地签名模式：先在上面"设置私钥"或输入密码"解锁"，再开启','bad'); return; } if(me!==LK.addr) await useLocal(); }
+  if((presignMode()||traderMode())&&(!eth||!me)){ log((traderMode()?'交易员模式':'钱包预签模式')+'：先点"连接钱包"，再开启','bad'); return; }
+  const ok=await loadWallet().catch(()=>false); if(!ok){ const why=($('verdict').textContent||'').trim(); $('armState').innerHTML='<b class="bad">没开启：'+(why&&why!=='—'?why:'读不到链上数据，稍后再点')+'</b>'; log('检查没通过，不能开启：'+(why||'读链失败'),'bad'); return; }
+  $('armState').innerHTML='<span class="ok">已开启</span>，正在准备…';
+  armed=true; keepAwake(); try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); AC.resume(); }catch(e){} await readWindow();
+  log('自动领已开启：下个整点 '+bj(nextHour())+'，'+(relayOn()?'托管节点模式：整点前 45 秒弹钱包，直接点确认，东京节点到整点准时发（':'')+(lead()?(isCue()?'整点前 8 秒弹钱包、整点前 '+cueLead().toFixed(1)+' 秒震动提示再点确认':'整点前 '+lead().toFixed(1)+' 秒弹钱包'):'整点后模拟通过再弹')+(relayOn()?'；节点连不上时退回手点）':'')+'，gas '+($('gwei').value==='auto'?'自动出价（整点前 1 分钟按上一整点定）':$('gwei').value+' gwei')+'，'+plan().label+' LGNS。保持本页在前台、钱包已解锁、别锁屏。');
+  watch();
+}
+/* 11-04 开抢前检查 + 弹窗时大字告诉填什么 */
+const recBid=()=>{ if(relayOn()) return relayBid(); /* 11-04 17:00 与真正发交易用同一个出价,避免清单说不够、到点却弹 */ if(!bidAuto()) return Number($('relayGwei').value)||15000; const m=st.mkt; if(m&&m.H===nextHour()-WINDOW&&m.marginal) return Math.min(BID_CAP,Math.max(15000,Math.ceil(m.marginal*1.3/1000)*1000)); return $('bond').value==='lgns'?150000:15000; };
+const recLimit=()=>{ try{ return Math.max(200000,plan().gas||200000); }catch(e){ return 200000; } };
+let fillTimer=null;
+function showFill(on){ const el=$('fillTip'); if(!el) return; clearTimeout(fillTimer); if(!on){ el.classList.add('hidden'); return; }
+  el.innerHTML='👉 <b style="font-size:17px">钱包弹出来了</b><br>点「网络费用 → 自定义」<br>Gas 价格填 <b>'+recBid()+'</b>　Gas 上限填 <b>'+recLimit()+'</b><br>填好马上点确认（整点前点完都算数）';
+  el.classList.remove('hidden'); fillTimer=setTimeout(()=>el.classList.add('hidden'),60000); }
+let chkWarned=0;
+function chkRender(){ const el=$('chkList'); if(!el) return;
+  const b=recBid(), lim=recLimit(), needDai=b*lim/1e9, have=me?Number(st.gas)/1e18:null, lgns=$('bond').value==='lgns';
+  const okBond=!!me&&st.eligible&&st.claimable>0n;
+  const bondWhy=!me?'连接后自动检查':(!st.cnt?'这个钱包在这张债券里没有存款：换上面「抢哪张债券」或换钱包':(st.claimable<=0n?'暂时没有可领的，等下次释放（每天两次记账）':'gas 不够，先往钱包转点 DAI'));
+  const rows=[
+    [!!me, '钱包已连接', '先点下面「连接钱包」'],
+    [okBond, '有可领的（'+f9(st.claimable)+' LGNS）', bondWhy],
+    [!!me&&relayOn(), '托管节点已接通', '节点没接通：点上面托管节点里的「检测」（没接通要拼手速）'],
+    [have!==null&&have>=needDai+0.3, 'DAI 够手续费（有 '+(have===null?'—':have.toFixed(2))+'）', '这个整点不会弹窗：钱包 DAI '+(have===null?'—':'只有 '+have.toFixed(2))+'，按出价 '+b+' gwei 至少要 '+(needDai+0.3).toFixed(1)+' DAI。请往钱包补 DAI，或把「托管出价」调低'],
+    [!!armed, '已开启自动领', '最后一步：点下面绿色「开启自动领」'] ];
+  el.innerHTML=rows.map((r,i)=>'<div class="ck"><i>'+(r[0]?'✅':(i===4?'👉':'❌'))+'</i><span class="'+(r[0]?'ok':(i===4?'warn':'bad'))+'">'+(r[0]?r[1]:r[2])+'</span></div>').join('');
+  $('fillLine').innerHTML='钱包弹出时这样填：<b>网络费用 → 自定义</b>，Gas 价格 <b>'+b+'</b>，Gas 上限 <b>'+lim+'</b>（抢到约花 '+(b*131000/1e9).toFixed(1)+' DAI）。别勾「保存为默认」'+(lgns&&b>=50000?'<br><span class="warn">LGNS 债券现在竞争激烈，一次要花约 '+(b*131000/1e9).toFixed(0)+' DAI，没抢到也扣约一半；固定价债券便宜得多</span>':'');
+  const left=nextHour()-chainNow();
+  if(armed&&left<=300&&left>60&&chkWarned!==nextHour()&&rows.slice(1,4).some(r=>!r[0])){ chkWarned=nextHour(); buzz([400,100,400,100,400]); log('⚠ 还有 5 分钟到整点，这几项还没好：'+rows.slice(1,4).filter(r=>!r[0]).map(r=>r[2]).join('；'),'bad'); }
+}
+setInterval(()=>{ try{ chkRender(); }catch(e){} },1000);
+/* 11-04 检测结果服务器也记一份,本地没有就去问 */
+const markBypass=()=>{ if(me) LS('bc_bypass_'+me.toLowerCase(),String(Date.now())); };
+let routedAt=0;
+async function routedSync(){ if(!me||DRILL||relayHas(me)||Date.now()-routedAt<30000) return; routedAt=Date.now(); const r=await relayGet('/routed?a='+me,3000); if(r&&r.routed&&r.ago!==null){ const t=Date.now()-r.ago*1000, by=Number(LS('bc_bypass_'+me.toLowerCase())||0); if(t>by){ relayAdd(me); relayRender(); log('✓ 服务器记录这个钱包接通过托管节点，已自动恢复「已接通」','ok'); } } }
+setInterval(()=>{ routedSync().catch(()=>{}); },4000);
+function stop(){armed=false;$('armState').textContent='已停止';log('已停止自动领');}
+function hintNow(){ const H=nextHour(); const left=H-chainNow(); let t; if(!me) t='先点底下"连接钱包"'; else if(!st.eligible) t='这个钱包没法领（看下面"结论"）'; else if(!armed) t='点底下"开启自动领"'; else if(autoSend()) t='守着就行，到点页面自动发'; else if(relayOn()) t=(left<=RELAY_POP+1&&left>0&&sched.relayH!==H)?'钱包弹出后直接点确认':'托管节点模式：整点前 45 秒弹钱包，直接点确认'; else if(left<=150&&left>60) t='彩排：等长震+三声响再点确认'; else if(left<=12) t='正式：等长震+三声响立刻点确认'; else t='守候中，整点前 2 分钟会彩排一次'; const e=$('hint'); if(e&&e.textContent!==t) e.textContent=t; }
+function tick(){ hintNow(); const H=nextHour(); $('nextIn').textContent=bj(H); const left=Math.max(0,H-chainNow()); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(Math.floor(left%60)).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s+(left<60?'.'+String(Math.floor(left*10)%10):''); $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
+
+setBond(LS('bc_bond')||'lgns');
+$('bond').addEventListener('change',()=>{ setBond($('bond').value,'，重新读取额度和可领取'); sched.H=0; clearTimeout(sched.timer); calibratedHour=0; loadState().catch(()=>{}); });
+['gwei','gcap','feeMode','mode'].forEach(id=>$(id).addEventListener('change',()=>{ try{showBid();}catch(e){} }));
+$('btnTestFee').onclick=testFee;
+/* ===== 托管节点(11-02):钱包 RPC 指向东京 bond-rpc,claim 交易在整点前 120 秒内到达会被扣住,到链上整点准时发 ===== */
+const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=45;
+const relayList=()=>String(LS('bc_relay2')||'').toLowerCase().split(',').filter(Boolean), relayHas=a=>!!a&&relayList().includes(String(a).toLowerCase()), relayAdd=a=>{ const l=relayList().filter(x=>x!==String(a).toLowerCase()); l.push(String(a).toLowerCase()); LS('bc_relay2',l.join(',')); }, relayDel=a=>LS('bc_relay2',relayList().filter(x=>x!==String(a).toLowerCase()).join(','));
+try{ document.getElementById('btnLogCopy').onclick=()=>{ const tx=[...document.querySelectorAll('#log div')].map(d=>d.textContent).join('\n'); (navigator.clipboard?navigator.clipboard.writeText(tx):Promise.reject()).then(()=>{ document.getElementById('btnLogCopy').textContent='已复制 ✓'; },()=>{ const a=document.createElement('textarea'); a.value=tx; document.body.appendChild(a); a.select(); try{document.execCommand('copy');}catch(e){} a.remove(); document.getElementById('btnLogCopy').textContent='已复制 ✓'; }); }; }catch(e){}
+const relayOn=()=>!DRILL&&!!me&&relayHas(me)&&!st.relayDown&&!autoSend();
+async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
+function relayRender(){ const el=$('relayState'); if(!el) return; $('relayUrl').textContent=RELAY;
+  if(!me){ el.innerHTML='先连接钱包'; return; }
+  const ok=relayHas(me);
+  el.innerHTML=relayOn()?'<b class="ok">✓ 已接通：整点前 45 秒弹钱包，直接点确认</b>':(ok&&st.relayDown?'<b class="bad">节点暂时连不上，本轮改回手点</b>':ok&&autoSend()?'<span class="warn">已接通（当前是自动发模式，不用它）</span>':'<span class="warn">未接通：按下面步骤改好钱包节点，再点检测</span>'); }
+async function relayDetect(){
+  if(!eth||!me){ log('先连接钱包','warn'); return; } if(busy){ log('正在忙（彩排/抢领中），稍后再点检测','warn'); return; } busy=true; $('btnRelay').disabled=true;
+  try{
+    log('检测托管节点：钱包会弹一笔合约调用（给自己授权 0 枚 LGNS，不动任何资产，和领取交易同一类），点确认（手续费约 0.001 DAI）','warn');
+    let h=null, sendErr=''; try{ h=await eth.request({method:'eth_sendTransaction',params:[{from:me,to:A.LGNS,value:'0x0',data:'0x095ea7b3'+addr32(me)+u256(0),gas:'0x11170'}]}); }catch(e){ if(isReject(e)){ log('你取消了检测','warn'); return; } sendErr=(e.message||String(e)).slice(0,120); }
+    let s=null, ok=false; for(let i=0;i<8&&!ok;i++){ await sleep(i?800:300); s=await relayGet('/seen?a='+me); ok=!!(s&&s.sendAgo!==null&&s.sendAgo<90&&(!s.sendHash||!h||String(s.sendHash).toLowerCase()===String(h).toLowerCase())); }
+    if(ok&&sendErr) log('（检测交易本身没发成：'+sendErr+'，但它确实经过了托管节点）','warn');
+    if(ok){ relayAdd(me); st.relayDown=false; log('✓ 托管节点接通了：钱包发交易走的是东京定时节点。开启自动领后，整点前 45 秒弹钱包，直接点确认，节点会卡准整点发出','ok'); }
+    else if(!s){ log('✗ 连不上托管节点（网络问题？开着 VPN 的话换个线路再试）','bad'); }
+    else { relayDel(me); markBypass(); if(sendErr) log('检测交易出错：'+sendErr,'bad'); log('✗ 这笔交易没经过托管节点，钱包还在用别的节点。请把钱包里 Anubis 网络的 RPC 改成 '+RELAY+' 再点检测（OKX：网络 → Anubis → 编辑）','bad'); }
+  }catch(e){ log('检测出错：'+(e.message||e),'bad'); } finally{ busy=false; $('btnRelay').disabled=false; relayRender(); }
+}
+$('btnRelay').onclick=relayDetect;
+try{ const g=LS('bc_relayGwei'); if(g&&[...$('relayGwei').options].some(o=>o.value===g)) $('relayGwei').value=g; }catch(e){}
+$('relayGwei').onchange=()=>{ LS('bc_relayGwei',$('relayGwei').value); log('托管出价改为 '+($('relayGwei').value==='auto'?'看行情自动':$('relayGwei').value+' gwei')); mktRender(); };
+const BID_CAP=300000, LOSS_FEE=10, LOSS_STREAK=3;
+if(LS('bc_v4')!=='13'){ LS('bc_v4','13'); LS('bc_relayGwei','auto'); $('relayGwei').value='auto'; }
+const bidAuto=()=>$('relayGwei').value==='auto';
+const relayBid=()=>{ if(!bidAuto()) return Number($('relayGwei').value)||15000; const m=st.mkt; return (m&&m.H===nextHour()-WINDOW&&m.bid)?m.bid:20000; };
+/* 看行情:上一整点第 1 块里成功领取(国库发放事件)按出价从高到低累加,累计超过(5万-我这笔)的那一笔的出价=门槛;本次出价=门槛×1.5 向上取整到千,最低 15000,封顶 3 万 */
+async function computeMarket(prevH){
+  try{
+    const latest=await rpc('eth_getBlockByNumber',['latest',false]); let hi=parseInt(latest.number,16), lo=Math.max(0,hi-8000);
+    const tsOf=async b=>parseInt((await rpc('eth_getBlockByNumber',['0x'+b.toString(16),false])).timestamp,16);
+    while(hi-lo>1){ const m=(lo+hi)>>1; (await tsOf(m))<prevH?lo=m:hi=m; }
+    /* 用国库发放事件统计(topics[3]=发放的债券),合约钱包间接领取也算进去;15:00 实测只看 to=债券 会漏掉约 1000 */
+    const bh='0x'+hi.toString(16); const TP='0x889d364b5102aee044ff370e2e6a836584e5618a16dce4f5b191459cf3903e58';
+    const logs=await rpc('eth_getLogs',[{fromBlock:bh,toBlock:bh,address:A.TREASURY,topics:[TP,null,null,'0x'+addr32(A.BOND)]}]);
+    const hs=[...new Set(logs.map(l=>l.transactionHash))]; const txs=await Promise.all(hs.map(h=>rpc('eth_getTransactionByHash',[h]).catch(()=>null)));
+    const gp={}; hs.forEach((h,i)=>{ const x=txs[i]; gp[h]=x?Number(BigInt(x.gasPrice||x.maxFeePerGas||0))/1e9:0; });
+    const byTx={}; for(const l of logs){ byTx[l.transactionHash]=(byTx[l.transactionHash]||0n)+BigInt(l.data.slice(0,66)); }
+    const wins=Object.keys(byTx).map(h=>({g:gp[h],amt:byTx[h]}));
+    wins.sort((a,b)=>b.g-a.g);
+    const mine=(st.pieces&&st.pieces[0])?st.pieces[0].amt:500n*10n**9n; const cap=st.cap||50000n*10n**9n; const room=cap>mine?cap-mine:0n;
+    let cum=0n, marginal=0; for(const w of wins){ cum+=w.amt; if(cum>room){ marginal=w.g; break; } }
+    const bid=Math.max(15000,Math.ceil(marginal*1.5/1000)*1000); /* 每小时门槛起伏大(12点约1万/13点3500/15点5000):按 1.5 倍、最低 15000,出价低省不了多少,错过一次少领几十 DAI */
+    st.mkt={H:prevH,marginal,bid,top:wins.length?wins[0].g:0,n:wins.length};
+    log('行情（'+bj(prevH).slice(6,11)+' 第 1 块）：成功 '+wins.length+' 笔，最高出价 '+Math.round(st.mkt.top)+'，要领到你这笔至少 '+Math.round(marginal)+' gwei → 下个整点出价 '+bid+(bid>BID_CAP?'（超过封顶 30 万，下个整点跳过）':''),'warn');
+    mktRender();
+  }catch(e){ log('读行情失败（'+String(e.message||e).slice(0,40)+'），下个整点按 20000 出价','warn'); }
+}
+function mktRender(){ const el=$('mktInfo'); if(!el) return; const m=st.mkt; if(!bidAuto()){ el.textContent='固定出价 '+$('relayGwei').value+' gwei'; return; }
+  if(!m){ el.textContent='整点过后自动读上一小时行情'; return; }
+  el.innerHTML='上小时门槛 '+Math.round(m.marginal)+' → 出价 <b class="'+(m.bid>BID_CAP?'bad':'ok')+'">'+m.bid+'</b>'+(m.bid>BID_CAP?'（太贵，跳过）':''); }
+const bjDay=()=>new Date((chainNow()+28800)*1000).toISOString().slice(0,10);
+function lossGet(){ let o=null; try{ o=JSON.parse(LS('bc_loss')||'null'); }catch(e){} if(!o||o.d!==bjDay()) o={d:bjDay(),fee:0,streak:o&&o.streak||0}; return o; }
+function lossRender(){ const el=$('lossInfo'); if(!el) return; const o=lossGet(); el.innerHTML='今天手续费 '+o.fee.toFixed(2)+' DAI，连败 '+o.streak+' 次（到 '+LOSS_STREAK+' 次或 '+LOSS_FEE+' DAI 自动停）'; }
+function lossHit(){ const o=lossGet(); return o.streak>=LOSS_STREAK||o.fee>=LOSS_FEE; }
+setInterval(()=>{ mktRender(); lossRender(); },3000); mktRender(); lossRender();
+try{ const n=LS('bc_splitN'); if(n&&['1','2','3'].includes(n)) $('splitN').value=n; }catch(e){}
+$('splitN').onchange=()=>{ LS('bc_splitN',$('splitN').value); log('改为每次抢 '+$('splitN').value+' 笔'); };
+$('btnRelayCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(RELAY); log('已复制节点地址：'+RELAY,'ok'); }catch(e){ const r=document.createRange(); r.selectNodeContents($('relayUrl')); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); log('长按选中的地址复制：'+RELAY,'warn'); } };
+setInterval(relayRender,3000); relayRender();
+$('lkSet').onclick=()=>{ $('lkForm').style.display='block'; $('lkKey').focus(); };
+$('lkCancel').onclick=()=>{ $('lkForm').style.display='none'; $('lkKey').value=''; $('lkPwd').value=''; };
+$('lkSave').onclick=async()=>{ try{ const a=await lkSave($('lkKey').value,$('lkPwd').value); $('lkKey').value=''; $('lkPwd').value=''; $('lkForm').style.display='none'; lkRender(); log('私钥已加密保存在本机，地址 '+a,'ok'); $('lkUse').value='local'; LS('bc_lkUse','local'); await useLocal(); }catch(e){ log('保存失败：'+(e.message||e),'bad'); } };
+$('lkDo').onclick=async()=>{ try{ const a=await lkUnlock($('lkPwd2').value); $('lkPwd2').value=''; lkRender(); log('已解锁本地私钥 '+a,'ok'); if(localMode()) await useLocal(); }catch(e){ log('解锁失败：'+(e.message||e),'bad'); } };
+$('lkPwd2').addEventListener('keydown',e=>{ if(e.key==='Enter') $('lkDo').click(); });
+$('lkDel').onclick=()=>{ if(!lkStored()){ log('本机没有保存私钥'); return; } if(!confirm('确定删除本机保存的私钥？删除后要重新粘贴才能用本地签名。')) return; localStorage.removeItem('bc_lk'); localStorage.removeItem('bc_lkAdj'); LK=null; lkRender(); log('已删除本机私钥','warn'); };
+$('lkTest').onclick=testLocal; $('lkDetect').onclick=detectPresign;
+$('lkUse').addEventListener('change',async()=>{ LS('bc_lkUse',$('lkUse').value); sched.pre=null; sched.preH=0; if(localMode()&&LK) await useLocal(); else if(!localMode()&&(window.ethereum||(window.bitkeep&&window.bitkeep.ethereum)||window.okxwallet)&&!DRILL&&!eth) connect(); lkRender(); });
+try{ const v=LS('bc_lkUse'); if(v) $('lkUse').value=v; }catch(e){} lkRender();
+$('btnConnect').onclick=connect; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
+$('btnNow').onclick=async()=>{ if(busy)return; busy=true; try{ await readCap(); await loadWallet(); const p=plan(); const rem=await readCap(); const sinceH=chainNow()-(nextHour()-WINDOW); if(sinceH<10){ log('整点刚过 '+sinceH.toFixed(0)+' 秒，这会儿节点状态还没刷新，模拟会假通过。额度剩 '+f9(rem)+'，现在手动发大概率白烧 gas，已拦住；要抢整点请用"开启自动领"','bad'); return; } if(rem<p.amt){ log('本小时额度只剩 '+f9(rem)+'，不够领 '+p.label+'，已拦住，等下个整点','bad'); return; } const why=await simulate(p.data); if(why){ log(capHit(why)?'本小时额度已领光（claim cap），现在发必败，等整点':poolEmpty(why)?'国库没币，领不了（'+why+'）':'合约拒绝：'+why,'bad'); return; } log('手动：额度够、模拟通过，立刻领一笔'); await doAttempt(0); }catch(e){ log('出错：'+(e.message||e),'bad'); } finally{ busy=false; loadState(); } };
+if(LS('bc_v3')!=='12'){ LS('bc_v3','12'); if(LS('bc_mode')==='all') LS('bc_mode','split'); }
+['mode','lead','gwei','gcap','feeMode','minClaim','keep','auto','reh'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
+setInterval(tick,100); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!busy) loadState(); },20000);
+readWindow().then(loadState).then(()=>{ if(DRILL||(window.ethereum&&window.ethereum.selectedAddress)) connect(); });
+log('页面就绪。先点"连接钱包"，再点"开启自动领"，整点听长震+三声响点确认。'+(DRILL?' [演练模式]':''));
+})();
+</script>
+
+<!-- 11-04 自绘下拉:部分钱包内置浏览器(OKX 等)点原生 <select> 不展开,统一换成按钮+底部选项面板;原 select 隐藏保留,值/change 事件照旧 -->
+<style>
+.pk{display:flex;justify-content:space-between;align-items:center;gap:6px;width:100%;max-width:220px;background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;line-height:1.35;text-align:left;font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.set .pk{max-width:none;font-size:12.5px;padding:6px}
+.pk span{flex:1;min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all}
+.pk:after{content:"▾";color:var(--muted);flex:0 0 auto}
+.pk:disabled{opacity:.5}
+#pkMask{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:flex-end;justify-content:center}
+#pkMask.pkHide{display:none}
+#pkBox{background:var(--sec);color:var(--text);width:100%;max-width:520px;max-height:75vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-radius:16px 16px 0 0;padding:10px 12px calc(14px + env(safe-area-inset-bottom));box-sizing:border-box}
+#pkBox h4{margin:4px 2px 6px;font-size:14px;color:var(--muted);font-weight:normal}
+#pkBox button{display:block;width:100%;box-sizing:border-box;text-align:left;background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;margin:6px 0;font-size:15px;line-height:1.4;font-family:inherit;-webkit-appearance:none;appearance:none;touch-action:manipulation}
+#pkBox button.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+#pkBox button.on:before{content:"✓ ";color:var(--ok)}
+#pkBox button.pkCancel{text-align:center;color:var(--muted);background:transparent}
+</style>
+<script>
+(function(){
+  var mask=document.createElement('div'); mask.id='pkMask'; mask.className='pkHide'; mask.innerHTML='<div id="pkBox"></div>'; document.body.appendChild(mask);
+  var box=mask.firstChild, list=[];
+  function close(){ mask.className='pkHide'; }
+  mask.addEventListener('click',function(e){ if(e.target===mask) close(); });
+  function title(s){ var l=s.parentNode; while(l&&l!==document.body&&l.tagName!=='LABEL'&&!(l.classList&&l.classList.contains('row'))) l=l.parentNode;
+    if(l&&l.tagName==='LABEL'){ var t=l.firstChild; return t&&t.nodeType===3?t.textContent.trim():''; }
+    if(l&&l.classList&&l.classList.contains('row')&&l.firstElementChild) return l.firstElementChild.textContent.trim(); return ''; }
+  function fire(s){ var ev; try{ ev=new Event('change',{bubbles:true}); }catch(e){ ev=document.createEvent('Event'); ev.initEvent('change',true,true); } s.dispatchEvent(ev); }
+  function open(s){ box.innerHTML=''; var h=document.createElement('h4'); h.textContent=title(s)||'请选择'; box.appendChild(h);
+    for(var i=0;i<s.options.length;i++){ (function(o){ if(o.disabled) return; var x=document.createElement('button'); x.type='button'; x.textContent=o.textContent; if(o.value===s.value) x.className='on';
+      x.addEventListener('click',function(){ close(); if(s.value!==o.value){ s.value=o.value; fire(s); } sync(); }); box.appendChild(x); })(s.options[i]); }
+    var c=document.createElement('button'); c.type='button'; c.className='pkCancel'; c.textContent='取消'; c.addEventListener('click',close); box.appendChild(c);
+    mask.className=''; box.scrollTop=0; }
+  function enhance(s){ if(s.__pk) return; var b=document.createElement('button'); b.type='button'; b.className='pk'; b.innerHTML='<span></span>'; s.__pk=b;
+    s.parentNode.insertBefore(b,s.nextSibling); s.style.display='none'; b.addEventListener('click',function(){ if(!s.disabled) open(s); }); list.push(s); }
+  function sync(){ for(var i=0;i<list.length;i++){ var s=list[i], o=s.options[s.selectedIndex], t=o?o.textContent:'', sp=s.__pk.firstChild; if(sp.textContent!==t) sp.textContent=t; if(s.__pk.disabled!==s.disabled) s.__pk.disabled=s.disabled; } }
+  var all=document.querySelectorAll('select'); for(var i=0;i<all.length;i++) enhance(all[i]);
+  sync(); setInterval(sync,400); window.__pkSync=sync;
+})();
+</script>
+<script>(function(){ /* 预览页示例记录 */
+var box=document.getElementById('easy'), lg=document.getElementById('log'); if(!box) return; box.innerHTML='';
+var E=[['ok','🎉','抢到了！领到 2,397.58 LGNS','落在整点第 1 块，手续费 2.36 DAI','17:00:01'],
+['ok','✅','已交给东京节点','整点会准时发出，你不用再动','16:59:24'],
+['warn','👆','钱包弹出来了','网络费自定义 15000，点确认','16:59:15'],
+['','🕐','已开启自动领','整点前 45 秒会弹钱包，页面开着别锁屏','16:52:10'],
+['bad','⚠️','这一轮没抢到','额度被出价更高的人分光了，下个整点自动再来','16:00:01'],
+['','🔗','钱包已连接','尾号 17f8 · 固定价销毁债券 2 张','15:51:58']];
+E.forEach(function(e,k){ var d=document.createElement('div'); d.className='ez'+(k===0?' first':'')+(e[0]?' '+e[0]:''); d.innerHTML='<i></i><div><b></b><span></span><small></small></div>'; d.querySelector('i').textContent=e[1]; d.querySelector('b').textContent=e[2]; d.querySelector('span').textContent=e[3]; d.querySelector('small').textContent=e[4]; box.appendChild(d); });
+if(lg){ ['17:00:01.416  ✅ 领到 2,397.58 LGNS 落整点后+0秒 区块18248118','16:59:24.077  ✓ 已交给东京定时节点（你用了 2.1 秒确认）','16:59:15.002  弹钱包：领 第 1 笔 2,397.58 LGNS，gas 15000 gwei'].forEach(function(t){ var d=document.createElement('div'); d.textContent=t; lg.appendChild(d); }); }
+})();</script>
+<script defer src="/assets/bot-gate.js?v=1"></script>
+</body>
+</html>
