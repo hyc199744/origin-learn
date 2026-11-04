@@ -591,7 +591,7 @@ const recBid=()=>{ if(!bidAuto()) return Number($('relayGwei').value)||15000; co
 const recLimit=()=>{ try{ return Math.max(200000,plan().gas||200000); }catch(e){ return 200000; } };
 let fillTimer=null;
 function showFill(on){ const el=$('fillTip'); if(!el) return; clearTimeout(fillTimer); if(!on){ el.classList.add('hidden'); return; }
-  el.innerHTML='👉 <b style="font-size:17px">钱包弹出来了</b><br>点「网络费用 → 自定义」<br>Gas 价格填 <b>'+recBid()+'</b>　Gas 上限填 <b>'+recLimit()+'</b><br>填好马上点确认（整点前点完都算数）';
+  el.innerHTML='👉 <b style="font-size:17px">钱包弹出来了</b><br>点「网络费用 → 自定义」<br>Gas 价格填 <b>'+recBid()+'</b>　Gas 上限填 <b>'+recLimit()+'</b><br>填好后勾「保存为默认」，马上点确认（整点前点完都算数）。以后不用再填';
   el.classList.remove('hidden'); fillTimer=setTimeout(()=>el.classList.add('hidden'),60000); }
 let chkWarned=0;
 function chkRender(){ const el=$('chkList'); if(!el) return;
@@ -605,7 +605,7 @@ function chkRender(){ const el=$('chkList'); if(!el) return;
     [have!==null&&have>=needDai+0.3, 'DAI 够手续费（有 '+(have===null?'—':have.toFixed(2))+'）', '钱包 DAI '+(have===null?'—':'只有 '+have.toFixed(2))+'，按下面的出价至少要 '+(needDai+0.3).toFixed(1)+' DAI（不够钱包会不让发）'],
     [!!armed, '已开启自动领', '最后一步：点下面绿色「开启自动领」'] ];
   el.innerHTML=rows.map((r,i)=>'<div class="ck"><i>'+(r[0]?'✅':(i===4?'👉':'❌'))+'</i><span class="'+(r[0]?'ok':(i===4?'warn':'bad'))+'">'+(r[0]?r[1]:r[2])+'</span></div>').join('');
-  $('fillLine').innerHTML='钱包弹出时这样填：<b>网络费用 → 自定义</b>，Gas 价格 <b>'+b+'</b>，Gas 上限 <b>'+lim+'</b>（抢到约花 '+(b*131000/1e9).toFixed(1)+' DAI）。别勾「保存为默认」'+(lgns&&b>=50000?'<br><span class="warn">LGNS 债券现在竞争激烈，一次要花约 '+(b*131000/1e9).toFixed(0)+' DAI，没抢到也扣约一半；固定价债券便宜得多</span>':'');
+  $('fillLine').innerHTML='钱包弹出时这样填：<b>网络费用 → 自定义</b>，Gas 价格 <b>'+b+'</b>，Gas 上限 <b>'+lim+'</b>（抢到约花 '+(b*131000/1e9).toFixed(1)+' DAI）。第一次填好后勾「保存为默认」，以后弹出直接点确认就行（固定价每次都是 15000）'+(lgns&&b>=50000?'<br><span class="warn">LGNS 债券现在竞争激烈，一次要花约 '+(b*131000/1e9).toFixed(0)+' DAI，没抢到也扣约一半；固定价债券便宜得多</span>':'');
   const left=nextHour()-chainNow();
   if(armed&&left<=300&&left>60&&chkWarned!==nextHour()&&rows.slice(1,4).some(r=>!r[0])){ chkWarned=nextHour(); buzz([400,100,400,100,400]); log('⚠ 还有 5 分钟到整点，这几项还没好：'+rows.slice(1,4).filter(r=>!r[0]).map(r=>r[2]).join('；'),'bad'); }
 }
