@@ -78,7 +78,7 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
     <div class="row"><span>链</span><span id="chain">—</span></div>
     <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
     <div class="row"><span>本机-链时钟偏差</span><span id="skew">—</span></div>
-    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 18:05</div>
+    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 20:00</div>
   </details>
 </div>
 <div class="sec"><div id="log"></div></div>
@@ -164,8 +164,12 @@ const chainNow=()=>Date.now()/1000-skew;
 
 let openSecCache={at:0,v:null};
 async function getOpenSec(){ // 最近一个抢满(或有成交)的协议日,从当天 0 点算起第几秒开放;读不到按 11:59:00
-  if(Date.now()-openSecCache.at<600e3&&openSecCache.v!==null) return openSecCache.v;
-  let v=43140; try{ const j=await (await fetch('https://zjgame.web3origin.com/helix/burners.json',{cache:'no-store'})).json(); const ds=(j.days||[]).filter(d=>d.full||d.count>=50); if(ds.length) v=ds[ds.length-1].openSec; }catch(e){}
+  if(Date.now()-openSecCache.at<120e3&&openSecCache.v!==null) return openSecCache.v;
+  let v=43140, src='';
+  /* 11-04:闸门合约 10-29 升级后有 0xa4b5c200 = 每天开放秒数(现 43140=11:59:00),官方改时间页面立刻跟上;读不到再用 burners.json */
+  try{ const x=Number(big(await call(A.GATE,'0xa4b5c200'))); if(x>0&&x<86400){ v=x; src='chain'; } }catch(e){}
+  if(!src){ try{ const j=await (await fetch('https://zjgame.web3origin.com/helix/burners.json',{cache:'no-store'})).json(); const ds=(j.days||[]).filter(d=>d.full||d.count>=50); if(ds.length) v=ds[ds.length-1].openSec; }catch(e){} }
+  if(openSecCache.v!==null&&openSecCache.v!==v) log('⚠ 官方开放时间变了：现在每天 '+String(Math.floor(v/3600)).padStart(2,'0')+':'+String(Math.floor(v%3600/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0')+' 开','bad');
   openSecCache={at:Date.now(),v}; return v; }
 async function loadState(){
   try{
