@@ -76,7 +76,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>LGNS 销毁债券抢领</b><small>独立页 · 基于 11-05 01:20 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>LGNS 销毁债券抢领</b><small>独立页 · 基于 11-05 01:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -706,7 +706,7 @@ async function computeMarket(prevH){
     mktRender();
   }catch(e){ log('读行情失败（'+String(e.message||e).slice(0,40)+'），下个整点按 20000 出价','warn'); }
 }
-function mktRender(){ const el=$('mktInfo'); if(!el) return; const m=st.mkt; if(!bidAuto()){ el.textContent='固定出价 '+$('relayGwei').value+' gwei'; return; }
+function mktRender(){ const el=$('mktInfo'); if(!el) return; const m=st.mkt; const row=el.closest?el.closest('.row'):null; /* 11-05 选固定档时隐藏「行情」行(只是重复一遍出价) */ if(row) row.style.display=bidAuto()?'':'none'; if(!bidAuto()){ el.textContent='固定出价 '+$('relayGwei').value+' gwei'; return; }
   if(!m){ el.textContent='整点过后自动读上一小时行情'; return; }
   el.innerHTML='上小时门槛 '+Math.round(m.marginal)+' → 出价 <b class="'+(m.bid>BID_CAP?'bad':'ok')+'">'+m.bid+'</b>'+(m.bid>BID_CAP?'（太贵，跳过）':''); }
 const bjDay=()=>new Date((chainNow()+28800)*1000).toISOString().slice(0,10);
