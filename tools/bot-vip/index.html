@@ -64,7 +64,7 @@ input{width:100%;font-size:14px;padding:11px;margin:6px 0}label{display:block}
 input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--bone);border-radius:10px}
 #orderWrap,#vipWrap{padding:calc(16px + env(safe-area-inset-top)) 0 0}#vipWrap>.ht,#vipWrap>p{padding:0 18px}#vip{padding:0 18px}#btnOut{margin:0 18px;width:calc(100% - 36px)}
 #vip .vc,#vip .tool{border:1px solid var(--line);border-radius:14px;padding:14px;background:linear-gradient(180deg,#1a0f08,#0d0805)}#vip .ti{background:#2a1208}#vip .tag{background:#2b1d0c;color:var(--gold)}#vip .muted{color:#b39b76}#vip details,#vip .lk{border-top:1px solid var(--line)}
-.kf{margin:14px 18px}
+.kf{margin:14px 18px}.tgbtn{display:block;margin-top:10px;background:linear-gradient(180deg,#2aa3df,#1c82c4)!important;box-shadow:none!important;color:#fff!important}
 .cta{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,#050303 35%);z-index:9}
 .cta a{display:flex;justify-content:center;align-items:center;gap:8px;max-width:560px;margin:0 auto;padding:15px;border-radius:12px;background:linear-gradient(180deg,#a8121e,#7A0B12);border:1px solid var(--gold);color:var(--bone);font-weight:800;font-size:17px;text-decoration:none;font-family:"STZhongsong",serif;letter-spacing:2px;box-shadow:0 8px 30px rgba(122,11,18,.6)}
 </style></head><body>
@@ -133,9 +133,10 @@ input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--
 <button class="btn ghost full" id="btnOut">返回</button>
 </div>
 
-<div class="box kf"><div class="ht">客服微信</div>
+<div class="box kf"><div class="ht">联系客服</div>
 <img src="/assets/wechat-qr.png" alt="客服微信二维码">
-<p class="dim small">付款遇到问题、到账没开通、要加钱包，扫码加客服微信。手机上可以长按二维码识别。</p></div>
+<p class="dim small">付款遇到问题、到账没开通、要加钱包，扫码加客服微信，或者发 Telegram。手机上可以长按二维码识别。</p>
+<a class="btn full tgbtn" href="https://t.me/hyc199744" target="_blank" rel="noopener">✈ Telegram @hyc199744</a></div>
 <script defer src="/assets/qrcode.min.js"></script>
 <script>
 (function(){
@@ -219,5 +220,288 @@ if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(fu
 })();
 </script>
 <script>(function(){fetch("https://zjgame.web3origin.com/bondrpc/vip/cases",{cache:"no-store"}).then(function(r){return r.json();}).then(function(c){if(!c||!c.total)return;var f=function(n){return Number(n).toLocaleString("zh-CN",{maximumFractionDigits:0});};var g=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v;};g("s1",c.total+" 次");g("s2",f(c.lgns));g("s3",c.first+" 次");}).catch(function(){});})();</script>
+
+
+
+<!--i18n-start--><style>#langBtn{top:auto!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;right:auto!important;left:12px!important;background:rgba(20,11,6,.85)!important;color:#D6A84B!important}</style><script>
+/* 付费页 bot-vip + 付款后内容(vip_content.html) 英文词典 */
+window.I18N_D={
+"起源抢币机器人":"Origin Claim Bot",
+"🤖 起源抢币机器人":"🤖 Origin Claim Bot",
+"首页 →":"Home →",
+"ANUBIS · 准点抢领":"ANUBIS · ON-THE-DOT CLAIMS",
+"额度 1 秒抢光":"Quota gone in 1 second",
+"机器人帮你":"The bot gets you ",
+"抢第 1 块":"into block 1",
+"LGNS 销毁债券、固定价债券、Helix AI 销毁。整点那一刻准时发出，不要私钥。":"LGNS burn bond, fixed-price bond, Helix AI burn. Sent at the exact opening second — no private key needed.",
+"真实成功":"Real wins",
+"领到 LGNS":"LGNS claimed",
+"落第 1 块":"In block 1",
+"能抢什么":"What it claims",
+"付费后解锁 3 个抢币链接，复制到钱包就能用":"Unlock 3 bot links after payment — open them in your wallet browser",
+"固定价销毁债券":"Fixed-price burn bond",
+"1 LGNS = 1 DAI 那张。每个整点 5 万 LGNS 额度，前 1~2 个区块就被领完。":"The 1 LGNS = 1 DAI bond. 50,000 LGNS quota every hour, gone within the first 1–2 blocks.",
+"🔒 付费解锁":"🔒 Paid",
+"LGNS 销毁债券":"LGNS burn bond",
+"每个整点 5 万 LGNS 额度，第 1 个区块就被领完。":"50,000 LGNS quota every hour, gone in the very first block.",
+"AI 算力机器人（Helix）":"AI compute bot (Helix)",
+"每天 11:59 开放，全网 400 份，约 3 秒抢光。烧 500 LGNS 换 2 倍算力。":"Opens daily at 11:59 (UTC+8), 400 slots, sold out in ~3 s. Burn 500 LGNS for 2× compute.",
+"真实战绩":"Real results",
+"← 左右滑动 · 每条都能点「链上查看」核对 · 不保证每次都抢到":"← Swipe · verify each one on-chain · success not guaranteed",
+"怎么做到":"How it works",
+"手点再快也有几秒误差，额度第 1 个区块就没了":"Even the fastest finger is seconds off — the quota is gone in block 1",
+"开放前 45 秒，钱包弹出，你点确认":"45 s before opening your wallet pops up — you tap Confirm",
+"签好的交易先交给东京定时节点":"The signed transaction is held by our Tokyo timing node",
+"节点卡准链上时间，开放那一刻发出":"The node tracks chain time and broadcasts at the opening instant",
+"落进第 1 个区块，抢到":"It lands in block 1 — claimed",
+"安全":"Safety",
+"不要私钥、不要助记词":"No private key, no seed phrase",
+"，资产始终在你自己的钱包里。":" — your assets always stay in your own wallet.",
+"每一笔都是你自己点确认的，节点只能「按时发」或「不发」，改不了金额和收款人。":"You confirm every transaction yourself. The node can only send it on time or not send it — it can't change the amount or recipient.",
+"不想用了，钱包节点改回官方地址就彻底断开。":"To stop, switch your wallet RPC back to the official one and you're fully disconnected.",
+"立即开通":"Get it now",
+"USDT 或 DAI · 一次性买断":"USDT or DAI · one-time payment",
+"🔥 已有":"🔥",
+"人开通":"users joined",
+"① 你抢币要用的钱包地址（Anubis 链上的钱包）":"① The wallet you'll claim with (your Anubis chain wallet)",
+"② 选付款方式下单":"② Choose how to pay",
+"Polygon 链 USDT":"USDT on Polygon",
+"交易所可直接提币":"Withdraw straight from an exchange",
+"Anubis 链 USDT":"USDT on Anubis",
+"钱包转账":"Wallet transfer",
+"Anubis 链 DAI":"DAI on Anubis",
+"已经付过款？输入订单号找回链接":"Already paid? Enter your order ID to get your links",
+"订单号（付款成功页上显示的）":"Order ID (shown after payment)",
+"找回":"Find",
+"立即开通 · 50 U":"Get it now · 50 U",
+"请转账":"Please pay",
+"等待到账":"Waiting",
+"已到账":"Received",
+"已过期":"Expired",
+"在":"On",
+"上转账":", send",
+"，金额必须":". The amount must be",
+"一分不差":"exact to the cent",
+"，系统靠这个金额自动识别你的订单：":" — that's how your order is matched automatically:",
+"复制金额":"Copy amount",
+"收款地址：":"Pay to: ",
+"复制":"Copy",
+"已复制 ✓":"Copied ✓",
+"长按复制":"Long-press to copy",
+"币种：":"Token: ",
+"，合约":", contract",
+"转错链、转错币种无法自动识别。":"Wrong chain or wrong token can't be matched automatically.",
+"订单":"Order valid for",
+"内有效。转完别关页面，到账后自动显示链接（一般 10~30 秒）。":". Keep this page open after paying — your links appear automatically (usually 10–30 s).",
+"开通的抢币钱包：":"Bot wallet: ",
+"换个币种 / 重新下单":"Change token / new order",
+"Anubis 链":"Anubis chain",
+"Polygon 链":"Polygon chain",
+"币安、OKX 等交易所提币：网络选":"Withdrawing from Binance, OKX, etc.: choose the network",
+"，提币地址填上面的收款地址。交易所会扣手续费，请把手续费加上，确保":" and use the address above. Exchanges deduct a fee — add it so that the amount",
+"到账":"received",
+"正好是这个数。也可以用钱包在 Polygon 链上转。":"is exactly this number. You can also send from a wallet on Polygon.",
+"交易所不支持 Anubis 链，请用":"Exchanges don't support Anubis. Use",
+"OKX 等钱包":"a wallet such as OKX",
+"切到 Anubis 网络转账（DAI / USDT 都是代币转账，正常点「发送」即可）。":"on the Anubis network (DAI / USDT are token transfers — just tap Send).",
+"订单已过期。如果你已经转了账，请联系客服并提供交易哈希；没转就点下面重新下单。":"Order expired. If you already paid, contact support with your transaction hash; otherwise place a new order below.",
+"请先填写你抢币要用的钱包地址（0x 开头 42 位）":"Enter the wallet you'll claim with first (0x…, 42 characters)",
+"正在下单…":"Placing order…",
+"下单失败，网络问题，请重试":"Order failed (network issue), please retry",
+"请填写订单号":"Please enter the order ID",
+"没有这个订单号":"Order ID not found",
+"这个订单没有付款（已过期）":"This order was not paid (expired)",
+"查询失败，请重试":"Lookup failed, please retry",
+"抢币钱包地址格式不对（0x 开头 42 位）":"Wallet address format is wrong (0x…, 42 characters)",
+"付款方式不对":"Invalid payment method",
+"当前下单人数太多，请 10 分钟后再试":"Too many orders right now, please retry in 10 minutes",
+"订单不存在":"Order not found",
+"开通成功":"Activated",
+"已开通":"Active",
+"订单号：":"Order ID: ",
+"请截图保存，换手机或清了数据用订单号找回链接。":"Screenshot this. If you change phones or clear data, use the order ID to get your links back.",
+"返回":"Back",
+"📋 我的抢币记录":"📋 My claim history",
+"抢了几次":"Attempts",
+"抢到几次":"Wins",
+"领到":"Claimed",
+"没抢到":"Missed",
+"抢到 ✓":"Won ✓",
+"链上查看 ↗":"On-chain ↗",
+"第 1 块没排上（出价比别人低或额度已满）":"Didn't make it in block 1 (outbid, or quota already full)",
+"发早了（落在开放前的区块）":"Too early (landed before opening)",
+"没等到链上结果":"No on-chain result received",
+"还没有抢币记录。按上面的步骤设置好，下个整点机器人就会帮你抢，结果会显示在这里。":"No attempts yet. Finish the setup above — the bot will try at the next hour and results will show here.",
+"只统计经过机器人节点发出的抢币。没抢到链上也会扣这笔手续费。":"Only attempts sent through the bot node are counted. A failed attempt still pays its gas fee on-chain.",
+"已成功":"Succeeded",
+"次：债券累计领到":"times; bonds claimed",
+"LGNS，Helix 抢到":"LGNS in total; Helix won",
+"次，其中":"times;",
+"次":"times",
+"机器人":"Bot",
+"Helix AI 销毁":"Helix AI burn",
+"500 LGNS → 1000 算力":"500 LGNS → 1000 compute",
+"联系客服":"Contact support",
+"付款遇到问题、到账没开通、要加钱包，扫码加客服微信，或者发 Telegram。手机上可以长按二维码识别。":"Payment problems, paid but not activated, or want to add a wallet? Scan the WeChat code or message us on Telegram.",
+"客服微信二维码":"Support WeChat QR code",
+/* ---- 付款后内容 vip_content.html ---- */
+"你的三个抢币链接":"Your 3 bot links",
+"复制后粘贴到":"Copy and paste into",
+"OKX 钱包 → 发现 → 浏览器":"OKX Wallet → Discover → Browser",
+"（或其他钱包的 DApp 浏览器）地址栏打开，连接钱包就能用。建议打开后收藏。":" (or any wallet's DApp browser), then connect your wallet. Bookmark them.",
+"💎 固定价销毁债券":"💎 Fixed-price burn bond",
+"1 LGNS = 1 DAI 那张 · 每个整点":"The 1 LGNS = 1 DAI bond · every hour",
+"🔥 LGNS 销毁债券":"🔥 LGNS burn bond",
+"每个整点":"Every hour",
+"🤖 AI 算力机器人（Helix）":"🤖 AI compute bot (Helix)",
+"烧 500 LGNS 换 2 倍算力 · 每天 11:59":"Burn 500 LGNS for 2× compute · daily at 11:59 (UTC+8)",
+"用之前先做一次：设置机器人节点（三个链接共用）":"Do this once first: set the bot node (shared by all 3 links)",
+"不设置也能打开页面，但那样只能手点、抢不进第 1 个区块。设置后整点才会由机器人准时发出。":"Without it the pages still open, but you'd be clicking by hand and won't make block 1. With it, the bot sends on the dot.",
+"OKX 钱包 → 右上角网络 → 找到":"OKX Wallet → network (top right) → find",
+"Anubis（链 ID 6714）":"Anubis (chain ID 6714)",
+"→ 编辑 → RPC 地址粘贴上面这个 → 保存。":" → Edit → paste the RPC URL above → Save.",
+"OKX 确认页 → 网络费 → 自定义 → Gas 价格填":"On the OKX confirm screen → Network fee → Custom → set Gas price to",
+"，勾选「保存为默认」。Gas 上限不用管。":", and tick “Save as default”. Leave the gas limit alone.",
+"钱包里 DAI 保持":"Keep",
+"8 DAI 以上":"at least 8 DAI",
+"（发交易要先预留一部分，不够会发不出去）。":" in the wallet (part is reserved when sending; too little and it won't send).",
+"已解锁":"Unlocked",
+"打开抢币链接 →":"Open bot link →",
+"复制链接":"Copy link",
+"怎么使用":"How to use",
+"第一次（每个钱包做一次）：":"First time (once per wallet): ",
+"打开链接 → 连接钱包 → 点「检测」→ 钱包弹出一笔「授权 0 枚 LGNS 给自己」，点确认（不动资产，约 0.001 DAI）→ 看到「托管节点接通了 ✓」。三个链接共用，检测一次就行。":"Open the link → connect wallet → tap “Check” → the wallet shows “approve 0 LGNS to yourself”, confirm it (moves nothing, ~0.001 DAI) → you'll see “node connected ✓”. One check covers all 3 links.",
+"每次抢：":"Each time:",
+"打开链接，连接钱包（这个页面只抢固定价销毁债券，不用再选债券）。":"Open the link and connect (this page only claims the fixed-price burn bond — no bond to choose).",
+"打开链接，连接钱包（这个页面只抢LGNS 销毁债券，不用再选债券）。":"Open the link and connect (this page only claims the LGNS burn bond — no bond to choose).",
+"「每次抢几笔」选 1 笔（只弹一次，抢最大的那笔）→ 点「开启自动领」。":"Set “pieces per try” to 1 (one popup, claims the largest piece) → tap “Start auto-claim”.",
+"整点前 45 秒钱包弹出，直接点确认。":"45 s before the hour the wallet pops up — just confirm.",
+"日志出现「已交给东京定时节点」就完事了，节点在整点那一刻准时发出。":"When the log says “handed to Tokyo timing node” you're done — the node sends it on the dot.",
+"没成功会在下个整点自动再来；页面带止损（连败 3 次或当天手续费 10 DAI 自动停）。":"If it misses, it retries next hour automatically; there's a stop-loss (stops after 3 misses in a row or 10 DAI of fees in a day).",
+"每个整点这张债券只有 5 万 LGNS，前 1~2 个区块就被领完。":"This bond has only 50,000 LGNS per hour, gone within the first 1–2 blocks.",
+"每个整点这张债券只有 5 万 LGNS，第 1 个区块（1 秒内）就被领完。":"This bond has only 50,000 LGNS per hour, gone in block 1 (under 1 second).",
+"资格：":"Eligibility: ",
+"Helix 质押 ≥ 2 万、本 Epoch 还没烧过、钱包有 500 LGNS。打开页面连上钱包会自动检查，全绿才能抢。":"Helix stake ≥ 20,000, no burn yet this epoch, and 500 LGNS in the wallet. The page checks this when you connect — all green to go.",
+"这个钱包在任一债券页「检测」过就行（这个页面自动沿用，页面里也有「检测节点」按钮）。":"If this wallet passed “Check” on either bond page you're set (this page reuses it; it also has its own “Check node” button).",
+"打开链接 → 连接钱包 → 确认资格全绿、托管一行显示「已接通」→ 点「开启」。":"Open the link → connect wallet → make sure eligibility is all green and the node row says “connected” → tap “Start”.",
+"11:58:15 左右钱包弹出，直接点确认":"Around 11:58:15 the wallet pops up — just confirm",
+"，节点在 11:59:00 开放那一刻准时发出。":"; the node sends it at the 11:59:00 opening.",
+"每天全网只有 400 份，开放后约 3 秒抢光，一天只有一次机会，提前准备好。":"Only 400 slots a day, gone ~3 s after opening — one chance a day, be ready early.",
+"注意":"Notes",
+"页面开在前台、手机别锁屏（最好插电），网络要稳。":"Keep the page in the foreground and the phone unlocked (ideally charging), on a stable network.",
+"整点过后别再去官方页面手动点领取":"Don't tap claim manually on the official page after the hour",
+"——额度 1 秒就没了，手点只会白扣手续费。":"— the quota is gone in 1 s; manual taps just burn fees.",
+"机器人让你的交易准时落进第 1 个区块，大幅提高成功率，但":"The bot lands your transaction in block 1 on time and greatly improves your odds, but",
+"不保证每次都抢到":"success isn't guaranteed every time",
+"；没抢到链上照样扣这笔手续费（债券约 1~2 DAI，Helix 约 4.7 DAI）。":"; a miss still pays its gas fee (bonds ≈ 1–2 DAI, Helix ≈ 4.7 DAI).",
+"一次性买断，绑定付款钱包。想加钱包请联系页面最下方的客服（微信或 Telegram @hyc199744）。":"One-time payment, tied to the paid wallet. To add wallets, contact support at the bottom of the page (WeChat or Telegram @hyc199744).",
+"🔒 安全说明":"🔒 Safety",
+"不要私钥、不要助记词。":"No private key, no seed phrase.",
+"任何人向你要私钥或助记词都是骗子，包括冒充我们的人。":"Anyone asking for your private key or seed phrase is a scammer — including people pretending to be us.",
+"每一笔交易都是你在自己钱包里亲手点确认的。机器人节点只收到签好名的那一笔领取交易，只能「按时发」或「不发」，":"You confirm every transaction in your own wallet. The node only receives that one signed claim transaction and can only send it on time or not send it —",
+"改不了金额、改不了收款人，动不了你的任何资产":"it can't change the amount or the recipient, and can't touch any of your assets",
+"检测那一笔是「授权 0 枚 LGNS 给你自己」，等于什么都没授权。":"The check transaction is “approve 0 LGNS to yourself” — it approves nothing.",
+"其他请求（查余额、转账等）节点都原样转给 Anubis 官方节点。":"All other requests (balances, transfers, …) are passed straight to the official Anubis RPC.",
+"不想用了，把钱包 RPC 改回官方地址":"To stop, switch your wallet RPC back to the official",
+"就彻底断开。":"and you're fully disconnected."
+};
+
+/* 两个页面共用的动态文字规则(带数字/时间/钱包的片段) */
+(function(){
+  var wan=function(m,n){ var v=parseFloat(String(n).replace(/,/g,""))*10; return (Math.round(v*10)/10).toLocaleString("en-US")+"K"; };
+  window.I18N_R=(window.I18N_R||[]).concat([
+    [/([\d.,]+) 万/g, wan],
+    [/抢币钱包 /g,"Bot wallet "],
+    [/钱包 /g,"Wallet "],
+    [/(\d+) 次落在开放后第 1 个区块/g,"$1 landed in the 1st block after opening"],
+    [/^(\d+) 次$/g,"$1×"],
+    [/(\d+) 小时 (\d+) 分/g,"$1 h $2 min"],
+    [/(\d+) 分 (\d+) 秒/g,"$1 min $2 s"],
+    [/晚了 (\d+) 秒（落第 (\d+) 块，额度已被抢光）/g,"$1 s late (landed in block $2, quota already gone)"],
+    [/晚了 (\d+) 秒（落第 (\d+) 块），额度在第 1 块就领光了/g,"$1 s late (landed in block $2) — the quota was gone in block 1"],
+    [/开放后 (\d+) 秒/g,"+$1 s after opening"],
+    [/出价 ([\dK.,]+) gwei，低于本块门槛 ([\dK.,]+) gwei（出价 ≥ ([\dK.,]+) 的人领走了 9 成额度）/g,"Bid $1 gwei, below this block's threshold of $2 gwei (bids ≥ $3 took 90% of the quota)"],
+    [/下次出价至少 ([\dK.,]+) gwei，或者看上面的建议出价。/g,"Next time bid at least $1 gwei, or use the suggested bid above."],
+    [/出价只有 ([\dK.,]+) gwei，钱包没设网络费/g,"Bid was only $1 gwei — the wallet network fee wasn't set"],
+    [/AI 没抢上（同块 (\d+) 人成功，最高出价 ([\dK.,]+) gwei）/g,"AI slot missed ($1 succeeded in that block, top bid $2 gwei)"],
+    [/AI 没抢上（同块 (\d+) 人成功）/g,"AI slot missed ($1 succeeded in that block)"],
+    [/最近 (\d+) 次门槛 /g,"Last $1 thresholds: "],
+    [/按建议出价：成功约 ([\d.,]+) DAI，失败约 ([\d.,]+) DAI 手续费/g,"At this bid: fee ≈ $1 DAI if it wins, ≈ $2 DAI if it fails"],
+    [/按建议出价：成功约 ([\d.,]+) DAI 手续费/g,"At this bid: fee ≈ $1 DAI if it wins"],
+    [/同块 (\d+) 人领走 ([\d,]+)/g,"$1 winners took $2 in the block"],
+    [/同块 (\d+) 人成功/g,"$1 succeeded in the block"],
+    [/ · 门槛 /g," · threshold "],
+    [/ · 额度没领满/g," · quota not filled"],
+    [/ · 出价 /g," · bid "],[/^出价 /g,"Bid "],
+    [/ · 手续费 /g," · fee "],
+    [/ · 第 1 块 ✓/g," · block 1 ✓"],[/^第 1 块 ✓/g,"Block 1 ✓"],
+    [/ · 第 1 块/g," · block 1"],
+    [/ · 抢领页/g," · grab page"],
+    [/固定价销毁债券/g,"Fixed-price burn bond"],
+    [/LGNS 销毁债券/g,"LGNS burn bond"],
+    [/AI 算力（Helix）/g,"AI compute (Helix)"],
+    [/AI 算力机器人（Helix）/g,"AI compute bot (Helix)"],
+    [/Helix AI 销毁/g,"Helix AI burn"]
+  ]);
+})();
+
+/* 机器人页面中英切换(2026-11-04):就地翻译不刷新。
+   词典 window.I18N_D = {中文片段: 英文};规则 window.I18N_R = [[正则(全局), 替换]](处理带数字/时间的动态文字)。
+   语言:?lang= > localStorage w3o_lang > web3origin_locale > 浏览器语言(zh* 为中文,其它英文)。 */
+(function(){
+  "use strict";
+  var D=window.I18N_D||{}, R=window.I18N_R||[], CJK=/[㐀-鿿！-～　-〿]/, HAN=/[㐀-鿿]/;
+  var ATTR=["placeholder","alt","title","aria-label"], SKIP={SCRIPT:1,STYLE:1,NOSCRIPT:1,TEXTAREA:1};
+  function gl(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+  var lang=(function(){ var q=null; try{ q=new URLSearchParams(location.search).get("lang"); }catch(e){}
+    if(q) return /^en/i.test(q)?"en":"zh";
+    var s=gl("w3o_lang")||gl("web3origin_locale"); if(s) return /^en/i.test(s)?"en":"zh";
+    return /^zh/i.test(navigator.language||"zh")?"zh":"en"; })();
+  function tr(s){
+    var m=/^(\s*)([\s\S]*?)(\s*)$/.exec(s), core=m[2]; if(!core||!HAN.test(core)) return null;
+    var e=D[core];
+    if(e==null){ var t=core; for(var i=0;i<R.length;i++){ R[i][0].lastIndex=0; t=t.replace(R[i][0],R[i][1]); }
+      if(t===core) { if(window.I18N_DEBUG) (window.__miss=window.__miss||{})[core]=1; return null; }
+      e=t; if(HAN.test(e)&&window.I18N_DEBUG) (window.__miss=window.__miss||{})[core]=1; }
+    return m[1]+e+m[3];
+  }
+  function doNode(n){
+    if(n.nodeType===3){
+      if(lang==="en"){
+        if(n.__en!=null&&n.nodeValue===n.__en) return;
+        var t=tr(n.nodeValue); if(t!=null){ n.__zh=n.nodeValue; n.__en=t; n.nodeValue=t; }
+      } else if(n.__zh!=null){ if(n.nodeValue===n.__en) n.nodeValue=n.__zh; n.__zh=n.__en=null; }
+      return;
+    }
+    if(n.nodeType!==1||SKIP[n.nodeName]) return;
+    for(var a=0;a<ATTR.length;a++){ var k=ATTR[a], v=n.getAttribute(k); if(v==null) continue; var zk="data-zh-"+k;
+      if(lang==="en"){ if(!n.hasAttribute(zk)){ var t2=tr(v); if(t2!=null){ n.setAttribute(zk,v); n.setAttribute(k,t2); } } }
+      else if(n.hasAttribute(zk)){ n.setAttribute(k,n.getAttribute(zk)); n.removeAttribute(zk); } }
+    for(var c=n.firstChild;c;c=c.nextSibling) doNode(c);
+  }
+  var titleZh=null;
+  function applyAll(){
+    document.documentElement.lang=lang==="en"?"en":"zh-CN";
+    if(titleZh==null) titleZh=document.title;
+    document.title=lang==="en"?(tr(titleZh)||titleZh):titleZh;
+    doNode(document.body); btn&&(btn.textContent=lang==="en"?"中文":"EN");
+  }
+  var btn=null;
+  function setLang(l){ lang=l; try{ localStorage.setItem("w3o_lang",l); }catch(e){} applyAll(); try{ window.dispatchEvent(new Event("w3o-lang")); }catch(e){} }
+  window.W3O_LANG=function(){ return lang; }; window.W3O_SETLANG=setLang;
+  function init(){
+    btn=document.createElement("button"); btn.id="langBtn"; btn.type="button";
+    btn.setAttribute("style","position:fixed;top:calc(10px + env(safe-area-inset-top));right:10px;z-index:9998;padding:5px 12px;border-radius:20px;font:600 13px/1.4 system-ui,sans-serif;cursor:pointer;border:1px solid currentColor;background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(4px)");
+    btn.onclick=function(){ setLang(lang==="en"?"zh":"en"); };
+    document.body.appendChild(btn);
+    applyAll();
+    new MutationObserver(function(ms){ if(lang!=="en") return; for(var i=0;i<ms.length;i++){ var m=ms[i];
+      if(m.type==="characterData") doNode(m.target); else for(var j=0;j<m.addedNodes.length;j++) doNode(m.addedNodes[j]); } })
+      .observe(document.body,{childList:true,subtree:true,characterData:true});
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+})();
+
+</script><!--i18n-end-->
 </body>
 </html>
