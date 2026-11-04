@@ -302,7 +302,7 @@ async function connect(){
     eth.on&&eth.on('accountsChanged',()=>location.reload()); eth.on&&eth.on('chainChanged',()=>location.reload());
     log('已连接 '+me+(DRILL?'（演练模式）':'')); keepAwake();
     try{ const w=eth.isOkxWallet||eth.isOKExWallet||window.okxwallet?'OKX':eth.isTokenPocket?'TokenPocket':eth.isImToken?'imToken':(eth.isBitKeep||window.bitkeep)?'Bitget':eth.isMetaMask?'MetaMask':'未知'; st.walletName=w; log('钱包：'+w+(w==='OKX'?'（实测 OKX 会把页面出价改成默认 12 gwei，先点「测试」看它认哪种格式）':''),w==='OKX'?'warn':''); }catch(e){}
-    if(!DRILL){ try{ const [a,b]=await Promise.all([call(BONDS.lgns.addr,SEL.getUserDepositCount+addr32(me)),call(BONDS.fixed.addr,SEL.getUserDepositCount+addr32(me))]); const na=Number(big(a)), nb=Number(big(b)); log('你的债券：LGNS 销毁债券 '+na+' 张，固定价销毁债券 '+nb+' 张'); const cur=$('bond').value; if(cur==='lgns'&&na===0&&nb>0) setBond('fixed','（你只在这张有债券）'); else if(cur==='fixed'&&nb===0&&na>0) setBond('lgns','（你只在这张有债券）'); else if(na>0&&nb>0) log('两张都有债券：一个整点只能抢其中一张，想换张就在上面切换','warn'); }catch(e){} }
+    if(!DRILL){ try{ const [a,b]=await Promise.all([call(BONDS.lgns.addr,SEL.getUserDepositCount+addr32(me)),call(BONDS.fixed.addr,SEL.getUserDepositCount+addr32(me))]); const na=Number(big(a)), nb=Number(big(b)); log('你的债券：LGNS 销毁债券 '+na+' 张，固定价销毁债券 '+nb+' 张'); const cur=$('bond').value; if(cur==='lgns'&&na===0&&nb>0) setBond('fixed','（你只在这张有债券）'); else if(cur==='fixed'&&nb===0&&na>0) setBond('lgns','（你只在这张有债券）'); else if(na>0&&nb>0) log('你两张债券都有：本页只抢'+'固定价销毁债券'+'，另一张请打开 /tools/bond-lgns/（同一个整点只抢一张）','warn'); }catch(e){} }
     await loadState();
   }catch(e){log('连接失败：'+(e.message||e),'bad');}
 }
