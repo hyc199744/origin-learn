@@ -44,6 +44,15 @@ input{width:100%;font-size:14px;padding:11px;margin:6px 0}label{display:block}
 #casesCard{padding:30px 0 30px 18px;max-width:680px;margin:0 auto}#casesCard h2{padding-right:18px}#casesSum{text-align:center;padding-right:18px;color:#cdb48c;font-size:13.5px}
 #casesList{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 18px 10px 0;-webkit-overflow-scrolling:touch}
 #casesList .case{flex:0 0 220px;scroll-snap-align:start;display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid var(--gold);border-radius:14px;background:linear-gradient(160deg,#2a1208,#0d0805)}
+#mineCard{margin:18px 18px 4px}#mineCard .mh{font-family:"STZhongsong",serif;font-size:19px;color:var(--gold);margin:0 0 4px}
+#mineSum{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;border:1px solid var(--line);border-radius:12px;margin:8px 0 10px;overflow:hidden}
+#mineSum div{padding:10px 4px}#mineSum div+div{border-left:1px solid var(--line)}#mineSum b{display:block;font-family:"STZhongsong",serif;font-size:21px;line-height:1.25}#mineSum span{font-size:12px;color:#b39b76}
+.mrow{display:flex;gap:10px;align-items:flex-start;padding:11px 2px;border-bottom:1px dashed var(--line)}.mrow:last-child{border-bottom:0}
+.mrow .mi{flex:0 0 26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin-top:2px}
+.mrow.y .mi{background:rgba(233,196,106,.16);color:var(--ok);border:1px solid var(--ok)}.mrow.n .mi{background:rgba(226,114,91,.12);color:var(--bad);border:1px solid var(--bad)}
+.mrow .mm{flex:1;min-width:0}.mrow .mm b{font-size:14.5px}.mrow .mm small{display:block;font-size:12px;color:#b39b76;line-height:1.55}.mrow .mr{text-align:right;white-space:nowrap;font-size:13px}.mrow .mr small{display:block;font-size:11.5px;color:#b39b76}
+#mineEmpty{padding:14px;text-align:center;color:#b39b76;font-size:13.5px;border:1px dashed var(--line);border-radius:12px}
+#vipWrap #casesCard{padding:18px 0 10px 18px;max-width:none}#vipWrap #casesCard .band{padding:0!important}#vipWrap #casesList{padding-right:0}
 #casesList .case .cr{align-items:flex-start}#casesList .case .cr b{font-family:"STZhongsong",serif;font-size:22px;color:var(--gold)!important}#casesList .mtag{display:none}
 .how{counter-reset:s;display:grid;gap:10px}.how div{counter-increment:s;padding:12px 14px 12px 52px;position:relative;border-left:2px solid var(--blood)}.how div::before{content:counter(s);position:absolute;left:12px;top:10px;width:28px;height:28px;border-radius:50%;background:var(--blood);border:1px solid var(--gold);display:grid;place-items:center;font-family:"STZhongsong",serif;color:var(--gold)}
 .safe{border:1px solid #6b4a1c;border-radius:14px;padding:16px;background:#120a05}.safe li{margin:6px 0}
@@ -117,6 +126,10 @@ input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--
 <p class="dim mono" id="vipWho"></p>
 <div class="box"><b>订单号：<span id="vipOid" class="mono hl"></span></b><br><span class="dim small">请截图保存，换手机或清了数据用订单号找回链接。</span></div>
 <div id="vip"></div>
+<section id="mineCard" class="box" style="display:none"><div class="mh">📋 我的抢币记录</div><div class="dim small" id="mineW"></div>
+<div id="mineSum"></div><div id="mineList"></div>
+<p class="dim small" style="margin:8px 0 0">只统计经过机器人节点发出的抢币。没抢到链上也会扣这笔手续费。</p></section>
+<div id="casesSlot"></div>
 <button class="btn ghost full" id="btnOut">返回</button>
 </div>
 
@@ -140,14 +153,24 @@ fetch(API+'/cases',{cache:'no-store'}).then(function(r){return r.json();}).then(
   $('casesCard').style.display=''; }).catch(function(){});
 fetch(API,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.opened>0){ var el=$('opened'); el.innerHTML='🔥 已有 <b>'+j.opened+'</b> 人开通'; el.style.display=''; } }).catch(function(){});
 function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t||''; }
-function view(v){ $('pub').style.display=v==='pub'?'':'none'; $('orderWrap').style.display=v==='order'?'':'none'; $('vipWrap').style.display=v==='vip'?'':'none'; window.scrollTo(0,0); }
+var cHome=$('casesCard').parentNode, cNext=$('casesCard').nextSibling;
+function moveCases(v){ var c=$('casesCard'); if(v==='vip') $('casesSlot').appendChild(c); else if(c.parentNode!==cHome) cHome.insertBefore(c,cNext); }
+function loadMine(oid){ if(!oid) return;
+  fetch(API+'/mine?order='+encodeURIComponent(oid),{cache:'no-store'}).then(function(r){return r.json();}).then(function(m){ if(!m||m.error) return;
+    var f=function(n,d){ return Number(n).toLocaleString('zh-CN',{maximumFractionDigits:d==null?2:d}); };
+    var bjt=function(t){ var d=new Date((t+28800)*1000).toISOString(); return d.slice(5,10).replace('-','/')+' '+d.slice(11,16); };
+    $('mineW').textContent='钱包 '+m.wallet.slice(0,6)+'…'+m.wallet.slice(-4);
+    $('mineSum').innerHTML='<div><b>'+m.n+'</b><span>抢了几次</span></div><div><b class="ok">'+m.ok+'</b><span>抢到几次</span></div><div><b>'+f(m.amt,0)+'</b><span>领到 LGNS</span></div>';
+    $('mineList').innerHTML=m.rows.length?m.rows.map(function(r){ return '<div class="mrow '+(r.ok?'y':'n')+'"><span class="mi">'+(r.ok?'✓':'✕')+'</span><div class="mm"><b>'+r.product+'</b><small>'+bjt(r.t)+' · 出价 '+f(r.gwei,0)+' gwei'+(r.fee!=null?' · 手续费 '+f(r.fee,3)+' DAI':'')+'</small>'+(r.ok?'':'<small class="bad">'+r.why+'</small>')+'</div><div class="mr">'+(r.ok?'<b class="ok">'+(r.helix?'抢到 ✓':'+'+f(r.amt)+' LGNS')+'</b>':'<b class="bad">没抢到</b>')+'<small><a href="https://browser.anubispace.org/tx/'+r.tx+'" target="_blank" rel="noopener">链上查看 ↗</a></small></div></div>'; }).join(''):'<div id="mineEmpty">还没有抢币记录。按上面的步骤设置好，下个整点机器人就会帮你抢，结果会显示在这里。</div>';
+    $('mineCard').style.display=''; }).catch(function(){}); }
+function view(v){ moveCases(v); $('pub').style.display=v==='pub'?'':'none'; $('orderWrap').style.display=v==='order'?'':'none'; $('vipWrap').style.display=v==='vip'?'':'none'; window.scrollTo(0,0); }
 function copy(t,b){ var done=function(){ if(b){ var o=b.textContent; b.textContent='已复制 ✓'; setTimeout(function(){b.textContent=o;},1800);} };
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(done,function(){ var x=document.createElement('textarea'); x.value=t; document.body.appendChild(x); x.select(); try{document.execCommand('copy'); done();}catch(e){ prompt('长按复制',t);} x.remove(); }); }
 function showVip(html,w,oid){
   clearInterval(timer); if(oid) LS('vip_paid',oid); LS('vip_order',null); if(w) LS('vip_wallet',w); $('vipOid').textContent=oid||'';
   $('vip').innerHTML=html; $('vipWho').textContent=w?('抢币钱包 '+w):'';
   document.querySelectorAll('#vip [data-copy]').forEach(function(b){ b.onclick=function(){ copy(b.getAttribute('data-copy'),b); }; });
-  view('vip');
+  view('vip'); loadMine(oid);
 }
 function fmtLeft(s){ s=Math.max(0,s); var m=Math.floor(s/60); return m>=60?(Math.floor(m/60)+' 小时 '+(m%60)+' 分'):(m+' 分 '+(s%60)+' 秒'); }
 function showOrder(o){
