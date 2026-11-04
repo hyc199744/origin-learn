@@ -40,6 +40,12 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
 .btn{background:var(--acc);color:#120d24}.btn.ghost{background:#1a1d24;color:var(--text)}.btn.red{background:#3a1717;color:#fca5a5;flex:.6}
 .dock{background:linear-gradient(transparent,#07080a 30%)}
 #btnApprove{width:100%;margin-top:8px}
+.hidden{display:none!important}
+#chk{margin:14px 0 4px;background:#101319;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+#chk h3{margin:0 0 6px;font-size:14px;color:var(--muted);font-weight:600}
+#chk .ck{display:flex;gap:8px;align-items:flex-start;padding:5px 0;font-size:14px;line-height:1.5}#chk .ck i{font-style:normal;flex:0 0 20px}
+#chk .fill{margin-top:8px;padding:9px 10px;border-radius:10px;background:rgba(224,178,90,.12);color:#f3d9a4;font-size:13.5px;line-height:1.6}#chk .fill b{color:#fff}
+#fillTip{position:fixed;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));z-index:9999;background:#3a2a06;border:2px solid #e0b25a;color:#ffe7b0;border-radius:14px;padding:12px 14px;font-size:16px;line-height:1.65;box-shadow:0 8px 30px rgba(0,0,0,.6)}#fillTip b{color:#fff;font-size:20px}
 
 </style>
 </head>
@@ -51,7 +57,7 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
   <div id="nextOpen">—</div>
   <div class="state" id="armState">未开启</div>
 </div>
-<div class="quota">今日已烧 <span id="quota">—</span></div>
+<div class="quota"><span id="quota">—</span></div>
 <div class="chips">
   <div class="chip">质押<span id="stake">—</span></div>
   <div class="chip">本周期<span id="epoch">—</span></div>
@@ -60,6 +66,8 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
   <div class="chip">Gas<span id="gas">—</span></div>
 </div>
 <div class="verdict" id="verdict">—</div>
+<div id="chk"><h3>开抢前检查</h3><div id="chkList"></div><div class="fill" id="fillLine"></div></div>
+<div id="fillTip" class="hidden"></div>
 <button class="btn ghost" id="btnApprove" disabled>授权 600 LGNS</button>
 <div class="sec">
   <div class="row"><span>托管节点</span><span id="relayState">先连接钱包</span></div>
@@ -69,7 +77,7 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
     <div class="row"><span>链</span><span id="chain">—</span></div>
     <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
     <div class="row"><span>本机-链时钟偏差</span><span id="skew">—</span></div>
-    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 5 秒抢光。版本 11-04 12:30</div>
+    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 5 秒抢光。版本 11-04 13:30</div>
   </details>
 </div>
 <div class="sec"><div id="log"></div></div>
@@ -87,9 +95,15 @@ const A={LGNS:'0x4D1D808a081FdAc440703b3765FC61f8028C06B8',LEDGER:'0x9E68F61E261
 const SEL={burnForPower:'0xffa6b88a',maximumLgns:'0x7300b78e',minimumStake:'0xec5ffac2',dailyMaximumLgns:'0x020bb577',burnedLgnsToday:'0xcb9ebaf2',stakeOf:'0x42623360',burnEpochOf:'0x99e02c2d',currentDay:'0x5c9302c9',dayStart:'0x65b09d2d',currentEpoch:'0x76671808',remaining:'0xf77c6cce',balanceOf:'0x70a08231',allowance:'0xdd62ed3e',approve:'0x095ea7b3'};
 const AMOUNT=500n*10n**9n; const APPROVE_AMT=600n*10n**9n; /* 老板定:每次授权600,烧仍是合约规定的500 */
 const $=id=>document.getElementById(id);
-const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);};
+const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);try{ if(/^✓ 已交给|^已广播|^你取消了|^🎉|今天的名额已经抢光|连续两次取消/.test(String(m))) showFill(false); }catch(e){}};
+const FILL_GWEI=3000, FILL_LIMIT=450000; /* 抢 AI:准点落第 1 块就够,3000 留余量;实际用 ~30 万 gas,上限 45 万 */
+let fillTimer=null;
+function showFill(on){ const el=$('fillTip'); if(!el) return; clearTimeout(fillTimer); if(!on){ el.classList.add('hidden'); return; }
+  el.innerHTML='👉 <b style="font-size:17px">钱包弹出来了</b><br>点「网络费用 → 自定义」<br>Gas 价格填 <b>'+FILL_GWEI+'</b>　Gas 上限填 <b>'+FILL_LIMIT+'</b><br>填好马上点确认（整点前点完都算数）';
+  el.classList.remove('hidden'); fillTimer=setTimeout(()=>el.classList.add('hidden'),60000); }
 const u256=n=>BigInt(n).toString(16).padStart(64,'0'); const addr32=a=>a.toLowerCase().replace(/^0x/,'').padStart(64,'0');
 const f9=v=>(Number(v)/1e9).toLocaleString('en-US',{maximumFractionDigits:2}); const f18=v=>(Number(v)/1e18).toFixed(3);
+const bjS=ts=>new Date(ts*1000+8*3600e3).toISOString().slice(5,16).replace('T',' ');
 const bj=ts=>{const d=new Date(ts*1000+8*3600e3);return d.toISOString().replace('T',' ').slice(0,19)+' 北京';};
 const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p||[200,100,200]);}catch(e){}};
 
@@ -97,7 +111,11 @@ const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=45; let relayDown
 const LSg=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, LSs=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
 const relayList=()=>String(LSg('bc_relay2')||'').toLowerCase().split(',').filter(Boolean), relayHas=a=>!!a&&relayList().includes(String(a).toLowerCase()), relayDel=a=>LSs('bc_relay2',relayList().filter(x=>x!==String(a).toLowerCase()).join(','));
 const relayAdd=a=>{ const l=relayList(); const x=String(a).toLowerCase(); if(!l.includes(x)) l.push(x); LSs('bc_relay2',l.join(',')); };
-const relayOn=()=>!!me&&relayHas(me)&&!relayDown; /* 检测记录与销毁债券抢领页共用(同站点 localStorage) */
+const relayOn=()=>!!me&&relayHas(me)&&!relayDown;
+const markBypass=()=>{ if(me) LSs('bc_bypass_'+me.toLowerCase(),String(Date.now())); };
+let routedAt=0; /* 11-04:检测结果服务器也记一份(换浏览器/清缓存不丢),本地没有就去服务器问 */
+async function routedSync(){ if(!me||relayHas(me)||Date.now()-routedAt<30000) return; routedAt=Date.now(); const r=await relayGet('/routed?a='+me,3000); if(r&&r.routed&&r.ago!==null){ const t=Date.now()-r.ago*1000, by=Number(LSg('bc_bypass_'+me.toLowerCase())||0); if(t>by){ relayAdd(me); relayRender(); log('✓ 服务器记录这个钱包接通过托管节点，已自动恢复「已接通」','ok'); } } }
+setInterval(()=>{ routedSync().catch(()=>{}); },4000); /* 检测记录与销毁债券抢领页共用(同站点 localStorage) */
 async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
 function relayRender(){ const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML='先连接钱包'; return; } el.innerHTML=relayOn()?'<span class="ok">已接通 ✓ 开放前 45 秒弹钱包，直接点确认</span>':(relayDown?'<span class="bad">连不上，本次改用开放后弹窗（基本抢不到）</span>':'<b class="bad">未接通 ✗ 这样基本抢不到，先点下面「检测节点」</b>'); }
 async function relayDetect(){
@@ -108,7 +126,7 @@ async function relayDetect(){
     let sv=null, ok=false; for(let i=0;i<8&&!ok;i++){ await new Promise(r=>setTimeout(r,i?800:300)); sv=await relayGet('/seen?a='+me); ok=!!(sv&&sv.sendAgo!==null&&sv.sendAgo<90&&(!sv.sendHash||!h||String(sv.sendHash).toLowerCase()===String(h).toLowerCase())); }
     if(ok){ relayAdd(me); relayDown=false; log('✓ 托管节点接通了：开启自动抢后，开放前 45 秒弹钱包，点确认就行','ok'); }
     else if(!sv){ log('✗ 连不上托管节点（网络问题？开着 VPN 就换条线路，没开就打开试试）','bad'); }
-    else { relayDel(me); if(sendErr) log('检测交易出错：'+sendErr,'bad'); log('✗ 这笔交易没经过托管节点：请把钱包里 Anubis 网络的 RPC 改成 '+RELAY+'，并切到这个网络，再点检测（OKX：网络 → Anubis → 编辑）','bad'); }
+    else { relayDel(me); markBypass(); if(sendErr) log('检测交易出错：'+sendErr,'bad'); log('✗ 这笔交易没经过托管节点：请把钱包里 Anubis 网络的 RPC 改成 '+RELAY+'，并切到这个网络，再点检测（OKX：网络 → Anubis → 编辑）','bad'); }
   }catch(e){ log('检测出错：'+(e.message||e),'bad'); } finally{ $('btnRelay').disabled=false; relayRender(); }
 }
 let me=null, eth=null, skew=0, nextStart=0, st={}, armed=false, racing=false, armTimer=null, attempts=0, won=false, wakeLock=null;
@@ -140,7 +158,8 @@ async function loadState(){
     nextStart=(!full&&chainNow()<todayOpen+120)?todayOpen:tomorrowOpen; // 今天还没开(或刚开没满)→今天的开放时刻;今天已满→明天
     const hh=String(Math.floor(openSec/3600)).padStart(2,'0'),mm=String(Math.floor(openSec%3600/60)).padStart(2,'0'),ss=String(openSec%60).padStart(2,'0');
     $('nextOpen').textContent=bj(nextStart)+'（每天 '+hh+':'+mm+':'+ss+' 开）';
-    $('quota').innerHTML=f9(st.burned)+' / '+f9(st.dailyMax)+(st.remain!==null?('，剩余 <b class="'+(st.remain>0n?'ok':'bad')+'">'+f9(st.remain)+'</b>'):'');
+    const slots=st.maxL>0n?Number(st.dailyMax/st.maxL):400; const hm=hh+':'+mm;
+    $('quota').innerHTML=full?('<b class="bad">今天已抢光</b>，下次 <b>'+bjS(nextStart)+'</b> 开放 '+slots+' 个名额'):(chainNow()<todayOpen?('今天 <b>'+hm+'</b> 开放，'+slots+' 个名额，一般 2～5 秒抢光'):('今日已烧 '+f9(st.burned)+' / '+f9(st.dailyMax)+(st.remain!==null?('，剩余 <b class="'+(st.remain>0n?'ok':'bad')+'">'+f9(st.remain)+'</b>'):'')));
     await syncClock();
     if(me) await loadWallet();
   }catch(e){log('读链失败：'+reason(e),'bad');}
@@ -155,8 +174,9 @@ async function loadWallet(){
   $('alw').innerHTML='<span class="'+(okAlw?'ok':'warn')+'">'+(W>(1n<<200n)?'无限（建议改为按次授权）✓':f9(W)+' LGNS'+(okAlw?' ✓':' ✗ 需授权'))+'</span>';
   const lowGas=okGas&&G<8n*10n**18n; /* OKX 用自己存的默认价(老板设 15000):要先预留 价×上限(约 35~45 万) ≈ 5.3~6.8 DAI */
   $('gas').innerHTML='<span class="'+(okGas?(lowGas?'warn':'ok'):'bad')+'">'+f18(G)+(okGas?(lowGas?' ⚠ 偏少，建议留 8 DAI 以上':' ✓'):' ✗ 太少')+'</span>';
-  const eligible=okStake&&okEp&&okBal&&okAlw&&okGas;
-  const why=[]; if(!okStake) why.push('长期质押只有 '+f9(S)+'，要 ≥ '+f9(st.minStake)); if(!okEp) why.push('这个周期（7 天）已经烧过了，下个周期才能再抢'); if(!okBal) why.push('钱包 LGNS 只有 '+f9(B)+'，要 500'); if(!okAlw) why.push('还没授权，先点「授权 600 LGNS」'); if(!okGas) why.push('DAI 太少，至少留 5 DAI 当手续费');
+  const eligible=okStake&&okEp&&okBal&&okAlw&&okGas; st.G=G; st.elig=eligible; st.nextEp=null;
+  if(!okEp){ try{ const nd=7*st.epoch+1; /* 链上实测:周期 e 覆盖第 7(e-1)+1~7e 天(北京 0 点换天),第 6 周期=第 36~42 天 */ st.nextEp=Number(big(await call(A.CLOCK,SEL.dayStart+u256(BigInt(nd)))))+(await getOpenSec()); $('epoch').innerHTML='<span class="bad">已烧过 ✗<br>下次 '+bjS(st.nextEp)+'</span>'; }catch(e){} }
+  const why=[]; if(!okStake) why.push('长期质押只有 '+f9(S)+'，要 ≥ '+f9(st.minStake)); if(!okEp) why.push('这个周期（7 天）已经烧过了，下次可抢：'+(st.nextEp?bjS(st.nextEp):'下个周期')); if(!okBal) why.push('钱包 LGNS 只有 '+f9(B)+'，要 500'); if(!okAlw) why.push('还没授权，先点「授权 600 LGNS」'); if(!okGas) why.push('DAI 太少，至少留 5 DAI 当手续费');
   st.why=why.join('；');
   $('verdict').innerHTML=eligible?'<b class="ok">有资格，可以抢</b>':'<b class="bad">今天抢不了：'+st.why+'</b>';
   $('btnApprove').disabled=okAlw; $('btnArm').disabled=!eligible; $('btnNow').disabled=!eligible;
@@ -216,15 +236,15 @@ async function doApprove(){
 async function attempt(){
   attempts++;
   try{
-    buzz(); log('第 '+attempts+' 笔：请在钱包点确认（烧 500 LGNS）','warn');
+    buzz(); showFill(true); log('第 '+attempts+' 笔：请在钱包点确认（烧 500 LGNS）','warn');
     const RL=relayOn()&&chainNow()<nextStart-0.3;
     const h=await sendTx(A.LEDGER,SEL.burnForPower+u256(AMOUNT),2);
     if(RL){ let got=false; for(let i=0;i<4&&!got;i++){ const sv=await relayGet('/seen?a='+me,2500); got=!!(sv&&sv.sendHash&&String(sv.sendHash).toLowerCase()===String(h).toLowerCase()); if(!got) await new Promise(r=>setTimeout(r,400)); }
       if(got) log('✓ 已交给东京定时节点，'+bj(nextStart)+' 开放那一刻准点发出，你不用再动 '+h,'ok');
-      else { relayDel(me); relayRender(); log('✗ 这笔没经过托管节点，已直接上链（开放前会被拒）。托管已关闭，被拒后页面会马上再弹一次，请再点确认','bad'); } }
+      else { relayDel(me); markBypass(); relayRender(); log('✗ 这笔没经过托管节点，已直接上链（开放前会被拒）。托管已关闭，被拒后页面会马上再弹一次，请再点确认','bad'); } }
     else log('已广播 '+h);
     const r=await waitTx(h,RL?120000:60000);
-    if(r&&r.status==='0x1'){won=true;buzz([100,50,100,50,400]);log('🎉 抢到了！区块 '+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
+    if(r&&r.status==='0x1'){won=true;buzz([100,50,100,50,400]);try{ const nd=7*st.epoch+1; const t=Number(big(await call(A.CLOCK,SEL.dayStart+u256(BigInt(nd)))))+(await getOpenSec()); setTimeout(()=>log('算力 +1000 已到账；这个钱包下次可抢：'+bjS(t),'ok'),300); }catch(e){} log('🎉 抢到了！区块 '+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
     if(await burnedThisEpoch()){won=true;buzz([100,50,100,50,400]);log('🎉 链上确认本 Epoch 已烧过 → 成功','ok');return 'win';} // 回执丢了/超时也不怕,直接问链
     if(!r){log('60 秒没拿到回执，链上也没显示成功，可能网络卡了','bad');return 'fail';}
     const why=await simulate(); log('这笔被拒（'+(why||'未知原因')+'）','bad');
@@ -270,6 +290,21 @@ async function arm(){
     if(!warned&&left<=(relayOn()?RELAY_POP+15:30)){ warned=true; buzz([80,60,80]); log(relayOn()?'还有一分钟，钱包马上弹出，弹出后直接点确认':'还有 30 秒，准备好点确认','warn'); loadWallet().then(ok=>{ if(!ok) log('⚠ 资格检查刚才变红了，请立刻看上面红字','bad'); }).catch(()=>{}); }
     if(left<=leadS){ clearInterval(armTimer); race(); } },100);
 }
+let chkWarned=0;
+function chkRender(){ const el=$('chkList'); if(!el) return;
+  const needDai=FILL_GWEI*FILL_LIMIT/1e9, have=st.G!==undefined?Number(st.G)/1e18:null;
+  const rows=[
+    [!!me, '钱包已连接', '先点下面「连接钱包」'],
+    [!!me&&!!st.elig, '有资格（质押、本周期、LGNS、授权都 OK）', me?('资格不够：'+(st.why||'看上面红字')):'连接后自动检查资格'],
+    [!!me&&relayOn(), '托管节点已接通', '节点没接通：点下面「检测节点」（没接通基本抢不到）'],
+    [have!==null&&have>=needDai+0.5, 'DAI 够手续费（有 '+(have===null?'—':have.toFixed(2))+'）', '钱包 DAI '+(have===null?'—':'只有 '+have.toFixed(2))+'，至少留 '+(needDai+0.5).toFixed(1)+' DAI'],
+    [!!armed||!!racing, '已开启自动抢', '最后一步：点下面紫色「开启自动抢」'] ];
+  el.innerHTML=rows.map((r,i)=>'<div class="ck"><i>'+(r[0]?'✅':(i===4?'👉':'❌'))+'</i><span class="'+(r[0]?'ok':(i===4?'warn':'bad'))+'">'+(r[0]?r[1]:r[2])+'</span></div>').join('');
+  $('fillLine').innerHTML='钱包弹出时这样填：<b>网络费用 → 自定义</b>，Gas 价格 <b>'+FILL_GWEI+'</b>，Gas 上限 <b>'+FILL_LIMIT+'</b>（抢到约花 '+(FILL_GWEI*300000/1e9).toFixed(1)+' DAI）。别勾「保存为默认」';
+  const left=nextStart?nextStart-chainNow():1e9;
+  if(armed&&left<=300&&left>60&&chkWarned!==nextStart&&rows.slice(1,4).some(r=>!r[0])){ chkWarned=nextStart; buzz([400,100,400,100,400]); log('⚠ 还有 5 分钟开抢，这几项还没好：'+rows.slice(1,4).filter(r=>!r[0]).map(r=>r[2]).join('；'),'bad'); }
+}
+setInterval(()=>{ try{ chkRender(); }catch(e){} },1000);
 function stop(){armed=false;clearInterval(armTimer);$('armState').textContent='已停止';log('已停止自动抢');}
 function tick(){ if(!nextStart)return; const left=Math.max(0,Math.floor(nextStart-chainNow())); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s; $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
 
