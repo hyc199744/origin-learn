@@ -78,7 +78,7 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
     <div class="row"><span>链</span><span id="chain">—</span></div>
     <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
     <div class="row"><span>本机-链时钟偏差</span><span id="skew">—</span></div>
-    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 14:00</div>
+    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 15:50</div>
   </details>
 </div>
 <div class="sec"><div id="log"></div></div>
@@ -117,7 +117,7 @@ async function gasCheck(h){
 }
 let fillTimer=null;
 function showFill(on){ const el=$('fillTip'); if(!el) return; clearTimeout(fillTimer); if(!on){ el.classList.add('hidden'); return; }
-  el.innerHTML='👉 <b style="font-size:17px">钱包弹出来了</b><br>点「网络费用 → 自定义」<br>Gas 价格填 <b>'+FILL_GWEI+'</b>　Gas 上限填 <b>'+FILL_LIMIT+'</b><br>填好马上点确认（整点前点完都算数）';
+  el.innerHTML='👉 <b style="font-size:17px">钱包弹出来了</b><br>点「网络费用 → 自定义」<br>Gas 价格填 <b>'+FILL_GWEI+'</b>　Gas 上限填 <b>'+FILL_LIMIT+'</b><br>填好马上点确认（开放前点完都算数）';
   el.classList.remove('hidden'); fillTimer=setTimeout(()=>el.classList.add('hidden'),60000); }
 const u256=n=>BigInt(n).toString(16).padStart(64,'0'); const addr32=a=>a.toLowerCase().replace(/^0x/,'').padStart(64,'0');
 const f9=v=>(Number(v)/1e9).toLocaleString('en-US',{maximumFractionDigits:2}); const f18=v=>(Number(v)/1e18).toFixed(3);
@@ -135,7 +135,7 @@ let routedAt=0; /* 11-04:检测结果服务器也记一份(换浏览器/清缓�
 async function routedSync(){ if(!me||relayHas(me)||Date.now()-routedAt<30000) return; routedAt=Date.now(); const r=await relayGet('/routed?a='+me,3000); if(r&&r.routed&&r.ago!==null){ const t=Date.now()-r.ago*1000, by=Number(LSg('bc_bypass_'+me.toLowerCase())||0); if(t>by){ relayAdd(me); relayRender(); log('✓ 服务器记录这个钱包接通过托管节点，已自动恢复「已接通」','ok'); } } }
 setInterval(()=>{ routedSync().catch(()=>{}); },4000); /* 检测记录与销毁债券抢领页共用(同站点 localStorage) */
 async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
-function relayRender(){ gasRender(); const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML='先连接钱包'; return; } el.innerHTML=relayOn()?'<span class="ok">已接通 ✓ 开放前 45 秒弹钱包，直接点确认</span>':(relayDown?'<span class="bad">连不上，本次改用开放后弹窗（基本抢不到）</span>':'<b class="bad">未接通 ✗ 这样基本抢不到，先点下面「检测节点」</b>'); }
+function relayRender(){ gasRender(); const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML='先连接钱包'; return; } el.innerHTML=relayOn()?'<span class="ok">已接通 ✓ 开放前 45 秒弹钱包，直接点确认</span>':(relayDown?'<span class="bad">连不上，本次改用开放后弹窗（基本抢不到）</span>':'<b class="bad">未接通 ✗ 这样基本抢不到，先点下面「检测节点和 Gas」</b>'); }
 async function relayDetect(){
   if(!eth||!me){ log('先连接钱包','warn'); return; } if(racing){ log('正在抢，稍后再检测','warn'); return; } $('btnRelay').disabled=true;
   try{
@@ -332,7 +332,7 @@ setInterval(()=>{ try{ chkRender(); }catch(e){} },1000);
 function stop(){armed=false;clearInterval(armTimer);$('armState').textContent='已停止';log('已停止自动抢');}
 function tick(){ if(!nextStart)return; const ep=!!(me&&st.epDone&&st.nextEp); const tgt=ep?st.nextEp:nextStart; /* 本周期已烧过:倒数到这个钱包下次可抢,别让人以为明天还能抢 */
   $('heroLbl').textContent=ep?'本周期已烧过 · 距下次可抢':'距 离 开 放'; if(ep) $('nextOpen').textContent=bj(st.nextEp)+'（这个钱包下次可抢）';
-  const left=Math.max(0,Math.floor(tgt-chainNow())); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s; $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
+  const left=Math.max(0,Math.floor(tgt-chainNow())); const dd=Math.floor(left/86400),h=String(Math.floor(left%86400/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0'); $('countdown').textContent=(dd?dd+'天 ':'')+h+':'+m+':'+s; $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
 
 $('btnRelay').onclick=relayDetect; $('btnConnect').onclick=connect; $('btnApprove').onclick=doApprove; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=()=>{ if(racing)return; log('手动：立刻发一笔'); racing=true; attempt().finally(()=>{racing=false;loadState();}); };
