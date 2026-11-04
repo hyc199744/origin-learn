@@ -58,7 +58,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-04 10:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-04 10:50 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -173,6 +173,7 @@ function easyOf(m,cls){
   if(/托管节点连不上/.test(m)) return {i:'⚠️',t:'节点暂时连不上，这一轮改成手点',s:'整点前 8 秒钱包会弹出来，等手机震动 + 响声再点确认',c:'bad'};
   if(/没检测到钱包/.test(m)) return {i:'⚠️',t:'没检测到钱包',s:'请在 OKX、TokenPocket、Bitget 等钱包 App 里打开这个页面',c:'bad'};
   if(/这笔没经过托管节点/.test(m)) return {i:'⚠️',t:'这笔没走节点，已直接上链',s:'已自动改回手点模式。请展开详细日志截图发客服',c:'bad'};
+  if(/^钱包实际出价 [\d.]+ gwei（比/.test(m)){ x=m.match(/^钱包实际出价 ([\d.]+) gwei/); return {i:'⚠️',t:'这次手续费只填了 '+(x?x[1]:'很低的')+' gwei，大概率排不上',s:'钱包没按页面的出价发（OKX 用的是它自己存的网络费）。这笔已经交出去改不了，下次钱包弹出后点「网络费用 → 自定义」，把 Gas 价格填高再确认',c:'bad'}; }
   if(/钱包没按页面出价|钱包把出价改成了/.test(m)) return {i:'⚠️',t:'钱包没按设定的手续费发',s:'在钱包确认页点「网络费用 → 自定义」，手动把 Gas 价格填上再确认',c:'bad'};
   if(/^连接失败/.test(m)) return {i:'⚠️',t:'钱包没连上',s:'关掉页面，在钱包 App 的「发现 / 浏览器」里重新打开再试',c:'bad'};
   if(/国库只有/.test(m)) return {i:'⚠️',t:'这一轮额度可能不够',s:'债券池子里剩的不多，这个整点大概率抢不到',c:'warn'};
