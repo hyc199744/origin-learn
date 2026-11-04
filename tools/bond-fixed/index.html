@@ -76,7 +76,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>固定价销毁债券抢领</b><small>独立页 · 基于 11-04 20:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>固定价销毁债券抢领</b><small>独立页 · 基于 11-05 00:10 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -507,7 +507,7 @@ async function attempt(H){
     if(RL&&H&&landed!==null){ log('托管节点这笔落在整点'+(landed-H>=0?'后 +':'前 ')+(landed-H)+' 秒，节点会自动校正发送时刻','warn'); return landed<H?'early':'late'; }
     if(H&&landed!==null){ const offset=landed-H; if(offset<0){ if(isCue()&&offset<-2) log('这笔发早了：没等震动提示就点了确认。下次弹出后先别动，震动+响声时再点','bad'); else tuneTo(offset); return 'early'; } if(offset>=2){ tuneTo(offset); return 'late'; } log('落在整点后 '+offset+' 秒但没挤进去：同块里出价更高的人先领光了。自动出价下次会按本整点最高价再加三成','warn'); return 'late'; }
     return 'fail';
-  }catch(e){ if(isReject(e)){log('你取消了签名','warn');return 'rejected';} log('发送出错：'+(e.message||e),'bad'); return 'fail'; }
+  }catch(e){ if(isReject(e)){log('你取消了签名','warn');return 'rejected';} log('发送出错：'+(e.message||e),'bad'); if(/网络费只有/.test(String(e.message||e))) return 'lowprice'; return 'fail'; }
 }
 
 /* 整点冲刺用独立定时器,不受读链快慢影响:整点前 25 秒排好本机时刻,到点前 40ms 起 3ms 一查,准点弹钱包 */
@@ -528,7 +528,10 @@ async function fireWindow(H,L){
     if(relayOn()&&H){ const ping=await relayGet('/status',3000); if(!ping){ st.relayDown=true; sched.H=0; log('托管节点连不上，这一轮改回手点：整点前 8 秒弹钱包，等震动再点','bad'); relayRender(); return; } }
     if(isCue()&&H&&!relayOn()){ const cueAtMs=(H-cueLead()+off())*1000; sched.cueAt=cueAtMs; clearTimeout(sched.cueTimer);
       sched.cueTimer=setTimeout(async()=>{ while(Date.now()<cueAtMs-1100) await sleep(50); while(Date.now()<cueAtMs){} if(!armed||sched.H!==H) return; buzz([700,120,700,120,1000]); beep(); $('armState').innerHTML='<b class="warn flash">就是现在，点确认！</b>'; log('⚡ 震动提示：现在点确认！（整点前 '+cueLead().toFixed(1)+' 秒）','ok'); }, Math.max(0,cueAtMs-Date.now()-1600)); }
-    if(L>0){ r=(relayOn()&&$('mode').value==='split')?await attemptSplit(H):await attempt(H); }
+    if(L>0){ r=(relayOn()&&$('mode').value==='split')?await attemptSplit(H):await attempt(H);
+      /* 11-05 节点拒收网络费太低的 LGNS 领取:大字提示改网络费,整点前马上再弹一次 */
+      while(r==='lowprice'&&armed&&chainNow()<H-6){ buzz([600,150,600]); $('armState').innerHTML='<b class="bad flash">钱包网络费太低，节点没发：再弹出时点「网络费用 → 自定义」，Gas 价格填 '+recBid()+'，再点确认</b>'; log('网络费太低被节点退回（没扣钱），马上再弹一次：请改成自定义 '+recBid()+' 再确认','bad'); await sleep(1200); r=(relayOn()&&$('mode').value==='split')?await attemptSplit(H):await attempt(H); }
+      if(r==='lowprice') r='fail'; }
     else { const t0=Date.now(); let why='x'; while(armed&&Date.now()-t0<6500){ why=await simulate(plan().data); if(!why)break; await sleep(120); } if(why){ log('整点后 6 秒内模拟一直不过（'+why+'），这波没赶上','bad'); return; } r=await attempt(H); }
     await handleResult(r,'这个整点没成，等下个整点自动再来');
   }catch(e){ log('冲刺出错：'+(e.message||e),'bad'); } finally{ firing=false; }
@@ -583,7 +586,7 @@ async function attemptSplit(H){
   for(const x of ps){
     if(chainNow()>H-0.8){ log('快到整点了，剩下的不弹了','warn'); break; }
     try{ const h=await sendTx(A.BOND,SEL.claim+u256(x.i),bid,GL); hs.push({h,x}); log('第 '+hs.length+' 笔已确认：领第 '+(x.i+1)+' 笔 '+f9(x.amt)+' LGNS '+h); }
-    catch(e){ if(isReject(e)){ log('这笔你取消了','warn'); if(!hs.length) return 'rejected'; break; } log('发送出错：'+(e.message||e),'bad'); break; }
+    catch(e){ if(isReject(e)){ log('这笔你取消了','warn'); if(!hs.length) return 'rejected'; break; } log('发送出错：'+(e.message||e),'bad'); if(!hs.length&&/网络费只有/.test(String(e.message||e))) return 'lowprice'; break; }
   }
   if(!hs.length) return 'fail';
   let got=false; const lastH=String(hs[hs.length-1].h).toLowerCase();
