@@ -63,12 +63,13 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
 <button class="btn ghost" id="btnApprove" disabled>授权 600 LGNS</button>
 <div class="sec">
   <div class="row"><span>托管节点</span><span id="relayState">先连接钱包</span></div>
+  <div class="row" style="border:0;flex-wrap:wrap;gap:8px"><span style="font-size:12.5px;flex:1 1 160px;min-width:0;word-break:break-all">钱包 RPC 要改成 https://zjgame.web3origin.com/bondrpc</span><button class="btn ghost" id="btnRelay" style="flex:0 0 auto;width:auto;padding:8px 14px;margin:0">检测节点</button></div>
   <div class="row"><span>没托管时弹窗时机</span><span><select id="lead"><option value="-500">开放后 0.5 秒</option><option value="-1500" selected>开放后 1.5 秒（推荐）</option><option value="-3000">开放后 3 秒</option><option value="1000">提前 1 秒（高级，可能被拒一次）</option></select></span></div>
   <details><summary>更多信息</summary>
     <div class="row"><span>链</span><span id="chain">—</span></div>
     <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
     <div class="row"><span>本机-链时钟偏差</span><span id="skew">—</span></div>
-    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 5 秒抢光。版本 11-02 12:30</div>
+    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 5 秒抢光。版本 11-04 12:30</div>
   </details>
 </div>
 <div class="sec"><div id="log"></div></div>
@@ -95,9 +96,21 @@ const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p||[200,100,200]);}catch
 const RELAY='https://zjgame.web3origin.com/bondrpc', RELAY_POP=45; let relayDown=false;
 const LSg=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } }, LSs=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
 const relayList=()=>String(LSg('bc_relay2')||'').toLowerCase().split(',').filter(Boolean), relayHas=a=>!!a&&relayList().includes(String(a).toLowerCase()), relayDel=a=>LSs('bc_relay2',relayList().filter(x=>x!==String(a).toLowerCase()).join(','));
+const relayAdd=a=>{ const l=relayList(); const x=String(a).toLowerCase(); if(!l.includes(x)) l.push(x); LSs('bc_relay2',l.join(',')); };
 const relayOn=()=>!!me&&relayHas(me)&&!relayDown; /* 检测记录与销毁债券抢领页共用(同站点 localStorage) */
 async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
-function relayRender(){ const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML='先连接钱包'; return; } el.innerHTML=relayOn()?'<span class="ok">已接通 ✓ 开放前 45 秒弹钱包，直接点确认</span>':(relayDown?'<span class="bad">连不上，本次改用开放后弹窗</span>':'<span class="warn">未接通（到「销毁债券抢领」页按说明改节点并检测，这里自动生效）</span>'); }
+function relayRender(){ const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML='先连接钱包'; return; } el.innerHTML=relayOn()?'<span class="ok">已接通 ✓ 开放前 45 秒弹钱包，直接点确认</span>':(relayDown?'<span class="bad">连不上，本次改用开放后弹窗（基本抢不到）</span>':'<b class="bad">未接通 ✗ 这样基本抢不到，先点下面「检测节点」</b>'); }
+async function relayDetect(){
+  if(!eth||!me){ log('先连接钱包','warn'); return; } if(racing){ log('正在抢，稍后再检测','warn'); return; } $('btnRelay').disabled=true;
+  try{
+    log('检测托管节点：钱包会弹一笔「给自己授权 0 枚 LGNS」，不动任何资产，点确认（手续费约 0.001 DAI）','warn');
+    let h=null, sendErr=''; try{ h=await eth.request({method:'eth_sendTransaction',params:[{from:me,to:A.LGNS,value:'0x0',data:'0x095ea7b3'+addr32(me)+u256(0),gas:'0x11170'}]}); }catch(e){ if(isReject(e)){ log('你取消了检测','warn'); return; } sendErr=String(e.message||e).slice(0,120); }
+    let sv=null, ok=false; for(let i=0;i<8&&!ok;i++){ await new Promise(r=>setTimeout(r,i?800:300)); sv=await relayGet('/seen?a='+me); ok=!!(sv&&sv.sendAgo!==null&&sv.sendAgo<90&&(!sv.sendHash||!h||String(sv.sendHash).toLowerCase()===String(h).toLowerCase())); }
+    if(ok){ relayAdd(me); relayDown=false; log('✓ 托管节点接通了：开启自动抢后，开放前 45 秒弹钱包，点确认就行','ok'); }
+    else if(!sv){ log('✗ 连不上托管节点（网络问题？开着 VPN 就换条线路，没开就打开试试）','bad'); }
+    else { relayDel(me); if(sendErr) log('检测交易出错：'+sendErr,'bad'); log('✗ 这笔交易没经过托管节点：请把钱包里 Anubis 网络的 RPC 改成 '+RELAY+'，并切到这个网络，再点检测（OKX：网络 → Anubis → 编辑）','bad'); }
+  }catch(e){ log('检测出错：'+(e.message||e),'bad'); } finally{ $('btnRelay').disabled=false; relayRender(); }
+}
 let me=null, eth=null, skew=0, nextStart=0, st={}, armed=false, racing=false, armTimer=null, attempts=0, won=false, wakeLock=null;
 
 async function rpc(method,params){const r=await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})});const j=await r.json();if(j.error){const e=new Error(j.error.message||'rpc');e.data=j.error.data;throw e;}return j.result;}
@@ -141,9 +154,11 @@ async function loadWallet(){
   $('bal').innerHTML='<span class="'+(okBal?'ok':'bad')+'">'+f9(B)+(okBal?' ✓':' ✗')+'</span>';
   $('alw').innerHTML='<span class="'+(okAlw?'ok':'warn')+'">'+(W>(1n<<200n)?'无限（建议改为按次授权）✓':f9(W)+' LGNS'+(okAlw?' ✓':' ✗ 需授权'))+'</span>';
   const lowGas=okGas&&G<8n*10n**18n; /* OKX 用自己存的默认价(老板设 15000):要先预留 价×上限(约 35~45 万) ≈ 5.3~6.8 DAI */
-  $('gas').innerHTML='<span class="'+(okGas?(lowGas?'warn':'ok'):'bad')+'">'+f18(G)+(okGas?(lowGas?' ⚠ OKX 网络费若是 15000，要先预留约 7 DAI，不够会发不出去：补到 8 DAI 以上，或把 OKX 网络费改成 1000':' ✓'):' ✗ 太少')+'</span>';
+  $('gas').innerHTML='<span class="'+(okGas?(lowGas?'warn':'ok'):'bad')+'">'+f18(G)+(okGas?(lowGas?' ⚠ 偏少，建议留 8 DAI 以上':' ✓'):' ✗ 太少')+'</span>';
   const eligible=okStake&&okEp&&okBal&&okAlw&&okGas;
-  $('verdict').innerHTML=eligible?'<b class="ok">有资格，可以抢</b>':'<b class="bad">暂不满足，合约会拒绝</b>';
+  const why=[]; if(!okStake) why.push('长期质押只有 '+f9(S)+'，要 ≥ '+f9(st.minStake)); if(!okEp) why.push('这个周期（7 天）已经烧过了，下个周期才能再抢'); if(!okBal) why.push('钱包 LGNS 只有 '+f9(B)+'，要 500'); if(!okAlw) why.push('还没授权，先点「授权 600 LGNS」'); if(!okGas) why.push('DAI 太少，至少留 5 DAI 当手续费');
+  st.why=why.join('；');
+  $('verdict').innerHTML=eligible?'<b class="ok">有资格，可以抢</b>':'<b class="bad">今天抢不了：'+st.why+'</b>';
   $('btnApprove').disabled=okAlw; $('btnArm').disabled=!eligible; $('btnNow').disabled=!eligible;
   return eligible;
 }
@@ -188,7 +203,7 @@ async function sendTx(to,data,gasMult){
   let gp=null; try{ gp=BigInt(await rpc('eth_gasPrice',[]))*BigInt(Math.round((gasMult||1)*10))/10n; }catch(e){}
   const full={from:me,to,data}; if(gp){ full.gasPrice='0x'+gp.toString(16); full.type='0x0'; full.gas='0x'+(450000).toString(16); }
   try{ return await eth.request({method:'eth_sendTransaction',params:[full]}); }
-  catch(e){ if(isReject(e)) throw e; log('钱包不接受带 gas 参数的交易（'+(e.message||e).slice(0,60)+'），改用钱包默认参数重发','warn'); return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data}]}); } // 个别钱包对 type/gas 字段挑剔:退回最简参数再试一次
+  catch(e){ if(isReject(e)||/Gas 上限|未开通/.test(String(e&&e.message||e))) throw e; log('钱包不接受带 gas 参数的交易（'+(e.message||e).slice(0,60)+'），改用钱包默认参数重发','warn'); return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data}]}); } // 个别钱包对 type/gas 字段挑剔:退回最简参数再试一次
 }
 async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||120000)){try{const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;}catch(e){}await new Promise(r=>setTimeout(r,350));}return null;} // 单次 RPC 失败不中断等待
 async function burnedThisEpoch(){ try{ const e=Number(big(await call(A.GATE,SEL.burnEpochOf+addr32(me)))); return e!==0&&e>=st.epoch; }catch(e){ return false; } } // 链上直接问"本 Epoch 烧过没"=最可靠的成功判定
@@ -214,7 +229,7 @@ async function attempt(){
     if(!r){log('60 秒没拿到回执，链上也没显示成功，可能网络卡了','bad');return 'fail';}
     const why=await simulate(); log('这笔被拒（'+(why||'未知原因')+'）','bad');
     return 'fail';
-  }catch(e){ if(isReject(e)){log('你取消了签名','warn');return 'rejected';} log('发送出错：'+(e.message||e),'bad'); if(await burnedThisEpoch()){won=true;return 'win';} return 'fail'; }
+  }catch(e){ if(isReject(e)){log('你取消了签名','warn');return 'rejected';} const em=String(e.message||e); if(/Gas 上限/.test(em)){ $('armState').innerHTML='<b class="bad">Gas 上限不够，节点没发！钱包马上再弹，请点「网络费用 → 自定义」把 Gas 上限改成 450000 再确认</b>'; buzz([300,80,300,80,300]); } log('发送出错：'+em,'bad'); if(await burnedThisEpoch()){won=true;return 'win';} return 'fail'; }
 }
 // 开放后先模拟:刚过零点那几秒链上最新块可能还是"昨天",会误报额度已满,所以给 8 秒宽限反复模拟;过了宽限还说满才算真满
 async function waitUntilOpenOrFull(){
@@ -237,15 +252,16 @@ async function race(){
       const r=await attempt();
       if(r==='win')break;
       if(r==='rejected'){ rejects++; if(rejects>=2){log('连续两次取消，停止。想继续点"立刻发"','warn');break;} log('再弹一次，这次请点确认','warn'); continue; }
-      if(chainNow()>nextStart+45){ const why=await simulate(); if(/daily maximum/i.test(why)){log('今天额度已经满了，下次再来','bad');break;} }
+      if(chainNow()>=nextStart+3){ const why=await simulate(); if(/daily maximum/i.test(why)){log('今天的名额已经抢光了，不再弹钱包，明天 11:59 再来','bad');break;} } /* 11-04:原来 45 秒后才查,名额 2 秒就光,中间白弹 6 次 */
     }
   } finally { racing=false; armed=false; $('armState').textContent=won?'成功 🎉':'已结束'; await loadState(); }
 }
 async function arm(){
   if(armed)return;
-  const ok=await loadWallet().catch(()=>false); if(!ok){ log('资格检查没通过，不能开启','bad'); return; }
+  const ok=await loadWallet().catch(()=>false); if(!ok){ log('不能开启：'+(st.why||'读不到链上数据，稍后再试'),'bad'); return; }
   armed=true; keepAwake();
   if(relayOn()){ const ping=await relayGet('/status',3000); if(!ping){ relayDown=true; relayRender(); log('托管节点连不上，本次改用"开放后弹窗"','bad'); } }
+  if(!relayOn()) log('⚠ 托管节点没接通：只能开放后才弹钱包，名额 2 秒就光，基本抢不到。强烈建议先点「检测节点」接通','bad');
   const lead=Number($('lead').value); const leadS=relayOn()?RELAY_POP:(isNaN(lead)?-1.5:lead/1000);
   $('armState').innerHTML='<span class="ok">已开启</span>，'+(relayOn()?'托管：开放前 45 秒弹钱包，直接点确认':leadS>=0?('到点前 '+leadS+' 秒弹签名'):('开放后 '+(-leadS)+' 秒弹签名'));
   log('自动抢已开启：'+bj(nextStart)+(leadS>=0?' 前 '+leadS:' 后 '+(-leadS))+' 秒弹出钱包签名。保持本页在前台、钱包已解锁、别锁屏。');
@@ -257,7 +273,7 @@ async function arm(){
 function stop(){armed=false;clearInterval(armTimer);$('armState').textContent='已停止';log('已停止自动抢');}
 function tick(){ if(!nextStart)return; const left=Math.max(0,Math.floor(nextStart-chainNow())); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s; $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
 
-$('btnConnect').onclick=connect; $('btnApprove').onclick=doApprove; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
+$('btnRelay').onclick=relayDetect; $('btnConnect').onclick=connect; $('btnApprove').onclick=doApprove; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=()=>{ if(racing)return; log('手动：立刻发一笔'); racing=true; attempt().finally(()=>{racing=false;loadState();}); };
 setInterval(tick,250); setInterval(relayRender,3000); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!racing) loadState(); },60000);
 loadState().then(()=>{ const pv=pickProvider(); if(pv&&pv.selectedAddress) connect(); });
