@@ -76,7 +76,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-05 00:50 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-05 01:10 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -92,7 +92,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
   <label>领取方式 <select id="mode"><option value="split" selected>拆单：一笔一笔领，按「先抢哪一笔」（推荐）</option><option value="all">整笔全领：所有笔一起领，不看「先抢哪一笔」（量大易失败，不推荐）</option><option value="max">只领一笔：按「先抢哪一笔」</option></select></label>
   <label>整点前彩排 <select id="reh"><option value="1" selected>开：整点前 2 分钟弹一笔 0 元自转账量你的真实反应（约 0.08 DAI）</option><option value="0">关</option></select></label>
 </div>
-<div class="card" id="relayCard"><h3>托管节点 · 不拼手速（强烈推荐）</h3>
+<div class="card" id="relayCard"><h3>托管节点设置</h3>
 <div class="row" style="border:0;padding:0 0 6px"><span>状态</span><span id="relayState">先连接钱包</span></div>
 <div class="row" style="border:0;padding:0 0 6px"><span>托管出价</span><span><select id="relayGwei"><option value="auto" selected>看行情自动（按上小时第 1 块成交价，最高 30 万）</option><option value="5000">5,000 gwei</option><option value="10000">10,000 gwei</option><option value="15000">15,000 gwei</option><option value="20000">20,000 gwei</option><option value="30000">30,000 gwei</option></select></span></div>
 <div class="row" style="border:0;padding:0 0 6px"><span>每次抢几笔</span><span><select id="splitN"><option value="1" selected>1 笔（只弹 1 次）</option><option value="2">2 笔（弹 2 次）</option><option value="3">3 笔（弹 3 次）</option></select></span></div><div class="row" style="border:0;padding:0 0 6px"><span>先抢哪一笔</span><span><select id="order"><option value="big" selected>先抢最大的</option><option value="small">先抢最小的（大笔抢不到时用）</option></select></span></div>
@@ -648,7 +648,7 @@ let routedAt=0;
 async function routedSync(){ if(!me||DRILL||relayHas(me)||Date.now()-routedAt<30000) return; routedAt=Date.now(); const r=await relayGet('/routed?a='+me,3000); if(r&&r.routed&&r.ago!==null){ const t=Date.now()-r.ago*1000, by=Number(LS('bc_bypass_'+me.toLowerCase())||0); if(t>by){ relayAdd(me); relayRender(); log('✓ 服务器记录这个钱包接通过托管节点，已自动恢复「已接通」','ok'); } } }
 setInterval(()=>{ routedSync().catch(()=>{}); },4000);
 function stop(){armed=false;$('armState').textContent='已停止';log('已停止自动领');}
-function hintNow(){ const H=nextHour(); const left=H-chainNow(); let t; if(!me) t='先点底下"连接钱包"'; else if(!st.eligible) t='这个钱包没法领（看下面"结论"）'; else if(!armed) t='点底下"开启自动领"'; else if(autoSend()) t='守着就行，到点页面自动发'; else if(relayOn()) t=(left<=RELAY_POP+1&&left>0&&sched.relayH!==H)?'钱包弹出后直接点确认':'托管节点模式：整点前 45 秒弹钱包，直接点确认'; else if(left<=150&&left>60) t='彩排：等长震+三声响再点确认'; else if(left<=12) t='正式：等长震+三声响立刻点确认'; else t='守候中，整点前 2 分钟会彩排一次'; const e=$('hint'); if(e&&e.textContent!==t) e.textContent=t; }
+function hintNow(){ const H=nextHour(); const left=H-chainNow(); let t; if(!me) t='先点底下"连接钱包"'; else if(!st.eligible) t='这个钱包没法领（看下面"结论"）'; else if(!armed) t='点底下"开启自动领"'; else if(autoSend()) t='守着就行，到点页面自动发'; else if(relayOn()) t=(left<=RELAY_POP+1&&left>0&&sched.relayH!==H)?'钱包弹出后直接点确认':'页面开着别锁屏，钱包弹出马上点确认'; else if(left<=150&&left>60) t='彩排：等长震+三声响再点确认'; else if(left<=12) t='正式：等长震+三声响立刻点确认'; else t='守候中，整点前 2 分钟会彩排一次'; const e=$('hint'); if(e&&e.textContent!==t) e.textContent=t; }
 function tick(){ hintNow(); const H=nextHour(); $('nextIn').textContent=bj(H); const left=Math.max(0,H-chainNow()); const h=String(Math.floor(left/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(Math.floor(left%60)).padStart(2,'0'); $('countdown').textContent=h+':'+m+':'+s+(left<60?'.'+String(Math.floor(left*10)%10):''); $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
 
 setBond(LS('bc_bond')||'lgns');
@@ -664,7 +664,7 @@ async function relayGet(path,ms){ const ac=new AbortController(); const t=setTim
 function relayRender(){ const el=$('relayState'); if(!el) return; $('relayUrl').textContent=RELAY;
   if(!me){ el.innerHTML='先连接钱包'; return; }
   const ok=relayHas(me);
-  el.innerHTML=relayOn()?'<b class="ok">✓ 已接通：整点前 45 秒弹钱包，直接点确认</b>':(ok&&st.relayDown?'<b class="bad">节点暂时连不上，本轮改回手点</b>':ok&&autoSend()?'<span class="warn">已接通（当前是自动发模式，不用它）</span>':'<span class="warn">未接通：按下面步骤改好钱包节点，再点检测</span>'); }
+  el.innerHTML=relayOn()?'<b class="ok">✓ 已接通</b>':(ok&&st.relayDown?'<b class="bad">节点暂时连不上，本轮改回手点</b>':ok&&autoSend()?'<span class="warn">已接通（当前是自动发模式，不用它）</span>':'<span class="warn">未接通：按下面步骤改好钱包节点，再点检测</span>'); }
 async function relayDetect(){
   if(!eth||!me){ log('先连接钱包','warn'); return; } if(busy){ log('正在忙（彩排/抢领中），稍后再点检测','warn'); return; } busy=true; $('btnRelay').disabled=true;
   try{
