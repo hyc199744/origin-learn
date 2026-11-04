@@ -73,12 +73,13 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
   <div class="row"><span>托管节点</span><span id="relayState">先连接钱包</span></div>
   <div class="row" style="border:0;flex-wrap:wrap;gap:8px"><span style="font-size:12.5px;flex:1 1 160px;min-width:0;word-break:break-all">钱包 RPC 要改成 https://zjgame.web3origin.com/bondrpc</span><button class="btn ghost" id="btnRelay" style="flex:0 0 auto;width:auto;padding:8px 14px;margin:0">检测节点和 Gas</button></div>
   <div class="row"><span>钱包 Gas 上限</span><span id="gasTest">没测过</span></div>
+  <div class="row" style="flex-wrap:wrap;gap:8px"><span style="font-size:12.5px;flex:1 1 160px;min-width:0;color:var(--muted)">预演：弹一笔真的「烧 500 LGNS」，看钱包里 Gas 上限是不是 45 万。还没开放，节点不会发，不扣钱</span><button class="btn ghost" id="btnRehearse" style="flex:0 0 auto;width:auto;padding:8px 14px;margin:0">预演一次</button></div>
   <div class="row"><span>没托管时弹窗时机</span><span><select id="lead"><option value="-500">开放后 0.5 秒</option><option value="-1500" selected>开放后 1.5 秒（推荐）</option><option value="-3000">开放后 3 秒</option><option value="1000">提前 1 秒（高级，可能被拒一次）</option></select></span></div>
   <details><summary>更多信息</summary>
     <div class="row"><span>链</span><span id="chain">—</span></div>
     <div class="row"><span>屏幕常亮</span><span id="wake">—</span></div>
     <div class="row"><span>本机-链时钟偏差</span><span id="skew">—</span></div>
-    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 20:00</div>
+    <div class="note">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-04 22:50</div>
   </details>
 </div>
 <div class="sec"><div id="log"></div></div>
@@ -105,7 +106,7 @@ const gasKey=()=>'hx_gas_'+String(me).toLowerCase();
 const gasRes=()=>{ if(!me) return null; const v=Number(LSg(gasKey())||0); return v>0?v:null; };
 const gasKind=g=>g===null?'none':g>=GAS_MIN?'ok':g<100000?'est':'low';
 function gasRender(){ const el=$('gasTest'); if(!el) return; const g=gasRes(), k=gasKind(g);
-  el.innerHTML=k==='none'?'<span class="bad">没测过 ✗ 点上面「检测节点和 Gas」</span>':k==='ok'?'<span class="ok">'+g.toLocaleString()+' ✓ 够用</span>':k==='est'?'<span class="warn">钱包自己估（'+g.toLocaleString()+'）⚠ 弹窗时看一眼上限 ≥ 45 万</span>':'<b class="bad">只有 '+g.toLocaleString()+' ✗ 一定失败！到钱包把默认网络费删掉，或上限改成 450000</b>'; }
+  el.innerHTML=k==='none'?'<span class="bad">没测过 ✗ 点下面「预演一次」</span>':k==='ok'?'<span class="ok">'+g.toLocaleString()+' ✓ 够用</span>':k==='est'?'<span class="warn">钱包自己估（'+g.toLocaleString()+'）⚠ 点下面「预演一次」看烧币时的上限</span>':'<b class="bad">只有 '+g.toLocaleString()+' ✗ 一定失败！到钱包把默认网络费删掉，或上限改成 450000</b>'; }
 async function gasCheck(h){
   let t=null; for(let i=0;i<20&&!t;i++){ await new Promise(r=>setTimeout(r,500)); try{ t=await rpc('eth_getTransactionByHash',[h]); }catch(e){} }
   if(!t){ log('读不到检测交易，Gas 上限没测出来，稍后再点一次检测','warn'); return; }
@@ -198,7 +199,7 @@ async function loadWallet(){
   $('alw').innerHTML='<span class="'+(okAlw?'ok':'warn')+'">'+(W>(1n<<200n)?'无限（建议改为按次授权）✓':f9(W)+' LGNS'+(okAlw?' ✓':' ✗ 需授权'))+'</span>';
   /* OKX 用自己存的默认价(如 15000):签名前要先预留 价×上限(45 万) ≈ 6.8 DAI,不够直接不让签 → 统一要求 ≥ 8 DAI */
   $('gas').innerHTML='<span class="'+(okGas?'ok':'bad')+'">'+f18(G)+(okGas?' ✓':' ✗ 要 '+DAI_MIN)+'</span>';
-  const eligible=okStake&&okEp&&okBal&&okAlw&&okGas; st.G=G; st.elig=eligible; st.nextEp=null;
+  const eligible=okStake&&okEp&&okBal&&okAlw&&okGas; st.G=G; st.elig=eligible; st.core=okStake&&okEp&&okBal&&okAlw; st.nextEp=null;
   if(!okEp){ try{ const nd=7*st.epoch+1; /* 链上实测:周期 e 覆盖第 7(e-1)+1~7e 天(北京 0 点换天),第 6 周期=第 36~42 天 */ st.nextEp=Number(big(await call(A.CLOCK,SEL.dayStart+u256(BigInt(nd)))))+(await getOpenSec()); $('epoch').innerHTML='<span class="bad">已烧过 ✗<br>下次 '+bjS(st.nextEp)+'</span>'; }catch(e){} }
   const why=[]; if(!okStake) why.push('长期质押只有 '+f9(S)+'，要 ≥ '+f9(st.minStake)); if(!okEp) why.push('这个周期（7 天）已经烧过了，下次可抢：'+(st.nextEp?bjS(st.nextEp):'下个周期')); if(!okBal) why.push('钱包 LGNS 只有 '+f9(B)+'，要 500'); if(!okAlw) why.push('还没授权，先点「授权 600 LGNS」'); if(!okGas) why.push('钱包 DAI 只有 '+f18(G)+'，至少留 '+DAI_MIN+' DAI（钱包签名前会按 Gas 价格×上限 先预留），请现在就补，别等开抢时再补');
   st.why=why.join('；');
@@ -248,7 +249,7 @@ async function sendTx(to,data,gasMult){
   const full={from:me,to,data}; if(gasMult==='fill') Object.assign(full,FILL_TX); /* 抢 AI:和金框提示一致(3000/450000),听页面参数的钱包(如 Bitget)不用手改 */
   else if(gp){ full.gasPrice='0x'+gp.toString(16); full.type='0x0'; full.gas='0x'+(450000).toString(16); }
   try{ return await eth.request({method:'eth_sendTransaction',params:[full]}); }
-  catch(e){ if(isReject(e)||/Gas 上限|未开通/.test(String(e&&e.message||e))) throw e; log('钱包不接受带 gas 参数的交易（'+(e.message||e).slice(0,60)+'），改用钱包默认参数重发','warn'); return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data}]}); } // 个别钱包对 type/gas 字段挑剔:退回最简参数再试一次
+  catch(e){ if(isReject(e)||/Gas 上限|未开通|节点没发/.test(String(e&&e.message||e))) throw e; log('钱包不接受带 gas 参数的交易（'+(e.message||e).slice(0,60)+'），改用钱包默认参数重发','warn'); return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data}]}); } // 个别钱包对 type/gas 字段挑剔:退回最简参数再试一次
 }
 async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||120000)){try{const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;}catch(e){}await new Promise(r=>setTimeout(r,350));}return null;} // 单次 RPC 失败不中断等待
 async function burnedThisEpoch(){ try{ const e=Number(big(await call(A.GATE,SEL.burnEpochOf+addr32(me)))); return e!==0&&e>=st.epoch; }catch(e){ return false; } } // 链上直接问"本 Epoch 烧过没"=最可靠的成功判定
@@ -323,7 +324,7 @@ function chkRender(){ const el=$('chkList'); if(!el) return;
     [!!me, '钱包已连接', '先点下面「连接钱包」'],
     [!!me&&!!st.elig, '有资格（质押、本周期、LGNS、授权都 OK）', me?('资格不够：'+(st.why||'看上面红字')):'连接后自动检查资格'],
     [!!me&&relayOn(), '托管节点已接通', '节点没接通：点下面「检测节点和 Gas」（没接通基本抢不到）'],
-    [!!me&&['ok','est'].includes(gasKind(gasRes())), gasKind(gasRes())==='est'?'钱包 Gas 自己估（弹窗时看一眼上限 ≥ 45 万）':'钱包 Gas 上限够（测过 '+(gasRes()||0).toLocaleString()+'）', !me?'连接后点「检测节点和 Gas」测一下钱包 Gas 上限':gasRes()?('钱包 Gas 上限只有 '+gasRes().toLocaleString()+'，一定失败：去钱包把默认网络费删掉或上限改 450000，再检测一次'):'还没测钱包 Gas 上限：点下面「检测节点和 Gas」'],
+    [!!me&&['ok','est'].includes(gasKind(gasRes())), gasKind(gasRes())==='est'?'钱包 Gas 自己估（弹窗时看一眼上限 ≥ 45 万）':'钱包 Gas 上限够（测过 '+(gasRes()||0).toLocaleString()+'）', !me?'连接后点「检测节点和 Gas」测一下钱包 Gas 上限':gasRes()?('钱包 Gas 上限只有 '+gasRes().toLocaleString()+'，一定失败：去钱包把默认网络费删掉或上限改 450000，再检测一次'):'还没测钱包 Gas 上限：点下面「预演一次」（不扣钱）'],
     [have!==null&&have>=DAI_MIN, 'DAI 够手续费（有 '+(have===null?'—':have.toFixed(2))+'）', '钱包 DAI '+(have===null?'—':'只有 '+have.toFixed(2))+'，至少留 '+DAI_MIN+' DAI，现在就补'],
     [!!armed||!!racing, '已开启自动抢', '最后一步：点下面紫色「开启自动抢」'] ];
   const LAST=rows.length-1;
@@ -338,6 +339,28 @@ function tick(){ if(!nextStart)return; const ep=!!(me&&st.epDone&&st.nextEp); co
   $('heroLbl').textContent=ep?'本周期已烧过 · 距下次可抢':'距 离 开 放'; if(ep) $('nextOpen').textContent=bj(st.nextEp)+'（这个钱包下次可抢）';
   const left=Math.max(0,Math.floor(tgt-chainNow())); const dd=Math.floor(left/86400),h=String(Math.floor(left%86400/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0'); $('countdown').textContent=(dd?dd+'天 ':'')+h+':'+m+':'+s; $('countdown').style.fontSize=dd?'50px':''; $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
 
+/* 11-04 晚:预演。节点对烧币估算一律回 45 万(OKX 只认估算),开放前 2 分钟以外/已抢光的烧币交易节点拒收不扣费,并把钱包给的上限记在 /seen 的 hxTry */
+async function rehearse(){
+  if(!eth||!me){ log('先连接钱包','warn'); return; }
+  if(!relayOn()){ log('先点「检测节点和 Gas」接通托管节点，再预演（没接节点预演会真的发出去）','bad'); return; }
+  if(!st.core){ try{ await loadWallet(); }catch(e){} } /* 刚连上钱包数据还没读完时先读一次 */
+  if(!st.core){ log('资格不够，预演没意义：'+(st.why||'看上面红字'),'warn'); return; } /* 预演不扣钱,DAI 不够 8 也可以预演 */
+  if(racing||nextStart-chainNow()<180){ log('开放前 3 分钟内不能预演（会变成真抢），等自动弹窗就行','warn'); return; }
+  $('btnRehearse').disabled=true;
+  try{
+    log('预演：钱包会弹一笔「烧 500 LGNS」。先点「网络费用」看 Gas 上限是多少，然后直接确认。节点不会发出去，不扣钱','warn');
+    let h=null, err='';
+    try{ h=await sendTx(A.LEDGER,SEL.burnForPower+u256(AMOUNT),'fill'); }catch(e){ if(isReject(e)){ log('你取消了预演','warn'); return; } err=String(e.message||e); }
+    let tr=null; for(let i=0;i<8&&!tr;i++){ const sv=await relayGet('/seen?a='+me,2500); if(sv&&sv.hxTry&&sv.hxTry.ago<60) tr=sv.hxTry; else await new Promise(r=>setTimeout(r,500)); }
+    if(!tr){ const m=err.match(/Gas 上限 (\d+)、价格 (\d+)/); if(m) tr={gas:Number(m[1]),gwei:Number(m[2])}; } /* 节点回的报错里也带了上限,/seen 没读到就用它 */
+    if(tr){ LSs(gasKey(),String(tr.gas)); gasRender();
+      if(tr.gas>=GAS_MIN) log('✓ 预演通过：钱包给的 Gas 上限 '+tr.gas+'，价格 '+tr.gwei+' gwei。抢的时候弹出来直接点确认就行（这次节点没发，不扣钱）','ok');
+      else { buzz([300,80,300]); log('✗ 预演发现钱包 Gas 上限只有 '+tr.gas+'，这样抢一定失败。抢的时候要点「网络费用 → 自定义」把上限改成 450000（这次节点没发，不扣钱）','bad'); } }
+    else if(h){ log('⚠ 这笔被发出去了，没经过托管节点（'+h+'）。请重新点「检测节点和 Gas」','bad'); relayDel(me); markBypass(); relayRender(); }
+    else log('预演没拿到结果：'+err.slice(0,150),'warn');
+  }finally{ $('btnRehearse').disabled=false; }
+}
+$('btnRehearse').onclick=rehearse;
 $('btnRelay').onclick=relayDetect; $('btnConnect').onclick=connect; $('btnApprove').onclick=doApprove; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=()=>{ if(racing)return; log('手动：立刻发一笔'); racing=true; attempt().finally(()=>{racing=false;loadState();}); };
 setInterval(tick,250); setInterval(relayRender,3000); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!racing) loadState(); },60000);
