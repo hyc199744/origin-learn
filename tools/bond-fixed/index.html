@@ -57,6 +57,24 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 .dock .btn.stop{flex:0 0 72px;background:var(--sec)}
 .big{font-size:24px;font-weight:800;text-align:center;margin:4px 0;font-variant-numeric:tabular-nums}
 @media (min-width:600px){.tiles{grid-template-columns:repeat(4,1fr)}.tile.wide{grid-column:1/3}}
+
+/* 布局 c 极简大屏 */
+body.lC .big{text-align:center;padding:26px 10px 20px;border-radius:24px;background:radial-gradient(120% 100% at 50% 0%,rgba(63,143,104,.35),rgba(63,143,104,0) 70%),#121a16;border:1px solid var(--line)}
+body.lC .big .hk{font-size:13px;color:var(--muted)}
+body.lC .big .v{font-size:64px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1.05;margin:6px 0 10px;text-shadow:0 0 24px rgba(127,211,166,.25)}
+body.lC .big .st{font-size:16px;font-weight:700}body.lC .big .hint{margin-top:4px;color:var(--warn);font-size:14px;font-weight:600}
+body.lC .li{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+body.lC .li:last-child{border-bottom:0}body.lC .li>span{color:var(--muted)}body.lC .li>div{text-align:right}
+body.lC .li .v{font-weight:800;font-size:17px;font-variant-numeric:tabular-nums}body.lC .li .v.sm{font-size:14px}body.lC .li .k{font-size:11.5px;color:var(--muted)}
+body.lC details.fold>summary{cursor:pointer;list-style:none;font-weight:700;font-size:15px;padding:2px 0}
+body.lC details.fold>summary::-webkit-details-marker{display:none}
+body.lC details.fold>summary:after{content:"▾";float:right;color:var(--muted)}body.lC details.fold:not([open])>summary:after{content:"▸"}
+body.lC .fd{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+body.lC .fd>span{color:var(--muted);flex:none}body.lC .fd .pk,body.lC .fd select{max-width:62%}
+body.lC .bondb{font-size:13px;margin-top:6px}
+body.lC .node .kv{display:flex;justify-content:space-between;font-size:14px;margin-top:8px}body.lC .node .kv span{color:var(--muted)}
+body.lC .nrow{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:8px}
+body.lC .tip{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.7}
 </style>
 <style>/* 11-04 老板选定日志样式:第 1 款 时间线 */
 #easy{padding-left:2px}
@@ -74,35 +92,11 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 #easy .ez.first i{width:36px;height:36px;line-height:32px;font-size:17px;left:-2px;top:10px;box-shadow:0 0 0 4px var(--sec)}
 </style>
 </head>
-<body>
+<body class="lC">
 
-<div class="bar"><div class="lg">抢</div><div><b>固定价销毁债券抢领</b><small>独立页 · 基于 11-05 23:20 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
-<div class="tiles">
-  <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
-  <div class="tile hidden"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
-  <div class="tile"><div class="k">我可领取</div><div class="v" id="claimable">—</div><div class="k" id="cnt" style="margin-top:4px">—</div></div>
-  <div class="tile"><div class="k">这次抢的一笔</div><div class="v" id="maxPiece" style="font-size:15px">—</div></div>
-  <div class="tile"><div class="k">Gas（DAI）</div><div class="v" id="gas" style="font-size:15px">—</div></div>
-</div>
-<div class="card" id="chk"><h3>开抢前检查</h3><div id="chkList"></div><div class="fill" id="fillLine"></div></div>
-<div id="fillTip" class="hidden"></div>
-<div class="banner"><div class="st" id="armState">未开启</div><div class="hint" id="hint">先点底下"连接钱包"</div><div class="row" style="margin-top:6px;border:0;padding:4px 0 0"><span>结论</span><span id="verdict">—</span></div><div class="row hidden" style="border:0;padding:2px 0 0"><span>额度状态</span><span id="capState">—</span></div></div>
-<div class="set">
-  <label class="hidden">抢哪张债券 <select id="bond"><option value="lgns">LGNS 销毁债券</option><option value="fixed" selected>固定价销毁债券</option></select></label><div style="font-size:14px;padding:4px 0 8px">本页只抢 <b>固定价销毁债券</b>（出价固定 15000 gwei）。LGNS 销毁债券请用 <a style="color:#e0b25a" href="/tools/bond-lgns/">LGNS 销毁债券抢领页</a>。</div>
-  <label>领取方式 <select id="mode"><option value="split" selected>拆单：一笔一笔领，按「先抢哪一笔」（推荐）</option><option value="all">整笔全领：所有笔一起领，不看「先抢哪一笔」（量大易失败，不推荐）</option><option value="max">只领一笔：按「先抢哪一笔」</option></select></label>
-  <label class="hidden">整点前彩排 <select id="reh"><option value="1">开</option><option value="0" selected>关</option></select></label>
-</div>
-<div class="card" id="relayCard"><h3>托管节点设置</h3>
-<div class="row" style="border:0;padding:0 0 6px"><span>状态</span><span id="relayState">先连接钱包</span></div>
-<div class="row" style="border:0;padding:0 0 6px"><span>托管出价</span><span><select id="relayGwei"><option value="auto">看行情自动</option><option value="5000">5,000 gwei</option><option value="10000">10,000 gwei</option><option value="15000" selected>15,000 gwei（推荐）</option><option value="20000">20,000 gwei</option><option value="30000">30,000 gwei</option></select></span></div>
-<div class="row hidden" style="border:0;padding:0 0 6px"><span>每次抢几笔</span><span><select id="splitN"><option value="1" selected>1 笔（只弹 1 次）</option><option value="2">2 笔（弹 2 次）</option><option value="3">3 笔（弹 3 次）</option></select></span></div><div class="row" style="border:0;padding:0 0 6px"><span>先抢哪一笔</span><span><select id="order"><option value="big" selected>先抢最大的</option><option value="small">先抢最小的（大笔抢不到时用）</option></select></span></div>
-<div class="row" style="border:0;padding:0 0 6px"><span>行情</span><span id="mktInfo" style="font-size:13px">—</span></div>
-<div class="row" style="border:0;padding:0 0 6px"><span>每天手续费上限</span><span><select id="lossCap"><option value="0" selected>不限制</option><option value="20">20 DAI</option><option value="40">40 DAI</option><option value="100">100 DAI</option></select></span></div>
-<div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:8px;flex-wrap:wrap"><code id="relayUrl" class="hidden" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec hidden" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div>
-<div class="card"><h3>怎么用</h3><div class="note" style="color:var(--text);font-size:13.5px;line-height:1.75"><b>托管节点接通了：</b>连接钱包 → 开启自动领 → 整点前 45 秒弹钱包，直接点确认就完事。<br><b>没接通：</b>先点上面「托管节点设置」里的「检测」。</div></div>
-<div class="card"><h3>现在怎么样</h3><div id="easy"><div class="ez first"><i>👇</i><div><b>还没开始</b><span>先点下面「连接钱包」，再点绿色的「开启自动领」</span></div></div></div><details class="raw"><summary>详细日志（给技术看 · 出问题时展开截图发客服）</summary><div id="log"></div><button class="btn sec" id="btnLogCopy" style="margin-top:8px;padding:8px 12px;font-size:13px">复制日志</button></details></div>
+<div class="bar"><div class="lg">抢</div><div><b>固定价销毁债券抢领</b><small>独立页 · 基于 11-05 23:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="big"><div class="hk">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div><div class="st" id="armState">未开启</div><div class="hint" id="hint">先点底下"连接钱包"</div></div><div class="card kvs"><div class="li"><span>我可领取</span><div><div class="v" id="claimable">—</div><div class="k" id="cnt">—</div></div></div><div class="li"><span>这次抢的一笔</span><div><div class="v sm" id="maxPiece">—</div></div></div><div class="li"><span>Gas（DAI）</span><div><div class="v sm" id="gas">—</div></div></div><div class="li"><span>结论</span><div><b id="verdict">—</b></div></div></div><div class="card" id="chk"><h3>开抢前检查</h3><div id="chkList"></div><div class="fill" id="fillLine"></div></div><div id="fillTip" class="hidden"></div><details class="card fold" open><summary>抢币设置</summary><div class="bondb"><label class="hidden">抢哪张债券 <select id="bond"><option value="lgns">LGNS 销毁债券</option><option value="fixed" selected>固定价销毁债券</option></select></label><div style="font-size:14px;padding:4px 0 8px">本页只抢 <b>固定价销毁债券</b>（出价固定 15000 gwei）。LGNS 销毁债券请用 <a style="color:#e0b25a" href="/tools/bond-lgns/">LGNS 销毁债券抢领页</a>。</div></div><label class="fd wide"><span>托管出价</span><select id="relayGwei"><option value="auto">看行情自动</option><option value="5000">5,000 gwei</option><option value="10000">10,000 gwei</option><option value="15000" selected>15,000 gwei（推荐）</option><option value="20000">20,000 gwei</option><option value="30000">30,000 gwei</option></select></label><label class="fd wide"><span>先抢哪一笔</span><select id="order"><option value="big" selected>先抢最大的</option><option value="small">先抢最小的（大笔抢不到时用）</option></select></label><label class="fd"><span>领取方式</span><select id="mode"><option value="split" selected>拆单：一笔一笔领，按「先抢哪一笔」（推荐）</option><option value="all">整笔全领：所有笔一起领，不看「先抢哪一笔」（量大易失败，不推荐）</option><option value="max">只领一笔：按「先抢哪一笔」</option></select></label><label class="fd"><span>每天手续费上限</span><select id="lossCap"><option value="0" selected>不限制</option><option value="20">20 DAI</option><option value="40">40 DAI</option><option value="100">100 DAI</option></select></label><div class="row" style="border:0;padding:0 0 6px"><span>行情</span><span id="mktInfo" style="font-size:13px">—</span></div><label class="hidden">整点前彩排 <select id="reh"><option value="1">开</option><option value="0" selected>关</option></select></label></details><details class="card fold"><summary>托管节点（接通后不用管）</summary><div class="node"><div class="kv"><span>节点状态</span><b id="relayState">先连接钱包</b></div><div class="nrow"><code id="relayUrl" class="hidden" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec hidden" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div><div class="tip"><b>托管节点接通了：</b>连接钱包 → 开启自动领 → 整点前 45 秒弹钱包，直接点确认就完事。<br><b>没接通：</b>先点上面「托管节点设置」里的「检测」。</div></details><div class="card"><h3>现在怎么样</h3><div id="easy"><div class="ez first"><i>👇</i><div><b>还没开始</b><span>先点下面「连接钱包」，再点绿色的「开启自动领」</span></div></div></div><details class="raw"><summary>详细日志（给技术看 · 出问题时展开截图发客服）</summary><div id="log"></div><button class="btn sec" id="btnLogCopy" style="margin-top:8px;padding:8px 12px;font-size:13px">复制日志</button></details></div><div class="hidden"><div id="remain">—</div><div id="capLine">—</div><b id="capState">—</b><select id="splitN"><option value="1" selected>1 笔（只弹 1 次）</option><option value="2">2 笔（弹 2 次）</option><option value="3">3 笔（弹 3 次）</option></select></div>
 <div class="dock"><button class="btn sec" id="btnConnect">连接钱包</button><button class="btn" id="btnArm" disabled>开启自动领</button><button class="btn stop" id="btnStop">停</button></div>
-
 <div class="hidden"><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select>
 <span id="bidNow"></span>
 <button id="btnNow"></button>
