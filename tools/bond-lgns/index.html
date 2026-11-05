@@ -76,7 +76,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>LGNS 销毁债券抢领</b><small>独立页 · 基于 11-05 23:10 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>LGNS 销毁债券抢领</b><small>独立页 · 基于 11-05 23:20 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile hidden"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -95,7 +95,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 <div class="card" id="relayCard"><h3>托管节点设置</h3>
 <div class="row" style="border:0;padding:0 0 6px"><span>状态</span><span id="relayState">先连接钱包</span></div>
 <div class="row" style="border:0;padding:0 0 6px"><span>托管出价</span><span><select id="relayGwei"><option value="auto" selected>看行情自动（按上小时第 1 块成交价，最高 30 万）</option><option value="5000">5,000 gwei</option><option value="10000">10,000 gwei</option><option value="15000">15,000 gwei</option><option value="20000">20,000 gwei</option><option value="30000">30,000 gwei</option><option value="60000">60,000 gwei</option><option value="100000">100,000 gwei（LGNS 推荐）</option><option value="200000">200,000 gwei</option><option value="300000">300,000 gwei（1 万枚以上大笔用）</option></select></span></div>
-<div class="row" style="border:0;padding:0 0 6px"><span>每次抢几笔</span><span><select id="splitN"><option value="1" selected>1 笔（只弹 1 次）</option><option value="2">2 笔（弹 2 次）</option><option value="3">3 笔（弹 3 次）</option></select></span></div><div class="row" style="border:0;padding:0 0 6px"><span>先抢哪一笔</span><span><select id="order"><option value="big" selected>先抢最大的</option><option value="small">先抢最小的（大笔抢不到时用）</option></select></span></div>
+<div class="row hidden" style="border:0;padding:0 0 6px"><span>每次抢几笔</span><span><select id="splitN"><option value="1" selected>1 笔（只弹 1 次）</option><option value="2">2 笔（弹 2 次）</option><option value="3">3 笔（弹 3 次）</option></select></span></div><div class="row" style="border:0;padding:0 0 6px"><span>先抢哪一笔</span><span><select id="order"><option value="big" selected>先抢最大的</option><option value="small">先抢最小的（大笔抢不到时用）</option></select></span></div>
 <div class="row" style="border:0;padding:0 0 6px"><span>行情</span><span id="mktInfo" style="font-size:13px">—</span></div>
 <div class="row" style="border:0;padding:0 0 6px"><span>每天手续费上限</span><span><select id="lossCap"><option value="0" selected>不限制</option><option value="20">20 DAI</option><option value="40">40 DAI</option><option value="100">100 DAI</option></select></span></div>
 <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:8px;flex-wrap:wrap"><code id="relayUrl" class="hidden" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec hidden" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div>
@@ -721,7 +721,7 @@ function lossRender(){ const el=$('lossInfo'); if(!el) return; const o=lossGet()
 const lossCapV=()=>{ const e=$('lossCap'); return e?Number(e.value)||0:0; }; /* 11-05 每天手续费上限可选,默认不限制(会员反馈超过 40 就不让自动领) */
 function lossHit(){ const o=lossGet(); const cap=lossCapV(); return o.streak>=LOSS_STREAK||(cap>0&&o.fee>=cap); }
 setInterval(()=>{ mktRender(); lossRender(); },3000); mktRender(); lossRender();
-try{ const n=LS('bc_splitN'); if(n&&['1','2','3'].includes(n)) $('splitN').value=n; }catch(e){}
+try{ $('splitN').value='1'; }catch(e){} /* 11-05 每次抢几笔固定 1 笔,不读旧设置 */
 $('splitN').onchange=()=>{ LS('bc_splitN',$('splitN').value); log('改为每次抢 '+$('splitN').value+' 笔'); };
 $('btnRelayCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(RELAY); log('已复制节点地址：'+RELAY,'ok'); }catch(e){ const r=document.createRange(); r.selectNodeContents($('relayUrl')); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); log('长按选中的地址复制：'+RELAY,'warn'); } };
 setInterval(relayRender,3000); relayRender();
