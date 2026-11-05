@@ -69,7 +69,7 @@ input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--
 .cta a{display:flex;justify-content:center;align-items:center;gap:8px;max-width:560px;margin:0 auto;padding:15px;border-radius:12px;background:linear-gradient(180deg,#a8121e,#7A0B12);border:1px solid var(--gold);color:var(--bone);font-weight:800;font-size:17px;text-decoration:none;font-family:"STZhongsong",serif;letter-spacing:2px;box-shadow:0 8px 30px rgba(122,11,18,.6)}
 </style></head><body>
 <div id="pub">
-<section class="hero"><div class="nav"><span class="serif">🤖 起源抢币机器人</span><a href="/">首页 →</a></div>
+<section class="hero"><div class="nav"><span class="serif">🤖 起源抢币机器人</span><span style="display:flex;align-items:center;gap:10px"><span id="langSlot"></span><a href="/">首页 →</a></span></div>
 <div class="eyebrow">ANUBIS · 准点抢领</div>
 <h1>额度 1 秒抢光<br>机器人帮你<em>抢第 1 块</em></h1>
 <p>LGNS 销毁债券、固定价债券、Helix AI 销毁。整点那一刻准时发出，不要私钥。</p>
@@ -224,7 +224,8 @@ if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(fu
 
 
 
-<!--i18n-start--><style>#langBtn{top:auto!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;right:auto!important;left:12px!important;background:rgba(20,11,6,.85)!important;color:#D6A84B!important}</style><script>
+
+<!--i18n-start--><style>#langBtn:not([data-flag]){top:auto!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;right:auto!important;left:12px!important;background:rgba(20,11,6,.85)!important;color:#D6A84B!important}</style><script>
 /* 付费页 bot-vip + 付款后内容(vip_content.html) 英文词典 */
 window.I18N_D={
 "起源抢币机器人":"Origin Claim Bot",
@@ -485,8 +486,11 @@ window.I18N_D={
     document.documentElement.lang=lang==="en"?"en":"zh-CN";
     if(titleZh==null) titleZh=document.title;
     document.title=lang==="en"?(tr(titleZh)||titleZh):titleZh;
-    doNode(document.body); btn&&(btn.textContent=lang==="en"?"中文":"EN");
+    doNode(document.body); if(btn){ if(btn.dataset.flag) btn.innerHTML=lang==="en"?FLAG_CN+"<span>中文</span>":FLAG_US+"<span>EN</span>"; else btn.textContent=lang==="en"?"中文":"EN"; }
   }
+  var FS='width="20" height="14" style="display:block;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.25)"';
+  var FLAG_CN='<svg viewBox="0 0 30 20" '+FS+'><rect width="30" height="20" fill="#DE2910"/><g fill="#FFDE00"><polygon points="5,2 6.2,5.6 10,5.6 6.9,7.8 8.1,11.4 5,9.2 1.9,11.4 3.1,7.8 0,5.6 3.8,5.6"/><circle cx="10.5" cy="2" r=".9"/><circle cx="12.3" cy="4" r=".9"/><circle cx="12.3" cy="7" r=".9"/><circle cx="10.5" cy="9" r=".9"/></g></svg>';
+  var FLAG_US='<svg viewBox="0 0 30 20" '+FS+'><rect width="30" height="20" fill="#B22234"/><g fill="#fff"><rect y="1.54" width="30" height="1.54"/><rect y="4.62" width="30" height="1.54"/><rect y="7.69" width="30" height="1.54"/><rect y="10.77" width="30" height="1.54"/><rect y="13.85" width="30" height="1.54"/><rect y="16.92" width="30" height="1.54"/></g><rect width="13" height="10.77" fill="#3C3B6E"/></svg>';
   var btn=null;
   function setLang(l){ lang=l; try{ localStorage.setItem("w3o_lang",l); }catch(e){} applyAll(); try{ window.dispatchEvent(new Event("w3o-lang")); }catch(e){} }
   window.W3O_LANG=function(){ return lang; }; window.W3O_SETLANG=setLang;
@@ -494,7 +498,9 @@ window.I18N_D={
     btn=document.createElement("button"); btn.id="langBtn"; btn.type="button";
     btn.setAttribute("style","position:fixed;top:calc(10px + env(safe-area-inset-top));right:10px;z-index:9998;padding:5px 12px;border-radius:20px;font:600 13px/1.4 system-ui,sans-serif;cursor:pointer;border:1px solid currentColor;background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(4px)");
     btn.onclick=function(){ setLang(lang==="en"?"zh":"en"); };
-    document.body.appendChild(btn);
+    var slot=document.getElementById("langSlot");
+    if(slot){ btn.dataset.flag="1"; btn.setAttribute("style","display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:14px;font:600 12px/1.4 system-ui,sans-serif;cursor:pointer;border:1px solid rgba(214,168,75,.45);background:rgba(0,0,0,.25);color:inherit"); slot.appendChild(btn); }
+    else document.body.appendChild(btn);
     applyAll();
     new MutationObserver(function(ms){ if(lang!=="en") return; for(var i=0;i<ms.length;i++){ var m=ms[i];
       if(m.type==="characterData") doNode(m.target); else for(var j=0;j<m.addedNodes.length;j++) doNode(m.addedNodes[j]); } })
