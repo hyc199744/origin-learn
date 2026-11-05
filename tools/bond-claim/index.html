@@ -76,7 +76,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 </head>
 <body>
 
-<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-05 01:50 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>销毁债券抢领 · 仪表盘</b><small>版本 11-05 21:45 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="tiles">
   <div class="tile wide acc"><div class="k">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div></div>
   <div class="tile"><div class="k">本小时剩余额度</div><div class="v" id="remain">—</div><div class="k" id="capLine" style="margin-top:4px">—</div></div>
@@ -97,7 +97,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 <div class="row" style="border:0;padding:0 0 6px"><span>托管出价</span><span><select id="relayGwei"><option value="auto" selected>看行情自动（按上小时第 1 块成交价，最高 30 万）</option><option value="5000">5,000 gwei</option><option value="10000">10,000 gwei</option><option value="15000">15,000 gwei</option><option value="20000">20,000 gwei</option><option value="30000">30,000 gwei</option></select></span></div>
 <div class="row" style="border:0;padding:0 0 6px"><span>每次抢几笔</span><span><select id="splitN"><option value="1" selected>1 笔（只弹 1 次）</option><option value="2">2 笔（弹 2 次）</option><option value="3">3 笔（弹 3 次）</option></select></span></div><div class="row" style="border:0;padding:0 0 6px"><span>先抢哪一笔</span><span><select id="order"><option value="big" selected>先抢最大的</option><option value="small">先抢最小的（大笔抢不到时用）</option></select></span></div>
 <div class="row" style="border:0;padding:0 0 6px"><span>行情</span><span id="mktInfo" style="font-size:13px">—</span></div>
-<div class="row" style="border:0;padding:0 0 6px"><span>止损</span><span id="lossInfo" style="font-size:13px">—</span></div>
+<div class="row" style="border:0;padding:0 0 6px"><span>每天手续费上限</span><span><select id="lossCap"><option value="0" selected>不限制</option><option value="20">20 DAI</option><option value="40">40 DAI</option><option value="100">100 DAI</option></select></span></div><div class="row" style="border:0;padding:0 0 6px"><span>止损</span><span id="lossInfo" style="font-size:13px">—</span></div>
 <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><code id="relayUrl" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div>
 <div class="card"><h3>怎么用</h3><div class="note" style="color:var(--text);font-size:13.5px;line-height:1.75"><b>托管节点接通了：</b>连接钱包 → 开启自动领 → 整点前 45 秒弹钱包，直接点确认就完事。<br><b>没接通：</b>先点上面「托管节点设置」里的「检测」。</div></div>
 <div class="card"><h3>现在怎么样</h3><div id="easy"><div class="ez first"><i>👇</i><div><b>还没开始</b><span>先点下面「连接钱包」，再点绿色的「开启自动领」</span></div></div></div><details class="raw"><summary>详细日志（给技术看 · 出问题时展开截图发客服）</summary><div id="log"></div><button class="btn sec" id="btnLogCopy" style="margin-top:8px;padding:8px 12px;font-size:13px">复制日志</button></details></div>
@@ -717,8 +717,9 @@ function mktRender(){ const el=$('mktInfo'); if(!el) return; const m=st.mkt; con
   el.innerHTML='上小时门槛 '+Math.round(m.marginal)+' → 出价 <b class="'+(m.bid>BID_CAP?'bad':'ok')+'">'+m.bid+'</b>'+(m.bid>BID_CAP?'（太贵，跳过）':''); }
 const bjDay=()=>new Date((chainNow()+28800)*1000).toISOString().slice(0,10);
 function lossGet(){ let o=null; try{ o=JSON.parse(LS('bc_loss')||'null'); }catch(e){} if(!o||o.d!==bjDay()) o={d:bjDay(),fee:0,streak:o&&o.streak||0}; return o; }
-function lossRender(){ const el=$('lossInfo'); if(!el) return; const o=lossGet(); el.innerHTML='今天手续费 '+o.fee.toFixed(2)+' DAI，连败 '+o.streak+' 次（到 '+LOSS_STREAK+' 次或 '+LOSS_FEE+' DAI 自动停）'; }
-function lossHit(){ const o=lossGet(); return o.streak>=LOSS_STREAK||o.fee>=LOSS_FEE; }
+function lossRender(){ const el=$('lossInfo'); if(!el) return; const o=lossGet(); el.innerHTML='今天手续费 '+o.fee.toFixed(2)+' DAI，连败 '+o.streak+' 次（连败 '+LOSS_STREAK+' 次自动停'+(lossCapV()>0?'，或手续费到 '+lossCapV()+' DAI 停':'，手续费不限制')+'）'; }
+const lossCapV=()=>{ const e=$('lossCap'); return e?Number(e.value)||0:0; }; /* 11-05 每天手续费上限可选,默认不限制(会员反馈超过 40 就不让自动领) */
+function lossHit(){ const o=lossGet(); const cap=lossCapV(); return o.streak>=LOSS_STREAK||(cap>0&&o.fee>=cap); }
 setInterval(()=>{ mktRender(); lossRender(); },3000); mktRender(); lossRender();
 try{ const n=LS('bc_splitN'); if(n&&['1','2','3'].includes(n)) $('splitN').value=n; }catch(e){}
 $('splitN').onchange=()=>{ LS('bc_splitN',$('splitN').value); log('改为每次抢 '+$('splitN').value+' 笔'); };
@@ -736,7 +737,7 @@ try{ const v=LS('bc_lkUse'); if(v) $('lkUse').value=v; }catch(e){} lkRender();
 $('order').addEventListener('change',()=>{ const v=$('order').value; LS('bc_order_'+A.BOND.toLowerCase(),v); const o=$('order').options[$('order').selectedIndex]; log('改为：'+(o?o.textContent:v)); if(me) loadState().catch(()=>{}); }); $('btnConnect').onclick=connect; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=async()=>{ if(busy)return; busy=true; try{ await readCap(); await loadWallet(); const p=plan(); const rem=await readCap(); const sinceH=chainNow()-(nextHour()-WINDOW); if(sinceH<10){ log('整点刚过 '+sinceH.toFixed(0)+' 秒，这会儿节点状态还没刷新，模拟会假通过。额度剩 '+f9(rem)+'，现在手动发大概率白烧 gas，已拦住；要抢整点请用"开启自动领"','bad'); return; } if(rem<p.amt){ log('本小时额度只剩 '+f9(rem)+'，不够领 '+p.label+'，已拦住，等下个整点','bad'); return; } const why=await simulate(p.data); if(why){ log(capHit(why)?'本小时额度已领光（claim cap），现在发必败，等整点':poolEmpty(why)?'国库没币，领不了（'+why+'）':'合约拒绝：'+why,'bad'); return; } log('手动：额度够、模拟通过，立刻领一笔'); await doAttempt(0); }catch(e){ log('出错：'+(e.message||e),'bad'); } finally{ busy=false; loadState(); } };
 if(LS('bc_v3')!=='12'){ LS('bc_v3','12'); if(LS('bc_mode')==='all') LS('bc_mode','split'); }
-['mode','lead','gwei','gcap','feeMode','minClaim','keep','auto','reh'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
+['mode','lead','gwei','gcap','feeMode','minClaim','keep','auto','reh','lossCap'].forEach(id=>{ const v=LS('bc_'+id); if(v!==null&&$(id).querySelector('option[value="'+v+'"]')) $(id).value=v; $(id).addEventListener('change',()=>LS('bc_'+id,$(id).value)); });
 setInterval(tick,100); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!busy) loadState(); },20000);
 readWindow().then(loadState).then(()=>{ if(DRILL||(window.ethereum&&window.ethereum.selectedAddress)) connect(); });
 log('页面就绪。先点"连接钱包"，再点"开启自动领"，整点听长震+三声响点确认。'+(DRILL?' [演练模式]':''));
