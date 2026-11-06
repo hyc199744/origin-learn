@@ -52,7 +52,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system
 .set select{max-width:none;width:100%;font-size:12.5px;padding:6px}
 .card{background:#161e19;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:12px}
 .card h3{margin:0 0 6px;font-size:14px;color:var(--muted)}
-.dock{position:fixed;left:0;right:0;bottom:0;z-index:100;background:rgba(15,21,18,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:1000;transform:translateZ(0);-webkit-transform:translateZ(0);background:rgba(15,21,18,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px}
 .dock .btn{flex:1;padding:16px 10px;font-size:16px}
 .dock .btn.stop{flex:0 0 72px;background:var(--sec)}
 .big{font-size:24px;font-weight:800;text-align:center;margin:4px 0;font-variant-numeric:tabular-nums}
@@ -83,7 +83,7 @@ body.lC #btnRelay{background:transparent;border:1.5px solid var(--acc);color:var
 body.lC #btnRelay:active{background:rgba(63,143,104,.18)}body.lC #btnRelay:disabled{opacity:.45}
 </style>
 <style>/* 11-04 老板选定日志样式:第 1 款 时间线 */
-#easy{padding-left:2px}
+#easy{padding-left:2px;position:relative;z-index:0;isolation:isolate}
 #easy .ez{position:relative;border:0;padding:8px 0 8px 40px;display:block}
 #easy .ez:before{content:"";position:absolute;left:15px;top:0;bottom:0;width:2px;background:var(--line)}
 #easy .ez:first-child:before{top:20px}#easy .ez:last-child:before{bottom:auto;height:20px}#easy .ez:only-child:before{display:none}
