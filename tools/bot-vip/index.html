@@ -65,11 +65,21 @@ input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--
 #orderWrap,#vipWrap{padding:calc(16px + env(safe-area-inset-top)) 0 0}#vipWrap>.ht,#vipWrap>p{padding:0 18px}#vip{padding:0 18px}#btnOut{margin:0 18px;width:calc(100% - 36px)}
 #vip .vc,#vip .tool{border:1px solid var(--line);border-radius:14px;padding:14px;background:linear-gradient(180deg,#1a0f08,#0d0805)}#vip .ti{background:#2a1208}#vip .tag{background:#2b1d0c;color:var(--gold)}#vip .muted{color:#b39b76}#vip details,#vip .lk{border-top:1px solid var(--line)}
 .kf{margin:14px 18px}.tgbtn{display:block;margin-top:10px;background:linear-gradient(180deg,#2aa3df,#1c82c4)!important;box-shadow:none!important;color:#fff!important}
+#raiseBar{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 10px;margin:12px auto 0;max-width:560px;padding:9px 14px;border:1px solid var(--gold);border-radius:12px;background:linear-gradient(90deg,#4a0a10,#7A0B12 50%,#4a0a10);color:var(--bone);text-decoration:none;font-size:14px;box-shadow:0 0 24px rgba(214,168,75,.25);animation:rbGlow 2.4s ease-in-out infinite}
+#raiseBar b{color:var(--gold)}#raiseBar .t{font-variant-numeric:tabular-nums;font-weight:800;color:#fff;letter-spacing:.5px}
+@keyframes rbGlow{50%{box-shadow:0 0 34px rgba(214,168,75,.5)}}
+.price .was{font-size:28px;color:#8d7656;text-decoration:line-through;text-decoration-color:#e2725b;margin-right:10px;vertical-align:14px}
+.cd{margin:14px auto 4px;max-width:330px}.cd .lb{font-size:13px;color:#e8a54a;letter-spacing:2px;margin-bottom:6px}
+.cd .bx{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.cd .bx div{background:#0d0805;border:1px solid #6b4a1c;border-radius:10px;padding:8px 0 5px}
+.cd .bx b{display:block;font-family:"STZhongsong",serif;font-size:28px;color:var(--bone);line-height:1.1;font-variant-numeric:tabular-nums}.cd .bx span{font-size:11.5px;color:#b39b76}
+.cd .nt{font-size:12.5px;color:#cdb48c;margin-top:8px;line-height:1.6}
+.cta small{font-family:sans-serif;font-weight:600;font-size:12.5px;letter-spacing:0;opacity:.9;font-variant-numeric:tabular-nums}
 .cta{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,#050303 35%);z-index:9}
 .cta a{display:flex;justify-content:center;align-items:center;gap:8px;max-width:560px;margin:0 auto;padding:15px;border-radius:12px;background:linear-gradient(180deg,#a8121e,#7A0B12);border:1px solid var(--gold);color:var(--bone);font-weight:800;font-size:17px;text-decoration:none;font-family:"STZhongsong",serif;letter-spacing:2px;box-shadow:0 8px 30px rgba(122,11,18,.6)}
 </style></head><body>
 <div id="pub">
 <section class="hero"><div class="nav"><span class="serif">🤖 起源抢币机器人</span><span style="display:flex;align-items:center;gap:10px"><span id="langSlot"></span><a href="/">首页 →</a></span></div>
+<a id="raiseBar" href="#buy" style="display:none"></a>
 <div class="eyebrow">ANUBIS · 准点抢领</div>
 <h1>额度 1 秒抢光<br>机器人帮你<em>抢第 1 块</em></h1>
 <p>LGNS 销毁债券、固定价债券、Helix AI 销毁。整点那一刻准时发出，不要私钥。</p>
@@ -93,7 +103,7 @@ input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--
 <div class="safe"><ul><li><b>不要私钥、不要助记词</b>，资产始终在你自己的钱包里。</li><li>每一笔都是你自己点确认的，节点只能「按时发」或「不发」，改不了金额和收款人。</li><li>不想用了，钱包节点改回官方地址就彻底断开。</li></ul></div></section>
 
 <section class="band" id="buy"><h2>立即开通</h2>
-<div class="price"><div class="n">50</div><div class="u">USDT 或 DAI · 一次性买断</div><div id="opened" style="display:none"></div></div>
+<div class="price"><div class="n"><s class="was" id="pWas" style="display:none">100</s><span id="pNow">50</span></div><div class="cd" id="cdBox" style="display:none"><div class="lb" id="cdLb"></div><div class="bx" id="cdBx"></div><div class="nt" id="cdNt"></div></div><div class="u">USDT 或 DAI · 一次性买断</div><div id="opened" style="display:none"></div></div>
 <div style="margin-top:16px"><label class="dim small">① 你抢币要用的钱包地址（Anubis 链上的钱包，一单最多 5 个）</label>
 <input id="wIn" placeholder="钱包 1（必填）0x…" autocomplete="off" spellcheck="false">
 <input class="wx" placeholder="钱包 2（可不填）0x…" autocomplete="off" spellcheck="false">
@@ -111,7 +121,7 @@ input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--
 <details style="margin-top:10px"><summary>已经付过款？输入订单号找回链接</summary>
 <input id="oidIn" placeholder="订单号（付款成功页上显示的）" autocomplete="off"><button class="btn ghost full" id="btnCheck">找回</button></details>
 <div id="msg"></div></div></section>
-<div class="cta"><a href="#buy">立即开通 · 50 U</a></div>
+<div class="cta"><a href="#buy" id="ctaA">立即开通 · 50 U</a></div>
 </div>
 <div id="orderWrap" style="display:none">
 <div class="box"><div class="ht">请转账 <span class="pill" id="oSt">等待到账</span></div>
@@ -164,7 +174,29 @@ fetch(API+'/cases',{cache:'no-store'}).then(function(r){return r.json();}).then(
   $('casesSum').innerHTML='已成功 <b class="ok">'+c.total+'</b> 次：债券累计领到 <b>'+f(c.lgns,0)+'</b> LGNS'+(c.helix?'，Helix 抢到 <b>'+c.helix+'</b> 次':'')+'，其中 <b class="ok">'+c.first+' 次落在开放后第 1 个区块</b>。';
   $('casesList').innerHTML=c.rows.map(function(r){ return '<div class="case"><div class="cl"><b>'+r.product+' <span class="mtag on">机器人</span></b><small>'+bjt(r.t)+' · 钱包 '+r.wallet+'</small></div><div class="cr"><b class="ok">'+(r.helix?'500 LGNS → 1000 算力':'+'+f(r.amt)+' LGNS')+'</b><small>'+(r.off===0?'第 1 块 ✓':'开放后 '+r.off+' 秒')+' · <a href="https://browser.anubispace.org/tx/'+r.tx+'" target="_blank" rel="noopener">链上查看 ↗</a></small></div></div>'; }).join('');
   $('casesCard').style.display=''; }).catch(function(){});
-fetch(API,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.opened>0){ var el=$('opened'); el.innerHTML='🔥 已有 <b>'+j.opened+'</b> 人开通'; el.style.display=''; } }).catch(function(){});
+// 涨价倒计时:以服务器给的 raiseAt/price 为准(服务器到点自动按新价开单),拿不到就用写死的 11-08 20:00
+var RZ={old:50,nw:100,at:Date.UTC(2026,10,8,12,0,0)/1000,skew:0}, rzT=null;
+function p2(n){ return (n<10?"0":"")+n; }
+function raiseTick(){
+  var en=document.documentElement.lang==="en", left=Math.floor(RZ.at-(Date.now()/1000+RZ.skew)), on=left>0;
+  var price=on?RZ.old:RZ.nw;
+  $("pNow").textContent=price; $("pWas").style.display=on?"":"none"; $("cdBox").style.display=on?"":"none"; $("raiseBar").style.display=on?"":"none";
+  if(!on){ $("ctaA").innerHTML=(en?"Get access · ":"立即开通 · ")+price+" U"; if(rzT){clearInterval(rzT);rzT=null;} return; }
+  var d=Math.floor(left/86400), h=Math.floor(left%86400/3600), m=Math.floor(left%3600/60), sec=left%60;
+  var hms=(d>0?d+(en?"d ":" 天 "):"")+p2(h)+":"+p2(m)+":"+p2(sec);
+  var when=new Date((RZ.at+28800)*1000), mo=when.getUTCMonth()+1, dd=when.getUTCDate(), hh=p2(when.getUTCHours())+":"+p2(when.getUTCMinutes());
+  var whenTx=en?("Nov "+dd+", "+hh+" (UTC+8)"):(mo+" 月 "+dd+" 日 "+hh);
+  $("raiseBar").innerHTML=en?("⏰ Price goes up to <b>"+RZ.nw+" U</b> on "+whenTx+" · <span class='t'>"+hms+"</span> left"):("⏰ "+whenTx+" 起涨价到 <b>"+RZ.nw+" U</b> · 还剩 <span class='t'>"+hms+"</span>");
+  $("cdLb").textContent=en?"PRICE RISE IN":"涨 价 倒 计 时";
+  $("cdBx").innerHTML=[[d,en?"Days":"天"],[h,en?"Hrs":"时"],[m,en?"Min":"分"],[sec,en?"Sec":"秒"]].map(function(x){ return "<div><b>"+p2(x[0])+"</b><span>"+x[1]+"</span></div>"; }).join("");
+  $("cdNt").innerHTML=en?(whenTx+" onward: <b>"+RZ.nw+" U</b>. Earlier orders are unaffected."):(whenTx+"（北京时间）起 <b>"+RZ.nw+" U</b>，<span style='white-space:nowrap'>之前下的不受影响</span>");
+  $("ctaA").innerHTML=(en?"Get access · ":"立即开通 · ")+price+" U <small>"+(en?hms+" left":"还剩 "+hms)+"</small>";
+}
+function raiseInit(){ raiseTick(); if(!rzT) rzT=setInterval(raiseTick,1000); }
+window.__raise=function(o){ for(var k in o) RZ[k]=o[k]; raiseInit(); };
+raiseInit();
+fetch(API,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.raiseAt){ RZ.at=j.raiseAt; RZ.old=j.priceOld||RZ.old; RZ.nw=j.priceNew||RZ.nw; if(j.now) RZ.skew=j.now-Date.now()/1000; raiseInit(); } else if(j.price&&j.price!==RZ.old&&j.price!==RZ.nw){ RZ.at=0; RZ.nw=j.price; raiseInit(); }
+  if(j.opened>0){ var el=$('opened'); el.innerHTML='🔥 已有 <b>'+j.opened+'</b> 人开通'; el.style.display=''; } }).catch(function(){});
 function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t||''; }
 var cHome=$('casesCard').parentNode, cNext=$('casesCard').nextSibling;
 function moveCases(v){ var c=$('casesCard'); if(v==='vip') $('casesSlot').appendChild(c); else if(c.parentNode!==cHome) cHome.insertBefore(c,cNext); }
@@ -262,6 +294,12 @@ if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(fu
 })();
 </script>
 <script>(function(){fetch("https://zjgame.web3origin.com/bondrpc/vip/cases",{cache:"no-store"}).then(function(r){return r.json();}).then(function(c){if(!c||!c.total)return;var f=function(n){return Number(n).toLocaleString("zh-CN",{maximumFractionDigits:0});};var g=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v;};g("s1",c.total+" 次");g("s2",f(c.lgns));g("s3",c.first+" 次");}).catch(function(){});})();</script>
+
+
+
+
+
+
 
 
 
