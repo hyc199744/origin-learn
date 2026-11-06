@@ -104,6 +104,7 @@ input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--
 <label class="dim small" style="margin-top:8px">② 选付款方式下单</label>
 <div class="paym">
 <button class="btn" data-tk="PUSDT"><b>Polygon 链 USDT</b><small>交易所可直接提币</small></button>
+<button class="btn alt" data-tk="PDAI"><b>Polygon 链 DAI</b><small>交易所可直接提币</small></button>
 <button class="btn alt" data-tk="USDT"><b>Anubis 链 USDT</b><small>钱包转账</small></button>
 <button class="btn alt" data-tk="DAI"><b>Anubis 链 DAI</b><small>钱包转账</small></button>
 </div>
@@ -269,9 +270,11 @@ if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(fu
 
 
 
+
 <!--i18n-start--><style>#langBtn:not([data-flag]){top:auto!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;right:auto!important;left:12px!important;background:rgba(20,11,6,.85)!important;color:#D6A84B!important}</style><script>
 /* 付费页 bot-vip + 付款后内容(vip_content.html) 英文词典 */
 window.I18N_D={
+"Polygon 链 DAI":"DAI on Polygon",
 "还没有钱包。在下面填你抢币要用的钱包地址，填一个点一次「添加」，最多 5 个。":"No wallets yet. Enter a wallet you'll claim with below and tap “Add” — one at a time, up to 5.",
 "① 你抢币要用的钱包地址（Anubis 链上的钱包，一单最多 5 个）":"① Wallet addresses you'll claim with (on Anubis, up to 5 per order)",
 "钱包 1（必填）0x…":"Wallet 1 (required) 0x…",
