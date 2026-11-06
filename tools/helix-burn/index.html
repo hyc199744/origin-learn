@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#07080a">
-<title>Helix 抢烧助手 · Helix Burn Grabber</title>
+<title>抢AI算力 · Grab AI Power</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0}
 .ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
@@ -83,7 +83,7 @@ html:not([lang^=zh]) .chip span{word-break:normal;overflow-wrap:anywhere;font-si
     <div class="row"><span data-en="Chain">链</span><span id="chain">—</span></div>
     <div class="row"><span data-en="Keep screen on">屏幕常亮</span><span id="wake">—</span></div>
     <div class="row"><span data-en="Device vs chain clock">本机-链时钟偏差</span><span id="skew">—</span></div>
-    <div class="note" data-en="Burn 500 LGNS for 1,000 power. Once per wallet per epoch (7 days); needs ≥ 20,000 LGNS in long-term stake. Opens daily at 11:59:00 Beijing time (UTC+8) and sells out in about 2 seconds. Version 11-06 19:00">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-06 19:00</div>
+    <div class="note" data-en="Burn 500 LGNS for 1,000 power. Once per wallet per epoch (7 days); needs ≥ 20,000 LGNS in long-term stake. Opens daily at 11:59:00 Beijing time (UTC+8) and sells out in about 2 seconds. Version 11-06 19:20">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-06 19:20</div>
   </details>
 </div>
 <div class="sec"><div id="log"></div></div>
@@ -111,7 +111,7 @@ const trR=m=>{ m=String(m); if(!EN()) return m;
    .replace(/Gas 上限只有 (\d+)，抢 AI 至少要 350000，这笔一定失败，节点没发（不扣手续费）。请在钱包「网络费用 → 自定义」把 Gas 上限改成 450000 再确认/,'Gas limit is only $1; a Helix burn needs at least 350000, so this would fail. The node did not send it (no fee). In your wallet open Network fee → Custom, set Gas limit to 450000 and confirm again')
    .replace(/抢币机器人未开通：.*$/,'Grab bot not activated for this wallet. Activate it at web3origin.com/tools/bot-vip (nothing was sent, no fee)'); };
 function applyLang(){ const en=EN(); document.querySelectorAll('[data-en]').forEach(el=>{ if(el.dataset.zh===undefined) el.dataset.zh=el.textContent; el.textContent=en?el.dataset.en:el.dataset.zh; });
-  const b=$('langBtn'); if(b) b.textContent=en?'🇨🇳 中文':'🇬🇧 EN'; try{ if(!armed&&!racing&&/^(未开启|Not armed)$/.test($('armState').textContent)) $('armState').textContent=en?'Not armed':'未开启'; }catch(e){} document.title=en?'Helix Burn Grabber':'Helix 抢烧助手'; }
+  const b=$('langBtn'); if(b) b.textContent=en?'🇨🇳 中文':'🇬🇧 EN'; try{ if(!armed&&!racing&&/^(未开启|Not armed)$/.test($('armState').textContent)) $('armState').textContent=en?'Not armed':'未开启'; }catch(e){} document.title=en?'Grab AI Power':'抢AI算力'; }
 function setLang(en){ document.documentElement.lang=en?'en':'zh-CN'; try{ localStorage.setItem('web3origin_locale',en?'en':'zh-CN'); }catch(e){} applyLang(); try{ relayRender(); chkRender(); tick(); if(me){ loadWallet().catch(()=>{}); } loadState(); }catch(e){} }
 const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);try{ if(/^✓ 已交给|^已广播|^你取消了|^🎉|今天的名额已经抢光|连续两次取消|^✓ Handed|^Broadcast|^You cancel|sold out today|Cancelled twice/.test(String(m))) showFill(false); }catch(e){}};
 const FILL_GWEI=3000, FILL_LIMIT=450000; /* 抢 AI:准点落第 1 块就够,3000 留余量;实际用 ~30 万 gas,上限 45 万 */
