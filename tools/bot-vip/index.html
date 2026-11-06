@@ -94,8 +94,13 @@ input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--
 
 <section class="band" id="buy"><h2>立即开通</h2>
 <div class="price"><div class="n">50</div><div class="u">USDT 或 DAI · 一次性买断</div><div id="opened" style="display:none"></div></div>
-<div style="margin-top:16px"><label class="dim small">① 你抢币要用的钱包地址（Anubis 链上的钱包）</label>
-<input id="wIn" placeholder="0x…" autocomplete="off" spellcheck="false">
+<div style="margin-top:16px"><label class="dim small">① 你抢币要用的钱包地址（Anubis 链上的钱包，一单最多 5 个）</label>
+<input id="wIn" placeholder="钱包 1（必填）0x…" autocomplete="off" spellcheck="false">
+<input class="wx" placeholder="钱包 2（可不填）0x…" autocomplete="off" spellcheck="false">
+<input class="wx" placeholder="钱包 3（可不填）0x…" autocomplete="off" spellcheck="false">
+<input class="wx" placeholder="钱包 4（可不填）0x…" autocomplete="off" spellcheck="false">
+<input class="wx" placeholder="钱包 5（可不填）0x…" autocomplete="off" spellcheck="false">
+<p class="dim small" style="margin:2px 0 0">付款后钱包<b class="hl">不能删除、不能更换</b>，请仔细核对。没填满的，付款后还可以补。</p>
 <label class="dim small" style="margin-top:8px">② 选付款方式下单</label>
 <div class="paym">
 <button class="btn" data-tk="PUSDT"><b>Polygon 链 USDT</b><small>交易所可直接提币</small></button>
@@ -125,6 +130,12 @@ input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--
 <div class="ht" style="margin:6px 0 4px">开通成功 <span class="pill">已开通</span></div>
 <p class="dim mono" id="vipWho"></p>
 <div class="box"><b>订单号：<span id="vipOid" class="mono hl"></span></b><br><span class="dim small">请截图保存，换手机或清了数据用订单号找回链接。</span></div>
+<div class="box" id="wBox"><div class="ht" style="font-size:18px">我的抢币钱包 <span class="pill" id="wCnt"></span></div>
+<div id="wList"></div>
+<div id="wAdd" style="display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px"><b>补充钱包</b>
+<p class="small warn" style="margin:4px 0">⚠ 添加后不能删除、不能更换，请仔细核对地址。</p>
+<input id="wAddIn" placeholder="要补充的钱包地址 0x…" autocomplete="off" spellcheck="false"><button class="btn full" id="btnAddW">添加这个钱包</button><div id="wMsg" class="small" style="margin-top:6px;white-space:pre-wrap"></div></div>
+<p class="dim small" style="margin:8px 0 0" id="wFull">一单最多 5 个钱包，已经填满。钱包添加后不能删除、不能更换。</p></div>
 <div id="vip"></div>
 <section id="mineCard" class="box" style="display:none"><div class="mh">📋 我的抢币记录</div><div class="dim small" id="mineW"></div>
 <div id="mineSum"></div><div id="mineList"></div>
@@ -160,18 +171,40 @@ function loadMine(oid){ if(!oid) return;
   fetch(API+'/mine?order='+encodeURIComponent(oid),{cache:'no-store'}).then(function(r){return r.json();}).then(function(m){ if(!m||m.error) return;
     var f=function(n,d){ return Number(n).toLocaleString('zh-CN',{maximumFractionDigits:d==null?2:d}); };
     var bjt=function(t){ var d=new Date((t+28800)*1000).toISOString(); return d.slice(5,10).replace('-','/')+' '+d.slice(11,16); };
-    $('mineW').textContent='钱包 '+m.wallet.slice(0,6)+'…'+m.wallet.slice(-4);
+    var ws=(m.wallets||[m.wallet]).filter(Boolean); $('mineW').textContent=ws.length>1?('钱包 '+ws.map(function(a){return '…'+a.slice(-4);}).join('、')):ws.length?('钱包 '+ws[0].slice(0,6)+'…'+ws[0].slice(-4)):'';
     $('mineSum').innerHTML='<div><b>'+m.n+'</b><span>抢了几次</span></div><div><b class="ok">'+m.ok+'</b><span>抢到几次</span></div><div><b>'+f(m.amt,0)+'</b><span>领到 LGNS</span></div>';
-    $('mineList').innerHTML=m.rows.length?m.rows.map(function(r){ return '<div class="mrow '+(r.ok?'y':'n')+'"><span class="mi">'+(r.ok?'✓':'✕')+'</span><div class="mm"><b>'+r.product+'</b><small>'+bjt(r.t)+' · 出价 '+f(r.gwei,0)+' gwei'+(r.fee!=null?' · 手续费 '+f(r.fee,3)+' DAI':'')+'</small>'+(r.ok?'':'<small class="bad">'+r.why+'</small>')+'</div><div class="mr">'+(r.ok?'<b class="ok">'+(r.helix?'抢到 ✓':'+'+f(r.amt)+' LGNS')+'</b>':'<b class="bad">没抢到</b>')+'<small><a href="https://browser.anubispace.org/tx/'+r.tx+'" target="_blank" rel="noopener">链上查看 ↗</a></small></div></div>'; }).join(''):'<div id="mineEmpty">还没有抢币记录。按上面的步骤设置好，下个整点机器人就会帮你抢，结果会显示在这里。</div>';
+    $('mineList').innerHTML=m.rows.length?m.rows.map(function(r){ return '<div class="mrow '+(r.ok?'y':'n')+'"><span class="mi">'+(r.ok?'✓':'✕')+'</span><div class="mm"><b>'+r.product+'</b><small>'+bjt(r.t)+(ws.length>1&&r.w?' · 钱包 …'+r.w:'')+' · 出价 '+f(r.gwei,0)+' gwei'+(r.fee!=null?' · 手续费 '+f(r.fee,3)+' DAI':'')+'</small>'+(r.ok?'':'<small class="bad">'+r.why+'</small>')+'</div><div class="mr">'+(r.ok?'<b class="ok">'+(r.helix?'抢到 ✓':'+'+f(r.amt)+' LGNS')+'</b>':'<b class="bad">没抢到</b>')+'<small><a href="https://browser.anubispace.org/tx/'+r.tx+'" target="_blank" rel="noopener">链上查看 ↗</a></small></div></div>'; }).join(''):'<div id="mineEmpty">还没有抢币记录。按上面的步骤设置好，下个整点机器人就会帮你抢，结果会显示在这里。</div>';
     $('mineCard').style.display=''; }).catch(function(){}); }
 function view(v){ moveCases(v); $('pub').style.display=v==='pub'?'':'none'; $('orderWrap').style.display=v==='order'?'':'none'; $('vipWrap').style.display=v==='vip'?'':'none'; window.scrollTo(0,0); }
 function copy(t,b){ var done=function(){ if(b){ var o=b.textContent; b.textContent='已复制 ✓'; setTimeout(function(){b.textContent=o;},1800);} };
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(done,function(){ var x=document.createElement('textarea'); x.value=t; document.body.appendChild(x); x.select(); try{document.execCommand('copy'); done();}catch(e){ prompt('长按复制',t);} x.remove(); }); }
-function showVip(html,w,oid){
-  clearInterval(timer); if(oid) LS('vip_paid',oid); LS('vip_order',null); if(w) LS('vip_wallet',w); $('vipOid').textContent=oid||'';
-  $('vip').innerHTML=html; $('vipWho').textContent=w?('抢币钱包 '+w):'';
+var EN=function(){ return !!(window.W3O_LANG&&W3O_LANG()==='en'); };
+var vipCur=null;
+function showWallets(j){
+  var info=j.walletInfo||(j.wallets||[j.wallet]).filter(Boolean).map(function(a){return {a:a,on:true};}), max=j.maxWallets||5;
+  $('wCnt').textContent=info.length+' / '+max;
+  if(!info.length){ $('wList').innerHTML='<div class="warn small" style="padding:6px 0">还没有钱包。在下面填你抢币要用的钱包地址，填一个点一次「添加」，最多 5 个。</div>'; $('wAdd').style.display=''; $('wFull').style.display='none'; return; }
+  $('wList').innerHTML=info.map(function(x,i){ return '<div style="display:flex;gap:8px;align-items:baseline;padding:6px 0;'+(i<info.length-1?'border-bottom:1px dashed var(--line)':'')+'"><b class="hl">'+(i+1)+'</b><span class="mono" style="flex:1">'+x.a+'</span>'+(x.on?'<span class="ok small" style="white-space:nowrap">已开通</span>':'<span class="bad small" style="white-space:nowrap">已停用</span>')+'</div>'; }).join('');
+  var full=info.length>=max; $('wAdd').style.display=full?'none':''; $('wFull').style.display=full?'':'none';
+}
+function showVip(j){
+  var oid=j.id, w=j.wallet;
+  clearInterval(timer); vipCur=j; if(oid) LS('vip_paid',oid); LS('vip_order',null); if(w) LS('vip_wallet',w); $('vipOid').textContent=oid||'';
+  $('vip').innerHTML=j.content; $('vipWho').textContent='';
   document.querySelectorAll('#vip [data-copy]').forEach(function(b){ b.onclick=function(){ copy(b.getAttribute('data-copy'),b); }; });
-  view('vip'); loadMine(oid);
+  showWallets(j); view('vip'); loadMine(oid);
+}
+function wMsg(t,c){ $('wMsg').className='small '+(c||''); $('wMsg').textContent=t||''; }
+async function addW(){
+  if(!vipCur) return; var a=$('wAddIn').value.trim().toLowerCase(), have=(vipCur.wallets||[vipCur.wallet]).filter(Boolean);
+  if(!/^0x[0-9a-f]{40}$/.test(a)) return wMsg('这个钱包地址格式不对（0x 开头 42 位）','bad');
+  if(have.indexOf(a)>=0) return wMsg('这个钱包填重复了','bad');
+  if(!confirm(EN()?('Add wallet '+a+' ?\n\nOnce added it can NOT be removed or replaced.'):('确认添加钱包 '+a+' ？\n\n添加后不能删除、不能更换。'))) return;
+  $('btnAddW').disabled=true; wMsg('正在添加…','warn');
+  try{ var r=await fetch(API+'/addwallet',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({order:vipCur.id,wallet:a})}); var j=await r.json();
+    if(j.error) wMsg(j.error,'bad'); else { vipCur=j; $('wAddIn').value=''; wMsg('添加成功，已开通 ✓','ok'); showWallets(j); loadMine(j.id); }
+  }catch(e){ wMsg('网络问题，请重试','bad'); }
+  $('btnAddW').disabled=false;
 }
 function fmtLeft(s){ s=Math.max(0,s); var m=Math.floor(s/60); return m>=60?(Math.floor(m/60)+' 小时 '+(m%60)+' 分'):(m+' 分 '+(s%60)+' 秒'); }
 function showOrder(o){
@@ -179,7 +212,7 @@ function showOrder(o){
   var lb=o.label||o.token; $('oAmt').textContent=o.amount; ['oTk2','oTk3'].forEach(function(i){ $(i).textContent=lb; }); $('oTk1').textContent=o.amount+' '+lb;
   $('oChain1').textContent=o.chainName||'Anubis 链'; $('oChain2').textContent=o.chainName||'Anubis 链';
   $('oHow').innerHTML=o.chain==='polygon'?'币安、OKX 等交易所提币：网络选 <b>Polygon（MATIC / POL）</b>，提币地址填上面的收款地址。交易所会扣手续费，请把手续费加上，确保<b>到账</b>正好是这个数。也可以用钱包在 Polygon 链上转。':'交易所不支持 Anubis 链，请用 <b>OKX 等钱包</b>切到 Anubis 网络转账（DAI / USDT 都是代币转账，正常点「发送」即可）。';
-  $('oRecv').textContent=o.recv; $('oTkAddr').textContent=o.tokenAddr; $('oW').textContent=o.wallet;
+  $('oRecv').textContent=o.recv; $('oTkAddr').textContent=o.tokenAddr; $('oW').innerHTML=(o.wallets||[o.wallet]).map(function(a){ return '<br>'+a; }).join('');
   $('qr').innerHTML=''; var mk=function(){ if(window.QRCode){ new QRCode($('qr'),{text:o.recv,width:180,height:180,colorDark:'#000',colorLight:'#fff'}); } else setTimeout(mk,300); }; mk();
   view('order'); poll();
   clearInterval(timer); timer=setInterval(poll,4000);
@@ -188,16 +221,22 @@ async function poll(){
   if(!cur) return;
   var left=cur.expires-Math.floor(Date.now()/1000); $('oLeft').textContent=fmtLeft(left);
   try{ var r=await fetch(API+'?order='+encodeURIComponent(cur.id),{cache:'no-store'}); var j=await r.json();
-    if(j.status==='paid'){ $('oSt').textContent='已到账'; showVip(j.content,j.wallet,j.id); return; }
+    if(j.status==='paid'){ $('oSt').textContent='已到账'; showVip(j); return; }
     if(j.status==='expired'){ clearInterval(timer); $('oSt').textContent='已过期'; $('omsg').textContent='订单已过期。如果你已经转了账，请联系客服并提供交易哈希；没转就点下面重新下单。'; return; }
     if(r.status===404){ clearInterval(timer); LS('vip_order',null); view('pub'); }
   }catch(e){}
 }
 async function order(tk){
-  var w=$('wIn').value.trim().toLowerCase();
-  if(!/^0x[0-9a-f]{40}$/.test(w)) return msg('请先填写你抢币要用的钱包地址（0x 开头 42 位）','bad');
+  var raw=[$('wIn')].concat([].slice.call(document.querySelectorAll('.wx'))).map(function(e){ return e.value.trim().toLowerCase(); });
+  var w=raw[0];
+  if(!w) return msg('请先填写你抢币要用的钱包地址（0x 开头 42 位）','bad');
+  var seen=[];
+  for(var i=0;i<raw.length;i++){ if(!raw[i]) continue;
+    if(!/^0x[0-9a-f]{40}$/.test(raw[i])) return msg('第 '+(i+1)+' 个钱包地址格式不对（0x 开头 42 位）','bad');
+    if(seen.indexOf(raw[i])>=0) return msg('第 '+(i+1)+' 个钱包填重复了','bad');
+    seen.push(raw[i]); }
   msg('正在下单…','warn');
-  try{ var r=await fetch(API+'/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({wallet:w,token:tk})}); var j=await r.json();
+  try{ var r=await fetch(API+'/order',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({wallet:w,wallets:raw,token:tk})}); var j=await r.json();
     if(j.error) return msg(j.error,'bad');
     msg(''); LS('vip_wallet',w); showOrder(j);
   }catch(e){ msg('下单失败，网络问题，请重试','bad'); }
@@ -205,7 +244,7 @@ async function order(tk){
 async function check(){
   var id=$('oidIn').value.trim(); if(!id) return msg('请填写订单号','bad');
   try{ var r=await fetch(API+'?order='+encodeURIComponent(id),{cache:'no-store'}); var j=await r.json();
-    if(j.status==='paid') showVip(j.content,j.wallet,j.id); else if(j.status==='open') showOrder(j); else msg(r.status===404?'没有这个订单号':'这个订单没有付款（已过期）','bad'); }catch(e){ msg('查询失败，请重试','bad'); }
+    if(j.status==='paid') showVip(j); else if(j.status==='open') showOrder(j); else msg(r.status===404?'没有这个订单号':'这个订单没有付款（已过期）','bad'); }catch(e){ msg('查询失败，请重试','bad'); }
 }
 document.querySelectorAll('[data-tk]').forEach(function(b){ b.onclick=function(){ order(b.getAttribute('data-tk')); }; });
 $('btnCheck').onclick=check;
@@ -213,10 +252,12 @@ $('cpAmt').onclick=function(){ copy(cur.amount,$('cpAmt')); };
 $('cpRecv').onclick=function(){ copy(cur.recv,$('cpRecv')); };
 $('btnCancel').onclick=function(){ clearInterval(timer); LS('vip_order',null); cur=null; view('pub'); };
 $('btnOut').onclick=function(){ view('pub'); };
+$('btnAddW').onclick=addW;
 var w0=LS('vip_wallet'); if(w0) $('wIn').value=w0;
 try{ Object.keys(localStorage).forEach(function(k){ if(k.indexOf('vip_c_')===0) localStorage.removeItem(k); }); }catch(e){} // 清掉旧版缓存的链接
-var oid=LS('vip_paid')||LS('vip_order');
-if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.status==='paid') showVip(j.content,j.wallet,j.id); else if(j.status==='open') showOrder(j); else { LS('vip_order',null); LS('vip_paid',null); } }).catch(function(){}); }
+var qo=''; try{ qo=(new URLSearchParams(location.search).get('order')||'').trim(); }catch(e){}
+var oid=qo||LS('vip_paid')||LS('vip_order');
+if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.status==='paid') showVip(j); else if(j.status==='open') showOrder(j); else { LS('vip_order',null); LS('vip_paid',null); } }).catch(function(){}); }
 })();
 </script>
 <script>(function(){fetch("https://zjgame.web3origin.com/bondrpc/vip/cases",{cache:"no-store"}).then(function(r){return r.json();}).then(function(c){if(!c||!c.total)return;var f=function(n){return Number(n).toLocaleString("zh-CN",{maximumFractionDigits:0});};var g=function(i,v){var e=document.getElementById(i);if(e)e.textContent=v;};g("s1",c.total+" 次");g("s2",f(c.lgns));g("s3",c.first+" 次");}).catch(function(){});})();</script>
@@ -225,9 +266,40 @@ if(oid){ fetch(API+'?order='+encodeURIComponent(oid),{cache:'no-store'}).then(fu
 
 
 
+
+
+
 <!--i18n-start--><style>#langBtn:not([data-flag]){top:auto!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;right:auto!important;left:12px!important;background:rgba(20,11,6,.85)!important;color:#D6A84B!important}</style><script>
 /* 付费页 bot-vip + 付款后内容(vip_content.html) 英文词典 */
 window.I18N_D={
+"还没有钱包。在下面填你抢币要用的钱包地址，填一个点一次「添加」，最多 5 个。":"No wallets yet. Enter a wallet you'll claim with below and tap “Add” — one at a time, up to 5.",
+"① 你抢币要用的钱包地址（Anubis 链上的钱包，一单最多 5 个）":"① Wallet addresses you'll claim with (on Anubis, up to 5 per order)",
+"钱包 1（必填）0x…":"Wallet 1 (required) 0x…",
+"钱包 2（可不填）0x…":"Wallet 2 (optional) 0x…",
+"钱包 3（可不填）0x…":"Wallet 3 (optional) 0x…",
+"钱包 4（可不填）0x…":"Wallet 4 (optional) 0x…",
+"钱包 5（可不填）0x…":"Wallet 5 (optional) 0x…",
+"付款后钱包":"After payment, wallets ",
+"不能删除、不能更换":"can't be removed or replaced",
+"，请仔细核对。没填满的，付款后还可以补。":" — please double-check. Empty slots can be filled after payment.",
+"我的抢币钱包":"My bot wallets",
+"补充钱包":"Add a wallet",
+"⚠ 添加后不能删除、不能更换，请仔细核对地址。":"⚠ Once added, a wallet can't be removed or replaced. Double-check the address.",
+"要补充的钱包地址 0x…":"Wallet address to add 0x…",
+"添加这个钱包":"Add this wallet",
+"一单最多 5 个钱包，已经填满。钱包添加后不能删除、不能更换。":"All 5 wallet slots are used. Wallets can't be removed or replaced once added.",
+"已停用":"Disabled",
+"正在添加…":"Adding…",
+"添加成功，已开通 ✓":"Added and activated ✓",
+"网络问题，请重试":"Network problem, please retry",
+"这个钱包地址格式不对（0x 开头 42 位）":"Invalid wallet address (0x + 40 hex characters)",
+"这个钱包填重复了":"This wallet is already in your order",
+"第 1 个抢币钱包必须填":"Wallet 1 is required",
+"订单还没付款，付款后才能补钱包":"This order isn't paid yet — wallets can be added after payment",
+"这一单已经有 5 个钱包了，不能再加":"This order already has 5 wallets — no more can be added",
+"一次性买断，":"One-time payment, ",
+"一单最多开通 5 个抢币钱包":"up to 5 bot wallets per order",
+"。没填满的，在本页上方「我的抢币钱包」里补。钱包添加后不能删除、不能更换。":". Fill empty slots under “My bot wallets” above. Wallets can't be removed or replaced once added.",
 "起源抢币机器人":"Origin Claim Bot",
 "🤖 起源抢币机器人":"🤖 Origin Claim Bot",
 "首页 →":"Home →",
@@ -408,6 +480,13 @@ window.I18N_D={
 "就彻底断开。":"and you're fully disconnected."
 };
 
+/* 5 个钱包:带数字的报错 */
+window.I18N_R=(window.I18N_R||[]).concat([
+  [/^第 (\d+) 个钱包地址格式不对（0x 开头 42 位）$/g,"Wallet $1: invalid address (0x + 40 hex characters)"],
+  [/^第 (\d+) 个钱包填重复了$/g,"Wallet $1 is a duplicate"],
+  [/^第 (\d+) 个钱包（尾号 (\w{4})）已经开通过，不能重复填$/g,"Wallet $1 (…$2) is already activated and can't be added again"],
+  [/^这个钱包（尾号 (\w{4})）已经开通过，不能重复填$/g,"This wallet (…$1) is already activated and can't be added again"]
+]);
 /* 两个页面共用的动态文字规则(带数字/时间/钱包的片段) */
 (function(){
   var wan=function(m,n){ var v=parseFloat(String(n).replace(/,/g,""))*10; return (Math.round(v*10)/10).toLocaleString("en-US")+"K"; };
