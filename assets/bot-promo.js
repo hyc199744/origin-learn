@@ -20,12 +20,12 @@
   function texts(){
     var r=raising();
     return en?{
-      t:r?"🤖 Origin Claim Bot · price rises soon":"🤖 Origin Claim Bot is live",
+      t:r?"🤖 Origin Claim Bot":"🤖 Origin Claim Bot is live",
       b:"LGNS burn bonds, fixed-price bonds and Helix AI burns sell out within 1–3 seconds of opening. The bot sends your signed claim at the exact opening moment so it lands in the first block.",
       l:["No private key or seed phrase — your assets never leave your wallet","Covers: LGNS burn bond · fixed-price burn bond · Helix AI burn"].concat(r?[]:[RZ.nw+" USDT or DAI, one-time payment"]),
       go:r?("Get it at "+RZ.old+" U"):"Take a look", no:"Don't show again"
     }:{
-      t:r?"🤖 起源抢币机器人 · <span style='white-space:nowrap'>涨价倒计时</span>":"🤖 起源抢币机器人上线了",
+      t:r?"🤖 起源抢币机器人":"🤖 起源抢币机器人上线了",
       b:"LGNS 销毁债券、固定价债券、Helix AI 销毁，开放后 1~3 秒就被抢光。机器人在开放那一刻替你准时发出，抢进第 1 个区块。",
       l:["不要私钥、不要助记词，资产始终在你自己钱包里","可抢：LGNS 销毁债券 · 固定价销毁债券 · Helix AI 销毁"].concat(r?[]:[RZ.nw+" USDT 或 DAI，一次性买断"]),
       go:r?("趁 "+RZ.old+" U 开通"):"去看看", no:"不再提示"
