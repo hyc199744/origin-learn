@@ -78,12 +78,11 @@ html:not([lang^=zh]) .chip span{word-break:normal;overflow-wrap:anywhere;font-si
   <div class="row" style="border:0;flex-wrap:wrap;gap:8px"><span style="font-size:12.5px;flex:1 1 160px;min-width:0;word-break:break-all" data-en="Set your wallet RPC to https://zjgame.web3origin.com/bondrpc">钱包 RPC 要改成 https://zjgame.web3origin.com/bondrpc</span><button class="btn ghost" id="btnRelay" style="flex:0 0 auto;width:auto;padding:8px 14px;margin:0" data-en="Check node &amp; gas">检测节点和 Gas</button></div>
   <div class="row"><span data-en="Wallet gas limit">钱包 Gas 上限</span><span id="gasTest">没测过</span></div>
   <div class="row" style="flex-wrap:wrap;gap:8px"><span style="font-size:12.5px;flex:1 1 160px;min-width:0;color:var(--muted)" data-en="Rehearsal: pops a real &quot;burn 500 LGNS&quot; so you can check the wallet gas limit is 450,000. The node will not send it and no fee is charged. A wallet error like &quot;RPC node data error&quot; is expected.">预演：弹一笔真的「烧 500 LGNS」，看钱包里 Gas 上限是不是 45 万。节点不会发、不扣钱，钱包提示「RPC 节点数据异常」是正常的</span><button class="btn ghost" id="btnRehearse" style="flex:0 0 auto;width:auto;padding:8px 14px;margin:0" data-en="Rehearse">预演一次</button></div>
-  <div class="row"><span data-en="Popup time without relay">没托管时弹窗时机</span><span><select id="lead"><option value="-500" data-en="0.5 s after open">开放后 0.5 秒</option><option value="-1500" selected data-en="1.5 s after open (recommended)">开放后 1.5 秒（推荐）</option><option value="-3000" data-en="3 s after open">开放后 3 秒</option><option value="1000" data-en="1 s early (advanced, may be rejected once)">提前 1 秒（高级，可能被拒一次）</option></select></span></div>
   <details><summary data-en="More info">更多信息</summary>
     <div class="row"><span data-en="Chain">链</span><span id="chain">—</span></div>
     <div class="row"><span data-en="Keep screen on">屏幕常亮</span><span id="wake">—</span></div>
     <div class="row"><span data-en="Device vs chain clock">本机-链时钟偏差</span><span id="skew">—</span></div>
-    <div class="note" data-en="Burn 500 LGNS for 1,000 power. Once per wallet per epoch (7 days); needs ≥ 20,000 LGNS in long-term stake. Opens daily at 11:59:00 Beijing time (UTC+8) and sells out in about 2 seconds. Version 11-06 19:20">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-06 19:20</div>
+    <div class="note" data-en="Burn 500 LGNS for 1,000 power. Once per wallet per epoch (7 days); needs ≥ 20,000 LGNS in long-term stake. Opens daily at 11:59:00 Beijing time (UTC+8) and sells out in about 2 seconds. Version 11-07 15:00">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。版本 11-07 15:00</div>
   </details>
 </div>
 <div class="sec"><div id="log"></div></div>
@@ -325,7 +324,7 @@ async function arm(){
   if(gasKind(gasRes())==='low') log(L('⚠ 上次检测钱包 Gas 上限只有 '+gasRes()+'，弹窗时一定要点「网络费用 → 自定义」把上限改成 450000','⚠ Last check showed the wallet gas limit is only '+gasRes()+'. When it pops, set Network fee → Custom → Gas limit 450000'),'bad');
   armed=true; keepAwake();
   if(!relayOn()) log(L('⚠ 托管节点没接通：只能开放后才弹钱包，名额 2 秒就光，基本抢不到。强烈建议先点「检测节点」接通','⚠ Relay not connected: the wallet can only pop after the open and slots go in 2 s. Strongly recommend connecting the relay first'),'bad');
-  const lead=Number($('lead').value); const leadS=relayOn()?RELAY_POP:(isNaN(lead)?-1.5:lead/1000);
+  const leadS=relayOn()?RELAY_POP:-1.5;
   $('armState').innerHTML='<span class="ok">'+L('已开启','Armed')+'</span>'+L('，',', ')+(relayOn()?L('托管：开放前 45 秒弹钱包，直接点确认','relay: wallet pops 45 s before open, just confirm'):leadS>=0?L('到点前 '+leadS+' 秒弹签名','pops '+leadS+' s before open'):L('开放后 '+(-leadS)+' 秒弹签名','pops '+(-leadS)+' s after open'));
   log(L('自动抢已开启：'+bj(nextStart)+(leadS>=0?' 前 '+leadS:' 后 '+(-leadS))+' 秒弹出钱包签名。保持本页在前台、钱包已解锁、别锁屏。','Auto-grab armed: the wallet pops '+Math.abs(leadS)+' s '+(leadS>=0?'before':'after')+' '+bj(nextStart)+'. Keep this page in front, the wallet unlocked and the screen on.'));
   clearInterval(armTimer); let warned=false;
