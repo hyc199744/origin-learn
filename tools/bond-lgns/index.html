@@ -759,12 +759,12 @@ log('页面就绪。先点"连接钱包"，再点"开启自动领"，整点听�
 .bidref .neg{color:var(--bad)}.bidref .pos{color:var(--ok)}
 .bidref .ft{margin-top:6px;color:var(--muted);font-size:11.5px;line-height:1.6}
 </style>
-<script>/* 11-07 出价参考表:成功率=11-03 16点~11-07 15点 96 个整点 LGNS 第 1 块实测;手续费 抢到≈14万gas/失败≈7.5万gas;到手价值=链上 LGNS 价×(1-卖币扣50%);点一行=改托管出价 */
+<script>/* 11-07 出价参考表:成功率=11-03 16点~11-07 15点 96 个整点 LGNS 第 1 块实测;手续费 抢到≈13.1万gas(与黄字/下拉一致)/失败≈7.5万gas;到手价值=链上 LGNS 价×(1-卖币扣50%);点一行=改托管出价 */
 (function bidRef(){
   var box=document.getElementById('bidRef'), sel=document.getElementById('relayGwei'); if(!box||!sel) return;
   var BIDS=[30000,100000,150000,200000,300000];
   var P={1000:[.36,.72,.85,.90,.94],2000:[.28,.60,.74,.80,.89],5000:[.14,.46,.58,.69,.83]};
-  var GS=140000,GF=75000,SELL_KEEP=0.5;
+  var GS=131000,GF=75000,SELL_KEEP=0.5;
   var price=Number((location.search.match(/[?&]px=([\d.]+)/)||[])[1]||0), pv=Number((location.search.match(/[?&]pv=(\d+)/)||[])[1]||0);
   var RPCS=['https://rpc.anubispace.org','https://rpc3.anubispace.org','https://rpc2.anubispace.org','https://zjgame.web3origin.com/bondrpc'];
   function loadPrice(k){ k=k||0; if(k>=RPCS.length) return; var body=JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:'0x11b10c9827c5b7071e96fcaa143b4e6e86b17c69',data:'0x11c9f61d'},'latest']});
