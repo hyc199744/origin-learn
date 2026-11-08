@@ -100,7 +100,7 @@ body.lC #btnRelay:active{background:rgba(63,143,104,.18)}body.lC #btnRelay:disab
 </head>
 <body class="lC">
 
-<div class="bar"><div class="lg">抢</div><div><b>LGNS 销毁债券抢领</b><small>版本 11-07 23:50 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
+<div class="bar"><div class="lg">抢</div><div><b>LGNS 销毁债券抢领</b><small>版本 11-08 10:30 · Anubis 链</small></div><div class="ad" id="addr">未连接</div></div>
 <div class="big"><div class="hk">距下个整点 · <span id="nextIn">—</span></div><div class="v" id="countdown">--:--:--</div><div class="st" id="armState">未开启</div><div class="hint" id="hint">先点底下"连接钱包"</div></div><div class="card kvs"><div class="li"><span>我可领取</span><div><div class="v" id="claimable">—</div><div class="k" id="cnt">—</div></div></div><div class="li"><span>这次抢的一笔</span><div><div class="v sm" id="maxPiece">—</div></div></div><div class="li"><span>Gas（DAI）</span><div><div class="v sm" id="gas">—</div></div></div><div class="li"><span>结论</span><div><b id="verdict">—</b></div></div></div><div class="card" id="chk"><h3>开抢前检查</h3><div id="chkList"></div><div class="fill" id="fillLine"></div></div><div id="fillTip" class="hidden"></div><details class="card fold" open><summary>抢币设置</summary><div class="bondb"><label class="hidden">抢哪张债券 <select id="bond"><option value="lgns" selected>LGNS 销毁债券</option><option value="fixed">固定价销毁债券</option></select></label><div style="font-size:14px;padding:4px 0 8px">本页只抢 <b>LGNS 销毁债券</b>。固定价销毁债券请用 <a style="color:#e0b25a" href="/tools/bond-fixed/">固定价销毁债券抢领页</a>。</div></div><label class="fd wide"><span>托管出价</span><select id="relayGwei"><option value="auto" selected>看行情自动（按上小时第 1 块成交价，最高 30 万）</option><option value="5000">5,000 gwei</option><option value="10000">10,000 gwei</option><option value="15000">15,000 gwei</option><option value="20000">20,000 gwei</option><option value="30000">30,000 gwei</option><option value="60000">60,000 gwei</option><option value="100000">100,000 gwei（LGNS 推荐）</option><option value="120000">120,000 gwei</option><option value="150000">150,000 gwei</option><option value="200000">200,000 gwei</option><option value="300000">300,000 gwei（1 万枚以上大笔用）</option></select></label><div id="bidRef" class="bidref"></div><label class="fd wide"><span>先抢哪一笔</span><select id="order"><option value="big" selected>先抢最大的</option><option value="small">先抢最小的（大笔抢不到时用）</option></select></label><label class="fd"><span>领取方式</span><select id="mode"><option value="split" selected>拆单：一笔一笔领，按「先抢哪一笔」（推荐）</option><option value="max">只领一笔：按「先抢哪一笔」</option></select></label><label class="fd"><span>每天手续费上限</span><select id="lossCap"><option value="0" selected>不限制</option><option value="20">20 DAI</option><option value="40">40 DAI</option><option value="100">100 DAI</option></select></label><div class="row" style="border:0;padding:0 0 6px"><span>行情</span><span id="mktInfo" style="font-size:13px">—</span></div><label class="hidden">整点前彩排 <select id="reh"><option value="1">开</option><option value="0" selected>关</option></select></label></details><details class="card fold"><summary id="nodeSum">托管节点</summary><div class="node"><div class="kv"><span>节点状态</span><b id="relayState">先连接钱包</b></div><div class="nrow"><code id="relayUrl" class="hidden" style="flex:1;min-width:0;word-break:break-all;font-size:12.5px;padding:6px 8px;border-radius:8px;background:rgba(127,127,127,.15)"></code><button class="btn sec hidden" id="btnRelayCopy" style="flex:0 0 auto;padding:8px 12px">复制</button><button class="btn" id="btnRelay" style="flex:0 0 auto;padding:8px 12px">检测</button></div></div><div class="tip"><b>接通后：</b>点「开启自动领」，整点前 45 秒钱包弹出，网络费用改成自定义（按倒计时下面提示的数），再点确认。<br><b>没接通：</b>先在钱包里把 Anubis 网络的 RPC 改成我们发的节点地址，再点「检测」。</div></details><div class="card"><h3>现在怎么样</h3><div id="easy"><div class="ez first"><i>👇</i><div><b>还没开始</b><span>先点下面「连接钱包」，再点绿色的「开启自动领」</span></div></div></div><details class="raw"><summary>详细日志（给技术看 · 出问题时展开截图发客服）</summary><div id="log"></div><button class="btn sec" id="btnLogCopy" style="margin-top:8px;padding:8px 12px;font-size:13px">复制日志</button></details></div><div class="hidden"><div id="remain">—</div><div id="capLine">—</div><b id="capState">—</b><select id="splitN"><option value="1" selected>1 笔（只弹 1 次）</option><option value="2">2 笔（弹 2 次）</option><option value="3">3 笔（弹 3 次）</option></select></div>
 <div class="dock"><button class="btn sec" id="btnConnect">连接钱包</button><button class="btn" id="btnArm" disabled>开启自动领</button><button class="btn stop" id="btnStop">停</button></div>
 <div class="hidden"><select id="auto"><option value="1" selected>开（记住你的手速，自动算提前量）</option><option value="0">关</option></select>
@@ -513,7 +513,7 @@ async function attempt(H){
     if(r&&r.status==='0x1'){ buzz([100,50,100,50,400]); log('🎉 领到了 '+p.label+' LGNS！区块 '+parseInt(r.blockNumber,16)+where+'  https://browser.anubispace.org/tx/'+h,'ok'); if(H&&landed!==null&&landed-H>=2&&!RL) tuneTo(landed-H); return 'win'; }
     const now=big(await call(A.BOND,SEL.getTotalClaimable+addr32(me)).catch(()=>'0x'+st.claimable.toString(16)));
     if(now+10n**7n<st.claimable){ buzz([100,50,100,50,400]); log('🎉 链上可领取已减少 → 领取成功','ok'); return 'win'; }
-    if(!r){ log('90 秒没拿到回执，链上也没显示领到，可能网络卡了','bad'); return 'fail'; }
+    if(!r){ log('90 秒没等到这笔上链：可能被节点拒收或没发出去，看上面的「上一轮结果」','warn'); return 'fail'; }
     const why=await simulate(p.data); log('这笔被拒（'+(why||'未知原因')+'）'+where,'bad');
     if(poolEmpty(why)) return 'empty';
     if(RL&&H&&landed!==null){ log('托管节点这笔落在整点'+(landed-H>=0?'后 +':'前 ')+(landed-H)+' 秒，节点会自动校正发送时刻','warn'); return landed<H?'early':'late'; }
@@ -613,7 +613,7 @@ async function attemptSplit(H){
   const where=landed!==null?('（落在整点'+(landed>=0?'后 +':'前 ')+landed+' 秒的区块）'):'';
   { let fee=0; for(let k=0;k<hs.length;k++){ const r=rs[k]; if(r) fee+=Number(BigInt(r.gasUsed||0)*BigInt(r.effectiveGasPrice||('0x'+(BigInt(bid)*10n**9n).toString(16))))/1e18; } const o=lossGet(); o.fee+=fee; o.streak=n?0:o.streak+1; LS('bc_loss',JSON.stringify(o)); log('这轮手续费 '+fee.toFixed(3)+' DAI；今天累计 '+o.fee.toFixed(2)+' DAI，连败 '+o.streak+' 次'); lossRender(); }
   if(n){ buzz([100,50,100,50,400]); log('🎉 领到 '+n+'/'+hs.length+' 笔，共约 '+f9(won)+' LGNS'+where,'ok'); return 'win'; }
-  if(rs.every(r=>!r)){ log('120 秒没拿到回执，可能网络卡了','bad'); return 'fail'; }
+  if(rs.every(r=>!r)){ log('120 秒没等到这笔上链：可能被节点拒收或没发出去，看上面的「上一轮结果」','warn'); return 'fail'; }
   log('这 '+hs.length+' 笔都没挤进去'+where+'：同一块里出价更高的人先领光了。可以把托管出价再调高','bad'); return 'late';
 }
 function lossResetStreak(){ const o=lossGet(); if(o.streak){ o.streak=0; LS('bc_loss',JSON.stringify(o)); } }
@@ -790,7 +790,7 @@ log('页面就绪。先点"连接钱包"，再点"开启自动领"，整点听�
   function judge(H,bond,tx){
     var h=tx.h, amt=Number(tx.amt)/1e9;
     return Promise.all([rpc('eth_getTransactionByHash',[h]), tx.r?Promise.resolve(tx.r):rpc('eth_getTransactionReceipt',[h])]).then(function(a){
-      var t=a[0], r=a[1]; if(!t||!r) return {H:H,bond:bond,kind:'none',amt:amt,h:h};
+      var t=a[0], r=a[1]; if(!t) return {H:H,bond:bond,kind:'notsent',amt:amt,h:h}; if(!r) return {H:H,bond:bond,kind:'none',amt:amt,h:h}; /* 11-08 链上查不到=没发出(节点拒收/DAI 不够),不是网络卡 */
       var gw=Number(BigInt(t.gasPrice||t.maxFeePerGas||0))/1e9, lim=parseInt(t.gas,16), used=parseInt(r.gasUsed,16), fee=used*Number(BigInt(r.effectiveGasPrice||t.gasPrice))/1e18;
       return rpc('eth_getBlockByNumber',[r.blockNumber,false]).then(function(b){
         var off=parseInt(b.timestamp,16)-H, o={H:H,bond:bond,amt:amt,h:h,gwei:gw,lim:lim,used:used,fee:fee,off:off,ok:r.status==='0x1'};
@@ -830,15 +830,18 @@ log('页面就绪。先点"连接钱包"，再点"开启自动领"，整点听�
     else if(o.kind==='late'){ t.textContent='上一轮没抢到：晚了一块';
       why.textContent='交易落在整点后第 '+(o.off+1)+' 块，额度在第 1 块就被领光了。'; fix.textContent='一般是钱包弹出后点确认太晚。下次钱包一弹出就马上点确认，整点前点完都算数。'; }
     else if(o.kind==='early'){ t.textContent='上一轮没抢到：发早了'; why.textContent='交易在整点前就上链了，那时这一轮的额度还没开放。'; fix.textContent='节点会自动校正发送时刻，下个整点不用改什么。'; }
+    else if(o.kind==='notsent'){ var cb=Number((document.getElementById('relayGwei')||{}).value)||15000, lg=o.bond==='0x11b10c9827c5b7071e96fcaa143b4e6e86b17c69';
+      t.textContent='上一轮这笔没发出去'; why.textContent='链上查不到这笔交易：它没有被发出，也没扣手续费。';
+      fix.textContent='常见原因：①钱包实际用的网络费太低'+(lg?'（LGNS 低于 5000 gwei 节点会直接拒收）':'')+'；②钱包里 DAI 不够付手续费。下次钱包弹出时点「网络费用 → 自定义」，Gas 价格填 '+cb+'，并确认钱包里至少留 '+Math.ceil(cb*200000/1e9)+' DAI。'; }
     else { t.textContent='上一轮结果还没查到'; why.textContent='链上暂时没查到这笔的回执，可能网络卡了。'; fix.textContent='展开下面的详细日志截图发客服。'; }
     if(o.kind!=='wait'){ b.append(why,fix); }
-    if(o.kind!=='wait'&&o.kind!=='none'){
+    if(o.kind!=='wait'&&o.kind!=='none'&&o.kind!=='notsent'){
       var kv=document.createElement('div'); kv.className='kv';
       [['出价',g2(o.gwei)],['落块','第 '+(o.off+1)+' 块'],[o.kind==='win'?'领到':'要领',n2(o.amt)+' 枚'],['手续费',(o.fee||0).toFixed(2)+' DAI']].forEach(function(p){ var d=document.createElement('div'), s=document.createElement('span'), i=document.createElement('i'); s.textContent=p[0]; i.textContent=p[1]; d.append(s,i); kv.appendChild(d); });
       b.appendChild(kv);
     }
     if(pick){ var btn=document.createElement('button'); btn.className='lrfix'; btn.type='button'; btn.textContent='把托管出价改成 '+g2(pick); btn.onclick=function(){ setBid(pick); btn.textContent='已改成 '+g2(pick)+' ✓（钱包确认页也要改）'; btn.disabled=true; }; b.appendChild(btn); }
-    if(o.h){ var a=document.createElement('a'); a.href='https://browser.anubispace.org/tx/'+o.h; a.target='_blank'; a.rel='noopener'; a.textContent='链上查看这笔'; a.style.display='inline-block'; a.style.marginTop='6px'; b.appendChild(a); }
+    if(o.h&&o.kind!=='notsent'){ var a=document.createElement('a'); a.href='https://browser.anubispace.org/tx/'+o.h; a.target='_blank'; a.rel='noopener'; a.textContent='链上查看这笔'; a.style.display='inline-block'; a.style.marginTop='6px'; b.appendChild(a); }
   }
   /* 对外:attempt / attemptSplit 出结果后调用;多笔取最好的一笔展示 */
   window.bcRound=function(x){ if(!x||!x.H||!x.txs||!x.txs.length) return; render({kind:'wait',H:x.H,bond:x.bond});
