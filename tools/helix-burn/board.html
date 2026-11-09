@@ -252,27 +252,26 @@ async function getOpenSec(){ // 最近一个抢满(或有成交)的协议日,从
   if(!src){ try{ const j=await (await fetch('https://zjgame.web3origin.com/helix/burners.json',{cache:'no-store'})).json(); const ds=(j.days||[]).filter(d=>d.full||d.count>=50); if(ds.length) v=ds[ds.length-1].openSec; }catch(e){} }
   if(openSecCache.v!==null&&openSecCache.v!==v) log(L('⚠ 官方开放时间变了：现在每天 ','⚠ Official open time changed: now daily at ')+String(Math.floor(v/3600)).padStart(2,'0')+':'+String(Math.floor(v%3600/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0'),'bad');
   openSecCache={at:Date.now(),v}; return v; }
+let lsFirst=null;
 async function loadState(){
   try{
-    const [day,epoch,maxL,minStake,dailyMax,burned]=await Promise.all([call(A.CLOCK,SEL.currentDay),call(A.CLOCK,SEL.currentEpoch),call(A.GATE,SEL.maximumLgns),call(A.GATE,SEL.minimumStake),call(A.GATE,SEL.dailyMaximumLgns),call(A.GATE,SEL.burnedLgnsToday)]);
-    const ns=await call(A.CLOCK,SEL.dayStart+u256(big(day)+1n));
-    let remain=null;try{remain=big(await call(A.LENS,SEL.remaining));}catch(e){}
-    st={day:Number(big(day)),epoch:Number(big(epoch)),maxL:big(maxL),minStake:big(minStake),dailyMax:big(dailyMax),burned:big(burned),remain};
-    const openSec=await getOpenSec(); const todayStart=Number(big(await call(A.CLOCK,SEL.dayStart+u256(big(day)))));
+    const [[day,epoch,maxL,minStake,dailyMax,burned],remain,openSec]=await Promise.all([Promise.all([call(A.CLOCK,SEL.currentDay),call(A.CLOCK,SEL.currentEpoch),call(A.GATE,SEL.maximumLgns),call(A.GATE,SEL.minimumStake),call(A.GATE,SEL.dailyMaximumLgns),call(A.GATE,SEL.burnedLgnsToday)]),call(A.LENS,SEL.remaining).then(big,()=>null),getOpenSec(),syncClock().catch(()=>{})]); /* 同时问,原来一轮一轮问 */
+    const [ns,ts0]=await Promise.all([call(A.CLOCK,SEL.dayStart+u256(big(day)+1n)),call(A.CLOCK,SEL.dayStart+u256(big(day)))]);
+    const keepOk=st.chainOk; st={day:Number(big(day)),epoch:Number(big(epoch)),maxL:big(maxL),minStake:big(minStake),dailyMax:big(dailyMax),burned:big(burned),remain}; if(keepOk!==undefined) st.chainOk=keepOk; /* 重读时别丢掉「链不对」标记 */
+    const todayStart=Number(big(ts0));
     const todayOpen=todayStart+openSec, tomorrowOpen=Number(big(ns))+openSec; const full=st.dailyMax>0n&&st.burned>=st.dailyMax;
-    nextStart=(!full&&chainNow()<todayOpen+120)?todayOpen:tomorrowOpen; // 今天还没开(或刚开没满)→今天的开放时刻;今天已满→明天
+    nextStart=(!full&&chainNow()<todayOpen+120)?todayOpen:tomorrowOpen; try{ localStorage.setItem('hx_next',String(nextStart)); }catch(e){} // 今天还没开(或刚开没满)→今天的开放时刻;今天已满→明天
     const hh=String(Math.floor(openSec/3600)).padStart(2,'0'),mm=String(Math.floor(openSec%3600/60)).padStart(2,'0'),ss=String(openSec%60).padStart(2,'0');
     const popT=new Date((nextStart-RELAY_POP)*1000+8*3600e3).toISOString().slice(11,19);
     $('nextOpen').innerHTML=bj(nextStart)+L('（每天 '+hh+':'+mm+':'+ss+' 开）',' (opens daily '+hh+':'+mm+':'+ss+')')+(relayOn()?'<span class="pop"></span>':'');
     const slots=st.maxL>0n?Number(st.dailyMax/st.maxL):400; const hm=hh+':'+mm;
     $('quota').innerHTML=full?L('<b class="bad">今天已抢光</b>，下次 <b>'+bjS(nextStart)+'</b> 开放 '+slots+' 个名额','<b class="bad">Sold out today</b>, next <b>'+bjS(nextStart)+'</b>: '+slots+' slots'):(chainNow()<todayOpen?L('今天 <b>'+hm+'</b> 开放，'+slots+' 个名额，一般 2～5 秒抢光','Opens today at <b>'+hm+'</b>, '+slots+' slots, usually gone in 2~5 s'):(L('今日已烧 ','Burned today ')+f9(st.burned)+' / '+f9(st.dailyMax)+(st.remain!==null?(L('，剩余 ',', left ')+'<b class="'+(st.remain>0n?'ok':'bad')+'">'+f9(st.remain)+'</b>'):'')));
-    await syncClock();
     if(me) await loadWallet();
   }catch(e){log(L('读链失败：','Chain read failed: ')+reason(e),'bad');}
 }
 async function loadWallet(){
   const [stake,bEp,bal,alw,gas]=await Promise.all([call(A.GATE,SEL.stakeOf+addr32(me)),call(A.GATE,SEL.burnEpochOf+addr32(me)),call(A.LGNS,SEL.balanceOf+addr32(me)),call(A.LGNS,SEL.allowance+addr32(me)+addr32(A.LEDGER)),rpc('eth_getBalance',[me,'latest'])]);
-  const S=big(stake),E=Number(big(bEp)),B=big(bal),W=big(alw),G=big(gas);
+  const S=big(stake),E=Number(big(bEp)),B=big(bal),W=big(alw),G=big(gas); st.wFor=me;
   const okStake=S>=st.minStake, okEp=!(E!==0&&E>=st.epoch), okBal=B>=AMOUNT, okAlw=W>=AMOUNT, okGas=G>=BigInt(DAI_MIN)*10n**18n; st.epDone=!okEp;
   $('stake').innerHTML='<span class="'+(okStake?'ok':'bad')+'">'+f9(S)+' LGNS'+(okStake?' ✓':L(' ✗ 不够',' ✗ low'))+'</span>';
   $('epoch').innerHTML='<span class="'+(okEp?'ok':'bad')+'">'+(okEp?L('没烧过 ✓（Epoch '+st.epoch+'）','Open ✓ (E'+st.epoch+')'):L('已烧过 ✗（记录 Epoch '+E+'）','Burned ✗ (Epoch '+E+')'))+'</span>';
@@ -322,7 +321,7 @@ async function connect(){
     st.chainOk=(cid===CHAIN_ID); if(!st.chainOk) log(L('连的不是 Anubis 链（'+cid+'），请在钱包里切到 Anubis（6714）再刷新页面','Not on Anubis ('+cid+'): switch the wallet to Anubis (6714) and reload'),'bad');
     $('chain').innerHTML=cid===CHAIN_ID?'<span class="ok">Anubis (6714) ✓</span>':'<span class="bad">'+L('链不对：'+cid+'，请在钱包切到 Anubis','Wrong chain: '+cid+', switch the wallet to Anubis')+'</span>';
     eth.on&&eth.on('accountsChanged',()=>location.reload()); eth.on&&eth.on('chainChanged',()=>location.reload());
-    log(L('已连接 ','Connected ')+me); keepAwake(); relayRender(); await loadState();
+    log(L('已连接 ','Connected ')+me); keepAwake(); relayRender(); if(lsFirst){ const p=lsFirst; lsFirst=null; await p; if(st.wFor!==me) await loadWallet().catch(()=>{}); } else await loadState();
   }catch(e){log(L('连接失败：','Connect failed: ')+(e.message||e),'bad');}
 }
 const isReject=e=>!!(e&&(e.code===4001||e.code==='ACTION_REJECTED'||/reject|denied|cancel|取消|拒绝/i.test(e.message||'')));
@@ -502,7 +501,7 @@ $('chkList').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'
 $('btnRelay').onclick=relayDetect; $('btnConnect').onclick=connect; $('btnApprove').onclick=doApprove; $('btnArm').onclick=arm; $('btnStop').onclick=stop;
 $('btnNow').onclick=()=>{ if(racing)return; log(L('手动：立刻发一笔','Manual: sending one now')); racing=true; attempt().finally(()=>{racing=false;loadState();}); };
 setInterval(tick,250); setInterval(relayRender,3000); setInterval(()=>{ syncClock().catch(()=>{}); },30000); setInterval(()=>{ if(!racing) loadState(); },60000);
-loadState().then(()=>{ const pv=pickProvider(); if(pv&&pv.selectedAddress) connect(); });
+try{ const c=Number(localStorage.getItem('hx_next')); if(c>Date.now()/1000-100) nextStart=c; }catch(e){} lsFirst=loadState(); { const pv=pickProvider(); if(pv&&pv.selectedAddress) connect(); } /* 读链和连钱包同时进行 */
 $('langBtn').onclick=()=>setLang(!EN()); applyLang();
 log(L('页面就绪。先连接钱包，资格检查全绿后再开启自动抢。','Page ready. Connect your wallet, and arm auto-grab once the checklist is all green.'));
 })();
