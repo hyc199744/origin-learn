@@ -45,6 +45,9 @@ body{background:var(--bg);color:var(--text);font:15px/1.55 Inter,-apple-system,"
 .tile .why{font-size:13px;color:#ffe4e8;line-height:1.55}
 .tile .act{border:0;border-radius:12px;background:#fff;color:#1e1b4b;font-weight:700;font-size:13.5px;min-height:38px;cursor:pointer;font-family:inherit}
 .tile .act:disabled{opacity:.5}
+.rpcin{display:flex;gap:8px;align-items:center;background:rgba(0,0,0,.25);border-radius:12px;padding:8px 10px}
+.rpcin code{flex:1;min-width:0;font:12px ui-monospace,Consolas,monospace;word-break:break-all;color:#fff}
+.rpcin button{flex:0 0 auto;border:0;border-radius:9px;background:rgba(255,255,255,.18);color:#fff;font-weight:700;font-size:12.5px;padding:0 12px;min-height:32px;cursor:pointer;font-family:inherit}
 .ic{width:18px;height:18px;flex:0 0 18px}
 .box{margin-top:12px;border-radius:20px;padding:4px 14px}
 .row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:13.5px}
@@ -89,8 +92,6 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:10px 0}
 <div class="hd"><b data-en="Readiness">准备情况</b><span id="tilesN" class="num">—</span></div>
 <div id="tiles"></div>
 <div class="box glass">
-  <div class="rpc"><code id="rpcTxt">https://zjgame.web3origin.com/bondrpc</code><button id="rpcCopy" data-en="Copy">复制</button></div>
-  <div class="row"><span data-en="Wallet RPC">钱包 RPC</span><span style="font-size:12.5px;color:var(--muted)" data-en="Set the Anubis network RPC to the address above">把 Anubis 网络的 RPC 改成上面这个</span></div>
   <div class="row"><span data-en="Relay node">托管节点</span><span id="relayState">先连接钱包</span></div>
   <div class="row"><span data-en="Wallet gas limit">钱包 Gas 上限</span><span id="gasTest">没测过</span></div>
   <div class="tools"><button id="toolRelay" data-en="Check node &amp; gas">检测节点和 Gas</button><button id="toolReh" data-en="Rehearse">预演一次</button></div>
@@ -422,19 +423,19 @@ function tilesRender(){ const el=$('tiles'); if(!el) return;
     {k:L('钱包','Wallet'),i:'wallet',ok:!!me,v:me?me.slice(0,6)+'…'+me.slice(-5):'',bad:L('还没连接钱包','Wallet not connected'),act:me?'':'connect',al:L('连接钱包','Connect wallet'),wide:1},
     {k:L('资格','Eligibility'),i:'shield',ok:has&&st.okStake&&st.okEp&&st.okBal,v:has?L('质押 ','Stake ')+f9(st.S)+L(' · 本周期可抢',' · open'):'',bad:eligBad},
     {k:L('授权','Approval'),i:'key',ok:has&&st.okAlw,v:has?(st.W>(1n<<200n)?L('无限','Unlimited'):f9(st.W)+' LGNS'):'',bad:has?L('还没授权','Not approved'):later,act:has&&!st.okAlw?'approve':'',al:L('授权 500 LGNS','Approve 500 LGNS')},
-    {k:L('托管节点','Relay'),i:'node',ok:!!me&&relayOn(),v:L('已接通','Connected'),bad:!me?later:(relayDown?L('连不上，换条网络再检测','Unreachable, switch network and check again'):L('没接通，基本抢不到。先把钱包 RPC 改成下面的地址，再点检测','Not connected, you will almost surely miss. Set the wallet RPC to the address below, then check')),act:me?'relay':'',al:L('检测','Check')},
+    {k:L('托管节点','Relay'),i:'node',ok:!!me&&relayOn(),v:L('已接通','Connected'),bad:!me?later:(relayDown?L('连不上，换条网络再检测','Unreachable, switch network and check again'):L('没接通，基本抢不到。① 复制下面的地址 ② 去钱包把 Anubis 网络的 RPC 换成它 ③ 回来点检测','Not connected, you will almost surely miss. 1) Copy the address below 2) set it as the Anubis RPC in your wallet 3) come back and tap Check')),rpc:!!me&&!relayOn()&&!relayDown,act:me?'relay':'',al:L('检测','Check')},
     {k:L('钱包 Gas','Wallet gas'),i:'gas',ok:!!me&&(gk==='ok'||gk==='est'),v:gk==='ok'?L('上限 ','Limit ')+g.toLocaleString():L('钱包自己估，弹窗时看一眼上限','Wallet estimates; check the limit in the popup'),bad:!me?later:(gk==='low'?L('上限只有 '+g.toLocaleString()+'，一定失败。预演时把上限改成 450000','Limit only '+g.toLocaleString()+', will fail. Set it to 450000'):(relayOn()?L('没测过：预演一次，节点不发、不扣钱','Not tested: rehearse once (not sent, free)'):L('先接通托管节点再预演','Connect the relay first'))),act:me&&relayOn()?'rehearse':'',al:L('预演','Rehearse')},
     {k:'DAI',i:'drop',ok:has&&st.okGas,v:has?f18(st.G)+' DAI':'',bad:has?L('只有 '+f18(st.G)+' DAI，至少留 '+DAI_MIN+'，现在就补','Only '+f18(st.G)+' DAI, keep at least '+DAI_MIN+', top up now'):later,wide:1}];
   const n=T.filter(t=>t.ok).length;
-  const html=T.map(t=>'<div class="tile glass'+(t.ok?'':' no')+(t.wide||!t.ok?' wide':'')+'"><div class="h"><span class="k">'+ico(t.i)+t.k+'</span><span class="st" style="background:'+(t.ok?'#34d399':'#fb7185')+'">'+ico(t.ok?'check':'x','#0a0a1f')+'</span></div>'+(t.ok?'<div class="v num">'+t.v+'</div>':'<div class="why">'+t.bad+'</div>'+(t.act?'<button class="act" data-act="'+t.act+'"'+(busy[t.act]?' disabled':'')+'>'+(busy[t.act]?L('进行中…','Working…'):t.al)+'</button>':''))+'</div>').join('');
+  const html=T.map(t=>'<div class="tile glass'+(t.ok?'':' no')+(t.wide||!t.ok?' wide':'')+'"><div class="h"><span class="k">'+ico(t.i)+t.k+'</span><span class="st" style="background:'+(t.ok?'#34d399':'#fb7185')+'">'+ico(t.ok?'check':'x','#0a0a1f')+'</span></div>'+(t.ok?'<div class="v num">'+t.v+'</div>':'<div class="why">'+t.bad+'</div>'+(t.rpc?'<div class="rpcin"><code>'+RELAY+'</code><button data-act="copy">'+L('复制','Copy')+'</button></div>':'')+(t.act?'<button class="act" data-act="'+t.act+'"'+(busy[t.act]?' disabled':'')+'>'+(busy[t.act]?L('进行中…','Working…'):t.al)+'</button>':''))+'</div>').join('');
   if(el.dataset.h!==html){ el.innerHTML=html; el.dataset.h=html; }
   $('tilesN').textContent=n+' / 6';
 }
 setInterval(()=>{ try{ tilesRender(); }catch(e){} },1000);
 $('tiles').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(!b||b.disabled) return; const a=b.dataset.act;
-  if(a==='connect') connect(); else if(a==='approve') doApprove(); else if(a==='relay') relayDetect(); else if(a==='rehearse') rehearse(); });
-$('rpcCopy').onclick=()=>{ const t=RELAY; const done=()=>{ $('rpcCopy').textContent=L('已复制','Copied'); setTimeout(()=>{ $('rpcCopy').textContent=L('复制','Copy'); },1500); };
-  try{ navigator.clipboard.writeText(t).then(done,()=>{ prompt(L('长按复制','Copy this'),t); }); }catch(e){ try{ prompt(L('长按复制','Copy this'),t); }catch(x){} } };
+  if(a==='connect') connect(); else if(a==='approve') doApprove(); else if(a==='relay') relayDetect(); else if(a==='rehearse') rehearse(); else if(a==='copy') copyRpc(b); });
+function copyRpc(btn){ const t=RELAY; const done=()=>{ if(btn){ btn.textContent=L('已复制','Copied'); setTimeout(()=>{ btn.textContent=L('复制','Copy'); },1500); } log(L('✓ 已复制托管节点地址，去钱包把 Anubis 网络的 RPC 换成它，再回来点「检测」','✓ Relay address copied. Set it as the Anubis RPC in your wallet, then come back and tap Check'),'ok'); };
+  try{ navigator.clipboard.writeText(t).then(done,()=>{ prompt(L('长按复制','Copy this'),t); }); }catch(e){ try{ prompt(L('长按复制','Copy this'),t); }catch(x){} } }
 
 $('chkList').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(!b||b.disabled) return; const a=b.dataset.act;
   if(a==='connect') connect(); else if(a==='approve') doApprove(); else if(a==='relay') relayDetect(); else if(a==='rehearse') rehearse(); });
