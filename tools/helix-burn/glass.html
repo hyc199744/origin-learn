@@ -157,7 +157,7 @@ async function gasCheck(h){
 }
 let fillTimer=null;
 function showFill(on){ const el=$('fillTip'); if(!el) return; clearTimeout(fillTimer); if(!on){ el.classList.add('hidden'); return; }
-  el.innerHTML=L('<span class="t">钱包弹窗 → 点「网络费用」</span>Gas 价格 <b class="n">'+FILL_GWEI+'</b>　Gas 上限 <b class="n">'+FILL_LIMIT+'</b><br>填好马上点确认（开放前点完都算数）','<span class="t">Wallet popup → tap Network fee</span>Gas price <b class="n">'+FILL_GWEI+'</b>　Gas limit <b class="n">'+FILL_LIMIT+'</b><br>Confirm right away (anything before the open counts)');
+  el.innerHTML=L('<span class="t">钱包弹窗 → 网络费用 → 自定义</span>Gas 价格 <b class="n">'+FILL_GWEI+'</b>　Gas 上限 <b class="n">'+FILL_LIMIT+'</b><br>填好马上点确认（开放前点完都算数）','<span class="t">Wallet popup → Network fee → Custom</span>Gas price <b class="n">'+FILL_GWEI+'</b>　Gas limit <b class="n">'+FILL_LIMIT+'</b><br>Confirm right away (anything before the open counts)');
   el.classList.remove('hidden'); fillTimer=setTimeout(()=>el.classList.add('hidden'),60000); }
 const u256=n=>BigInt(n).toString(16).padStart(64,'0'); const addr32=a=>a.toLowerCase().replace(/^0x/,'').padStart(64,'0');
 const f9=v=>(Number(v)/1e9).toLocaleString('en-US',{maximumFractionDigits:2}); const f18=v=>(Number(v)/1e18).toFixed(3);
@@ -175,7 +175,7 @@ let routedAt=0; /* 11-04:检测结果服务器也记一份(换浏览器/清缓�
 async function routedSync(){ if(!me||relayHas(me)||Date.now()-routedAt<30000) return; routedAt=Date.now(); const r=await relayGet('/routed?a='+me,3000); if(r&&r.routed&&r.ago!==null){ const t=Date.now()-r.ago*1000, by=Number(LSg('bc_bypass_'+me.toLowerCase())||0); if(t>by){ relayAdd(me); relayRender(); log(L('✓ 服务器记录这个钱包接通过托管节点，已自动恢复「已接通」','✓ Server records show this wallet used the relay before; restored "connected"'),'ok'); } } }
 setInterval(()=>{ routedSync().catch(()=>{}); },4000); /* 检测记录与销毁债券抢领页共用(同站点 localStorage) */
 async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
-function relayRender(){ gasRender(); const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML=L('先连接钱包','Connect wallet first'); return; } el.innerHTML=relayOn()?'<span class="ok">'+L('已接通 ✓ 开放前 45 秒钱包弹窗，点「网络费用」改 3000 / 450000 再确认','Connected ✓ wallet pops 45 s before open; set Network fee to 3000 / 450000, then confirm')+'</span>':(relayDown?'<span class="bad">'+L('连不上，本次改用开放后弹窗（基本抢不到）','Unreachable, will pop after open this time (unlikely to win)')+'</span>':'<b class="bad">'+L('未接通 ✗ 这样基本抢不到，点上面的「一键检测」','Not connected ✗ unlikely to win, tap "One-tap check" above')+'</b>'); }
+function relayRender(){ gasRender(); const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML=L('先连接钱包','Connect wallet first'); return; } el.innerHTML=relayOn()?'<span class="ok">'+L('已接通 ✓ 开放前 45 秒钱包弹窗，点「网络费用 → 自定义」改 3000 / 450000 再确认','Connected ✓ wallet pops 45 s before open; set Network fee → Custom to 3000 / 450000, then confirm')+'</span>':(relayDown?'<span class="bad">'+L('连不上，本次改用开放后弹窗（基本抢不到）','Unreachable, will pop after open this time (unlikely to win)')+'</span>':'<b class="bad">'+L('未接通 ✗ 这样基本抢不到，点上面的「一键检测」','Not connected ✗ unlikely to win, tap "One-tap check" above')+'</b>'); }
 async function relayDetect(){
   if(!eth||!me){ log(L('先连接钱包','Connect wallet first'),'warn'); return; } if(racing){ log(L('正在抢，稍后再检测','Grabbing now, check later'),'warn'); return; } $('btnRelay').disabled=true;
   try{
@@ -184,7 +184,7 @@ async function relayDetect(){
     let h=null, sendErr=''; try{ h=await eth.request({method:'eth_sendTransaction',params:[Object.assign({},tx,FILL_TX)]}); }catch(e){ if(isReject(e)){ log(L('你取消了检测','You cancelled the check'),'warn'); return; } try{ h=await eth.request({method:'eth_sendTransaction',params:[tx]}); }catch(e2){ if(isReject(e2)){ log(L('你取消了检测','You cancelled the check'),'warn'); return; } sendErr=String(e2.message||e2).slice(0,120); } }
     if(h) gasCheck(h).catch(()=>{});
     let sv=null, ok=false; for(let i=0;i<8&&!ok;i++){ await new Promise(r=>setTimeout(r,i?800:300)); sv=await relayGet('/seen?a='+me); ok=!!(sv&&sv.sendAgo!==null&&sv.sendAgo<90&&(!sv.sendHash||!h||String(sv.sendHash).toLowerCase()===String(h).toLowerCase())); }
-    if(ok){ relayAdd(me); relayDown=false; log(L('✓ 托管节点接通了：开启自动抢后，开放前 45 秒钱包弹窗，点「网络费用」改 3000 / 450000 再确认','✓ Relay connected: after arming, the wallet pops 45 s before open; set Network fee to 3000 / 450000, then confirm'),'ok'); }
+    if(ok){ relayAdd(me); relayDown=false; log(L('✓ 托管节点接通了：开启自动抢后，开放前 45 秒钱包弹窗，点「网络费用 → 自定义」改 3000 / 450000 再确认','✓ Relay connected: after arming, the wallet pops 45 s before open; set Network fee → Custom to 3000 / 450000, then confirm'),'ok'); }
     else if(!sv){ log(L('✗ 连不上托管节点（网络问题？开着 VPN 就换条线路，没开就打开试试）','✗ Cannot reach the relay (network issue? switch VPN route, or try turning a VPN on)'),'bad'); }
     else { relayDel(me); markBypass(); if(sendErr) log(L('检测交易出错：','Check transaction error: ')+trR(sendErr),'bad'); log(L('✗ 这笔交易没经过托管节点：请把钱包里 Anubis 网络的 RPC 改成 '+RELAY+'，并切到这个网络，再点检测（OKX：网络 → Anubis → 编辑）','✗ This transaction did not go through the relay. Set the Anubis network RPC in your wallet to '+RELAY+', switch to that network and check again (OKX: Networks → Anubis → Edit)'),'bad'); }
   }catch(e){ log(L('检测出错：','Check error: ')+trR(e.message||e),'bad'); } finally{ $('btnRelay').disabled=false; relayRender(); }
@@ -352,11 +352,11 @@ async function arm(){
   armed=true; keepAwake();
   if(!relayOn()) log(L('⚠ 托管节点没接通：只能开放后才弹钱包，名额 2 秒就光，基本抢不到。强烈建议先点「一键检测」接通','⚠ Relay not connected: the wallet can only pop after the open and slots go in 2 s. Strongly recommend connecting the relay first'),'bad');
   const leadS=relayOn()?RELAY_POP:-1.5;
-  $('armState').innerHTML='<span class="ok">'+L('已开启','Armed')+'</span>'+L('，',', ')+(relayOn()?L('托管：开放前 45 秒钱包弹窗，点「网络费用」改 3000 / 450000 再确认','relay: wallet pops 45 s before open; set Network fee to 3000 / 450000, then confirm'):leadS>=0?L('到点前 '+leadS+' 秒弹签名','pops '+leadS+' s before open'):L('开放后 '+(-leadS)+' 秒弹签名','pops '+(-leadS)+' s after open'));
+  $('armState').innerHTML='<span class="ok">'+L('已开启','Armed')+'</span>'+L('，',', ')+(relayOn()?L('托管：开放前 45 秒钱包弹窗，点「网络费用 → 自定义」改 3000 / 450000 再确认','relay: wallet pops 45 s before open; set Network fee → Custom to 3000 / 450000, then confirm'):leadS>=0?L('到点前 '+leadS+' 秒弹签名','pops '+leadS+' s before open'):L('开放后 '+(-leadS)+' 秒弹签名','pops '+(-leadS)+' s after open'));
   log(L('自动抢已开启：'+bj(nextStart)+(leadS>=0?' 前 '+leadS:' 后 '+(-leadS))+' 秒弹出钱包签名。保持本页在前台、钱包已解锁、别锁屏。','Auto-grab armed: the wallet pops '+Math.abs(leadS)+' s '+(leadS>=0?'before':'after')+' '+bj(nextStart)+'. Keep this page in front, the wallet unlocked and the screen on.'));
   clearInterval(armTimer); let warned=false;
   armTimer=setInterval(()=>{ if(!armed){clearInterval(armTimer);return;} const left=nextStart-chainNow();
-    if(!warned&&left<=(relayOn()?RELAY_POP+15:30)){ warned=true; buzz([80,60,80]); log(relayOn()?L('还有一分钟，钱包马上弹窗，点「网络费用」改 3000 / 450000 再确认','One minute left: the wallet will pop soon; set Network fee to 3000 / 450000, then confirm'):L('还有 30 秒，准备好点确认','30 s left, get ready to confirm'),'warn'); loadWallet().then(ok=>{ if(!ok) log(L('⚠ 资格检查刚才变红了，请立刻看上面红字','⚠ Eligibility just turned red, check the red text above now'),'bad'); }).catch(()=>{}); }
+    if(!warned&&left<=(relayOn()?RELAY_POP+15:30)){ warned=true; buzz([80,60,80]); log(relayOn()?L('还有一分钟，钱包马上弹窗，点「网络费用 → 自定义」改 3000 / 450000 再确认','One minute left: the wallet will pop soon; set Network fee → Custom to 3000 / 450000, then confirm'):L('还有 30 秒，准备好点确认','30 s left, get ready to confirm'),'warn'); loadWallet().then(ok=>{ if(!ok) log(L('⚠ 资格检查刚才变红了，请立刻看上面红字','⚠ Eligibility just turned red, check the red text above now'),'bad'); }).catch(()=>{}); }
     if(left<=leadS){ clearInterval(armTimer); race(); } },100);
 }
 let chkWarned=0;
@@ -397,7 +397,7 @@ async function rehearse(){
   if(racing||nextStart-chainNow()<180){ log(L('开放前 3 分钟内不能预演（会变成真抢），等自动弹窗就行','No rehearsal within 3 minutes of the open (it would become real); just wait for the auto popup'),'warn'); return; }
   $('btnRehearse').disabled=true;
   try{
-    log(L('预演：钱包会弹一笔「烧 500 LGNS」。先点「网络费用」看 Gas 上限是多少，然后直接确认。节点不会发出去，不扣钱。确认后钱包会提示「RPC 节点数据异常」或「交易失败」，这是节点故意不发，正常','Rehearsal: the wallet pops a "burn 500 LGNS". Check Gas limit under Network fee, then confirm. The node will not send it and no fee is charged. An "RPC node error" or "transaction failed" message afterwards is expected'),'warn');
+    log(L('预演：钱包会弹一笔「烧 500 LGNS」。先点「网络费用 → 自定义」看 Gas 上限是多少，然后直接确认。节点不会发出去，不扣钱。确认后钱包会提示「RPC 节点数据异常」或「交易失败」，这是节点故意不发，正常','Rehearsal: the wallet pops a "burn 500 LGNS". Check Gas limit under Network fee, then confirm. The node will not send it and no fee is charged. An "RPC node error" or "transaction failed" message afterwards is expected'),'warn');
     let h=null, err='';
     try{ h=await sendTx(A.LEDGER,SEL.burnForPower+u256(AMOUNT),'fill'); }catch(e){ if(isReject(e)){ log(L('你取消了预演','You cancelled the rehearsal'),'warn'); return; } err=String(e.message||e); }
     let tr=null; for(let i=0;i<8&&!tr;i++){ const sv=await relayGet('/seen?a='+me,2500); if(sv&&sv.hxTry&&sv.hxTry.ago<60) tr=sv.hxTry; else await new Promise(r=>setTimeout(r,500)); }
