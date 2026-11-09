@@ -94,6 +94,16 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;padding:10px 
 #nextOpen{display:none!important}#quota{display:none!important}
 #winBig{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:4px 0 2px}#winBig b{font-size:34px;font-weight:800;color:#34d399;letter-spacing:-.5px}#winBig small{font-size:16px;font-weight:700}#winBig a{font-size:13px;color:#a7f3d0;text-decoration:none;border-bottom:1px solid rgba(167,243,208,.4)}
 .hero.glass #winBig{justify-content:center}
+.wm{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.wmc{width:100%;max-width:360px;background:#14161c;border:1px solid rgba(52,211,153,.45);border-radius:24px;padding:26px 20px 18px;text-align:center;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 0 6px rgba(52,211,153,.08);animation:wmIn .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes wmIn{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
+.wmr{width:68px;height:68px;margin:0 auto 10px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(52,211,153,.18)}
+.wmt{font-size:22px;font-weight:800}
+.wmb{margin:4px 0 14px;color:#34d399}.wmb b{font-size:44px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}.wmb span{font-size:18px;font-weight:700}
+.wml{background:rgba(255,255,255,.05);border-radius:14px;padding:4px 14px;text-align:left}
+.wml div{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:14px}.wml div:last-child{border:0}.wml span{color:#9aa0aa}.wml b{font-variant-numeric:tabular-nums}
+.wmx{display:flex;gap:10px;margin-top:16px}.wma,.wmo{flex:1;min-height:48px;border-radius:14px;font-size:15.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;font-family:inherit}
+.wma{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18)}.wma.hidden{display:none!important}.wmo{border:0;background:#34d399;color:#0b1a12}
 </style>
 </head>
 <body>
@@ -131,6 +141,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;padding:10px 
   <button id="btnApprove" disabled></button><button id="btnRelay"></button><button id="btnRehearse"></button><button id="btnNow"></button>
 </div>
 <div id="fillTip" class="hidden"></div>
+<div id="winModal" class="wm hidden" role="dialog" aria-modal="true" aria-labelledby="wmT"><div class="wmc"><div class="wmr"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#0b1a12" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div id="wmT" class="wmt" data-en="Got it!">抢到了！</div><div class="wmb"><b>+1,000</b> <span data-en="power">算力</span></div><div class="wml"><div><span data-en="Burned">烧掉</span><b>500 LGNS</b></div><div><span data-en="Block">区块</span><b id="wmBlk">—</b></div><div><span data-en="Fee">手续费</span><b id="wmFee">—</b></div><div><span data-en="Next chance">下次可抢</span><b id="wmNext">—</b></div></div><div class="wmx"><a id="wmTx" class="wma" target="_blank" rel="noopener" data-en="View on chain">链上查看</a><button id="wmOk" class="wmo" data-en="OK">知道了</button></div></div></div>
 <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 <div class="dock">
   <button class="btn ghost" id="btnConnect" data-en="Connect wallet">连接钱包</button>
@@ -333,8 +344,8 @@ async function attempt(){
       else { relayDel(me); markBypass(); relayRender(); log(L('✗ 这笔没经过托管节点，已直接上链（开放前会被拒）。托管已关闭，被拒后页面会马上再弹一次，请再点确认','✗ This one bypassed the relay and went straight on chain (it will be rejected before open). Relay mode is off; the page will pop again right after the rejection, please confirm again'),'bad'); } }
     else log(L('已广播 ','Broadcast ')+h);
     const r=await waitTx(h,RL?120000:60000);
-    if(r&&r.status==='0x1'){won=true; LSs('hx_win_'+String(me).toLowerCase(),h);buzz([100,50,100,50,400]);try{ const nd=7*st.epoch+1; const t=Number(big(await call(A.CLOCK,SEL.dayStart+u256(BigInt(nd)))))+(await getOpenSec()); setTimeout(()=>log(L('算力 +1000 已到账；这个钱包下次可抢：','+1,000 power received; next chance for this wallet: ')+bjS(t),'ok'),300); }catch(e){} log(L('🎉 抢到了！区块 ','🎉 Got it! Block ')+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
-    if(await burnedThisEpoch()){won=true;buzz([100,50,100,50,400]);log(L('🎉 链上确认本 Epoch 已烧过 → 成功','🎉 Chain confirms this epoch is burned → success'),'ok');return 'win';} // 回执丢了/超时也不怕,直接问链
+    if(r&&r.status==='0x1'){won=true; LSs('hx_win_'+String(me).toLowerCase(),h); try{ showWin(h,r); }catch(e){}buzz([100,50,100,50,400]);try{ const nd=7*st.epoch+1; const t=Number(big(await call(A.CLOCK,SEL.dayStart+u256(BigInt(nd)))))+(await getOpenSec()); setTimeout(()=>log(L('算力 +1000 已到账；这个钱包下次可抢：','+1,000 power received; next chance for this wallet: ')+bjS(t),'ok'),300); }catch(e){} log(L('🎉 抢到了！区块 ','🎉 Got it! Block ')+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
+    if(await burnedThisEpoch()){won=true;buzz([100,50,100,50,400]); try{ showWin(h,null); }catch(e){}log(L('🎉 链上确认本 Epoch 已烧过 → 成功','🎉 Chain confirms this epoch is burned → success'),'ok');return 'win';} // 回执丢了/超时也不怕,直接问链
     if(!r){log(L('60 秒没拿到回执，链上也没显示成功，可能网络卡了','No receipt in 60 s and no success on chain; the network may be slow'),'bad');return 'fail';}
     const why=await simulate(); log(L('这笔被拒（'+(why||'未知原因')+'）','Rejected ('+(why||'unknown reason')+')'),'bad');
     return 'fail';
@@ -433,6 +444,14 @@ async function rehearse(){
   }finally{ $('btnRehearse').disabled=false; }
 }
 $('btnRehearse').onclick=rehearse;
+function showWin(h,r){ const m=$('winModal'); if(!m) return; $('wmBlk').textContent=r&&r.blockNumber?parseInt(r.blockNumber,16).toLocaleString('en-US'):'—';
+  try{ const g=r?BigInt(r.gasUsed||'0x0')*BigInt(r.effectiveGasPrice||r.gasPrice||'0x0'):0n; $('wmFee').textContent=r?(Number(g)/1e18).toFixed(2)+' DAI':'—'; }catch(e){ $('wmFee').textContent='—'; }
+  const a=$('wmTx'); if(h){ a.href='https://browser.anubispace.org/tx/'+h; a.classList.remove('hidden'); } else a.classList.add('hidden');
+  $('wmNext').textContent='—'; (async()=>{ try{ const nd=7*st.epoch+1; const t=Number(big(await call(A.CLOCK,SEL.dayStart+u256(BigInt(nd)))))+(await getOpenSec()); $('wmNext').textContent=bjS(t); }catch(e){} })();
+  m.classList.remove('hidden'); try{ applyLang(); }catch(e){} }
+$('wmOk').onclick=()=>{ $('winModal').classList.add('hidden'); };
+$('winModal').onclick=e=>{ if(e.target===$('winModal')) $('winModal').classList.add('hidden'); };
+if(/[?&]windemo=1/.test(location.search)) (function wd(n){ if(!st.epoch&&n<60){ setTimeout(()=>wd(n+1),500); return; } try{ showWin('0x82ed2b47747509923a354ee71130aaae402220dc430e04d6eb699b33ac690b77',{blockNumber:'0x11dbcce',gasUsed:'0x48ef9',effectiveGasPrice:'0x2ba7def3000'}); }catch(e){} })(0);
 setInterval(()=>{ try{ const done=!!me&&!!st.epDone; $('winBig').classList.toggle('hidden',!done); if(done){ const h=LSg('hx_win_'+String(me).toLowerCase()); const a=$('winTx'); if(h){ a.href='https://browser.anubispace.org/tx/'+h; a.classList.remove('hidden'); } else a.classList.add('hidden'); if(!armed&&!racing&&!/抢到|Got it/.test($('armState').textContent)) $('armState').innerHTML='<span class="ok">'+L('本周期已抢到','Got it this epoch')+'</span>'; } }catch(e){} },1000);
 let oneBusy=false; async function oneClick(){ if(oneBusy) return; if(!me){ log(L('先连接钱包','Connect wallet first'),'warn'); return; } oneBusy=true; try{ if(!relayOn()){ log(L('一键检测第 1 步：检测托管节点。钱包会弹一笔「给自己授权 0 枚 LGNS」，不动资产，直接确认','One-tap check step 1: relay. The wallet pops an approve-0 to yourself; it moves nothing, just confirm'),'warn'); await relayDetect(); if(!relayOn()) return; await new Promise(r=>setTimeout(r,900)); log(L('一键检测第 2 步：预演。钱包会弹一笔「烧 500 LGNS」，节点不发、不扣钱，直接确认','Step 2: rehearsal. The wallet pops a burn 500 LGNS; the node will not send it, no fee, just confirm'),'warn'); } await rehearse(); } finally{ oneBusy=false; } }
 $('toolOne').onclick=()=>{ oneClick(); };
