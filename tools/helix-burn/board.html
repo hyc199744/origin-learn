@@ -87,6 +87,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;padding:10px 
 .tools button:disabled{opacity:.5}
 .toast{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;max-width:496px;margin:0 auto;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.6;background:#1d1f27;color:#fff;border:1.5px solid rgba(255,255,255,.25);box-shadow:0 10px 30px rgba(0,0,0,.55);cursor:pointer}
 .toast.ok{border-color:#34d399}.toast.bad{border-color:#fb7185}.toast.warn{border-color:#fbbf24}
+#nextOpen{display:none!important}#quota{display:none!important}
 </style>
 </head>
 <body>
@@ -366,7 +367,7 @@ async function arm(){
   armed=true; keepAwake();
   if(!relayOn()) log(L('⚠ 托管节点没接通：只能开放后才弹钱包，名额 2 秒就光，基本抢不到。强烈建议先点「一键检测」接通','⚠ Relay not connected: the wallet can only pop after the open and slots go in 2 s. Strongly recommend connecting the relay first'),'bad');
   const leadS=relayOn()?RELAY_POP:-1.5;
-  $('armState').innerHTML='<span class="ok">'+L('已开启','Armed')+'</span>'+L('，',', ')+(relayOn()?L('托管：开放前 45 秒钱包弹窗，点「网络费用 → 自定义」改 3000 / 450000 再确认','relay: wallet pops 45 s before open; set Network fee → Custom to 3000 / 450000, then confirm'):leadS>=0?L('到点前 '+leadS+' 秒弹签名','pops '+leadS+' s before open'):L('开放后 '+(-leadS)+' 秒弹签名','pops '+(-leadS)+' s after open'));
+  $('armState').innerHTML='<span class="ok">'+L('已开启','Armed')+'</span>';
   log(L('自动抢已开启：'+bj(nextStart)+(leadS>=0?' 前 '+leadS:' 后 '+(-leadS))+' 秒弹出钱包签名。保持本页在前台、钱包已解锁、别锁屏。','Auto-grab armed: the wallet pops '+Math.abs(leadS)+' s '+(leadS>=0?'before':'after')+' '+bj(nextStart)+'. Keep this page in front, the wallet unlocked and the screen on.'));
   clearInterval(armTimer); let warned=false;
   armTimer=setInterval(()=>{ if(!armed){clearInterval(armTimer);return;} const left=nextStart-chainNow();
