@@ -84,6 +84,8 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:10px 0}
 #armState:has(.ok){background:none!important;border:0!important;padding:0!important;box-shadow:none!important}
 #nextOpen{font-size:0;line-height:0}#nextOpen br{display:none}#nextOpen .pop{font-size:13.5px;line-height:1.5}
 .hero .quota{display:none}
+#winBig{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:4px 0 2px}#winBig b{font-size:34px;font-weight:800;color:#34d399;letter-spacing:-.5px}#winBig small{font-size:16px;font-weight:700}#winBig a{font-size:13px;color:#a7f3d0;text-decoration:none;border-bottom:1px solid rgba(167,243,208,.4)}
+.hero.glass #winBig{justify-content:center}
 </style>
 </head>
 <body>
@@ -91,6 +93,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:10px 0}
 <div class="top"><b data-en="Grab AI Power">抢AI算力</b><span><span id="addr" class="glass num">未连接</span><button id="langBtn" class="glass" aria-label="Language">EN</button></span></div>
 <div class="hero glass">
   <div class="lbl" id="heroLbl">距 离 开 放</div>
+  <div id="winBig" class="hidden"><b>+1,000 <small data-en="power">算力</small></b><a id="winTx" class="hidden" target="_blank" rel="noopener" data-en="View on chain ›">链上查看 ›</a></div>
   <div id="countdown">--:--:--</div>
   <div id="nextOpen">—</div>
   <div class="pill" id="armState">未开启</div>
@@ -317,7 +320,7 @@ async function attempt(){
       else { relayDel(me); markBypass(); relayRender(); log(L('✗ 这笔没经过托管节点，已直接上链（开放前会被拒）。托管已关闭，被拒后页面会马上再弹一次，请再点确认','✗ This one bypassed the relay and went straight on chain (it will be rejected before open). Relay mode is off; the page will pop again right after the rejection, please confirm again'),'bad'); } }
     else log(L('已广播 ','Broadcast ')+h);
     const r=await waitTx(h,RL?120000:60000);
-    if(r&&r.status==='0x1'){won=true;buzz([100,50,100,50,400]);try{ const nd=7*st.epoch+1; const t=Number(big(await call(A.CLOCK,SEL.dayStart+u256(BigInt(nd)))))+(await getOpenSec()); setTimeout(()=>log(L('算力 +1000 已到账；这个钱包下次可抢：','+1,000 power received; next chance for this wallet: ')+bjS(t),'ok'),300); }catch(e){} log(L('🎉 抢到了！区块 ','🎉 Got it! Block ')+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
+    if(r&&r.status==='0x1'){won=true; LSs('hx_win_'+String(me).toLowerCase(),h);buzz([100,50,100,50,400]);try{ const nd=7*st.epoch+1; const t=Number(big(await call(A.CLOCK,SEL.dayStart+u256(BigInt(nd)))))+(await getOpenSec()); setTimeout(()=>log(L('算力 +1000 已到账；这个钱包下次可抢：','+1,000 power received; next chance for this wallet: ')+bjS(t),'ok'),300); }catch(e){} log(L('🎉 抢到了！区块 ','🎉 Got it! Block ')+parseInt(r.blockNumber,16)+'  https://browser.anubispace.org/tx/'+h,'ok');return 'win';}
     if(await burnedThisEpoch()){won=true;buzz([100,50,100,50,400]);log(L('🎉 链上确认本 Epoch 已烧过 → 成功','🎉 Chain confirms this epoch is burned → success'),'ok');return 'win';} // 回执丢了/超时也不怕,直接问链
     if(!r){log(L('60 秒没拿到回执，链上也没显示成功，可能网络卡了','No receipt in 60 s and no success on chain; the network may be slow'),'bad');return 'fail';}
     const why=await simulate(); log(L('这笔被拒（'+(why||'未知原因')+'）','Rejected ('+(why||'unknown reason')+')'),'bad');
@@ -347,7 +350,7 @@ async function race(){
       if(r==='rejected'){ rejects++; if(rejects>=2){log(L('连续两次取消，停止。想继续点"立刻发"','Cancelled twice, stopping.'),'warn');break;} log(L('再弹一次，这次请点确认','Popping again, please confirm this time'),'warn'); continue; }
       if(chainNow()>=nextStart+3){ const why=await simulate(); if(/daily maximum/i.test(why)){log(L('今天的名额已经抢光了，不再弹钱包，明天 11:59 再来','Slots are sold out today; not popping again. Come back tomorrow at 11:59'),'bad');break;} } /* 11-04:原来 45 秒后才查,名额 2 秒就光,中间白弹 6 次 */
     }
-  } finally { racing=false; armed=false; $('armState').textContent=won?L('成功 🎉','Success 🎉'):L('已结束','Finished'); await loadState(); }
+  } finally { racing=false; armed=false; if(won) $('armState').innerHTML='<span class="ok">'+L('抢到了','Got it')+'</span>'; else $('armState').textContent=L('已结束','Finished'); await loadState(); }
 }
 async function arm(){
   if(armed)return;
@@ -391,7 +394,7 @@ function chkRender(){ const el=$('chkList'); if(!el) return;
 setInterval(()=>{ try{ chkRender(); }catch(e){} },1000);
 function stop(){armed=false;clearInterval(armTimer);$('armState').textContent=L('已停止','Stopped');log(L('已停止自动抢','Auto-grab stopped'));}
 function tick(){ if(!nextStart)return; const ep=!!(me&&st.epDone&&st.nextEp); const tgt=ep?st.nextEp:nextStart; /* 本周期已烧过:倒数到这个钱包下次可抢,别让人以为明天还能抢 */
-  $('heroLbl').textContent=ep?L('本周期已烧过 · 距下次可抢','BURNED THIS EPOCH · NEXT CHANCE IN'):L('距 离 开 放','OPENS IN'); if(ep) $('nextOpen').textContent=bj(st.nextEp)+L('（这个钱包下次可抢）',' (next chance for this wallet)');
+  $('heroLbl').textContent=ep?L('本周期已抢到 · 距下次可抢','GOT IT THIS EPOCH · NEXT CHANCE IN'):L('距 离 开 放','OPENS IN'); if(ep) $('nextOpen').textContent=bj(st.nextEp)+L('（这个钱包下次可抢）',' (next chance for this wallet)');
   const left=Math.max(0,Math.floor(tgt-chainNow())); const dd=Math.floor(left/86400),h=String(Math.floor(left%86400/3600)).padStart(2,'0'),m=String(Math.floor(left%3600/60)).padStart(2,'0'),s=String(left%60).padStart(2,'0'); $('countdown').textContent=(dd?dd+L('天 ','d '):'')+h+':'+m+':'+s; $('countdown').style.fontSize=dd?'50px':''; $('countdown').style.color=left<=60?'#f0c060':'#e9eef3'; }
 
 /* 11-04 晚:预演。节点对烧币估算一律回 45 万(OKX 只认估算),开放前 2 分钟以外/已抢光的烧币交易节点拒收不扣费,并把钱包给的上限记在 /seen 的 hxTry */
@@ -417,6 +420,7 @@ async function rehearse(){
   }finally{ $('btnRehearse').disabled=false; }
 }
 $('btnRehearse').onclick=rehearse;
+setInterval(()=>{ try{ const done=!!me&&!!st.epDone; $('winBig').classList.toggle('hidden',!done); if(done){ const h=LSg('hx_win_'+String(me).toLowerCase()); const a=$('winTx'); if(h){ a.href='https://browser.anubispace.org/tx/'+h; a.classList.remove('hidden'); } else a.classList.add('hidden'); if(!armed&&!racing&&!/抢到|Got it/.test($('armState').textContent)) $('armState').innerHTML='<span class="ok">'+L('本周期已抢到','Got it this epoch')+'</span>'; } }catch(e){} },1000);
 let oneBusy=false; async function oneClick(){ if(oneBusy) return; if(!me){ log(L('先连接钱包','Connect wallet first'),'warn'); return; } oneBusy=true; try{ if(!relayOn()){ log(L('一键检测第 1 步：检测托管节点。钱包会弹一笔「给自己授权 0 枚 LGNS」，不动资产，直接确认','One-tap check step 1: relay. The wallet pops an approve-0 to yourself; it moves nothing, just confirm'),'warn'); await relayDetect(); if(!relayOn()) return; await new Promise(r=>setTimeout(r,900)); log(L('一键检测第 2 步：预演。钱包会弹一笔「烧 500 LGNS」，节点不发、不扣钱，直接确认','Step 2: rehearsal. The wallet pops a burn 500 LGNS; the node will not send it, no fee, just confirm'),'warn'); } await rehearse(); } finally{ oneBusy=false; } }
 $('toolOne').onclick=()=>{ oneClick(); };
 $('toast').onclick=()=>{ $('toast').className='toast hidden'; };
@@ -429,7 +433,7 @@ function tilesRender(){ const el=$('tiles'); if(!el) return;
   const eligBad=!has?later:[st.okStake?'':L('长期质押只有 '+f9(st.S)+'，要 ≥ '+f9(st.minStake),'Stake is only '+f9(st.S)+', need ≥ '+f9(st.minStake)), st.okEp?'':L('本周期已烧过，下次 '+(st.nextEp?bjS(st.nextEp):'下个周期'),'Already burned this epoch, next '+(st.nextEp?bjS(st.nextEp):'next epoch')), st.okBal?'':L('LGNS 只有 '+f9(st.B)+'，要 500','Only '+f9(st.B)+' LGNS, need 500')].filter(Boolean).join(L('；','; '));
   const T=[
     {k:L('钱包','Wallet'),i:'wallet',ok:!!me&&st.chainOk!==false,v:me?me.slice(0,6)+'…'+me.slice(-5):'',bad:me?L('连的不是 Anubis 链：请在钱包里切到 Anubis（6714）再刷新页面','Not on Anubis: switch the wallet to Anubis (6714) and reload'):L('还没连接钱包','Wallet not connected'),act:me?'':'connect',al:L('连接钱包','Connect wallet'),wide:1},
-    {k:L('资格','Eligibility'),i:'shield',ok:has&&st.okStake&&st.okEp&&st.okBal,v:has?L('质押 ','Stake ')+f9(st.S)+L(' · 本周期可抢',' · open'):'',bad:eligBad},
+    {k:L('资格','Eligibility'),i:'shield',ok:has&&(st.epDone||(st.okStake&&st.okEp&&st.okBal)),v:has?(st.epDone?L('本周期已抢到 · 下次 ','Got it this epoch · next ')+(st.nextEp?bjS(st.nextEp):''):L('质押 ','Stake ')+f9(st.S)+L(' · 本周期可抢',' · open')):'',bad:eligBad},
     {k:L('授权','Approval'),i:'key',ok:has&&st.okAlw,v:has?(st.W>(1n<<200n)?L('无限','Unlimited'):f9(st.W)+' LGNS'):'',bad:has?L('还没授权','Not approved'):later,act:has&&!st.okAlw?'approve':'',al:L('授权 500 LGNS','Approve 500 LGNS')},
     {k:L('托管节点','Relay'),i:'node',ok:!!me&&relayOn(),v:L('已接通','Connected'),bad:!me?later:(relayDown?L('连不上，换条网络再检测','Unreachable, switch network and check again'):L('没接通，基本抢不到。① 复制下面的地址 ② 去钱包把 Anubis 网络的 RPC 换成它 ③ 回来点「一键检测」','Not connected, you will almost surely miss. 1) Copy the address below 2) set it as the Anubis RPC in your wallet 3) come back and tap One-tap check')),rpc:!!me&&!relayOn()&&!relayDown,act:me?'one':'',al:L('一键检测','One-tap check')},
     {k:L('钱包 Gas','Wallet gas'),i:'gas',ok:!!me&&(gk==='ok'||gk==='est'),v:gk==='ok'?L('上限 ','Limit ')+g.toLocaleString():L('钱包自己估，弹窗时看一眼上限','Wallet estimates; check the limit in the popup'),bad:!me?later:(gk==='low'?L('上限只有 '+g.toLocaleString()+'，一定失败。预演时把上限改成 450000','Limit only '+g.toLocaleString()+', will fail. Set it to 450000'):(relayOn()?L('没测过：点「一键检测」，节点不发、不扣钱','Not tested: tap One-tap check (not sent, free)'):L('节点接通后点「一键检测」顺带测好','Tested together with the relay by One-tap check'))),act:me&&relayOn()?'one':'',al:L('一键检测','One-tap check')},
