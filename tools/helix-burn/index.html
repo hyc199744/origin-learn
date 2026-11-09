@@ -112,7 +112,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;padding:10px 
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}@media (max-width:340px){.kpi .ks{white-space:normal;overflow:visible;line-height:1.3}}</style>
 </head>
 <body data-nopoptoast="1">
-<div class="top"><div class="brand"><i></i><b data-en="HELIX Grab AI Power">HELIX 抢AI算力</b><span class="ver" data-en="v11‑09 22:10">版本 11‑09 22:10</span></div><span><span id="addr">未连接</span><button id="langBtn" aria-label="Language">🇬🇧 EN</button></span></div>
+<div class="top"><div class="brand"><i></i><b data-en="HELIX Grab AI Power">HELIX 抢AI算力</b><span class="ver" data-en="v11‑09 23:20">版本 11‑09 23:20</span></div><span><span id="addr">未连接</span><button id="langBtn" aria-label="Language">🇬🇧 EN</button></span></div>
 <div class="grid">
   <div class="card cd"><div class="hh"><span id="heroLbl">距 离 开 放</span><span id="kOpen" class="mono">—</span></div>
     <div id="winBig" class="hidden"><b>+1,000 <small data-en="power">算力</small></b><a id="winTx" class="hidden" target="_blank" rel="noopener" data-en="View on chain ›">链上查看 ›</a></div>
@@ -253,6 +253,7 @@ async function getOpenSec(){ // 最近一个抢满(或有成交)的协议日,从
   if(openSecCache.v!==null&&openSecCache.v!==v) log(L('⚠ 官方开放时间变了：现在每天 ','⚠ Official open time changed: now daily at ')+String(Math.floor(v/3600)).padStart(2,'0')+':'+String(Math.floor(v%3600/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0'),'bad');
   openSecCache={at:Date.now(),v}; return v; }
 let lsFirst=null;
+let lsRetry=null; /* 11-09 读链失败 3 秒后重读,不等 1 分钟 */
 async function loadState(){
   try{
     const [[day,epoch,maxL,minStake,dailyMax,burned],remain,openSec]=await Promise.all([Promise.all([call(A.CLOCK,SEL.currentDay),call(A.CLOCK,SEL.currentEpoch),call(A.GATE,SEL.maximumLgns),call(A.GATE,SEL.minimumStake),call(A.GATE,SEL.dailyMaximumLgns),call(A.GATE,SEL.burnedLgnsToday)]),call(A.LENS,SEL.remaining).then(big,()=>null),getOpenSec(),syncClock().catch(()=>{})]); /* 同时问,原来一轮一轮问 */
@@ -267,7 +268,7 @@ async function loadState(){
     const slots=st.maxL>0n?Number(st.dailyMax/st.maxL):400; const hm=hh+':'+mm;
     $('quota').innerHTML=full?L('<b class="bad">今天已抢光</b>，下次 <b>'+bjS(nextStart)+'</b> 开放 '+slots+' 个名额','<b class="bad">Sold out today</b>, next <b>'+bjS(nextStart)+'</b>: '+slots+' slots'):(chainNow()<todayOpen?L('今天 <b>'+hm+'</b> 开放，'+slots+' 个名额，一般 2～5 秒抢光','Opens today at <b>'+hm+'</b>, '+slots+' slots, usually gone in 2~5 s'):(L('今日已烧 ','Burned today ')+f9(st.burned)+' / '+f9(st.dailyMax)+(st.remain!==null?(L('，剩余 ',', left ')+'<b class="'+(st.remain>0n?'ok':'bad')+'">'+f9(st.remain)+'</b>'):'')));
     if(me) await loadWallet();
-  }catch(e){log(L('读链失败：','Chain read failed: ')+reason(e),'bad');}
+  }catch(e){log(L('读链失败：','Chain read failed: ')+reason(e),'bad'); if(!lsRetry) lsRetry=setTimeout(()=>{ lsRetry=null; if(!racing) loadState(); },3000);}
 }
 async function loadWallet(){
   const [stake,bEp,bal,alw,gas]=await Promise.all([call(A.GATE,SEL.stakeOf+addr32(me)),call(A.GATE,SEL.burnEpochOf+addr32(me)),call(A.LGNS,SEL.balanceOf+addr32(me)),call(A.LGNS,SEL.allowance+addr32(me)+addr32(A.LEDGER)),rpc('eth_getBalance',[me,'latest'])]);
@@ -385,7 +386,7 @@ async function race(){
 }
 async function arm(){
   if(armed)return;
-  const ok=await loadWallet().catch(()=>false); if(!ok){ log(L('不能开启：','Cannot arm: ')+(st.why||L('读不到链上数据，稍后再试','cannot read chain data, try again later')),'bad'); return; }
+  const ok=await loadWallet().catch(()=>false); if(!ok){ log(L('不能开启：','Cannot arm: ')+(st.why||L('读不到链上数据，稍后再试','cannot read chain data, try again later')),'bad'); return; } if(st.chainOk===false){ let raw=null; try{ raw=await withTO(eth.request({method:'eth_chainId'}),5000,'chain'); }catch(e){} const cs=String(raw); if(raw!==null&&(parseInt(cs,16)===CHAIN_ID||Number(cs)===CHAIN_ID)){ st.chainOk=true; } else { log(L('不能开启：钱包连的不是 Anubis 链（'+cs+'），请在钱包里切到 Anubis（6714）再刷新页面','Cannot arm: the wallet is not on Anubis ('+cs+'). Switch to Anubis (6714) and reload'),'bad'); return; } } /* 11-09 链不对不让开启;开启时再问一次钱包,十六进制/十进制都认,问不到也不放行 */
   if(relayOn()){ let ping=null; for(const ms of [3000,5000,8000]){ ping=await relayGet('/status',ms); if(ping) break; } if(!ping) log(L('网络有点慢，这次没问到托管节点；照常开放前 45 秒钱包弹窗，开抢时保持网络稳定','Network is slow, could not reach the relay this time; the wallet will still pop 45 s before open. Keep the network stable'),'warn'); }
   if(!relayOn()){ let go=false; try{ go=await askConfirm(L('托管节点没接通！\n\n不接节点只能开放后才弹钱包，名额 2 秒就抢光，基本抢不到，而这个钱包 7 天才有一次机会。\n\n建议点「先去接通」，再点「一键检测」。','Relay not connected!\n\nWithout the relay the wallet can only pop after the open. Slots sell out in 2 seconds, so you will almost certainly miss, and this wallet only gets one chance every 7 days.\n\nRecommended: tap "Connect first", then "One-tap check".')); }catch(e){} if(!go){ log(L('已取消开启：先点「一键检测」接通托管节点','Not armed: tap "One-tap check" to connect the relay first'),'warn'); return; } }
   if(gasKind(gasRes())==='low') log(L('⚠ 上次检测钱包 Gas 上限只有 '+gasRes()+'，弹窗时一定要点「网络费用 → 自定义」把上限改成 450000','⚠ Last check showed the wallet gas limit is only '+gasRes()+'. When it pops, set Network fee → Custom → Gas limit 450000'),'bad');
@@ -403,7 +404,7 @@ let chkWarned=0;
 function chkRender(){ const el=$('chkList'); if(!el) return;
   const needDai=FILL_GWEI*FILL_LIMIT/1e9, have=st.G!==undefined?Number(st.G)/1e18:null;
   const rows=[
-    [!!me, L('钱包已连接','Wallet connected'), L('先连接钱包','Connect your wallet first'), 'connect', L('连接钱包','Connect')],
+    [!!me&&st.chainOk!==false, L('钱包已连接','Wallet connected'), me?L('连的不是 Anubis 链：请在钱包里切到 Anubis（6714）再刷新页面','Not on Anubis: switch the wallet to Anubis (6714) and reload'):L('先连接钱包','Connect your wallet first'), me?'':'connect', L('连接钱包','Connect')],
     [!!me&&!!st.elig, L('有资格（质押、本周期、LGNS、授权都 OK）','Eligible (stake, epoch, LGNS, approval all OK)'), me?(L('资格不够：','Not eligible: ')+(st.why||L('读取中…','loading…'))):L('连接后自动检查资格','Checked automatically after connecting'), (me&&st.okAlw===false)?'approve':'', L('授权 500 LGNS','Approve 500 LGNS')],
     [!!me&&relayOn(), L('托管节点已接通','Relay connected'), L('节点没接通，基本抢不到：先把钱包 RPC 改成上面清单里的地址，再点「一键检测」','Relay not connected, you will almost surely miss: set the wallet RPC to the address below, then tap "Check"'), me?'relay':'', L('检测','Check')],
     [!!me&&['ok','est'].includes(gasKind(gasRes())), gasKind(gasRes())==='est'?L('钱包 Gas 自己估（弹窗时看一眼上限 ≥ 45 万）','Wallet estimates gas (check the limit is ≥ 450,000 when it pops)'):L('钱包 Gas 上限够（测过 ','Wallet gas limit OK (tested ')+(gasRes()||0).toLocaleString()+L('）',')'), !me?L('连接后测一下钱包 Gas 上限','Test the wallet gas limit after connecting'):gasRes()?L('钱包 Gas 上限只有 '+gasRes().toLocaleString()+'，一定失败：去钱包把默认网络费删掉或上限改 450000，再预演一次','Wallet gas limit is only '+gasRes().toLocaleString()+', will fail: delete the saved default fee or set the limit to 450000, then rehearse again'):L('还没测钱包 Gas 上限：点「一键检测」，节点不发、不扣钱','Gas limit not tested: tap "Rehearse" (not sent, free)'), (me&&relayOn())?'rehearse':'', L('预演','Rehearse')],
