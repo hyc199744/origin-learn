@@ -84,14 +84,14 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:12px 0}
 #winBig{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:4px 0 2px}#winBig b{font-size:34px;font-weight:800;color:#34d399;letter-spacing:-.5px}#winBig small{font-size:16px;font-weight:700}#winBig a{font-size:13px;color:#a7f3d0;text-decoration:none;border-bottom:1px solid rgba(167,243,208,.4)}
 .hero.glass #winBig{justify-content:center}
 .wm{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-.wmc{width:100%;max-width:360px;background:#14161c;border:1px solid rgba(52,211,153,.45);border-radius:24px;padding:26px 20px 18px;text-align:center;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 0 6px rgba(52,211,153,.08);animation:wmIn .35s cubic-bezier(.2,1.4,.4,1)}
+.wmc{width:100%;max-width:290px;background:#14161c;border:1px solid rgba(52,211,153,.45);border-radius:20px;padding:20px 16px 14px;text-align:center;color:#fff;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 0 6px rgba(52,211,153,.08);animation:wmIn .35s cubic-bezier(.2,1.4,.4,1)}
 @keyframes wmIn{from{transform:scale(.85);opacity:0}to{transform:none;opacity:1}}
-.wmr{width:68px;height:68px;margin:0 auto 10px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(52,211,153,.18)}
-.wmt{font-size:22px;font-weight:800}
-.wmb{margin:4px 0 14px;color:#34d399}.wmb b{font-size:44px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}.wmb span{font-size:18px;font-weight:700}
+.wmr{width:52px;height:52px;margin:0 auto 8px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(52,211,153,.18)}
+.wmt{font-size:18px;font-weight:800}
+.wmb{margin:2px 0 12px;color:#34d399}.wmb b{font-size:34px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}.wmb span{font-size:15px;font-weight:700}
 .wml{background:rgba(255,255,255,.05);border-radius:14px;padding:4px 14px;text-align:left}
-.wml div{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:14px}.wml div:last-child{border:0}.wml span{color:#9aa0aa}.wml b{font-variant-numeric:tabular-nums}
-.wmx{display:flex;gap:10px;margin-top:16px}.wma,.wmo{flex:1;min-height:48px;border-radius:14px;font-size:15.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;font-family:inherit}
+.wml div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px}.wml div:last-child{border:0}.wml span{color:#9aa0aa}.wml b{font-variant-numeric:tabular-nums}
+.wmx{display:flex;gap:8px;margin-top:12px}.wma,.wmo{flex:1;min-height:44px;border-radius:12px;font-size:14.5px;font-weight:700;display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;font-family:inherit}
 .wma{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18)}.wma.hidden{display:none!important}.wmo{border:0;background:#34d399;color:#0b1a12}
 </style>
 </head>
@@ -126,7 +126,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:12px 0}
   <button id="btnApprove" disabled></button><button id="btnRelay"></button><button id="btnRehearse"></button><button id="btnNow"></button>
 </div>
 <div id="fillTip" class="hidden"></div>
-<div id="winModal" class="wm hidden" role="dialog" aria-modal="true" aria-labelledby="wmT"><div class="wmc"><div class="wmr"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#0b1a12" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div id="wmT" class="wmt" data-en="Got it!">抢到了！</div><div class="wmb"><b>+1,000</b> <span data-en="power">算力</span></div><div class="wml"><div><span data-en="Burned">烧掉</span><b>500 LGNS</b></div><div><span data-en="Block">区块</span><b id="wmBlk">—</b></div><div class="hidden"><b id="wmFee">—</b></div><div><span data-en="Next chance">下次可抢</span><b id="wmNext">—</b></div></div><div class="wmx"><a id="wmTx" class="wma" target="_blank" rel="noopener" data-en="View on chain">链上查看</a><button id="wmOk" class="wmo" data-en="OK">知道了</button></div></div></div>
+<div id="winModal" class="wm hidden" role="dialog" aria-modal="true" aria-labelledby="wmT"><div class="wmc"><div class="wmr"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#0b1a12" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div id="wmT" class="wmt" data-en="Congrats, you got it!">恭喜，抢到了！</div><div class="wmb"><b>+1,000</b> <span data-en="power">算力</span></div><div class="wml"><div><span data-en="Burned">烧掉</span><b>500 LGNS</b></div><div><span data-en="Block">区块</span><b id="wmBlk">—</b></div><div class="hidden"><b id="wmFee">—</b></div><div><span data-en="Next chance">下次可抢</span><b id="wmNext">—</b></div></div><div class="wmx"><a id="wmTx" class="wma" target="_blank" rel="noopener" data-en="View on chain">链上查看</a><button id="wmOk" class="wmo" data-en="OK">知道了</button></div></div></div>
 <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 <div class="dock">
   <button class="btn ghost" id="btnConnect" data-en="Connect wallet">连接钱包</button>
