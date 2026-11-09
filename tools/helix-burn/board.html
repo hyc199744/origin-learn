@@ -33,6 +33,10 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
 .cd .ft{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
 #armState{font-size:12.5px;color:var(--text)}
 .kpi{padding:12px 14px;min-width:0}
+.k3{grid-column:span 2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.k3 .kpi{padding:11px 12px}.k3 .kv{font-size:17px}.k3 .ks{font-size:11px}
+.bar{grid-column:span 2;background:var(--acc);color:#140a00;border-radius:14px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bar b{font-size:16px;font-weight:800}.bar span{font-size:13px;font-weight:700;white-space:nowrap}
 .kpi .kk{font-size:11px;color:var(--muted);letter-spacing:1px}
 .kpi .kv{font-size:20px;font-weight:700;margin-top:2px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kpi .ks{font-size:11.5px;color:var(--muted)}
@@ -92,10 +96,13 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;padding:10px 
     <div id="countdown">--:--:--</div>
     <div id="nextOpen">—</div>
     <div class="ft"><span id="armState">未开启</span><span id="quota">—</span></div></div>
+  <div class="k3">
   <div class="card kpi"><div class="kk" data-en="WALLET POPUP">钱包弹窗</div><div class="kv" id="kPop">—</div><div class="ks" data-en="45 s before open">开放前 45 秒</div></div>
-  <div class="card kpi"><div class="kk" data-en="SLOTS TODAY">今日名额</div><div class="kv" id="kQuota">—</div><div class="ks" data-en="Usually gone in 2–5 s">开放后 2–5 秒抢光</div></div>
   <div class="card kpi"><div class="kk" data-en="STAKE">质押</div><div class="kv" id="kStake">—</div><div class="ks" data-en="Need ≥ 20,000">要 ≥ 20,000</div></div>
   <div class="card kpi"><div class="kk" data-en="WALLET DAI">钱包 DAI</div><div class="kv" id="kDai">—</div><div class="ks" data-en="Keep ≥ 8 for fees">≥ 8 够付手续费</div></div>
+  </div>
+  <div class="bar"><b data-en="Wallet popup → tap Network fee">钱包弹窗 → 点「网络费用」</b><span class="mono">3000 / 450000</span></div>
+  <div class="hidden"><div id="kQuota"></div></div>
 </div>
 <div class="sh"><span data-en="READINESS">准备清单</span><span id="listN" class="mono">—</span></div>
 <div id="list" class="card"></div>
@@ -430,7 +437,7 @@ function boardRender(){ const el=$('list'); if(!el) return;
   /* 上面四格数据 */
   if(nextStart){ $('kOpen').textContent=bjS(nextStart); $('kPop').textContent=hm(nextStart-RELAY_POP); }
   if(st.dailyMax!==undefined&&st.maxL>0n){ const tot=Number(st.dailyMax/st.maxL), used=Number(st.burned/st.maxL); $('kQuota').textContent=used+'/'+tot; }
-  $('kStake').innerHTML=has?'<span class="'+(st.okStake?'':'bad')+'">'+f9(st.S)+'</span>':'—';
+  $('kStake').innerHTML=has?'<span class="'+(st.okStake?'':'bad')+'">'+Math.floor(Number(st.S)/1e9).toLocaleString('en-US')+'</span>':'—';
   $('kDai').innerHTML=has?'<span class="'+(st.okGas?'':'bad')+'">'+f18(st.G)+'</span>':'—';
   const later=L('连接后检查','After connecting');
   const eligBad=[st.okStake?'':L('长期质押只有 '+f9(st.S)+'，要 ≥ '+f9(st.minStake),'Stake is only '+f9(st.S)+', need ≥ '+f9(st.minStake)), st.okEp?'':L('本周期已烧过，下次 '+(st.nextEp?bjS(st.nextEp):'下个周期'),'Already burned this epoch, next '+(st.nextEp?bjS(st.nextEp):'next epoch')), st.okBal?'':L('LGNS 只有 '+f9(st.B)+'，要 500','Only '+f9(st.B)+' LGNS, need 500')].filter(Boolean).join(L('；','; '));
