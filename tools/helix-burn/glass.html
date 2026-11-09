@@ -70,6 +70,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:10px 0}
 #fillTip{position:fixed;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top));z-index:9999;max-width:496px;margin:0 auto;background:rgba(255,255,255,.95);color:#1f2340;border-radius:22px;padding:16px 18px;font-size:15.5px;line-height:1.7;box-shadow:0 14px 40px rgba(0,0,0,.5)}
 #fillTip .t{display:block;font-size:19px;font-weight:800;color:#111}
 #fillTip b.n{font-size:26px;color:#111;font-variant-numeric:tabular-nums}
+.foot{margin:16px 6px 0;font-size:11.5px;line-height:1.7;color:rgba(255,255,255,.45);text-align:center}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
 
 .tools{display:flex;gap:8px;padding:10px 0}
@@ -96,15 +97,12 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:10px 0}
   <div class="row"><span data-en="Wallet gas limit">钱包 Gas 上限</span><span id="gasTest">没测过</span></div>
   <div class="tools"><button id="toolOne" data-en="One-tap check">一键检测</button></div>
 </div>
-<details class="glass"><summary data-en="More info">更多信息</summary>
-  <div class="row"><span data-en="Chain">链</span><span id="chain">—</span></div>
-  <div class="row"><span data-en="Keep screen on">屏幕常亮</span><span id="wake">—</span></div>
-  <div class="row"><span data-en="Device vs chain clock">本机-链时钟偏差</span><span id="skew">—</span></div>
-  <div class="tools"><button id="toolRelay" data-en="Node only">只检测节点</button><button id="toolReh" data-en="Rehearse only">只预演</button></div>
-  <div class="note" data-en="Burn 500 LGNS for 1,000 power. Once per wallet per epoch (7 days); needs ≥ 20,000 LGNS in long-term stake. Opens daily at 11:59:00 Beijing time (UTC+8) and sells out in about 2 seconds. No private key or seed phrase needed: every transaction is confirmed by you in your wallet; the node only sends it on time. Version 11-09 glass">烧 500 LGNS 换 1000 算力，每个钱包每周期（7 天）一次，需长期质押合计 ≥ 2 万。每天北京 11:59:00 开放，约 2 秒抢光。不要私钥、不要助记词，每一笔都是你在钱包里亲手确认的，节点只负责准点发出。版本 11-09 玻璃版</div>
-</details>
+
+
 <details class="glass"><summary data-en="Activity log (screenshot this for support)">过程记录（出问题时截图发客服）</summary><div id="log"></div></details>
+<div class="foot"><div data-en="One burn per wallet every 7 days · long-term stake ≥ 20,000 · opens daily 11:59:00 Beijing, gone in ~2 s">每个钱包 7 天一次 · 长期质押 ≥ 2 万 · 每天北京 11:59:00 开放，约 2 秒抢光</div><div data-en="No private key or seed phrase needed; you confirm every transaction in your wallet · version 11-09 glass">不要私钥、不要助记词，每一笔都由你在钱包里亲手确认 · 版本 11‑09 玻璃版</div></div>
 <div class="hidden">
+  <div id="chain"></div><div id="wake"></div><div id="skew"></div>
   <div id="stake"></div><div id="epoch"></div><div id="bal"></div><div id="alw"></div><div id="gas"></div>
   <div id="verdict"></div>
   <div id="chk"><div id="chkList"></div><div id="fillLine"></div></div>
@@ -198,10 +196,11 @@ const call=(to,data)=>rpc('eth_call',[{to,data},'latest']);
 const big=h=>BigInt(h&&h!=='0x'?h:'0x0');
 function reason(e){try{let h=(e&&(e.data&&(e.data.data||e.data)))||'';h=String(h).replace(/^0x/,'');if(h.startsWith('08c379a0')){const len=parseInt(h.slice(72,136),16);const hex=h.slice(136,136+len*2);let s='';for(let i=0;i<hex.length;i+=2)s+=String.fromCharCode(parseInt(hex.slice(i,i+2),16));return s;}}catch(x){}return (e&&e.message)||String(e);}
 
-async function keepAwake(){ try{ if('wakeLock' in navigator){ wakeLock=await navigator.wakeLock.request('screen'); $('wake').innerHTML='<span class="ok">'+L('已开启 ✓','On ✓')+'</span>'; wakeLock.addEventListener('release',()=>{$('wake').innerHTML='<span class="warn">'+L('已释放（切回本页会重新申请）','Released (re-requested when you return)')+'</span>';}); } else { $('wake').innerHTML='<span class="warn">'+L('浏览器不支持，请手动把自动锁屏调长','Not supported, lengthen auto-lock manually')+'</span>'; } }catch(e){ $('wake').innerHTML='<span class="warn">'+L('未能开启：','Failed: ')+(e.message||e)+'</span>'; } }
+let wakeWarned=0, skewLogged=0;
+async function keepAwake(){ try{ if('wakeLock' in navigator){ wakeLock=await navigator.wakeLock.request('screen'); $('wake').innerHTML='<span class="ok">'+L('已开启 ✓','On ✓')+'</span>'; wakeLock.addEventListener('release',()=>{$('wake').innerHTML='<span class="warn">'+L('已释放（切回本页会重新申请）','Released (re-requested when you return)')+'</span>';}); } else { $('wake').innerHTML='<span class="warn">'+L('浏览器不支持，请手动把自动锁屏调长','Not supported, lengthen auto-lock manually')+'</span>'; if(!wakeWarned){ wakeWarned=1; log(L('这个钱包浏览器不能自动保持亮屏：请把手机自动锁屏调长，抢的时候别锁屏','This browser cannot keep the screen on: lengthen auto-lock and keep the screen on while grabbing'),'warn'); } } }catch(e){ $('wake').innerHTML='<span class="warn">'+L('未能开启：','Failed: ')+(e.message||e)+'</span>'; if(!wakeWarned){ wakeWarned=1; log(L('没能自动保持亮屏：请把手机自动锁屏调长，抢的时候别锁屏','Could not keep the screen on: lengthen auto-lock and keep the screen on while grabbing'),'warn'); } } }
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ if(armed||me) keepAwake(); syncClock().catch(()=>{}); } });
 
-async function syncClock(){const b=await rpc('eth_getBlockByNumber',['latest',false]);const ts=parseInt(b.timestamp,16);skew=Math.floor(Date.now()/1000)-ts;$('skew').textContent=skew+L(' 秒',' s');return ts;}
+async function syncClock(){const b=await rpc('eth_getBlockByNumber',['latest',false]);const ts=parseInt(b.timestamp,16);skew=Math.floor(Date.now()/1000)-ts;$('skew').textContent=skew+L(' 秒',' s'); if(!skewLogged){ skewLogged=1; log(L('本机-链时钟偏差 ','Device vs chain clock ')+skew+L(' 秒',' s')); }return ts;}
 const chainNow=()=>Date.now()/1000-skew;
 
 let openSecCache={at:0,v:null};
@@ -280,6 +279,7 @@ async function connect(){
     const accs=await askAccounts(); me=accs[0]; $('addr').textContent=me.slice(0,8)+'…'+me.slice(-6);
     let cid=parseInt(await withTO(eth.request({method:'eth_chainId'}),10000,L('读取当前网络','Read network')),16);
     if(cid!==CHAIN_ID){ const chainParam={chainId:CHAIN_HEX,chainName:'Anubis',rpcUrls:[RPC],nativeCurrency:{name:'DAI',symbol:'DAI',decimals:18},blockExplorerUrls:['https://browser.anubispace.org']}; try{ await withTO(eth.request({method:'wallet_switchEthereumChain',params:[{chainId:CHAIN_HEX}]}),20000,L('切换到 Anubis 网络','Switch to Anubis')); }catch(e1){ if(isReject(e1)) throw e1; log(L('切链被钱包拒绝（','Wallet refused to switch chain (')+(e1&&e1.code)+' '+String(e1&&e1.message||e1).slice(0,80)+L('），改为请求添加 Anubis 链','), asking to add the Anubis chain instead'),'warn'); try{ await withTO(eth.request({method:'wallet_addEthereumChain',params:[chainParam]}),25000,L('添加 Anubis 网络','Add Anubis')); }catch(e2){ if(isReject(e2)) throw e2; log(L('添加链也失败（','Adding the chain also failed (')+(e2&&e2.code)+' '+String(e2&&e2.message||e2).slice(0,80)+L('）。请在钱包里手动添加网络：名称 Anubis，Chain ID 6714，RPC '+RPC+'，代币符号 DAI，浏览器 https://browser.anubispace.org，然后切到该网络再回来','). Add the network manually in your wallet: name Anubis, Chain ID 6714, RPC '+RPC+', symbol DAI, explorer https://browser.anubispace.org, then switch to it and come back'),'bad'); } } try{ cid=parseInt(await eth.request({method:'eth_chainId'}),16); }catch(e){} }
+    st.chainOk=(cid===CHAIN_ID); if(!st.chainOk) log(L('连的不是 Anubis 链（'+cid+'），请在钱包里切到 Anubis（6714）再刷新页面','Not on Anubis ('+cid+'): switch the wallet to Anubis (6714) and reload'),'bad');
     $('chain').innerHTML=cid===CHAIN_ID?'<span class="ok">Anubis (6714) ✓</span>':'<span class="bad">'+L('链不对：'+cid+'，请在钱包切到 Anubis','Wrong chain: '+cid+', switch the wallet to Anubis')+'</span>';
     eth.on&&eth.on('accountsChanged',()=>location.reload()); eth.on&&eth.on('chainChanged',()=>location.reload());
     log(L('已连接 ','Connected ')+me); keepAwake(); relayRender(); await loadState();
@@ -410,12 +410,10 @@ async function rehearse(){
   }finally{ $('btnRehearse').disabled=false; }
 }
 $('btnRehearse').onclick=rehearse;
-$('toolRelay').onclick=()=>{ if(!me){ log(L('先连接钱包','Connect wallet first'),'warn'); return; } relayDetect(); };
-$('toolReh').onclick=()=>{ rehearse(); };
 let oneBusy=false; async function oneClick(){ if(oneBusy) return; if(!me){ log(L('先连接钱包','Connect wallet first'),'warn'); return; } oneBusy=true; try{ if(!relayOn()){ log(L('一键检测第 1 步：检测托管节点。钱包会弹一笔「给自己授权 0 枚 LGNS」，不动资产，直接确认','One-tap check step 1: relay. The wallet pops an approve-0 to yourself; it moves nothing, just confirm'),'warn'); await relayDetect(); if(!relayOn()) return; await new Promise(r=>setTimeout(r,900)); log(L('一键检测第 2 步：预演。钱包会弹一笔「烧 500 LGNS」，节点不发、不扣钱，直接确认','Step 2: rehearsal. The wallet pops a burn 500 LGNS; the node will not send it, no fee, just confirm'),'warn'); } await rehearse(); } finally{ oneBusy=false; } }
 $('toolOne').onclick=()=>{ oneClick(); };
 $('toast').onclick=()=>{ $('toast').className='toast hidden'; };
-setInterval(()=>{ try{ $('toolRelay').disabled=$('btnRelay').disabled; $('toolReh').disabled=$('btnRehearse').disabled; $('toolRelay').textContent=$('btnRelay').disabled?L('检测中…','Checking…'):L('只检测节点','Node only'); $('toolReh').textContent=$('btnRehearse').disabled?L('预演中…','Rehearsing…'):L('只预演','Rehearse only'); $('toolOne').disabled=oneBusy||$('btnRelay').disabled||$('btnRehearse').disabled; $('toolOne').textContent=$('toolOne').disabled?L('检测中…（按钱包提示确认）','Checking… (confirm in wallet)'):L('一键检测','One-tap check'); }catch(e){} },500);
+setInterval(()=>{ try{ $('toolOne').disabled=oneBusy||$('btnRelay').disabled||$('btnRehearse').disabled; $('toolOne').textContent=$('toolOne').disabled?L('检测中…（按钱包提示确认）','Checking… (confirm in wallet)'):L('一键检测','One-tap check'); }catch(e){} },500);
 const ICO={wallet:'<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M16 12.5h2M3 9h15a3 3 0 0 0-3-3H6"/>',shield:'<path d="M12 3l7 3v5c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',key:'<circle cx="8" cy="14" r="4"/><path d="M11 11l8-8M16 6l2 2"/>',node:'<circle cx="12" cy="12" r="3"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="12" cy="20" r="2"/><path d="M6.5 6.5l3.5 3.5M17.5 6.5L14 10M12 15v3"/>',gas:'<path d="M5 20V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M4 20h12M8 8h4"/><path d="M15 9l3 2v6a1.5 1.5 0 0 0 3 0V8l-3-3"/>',drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>'};
 const ico=(n,c)=>'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="'+(c||'currentColor')+'" stroke-width="'+(c?2.6:1.8)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICO[n]+'</svg>';
 function tilesRender(){ const el=$('tiles'); if(!el) return;
@@ -423,7 +421,7 @@ function tilesRender(){ const el=$('tiles'); if(!el) return;
   const later=L('连接钱包后自动检查','Checked after connecting');
   const eligBad=!has?later:[st.okStake?'':L('长期质押只有 '+f9(st.S)+'，要 ≥ '+f9(st.minStake),'Stake is only '+f9(st.S)+', need ≥ '+f9(st.minStake)), st.okEp?'':L('本周期已烧过，下次 '+(st.nextEp?bjS(st.nextEp):'下个周期'),'Already burned this epoch, next '+(st.nextEp?bjS(st.nextEp):'next epoch')), st.okBal?'':L('LGNS 只有 '+f9(st.B)+'，要 500','Only '+f9(st.B)+' LGNS, need 500')].filter(Boolean).join(L('；','; '));
   const T=[
-    {k:L('钱包','Wallet'),i:'wallet',ok:!!me,v:me?me.slice(0,6)+'…'+me.slice(-5):'',bad:L('还没连接钱包','Wallet not connected'),act:me?'':'connect',al:L('连接钱包','Connect wallet'),wide:1},
+    {k:L('钱包','Wallet'),i:'wallet',ok:!!me&&st.chainOk!==false,v:me?me.slice(0,6)+'…'+me.slice(-5):'',bad:me?L('连的不是 Anubis 链：请在钱包里切到 Anubis（6714）再刷新页面','Not on Anubis: switch the wallet to Anubis (6714) and reload'):L('还没连接钱包','Wallet not connected'),act:me?'':'connect',al:L('连接钱包','Connect wallet'),wide:1},
     {k:L('资格','Eligibility'),i:'shield',ok:has&&st.okStake&&st.okEp&&st.okBal,v:has?L('质押 ','Stake ')+f9(st.S)+L(' · 本周期可抢',' · open'):'',bad:eligBad},
     {k:L('授权','Approval'),i:'key',ok:has&&st.okAlw,v:has?(st.W>(1n<<200n)?L('无限','Unlimited'):f9(st.W)+' LGNS'):'',bad:has?L('还没授权','Not approved'):later,act:has&&!st.okAlw?'approve':'',al:L('授权 500 LGNS','Approve 500 LGNS')},
     {k:L('托管节点','Relay'),i:'node',ok:!!me&&relayOn(),v:L('已接通','Connected'),bad:!me?later:(relayDown?L('连不上，换条网络再检测','Unreachable, switch network and check again'):L('没接通，基本抢不到。① 复制下面的地址 ② 去钱包把 Anubis 网络的 RPC 换成它 ③ 回来点「一键检测」','Not connected, you will almost surely miss. 1) Copy the address below 2) set it as the Anubis RPC in your wallet 3) come back and tap One-tap check')),rpc:!!me&&!relayOn()&&!relayDown,act:me?'one':'',al:L('一键检测','One-tap check')},
