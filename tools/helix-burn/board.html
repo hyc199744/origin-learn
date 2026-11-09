@@ -112,7 +112,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;padding:10px 
 <div class="sh"><span data-en="READINESS">准备清单</span><span id="listN" class="mono">—</span></div>
 <div id="list" class="card"></div>
 <div class="box card">
-  <div class="row"><span data-en="Relay node">托管节点</span><span id="relayState">先连接钱包</span></div>
+  <div class="row"><span data-en="Node">节点</span><span id="relayState">未接通</span></div>
   <div class="row"><span data-en="Wallet gas limit">钱包 Gas 上限</span><span id="gasTest">没测过</span></div>
   <div class="tools"><button id="toolOne" data-en="One-tap check">一键检测</button></div>
 </div>
@@ -194,7 +194,7 @@ let routedAt=0; /* 11-04:检测结果服务器也记一份(换浏览器/清缓�
 async function routedSync(){ if(!me||relayHas(me)||Date.now()-routedAt<30000) return; routedAt=Date.now(); const r=await relayGet('/routed?a='+me,3000); if(r&&r.routed&&r.ago!==null){ const t=Date.now()-r.ago*1000, by=Number(LSg('bc_bypass_'+me.toLowerCase())||0); if(t>by){ relayAdd(me); relayRender(); log(L('✓ 服务器记录这个钱包接通过托管节点，已自动恢复「已接通」','✓ Server records show this wallet used the relay before; restored "connected"'),'ok'); } } }
 setInterval(()=>{ routedSync().catch(()=>{}); },4000); /* 检测记录与销毁债券抢领页共用(同站点 localStorage) */
 async function relayGet(path,ms){ const ac=new AbortController(); const t=setTimeout(()=>ac.abort(),ms||4000); try{ const r=await fetch(RELAY+path,{signal:ac.signal,cache:'no-store'}); return await r.json(); }catch(e){ return null; } finally{ clearTimeout(t); } }
-function relayRender(){ gasRender(); const el=$('relayState'); if(!el) return; if(!me){ el.innerHTML=L('先连接钱包','Connect wallet first'); return; } el.innerHTML=relayOn()?'<span class="ok">'+L('已接通 ✓ 开放前 45 秒钱包弹窗，点「网络费用 → 自定义」改 3000 / 450000 再确认','Connected ✓ wallet pops 45 s before open; set Network fee → Custom to 3000 / 450000, then confirm')+'</span>':(relayDown?'<span class="bad">'+L('连不上，本次改用开放后弹窗（基本抢不到）','Unreachable, will pop after open this time (unlikely to win)')+'</span>':'<b class="bad">'+L('未接通 ✗ 这样基本抢不到，点上面的「一键检测」','Not connected ✗ unlikely to win, tap "One-tap check" above')+'</b>'); }
+function relayRender(){ gasRender(); const el=$('relayState'); if(!el) return; el.innerHTML=(me&&relayOn())?'<span class="ok">'+L('已接通','Connected')+'</span>':'<span class="bad">'+L('未接通','Not connected')+'</span>'; }
 async function relayDetect(){
   if(!eth||!me){ log(L('先连接钱包','Connect wallet first'),'warn'); return; } if(racing){ log(L('正在抢，稍后再检测','Grabbing now, check later'),'warn'); return; } $('btnRelay').disabled=true;
   try{
