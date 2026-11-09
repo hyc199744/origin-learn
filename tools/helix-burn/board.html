@@ -24,7 +24,7 @@ body{background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,"PingFan
 .brand span{font-size:12px;color:var(--muted)}
 .top>span{display:flex;align-items:center;gap:6px}
 #addr{font-size:12px;color:var(--muted)}
-#langBtn{background:var(--card);border:1px solid var(--bd);color:var(--text);border-radius:6px;padding:3px 8px;font-size:12px;cursor:pointer}
+#langBtn{background:var(--card);border:1px solid var(--bd);color:var(--text);border-radius:999px;padding:4px 10px;font-size:12.5px;cursor:pointer;white-space:nowrap;font-family:inherit}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:14px}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:14px}
 .cd{grid-column:span 2;padding:14px 16px}
@@ -110,7 +110,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;padding:10px 
 </style>
 </head>
 <body>
-<div class="top"><div class="brand"><i></i><b data-en="HELIX Grab AI Power">HELIX 抢AI算力</b><span class="ver" data-en="v11‑09">版本 11‑09</span></div><span><span id="addr">未连接</span><button id="langBtn" aria-label="Language">EN</button></span></div>
+<div class="top"><div class="brand"><i></i><b data-en="HELIX Grab AI Power">HELIX 抢AI算力</b><span class="ver" data-en="v11‑09">版本 11‑09</span></div><span><span id="addr">未连接</span><button id="langBtn" aria-label="Language">🇬🇧 EN</button></span></div>
 <div class="grid">
   <div class="card cd"><div class="hh"><span id="heroLbl">距 离 开 放</span><span id="kOpen" class="mono">—</span></div>
     <div id="winBig" class="hidden"><b>+1,000 <small data-en="power">算力</small></b><a id="winTx" class="hidden" target="_blank" rel="noopener" data-en="View on chain ›">链上查看 ›</a></div>
@@ -169,7 +169,7 @@ const trR=m=>{ m=String(m); if(!EN()) return m;
    .replace(/Gas 上限只有 (\d+)，抢 AI 至少要 350000，这笔一定失败，节点没发（不扣手续费）。请在钱包「网络费用 → 自定义」把 Gas 上限改成 450000 再确认/,'Gas limit is only $1; a Helix burn needs at least 350000, so this would fail. The node did not send it (no fee). In your wallet open Network fee → Custom, set Gas limit to 450000 and confirm again')
    .replace(/抢币机器人未开通：.*$/,'Grab bot not activated for this wallet. Activate it at web3origin.com/tools/bot-vip (nothing was sent, no fee)'); };
 function applyLang(){ const en=EN(); document.querySelectorAll('[data-en]').forEach(el=>{ if(el.dataset.zh===undefined) el.dataset.zh=el.textContent; el.textContent=en?el.dataset.en:el.dataset.zh; });
-  const b=$('langBtn'); if(b) b.textContent=en?'中文':'EN'; try{ if(!armed&&!racing&&/^(未开启|Not armed)$/.test($('armState').textContent)) $('armState').textContent=en?'Not armed':'未开启'; }catch(e){} document.title=en?'Grab AI Power':'抢AI算力'; }
+  const b=$('langBtn'); if(b) b.textContent=en?'🇨🇳 中文':'🇬🇧 EN'; try{ if(!armed&&!racing&&/^(未开启|Not armed)$/.test($('armState').textContent)) $('armState').textContent=en?'Not armed':'未开启'; }catch(e){} document.title=en?'Grab AI Power':'抢AI算力'; }
 function setLang(en){ document.documentElement.lang=en?'en':'zh-CN'; try{ localStorage.setItem('web3origin_locale',en?'en':'zh-CN'); }catch(e){} applyLang(); try{ relayRender(); chkRender(); tick(); if(me){ loadWallet().catch(()=>{}); } loadState(); }catch(e){} }
 let toastT=null; function toast(m,cls){ const t=document.getElementById('toast'); if(!t) return; t.textContent=String(m); t.className='toast '+cls; clearTimeout(toastT); toastT=setTimeout(()=>{ t.className='toast hidden'; },7000); }
 const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);try{ if(cls) toast(m,cls); }catch(e){} try{ if(/^✓ 已交给|^已广播|^你取消了|^🎉|今天的名额已经抢光|连续两次取消|^✓ Handed|^Broadcast|^You cancel|sold out today|Cancelled twice/.test(String(m))) showFill(false); }catch(e){}};
