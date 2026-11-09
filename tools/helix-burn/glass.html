@@ -78,6 +78,10 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:10px 0}
 .tools button:disabled{opacity:.5}
 .toast{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;max-width:496px;margin:0 auto;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.6;background:#1d1f27;color:#fff;border:1.5px solid rgba(255,255,255,.25);box-shadow:0 10px 30px rgba(0,0,0,.55);cursor:pointer}
 .toast.ok{border-color:#34d399}.toast.bad{border-color:#fb7185}.toast.warn{border-color:#fbbf24}
+#armState .ok{display:inline-flex;align-items:center;gap:6px;font-size:16px;font-weight:800;color:#0b1a12;background:#34d399;border-radius:999px;padding:4px 14px;box-shadow:0 0 0 3px rgba(52,211,153,.25)}
+#armState .ok::before{content:"";width:8px;height:8px;border-radius:50%;background:#0b1a12;animation:armBlink 1.2s infinite}
+@keyframes armBlink{50%{opacity:.25}}
+#armState:has(.ok){background:none!important;border:0!important;padding:0!important;box-shadow:none!important}
 #nextOpen{font-size:0;line-height:0}#nextOpen br{display:none}#nextOpen .pop{font-size:13.5px;line-height:1.5}
 .hero .quota{display:none}
 </style>
