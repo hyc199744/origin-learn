@@ -68,6 +68,12 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:10px 0}
 #fillTip .t{display:block;font-size:19px;font-weight:800;color:#111}
 #fillTip b.n{font-size:26px;color:#111;font-variant-numeric:tabular-nums}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+
+.tools{display:flex;gap:8px;padding:10px 0}
+.tools button{flex:1;min-height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit}
+.tools button:disabled{opacity:.5}
+.toast{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;max-width:496px;margin:0 auto;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.6;background:#1d1f27;color:#fff;border:1.5px solid rgba(255,255,255,.25);box-shadow:0 10px 30px rgba(0,0,0,.55);cursor:pointer}
+.toast.ok{border-color:#34d399}.toast.bad{border-color:#fb7185}.toast.warn{border-color:#fbbf24}
 </style>
 </head>
 <body>
@@ -87,6 +93,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:10px 0}
   <div class="row"><span data-en="Wallet RPC">钱包 RPC</span><span style="font-size:12.5px;color:var(--muted)" data-en="Set the Anubis network RPC to the address above">把 Anubis 网络的 RPC 改成上面这个</span></div>
   <div class="row"><span data-en="Relay node">托管节点</span><span id="relayState">先连接钱包</span></div>
   <div class="row"><span data-en="Wallet gas limit">钱包 Gas 上限</span><span id="gasTest">没测过</span></div>
+  <div class="tools"><button id="toolRelay" data-en="Check node &amp; gas">检测节点和 Gas</button><button id="toolReh" data-en="Rehearse">预演一次</button></div>
 </div>
 <details class="glass"><summary data-en="More info">更多信息</summary>
   <div class="row"><span data-en="Chain">链</span><span id="chain">—</span></div>
@@ -102,6 +109,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:13px;padding:10px 0}
   <button id="btnApprove" disabled></button><button id="btnRelay"></button><button id="btnRehearse"></button><button id="btnNow"></button>
 </div>
 <div id="fillTip" class="hidden"></div>
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 <div class="dock">
   <button class="btn ghost" id="btnConnect" data-en="Connect wallet">连接钱包</button>
   <button class="btn red hidden" id="btnStop" data-en="Stop">停止</button>
@@ -127,7 +135,8 @@ const trR=m=>{ m=String(m); if(!EN()) return m;
 function applyLang(){ const en=EN(); document.querySelectorAll('[data-en]').forEach(el=>{ if(el.dataset.zh===undefined) el.dataset.zh=el.textContent; el.textContent=en?el.dataset.en:el.dataset.zh; });
   const b=$('langBtn'); if(b) b.textContent=en?'中文':'EN'; try{ if(!armed&&!racing&&/^(未开启|Not armed)$/.test($('armState').textContent)) $('armState').textContent=en?'Not armed':'未开启'; }catch(e){} document.title=en?'Grab AI Power':'抢AI算力'; }
 function setLang(en){ document.documentElement.lang=en?'en':'zh-CN'; try{ localStorage.setItem('web3origin_locale',en?'en':'zh-CN'); }catch(e){} applyLang(); try{ relayRender(); chkRender(); tick(); if(me){ loadWallet().catch(()=>{}); } loadState(); }catch(e){} }
-const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);try{ if(/^✓ 已交给|^已广播|^你取消了|^🎉|今天的名额已经抢光|连续两次取消|^✓ Handed|^Broadcast|^You cancel|sold out today|Cancelled twice/.test(String(m))) showFill(false); }catch(e){}};
+let toastT=null; function toast(m,cls){ const t=document.getElementById('toast'); if(!t) return; t.textContent=String(m); t.className='toast '+cls; clearTimeout(toastT); toastT=setTimeout(()=>{ t.className='toast hidden'; },7000); }
+const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);try{ if(cls) toast(m,cls); }catch(e){} try{ if(/^✓ 已交给|^已广播|^你取消了|^🎉|今天的名额已经抢光|连续两次取消|^✓ Handed|^Broadcast|^You cancel|sold out today|Cancelled twice/.test(String(m))) showFill(false); }catch(e){}};
 const FILL_GWEI=3000, FILL_LIMIT=450000; /* 抢 AI:准点落第 1 块就够,3000 留余量;实际用 ~30 万 gas,上限 45 万 */
 const FILL_TX={type:'0x0',gas:'0x'+FILL_LIMIT.toString(16),gasPrice:'0x'+(BigInt(FILL_GWEI)*10n**9n).toString(16)};
 const GAS_MIN=350000, DAI_MIN=8; /* 11-04 11:59 教训:58aE 钱包默认上限 20 万 → out of gas;EdE4 开抢才补 DAI → 晚了 */
@@ -399,6 +408,10 @@ async function rehearse(){
   }finally{ $('btnRehearse').disabled=false; }
 }
 $('btnRehearse').onclick=rehearse;
+$('toolRelay').onclick=()=>{ if(!me){ log(L('先连接钱包','Connect wallet first'),'warn'); return; } relayDetect(); };
+$('toolReh').onclick=()=>{ rehearse(); };
+$('toast').onclick=()=>{ $('toast').className='toast hidden'; };
+setInterval(()=>{ try{ $('toolRelay').disabled=$('btnRelay').disabled; $('toolReh').disabled=$('btnRehearse').disabled; $('toolRelay').textContent=$('btnRelay').disabled?L('检测中…','Checking…'):L('检测节点和 Gas','Check node & gas'); $('toolReh').textContent=$('btnRehearse').disabled?L('预演中…','Rehearsing…'):L('预演一次','Rehearse'); }catch(e){} },500);
 const ICO={wallet:'<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M16 12.5h2M3 9h15a3 3 0 0 0-3-3H6"/>',shield:'<path d="M12 3l7 3v5c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/>',key:'<circle cx="8" cy="14" r="4"/><path d="M11 11l8-8M16 6l2 2"/>',node:'<circle cx="12" cy="12" r="3"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="12" cy="20" r="2"/><path d="M6.5 6.5l3.5 3.5M17.5 6.5L14 10M12 15v3"/>',gas:'<path d="M5 20V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M4 20h12M8 8h4"/><path d="M15 9l3 2v6a1.5 1.5 0 0 0 3 0V8l-3-3"/>',drop:'<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>'};
 const ico=(n,c)=>'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="'+(c||'currentColor')+'" stroke-width="'+(c?2.6:1.8)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICO[n]+'</svg>';
 function tilesRender(){ const el=$('tiles'); if(!el) return;
