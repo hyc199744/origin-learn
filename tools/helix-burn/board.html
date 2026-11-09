@@ -257,7 +257,7 @@ async function loadState(){
   try{
     const [[day,epoch,maxL,minStake,dailyMax,burned],remain,openSec]=await Promise.all([Promise.all([call(A.CLOCK,SEL.currentDay),call(A.CLOCK,SEL.currentEpoch),call(A.GATE,SEL.maximumLgns),call(A.GATE,SEL.minimumStake),call(A.GATE,SEL.dailyMaximumLgns),call(A.GATE,SEL.burnedLgnsToday)]),call(A.LENS,SEL.remaining).then(big,()=>null),getOpenSec(),syncClock().catch(()=>{})]); /* 同时问,原来一轮一轮问 */
     const [ns,ts0]=await Promise.all([call(A.CLOCK,SEL.dayStart+u256(big(day)+1n)),call(A.CLOCK,SEL.dayStart+u256(big(day)))]);
-    const keepOk=st.chainOk; st={day:Number(big(day)),epoch:Number(big(epoch)),maxL:big(maxL),minStake:big(minStake),dailyMax:big(dailyMax),burned:big(burned),remain}; if(keepOk!==undefined) st.chainOk=keepOk; /* 重读时别丢掉「链不对」标记 */
+    st=Object.assign(st,{day:Number(big(day)),epoch:Number(big(epoch)),maxL:big(maxL),minStake:big(minStake),dailyMax:big(dailyMax),burned:big(burned),remain}); /* 重读时保留钱包那几项和「链不对」标记,读完再覆盖,清单不再每分钟闪红 */
     const todayStart=Number(big(ts0));
     const todayOpen=todayStart+openSec, tomorrowOpen=Number(big(ns))+openSec; const full=st.dailyMax>0n&&st.burned>=st.dailyMax;
     nextStart=(!full&&chainNow()<todayOpen+120)?todayOpen:tomorrowOpen; try{ localStorage.setItem('hx_next',String(nextStart)); }catch(e){} // 今天还没开(或刚开没满)→今天的开放时刻;今天已满→明天
