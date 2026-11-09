@@ -175,7 +175,7 @@ fetch(API+'/cases',{cache:'no-store'}).then(function(r){return r.json();}).then(
   $('casesList').innerHTML=c.rows.map(function(r){ return '<div class="case"><div class="cl"><b>'+r.product+' <span class="mtag on">机器人</span></b><small>'+bjt(r.t)+' · 钱包 '+r.wallet+'</small></div><div class="cr"><b class="ok">'+(r.helix?'500 LGNS → 1000 算力':'+'+f(r.amt)+' LGNS')+'</b><small>'+(r.off===0?'第 1 块 ✓':'开放后 '+r.off+' 秒')+' · <a href="https://browser.anubispace.org/tx/'+r.tx+'" target="_blank" rel="noopener">链上查看 ↗</a></small></div></div>'; }).join('');
   $('casesCard').style.display=''; }).catch(function(){});
 // 涨价倒计时:以服务器给的 raiseAt/price 为准(服务器到点自动按新价开单),拿不到就用写死的 11-08 20:00
-var RZ={old:50,nw:100,at:Date.UTC(2026,10,8,12,0,0)/1000,skew:0}, rzT=null;
+var RZ={old:50,nw:50,at:Date.UTC(2026,10,8,12,0,0)/1000,skew:0}, rzT=null;
 function p2(n){ return (n<10?"0":"")+n; }
 function raiseTick(){
   var en=document.documentElement.lang==="en", left=Math.floor(RZ.at-(Date.now()/1000+RZ.skew)), on=left>0;
