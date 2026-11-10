@@ -6,7 +6,7 @@
   var API="https://zjgame.web3origin.com/bondrpc/vip", last="", state=null, bar=null;
   var VIP_LINK=false; // 11-06 老板:涨价前不放「去开通」跳转,只提示联系管理员;涨价后自动放链接(看服务器 raiseAt,不用再手改)
   var RAISE_AT=Date.UTC(2026,10,8,12,0,0)/1000; // 11-08 20:00 北京;服务器返回 raiseAt 时以服务器为准
-  function linkOn(){ var at=(state&&state.raiseAt)||RAISE_AT, now=(state&&state.now)?state.now:Date.now()/1000; return VIP_LINK||now>=at; }
+  function linkOn(){ return false; } // 11-10 老板:没开通的钱包不放「去开通」跳转,只提示联系管理员
   function prov(){ var w=window; if(w.okxwallet&&w.okxwallet.request) return w.okxwallet; if(w.ethereum&&w.ethereum.request) return w.ethereum; if(w.bitkeep&&w.bitkeep.ethereum) return w.bitkeep.ethereum; return null; }
   function show(on){
     if(on&&!bar){
