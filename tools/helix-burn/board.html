@@ -90,6 +90,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;padding:10px 
 .tools{display:flex;gap:8px;padding:10px 0}
 .tools button{flex:1;min-height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:13.5px;cursor:pointer;font-family:inherit}
 .tools button:disabled{opacity:.5}
+.tnote{display:flex;flex-direction:column;gap:3px;padding:0 2px 10px;font-size:12px;line-height:1.55;color:var(--muted)}.tnote b.a{color:var(--ok)}.tnote b.c{color:var(--acc)}
 .toast{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:60;max-width:496px;margin:0 auto;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.6;background:#1d1f27;color:#fff;border:1.5px solid rgba(255,255,255,.25);box-shadow:0 10px 30px rgba(0,0,0,.55);cursor:pointer}
 .toast.ok{border-color:#34d399}.toast.bad{border-color:#fb7185}.toast.warn{border-color:#fbbf24}
 #armState .ok{display:inline-flex;align-items:center;gap:6px;font-size:16px;font-weight:800;color:#0b1a12;background:#34d399;border-radius:999px;padding:4px 14px;box-shadow:0 0 0 3px rgba(52,211,153,.25)}
@@ -113,7 +114,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;padding:10px 
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}@media (max-width:340px){.kpi .ks{white-space:normal;overflow:visible;line-height:1.3}}</style>
 </head>
 <body data-nopoptoast="1">
-<div class="top"><div class="brand"><i></i><b data-en="HELIX Grab AI Power">HELIX 抢AI算力</b><span class="ver" data-en="v11‑10 16:27">版本 11‑10 16:27</span></div><span><span id="addr">未连接</span><button id="langBtn" aria-label="Language">🇬🇧 EN</button></span></div>
+<div class="top"><div class="brand"><i></i><b data-en="HELIX Grab AI Power">HELIX 抢AI算力</b><span class="ver" data-en="v11‑10 19:42">版本 11‑10 19:42</span></div><span><span id="addr">未连接</span><button id="langBtn" aria-label="Language">🇬🇧 EN</button></span></div>
 <div class="grid">
   <div class="card cd"><div class="hh"><span id="heroLbl">距 离 开 放</span><span id="kOpen" class="mono">—</span></div>
     <div id="winBig" class="hidden"><b>+1,000 <small data-en="power">算力</small></b><a id="winTx" class="hidden" target="_blank" rel="noopener" data-en="View on chain ›">链上查看 ›</a></div>
@@ -134,6 +135,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}@media (max-width:340px
   <div class="row hidden"><span data-en="Node">节点</span><span id="relayState">未接通</span></div>
   <div class="row hidden"><span data-en="Wallet gas limit">钱包 Gas 上限</span><span id="gasTest">没测过</span></div>
   <div class="tools"><button id="toolOne" data-en="One-tap check">一键检测</button></div>
+  <div class="tnote"><div><span data-en="Check: fee ">检测时：手续费选</span><b class="a" data-en="“Average”">「平均」</b><span data-en=" is fine (only tests the relay)">就行（只是测节点通不通）</span></div><div><span data-en="Final grab popup: choose ">开抢最后弹窗：选</span><b class="c" data-en="“Custom”">「自定义」</b><span> 50000 / 450000</span></div></div>
 </div>
 
 <div class="sh"><span data-en="BID vs FEE">出价参考</span><span class="mono" data-en="DAI">单位 DAI</span></div>
@@ -182,6 +184,7 @@ let toastT=null; function toast(m,cls){ const t=document.getElementById('toast')
 const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+String(d.getMilliseconds()).padStart(3,'0');const el=$('log');const line=document.createElement('div');if(cls)line.className=cls;line.textContent=t+'  '+m;el.prepend(line);try{ if(cls&&!(document.body.dataset.nopoptoast&&/^第 \d+ 笔：请在钱包点确认|^Try \d+: confirm in your wallet|^托管节点模式：现在弹钱包|^Relay mode: popping|^提前触发|^Early trigger|^链上已开放且模拟通过|^Open on chain and simulation|^⚠ 上次检测钱包 Gas 上限只有|^⚠ Last check showed the wallet gas limit/.test(String(m)))) toast(m,cls); }catch(e){} try{ if(/^✓ 已交给|^已广播|^你取消了|^🎉|今天的名额已经抢光|连续两次取消|^✓ Handed|^Broadcast|^You cancel|sold out today|Cancelled twice/.test(String(m))) showFill(false); }catch(e){}};
 const FILL_GWEI=50000, FILL_LIMIT=450000; /* 11-10:当天中签 400 人出价最低 6000、中位约 1 万,会员出 3000 的 103 笔只中 1 笔(出 2 万那笔) → 改 5 万;实际用 ~30 万 gas,上限 45 万 */
 const FILL_TX={type:'0x0',gas:'0x'+FILL_LIMIT.toString(16),gasPrice:'0x'+(BigInt(FILL_GWEI)*10n**9n).toString(16)};
+const TEST_TX={gas:'0x'+FILL_LIMIT.toString(16)}; /* 11-10 老板:检测/预演只测节点和上限,手续费选「平均」就行,不带 5 万价(听页面的钱包也不用先留 22.5 DAI) */
 const GAS_MIN=350000, DAI_MIN=23; /* 11-04 11:59 教训:58aE 钱包默认上限 20 万 → out of gas;EdE4 开抢才补 DAI → 晚了 */
 /* 钱包实际用的 Gas 上限:检测交易按抢 AI 同样参数发出,再从链上读回(OKX 会无视页面、用自己存的默认值) */
 const gasKey=()=>'hx_gas_'+String(me).toLowerCase();
@@ -222,12 +225,12 @@ function relayRender(){ gasRender(); const el=$('relayState'); if(!el) return; e
 async function relayDetect(){
   if(!eth||!me){ log(L('先连接钱包','Connect wallet first'),'warn'); return; } if(racing){ log(L('正在抢，稍后再检测','Grabbing now, check later'),'warn'); return; } $('btnRelay').disabled=true;
   try{
-    log(L('检测托管节点和钱包 Gas：钱包会弹一笔「给自己授权 0 枚 LGNS」，不动任何资产。这次别改网络费，直接点确认（手续费约 0.1~0.7 DAI），看看钱包默认会用多少 Gas 上限','Checking relay and wallet gas: the wallet will pop an "approve 0 LGNS to yourself" transaction that moves no assets. Do not change the fee, just confirm (fee about 0.1~0.7 DAI) so we can see the default gas limit'),'warn');
+    log(L('检测托管节点和钱包 Gas：钱包会弹一笔「给自己授权 0 枚 LGNS」，不动任何资产。这次只是测节点接没接通，手续费选「平均」直接确认就行（很少）。最后开抢弹窗时再选「自定义」','Checking relay and wallet gas: the wallet will pop an "approve 0 LGNS to yourself" transaction that moves no assets. This only tests the relay: pick the Average fee and confirm (tiny fee). Use Custom only at the final grab popup'),'warn');
     const tx={from:me,to:A.LGNS,value:'0x0',data:'0x095ea7b3'+addr32(me)+u256(0)};
-    let h=null, sendErr=''; try{ h=await eth.request({method:'eth_sendTransaction',params:[Object.assign({},tx,FILL_TX)]}); }catch(e){ if(isReject(e)){ log(L('你取消了检测','You cancelled the check'),'warn'); return; } try{ h=await eth.request({method:'eth_sendTransaction',params:[tx]}); }catch(e2){ if(isReject(e2)){ log(L('你取消了检测','You cancelled the check'),'warn'); return; } sendErr=String(e2.message||e2).slice(0,120); } }
+    let h=null, sendErr=''; try{ h=await eth.request({method:'eth_sendTransaction',params:[Object.assign({},tx,TEST_TX)]}); }catch(e){ if(isReject(e)){ log(L('你取消了检测','You cancelled the check'),'warn'); return; } try{ h=await eth.request({method:'eth_sendTransaction',params:[tx]}); }catch(e2){ if(isReject(e2)){ log(L('你取消了检测','You cancelled the check'),'warn'); return; } sendErr=String(e2.message||e2).slice(0,120); } }
     if(h) gasCheck(h).catch(()=>{});
     let sv=null, ok=false; for(let i=0;i<8&&!ok;i++){ await new Promise(r=>setTimeout(r,i?800:300)); sv=await relayGet('/seen?a='+me); ok=!!(sv&&sv.sendAgo!==null&&sv.sendAgo<90&&(!sv.sendHash||!h||String(sv.sendHash).toLowerCase()===String(h).toLowerCase())); }
-    if(ok){ relayAdd(me); relayDown=false; log(L('✓ 托管节点接通了：开启自动抢后，开放前 45 秒钱包弹窗，点「网络费用 → 自定义」改 50000 / 450000 再确认','✓ Relay connected: after arming, the wallet pops 45 s before open; set Network fee → Custom to 3000 / 450000, then confirm'),'ok'); }
+    if(ok){ relayAdd(me); relayDown=false; log(L('✓ 托管节点接通了：开启自动抢后，开放前 45 秒钱包弹窗，点「网络费用 → 自定义」改 50000 / 450000 再确认','✓ Relay connected: after arming, the wallet pops 45 s before open; set Network fee → Custom to 50000 / 450000, then confirm'),'ok'); }
     else if(!sv){ log(L('✗ 连不上托管节点（网络问题？开着 VPN 就换条线路，没开就打开试试）','✗ Cannot reach the relay (network issue? switch VPN route, or try turning a VPN on)'),'bad'); }
     else { relayDel(me); markBypass(); if(sendErr) log(L('检测交易出错：','Check transaction error: ')+trR(sendErr),'bad'); log(L('✗ 这笔交易没经过托管节点：请把钱包里 Anubis 网络的 RPC 改成 '+RELAY+'，并切到这个网络，再点检测（OKX：网络 → Anubis → 编辑）','✗ This transaction did not go through the relay. Set the Anubis network RPC in your wallet to '+RELAY+', switch to that network and check again (OKX: Networks → Anubis → Edit)'),'bad'); }
   }catch(e){ log(L('检测出错：','Check error: ')+trR(e.message||e),'bad'); } finally{ $('btnRelay').disabled=false; relayRender(); }
@@ -330,9 +333,9 @@ async function connect(){
 }
 const isReject=e=>!!(e&&(e.code===4001||e.code==='ACTION_REJECTED'||/reject|denied|cancel|取消|拒绝/i.test(e.message||'')));
 async function sendTx(to,data,gasMult){
-  let gp=null; if(gasMult!=='fill'){ try{ gp=BigInt(await rpc('eth_gasPrice',[]))*BigInt(Math.round((gasMult||1)*10))/10n; }catch(e){} }
-  const full={from:me,to,data}; if(gasMult==='fill') Object.assign(full,FILL_TX); /* 抢 AI:和金框提示一致(50000/450000),听页面参数的钱包(如 Bitget)不用手改 */
-  else if(gp){ full.gasPrice='0x'+gp.toString(16); full.type='0x0'; full.gas='0x'+(450000).toString(16); }
+  let gp=null; if(gasMult!=='fill'&&gasMult!=='test'){ try{ gp=BigInt(await rpc('eth_gasPrice',[]))*BigInt(Math.round((gasMult||1)*10))/10n; }catch(e){} }
+  const full={from:me,to,data}; if(gasMult==='fill') Object.assign(full,FILL_TX); else if(gasMult==='test') Object.assign(full,TEST_TX); /* 抢 AI:和金框提示一致(50000/450000),听页面参数的钱包(如 Bitget)不用手改 */
+  else if(gp&&gasMult!=='test'){ full.gasPrice='0x'+gp.toString(16); full.type='0x0'; full.gas='0x'+(450000).toString(16); }
   try{ return await eth.request({method:'eth_sendTransaction',params:[full]}); }
   catch(e){ if(isReject(e)||/Gas 上限|未开通|节点没发/.test(String(e&&e.message||e))) throw e; log(L('钱包不接受带 gas 参数的交易（','Wallet rejected the gas parameters (')+trR(e.message||e).slice(0,60)+L('），改用钱包默认参数重发','), resending with wallet defaults'),'warn'); return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data}]}); } // 个别钱包对 type/gas 字段挑剔:退回最简参数再试一次
 }
@@ -403,7 +406,7 @@ async function arm(){
   log(L('自动抢已开启：'+bj(nextStart)+(leadS>=0?' 前 '+leadS:' 后 '+(-leadS))+' 秒弹出钱包签名。保持本页在前台、钱包已解锁、别锁屏。','Auto-grab armed: the wallet pops '+Math.abs(leadS)+' s '+(leadS>=0?'before':'after')+' '+bj(nextStart)+'. Keep this page in front, the wallet unlocked and the screen on.'));
   clearInterval(armTimer); let warned=false;
   armTimer=setInterval(()=>{ if(!armed){clearInterval(armTimer);return;} const left=nextStart-chainNow();
-    if(!warned&&left<=(relayOn()?RELAY_POP+15:30)){ warned=true; buzz([80,60,80]); log(relayOn()?L('还有一分钟，钱包马上弹窗，点「网络费用 → 自定义」改 50000 / 450000 再确认','One minute left: the wallet will pop soon; set Network fee → Custom to 3000 / 450000, then confirm'):L('还有 30 秒，准备好点确认','30 s left, get ready to confirm'),'warn'); loadWallet().then(ok=>{ if(!ok) log(L('⚠ 资格检查刚才变红了，请立刻看上面红字','⚠ Eligibility just turned red, check the red text above now'),'bad'); }).catch(()=>{}); }
+    if(!warned&&left<=(relayOn()?RELAY_POP+15:30)){ warned=true; buzz([80,60,80]); log(relayOn()?L('还有一分钟，钱包马上弹窗，点「网络费用 → 自定义」改 50000 / 450000 再确认','One minute left: the wallet will pop soon; set Network fee → Custom to 50000 / 450000, then confirm'):L('还有 30 秒，准备好点确认','30 s left, get ready to confirm'),'warn'); loadWallet().then(ok=>{ if(!ok) log(L('⚠ 资格检查刚才变红了，请立刻看上面红字','⚠ Eligibility just turned red, check the red text above now'),'bad'); }).catch(()=>{}); }
     if(left<=leadS){ clearInterval(armTimer); race(); } },100);
 }
 let chkWarned=0;
@@ -444,13 +447,13 @@ async function rehearse(){
   if(racing||nextStart-chainNow()<180){ log(L('开放前 3 分钟内不能预演（会变成真抢），等自动弹窗就行','No rehearsal within 3 minutes of the open (it would become real); just wait for the auto popup'),'warn'); return; }
   $('btnRehearse').disabled=true;
   try{
-    log(L('预演：钱包会弹一笔「烧 500 LGNS」。先点「网络费用 → 自定义」看 Gas 上限是多少，然后直接确认。节点不会发出去，不扣钱。确认后钱包会提示「RPC 节点数据异常」或「交易失败」，这是节点故意不发，正常','Rehearsal: the wallet pops a "burn 500 LGNS". Check Gas limit under Network fee, then confirm. The node will not send it and no fee is charged. An "RPC node error" or "transaction failed" message afterwards is expected'),'warn');
+    log(L('预演：钱包会弹一笔「烧 500 LGNS」。手续费选「平均」直接确认。节点不会发出去，不扣钱。确认后钱包会提示「RPC 节点数据异常」或「交易失败」，这是节点故意不发，正常','Rehearsal: the wallet pops a "burn 500 LGNS". Pick the Average fee and confirm. The node will not send it and no fee is charged. An "RPC node error" or "transaction failed" message afterwards is expected'),'warn');
     let h=null, err='';
-    try{ h=await sendTx(A.LEDGER,SEL.burnForPower+u256(AMOUNT),'fill'); }catch(e){ if(isReject(e)){ log(L('你取消了预演','You cancelled the rehearsal'),'warn'); return; } err=String(e.message||e); }
+    try{ h=await sendTx(A.LEDGER,SEL.burnForPower+u256(AMOUNT),'test'); }catch(e){ if(isReject(e)){ log(L('你取消了预演','You cancelled the rehearsal'),'warn'); return; } err=String(e.message||e); }
     let tr=null; for(let i=0;i<8&&!tr;i++){ const sv=await relayGet('/seen?a='+me,2500); if(sv&&sv.hxTry&&sv.hxTry.ago<60) tr=sv.hxTry; else await new Promise(r=>setTimeout(r,500)); }
     if(!tr){ const m=err.match(/Gas 上限 (\d+)、价格 (\d+)/); if(m) tr={gas:Number(m[1]),gwei:Number(m[2])}; } /* 节点回的报错里也带了上限,/seen 没读到就用它 */
     if(tr){ LSs(gasKey(),String(tr.gas)); gasRender();
-      if(tr.gas>=GAS_MIN&&tr.gwei<FILL_GWEI){ buzz([300,80,300]); log(L('预演：Gas 上限 '+tr.gas+' 够用 ✓，但钱包给的价格只有 '+tr.gwei+' gwei，太低，开抢时会排在别人后面，很容易抢不到。真抢钱包弹窗时，一定要点「网络费用 → 自定义」，Gas 价格改成 '+FILL_GWEI+'、上限 '+FILL_LIMIT+' 再确认（这次节点没发，不扣钱）','Rehearsal: gas limit '+tr.gas+' is fine, but the wallet price is only '+tr.gwei+' gwei, too low to win. When it pops for real, tap Network fee → Custom, set price '+FILL_GWEI+' and limit '+FILL_LIMIT+', then confirm (nothing was sent, no fee)'),'warn'); }
+      if(tr.gas>=GAS_MIN&&tr.gwei<FILL_GWEI){ log(L('✓ 预演通过：Gas 上限 '+tr.gas+' 够用（这次节点没发，不扣钱；钱包提示「RPC 节点数据异常」是正常的）。真抢钱包弹窗时，一定要点「网络费用 → 自定义」，Gas 价格 '+FILL_GWEI+'、上限 '+FILL_LIMIT+' 再确认','✓ Rehearsal passed: gas limit '+tr.gas+' is fine (nothing was sent, no fee; the wallet RPC error is expected). At the real grab popup, tap Network fee → Custom, set price '+FILL_GWEI+' and limit '+FILL_LIMIT+', then confirm'),'ok'); }
       else if(tr.gas>=GAS_MIN) log(L('✓ 预演通过：钱包给的 Gas 上限 '+tr.gas+'，价格 '+tr.gwei+' gwei。抢的时候弹出来直接点确认就行（这次节点没发，不扣钱；钱包刚才提示「RPC 节点数据异常」就是这个，正常）','✓ Rehearsal passed: wallet gas limit '+tr.gas+', price '+tr.gwei+' gwei. When it pops for real, just confirm (nothing was sent this time and no fee; the wallet error you saw is expected)'),'ok');
       else { buzz([300,80,300]); log(L('✗ 预演发现钱包 Gas 上限只有 '+tr.gas+'，这样抢一定失败。抢的时候要点「网络费用 → 自定义」把上限改成 450000（这次节点没发，不扣钱）','✗ Rehearsal found the wallet gas limit is only '+tr.gas+'; that will fail. When grabbing, set Network fee → Custom → Gas limit 450000 (nothing was sent, no fee)'),'bad'); } }
     else if(h){ log(L('⚠ 这笔被发出去了，没经过托管节点（'+h+'）。请重新点「一键检测」','⚠ This was sent without the relay ('+h+'). Please run "One-tap check" again'),'bad'); relayDel(me); markBypass(); relayRender(); }
@@ -466,7 +469,7 @@ function showWin(h,r){ const m=$('winModal'); if(!m) return; $('wmBlk').textCont
 $('wmOk').onclick=()=>{ $('winModal').classList.add('hidden'); };
 $('winModal').onclick=e=>{ if(e.target===$('winModal')) $('winModal').classList.add('hidden'); };
 setInterval(()=>{ try{ const done=!!me&&!!st.epDone; $('winBig').classList.toggle('hidden',!done); if(done){ const hv=String(LSg('hx_win_'+String(me).toLowerCase())||'').split('|'); const h=(hv[0]&&hv[1]===String(st.epoch))?hv[0]:''; const a=$('winTx'); if(h){ a.href='https://browser.anubispace.org/tx/'+h; a.classList.remove('hidden'); } else a.classList.add('hidden'); if(!armed&&!racing&&!/抢到|Got it/.test($('armState').textContent)) $('armState').innerHTML='<span class="ok">'+L('本周期已抢到','Got it this epoch')+'</span>'; } }catch(e){} },1000);
-let oneBusy=false; async function oneClick(){ if(oneBusy) return; if(!me){ log(L('先连接钱包','Connect wallet first'),'warn'); return; } oneBusy=true; try{ if(!relayOn()){ log(L('一键检测第 1 步：检测托管节点。钱包会弹一笔「给自己授权 0 枚 LGNS」，不动资产，直接确认','One-tap check step 1: relay. The wallet pops an approve-0 to yourself; it moves nothing, just confirm'),'warn'); await relayDetect(); if(!relayOn()) return; await new Promise(r=>setTimeout(r,900)); log(L('一键检测第 2 步：预演。钱包会弹一笔「烧 500 LGNS」，节点不发、不扣钱，直接确认','Step 2: rehearsal. The wallet pops a burn 500 LGNS; the node will not send it, no fee, just confirm'),'warn'); } await rehearse(); } finally{ oneBusy=false; } }
+let oneBusy=false; async function oneClick(){ if(oneBusy) return; if(!me){ log(L('先连接钱包','Connect wallet first'),'warn'); return; } oneBusy=true; try{ if(!relayOn()){ log(L('一键检测第 1 步：检测托管节点。钱包会弹一笔「给自己授权 0 枚 LGNS」，不动资产，手续费选「平均」直接确认','One-tap check step 1: relay. The wallet pops an approve-0 to yourself; it moves nothing. Pick the Average fee and confirm'),'warn'); await relayDetect(); if(!relayOn()) return; await new Promise(r=>setTimeout(r,900)); log(L('一键检测第 2 步：预演。钱包会弹一笔「烧 500 LGNS」，节点不发、不扣钱，手续费选「平均」直接确认','Step 2: rehearsal. The wallet pops a burn 500 LGNS; the node will not send it, no fee. Pick the Average fee and confirm'),'warn'); } await rehearse(); } finally{ oneBusy=false; } }
 $('toolOne').onclick=()=>{ oneClick(); };
 $('toast').onclick=()=>{ $('toast').className='toast hidden'; };
 function askConfirm(msg){ return new Promise(res=>{ const m=$('cfModal'); $('cfMsg').textContent=String(msg).replace(/^托管节点没接通！\n\n|^Relay not connected!\n\n/,''); m.classList.remove('hidden'); try{ applyLang(); }catch(e){} const done=v=>{ m.classList.add('hidden'); $('cfGo').onclick=$('cfNo').onclick=null; res(v); }; $('cfGo').onclick=()=>done(true); $('cfNo').onclick=()=>done(false); }); }
