@@ -114,7 +114,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;padding:10px 
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}@media (max-width:340px){.kpi .ks{white-space:normal;overflow:visible;line-height:1.3}}</style>
 </head>
 <body data-nopoptoast="1">
-<div class="top"><div class="brand"><i></i><b data-en="HELIX Grab AI Power">HELIX 抢AI算力</b><span class="ver" data-en="v11‑10 19:42">版本 11‑10 19:42</span></div><span><span id="addr">未连接</span><button id="langBtn" aria-label="Language">🇬🇧 EN</button></span></div>
+<div class="top"><div class="brand"><i></i><b data-en="HELIX Grab AI Power">HELIX 抢AI算力</b><span class="ver" data-en="v11‑10 22:35">版本 11‑10 22:35</span></div><span><span id="addr">未连接</span><button id="langBtn" aria-label="Language">🇬🇧 EN</button></span></div>
 <div class="grid">
   <div class="card cd"><div class="hh"><span id="heroLbl">距 离 开 放</span><span id="kOpen" class="mono">—</span></div>
     <div id="winBig" class="hidden"><b>+1,000 <small data-en="power">算力</small></b><a id="winTx" class="hidden" target="_blank" rel="noopener" data-en="View on chain ›">链上查看 ›</a></div>
@@ -124,7 +124,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}@media (max-width:340px
   <div class="k3">
   <div class="card kpi"><div class="kk" data-en="WALLET POPUP">钱包弹窗</div><div class="kv" id="kPop">—</div><div class="ks" data-en="45 s before open">开放前 45 秒</div></div>
   <div class="card kpi"><div class="kk" data-en="STAKE">质押</div><div class="kv" id="kStake">—</div><div class="ks" data-en="Need ≥ 20,000">要 ≥ 20,000</div></div>
-  <div class="card kpi"><div class="kk" data-en="WALLET DAI">钱包 DAI</div><div class="kv" id="kDai">—</div><div class="ks" data-en="Keep ≥ 23 for fees">≥ 23 够付手续费</div></div>
+  <div class="card kpi"><div class="kk" data-en="WALLET DAI">钱包 DAI</div><div class="kv" id="kDai">—</div><div class="ks" data-en="Keep ≥ 25 for fees">≥ 25 够付手续费</div></div>
   </div>
   <div class="bar"><b data-en="Popup → Network fee → Custom">钱包弹窗 → 网络费用 → 自定义</b><span class="mono">50000 / 450000</span></div>
   <div class="hidden"><div id="kQuota"></div></div>
@@ -185,7 +185,7 @@ const log=(m,cls)=>{const d=new Date();const t=d.toTimeString().slice(0,8)+'.'+S
 const FILL_GWEI=50000, FILL_LIMIT=450000; /* 11-10:当天中签 400 人出价最低 6000、中位约 1 万,会员出 3000 的 103 笔只中 1 笔(出 2 万那笔) → 改 5 万;实际用 ~30 万 gas,上限 45 万 */
 const FILL_TX={type:'0x0',gas:'0x'+FILL_LIMIT.toString(16),gasPrice:'0x'+(BigInt(FILL_GWEI)*10n**9n).toString(16)};
 const TEST_TX={gas:'0x'+FILL_LIMIT.toString(16)}; /* 11-10 老板:检测/预演只测节点和上限,手续费选「平均」就行,不带 5 万价(听页面的钱包也不用先留 22.5 DAI) */
-const GAS_MIN=350000, DAI_MIN=23; /* 11-04 11:59 教训:58aE 钱包默认上限 20 万 → out of gas;EdE4 开抢才补 DAI → 晚了 */
+const GAS_MIN=350000, DAI_MIN=25; /* 11-04 11:59 教训:58aE 钱包默认上限 20 万 → out of gas;EdE4 开抢才补 DAI → 晚了 */
 /* 钱包实际用的 Gas 上限:检测交易按抢 AI 同样参数发出,再从链上读回(OKX 会无视页面、用自己存的默认值) */
 const gasKey=()=>'hx_gas_'+String(me).toLowerCase();
 const gasRes=()=>{ if(!me) return null; const v=Number(LSg(gasKey())||0); return v>0?v:null; };
@@ -284,7 +284,7 @@ async function loadWallet(){
   $('epoch').innerHTML='<span class="'+(okEp?'ok':'bad')+'">'+(okEp?L('没烧过 ✓（Epoch '+st.epoch+'）','Open ✓ (E'+st.epoch+')'):L('已烧过 ✗（记录 Epoch '+E+'）','Burned ✗ (Epoch '+E+')'))+'</span>';
   $('bal').innerHTML='<span class="'+(okBal?'ok':'bad')+'">'+f9(B)+(okBal?' ✓':' ✗')+'</span>';
   $('alw').innerHTML='<span class="'+(okAlw?'ok':'warn')+'">'+(W>(1n<<200n)?L('无限（建议改为按次授权）✓','Unlimited ✓'):f9(W)+' LGNS'+(okAlw?' ✓':L(' ✗ 需授权',' ✗ approve')))+'</span>';
-  /* OKX 用自己存的默认价(如 15000):签名前要先预留 价×上限(45 万);11-10 起 5 万 gwei×45 万=22.5 DAI → 统一要求 ≥ 23 DAI */
+  /* OKX 用自己存的默认价(如 15000):签名前要先预留 价×上限(45 万);11-10 起 5 万 gwei×45 万=22.5 DAI → 统一要求 ≥ 25 DAI(11-10 和出价参考表对齐) */
   $('gas').innerHTML='<span class="'+(okGas?'ok':'bad')+'">'+f18(G)+(okGas?' ✓':L(' ✗ 要 ',' ✗ need ')+DAI_MIN)+'</span>';
   const eligible=okStake&&okEp&&okBal&&okAlw&&okGas; st.G=G; st.S=S; st.B=B; st.W=W; st.okStake=okStake; st.okEp=okEp; st.okBal=okBal; st.okGas=okGas; st.okAlw=okAlw; st.elig=eligible; st.core=okStake&&okEp&&okBal&&okAlw; st.nextEp=null;
   if(!okEp){ try{ const nd=7*st.epoch+1; /* 链上实测:周期 e 覆盖第 7(e-1)+1~7e 天(北京 0 点换天),第 6 周期=第 36~42 天 */ st.nextEp=Number(big(await call(A.CLOCK,SEL.dayStart+u256(BigInt(nd)))))+(await getOpenSec()); $('epoch').innerHTML='<span class="bad">'+L('已烧过 ✗<br>下次 ','Burned ✗<br>next ')+bjS(st.nextEp)+'</span>'; }catch(e){} }
@@ -337,7 +337,7 @@ async function sendTx(to,data,gasMult){
   const full={from:me,to,data}; if(gasMult==='fill') Object.assign(full,FILL_TX); else if(gasMult==='test') Object.assign(full,TEST_TX); /* 抢 AI:和金框提示一致(50000/450000),听页面参数的钱包(如 Bitget)不用手改 */
   else if(gp&&gasMult!=='test'){ full.gasPrice='0x'+gp.toString(16); full.type='0x0'; full.gas='0x'+(450000).toString(16); }
   try{ return await eth.request({method:'eth_sendTransaction',params:[full]}); }
-  catch(e){ if(isReject(e)||/Gas 上限|未开通|节点没发/.test(String(e&&e.message||e))) throw e; log(L('钱包不接受带 gas 参数的交易（','Wallet rejected the gas parameters (')+trR(e.message||e).slice(0,60)+L('），改用钱包默认参数重发','), resending with wallet defaults'),'warn'); return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data}]}); } // 个别钱包对 type/gas 字段挑剔:退回最简参数再试一次
+  catch(e){ if(isReject(e)||/Gas 上限|未开通|节点没发/.test(String(e&&e.message||e))) throw e; if(gasMult==='fill'){ try{ return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data,gas:FILL_TX.gas,gasPrice:FILL_TX.gasPrice}]}); }catch(e2){ if(isReject(e2)||/Gas 上限|未开通|节点没发/.test(String(e2&&e2.message||e2))) throw e2; } buzz([300,80,300,80,300]); $('armState').innerHTML='<b class="bad">'+L('钱包没用页面的出价！弹窗里一定要点「网络费用 → 自定义」改 '+FILL_GWEI+' / '+FILL_LIMIT+' 再确认','The wallet ignored the page bid! In the popup tap Network fee → Custom, set '+FILL_GWEI+' / '+FILL_LIMIT+', then confirm')+'</b>'; } /* 11-10:原来直接退回钱包默认价(十几 gwei 必输),只记一行日志 */ log(L('钱包不接受带 gas 参数的交易（','Wallet rejected the gas parameters (')+trR(e.message||e).slice(0,60)+L('），改用钱包默认参数重发','), resending with wallet defaults'),'warn'); return await eth.request({method:'eth_sendTransaction',params:[{from:me,to,data}]}); } // 个别钱包对 type/gas 字段挑剔:退回最简参数再试一次
 }
 async function waitTx(hash,timeout){const t0=Date.now();while(Date.now()-t0<(timeout||120000)){try{const r=await rpc('eth_getTransactionReceipt',[hash]);if(r&&r.blockNumber)return r;}catch(e){}await new Promise(r=>setTimeout(r,350));}return null;} // 单次 RPC 失败不中断等待
 async function burnedThisEpoch(){ try{ const e=Number(big(await call(A.GATE,SEL.burnEpochOf+addr32(me)))); return e!==0&&e>=st.epoch; }catch(e){ return false; } } // 链上直接问"本 Epoch 烧过没"=最可靠的成功判定
@@ -388,7 +388,7 @@ async function race(){
       const SOLD=L('今天的名额已经抢光了，不再弹钱包，明天 11:59 再来','Slots are sold out today; not popping again. Come back tomorrow at 11:59');
       if(r==='full'){ log(SOLD,'bad'); break; } /* 11-10:节点回「今天名额已抢光」= 直接停 */
       if(r==='rejected'){ rejects++; if(rejects>=2){log(L('连续两次取消，已停止。要继续请重新点「开启自动抢」','Cancelled twice, stopping.'),'warn');break;} }
-      if(chainNow()>=nextStart){ let why=''; for(let i=0;i<4;i++){ why=await simulate(); if(!/not open/i.test(why)) break; await new Promise(z=>setTimeout(z,700)); } if(/daily maximum/i.test(why)){ log(SOLD,'bad'); break; } } /* 11-10:原来等到开放后 3 秒才查,单子 +1~2 秒就失败 → 白弹一次;改成开放后每次失败/取消都先查(最新块还没到开放就等 0.7 秒再查) */
+      if(chainNow()>=nextStart){ let why=''; for(let i=0;i<4;i++){ why=await simulate(); if(!/not open/i.test(why)) break; await new Promise(z=>setTimeout(z,700)); } if(/daily maximum/i.test(why)){ log(SOLD,'bad'); break; } if(why&&!/not open/i.test(why)&&/revert|insufficient|exceed|already|stake|allowance|balance|epoch/i.test(why)){ log(L('合约拒绝：'+why+'（不再弹钱包，先把这个问题解决，看上面清单红字）','Contract rejects: '+why+' (not popping again; fix this first, see the red items above)'),'bad'); break; } } /* 11-10:DAI/LGNS 不够、本周期已烧等明确拒绝,再弹也没用 */ /* 11-10:原来等到开放后 3 秒才查,单子 +1~2 秒就失败 → 白弹一次;改成开放后每次失败/取消都先查(最新块还没到开放就等 0.7 秒再查) */
       if(r==='rejected') log(L('再弹一次，这次请点确认','Popping again, please confirm this time'),'warn');
     }
   } finally { racing=false; armed=false; if(won) $('armState').innerHTML='<span class="ok">'+L('抢到了','Got it')+'</span>'; else $('armState').textContent=L('已结束','Finished'); await loadState(); }
