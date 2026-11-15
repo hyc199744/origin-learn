@@ -406,6 +406,8 @@
       return;
     }
     togglePausedBanner(false);lvDestroyHls();
+    // 兜底(2026-11-15):后台同步原平台状态失败时,若已进入排课时段,直接嵌原平台直播间;服务器一旦报live/ended,下次轮询即按服务器状态走
+    if((st==="waiting"||st==="unavailable")&&c.external_url&&c.start&&c.end){var _nw=serverNow();if(_nw>=c.start&&_nw<=c.end){if(state.mode!=="embed"){state.mode="embed";mountIframe(safeUrl(c.external_url)||c.external_url);}updateBadge("live");return;}}
     if(st==="scheduled"||st==="soon"||st==="upcoming"||st==="waiting"){if(state.mode!=="cd_"+st){state.mode="cd_"+st;showCountdown(stage,st);}return;}
     if(st==="ended"){if(state.mode!=="ended"){state.mode="ended";showEnded(stage,!!c.replayAvailable);}return;}
     if(st==="unavailable"){if(state.mode!=="unavail"){state.mode="unavail";showUnavailable(stage);}return;}
