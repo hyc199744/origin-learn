@@ -80,14 +80,26 @@ test('pending replay request times out and enables retry', async () => {
   assert.equal(h.document.getElementById('lv-replay-retry').disabled, false);
 });
 
-test('backup classroom survives midnight without claiming verified live status or cropping', async () => {
+test('backup uses the permanent channel without claiming verified live status or cropping', async () => {
   const h = setup('live/index.html'); h.run(); await flush();
   const frame = h.document.getElementById('lv-iframe');
-  assert.match(frame.src, /^https:\/\/view\.onlu\.cn\/play\/46779225/);
+  assert.equal(frame.src, 'https://view.onlu.cn/liveroom/4931814');
   assert.equal(frame.style.top, '0');
   assert.match(h.document.getElementById('lv-badge').textContent, /待确认/);
   assert.equal(h.document.querySelector('.lv-main').classList.contains('lv-embedded'), true);
   assert.match(h.document.getElementById('lv-open-original').getAttribute('href'), /view\.onlu\.cn/);
+});
+
+test('a repaired backend channel retains the real ended state', async () => {
+  const h = setup('live/index.html');
+  h.state.course.external_url = 'https://view.onlu.cn/liveroom/4931814';
+  h.state.course.status = 'ended';
+  h.state.course.source = 'platform';
+  h.run(); await flush();
+  assert.equal(h.document.getElementById('lv-open-original').getAttribute('href'), h.state.course.external_url);
+  assert.match(h.document.getElementById('lv-badge').textContent, /结束/);
+  assert.equal(h.document.getElementById('lv-iframe'), null);
+  assert.doesNotMatch(h.document.getElementById('lv-body').textContent, /正在使用备用课堂/);
 });
 
 test('failed background audio leaves the working classroom in place', async () => {

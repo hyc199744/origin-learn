@@ -584,10 +584,10 @@
       if(typeof r.online==="number")state.online=r.online;
       if(typeof r.cum==="number")state.cum=r.cum;
       var newCourse=r.course||null;
-      // 已核实的同频道备用课堂；不在午夜突然失效，不伪造实时状态。
+      // 已核实的同频道固定入口；跟随频道更新，不锁定某一天的单场课程。
       // 后台恢复真实直播流或改为新课堂地址后，立即服从后台配置。
       if(newCourse&&newCourse.external_url&&/^https:\/\/a\.toomao\.cn\/liveroom\/4931814\/?(?:\?|$)/i.test(newCourse.external_url)&&!safeUrl(newCourse.streamUrl)&&!(newCourse.isLive||newCourse.status==="live")){
-        newCourse.external_url="https://view.onlu.cn/play/46779225?i=38221797";newCourse.sourceFallback=true;
+        newCourse.external_url="https://view.onlu.cn/liveroom/4931814";newCourse.sourceFallback=true;
       }
       // 播放器状态之间(live/paused/replay)互切不整块重建,以免打断正在播放的画面(遵规范十一)
       var playerSet={live:1,paused:1,replay:1},oldC=state.course,os=oldC&&oldC.status,ns=newCourse&&newCourse.status;
