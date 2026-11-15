@@ -568,6 +568,8 @@
       if(typeof r.online==="number")state.online=r.online;
       if(typeof r.cum==="number")state.cum=r.cum;
       var newCourse=r.course||null;
+      // 临时改线(2026-11-15):toomao 证书坏了连不上,今晚这节改嵌 onlu 新链接;只在 2026-11-15 当天、原外链是 toomao 时生效,后台改了外链后此段自动失效
+      if(newCourse&&newCourse.external_url&&/a\.toomao\.cn/i.test(newCourse.external_url)){var _nd=serverNow();if(_nd>=1794672000&&_nd<1794758400){newCourse.external_url="https://view.onlu.cn/play/46779225?i=38221797";}}
       // 播放器状态之间(live/paused/replay)互切不整块重建,以免打断正在播放的画面(遵规范十一)
       var playerSet={live:1,paused:1,replay:1},oldC=state.course,os=oldC&&oldC.status,ns=newCourse&&newCourse.status;
       if(oldC&&newCourse&&oldC.id!==newCourse.id){state.streamFallback=false;_streamFails=0;lvDestroyHls();}
