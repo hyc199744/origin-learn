@@ -62,7 +62,7 @@ function setup(page, search = '', now = Date.parse('2026-11-16T12:30:00Z')) {
 test('replay failure keeps both replay entrances visible and offers retry', async () => {
   const h = setup('live/index.html'); h.state.replayError = true; h.run(); await flush();
   assert.notEqual(h.document.getElementById('lv-replays-sec').style.display, 'none');
-  assert.equal(h.document.querySelectorAll('.lv-shortcuts a').length, 2);
+  assert.equal(h.document.querySelectorAll('.lv-rep-tabs a').length, 2);
   assert.match(h.document.getElementById('lv-replay-status').textContent, /加载失败/);
   assert.equal(h.document.getElementById('lv-replay-retry').disabled, false);
   h.state.replayError = false;
@@ -87,7 +87,6 @@ test('backup uses the permanent channel without claiming verified live status or
   assert.equal(frame.style.top, '0');
   assert.match(h.document.getElementById('lv-badge').textContent, /待确认/);
   assert.equal(h.document.querySelector('.lv-main').classList.contains('lv-embedded'), true);
-  assert.match(h.document.getElementById('lv-open-original').getAttribute('href'), /view\.onlu\.cn/);
 });
 
 test('a repaired backend channel retains the real ended state', async () => {
@@ -96,7 +95,6 @@ test('a repaired backend channel retains the real ended state', async () => {
   h.state.course.status = 'ended';
   h.state.course.source = 'platform';
   h.run(); await flush();
-  assert.equal(h.document.getElementById('lv-open-original').getAttribute('href'), h.state.course.external_url);
   assert.match(h.document.getElementById('lv-badge').textContent, /结束/);
   assert.equal(h.document.getElementById('lv-iframe'), null);
   assert.doesNotMatch(h.document.getElementById('lv-body').textContent, /正在使用备用课堂/);
@@ -127,7 +125,6 @@ test('updated backend classroom replaces the fallback immediately for the same c
   h.state.course.external_url = 'https://view.onlu.cn/play/new-classroom';
   h.intervals.find(t => t.ms === 30000).fn(); await flush();
   assert.equal(h.document.getElementById('lv-iframe').src, h.state.course.external_url);
-  assert.equal(h.document.getElementById('lv-open-original').getAttribute('href'), h.state.course.external_url);
 });
 
 test('video replay refresh preserves an already loaded list after network failure', async () => {

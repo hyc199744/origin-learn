@@ -15,7 +15,7 @@
     st_upcoming:"未开始",st_soon:"即将开始",st_live:"直播中",st_ended:"已结束",st_fail:"加载失败",st_block:"外部平台禁止嵌入",st_none:"暂无课程",
     online:"当前观看",cum:"累计访问",people:"人",
     intro:"今日课程介绍",history:"历史课程",no_course:"今日暂无排期课程",no_course_sub:"课程由老师在后台排期后自动显示,请稍后再来,或关注社区通知。",
-    btn_enter:"进入今日课堂",btn_fs:"全屏观看",btn_refresh:"刷新播放器",btn_open:"在原平台打开",btn_open_new:"在新窗口打开原课堂",
+    btn_enter:"进入今日课堂",btn_fs:"全屏观看",btn_refresh:"刷新播放器",btn_open_new:"在新窗口打开原课堂",
     loading:"播放器加载中…",
     fail_title:"播放器加载失败或被拦截",
     fail_sub:"若长时间黑屏或无法播放,请点击下方按钮进入原课堂观看。跨域播放器本站无法读取其内部状态,这不代表课程未开播。",
@@ -43,7 +43,7 @@
     st_upcoming:"Not started",st_soon:"Starting soon",st_live:"Live",st_ended:"Ended",st_fail:"Load failed",st_block:"Embedding blocked",st_none:"No course",
     online:"Watching now",cum:"Total visits",people:"",
     intro:"Today's course",history:"Past courses",no_course:"No course scheduled today",no_course_sub:"Courses appear automatically once scheduled in the admin panel. Please check back later.",
-    btn_enter:"Enter classroom",btn_fs:"Fullscreen",btn_refresh:"Reload player",btn_open:"Open on original platform",btn_open_new:"Open original classroom in new tab",
+    btn_enter:"Enter classroom",btn_fs:"Fullscreen",btn_refresh:"Reload player",btn_open_new:"Open original classroom in new tab",
     loading:"Loading player…",
     fail_title:"Player failed to load or was blocked",
     fail_sub:"If the screen stays blank, click below to open the original classroom. Cross-origin players cannot be inspected by this site, so this does not mean the class is offline.",
@@ -79,7 +79,6 @@
     +"#live-wrap .lv-playercol{min-width:0}"
     +"#live-wrap .lv-stage{position:relative;width:100%;aspect-ratio:16/9;background:#000;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}"
     +"#live-wrap .lv-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}"
-    +"#live-wrap .lv-shortcuts{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:18px}#live-wrap .lv-shortcuts a{color:var(--glt);font-size:14px;text-decoration:none;padding:8px 14px;border:1px solid var(--line);border-radius:9px}"
     +"#live-wrap .lv-main.lv-embedded{grid-template-columns:minmax(0,1fr)}#live-wrap .lv-embedded .lv-infocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}#live-wrap .lv-embedded .lv-chat{grid-column:1/-1}"
     +"#live-wrap .lv-status-note{color:var(--soft);font-size:13px;line-height:1.7;margin:12px 0;overflow-wrap:anywhere}#live-wrap .lv-replay-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}#live-wrap .lv-btn:disabled{opacity:.65;cursor:wait}"
     +"@media(max-width:860px){#live-wrap .lv-embedded .lv-infocol{grid-template-columns:minmax(0,1fr)}}"
@@ -437,7 +436,7 @@
   function renderShell(){
     var root=document.getElementById("live-root");
     root.innerHTML='<div id="live-wrap">'
-      +'<div class="lv-head"><div class="lv-eyebrow">'+esc(T.eyebrow)+'</div><h1>'+esc(T.page_title)+'</h1><div class="lv-sub">'+esc(T.subtitle)+'</div><nav class="lv-shortcuts" aria-label="'+(ZH?"回放入口":"Replay links")+'"><a href="#lv-replays-sec">🎧 '+esc(T.audio_replays_title)+'</a><a href="/tools/video-replays/">🎬 '+esc(T.video_replays_title)+'</a></nav></div>'
+      +'<div class="lv-head"><div class="lv-eyebrow">'+esc(T.eyebrow)+'</div><h1>'+esc(T.page_title)+'</h1><div class="lv-sub">'+esc(T.subtitle)+'</div></div>'
       +'<div id="lv-body"><div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div></div>'
       +'<div class="lv-section" id="lv-replays-sec"><div class="lv-rep-tabs"><a class="lv-tab on" aria-current="page">🎧 '+esc(T.audio_replays_title)+'</a><a class="lv-tab off" href="/tools/video-replays/">🎬 '+esc(T.video_replays_title)+'</a></div><div class="lv-replay-status"><span class="lv-status-note" id="lv-replay-status" role="status">'+(ZH?"正在加载音频回放…":"Loading audio replays…")+'</span><button class="lv-btn" id="lv-replay-retry" type="button">↻ '+(ZH?"刷新回放":"Refresh replays")+'</button></div><div class="lv-rep-grid" id="lv-replays"></div></div>'
       +'<div class="lv-section"><div class="lv-card"><div class="lv-h3">🛡 '+esc(T.disclaimer_t)+'</div><div class="lv-disc"><ul>'+T.disc.map(function(d){return "<li>"+esc(d)+"</li>";}).join("")+'</ul></div></div>'
@@ -518,7 +517,6 @@
       +'<button class="lv-btn" id="lv-fs">⛶ '+esc(T.btn_fs)+'</button>'
       +'<button class="lv-btn" id="lv-bg">🎧 '+(ZH?"后台收听":"Listen in background")+'</button>'
       +'<button class="lv-btn" id="lv-refresh">↻ '+esc(T.btn_refresh)+'</button>'
-      +(safeUrl(c.external_url)?'<a class="lv-btn" id="lv-open-original" href="'+esc(safeUrl(c.external_url))+'" target="_blank" rel="noopener noreferrer">↗ '+esc(T.btn_open)+'</a>':"")
       +'<button class="lv-btn" id="lv-like">❤ '+(ZH?"点赞":"Like")+' <b id="lv-likeN">0</b></button>'
       +'</div><div class="lv-status-note" id="lv-playback-note" role="status">'+(ZH?"点播放器里的播放键收听；没有声音时，请检查播放器的静音按钮。":"Press play in the classroom player. If silent, check its mute button.")+'</div></div>'
       +'<div class="lv-infocol">'
@@ -833,7 +831,7 @@
       window.OriginPlayer.startLive({title:c.title||(ZH?"起源直播":"Origin Live"),cover:safeCover(c.cover_url),streamUrl:r.streamUrl,onClose:liveClosed});
       renderBgNote(c);bgSyncBtn();if(note)note.textContent="";
     }).catch(function(){
-      if(note)note.textContent=ZH?"当前课堂暂未提供后台音频。请在上方播放器里点击播放收听，或点「在原平台打开」。":"Background audio is unavailable. Listen in the classroom player above, or open the original platform.";
+      if(note)note.textContent=ZH?"当前课堂暂未提供后台音频。请在上方播放器里点击播放收听。":"Background audio is unavailable. Listen in the classroom player above.";
     }).then(function(){state.bgPending=false;if(btn)btn.disabled=false;});
   }
   function renderBgNote(c){
