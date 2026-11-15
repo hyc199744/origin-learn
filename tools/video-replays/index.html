@@ -87,6 +87,7 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
     <h1><span data-lang="zh">精品视频回放</span><span data-lang="en">Premium Video Replays</span></h1>
     <div class="sub"><span data-lang="zh">带 PPT / 共享屏幕的直播课程录像，点击任意一节即可在本页观看。<b style="color:var(--green)">限时免费</b>。</span><span data-lang="en">Recorded live sessions with slides / screen share. Tap any one to watch here. <b style="color:var(--green)">Free for now</b>.</span></div>
   </div></div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0;font-size:13px;line-height:1.7;color:var(--muted)"><span id="replay-status" role="status"></span><button id="replay-retry" type="button" class="sbtn"><span data-lang="zh">↻ 刷新回放</span><span data-lang="en">↻ Refresh replays</span></button><a href="/live/#lv-replays-sec"><span data-lang="zh">🎧 音频回放</span><span data-lang="en">🎧 Audio replays</span></a></div>
   <div id="list" class="grid"><div class="loading" data-lang="zh">正在加载视频回放…</div><div class="loading" data-lang="en">Loading video replays…</div></div>
 </div>
 
@@ -111,7 +112,7 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
   var list=document.getElementById("list");
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
   function two(n){return (n<10?"0":"")+n;}
-  function fmtClock(ts){if(!ts)return"";var d=new Date(ts*1000);return d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate())+" "+two(d.getHours())+":"+two(d.getMinutes());}
+  function fmtClock(ts){if(!ts)return"";var d=new Date(ts*1000+8*3600*1000);return d.getUTCFullYear()+"-"+two(d.getUTCMonth()+1)+"-"+two(d.getUTCDate())+" "+two(d.getUTCHours())+":"+two(d.getUTCMinutes());}
   function fmtDur(s){s=parseInt(s,10)||0;if(!s)return"";var m=Math.round(s/60);if(m<60)return m+(ZH?" 分钟":" min");var h=Math.floor(m/60),mm=m%60;return h+(ZH?" 小时":"h")+(mm?(" "+mm+(ZH?" 分":"m")):"");}
   function safeUrl(u){u=String(u||"");return /^https:\/\//i.test(u)?u:"";}
   function safeCover(u){u=String(u||"");return /^https:\/\//i.test(u)?u:"";}
@@ -188,13 +189,28 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
     });
   }
 
-  fetch(API+"/live/replays?limit=200").then(function(r){return r.json();}).then(function(r){
-    if(!r||!r.ok){render([]);return;}
-    var vids=(r.replays||[]).filter(function(c){return c&&c.play_url&&(c.kind==="video"||c.kind==="embed");});
-    render(vids);
-    // 分享链接 ?v=<ticket> 打开时自动播放那条
-    try{var q=new URLSearchParams(location.search).get("v");if(q){var it=vids.filter(function(c){return c.ticket_id===q;})[0];if(it)openPlay(it);}}catch(e){}
-  }).catch(function(){list.innerHTML='<div class="empty" style="grid-column:1/-1">'+esc(ZH?"加载失败，稍后再试。":"Failed to load, try again later.")+'</div>';});
+  var replayPending=false,shareOpened=false;
+  function loadReplays(){
+    if(replayPending)return;replayPending=true;
+    var note=document.getElementById("replay-status"),retry=document.getElementById("replay-retry"),timer;
+    var ctl=typeof AbortController!=="undefined"?new AbortController():null;
+    retry.disabled=true;note.textContent=ZH?"正在刷新回放…":"Refreshing replays…";
+    var timeout=new Promise(function(_,reject){timer=setTimeout(function(){if(ctl)ctl.abort();reject(new Error("timeout"));},10000);});
+    var request=fetch(API+"/live/replays?limit=200",ctl?{signal:ctl.signal}:{}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();});
+    return Promise.race([request,timeout]).then(function(r){
+      if(!r||!r.ok||!Array.isArray(r.replays))throw new Error("Invalid replay response");
+      var vids=r.replays.filter(function(c){return c&&c.play_url&&(c.kind==="video"||c.kind==="embed");});
+      render(vids);
+      var latest=vids.reduce(function(n,c){return Math.max(n,Number(c.live_time)||0);},0);
+      note.textContent=latest?(ZH?"最近收录的视频课程：":"Latest recorded video: ")+fmtClock(latest)+(ZH?"（北京时间） · "+vids.length+" 节":" (UTC+8) · "+vids.length+" sessions"):(ZH?"暂未收录视频回放":"No video replays yet");
+      if(!shareOpened){var q=new URLSearchParams(location.search).get("v");if(q){var it=vids.filter(function(c){return c.ticket_id===q;})[0];if(it){openPlay(it);shareOpened=true;}else{note.textContent=ZH?"当前列表中没有这节课，请选择下面的其他回放。":"This replay is not in the current list. Choose another session below.";}}}
+    }).catch(function(){
+      note.textContent=ZH?"回放列表暂时加载失败，请点「刷新回放」重试。":"Could not load replays. Press Refresh replays to retry.";
+      if(!ITEMS.length)list.innerHTML='<div class="empty" style="grid-column:1/-1">'+esc(ZH?"暂时无法获取列表，不代表回放已被删除。":"The list is temporarily unavailable; recordings may still be available.")+'</div>';
+    }).then(function(){clearTimeout(timer);replayPending=false;retry.disabled=false;});
+  }
+  document.getElementById("replay-retry").onclick=loadReplays;
+  loadReplays();
 })();
 </script>
 <script src="/i18n.js"></script>

@@ -171,7 +171,8 @@
   function startLive(meta){meta=meta||{};LIVE=true;ONCLOSE=meta.onClose||null;items=[{url:"",title:String(meta.title||(ZH?"起源直播":"Origin Live")).slice(0,120),cover:safe(meta.cover||"")}];idx=0;ensureLA();
     try{localStorage.setItem(LIVEMARK,JSON.stringify({title:items[0].title,cover:items[0].cover}));}catch(e){}
     build();show();media();sync();expand();
-    fetchStream().then(function(r){if(r&&r.ok&&r.live&&r.streamUrl)playLiveUrl(r.streamUrl);else endLive();});
+    if(safe(meta.streamUrl)){playLiveUrl(safe(meta.streamUrl));}
+    else{fetchStream().then(function(r){if(r&&r.ok&&r.live&&r.streamUrl)playLiveUrl(r.streamUrl);else endLive();});}
     if(!liveT)liveT=setInterval(checkLive,30000);}
   function endLive(){LIVE=false;if(LHLS){try{LHLS.destroy();}catch(e){}LHLS=null;}if(LA){try{LA.pause();}catch(e){}LA.removeAttribute("src");try{LA.load();}catch(e){}}if(liveT){clearInterval(liveT);liveT=null;}try{localStorage.removeItem(LIVEMARK);}catch(e){}items=[];if(BAR){BAR.classList.remove("op-live");BAR.classList.remove("op-open");BAR.classList.remove("on");}try{if("mediaSession" in navigator)navigator.mediaSession.playbackState="none";}catch(e){}var cb=ONCLOSE;ONCLOSE=null;if(cb)try{cb();}catch(e){}}
   window.OriginPlayer={

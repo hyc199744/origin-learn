@@ -97,7 +97,7 @@
     <div id="pp-list"></div>
   </div>
 
-<script src="/assets/player.js?v=10"></script>
+<script src="/assets/player.js?v=11"></script>
 <script>
 (function(){
   "use strict";
@@ -183,11 +183,15 @@
     if(!OP){document.getElementById("pp-title").textContent="播放器未就绪";return;}
     OP.hideBar&&OP.hideBar();
     var want=new URLSearchParams(location.search).get("t")||"";
-    fetch(API+"/live/replays?limit=80").then(function(r){return r.json();}).then(function(d){
-      var rows=(d&&d.replays)||[];
+    var ctl=typeof AbortController!=="undefined"?new AbortController():null,timer;
+    var timeout=new Promise(function(_,reject){timer=setTimeout(function(){if(ctl)ctl.abort();reject(new Error("timeout"));},10000);});
+    var request=fetch(API+"/live/replays?limit=200",ctl?{signal:ctl.signal}:{}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();});
+    Promise.race([request,timeout]).then(function(d){
+      if(!d||!d.ok||!Array.isArray(d.replays))throw new Error("Invalid replay response");
+      var rows=d.replays;
       replays=rows.filter(function(c){return c.play_url&&((c.kind||"audio")==="audio");});
       if(!replays.length){$("pp-title").textContent="暂无回放";$("pp-list").innerHTML='<div class="empty">录制过的课程结束后会自动出现在这里</div>';return;}
-      var i=0;if(want){for(var k=0;k<replays.length;k++){if(replays[k].ticket_id===want){i=k;break;}}}
+      var i=0;if(want){i=-1;for(var k=0;k<replays.length;k++){if(replays[k].ticket_id===want){i=k;break;}}if(i<0){$("pp-title").textContent="这节课不在当前回放列表中";$("pp-list").innerHTML='<div class="empty"><a href="/live/#lv-replays-sec">返回音频回放，选择其他课程</a></div>';return;}}
       curIdx=i;
       var list=replays.map(function(c){return {url:c.play_url,title:c.title,cover:c.cover};});
       var cur=OP.current&&OP.current();
@@ -195,7 +199,7 @@
       else{OP.playList(list,i);}
       onTrackChange();
       unsub=OP.onUpdate(paint);
-    }).catch(function(){$("pp-title").textContent="加载失败,请返回重试";});
+    }).catch(function(){$("pp-title").textContent="回放列表暂时加载失败";$("pp-list").innerHTML='<div class="empty"><button type="button" id="pp-retry">重新加载</button> · <a href="/live/#lv-replays-sec">返回音频回放</a></div>';$("pp-retry").onclick=boot;}).then(function(){clearTimeout(timer);});
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 })();
