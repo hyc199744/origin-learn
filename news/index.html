@@ -42,7 +42,7 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 @media(min-width:641px){.home{display:none}}
 
 .strap{border-bottom:1px solid var(--line);font-family:var(--sans)}.strap .wrap{display:flex;align-items:center;gap:16px;height:42px;font-size:12.5px;color:var(--muted);max-width:1080px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}.strap .wrap::-webkit-scrollbar{display:none}
-.strap b{color:var(--soft)}.strap .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 8px var(--green);animation:bp 1.6s infinite}.strap .dot.bad{background:var(--blood-lt);box-shadow:0 0 8px var(--blood-lt)}@keyframes bp{50%{opacity:.4}}.strap .rf{margin-left:auto;color:var(--gold);cursor:pointer}
+.strap b{color:var(--soft)}.strap .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 8px var(--green);animation:bp 1.6s infinite}.strap .dot.bad{background:var(--blood-lt);box-shadow:0 0 8px var(--blood-lt)}.strap .dot.warn{background:var(--gold);box-shadow:none;animation:none}@keyframes bp{50%{opacity:.4}}.strap .rf{margin-left:auto;color:var(--gold);cursor:pointer}
 
 .hero{text-align:center;padding:40px 0 10px}
 .hero h1{font-size:29px;color:var(--bone);letter-spacing:2px;font-weight:600}.hero h1 em{color:var(--gold);font-style:normal}
@@ -129,7 +129,7 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 </div></div>
 
 <div class="strap"><div class="wrap">
-  <span><span class="dot" id="dot"></span> <b id="srcState">加载中…</b></span><span class="rf" onclick="loadFeed(1)">↻ 刷新</span>
+  <span><span class="dot" id="dot"></span> <b id="srcState" aria-live="polite">加载中…</b></span><span class="rf" onclick="loadFeed(1)">↻ 刷新</span>
 </div></div>
 
 <div class="wrap">
@@ -158,6 +158,8 @@ a{color:inherit;text-decoration:none}.mono{font-family:ui-monospace,Menlo,Consol
 <script>
 var API="https://count.web3origin.com/news/feed";
 var FEED=null, ANNS=[], _curAnnId="";
+var _feedPending=null, _feedError='', _feedReadAt=0, _newsTab='ann';
+var NEWS_RECENT_MS=7*86400000, NEWS_TIMEOUT_MS=12000;
 function dedupe(arr,keyfn){var seen={},out=[];for(var i=0;i<arr.length;i++){var k=keyfn(arr[i]);if(seen[k])continue;seen[k]=1;out.push(arr[i]);}return out;}
 /* 埋点:若 analytics.js(defer)尚未就绪,先入队,就绪后补发,避免早点击丢事件 */
 var _evq=[];
@@ -168,17 +170,41 @@ var _evTimer=setInterval(function(){if(_evReady()){clearInterval(_evTimer);_evFl
 setTimeout(function(){try{clearInterval(_evTimer);}catch(_){}},15000);
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function ago(ts){if(!ts)return"—";var s=Math.floor((Date.now()-ts)/1000);if(s<60)return"刚刚";if(s<3600)return Math.floor(s/60)+" 分钟前";if(s<86400)return Math.floor(s/3600)+" 小时前";return Math.floor(s/86400)+" 天前";}
-function ymd(ct){var d=new Date(ct*1000);return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0");}
+function newsTime(value){
+ if(value==null||value===''||typeof value==='boolean')return 0;
+ var ts=typeof value==='number'||/^\d+(\.\d+)?$/.test(String(value))?Number(value):Date.parse(value);
+ if(ts>0&&ts<100000000000)ts*=1000;
+ return Number.isFinite(ts)&&ts>0&&Number.isFinite(new Date(ts).getTime())?ts:0;
+}
+function publishedTime(value){var ts=newsTime(value);return ts<=Date.now()+300000?ts:0;}
+function ymd(value){var ts=newsTime(value);return ts?new Date(ts+8*3600000).toISOString().slice(0,10):'时间未知';}
+function latestTime(rows,key){return rows.reduce(function(last,row){return Math.max(last,publishedTime(row[key]));},0);}
+function updateSourceState(){
+ var dot=document.getElementById('dot'),st=document.getElementById('srcState');
+ var isAnn=_newsTab==='ann',rows=isAnn?ANNS:((FEED&&FEED.tweets)||[]);
+ var latest=latestTime(rows,isAnn?'createtime':'created_at');
+ var text=latest?(isAnn?'公告':'推文')+'最新：'+ymd(latest):rows.length?'发布时间待核验':'暂无'+(isAnn?'公告':'推文');
+ if(_feedError){dot.className='dot bad';st.textContent=_feedError+(FEED?' · 保留已加载内容':'');}
+ else if(_feedPending){dot.className='dot warn';st.textContent=FEED?'正在刷新 · '+text:'加载中…';}
+ else if(FEED){
+   var old=!latest||Date.now()-latest>NEWS_RECENT_MS;
+   dot.className=old?'dot warn':'dot';st.textContent=text+(old&&latest?' · 近期未收录新内容':'');
+ }else{dot.className='dot warn';st.textContent='加载中…';}
+ // 接口更新时间只代表数据包时间，不能证明上游公告或推文已成功采集。
+ st.title=(FEED?text+'（北京时间）':'尚未读取资讯')+(_feedReadAt?'；最近读取：'+new Date(_feedReadAt).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'');
+}
 function isZh(l){return l==="zh"||l==="zh-tw"||l==="zh-cn";}
 function langName(l){return {zh:"繁体中文","zh-tw":"繁体中文","zh-cn":"简体中文",en:"英文",ko:"韩文",hi:"印地文"}[l]||l;}
 
 function switchTab(which){
  var isAnn=which!=='tw';
+ _newsTab=isAnn?'ann':'tw';
  document.getElementById('paneA').classList.toggle('on',isAnn);
  document.getElementById('paneT').classList.toggle('on',!isAnn);
  document.getElementById('tabA').classList.toggle('on',isAnn);
  document.getElementById('tabT').classList.toggle('on',!isAnn);
  try{localStorage.setItem('w3o_news_tab',isAnn?'ann':'tw');}catch(e){}
+ updateSourceState();
 }
 function updateCounts(){
  try{
@@ -189,7 +215,7 @@ function updateCounts(){
 }
 function renderAnns(){
  var box=document.getElementById("anns");
- if(!ANNS.length){box.innerHTML='<div class="empty">'+(FEED&&FEED.ok===false?'⚠️ 官方来源暂时无法同步，稍后自动重试。':'暂无公告。')+'</div>';return;}
+ if(!ANNS.length){box.innerHTML='<div class="empty">'+(_feedError?'⚠️ 公告暂时无法加载，稍后自动重试。':'暂无公告。')+'</div>';return;}
  box.innerHTML=ANNS.map(function(a,i){
    var wl=a.translated?'<span class="lab wait">AI译</span>':"";
    return '<div class="ann" onclick="openReader('+i+')"><span class="lab">官方公告</span><span class="lab gov">DAO治理</span>'+wl+
@@ -200,7 +226,7 @@ function renderAnns(){
 }
 function renderTweets(){
  var box=document.getElementById("xfeed");var tw=(FEED&&FEED.tweets)||[];
- if(!tw.length){box.innerHTML='<div class="empty">暂无推文。官方号与社区作者发重要推文后自动抓取翻译显示。</div>';return;}
+ if(!tw.length){box.innerHTML='<div class="empty">'+(_feedError?'⚠️ 推文暂时无法加载，稍后自动重试。':'暂未收录推文。')+'</div>';return;}
  var OFFICIAL_H=["saluteorigin","anubi_sab","anubischain_","anubis_labs"];
  box.innerHTML=tw.map(function(t){
    var zh=t.text_zh&&t.text_zh.trim();var mainTx=zh||t.text||"";
@@ -208,7 +234,7 @@ function renderTweets(){
    var srcLab=isOff?"官方推文":"社区作者";
    var orig=(zh&&t.text)?'<details class="tworig"><summary></summary><div class="txo">'+esc(t.text)+'</div></details><div class="ainote">🌐 由 AI 辅助翻译，以原文为准</div>':'';
    var img=(t.media&&t.media.length)?'<div class="twmedia'+(t.media.length>1?' multi':'')+'">'+t.media.slice(0,4).map(function(m){var pu="https://count.web3origin.com/news/img?u="+encodeURIComponent(m);return '<a data-analytics-skip href="'+pu+'" target="_blank" rel="noopener"><img loading="lazy" src="'+pu+'" alt="推文配图"></a>'}).join('')+'</div>':'';
-   var dt=t.created_at?new Date(t.created_at).toISOString().slice(0,10):"";
+   var dt=ymd(t.created_at);
    var avimg=t.avatar?'<img class="avimg" loading="lazy" alt="" src="https://count.web3origin.com/news/img?u='+encodeURIComponent(t.avatar)+'" onerror="this.remove()">':'';
    return '<div class="tw" data-h="'+esc(t.handle||"")+'"><div class="u"><div class="av"><svg viewBox="0 0 24 24" width="19" height="19" fill="#fff" aria-hidden="true"><path d="M18.9 2H22l-7.6 8.7L23.4 22h-6.9l-5.4-7-6.2 7H1.7l8.2-9.3L1 2h7l4.9 6.5L18.9 2Zm-2.4 18h1.9L7.1 3.9H5.1L16.5 20Z"/></svg>'+avimg+'</div><div><div class="n">'+esc(t.name||"")+(t.verified?' <span class="vf">✔ 认证</span>':'')+'</div><div class="h">@'+esc(t.handle||"")+'</div></div></div>'+
    '<div class="tx">'+esc(mainTx)+'</div>'+orig+img+
@@ -227,7 +253,7 @@ function openReader(i){
   '<div class="rh"><span class="lab">官方公告</span><span class="lab gov">DAO治理</span><span class="x" onclick="closeReader()">×</span></div>'+
   '<div class="rb"><h2>'+esc(n.title)+'</h2>'+
   '<div class="tcard"><span><b>内容性质</b> 官方公告</span><span><b>原始发布时间</b> '+ymd(n.createtime)+'</span></div>'+
-  langNote+n.paras.map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+origEn+oc+'</div>';
+  langNote+(n.paras.length?n.paras:[n.summary||'正文暂未收录。']).map(function(p){return '<p>'+esc(p)+'</p>'}).join('')+origEn+oc+'</div>';
  document.getElementById('mask').classList.add('on');document.body.style.overflow='hidden';
 }
 function closeReader(){document.getElementById('mask').classList.remove('on');document.body.style.overflow='';}
@@ -259,6 +285,8 @@ function showNewsToast(ann){
 function maybeNotify(){
  try{
    var latest=ANNS&&ANNS[0]; if(!latest||latest.id==null)return;
+   var published=publishedTime(latest.createtime);
+   if(!published||published>Date.now()||Date.now()-published>NEWS_RECENT_MS)return;
    var key='w3o_news_notified', seen=null;
    try{seen=localStorage.getItem(key);}catch(e){}
    if(String(latest.id)===seen)return;              // 这条已通知过,不再弹
@@ -266,14 +294,42 @@ function maybeNotify(){
    showNewsToast(latest);
  }catch(e){}
 }
-function loadFeed(manual){
- var dot=document.getElementById('dot'),st=document.getElementById('srcState');
- fetch(API,{cache:manual?'reload':'default'}).then(function(r){return r.json()}).then(function(j){
-   FEED=j;ANNS=dedupe((j&&j.items)||[],function(a){return (a.id||"")+"|"+(a.title||"")+"|"+(a.createtime||"");});
-   if(FEED&&FEED.tweets)FEED.tweets=dedupe(FEED.tweets,function(t){return (t.id||"")+"|"+String(t.handle||"").toLowerCase()+"|"+((t.text||"").slice(0,80));});
-   if(j&&j.ok){dot.className='dot';st.textContent='数据源正常';}else{dot.className='dot bad';st.textContent='暂时无法更新';}
+function normalizeNews(j){
+ if(!j||j.ok!==true||!Array.isArray(j.items)||!Array.isArray(j.tweets))throw new Error('invalid feed');
+ var anns=j.items.filter(function(a){return a&&typeof a.title==='string';}).map(function(a){
+   return Object.assign({},a,{paras:Array.isArray(a.paras)?a.paras:[],addrs:Array.isArray(a.addrs)?a.addrs:[]});
+ });
+ var tweets=j.tweets.filter(function(t){return t&&typeof t.handle==='string'&&(typeof t.text==='string'||typeof t.text_zh==='string');}).map(function(t){
+   return Object.assign({},t,{text:typeof t.text==='string'?t.text:'',text_zh:typeof t.text_zh==='string'?t.text_zh:'',media:Array.isArray(t.media)?t.media.filter(function(m){return typeof m==='string';}):[]});
+ });
+ if((j.items.length&&!anns.length)||(j.tweets.length&&!tweets.length))throw new Error('invalid rows');
+ anns=dedupe(anns,function(a){return (a.id||'')+'|'+a.title+'|'+(a.createtime||'');});
+ tweets=dedupe(tweets,function(t){return (t.id||'')+'|'+t.handle.toLowerCase()+'|'+t.text.slice(0,80);});
+ anns.sort(function(a,b){return publishedTime(b.createtime)-publishedTime(a.createtime);});
+ tweets.sort(function(a,b){return publishedTime(b.created_at)-publishedTime(a.created_at);});
+ return Object.assign({},j,{items:anns,tweets:tweets});
+}
+function loadFeed(){
+ if(_feedPending)return _feedPending;
+ _feedError='';
+ var controller=typeof AbortController!=='undefined'?new AbortController():null,timer;
+ var timeout=new Promise(function(_,reject){timer=setTimeout(function(){if(controller)controller.abort();reject(new Error('news timeout'));},NEWS_TIMEOUT_MS);});
+ var request=Promise.resolve().then(function(){return fetch(API,{cache:'no-store',signal:controller?controller.signal:undefined});}).then(function(r){
+   if(!r.ok)throw new Error('HTTP '+r.status);
+   return r.json();
+ });
+ _feedPending=Promise.race([request,timeout]).then(function(j){
+   var next=normalizeNews(j);
+   FEED=next;ANNS=next.items;_feedReadAt=Date.now();
    renderAnns();renderTweets();updateCounts();maybeNotify();
- }).catch(function(){FEED={ok:false};ANNS=[];dot.className='dot bad';st.textContent='连接失败';renderAnns();renderTweets();updateCounts();});
+ }).catch(function(e){
+   _feedError=e&&e.message==='news timeout'?'刷新超时，请稍后重试':'刷新失败，请稍后重试';
+   if(!FEED){renderAnns();renderTweets();updateCounts();}
+ }).then(function(){
+   clearTimeout(timer);_feedPending=null;updateSourceState();
+ });
+ updateSourceState();
+ return _feedPending;
 }
 try{if(localStorage.getItem('w3o_news_tab')==='tw')switchTab('tw');}catch(e){}
 loadFeed();
