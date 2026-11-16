@@ -98,16 +98,16 @@ for (const page of ['live/index.html', 'tools/video-replays/index.html']) {
     const h = setup(page); h.run(); await flush();
     const id = page === 'live/index.html' ? 'lv-replay-status' : 'replay-status';
     const note = () => h.document.getElementById(id).textContent;
-    assert.match(note(), /最新.*课程/);
-    assert.match(note(), /上次更新：2026-11-16 20:30/);
+    if(page === 'live/index.html') assert.equal(note(), '');
+    else { assert.match(note(), /最新.*课程/); assert.match(note(), /上次更新：2026-11-16 20:30/); }
     h.advance(60000); h.state.replayError = true;
     h.intervals.find(t => t.ms === 60000).fn(); await flush();
     assert.match(note(), /加载失败/);
-    assert.match(note(), /上次更新：2026-11-16 20:30/);
+    if(page !== 'live/index.html') assert.match(note(), /上次更新：2026-11-16 20:30/);
     h.state.replayError = false;
     h.intervals.find(t => t.ms === 60000).fn(); await flush();
-    assert.match(note(), /列表已更新/);
-    assert.match(note(), /上次更新：2026-11-16 20:31/);
+    if(page === 'live/index.html') assert.equal(note(), '');
+    else { assert.match(note(), /列表已更新/); assert.match(note(), /上次更新：2026-11-16 20:31/); }
   });
 }
 
@@ -170,7 +170,7 @@ test('replay failure keeps both replay entrances visible and offers retry', asyn
   h.state.replayError = false;
   await h.document.getElementById('lv-replay-retry').onclick();
   assert.equal(h.document.querySelectorAll('.lv-rep-item').length, 1);
-  assert.match(h.document.getElementById('lv-replay-status').textContent, /2026-11-12 08:57/);
+  assert.equal(h.document.getElementById('lv-replay-status').textContent, '');
   assert(h.calls.some(u => u.endsWith('/live/replays?limit=200')));
 });
 

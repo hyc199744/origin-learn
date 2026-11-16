@@ -80,7 +80,7 @@
     +"#live-wrap .lv-stage{position:relative;width:100%;aspect-ratio:16/9;background:#000;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}"
     +"#live-wrap .lv-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}"
     +"#live-wrap .lv-main.lv-embedded{grid-template-columns:minmax(0,1fr)}#live-wrap .lv-embedded .lv-infocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}#live-wrap .lv-embedded .lv-chat{grid-column:1/-1}"
-    +"#live-wrap .lv-status-note{color:var(--soft);font-size:13px;line-height:1.7;margin:12px 0;overflow-wrap:anywhere}#live-wrap .lv-replay-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}#live-wrap .lv-btn:disabled{opacity:.65;cursor:wait}"
+    +"#live-wrap .lv-status-note{color:var(--soft);font-size:13px;line-height:1.7;margin:12px 0;overflow-wrap:anywhere}#live-wrap .lv-status-note:empty{display:none}#live-wrap .lv-replay-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}#live-wrap .lv-btn:disabled{opacity:.65;cursor:wait}"
     +"@media(max-width:860px){#live-wrap .lv-embedded .lv-infocol{grid-template-columns:minmax(0,1fr)}}"
     +"#live-wrap .lv-cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5}"
     +"#live-wrap .lv-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:24px;background:linear-gradient(180deg,rgba(7,10,8,.55),rgba(7,10,8,.82))}"
@@ -443,7 +443,7 @@
     root.innerHTML='<div id="live-wrap">'
       +'<div class="lv-head"><div class="lv-eyebrow">'+esc(T.eyebrow)+'</div><h1>'+esc(T.page_title)+'</h1><div class="lv-sub">'+esc(T.subtitle)+'</div></div>'
       +'<div id="lv-body"><div class="lv-empty"><div class="lv-spin" style="margin:0 auto 16px"></div>'+esc(T.loading_page)+'</div></div>'
-      +'<div class="lv-section" id="lv-replays-sec"><div class="lv-rep-tabs"><a class="lv-tab on" aria-current="page">🎧 '+esc(T.audio_replays_title)+'</a><a class="lv-tab off" href="/tools/video-replays/">🎬 '+esc(T.video_replays_title)+'</a></div><div class="lv-replay-status"><span class="lv-status-note" id="lv-replay-status" role="status">'+(ZH?"正在加载音频回放…":"Loading audio replays…")+'</span><button class="lv-btn" id="lv-replay-retry" type="button">↻ '+(ZH?"刷新回放":"Refresh replays")+'</button></div><div class="lv-rep-grid" id="lv-replays"></div></div>'
+      +'<div class="lv-section" id="lv-replays-sec"><div class="lv-rep-tabs"><a class="lv-tab on" aria-current="page">🎧 '+esc(T.audio_replays_title)+'</a><a class="lv-tab off" href="/tools/video-replays/">🎬 '+esc(T.video_replays_title)+'</a></div><div class="lv-replay-status"><span class="lv-status-note" id="lv-replay-status" role="status"></span><button class="lv-btn" id="lv-replay-retry" type="button">↻ '+(ZH?"刷新回放":"Refresh replays")+'</button></div><div class="lv-rep-grid" id="lv-replays"></div></div>'
       +'<div class="lv-section"><div class="lv-card"><div class="lv-h3">🛡 '+esc(T.disclaimer_t)+'</div><div class="lv-disc"><ul>'+T.disc.map(function(d){return "<li>"+esc(d)+"</li>";}).join("")+'</ul></div></div>'
       +'<div class="lv-foot"><a class="lv-back" href="/">← '+(ZH?"返回起源首页":"Back to Origin home")+'</a></div></div>'
       +'</div>';
@@ -523,7 +523,7 @@
       +'<button class="lv-btn" id="lv-bg">🎧 '+(ZH?"后台收听":"Listen in background")+'</button>'
       +'<button class="lv-btn" id="lv-refresh">↻ '+esc(T.btn_refresh)+'</button>'
       +'<button class="lv-btn" id="lv-like">❤ '+(ZH?"点赞":"Like")+' <b id="lv-likeN">0</b></button>'
-      +'</div><div class="lv-status-note" id="lv-playback-note" role="status">'+(ZH?"点播放器里的播放键收听；没有声音时，请检查播放器的静音按钮。":"Press play in the classroom player. If silent, check its mute button.")+'</div></div>'
+      +'</div><div class="lv-status-note" id="lv-playback-note" role="status"></div></div>'
       +'<div class="lv-infocol">'
       +'<div class="lv-card"><span class="lv-badge b-upcoming" id="lv-badge"><span class="lv-dot"></span>—</span>'
       +'<div class="lv-ctitle" style="margin-top:12px">'+esc(c.title)+'</div>'
@@ -608,14 +608,13 @@
   function fetchHistory(){fetchJSON("/live/list",10000).then(function(r){if(r&&r.ok)renderHistory(r.courses||[]);}).catch(function(){});}
   // ===== 往期回放:自动存档的历史录播,点卡片→本页弹层内嵌播放(不外跳) =====
   function replayStatus(message){
-    var note=document.getElementById("lv-replay-status"),parts=[state.replaySummary||"",message];
-    if(state.replaysUpdatedAt)parts.push((ZH?"上次更新：":"Last updated: ")+fmtClock(state.replaysUpdatedAt)+(ZH?"（北京时间）":" (UTC+8)"));
-    if(note)note.textContent=parts.filter(Boolean).join(" · ");
+    var note=document.getElementById("lv-replay-status");
+    if(note)note.textContent=message;
   }
   function fetchReplays(){
     if(state.replaysPending)return;state.replaysPending=true;
     var retry=document.getElementById("lv-replay-retry");
-    if(retry)retry.disabled=true;replayStatus(ZH?"正在检查有没有新回放…":"Checking for new replays…");
+    if(retry)retry.disabled=true;replayStatus("");
     return fetchJSON("/live/replays?limit=200",10000).then(function(r){
       if(!r||!r.ok||!Array.isArray(r.replays))throw new Error("Invalid replay response");renderReplays(r.replays);
     }).catch(function(){
@@ -667,10 +666,7 @@
     sec.style.display="";
     var signature=JSON.stringify(auds);
     if(signature!==state.replaySignature){fillGrid(auds,grid,T.no_replays);state.replaySignature=signature;}
-    var latest=auds.reduce(function(n,c){return Math.max(n,Number(c.live_time)||0);},0);
-    state.replaySummary=latest?(ZH?"最新音频课程：":"Latest audio class: ")+fmtClock(latest)+(ZH?"（北京时间） · "+auds.length+" 节":" (UTC+8) · "+auds.length+" sessions"):(ZH?"暂未收录音频回放":"No audio replays yet");
-    state.replaysUpdatedAt=Math.floor(Date.now()/1000);
-    replayStatus(ZH?"列表已更新，每分钟自动检查新回放。刚结束的课程可能还没上传完成。":"List updated. Checks every minute; recently ended classes may still be uploading.");
+    replayStatus("");
   }
   function shareReplay(tkt,label){
     if(!tkt)return;
