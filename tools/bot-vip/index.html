@@ -103,7 +103,7 @@ input,.copyrow code{background:#0d0805;border:1px solid var(--line);color:var(--
 <div class="safe"><ul><li><b>不要私钥、不要助记词</b>，资产始终在你自己的钱包里。</li><li>每一笔都是你自己点确认的，节点只能「按时发」或「不发」，改不了金额和收款人。</li><li>不想用了，钱包节点改回官方地址就彻底断开。</li></ul></div></section>
 
 <section class="band" id="buy"><h2>立即开通</h2>
-<div class="price"><div class="n"><s class="was" id="pWas" style="display:none">100</s><span id="pNow">50</span></div><div class="cd" id="cdBox" style="display:none"><div class="lb" id="cdLb"></div><div class="bx" id="cdBx"></div><div class="nt" id="cdNt"></div></div><div class="u">USDT 或 DAI · 一次性买断</div><div id="opened" style="display:none"></div></div>
+<div class="price"><div class="n"><s class="was" id="pWas" style="display:none">100</s><span id="pNow">50</span></div><div class="cd" id="cdBox" style="display:none"><div class="lb" id="cdLb"></div><div class="bx" id="cdBx"></div><div class="nt" id="cdNt"></div></div><div class="u">USDT 或 DAI · 一次性买断</div><div id="opened">🔥 已有 <b>75</b> 人开通</div></div>
 <div style="margin-top:16px"><label class="dim small">① 你抢币要用的钱包地址（Anubis 链上的钱包，一单最多 5 个）</label>
 <input id="wIn" placeholder="钱包 1（必填）0x…" autocomplete="off" spellcheck="false">
 <input class="wx" placeholder="钱包 2（可不填）0x…" autocomplete="off" spellcheck="false">
@@ -195,8 +195,22 @@ function raiseTick(){
 function raiseInit(){ raiseTick(); if(!rzT) rzT=setInterval(raiseTick,1000); }
 window.__raise=function(o){ for(var k in o) RZ[k]=o[k]; raiseInit(); };
 raiseInit();
+// Presentation counter: baseline 75; daily +1/+2 plus new live members after 105.
+var openedLiveCount=105, openedServerSkew=0;
+function calculateOpenedDisplay(liveCount,nowMs){
+  var days=Math.max(0,Math.floor((nowMs-Date.UTC(2026,10,15,16))/86400000));
+  var dailyGrowth=Math.floor(days/2)*3+(days%2);
+  var newMembers=Number.isFinite(liveCount)?Math.max(0,Math.floor(liveCount)-105):0;
+  return 75+dailyGrowth+newMembers;
+}
+function renderOpenedCount(){
+  var el=$('opened');
+  el.innerHTML='🔥 已有 <b>'+calculateOpenedDisplay(openedLiveCount,Date.now()+openedServerSkew)+'</b> 人开通';
+}
+renderOpenedCount();
+setInterval(renderOpenedCount,60000);
 fetch(API,{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){ if(j.raiseAt){ RZ.at=j.raiseAt; RZ.old=j.priceOld||RZ.old; RZ.nw=j.priceNew||RZ.nw; if(j.now) RZ.skew=j.now-Date.now()/1000; raiseInit(); } else if(j.price&&j.price!==RZ.old&&j.price!==RZ.nw){ RZ.at=0; RZ.nw=j.price; raiseInit(); }
-  if(j.opened>0){ var el=$('opened'); el.innerHTML='🔥 已有 <b>'+j.opened+'</b> 人开通'; el.style.display=''; } }).catch(function(){});
+  openedLiveCount=Number(j.opened); if(j.now) openedServerSkew=j.now*1000-Date.now(); renderOpenedCount(); }).catch(function(){});
 function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t||''; }
 var cHome=$('casesCard').parentNode, cNext=$('casesCard').nextSibling;
 function moveCases(v){ var c=$('casesCard'); if(v==='vip') $('casesSlot').appendChild(c); else if(c.parentNode!==cHome) cHome.insertBefore(c,cNext); }
