@@ -229,10 +229,18 @@ function renderTweets(){
  if(!tw.length){box.innerHTML='<div class="empty">'+(_feedError?'⚠️ 推文暂时无法加载，稍后自动重试。':'暂未收录推文。')+'</div>';return;}
  var OFFICIAL_H=["saluteorigin","anubi_sab","anubischain_","anubis_labs"];
  box.innerHTML=tw.map(function(t){
-   var zh=t.text_zh&&t.text_zh.trim();var mainTx=zh||t.text||"";
+   var original=String(t.text||""),words=original.replace(/https?:\/\/\S+|[@#][\w]+/g,"");
+   var latin=(words.match(/[a-zA-Z]/g)||[]).length,han=(words.match(/[\u3400-\u9fff]/g)||[]).length;
+   var needsZh=latin>=3&&han<latin*0.5;
+   var zh=typeof t.text_zh==="string"?t.text_zh.trim():"";
+   if(!/[\u3400-\u9fff]/.test(zh)||zh===original.trim()||/MYMEMORY WARNING|QUERY LENGTH|INVALID LANGUAGE|DAILY LIMIT|QUOTA EXCEEDED/i.test(zh))zh="";
+   var showTranslation=(needsZh||!original)&&!!zh;
+   var mainTx=showTranslation?zh:(needsZh?"中文翻译暂未完成，系统会自动重试。可展开下方英文原文查看。":original);
    var isOff=OFFICIAL_H.indexOf(String(t.handle||"").toLowerCase())>=0;
    var srcLab=isOff?"官方推文":"社区作者";
-   var orig=(zh&&t.text)?'<details class="tworig"><summary></summary><div class="txo">'+esc(t.text)+'</div></details><div class="ainote">🌐 由 AI 辅助翻译，以原文为准</div>':'';
+   var note=showTranslation?(t.translation_status==="partial"?"中文译文仍在补全，完整内容请查看原文。":"机器翻译，以原文为准。"):"";
+   var orig=needsZh&&original?'<details class="tworig"><summary aria-label="展开或收起英文原文"></summary><div class="txo">'+esc(original)+'</div></details>':'';
+   if(note)orig+='<div class="ainote">'+note+'</div>';
    var img=(t.media&&t.media.length)?'<div class="twmedia'+(t.media.length>1?' multi':'')+'">'+t.media.slice(0,4).map(function(m){var pu="https://count.web3origin.com/news/img?u="+encodeURIComponent(m);return '<a data-analytics-skip href="'+pu+'" target="_blank" rel="noopener"><img loading="lazy" src="'+pu+'" alt="推文配图"></a>'}).join('')+'</div>':'';
    var dt=ymd(t.created_at);
    var avimg=t.avatar?'<img class="avimg" loading="lazy" alt="" src="https://count.web3origin.com/news/img?u='+encodeURIComponent(t.avatar)+'" onerror="this.remove()">':'';

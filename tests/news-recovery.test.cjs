@@ -142,3 +142,35 @@ test('valid empty feeds render without an error or promise that collection succe
   assert.match(h.document.getElementById('xfeed').textContent, /暂未收录推文/);
   assert.doesNotMatch(h.status(), /正常|失败/);
 });
+
+test('missing or invalid Chinese translations show a Chinese notice with the full English original collapsed', async () => {
+  for (const translation of ['', 'English response', 'MYMEMORY WARNING: 中文错误']) {
+    const h = setup();
+    const original = 'Announcement on EVM Execution Layer Bug Fix and Node Upgrade. Full text ending here.';
+    h.state.data.tweets = [{id:'30',handle:'Anubis_Labs',text:original,text_zh:translation}];
+    h.run(); await flush();
+    const card = h.document.querySelector('.tw');
+    assert.match(card.querySelector('.tx').textContent, /中文翻译暂未完成/);
+    assert.doesNotMatch(card.querySelector('.tx').textContent, /Announcement/);
+    assert.equal(card.querySelector('.txo').textContent, original);
+    assert.equal(card.querySelector('details').hasAttribute('open'), false);
+  }
+});
+
+test('translated and originally Chinese tweets remain readable, with partial translations identified', async () => {
+  const h = setup();
+  h.state.data.tweets = [
+    {id:'31',handle:'Anubis_Labs',text:'Node upgrade announcement',text_zh:'节点升级公告',translation_status:'complete'},
+    {id:'32',handle:'example',text:'A long announcement',text_zh:'部分译文',translation_status:'partial'},
+    {id:'33',handle:'example',text:'这是原本就使用中文的公告'},
+    {id:'34',handle:'example',text_zh:'仅收录了中文译文'},
+  ];
+  h.run(); await flush();
+  const cards = [...h.document.querySelectorAll('.tw')];
+  assert.equal(cards[0].querySelector('.tx').textContent, '节点升级公告');
+  assert.match(cards[0].querySelector('.ainote').textContent, /机器翻译/);
+  assert.match(cards[1].querySelector('.ainote').textContent, /仍在补全/);
+  assert.equal(cards[2].querySelector('.tx').textContent, '这是原本就使用中文的公告');
+  assert.equal(cards[2].querySelector('details'), null);
+  assert.equal(cards[3].querySelector('.tx').textContent, '仅收录了中文译文');
+});
