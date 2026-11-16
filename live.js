@@ -316,17 +316,22 @@
     var main=stage.closest&&stage.closest(".lv-main");if(main)main.classList.toggle("lv-embedded",on);
     if(!on){stage.style.height="";stage.style.aspectRatio="";}
   }
-  // 外部地址是一整张网页，不裁头部或底部；桌面盟主页面按完整视口等比缩放。
+  // 盟主手机页的视频在顶部、聊天区在下方。内嵌时只展示完整的 16:9 视频区，
+  // iframe 保持正常网页高度，避免其固定底部输入框挤进视频；全屏恢复完整课堂。
+  // 桌面课堂仍按完整视口等比缩放，其余平台保留原布局。
   function cropIframe(){
     var f=document.getElementById("lv-iframe"),stage=document.getElementById("lv-stage");if(!f||!stage)return;
     var mobile=/android|iphone|ipad|ipod/i.test(navigator.userAgent||"");
-    var desktopClassroom=!mobile&&/^https:\/\/view\.onlu\.cn\//i.test(f.src);
+    var onlu=/^https:\/\/view\.onlu\.cn\//i.test(f.src),desktopClassroom=!mobile&&onlu;
     var width=stage.clientWidth||window.innerWidth,full=!!fsElement();
     var virtualWidth=desktopClassroom?Math.max(1280,width):width,scale=width/virtualWidth;
-    var height=full?window.innerHeight:(desktopClassroom?Math.round(900*scale):Math.max(420,Math.min(720,Math.round(window.innerHeight*.75))));
+    var roomHeight=Math.max(420,Math.min(720,Math.round(window.innerHeight*.75)));
+    var compact=mobile&&onlu&&!full;
+    var height=full?window.innerHeight:(compact?Math.round(width*9/16):desktopClassroom?Math.round(900*scale):roomHeight);
     stage.style.aspectRatio="auto";stage.style.height=height+"px";
     f.style.position="absolute";f.style.left="0";f.style.top="0";f.style.right="auto";f.style.bottom="auto";
-    f.style.width=virtualWidth+"px";f.style.height=Math.ceil(height/scale)+"px";
+    f.style.width=virtualWidth+"px";f.style.height=(compact?Math.max(roomHeight,height):Math.ceil(height/scale))+"px";
+    f.setAttribute("scrolling",compact?"no":"auto");
     f.style.transformOrigin="top left";f.style.transform=scale<1?"scale("+scale+")":"none";
   }
   function toggleFullscreen(){

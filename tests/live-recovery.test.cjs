@@ -11,10 +11,10 @@ const flush = async () => { for (let i = 0; i < 8; i++) await new Promise(setImm
 const replay = { ticket_id: 'rec_20261112_0857', kind: 'audio', title: '课堂音频', live_time: 1794445036, duration: 4800, play_url: 'https://media.web3origin.com/replays/20261112_0857.mp3' };
 const video = { ...replay, ticket_id: 'rec_20261112_1432', kind: 'video', title: '课堂视频', live_time: 1794465169, play_url: 'https://media.web3origin.com/replays/20261112_1432.mp4' };
 
-function setup(page, search = '', now = Date.parse('2026-11-16T12:30:00Z')) {
+function setup(page, search = '', now = Date.parse('2026-11-16T12:30:00Z'), viewport = {}) {
   const { window } = parseHTML(read(page));
   const document = window.document;
-  const calls = [], timers = new Map(), intervals = [];
+  const calls = [], timers = new Map(), intervals = [], windowEvents = {};
   const state = { rows: [video, replay], replayError: false, hang: false, live: false, played: [], starts: [], active: false };
   state.course = { id: 1, title: '起源课堂', external_url: 'https://a.toomao.cn/liveroom/4931814', status: 'waiting', source: 'schedule', isLive: false, start: now / 1000 - 600, end: now / 1000 + 3600, embed_mode: 'embed' };
   let serial = 0;
@@ -42,22 +42,58 @@ function setup(page, search = '', now = Date.parse('2026-11-16T12:30:00Z')) {
   };
   class Clock extends Date { static now() { return now; } }
   const globals = {
-    document, navigator: { userAgent: 'Desktop Test', maxTouchPoints: 0 }, location, localStorage,
+    document, navigator: { userAgent: viewport.mobile ? 'Mozilla/5.0 (Linux; Android 16) Mobile' : 'Desktop Test', maxTouchPoints: viewport.mobile ? 1 : 0 }, location, localStorage,
     fetch, URL, URLSearchParams, AbortController, Promise, Date: Clock, console,
     setTimeout(fn, ms) { const id = ++serial; timers.set(id, { fn, ms }); return id; },
     clearTimeout(id) { timers.delete(id); },
     setInterval(fn, ms) { intervals.push({ fn, ms }); return intervals.length; }, clearInterval() {},
-    MutationObserver: class { observe() {} }, innerWidth: 1365, innerHeight: 900,
+    MutationObserver: class { observe() {} }, innerWidth: viewport.width || 1365, innerHeight: viewport.height || 900,
     OriginPlayer: OP,
   };
-  globals.window = { ...globals, addEventListener() {}, scrollTo() {} };
+  globals.window = { ...globals, addEventListener(event, fn) { (windowEvents[event] ||= []).push(fn); }, scrollTo() {} };
   const context = vm.createContext(globals);
   function run() {
     const source = page === 'live/index.html' ? read('live.js') : [...read(page).matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(s => s.includes('var API='));
     vm.runInContext(source, context, { filename: page });
   }
-  return { document, state, calls, timers, intervals, run, OP };
+  return { document, state, calls, timers, intervals, run, OP, resize: () => (windowEvents.resize || []).forEach(fn => fn()) };
 }
+
+test('phone classroom keeps the full video area without reserving a full screen for external chat', async () => {
+  const h = setup('live/index.html', '', undefined, { mobile: true, width: 390, height: 844 });
+  h.run(); await flush();
+  const frame = h.document.getElementById('lv-iframe'), stage = h.document.getElementById('lv-stage');
+  Object.defineProperty(stage, 'clientWidth', { value: 350, configurable: true }); h.resize();
+  assert.equal(stage.style.height, '197px');
+  assert.equal(frame.style.top, '0');
+  assert.equal(frame.style.width, '350px');
+  assert.equal(frame.style.height, '633px');
+  assert.equal(frame.getAttribute('scrolling'), 'no');
+  assert.equal(h.document.querySelectorAll('.lv-rep-tabs a').length, 2);
+  assert.equal(h.document.querySelector('.lv-rep-tabs a[href]').getAttribute('href'), '/tools/video-replays/');
+  assert.equal(h.document.querySelector('.lv-shortcuts'), null);
+});
+
+test('phone fullscreen restores the classroom and leaving it restores the compact video area', async () => {
+  const h = setup('live/index.html', '', undefined, { mobile: true, width: 390, height: 844 });
+  h.run(); await flush();
+  const frame = h.document.getElementById('lv-iframe'), stage = h.document.getElementById('lv-stage');
+  h.document.fullscreenElement = stage; h.resize();
+  assert.equal(stage.style.height, '844px');
+  assert.equal(frame.style.height, '844px');
+  assert.equal(frame.getAttribute('scrolling'), 'auto');
+  h.document.fullscreenElement = null; h.resize();
+  assert.equal(stage.style.height, '219px');
+  assert.equal(frame.getAttribute('scrolling'), 'no');
+});
+
+test('other mobile classroom providers keep their original viewport', async () => {
+  const h = setup('live/index.html', '', undefined, { mobile: true, width: 390, height: 844 });
+  h.state.course.external_url = 'https://example.org/classroom';
+  h.run(); await flush();
+  assert.equal(h.document.getElementById('lv-stage').style.height, '633px');
+  assert.equal(h.document.getElementById('lv-iframe').getAttribute('scrolling'), 'auto');
+});
 
 test('replay failure keeps both replay entrances visible and offers retry', async () => {
   const h = setup('live/index.html'); h.state.replayError = true; h.run(); await flush();
