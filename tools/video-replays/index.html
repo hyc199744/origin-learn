@@ -189,28 +189,39 @@ h1{font-size:clamp(20px,4vw,27px);color:var(--gold-lt);margin:0;font-family:var(
     });
   }
 
-  var replayPending=false,shareOpened=false;
+  var replayPending=false,shareOpened=false,lastReplayUpdate=0,replaySummary="",replaySignature="";
+  function updateReplayStatus(message){
+    var parts=[replaySummary,message];
+    if(lastReplayUpdate)parts.push((ZH?"上次更新：":"Last updated: ")+fmtClock(lastReplayUpdate)+(ZH?"（北京时间）":" (UTC+8)"));
+    document.getElementById("replay-status").textContent=parts.filter(Boolean).join(" · ");
+  }
   function loadReplays(){
     if(replayPending)return;replayPending=true;
-    var note=document.getElementById("replay-status"),retry=document.getElementById("replay-retry"),timer;
+    var retry=document.getElementById("replay-retry"),timer;
     var ctl=typeof AbortController!=="undefined"?new AbortController():null;
-    retry.disabled=true;note.textContent=ZH?"正在刷新回放…":"Refreshing replays…";
+    retry.disabled=true;updateReplayStatus(ZH?"正在检查有没有新回放…":"Checking for new replays…");
     var timeout=new Promise(function(_,reject){timer=setTimeout(function(){if(ctl)ctl.abort();reject(new Error("timeout"));},10000);});
-    var request=fetch(API+"/live/replays?limit=200",ctl?{signal:ctl.signal}:{}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();});
+    var request=fetch(API+"/live/replays?limit=200",{cache:"no-store",signal:ctl?ctl.signal:undefined}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();});
     return Promise.race([request,timeout]).then(function(r){
       if(!r||!r.ok||!Array.isArray(r.replays))throw new Error("Invalid replay response");
       var vids=r.replays.filter(function(c){return c&&c.play_url&&(c.kind==="video"||c.kind==="embed");});
-      render(vids);
+      var signature=JSON.stringify(vids,function(key,value){return key==="_label"?undefined:value;});
+      if(signature!==replaySignature){render(vids);replaySignature=signature;}
       var latest=vids.reduce(function(n,c){return Math.max(n,Number(c.live_time)||0);},0);
-      note.textContent=latest?(ZH?"最近收录的视频课程：":"Latest recorded video: ")+fmtClock(latest)+(ZH?"（北京时间） · "+vids.length+" 节":" (UTC+8) · "+vids.length+" sessions"):(ZH?"暂未收录视频回放":"No video replays yet");
-      if(!shareOpened){var q=new URLSearchParams(location.search).get("v");if(q){var it=vids.filter(function(c){return c.ticket_id===q;})[0];if(it){openPlay(it);shareOpened=true;}else{note.textContent=ZH?"当前列表中没有这节课，请选择下面的其他回放。":"This replay is not in the current list. Choose another session below.";}}}
+      replaySummary=latest?(ZH?"最新视频课程：":"Latest video class: ")+fmtClock(latest)+(ZH?"（北京时间） · "+vids.length+" 节":" (UTC+8) · "+vids.length+" sessions"):(ZH?"暂未收录视频回放":"No video replays yet");
+      lastReplayUpdate=Math.floor(Date.now()/1000);
+      updateReplayStatus(ZH?"列表已更新，每分钟自动检查新回放。刚结束的课程可能还没上传完成。":"List updated. Checks every minute; recently ended classes may still be uploading.");
+      if(!shareOpened){var q=new URLSearchParams(location.search).get("v");if(q){var it=vids.filter(function(c){return c.ticket_id===q;})[0];if(it&&!modal.classList.contains("on")){openPlay(it);shareOpened=true;}else if(!it){updateReplayStatus(ZH?"当前列表中没有分享的这节课，将继续自动检查，也可以先看其他回放。":"The shared class is not listed yet. We will keep checking; other replays are available below.");}}}
     }).catch(function(){
-      note.textContent=ZH?"回放列表暂时加载失败，请点「刷新回放」重试。":"Could not load replays. Press Refresh replays to retry.";
-      if(!ITEMS.length)list.innerHTML='<div class="empty" style="grid-column:1/-1">'+esc(ZH?"暂时无法获取列表，不代表回放已被删除。":"The list is temporarily unavailable; recordings may still be available.")+'</div>';
+      updateReplayStatus(ZH?"加载失败，已有回放会保留；稍后自动重试，也可点「刷新回放」。":"Refresh failed. Existing replays are kept. We will retry automatically, or press Refresh replays.");
+      if(!lastReplayUpdate)list.innerHTML='<div class="empty" style="grid-column:1/-1">'+esc(ZH?"暂时无法获取列表，不代表回放已被删除。":"The list is temporarily unavailable; recordings may still be available.")+'</div>';
     }).then(function(){clearTimeout(timer);replayPending=false;retry.disabled=false;});
   }
   document.getElementById("replay-retry").onclick=loadReplays;
   loadReplays();
+  setInterval(function(){if(!document.hidden)loadReplays();},60000);
+  document.addEventListener("visibilitychange",function(){if(!document.hidden)loadReplays();});
+  window.addEventListener("online",function(){if(!document.hidden)loadReplays();});
 })();
 </script>
 <script src="/i18n.js"></script>

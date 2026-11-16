@@ -565,7 +565,9 @@
     var ctl=("AbortController" in window)?new AbortController():null;
     var timer;
     var timeout=new Promise(function(_,rej){timer=setTimeout(function(){if(ctl){try{ctl.abort();}catch(e){}}rej(new Error("timeout"));},ms);});
-    var req=fetch(API+path,ctl?{signal:ctl.signal}:{}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();});
+    var options=ctl?{signal:ctl.signal}:{};
+    if(path.indexOf("/live/replays?")===0)options.cache="no-store";
+    var req=fetch(API+path,options).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();});
     return Promise.race([req,timeout]).then(function(r){clearTimeout(timer);return r;},function(e){clearTimeout(timer);throw e;});
   }
   function renderError(){
@@ -605,14 +607,19 @@
   }
   function fetchHistory(){fetchJSON("/live/list",10000).then(function(r){if(r&&r.ok)renderHistory(r.courses||[]);}).catch(function(){});}
   // ===== 往期回放:自动存档的历史录播,点卡片→本页弹层内嵌播放(不外跳) =====
+  function replayStatus(message){
+    var note=document.getElementById("lv-replay-status"),parts=[state.replaySummary||"",message];
+    if(state.replaysUpdatedAt)parts.push((ZH?"上次更新：":"Last updated: ")+fmtClock(state.replaysUpdatedAt)+(ZH?"（北京时间）":" (UTC+8)"));
+    if(note)note.textContent=parts.filter(Boolean).join(" · ");
+  }
   function fetchReplays(){
     if(state.replaysPending)return;state.replaysPending=true;
-    var retry=document.getElementById("lv-replay-retry"),note=document.getElementById("lv-replay-status");
-    if(retry)retry.disabled=true;if(note)note.textContent=ZH?"正在刷新回放…":"Refreshing replays…";
+    var retry=document.getElementById("lv-replay-retry");
+    if(retry)retry.disabled=true;replayStatus(ZH?"正在检查有没有新回放…":"Checking for new replays…");
     return fetchJSON("/live/replays?limit=200",10000).then(function(r){
       if(!r||!r.ok||!Array.isArray(r.replays))throw new Error("Invalid replay response");renderReplays(r.replays);
     }).catch(function(){
-      if(note)note.textContent=ZH?"回放列表暂时加载失败，请点「刷新回放」重试。已有列表会保留。":"Could not refresh replays. Retry below; any loaded replays are kept.";
+      replayStatus(ZH?"加载失败，已有回放会保留；稍后自动重试，也可点「刷新回放」。":"Refresh failed. Existing replays are kept. We will retry automatically, or press Refresh replays.");
     }).then(function(){state.replaysPending=false;if(retry)retry.disabled=false;});
   }
   // 渲染一组回放卡片到指定grid(空则显示提示语)
@@ -658,9 +665,12 @@
     state.replays=list||[];
     var auds=(list||[]).filter(function(c){return c&&c.play_url&&!(c.kind==="video"||c.kind==="embed");});
     sec.style.display="";
-    fillGrid(auds,grid,T.no_replays);
-    var note=document.getElementById("lv-replay-status"),latest=auds.reduce(function(n,c){return Math.max(n,Number(c.live_time)||0);},0);
-    if(note)note.textContent=latest?(ZH?"最近收录的音频课程：":"Latest recorded audio: ")+fmtClock(latest)+(ZH?"（北京时间） · "+auds.length+" 节":" (UTC+8) · "+auds.length+" sessions"):(ZH?"暂未收录音频回放":"No audio replays yet");
+    var signature=JSON.stringify(auds);
+    if(signature!==state.replaySignature){fillGrid(auds,grid,T.no_replays);state.replaySignature=signature;}
+    var latest=auds.reduce(function(n,c){return Math.max(n,Number(c.live_time)||0);},0);
+    state.replaySummary=latest?(ZH?"最新音频课程：":"Latest audio class: ")+fmtClock(latest)+(ZH?"（北京时间） · "+auds.length+" 节":" (UTC+8) · "+auds.length+" sessions"):(ZH?"暂未收录音频回放":"No audio replays yet");
+    state.replaysUpdatedAt=Math.floor(Date.now()/1000);
+    replayStatus(ZH?"列表已更新，每分钟自动检查新回放。刚结束的课程可能还没上传完成。":"List updated. Checks every minute; recently ended classes may still be uploading.");
   }
   function shareReplay(tkt,label){
     if(!tkt)return;
@@ -859,8 +869,8 @@
     var s=document.createElement("style");s.textContent=css;document.head.appendChild(s);
     renderShell();
     fetchToday().then(function(){beat();});
-    // 往期回放:仅主直播页(/live)显示,木火夜聊(/live-cloud,自定义LV_EP)不显示;开屏拉一次+每5分钟刷新
-    if(EPtoday==="/live/today"){document.getElementById("lv-replay-retry").onclick=fetchReplays;fetchReplays();setInterval(function(){if(!document.hidden)fetchReplays();},300000);}
+    // 往期回放:仅主直播页显示;可见时每分钟更新,不重建播放器。
+    if(EPtoday==="/live/today"){document.getElementById("lv-replay-retry").onclick=fetchReplays;fetchReplays();setInterval(function(){if(!document.hidden)fetchReplays();},60000);window.addEventListener("online",function(){if(!document.hidden)fetchReplays();});}
     else{document.getElementById("lv-replays-sec").style.display="none";}
     document.addEventListener("keydown",function(e){if(e.key==="Escape")closeReplay();});
     function onFsChange(){syncFsButtons();cropIframe();}
@@ -873,7 +883,7 @@
     setInterval(function(){if(!document.hidden)pollChat();},5000);      // 公屏聊天轮询
     setInterval(beat,45000);         // 观看心跳
     // 标签页重新激活时立即刷新一次
-    document.addEventListener("visibilitychange",function(){if(!document.hidden){fetchToday();beat();}});
+    document.addEventListener("visibilitychange",function(){if(!document.hidden){fetchToday();beat();if(EPtoday==="/live/today")fetchReplays();}});
     // 语言切换 → 重载(与 dashboard 一致)
     try{var l=document.documentElement.lang;new MutationObserver(function(){if(document.documentElement.lang!==l)location.reload();}).observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});}catch(e){}
   }

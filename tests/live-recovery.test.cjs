@@ -56,8 +56,74 @@ function setup(page, search = '', now = Date.parse('2026-11-16T12:30:00Z'), view
     const source = page === 'live/index.html' ? read('live.js') : [...read(page).matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(s => s.includes('var API='));
     vm.runInContext(source, context, { filename: page });
   }
-  return { document, state, calls, timers, intervals, run, OP, resize: () => (windowEvents.resize || []).forEach(fn => fn()) };
+  return { document, state, calls, timers, intervals, run, OP, advance: ms => { now += ms; }, visible: value => { document.hidden = !value; document.dispatchEvent(new window.Event('visibilitychange')); }, online: () => (windowEvents.online || []).forEach(fn => fn()), resize: () => (windowEvents.resize || []).forEach(fn => fn()) };
 }
+
+test('video polling finds new classes without replacing the playing video or reopening a closed share', async () => {
+  const h = setup('tools/video-replays/index.html', '?v=' + video.ticket_id); h.run(); await flush();
+  const player = h.document.querySelector('#mstage video');
+  assert(player);
+  const poll = h.intervals.find(t => t.ms === 60000);
+  assert(poll);
+  const card = h.document.querySelector('#list .card');
+  poll.fn(); await flush();
+  assert(h.document.querySelector('#list .card') === card, 'unchanged cards remain in place');
+  h.state.rows.unshift({ ...video, ticket_id: 'new-video', live_time: video.live_time + 86400 });
+  poll.fn(); await flush();
+  assert.equal(h.document.querySelectorAll('#list .card').length, 2);
+  assert(h.document.querySelector('#mstage video') === player, 'refresh keeps the same player');
+  h.document.getElementById('mclose').onclick();
+  poll.fn(); await flush();
+  assert.equal(h.document.querySelector('#mstage video'), null);
+  assert.equal(h.document.getElementById('modal').classList.contains('on'), false);
+});
+
+for (const page of ['live/index.html', 'tools/video-replays/index.html']) {
+  test(page + ' pauses replay polling in background and refreshes on return or reconnect', async () => {
+    const h = setup(page); h.run(); await flush();
+    const count = () => h.calls.filter(u => u.includes('/live/replays?')).length;
+    const poll = h.intervals.find(t => t.ms === 60000);
+    assert(poll);
+    h.visible(false); const before = count();
+    poll.fn(); h.online(); await flush();
+    assert.equal(count(), before);
+    h.visible(true); await flush(); assert.equal(count(), before + 1);
+    h.online(); await flush(); assert.equal(count(), before + 2);
+    h.state.hang = true;
+    poll.fn(); poll.fn(); h.online(); await flush();
+    assert.equal(count(), before + 3, 'only one pending request');
+  });
+
+  test(page + ' reports successful check time separately and keeps it on failure', async () => {
+    const h = setup(page); h.run(); await flush();
+    const id = page === 'live/index.html' ? 'lv-replay-status' : 'replay-status';
+    const note = () => h.document.getElementById(id).textContent;
+    assert.match(note(), /最新.*课程/);
+    assert.match(note(), /上次更新：2026-11-16 20:30/);
+    h.advance(60000); h.state.replayError = true;
+    h.intervals.find(t => t.ms === 60000).fn(); await flush();
+    assert.match(note(), /加载失败/);
+    assert.match(note(), /上次更新：2026-11-16 20:30/);
+    h.state.replayError = false;
+    h.intervals.find(t => t.ms === 60000).fn(); await flush();
+    assert.match(note(), /列表已更新/);
+    assert.match(note(), /上次更新：2026-11-16 20:31/);
+  });
+}
+
+test('empty video lists recover after initial failure without confusing errors with no recordings', async () => {
+  const h = setup('tools/video-replays/index.html'); h.state.replayError = true;
+  h.run(); await flush();
+  assert.match(h.document.getElementById('list').textContent, /暂时无法获取列表/);
+  h.state.replayError = false; h.state.rows = [];
+  const poll = h.intervals.find(t => t.ms === 60000);
+  poll.fn(); await flush();
+  assert.match(h.document.getElementById('list').textContent, /暂无视频回放/);
+  h.state.replayError = true; poll.fn(); await flush();
+  h.state.replayError = false; poll.fn(); await flush();
+  assert.match(h.document.getElementById('list').textContent, /暂无视频回放/);
+  assert.match(h.document.getElementById('replay-status').textContent, /列表已更新/);
+});
 
 test('phone classroom keeps the full video area without reserving a full screen for external chat', async () => {
   const h = setup('live/index.html', '', undefined, { mobile: true, width: 390, height: 844 });
