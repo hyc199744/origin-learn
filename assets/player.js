@@ -4,6 +4,7 @@
 (function(){
   "use strict";
   var LS="origin_player_v1";
+  var AUDIO_COVER="https://web3origin.com/assets/live-audio-cover.jpg";
   var ZH=document.documentElement.lang!=="en"&&!/^en/i.test(document.documentElement.lang||"");
   var A=null,BAR=null,items=[],idx=0,lastSave=0,POS=null,LIVE=false,LA=null,ONCLOSE=null,acTimer=null;
   var DRAGERS=[],SUBS=[];
@@ -112,8 +113,8 @@
   }
   function media(){
     try{if(!("mediaSession" in navigator))return;var c=items[idx]||{};
-      var cov=c.cover||"https://web3origin.com/assets/og-image.png";// 锁屏需要封面图,没有就用站点默认图
-      var art=[{src:cov,sizes:"256x256"},{src:cov,sizes:"512x512"}];
+      var cov=c.cover||(LIVE?"https://web3origin.com/assets/og-image.png":AUDIO_COVER);
+      var art=[{src:cov}];
       navigator.mediaSession.metadata=new MediaMetadata({title:c.title||(LIVE?(ZH?"起源直播":"Origin Live"):(ZH?"回放":"Replay")),artist:ZH?"起源线上课堂":"Origin Live",album:"Origin",artwork:art});
       navigator.mediaSession.setActionHandler("play",function(){var m=M();m&&m.play();});
       navigator.mediaSession.setActionHandler("pause",function(){var m=M();m&&m.pause();});
@@ -138,6 +139,13 @@
     if(!BAR)return;var c=items[idx]||{};
     var cv=$("op-cover"),tt=$("op-t");
     if(cv)cv.innerHTML=c.cover?'<img src="'+esc(c.cover)+'" alt="">':(M()&&!M().paused?"⏸":"▶");
+    var img=cv&&cv.querySelector("img");
+    if(img)img.onerror=function(){
+      if(items[idx]!==c)return;
+      var fallback=LIVE?"https://web3origin.com/assets/og-image.png":AUDIO_COVER;
+      if(this.getAttribute("src")===fallback){this.onerror=null;this.remove();sync();return;}
+      c.cover=fallback;this.src=fallback;media();save();emit();
+    };
     if(tt)tt.textContent=(LIVE?("🔴 "+(ZH?"直播":"LIVE")+" · "):"")+(c.title||(ZH?"回放":"Replay"));
     if($("op-rate"))$("op-rate").textContent=((A&&A.playbackRate)||1)+"x";
   }
@@ -154,7 +162,7 @@
   function stop(){if(A){try{A.pause();}catch(e){}A.removeAttribute("src");try{A.load();}catch(e){}}items=[];idx=0;if(BAR){BAR.classList.remove("on");BAR.classList.remove("op-open");}try{localStorage.removeItem(LS);}catch(e){}}
   function save(){if(LIVE)return;try{if(!items.length){localStorage.removeItem(LS);return;}localStorage.setItem(LS,JSON.stringify({items:items,idx:idx,time:A?A.currentTime:0,rate:A?A.playbackRate:1,playing:!!(A&&!A.paused)}));}catch(e){}}
 
-  function norm(list){return (list||[]).map(function(c){return {url:safe(c.url||c.play_url),title:String(c.title||"").slice(0,120),cover:safe(c.cover||"")};}).filter(function(c){return c.url;});}
+  function norm(list){return (list||[]).map(function(c){return {url:safe(c.url||c.play_url),title:String(c.title||"").slice(0,120),cover:safe(c.cover||"")||AUDIO_COVER};}).filter(function(c){return c.url;});}
   // ===== 直播:播放器自己接管(纯音频),跨页面续播(本地标记+重新取流) =====
   var API="https://count.web3origin.com",LHLS=null,liveT=null;
   var LIVEMARK="origin_player_live";

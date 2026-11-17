@@ -3,6 +3,7 @@
 (function(){
   "use strict";
   var API="https://count.web3origin.com";
+  var AUDIO_COVER="https://web3origin.com/assets/live-audio-cover.jpg";
   var EP=window.LV_EP||{};
   var EPtoday=EP.today||"/live/today",EPstream=EP.stream||"/live/stream",EPchat=EP.chat||"/live/chat",EPsend=EP.send||"/live/chat/send",EPlike=EP.like||"/live/like",EPbeat=EP.beat||"/live/beat";
   var ZH=document.documentElement.lang!=="en"&&!/^en/i.test(document.documentElement.lang||"");
@@ -628,7 +629,7 @@
     grid.innerHTML=list.map(function(c){
       var url=safeUrl(c.play_url);if(!url)return "";
       var kind=(c.kind==="video"||c.kind==="embed")?c.kind:"audio";
-      var cov=safeCover(c.cover),when=c.live_time?fmtClock(c.live_time):"",dur=c.duration?fmtDur(c.duration):"";
+      var cov=safeCover(c.cover)||(kind==="audio"?AUDIO_COVER:""),when=c.live_time?fmtClock(c.live_time):"",dur=c.duration?fmtDur(c.duration):"";
       var tag=kind==="audio"?(ZH?"🎧 音频":"🎧 Audio"):(kind==="video"?(ZH?"▶ 视频":"▶ Video"):(ZH?"直播回放":"Replay"));
       var tkt=esc(c.ticket_id||""),plays=Number(c.plays)||0;
       var label=when||(c.title||T.replays_title);// 标题位改成 日期+时间(取消觉醒14:30那种场次名)
@@ -644,6 +645,8 @@
     }).join("");
     var cards=grid.querySelectorAll(".lv-rep-item");
     for(var i=0;i<cards.length;i++){(function(el){
+      var coverImg=el.querySelector(".lv-rep-play img");
+      if(coverImg&&el.getAttribute("data-kind")==="audio")coverImg.onerror=function(){this.onerror=null;this.src=AUDIO_COVER;el.setAttribute("data-cover",AUDIO_COVER);};
       var go=function(){var k=el.getAttribute("data-kind"),u=el.getAttribute("data-url"),ti=el.getAttribute("data-title"),cv=el.getAttribute("data-cover"),tkt=el.getAttribute("data-ticket");
         if(k==="video"||k==="embed"){openReplay(u,ti,k,cv);return;}
         // 音频:转跳到专门播放页(整屏大播放器);播放量由播放页统计

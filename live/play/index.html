@@ -19,6 +19,7 @@
   .bar .tt{font-size:12px;letter-spacing:2px;color:var(--muted)}
 
   .cover{margin:24px auto 0;width:210px;height:210px;border-radius:26px;position:relative;background:radial-gradient(circle at 34% 28%,#2c2210,#160f07);border:1px solid #4a3416;box-shadow:0 22px 50px rgba(0,0,0,.55),inset 0 0 60px rgba(214,168,75,.06);display:grid;place-items:center}
+  .cover>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;border-radius:25px;background:#050403}
   .disc{width:120px;height:120px;border-radius:50%;background:repeating-radial-gradient(circle at 50% 50%,#0c0906 0 3px,#1a130a 3px 6px);position:relative;box-shadow:inset 0 0 0 1px #2a1e10;animation:spin 9s linear infinite;animation-play-state:paused}
   body.playing .disc{animation-play-state:running}
   @media(prefers-reduced-motion:reduce){.disc{animation:none}}
@@ -68,7 +69,7 @@
     <a class="mn" href="/live/" aria-label="回直播页">☰</a>
   </div>
 
-  <div class="cover"><div class="disc"></div><div class="badge" id="pp-plays">▶ 已播 0 次</div></div>
+  <div class="cover"><div class="disc"></div><img id="pp-cover" src="/assets/live-audio-cover.jpg" alt="课堂音频封面"><div class="badge" id="pp-plays">▶ 已播 0 次</div></div>
 
   <div class="meta">
     <div class="t" id="pp-title">加载中…</div>
@@ -97,11 +98,12 @@
     <div id="pp-list"></div>
   </div>
 
-<script src="/assets/player.js?v=11"></script>
+<script src="/assets/player.js?v=12"></script>
 <script>
 (function(){
   "use strict";
   var API="https://count.web3origin.com", WAVEN=48;
+  var AUDIO_COVER="https://web3origin.com/assets/live-audio-cover.jpg";
   var replays=[], curIdx=0, lastIdx=-1, unsub=null;
   var $=function(id){return document.getElementById(id);};
   function fmt(s){s=Math.max(0,Math.floor(s||0));var m=Math.floor(s/60),ss=s%60;return m+":"+(ss<10?"0":"")+ss;}
@@ -109,6 +111,14 @@
   function fmtDate(sec){if(!sec)return "";try{var d=new Date(sec*1000);return d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate());}catch(e){return "";}}
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];});}
   function sameUrl(a,b){return a&&b&&String(a).split("?")[0]===String(b).split("?")[0];}
+  function coverUrl(u){u=String(u||"").trim();if(!/^https:\/\//i.test(u)||/[\s<>"'`\\]/.test(u))return AUDIO_COVER;try{return new URL(u).href;}catch(e){return AUDIO_COVER;}}
+  function showCover(u){
+    var img=$("pp-cover"),src=coverUrl(u);if(img.getAttribute("data-cover-source")===src)return;
+    img.setAttribute("data-cover-source",src);
+    img.hidden=false;
+    img.onerror=function(){if(this.getAttribute("src")===AUDIO_COVER){this.onerror=null;this.hidden=true;}else this.src=AUDIO_COVER;};
+    img.src=src;
+  }
   var OP=window.OriginPlayer;
 
   // 波形竖条
@@ -133,6 +143,7 @@
 
   function onTrackChange(){
     var c=replays[curIdx]||{};
+    showCover(c.cover);
     $("pp-title").textContent=c.title||"回放";
     $("pp-sub").textContent=(fmtDate(c.live_time)||"")+" · "+Math.round((c.duration||0)/60)+" 分钟";
     $("pp-plays").textContent="▶ 已播 "+(c.plays||0)+" 次";
@@ -142,6 +153,7 @@
   function paint(st){
     if(!st||!st.active)return;
     if(typeof st.idx==="number"&&st.idx!==curIdx&&st.idx<replays.length){curIdx=st.idx;onTrackChange();}
+    if(st.cover)showCover(st.cover);
     $("pp-play").textContent=st.paused?"▶":"⏸";
     document.body.classList.toggle("playing",!st.paused);
     $("pp-rate").textContent=(st.rate||1)+"x";
@@ -193,7 +205,7 @@
       if(!replays.length){$("pp-title").textContent="暂无回放";$("pp-list").innerHTML='<div class="empty">录制过的课程结束后会自动出现在这里</div>';return;}
       var i=0;if(want){i=-1;for(var k=0;k<replays.length;k++){if(replays[k].ticket_id===want){i=k;break;}}if(i<0){$("pp-title").textContent="这节课不在当前回放列表中";$("pp-list").innerHTML='<div class="empty"><a href="/live/#lv-replays-sec">返回音频回放，选择其他课程</a></div>';return;}}
       curIdx=i;
-      var list=replays.map(function(c){return {url:c.play_url,title:c.title,cover:c.cover};});
+      var list=replays.map(function(c){return {url:c.play_url,title:c.title,cover:coverUrl(c.cover)};});
       var cur=OP.current&&OP.current();
       if(cur&&cur.url&&sameUrl(cur.url,list[i].url)){/* 已在放这一节:接管UI,不重头开始 */}
       else{OP.playList(list,i);}

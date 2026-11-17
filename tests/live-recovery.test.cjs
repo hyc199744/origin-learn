@@ -253,3 +253,46 @@ test('audio replay fetch failures can be retried in place', async () => {
   h.document.getElementById('pp-retry').onclick(); await flush();
   assert.match(h.document.getElementById('pp-title').textContent, /不在当前回放列表/);
 });
+
+const audioCover = 'https://web3origin.com/assets/live-audio-cover.jpg';
+test('audio cards have a local cover when metadata is missing or invalid, and retain specific covers', async () => {
+  const h = setup('live/index.html');
+  h.state.rows = [
+    {...replay, cover:''},
+    {...replay, ticket_id:'unsafe-cover', cover:'javascript:alert(1)'},
+    {...replay, ticket_id:'custom-cover', cover:'https://example.org/class.jpg'},
+  ];
+  h.run(); await flush();
+  const cards = [...h.document.querySelectorAll('.lv-rep-item')];
+  assert.equal(cards[0].querySelector('img').src, audioCover);
+  assert.equal(cards[1].querySelector('img').src, audioCover);
+  const img = cards[2].querySelector('img');
+  assert.equal(img.src, 'https://example.org/class.jpg');
+  img.onerror.call(img);
+  assert.equal(img.src, audioCover);
+  assert.equal(cards[2].getAttribute('data-cover'), audioCover);
+  assert.equal(img.onerror, null, 'fallback does not retry a failed image forever');
+});
+
+test('shared audio opens with a cover and passes it to the persistent player', async () => {
+  const h = setup('live/play/index.html', '?t='+replay.ticket_id);
+  h.run(); await flush();
+  assert.equal(h.document.getElementById('pp-cover').src, audioCover);
+  assert.equal(h.state.played[0][0][0].cover, audioCover);
+});
+
+test('playback cover survives an image error and changes when the next track is selected', async () => {
+  const h = setup('live/play/index.html', '?t='+replay.ticket_id);
+  h.state.rows = [{...replay,cover:'https://example.org/failed.jpg'},{...replay,ticket_id:'next',cover:'https://example.org/next.jpg'}];
+  let paint;
+  h.OP.onUpdate = cb => {paint=cb;return ()=>{};};
+  h.run(); await flush();
+  const img = h.document.getElementById('pp-cover');
+  assert.equal(img.src, 'https://example.org/failed.jpg');
+  img.onerror.call(img);
+  assert.equal(img.src, audioCover);
+  paint({active:true,idx:0,cover:'https://example.org/failed.jpg',paused:true});
+  assert.equal(img.src, audioCover, 'progress updates do not retry the broken image');
+  paint({active:true,idx:1,cover:'https://example.org/next.jpg',paused:true});
+  assert.equal(img.src, 'https://example.org/next.jpg');
+});
