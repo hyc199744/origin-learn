@@ -29,7 +29,7 @@ var T={zh:{
   f_contact:"联系方式（选填·仅管理员可见）",ph_contact:"邮箱 / Telegram",f_title:"标题",ph_title:"一句话概括（≤80字）",
   f_content:"内容",ph_content:"详细说说你的建议、问题或线索（10~2000字）",f_link:"相关链接（选填）",ph_link:"交易/文章/浏览器链接",
   priv_check:"仅管理员可见（不公开展示）",verify:"验证：",submit:"提交留言",
-  form_note:"提交即表示同意公开展示（除非勾选仅管理员可见）。含大量外链或研究线索/纠错类会先经人工审核。",
+  form_note:"所有留言和回复均需审核后显示。勾选“仅管理员可见”的留言不会公开。",
   err_cat:"请先选择留言分类",err_title:"请填写标题",err_content_min:"留言内容至少 10 个字",
   err_wallet:"钱包地址格式不对（0x + 40 位）",err_contract:"合约地址格式不对",err_tx:"交易哈希格式不对（0x + 64 位）",
   err_sensitive:"⚠️ 请勿在留言中填写助记词、私钥、钱包密码等敏感信息！",submitting:"提交中…",submit_fail:"提交失败",
@@ -71,7 +71,7 @@ var T={zh:{
   f_contact:"Contact (optional · admin only)",ph_contact:"Email / Telegram",f_title:"Title",ph_title:"One-line summary (≤80 chars)",
   f_content:"Content",ph_content:"Describe your suggestion, question or lead (10–2000 chars)",f_link:"Related Link (optional)",ph_link:"Tx / article / explorer link",
   priv_check:"Admin only (not shown publicly)",verify:"Verify: ",submit:"Submit",
-  form_note:"Submitting means you agree to public display (unless marked admin-only). Posts with many external links or of the research-lead / correction type are reviewed first.",
+  form_note:"All posts and replies are reviewed before display. Admin-only posts remain private.",
   err_cat:"Please select a category first",err_title:"Please enter a title",err_content_min:"Message must be at least 10 characters",
   err_wallet:"Invalid wallet address (0x + 40 chars)",err_contract:"Invalid contract address",err_tx:"Invalid tx hash (0x + 64 chars)",
   err_sensitive:"⚠️ Never enter your seed phrase, private key or wallet password!",submitting:"Submitting…",submit_fail:"Submit failed",
@@ -103,6 +103,47 @@ var STAT={pending:{t:t("st_pending"),c:"#e0a24f"},public:{t:t("st_public"),c:"#2
 /* ---------- 本地状态 ---------- */
 function db(){try{return JSON.parse(localStorage.getItem(FK))||{};}catch(e){return {};}}
 function save(d){try{localStorage.setItem(FK,JSON.stringify(d));}catch(e){}}
+
+// Keep the administrative credential in this page's memory only.
+// This client timeout is not a replacement for server-side token expiry.
+var fbAdminKey="", fbAdminUntil=0;
+function clearAdmin(){fbAdminKey="";fbAdminUntil=0;}
+function getAdminKey(){if(Date.now()>=fbAdminUntil)clearAdmin();return fbAdminKey;}
+function setAdminKey(key){fbAdminKey=key;fbAdminUntil=Date.now()+30*60*1000;}
+function removeLegacyAdmin(){
+  var d=db();
+  if(Object.prototype.hasOwnProperty.call(d,"admin")){delete d.admin;save(d);}
+}
+removeLegacyAdmin();
+window.addEventListener("pagehide",clearAdmin);
+function adminApi(key,id,payload){
+  if(!key)return Promise.resolve({ok:false,error:t("key_expired")});
+  var opt={method:payload?"POST":"GET",headers:{"X-Fb-Admin":key},cache:"no-store",credentials:"omit",redirect:"error",referrerPolicy:"no-referrer"};
+  if(payload){opt.headers["Content-Type"]="application/json";opt.body=JSON.stringify(payload);}
+  return api("/fb/admin"+(id?"?id="+encodeURIComponent(id):""),opt);
+}
+
+var FB_TURNSTILE_SITEKEY="0x4AAAAAAGG-pxhjTICkjxi3";
+// Loaded only when a feedback form is opened.
+var fbTurnstilePromise;
+function loadFbTurnstile(){
+  if(window.turnstile)return Promise.resolve(window.turnstile);
+  if(!fbTurnstilePromise)fbTurnstilePromise=new Promise(function(resolve,reject){
+    var script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.defer=true;
+    script.onload=function(){if(window.turnstile)resolve(window.turnstile);else{fbTurnstilePromise=null;reject(new Error('verification unavailable'));}};
+    script.onerror=function(){fbTurnstilePromise=null;script.remove();reject(new Error('verification unavailable'));};document.head.appendChild(script);
+  });return fbTurnstilePromise;
+}
+function fbChallenge(mo,action,beforeSelector){
+  var token='',widget=null,before=mo.el.querySelector(beforeSelector),box=document.createElement('div');box.className='fb-human-check';box.style.margin='12px 0';before.parentNode.insertBefore(box,before);
+  var state={value:function(){return token;},reset:function(){token='';if(widget!==null&&window.turnstile&&mo.el.isConnected)window.turnstile.reset(widget);},remove:function(){token='';if(widget!==null&&window.turnstile)window.turnstile.remove(widget);}};
+  (mo.el._fbChallenges||(mo.el._fbChallenges=[])).push(state);
+  box.textContent=EN()?'Loading verification…':'正在加载人机验证…';
+  loadFbTurnstile().then(function(ts){if(!mo.el.isConnected)return;box.textContent='';widget=ts.render(box,{sitekey:FB_TURNSTILE_SITEKEY,action:action,theme:'dark',size:'flexible',callback:function(v){token=v;},'expired-callback':function(){token='';},'error-callback':function(){token='';toast(EN()?'Verification failed. Reopen this form.':'人机验证未完成，请关闭表单后重新打开。',1);}});}).catch(function(){box.textContent=EN()?'Verification could not load. Reopen this form.':'人机验证加载失败，请关闭表单后重新打开。';});
+  return state;
+}
+function fbRequireChallenge(check){if(check.value())return true;toast(EN()?'Please complete verification first.':'请先完成人机验证。',1);return false;}
+
 function mine(){return db().mine||[];}
 function addMine(o){var d=db();d.mine=d.mine||[];d.mine.unshift(o);d.mine=d.mine.slice(0,100);save(d);}
 function liked(id){return !!(db().liked||{})[id];}
@@ -187,12 +228,11 @@ function card(m){var c=catObj(m.cat);
 
 /* ---------- 提交表单 ---------- */
 function modal(html,cls){var m=document.createElement("div");m.className="fb-modal "+(cls||"");m.innerHTML='<div class="fb-modal-in"><button class="fb-x" aria-label="'+t("close")+'">✕</button>'+html+'</div>';document.body.appendChild(m);document.body.style.overflow="hidden";
-  function close(){m.remove();document.body.style.overflow="";}
+  function close(){(m._fbChallenges||[]).forEach(function(c){c.remove();});m._fbChallenges=[];m.remove();document.body.style.overflow=document.querySelector(".fb-modal")?"hidden":"";}
   m.querySelector(".fb-x").onclick=close;m.onclick=function(e){if(e.target===m)close();};
   document.addEventListener("keydown",function esc(e){if(e.key==="Escape"){close();document.removeEventListener("keydown",esc);}});
   return {el:m,close:close};}
 function openForm(){
-  var cap=newCap();
   var web3='<div id="fbWeb3" style="display:none"><div class="fb-fh">'+t("w3_head_opt")+'</div>'
     +'<div class="fb-grid"><label>'+t("f_chain")+'<select id="ffChain" class="fb-in"><option value="">'+t("f_select")+'</option><option>Polygon</option><option>Anubis Chain</option><option>Ethereum</option><option>'+t("cat_other")+'</option></select></label>'
     +'<label>'+t("f_block")+'<input id="ffBlock" class="fb-in" placeholder="'+t("ph_block")+'"></label></div>'
@@ -210,21 +250,20 @@ function openForm(){
     +'<label>'+t("f_link")+'<input id="ffLink" class="fb-in" placeholder="'+t("ph_link")+'"></label>'
     +web3
     +'<label class="fb-chk2"><input type="checkbox" id="ffPriv"> '+t("priv_check")+'</label>'
-    +'<div class="fb-cap"><span>'+t("verify")+'<b id="ffCapQ">'+cap.q+'</b> = </span><input id="ffCapA" class="fb-in" style="width:80px" inputmode="numeric"><span class="fb-refresh" id="ffCapR">↻</span></div>'
     +'<input type="text" id="ffHp" style="position:absolute;left:-9999px" tabindex="-1" autocomplete="off" aria-hidden="true">'
     +'<div id="ffWarn" class="fb-warn" style="display:none"></div>'
     +'<button class="fb-btn fb-submit" id="ffSubmit">'+t("submit")+'</button>'
     +'<div class="fb-note">'+t("form_note")+'</div>';
-  var mo=modal(h,"fb-form");var el=mo.el;
+  var mo=modal(h,"fb-form");var el=mo.el;var human=fbChallenge(mo,"feedback_submit","#ffSubmit");
   var chosen="";
   el.querySelector("#ffCat").addEventListener("click",function(e){var b=e.target.closest(".fb-catpick");if(!b)return;el.querySelectorAll(".fb-catpick").forEach(function(x){x.classList.toggle("on",x===b);});chosen=b.getAttribute("data-c");
     el.querySelector("#fbWeb3").style.display=(chosen==="clue"||chosen==="fix")?"block":"none";});
   var cont=el.querySelector("#ffContent");cont.addEventListener("input",function(){el.querySelector("#ffCount").textContent=cont.value.length;});
-  el.querySelector("#ffCapR").onclick=function(){var c=newCap();el.querySelector("#ffCapQ").textContent=c.q;};
   el.querySelector("#ffSubmit").onclick=function(){
     var warn=el.querySelector("#ffWarn");warn.style.display="none";
     function fail(m){warn.textContent=m;warn.style.display="block";warn.scrollIntoView({block:"center"});}
     if(!chosen)return fail(t("err_cat"));
+    if(!fbRequireChallenge(human))return;
     var title=el.querySelector("#ffTitle").value.trim(),content=el.querySelector("#ffContent").value.trim();
     if(!title)return fail(t("err_title"));
     if(content.length<10)return fail(t("err_content_min"));
@@ -238,10 +277,10 @@ function openForm(){
       vis:el.querySelector("#ffPriv").checked?"private":"public",link:link.trim(),
       chain:el.querySelector("#ffChain")?el.querySelector("#ffChain").value:"",wallet:wallet,contract:contract,tx:tx,
       block:el.querySelector("#ffBlock")?el.querySelector("#ffBlock").value.trim():"",evsrc:el.querySelector("#ffEvsrc")?el.querySelector("#ffEvsrc").value.trim():"",evnote:evnote.trim(),
-      capQ:el.querySelector("#ffCapQ").textContent,capA:el.querySelector("#ffCapA").value,hp:el.querySelector("#ffHp").value};
+      turnstileToken:human.value(),hp:el.querySelector("#ffHp").value};
     var btn=el.querySelector("#ffSubmit");btn.disabled=true;btn.textContent=t("submitting");
     api("/fb/submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(d){
-      btn.disabled=false;btn.textContent=t("submit");
+      human.reset();btn.disabled=false;btn.textContent=t("submit");
       if(!d.ok){fail(d.error==="SENSITIVE"?d.msg:(d.error||t("submit_fail")));return;}
       addMine({id:d.id,code:d.code,title:title,ts:Date.now(),status:d.status});
       mo.close();
@@ -250,7 +289,7 @@ function openForm(){
         +'<div class="fb-code">'+t("code_label")+'<b>'+esc(d.code)+'</b> <button class="fb-mini" onclick="__fbcopy(\''+esc(d.code)+'\')">'+t("copy")+'</button></div>'
         +'<p class="fb-note">'+t("done_note")+'</p>'
         +'<button class="fb-btn" onclick="this.closest(\'.fb-modal\').remove();document.body.style.overflow=\'\';location.reload()">'+t("got_it")+'</button></div>','fb-mini-modal');
-    }).catch(function(){btn.disabled=false;btn.textContent=t("submit");fail(t("net_retry2"));});
+    }).catch(function(){human.reset();btn.disabled=false;btn.textContent=t("submit");fail(t("net_retry2"));});
   };
 }
 
@@ -274,8 +313,7 @@ function openDetail(id){
     var off=m.official&&m.official.content?'<div class="fb-official"><div class="fb-off-h">'+t("off_head")+(m.official.status?' · '+esc({adopt:t("ost_adopt"),resolved:t("resolved"),need:t("ost_need"),no:t("ost_no")}[m.official.status]||m.official.status):'')+'</div><div class="fb-off-c">'+nl2(m.official.content)+'</div></div>':'';
     var reps=(m.replies||[]).map(function(r){return '<div class="fb-reply'+(r.official?" off":"")+'"><div class="fb-reply-h">'+(r.official?'<span class="fb-off-tag">'+t("official_replied")+'</span>':'')+esc(r.nick||t("anon"))+' · '+ago(r.ts)+'</div><div class="fb-reply-c">'+nl2(r.content)+'</div></div>';}).join("");
     var lk=liked(m.id);
-    var cap=newCap();
-    mo.el.querySelector(".fb-modal-in").innerHTML='<button class="fb-x">✕</button>'
+      mo.el.querySelector(".fb-modal-in").innerHTML='<button class="fb-x">✕</button>'
       +'<div class="fb-d-top"><span class="fb-catb">'+c.i+' '+c.n+'</span>'+badge(m)+'</div>'
       +'<h2 class="fb-d-title">'+esc(m.title)+'</h2>'
       +'<div class="fb-d-meta">'+esc(m.nick||t("anon"))+' · '+ago(m.ts)+((m.link&&/^https?:\/\//i.test(m.link))?' · <a href="'+esc(m.link)+'" target="_blank" rel="noopener nofollow" class="fb-d-link">'+t("link_arrow")+'</a>':'')+'</div>'
@@ -285,16 +323,19 @@ function openDetail(id){
       +'<button class="fb-act" id="fbRepoBtn">'+t("report_btn")+'</button></div>'
       +'<div class="fb-replies">'+reps+'</div>'
       +'<div class="fb-replybox" id="fbReplyBox" style="display:none"><textarea id="fbRepC" class="fb-in" rows="3" maxlength="1000" placeholder="'+t("ph_reply")+'"></textarea>'
-      +'<div class="fb-cap"><input id="fbRepNick" class="fb-in" style="max-width:130px" maxlength="24" placeholder="'+t("f_nick")+'"><span>'+t("verify_sp")+'<b id="fbRepQ">'+cap.q+'</b>=</span><input id="fbRepCap" class="fb-in" style="width:70px"><button class="fb-btn" id="fbRepSend">'+t("send")+'</button></div></div>';
-    var inn=mo.el;inn.querySelector(".fb-x").onclick=mo.close;
+      +'<div class="fb-cap"><input id="fbRepNick" class="fb-in" style="max-width:130px" maxlength="24" placeholder="'+t("f_nick")+'"><button class="fb-btn" id="fbRepSend">'+t("send")+'</button></div></div>';
+    var inn=mo.el;inn.querySelector(".fb-x").onclick=mo.close;var replyHuman=null;
     inn.querySelector("#fbLikeBtn").onclick=function(){if(liked(m.id)){toast(t("already_liked"));return;}
       api("/fb/like",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:m.id,vid:vid()})}).then(function(r){if(r.ok){setLiked(m.id);inn.querySelector("#fbLikeN").textContent=r.likes;inn.querySelector("#fbLikeBtn").classList.add("on");}else if(r.liked){setLiked(m.id);toast(t("already_liked"));}else toast(r.error||t("fail"),1);});};
-    inn.querySelector("#fbRepBtn").onclick=function(){var b=inn.querySelector("#fbReplyBox");b.style.display=b.style.display==="none"?"block":"none";};
+    inn.querySelector("#fbRepBtn").onclick=function(){var b=inn.querySelector("#fbReplyBox");b.style.display=b.style.display==="none"?"block":"none";if(b.style.display!=="none"&&!replyHuman)replyHuman=fbChallenge(mo,"feedback_reply","#fbRepSend");};
+    if(m.vis!=="public"||m.status!=="public"){["#fbRepBtn","#fbRepoBtn","#fbLikeBtn"].forEach(function(sel){inn.querySelector(sel).style.display="none";});}
     inn.querySelector("#fbRepSend").onclick=function(){
+      if(!replyHuman||!fbRequireChallenge(replyHuman))return;
       var content=inn.querySelector("#fbRepC").value.trim();if(content.length<2){toast(t("reply_short"),1);return;}
       if(sensitive(content)){toast(t("reply_sensitive"),1);return;}
-      var body={id:m.id,content:content,nick:inn.querySelector("#fbRepNick").value.trim(),capQ:inn.querySelector("#fbRepQ").textContent,capA:inn.querySelector("#fbRepCap").value};
-      api("/fb/reply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){if(r.ok){toast(t("reply_ok"));openDetail(m.id);}else toast(r.error==="SENSITIVE"?r.msg:(r.error||t("fail")),1);});};
+      var body={id:m.id,content:content,nick:inn.querySelector("#fbRepNick").value.trim(),turnstileToken:replyHuman.value()};
+      var send=inn.querySelector("#fbRepSend");send.disabled=true;
+      api("/fb/reply",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(r){replyHuman.reset();send.disabled=false;if(r.ok){inn.querySelector("#fbRepC").value="";toast(EN()?"Reply submitted for review.":"回复已提交，审核通过后显示。");}else toast(r.error||t("fail"),1);}).catch(function(){replyHuman.reset();send.disabled=false;toast(t("load_fail"),1);});};
     inn.querySelector("#fbRepoBtn").onclick=function(){openReport(m.id);};
   }).catch(function(){mo.el.querySelector(".fb-modal-in").innerHTML='<button class="fb-x" onclick="this.closest(\'.fb-modal\').remove();document.body.style.overflow=\'\'">✕</button><div class="fb-empty">'+t("net_retry2")+'</div>';});
 }
@@ -303,8 +344,9 @@ function openReport(id){
   var h='<h2 class="fb-mh">'+t("report_title")+'</h2><div class="fb-fh">'+t("report_reason")+'</div>'+reasons.map(function(r,i){return '<label class="fb-radio"><input type="radio" name="fbrp" value="'+esc(r)+'"'+(i===0?" checked":"")+'> '+r+'</label>';}).join("")
     +'<textarea id="fbRpD" class="fb-in" rows="2" placeholder="'+t("ph_evnote")+'" style="margin-top:10px"></textarea><button class="fb-btn" id="fbRpSend">'+t("report_submit")+'</button>';
   var mo=modal(h,"fb-mini-modal");
-  mo.el.querySelector("#fbRpSend").onclick=function(){var reason=(mo.el.querySelector('input[name=fbrp]:checked')||{}).value||t("cat_other");
-    api("/fb/report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:id,reason:reason,detail:mo.el.querySelector("#fbRpD").value.trim()})}).then(function(r){mo.close();toast(r.ok?t("report_done"):t("submit_fail"),!r.ok);});};
+  var reportHuman=fbChallenge(mo,"feedback_report","#fbRpSend");
+  mo.el.querySelector("#fbRpSend").onclick=function(){if(!fbRequireChallenge(reportHuman))return;var reason=(mo.el.querySelector('input[name=fbrp]:checked')||{}).value||t("cat_other");
+    api("/fb/report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:id,reason:reason,detail:mo.el.querySelector("#fbRpD").value.trim(),turnstileToken:reportHuman.value()})}).then(function(r){reportHuman.reset();if(r.ok)mo.close();toast(r.ok?t("report_done"):(r.error||t("submit_fail")),!r.ok);}).catch(function(){reportHuman.reset();toast(t("load_fail"),1);});};
 }
 
 /* ---------- 我的留言 ---------- */
@@ -329,12 +371,13 @@ function openMine(){
 
 /* ---------- 管理后台 ---------- */
 function openAdmin(){
-  var key=db().admin||"";
+  var key=getAdminKey();
   if(!key){var h='<h2 class="fb-mh">'+t("admin_login_title")+'</h2><p class="fb-note">'+t("admin_login_note")+'</p><input id="fbAdmK" class="fb-in" type="password" placeholder="'+t("ph_admin_key")+'"><button class="fb-btn" id="fbAdmGo">'+t("admin_enter")+'</button>';
-    var mo=modal(h,"fb-mini-modal");mo.el.querySelector("#fbAdmGo").onclick=function(){var k=mo.el.querySelector("#fbAdmK").value.trim();
-      api("/fb/admin?key="+encodeURIComponent(k)).then(function(d){if(d.ok){var dd=db();dd.admin=k;save(dd);mo.close();adminPanel(d);}else toast(t("key_wrong"),1);});};
+    var mo=modal(h,"fb-mini-modal"),loginHuman=fbChallenge(mo,"feedback_admin","#fbAdmGo");mo.el.querySelector("#fbAdmGo").onclick=function(){if(!fbRequireChallenge(loginHuman))return;var k=mo.el.querySelector("#fbAdmK").value.trim();
+      var button=mo.el.querySelector("#fbAdmGo");button.disabled=true;
+      api("/fb/login",{method:"POST",headers:{"Content-Type":"application/json"},cache:"no-store",credentials:"omit",redirect:"error",referrerPolicy:"no-referrer",body:JSON.stringify({password:k,turnstileToken:loginHuman.value()})}).then(function(d){loginHuman.reset();button.disabled=false;if(d.ok&&d.token){setAdminKey(d.token);fbAdminUntil=Math.min(fbAdminUntil,d.expiresAt);mo.el.querySelector("#fbAdmK").value="";mo.close();openAdmin();}else toast(d.error||t("key_wrong"),1);}).catch(function(){loginHuman.reset();button.disabled=false;toast(t("load_fail"),1);});};
     return;}
-  api("/fb/admin?key="+encodeURIComponent(key)).then(function(d){if(d.ok)adminPanel(d);else{var dd=db();dd.admin="";save(dd);toast(t("key_expired"),1);openAdmin();}});
+  adminApi(key).then(function(d){if(d.ok)adminPanel(d);else{clearAdmin();toast(t("key_expired"),1);openAdmin();}}).catch(function(){toast(t("load_fail"),1);});
 }
 function adminPanel(d){
   var s=d.stats||{};
@@ -342,20 +385,26 @@ function adminPanel(d){
     +'<div class="fb-admin-stats"><span>'+t("all")+' <b>'+s.total+'</b></span><span>'+t("st_pend_lbl")+' <b style="color:#e0a24f">'+s.pending+'</b></span><span>'+t("st_today")+' <b>'+s.today+'</b></span><span>'+t("resolved")+' <b style="color:#76FF36">'+s.resolved+'</b></span><span>'+t("report_word")+' <b style="color:#c0503a">'+s.reports+'</b></span></div>'
     +'<div class="fb-admin-list">'+(d.items||[]).map(function(m){var st=STAT[m.status]||{t:m.status,c:"#b79c74"};
       return '<div class="fb-adm-row" data-id="'+esc(m.id)+'"><div class="fb-adm-main"><span class="fb-catb">'+catObj(m.cat).i+'</span> '+esc(m.title)
-        +' <span class="fb-tag" style="color:'+st.c+'">'+st.t+'</span>'+(m.reportN?'<span class="fb-tag" style="color:#c0503a">'+t("report_word")+m.reportN+'</span>':'')+(m.official?'<span class="fb-tag" style="color:#3aa0e0">'+t("st_replied")+'</span>':'')
+        +' <span class="fb-tag" style="color:'+st.c+'">'+st.t+'</span>'+(m.pendingReplies?'<span class="fb-tag">'+(EN()?'Pending replies: ':'待审核回复：')+m.pendingReplies+'</span>':'')+(m.reportN?'<span class="fb-tag" style="color:#c0503a">'+t("report_word")+m.reportN+'</span>':'')+(m.official?'<span class="fb-tag" style="color:#3aa0e0">'+t("st_replied")+'</span>':'')
         +'<div class="fb-adm-sub">'+esc(m.nick)+' · '+ago(m.ts)+' · 👍'+(m.likes||0)+' 💬'+(m.replies||0)+'</div></div><button class="fb-mini fb-adm-open">'+t("adm_handle")+'</button></div>';}).join("")+'</div>';
+  h+='<p class="fb-note">'+(EN()?'Replies awaiting review: ':'待审核回复：')+(s.pendingReplies||0)+'</p>';
+  h+='<button class="fb-ghost" id="fbAdminLogout">'+(EN()?"Sign out":"退出管理")+'</button>';
   var mo=modal(h,"fb-admin");
+  mo.el.querySelector("#fbAdminLogout").onclick=function(){clearAdmin();mo.close();};
   mo.el.querySelectorAll(".fb-adm-row").forEach(function(row){row.querySelector(".fb-adm-open").onclick=function(){adminOne(row.getAttribute("data-id"),mo);};});
 }
 function adminOne(id,parentMo){
-  var key=db().admin;
-  api("/fb/admin?key="+encodeURIComponent(key)+"&id="+encodeURIComponent(id)).then(function(d){
+  var key=getAdminKey();
+  if(!key){parentMo.close();openAdmin();return;}
+  adminApi(key,id).then(function(d){
     var m=d.full;if(!m){toast(t("load_fail"),1);return;}
     var reports=(m.reports||[]).map(function(r){return '<div class="fb-rp">⚑ '+esc(r.reason)+(r.detail?'：'+esc(r.detail):'')+' · '+ago(r.ts)+'</div>';}).join("");
+    var replyReview=(m.replies||[]).map(function(r){return '<div class="fb-reply"><div class="fb-reply-h">'+esc(r.nick||t("anon"))+' · '+esc((STAT[r.status]||{}).t||r.status||"pending")+'</div><div class="fb-reply-c">'+nl2(r.content)+'</div>'+(r.id?'<button class="fb-mini" data-reply="'+esc(r.id)+'" data-status="public">'+(EN()?"Approve reply":"通过回复")+'</button> <button class="fb-mini" data-reply="'+esc(r.id)+'" data-status="hidden">'+(EN()?"Hide reply":"隐藏回复")+'</button>':'')+'</div>';}).join("");
     var h='<h2 class="fb-mh">'+t("adm_handle_title")+'</h2><div class="fb-adm-detail"><b>'+esc(m.title)+'</b><div class="fb-adm-sub">'+catObj(m.cat).n+' · '+esc(m.nick)+' · '+ago(m.ts)+'</div>'
       +'<div class="fb-d-content" style="max-height:180px;overflow:auto">'+nl2(m.content)+'</div>'
       +(m.contact?'<div class="fb-adm-contact">'+t("adm_contact")+esc(m.contact)+'</div>':'')
       +(reports?'<div class="fb-adm-reports"><b>'+t("report_word")+'（'+m.reports.length+'）</b>'+reports+' <button class="fb-mini" id="fbClrRp">'+t("clear_reports")+'</button></div>':'')
+      +replyReview
       +'<div class="fb-fh">'+t("off_reply_head")+'</div><textarea id="fbOffC" class="fb-in" rows="3" placeholder="'+t("ph_off_reply")+'">'+(m.official?esc(m.official.content):'')+'</textarea>'
       +'<select id="fbOffS" class="fb-sel"><option value="">'+t("reply_status")+'</option><option value="adopt">'+t("ost_adopt")+'</option><option value="resolved">'+t("resolved")+'</option><option value="need">'+t("ost_need")+'</option><option value="no">'+t("ost_no")+'</option></select>'
       +'<button class="fb-btn" id="fbOffSend">'+t("publish_off")+'</button>'
@@ -366,7 +415,8 @@ function adminOne(id,parentMo){
       +'<button class="fb-mini" data-a="resolve" data-v="1">'+t("op_resolve")+'</button>'
       +'<button class="fb-mini fb-danger" data-a="delete">'+t("op_delete")+'</button></div></div>';
     var mo=modal(h,"fb-mini-modal");var el=mo.el;
-    function act(payload,done){payload.key=key;payload.id=id;api("/fb/admin?key="+encodeURIComponent(key),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}).then(function(r){if(r.ok){toast(t("done_toast"));if(done)done();}else toast(r.error||t("fail"),1);});}
+    function act(payload,done){var activeKey=getAdminKey();if(!activeKey){mo.close();parentMo.close();openAdmin();return;}payload.id=id;adminApi(activeKey,null,payload).then(function(r){if(r.ok){toast(t("done_toast"));if(done)done();}else toast(r.error||t("fail"),1);}).catch(function(){toast(t("load_fail"),1);});}
+    el.querySelectorAll("[data-reply]").forEach(function(button){button.onclick=function(){act({action:"replyStatus",replyId:button.getAttribute("data-reply"),status:button.getAttribute("data-status")},function(){mo.close();parentMo.close();openAdmin();});};});
     el.querySelectorAll(".fb-adm-ops .fb-mini").forEach(function(b){b.onclick=function(){var a=b.getAttribute("data-a");
       if(a==="delete"){if(!confirm(t("confirm_delete")))return;act({action:"delete"},function(){mo.close();parentMo.close();openAdmin();});}
       else act({action:a,status:b.getAttribute("data-v"),val:b.getAttribute("data-v")==="1"},function(){mo.close();parentMo.close();openAdmin();});};});
