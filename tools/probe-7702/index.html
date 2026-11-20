@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>钱包 EIP-7702 能力检测（纯测试 · 0花费）</title>
+<style>
+:root{--bg:#0d1016;--card:#151923;--line:#252c3b;--ink:#eef2f7;--dim:#8e99ad;--ok:#34d399;--bad:#f87171;--warn:#fbbf24;--btn:#2563eb;--mono:ui-monospace,Consolas,Menlo,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:14px 14px 40px}
+.wrap{max-width:640px;margin:0 auto}
+h1{font-size:18px;margin:0 0 6px}
+.sub{color:var(--dim);font-size:12.5px;margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.card h2{font-size:14px;margin:0 0 8px;color:#cbd5e1}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #1e2432;font-size:13px}
+.kv:last-child{border-bottom:0}
+.kv span{color:var(--dim);flex:none}
+.kv b{font-family:var(--mono);font-weight:500;text-align:right;word-break:break-all}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+button{appearance:none;border:0;border-radius:8px;background:var(--btn);color:#fff;padding:10px 14px;font:600 13.5px inherit;cursor:pointer;flex:1;min-width:130px}
+button.sec{background:#1f2737;color:#dbe4f3;border:1px solid var(--line)}
+button.ok{background:#059669}
+button:disabled{opacity:.45;cursor:not-allowed}
+.tag{display:inline-block;padding:1px 7px;border-radius:4px;font:600 12px var(--mono)}
+.tag.ok{background:rgba(52,211,153,.15);color:var(--ok)}
+.tag.bad{background:rgba(248,113,113,.15);color:var(--bad)}
+.tag.warn{background:rgba(251,191,36,.15);color:var(--warn)}
+.tag.dim{background:#202736;color:var(--dim)}
+.note{font-size:12.5px;color:#cbd5e1;background:#101520;border:1px dashed var(--line);border-radius:8px;padding:9px 11px;margin-bottom:12px}
+pre{margin:0;background:#0a0d12;border:1px solid #1e2432;border-radius:8px;padding:10px;font:11.5px/1.45 var(--mono);color:#cbd5e1;white-space:pre-wrap;word-break:break-all;max-height:320px;overflow:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>钱包 EIP-7702 能力检测</h1>
+  <p class="sub">纯只读 &amp; 零花费签名探测，不会发起任何上链转账，不触碰私钥和助记词。</p>
+
+  <div class="note">
+    安全说明：测试 7702 授权时，目标合约固定填<b>全零地址（0x0000...0000）</b>，在协议里代表「撤销委托」，即使签名被广播也绝对动不了钱包一分钱，且本页只记录签名结果，绝不广播上链。
+  </div>
+
+  <div class="card">
+    <h2>1. 钱包环境</h2>
+    <div class="kv"><span>检测到的接口</span><b id="vProv">检测中…</b></div>
+    <div class="kv"><span>钱包地址</span><b id="vAddr">未连接</b></div>
+    <div class="kv"><span>当前链 ID</span><b id="vChain">—</b></div>
+    <div class="kv"><span>当前 7702 状态</span><b id="v7702">—</b></div>
+    <div class="btns">
+      <button id="btnConn">连接钱包</button>
+      <button id="btnRunAll" class="ok" disabled>一键跑完核心检测</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 分项检测结果</h2>
+    <div class="kv"><span>① wallet_getCapabilities（能力声明）</span><b id="rCap"><span class="tag dim">未测</span></b></div>
+    <div class="kv"><span>② wallet_signAuthorization（标准格式）</span><b id="rAuthA"><span class="tag dim">未测</span></b></div>
+    <div class="kv"><span>③ wallet_signAuthorization（备选格式）</span><b id="rAuthB"><span class="tag dim">未测</span></b></div>
+    <div class="kv"><span>④ eth_signTypedData_v4（EIP-712 签名）</span><b id="r712"><span class="tag dim">未测</span></b></div>
+    <div class="btns">
+      <button id="bCap" class="sec" disabled>测 ① 能力声明</button>
+      <button id="bAuthA" class="sec" disabled>测 ② 7702 授权(A)</button>
+      <button id="bAuthB" class="sec" disabled>测 ③ 7702 授权(B)</button>
+      <button id="b712" class="sec" disabled>测 ④ EIP-712</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. 诊断日志（测完点复制发给我就行）</h2>
+    <pre id="log">等待点击「连接钱包」…</pre>
+    <div class="btns">
+      <button id="btnCopy" class="sec">复制完整诊断报告</button>
+      <button id="btnClear" class="sec">清空日志</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const ZERO = "0x0000000000000000000000000000000000000000";
+  const logs = [];
+  const report = {
+    ua: navigator.userAgent,
+    provider: "",
+    addr: "",
+    chainId: "",
+    code: "",
+    nonce: "",
+    results: {},
+  };
+
+  function log(msg) {
+    const t = new Date().toTimeString().slice(0, 8);
+    logs.push(`[${t}] ${msg}`);
+    $("log").textContent = logs.join("\n");
+    $("log").scrollTop = $("log").scrollHeight;
+  }
+
+  function setTag(id, cls, txt) {
+    $(id).innerHTML = `<span class="tag ${cls}">${txt}</span>`;
+  }
+
+  function withTO(promise, ms, label) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(`${label} 超时(${ms/1000}秒无响应，钱包可能吞掉了该请求)`)), ms);
+      promise.then(
+        (v) => { clearTimeout(timer); resolve(v); },
+        (e) => { clearTimeout(timer); reject(e); }
+      );
+    });
+  }
+
+  function detectProviders() {
+    const list = [];
+    const push = (name, p) => {
+      if (p && typeof p.request === "function" && !list.some((x) => x.p === p)) list.push({ name, p });
+    };
+    if (window.okxwallet) push("OKX(window.okxwallet)", window.okxwallet);
+    if (window.bitkeep && window.bitkeep.ethereum) push("Bitget(bitkeep.ethereum)", window.bitkeep.ethereum);
+    if (window.tokenpocket && window.tokenpocket.ethereum) push("TP(tokenpocket.ethereum)", window.tokenpocket.ethereum);
+    if (window.ethereum && Array.isArray(window.ethereum.providers)) {
+      for (const p of window.ethereum.providers) {
+        const nm = p.isOKExWallet || p.isOkxWallet ? "OKX(providers)" : p.isBitKeep ? "Bitget(providers)" : p.isTokenPocket ? "TP(providers)" : p.isRabby ? "Rabby" : p.isMetaMask ? "MetaMask" : "EIP1193(providers)";
+        push(nm, p);
+      }
+    }
+    if (window.ethereum) {
+      const p = window.ethereum;
+      const nm = p.isOKExWallet || p.isOkxWallet ? "OKX(ethereum)" : p.isBitKeep ? "Bitget(ethereum)" : p.isTokenPocket ? "TP(ethereum)" : p.isRabby ? "Rabby(ethereum)" : p.isMetaMask ? "MetaMask(ethereum)" : "window.ethereum";
+      push(nm, p);
+    }
+    return list;
+  }
+
+  let eth = null, me = "", chainHex = "0x1a3a", nonceHex = "0x0";
+
+  function initDetect() {
+    const ps = detectProviders();
+    if (!ps.length) {
+      $("vProv").textContent = "未检测到钱包（请在钱包内置浏览器打开）";
+      log("未检测到 window.ethereum，请用手机钱包内置浏览器或装了钱包插件的电脑浏览器打开。");
+      return;
+    }
+    eth = ps[0].p;
+    report.provider = ps.map((x) => x.name).join(" / ");
+    $("vProv").textContent = report.provider;
+    log("检测到钱包接口: " + report.provider);
+    log("UA: " + navigator.userAgent);
+  }
+
+  async function connect() {
+    const ps = detectProviders();
+    if (!ps.length) { alert("未检测到钱包，请在钱包 App 内置浏览器打开此页面"); return; }
+    $("btnConn").disabled = true;
+    try {
+      let accs = null;
+      for (const item of ps) {
+        log("尝试连接: " + item.name);
+        try {
+          accs = await withTO(item.p.request({ method: "eth_requestAccounts" }), 15000, "连接钱包");
+          if (accs && accs.length) { eth = item.p; report.provider = item.name; break; }
+        } catch (e) {
+          log(`${item.name} 连接失败: ${e.code || ""} ${e.message || e}`);
+        }
+      }
+      if (!accs || !accs.length) throw new Error("所有钱包接口均未返回地址");
+      me = accs[0].toLowerCase();
+      report.addr = me;
+      $("vAddr").textContent = me.slice(0, 6) + "…" + me.slice(-4);
+      chainHex = await withTO(eth.request({ method: "eth_chainId" }), 8000, "读链ID");
+      const cid = parseInt(chainHex, 16);
+      report.chainId = `${cid} (${chainHex})`;
+      $("vChain").textContent = report.chainId;
+      log(`已连接 ${me}，链 ID=${report.chainId}`);
+
+      try {
+        nonceHex = await withTO(eth.request({ method: "eth_getTransactionCount", params: [me, "latest"] }), 8000, "读nonce");
+        report.nonce = `${parseInt(nonceHex, 16)} (${nonceHex})`;
+      } catch (e) {
+        nonceHex = "0x0";
+        log("读 nonce 失败，暂用 0x0: " + (e.message || e));
+      }
+
+      try {
+        const code = await withTO(eth.request({ method: "eth_getCode", params: [me, "latest"] }), 8000, "读账户代码");
+        report.code = code || "0x";
+        if (code && code.toLowerCase().startsWith("0xef0100") && code.length === 48) {
+          $("v7702").innerHTML = `<span class="tag warn">已委托 0x${code.slice(8, 14)}…${code.slice(-4)}</span>`;
+          log("当前钱包已挂 EIP-7702 委托 → 0x" + code.slice(8));
+        } else if (code && code !== "0x") {
+          $("v7702").innerHTML = `<span class="tag warn">合约账户(${(code.length-2)/2}字节)</span>`;
+          log("当前钱包是合约账户");
+        } else {
+          $("v7702").innerHTML = `<span class="tag ok">普通钱包(未挂7702)</span>`;
+          log("当前钱包是干净的普通 EOA（未挂 7702）");
+        }
+      } catch (e) {
+        $("v7702").textContent = "查询失败";
+        log("读账户代码失败: " + (e.message || e));
+      }
+
+      ["btnRunAll", "bCap", "bAuthA", "bAuthB", "b712"].forEach((id) => $(id).disabled = false);
+      $("btnConn").textContent = "已连接";
+    } catch (e) {
+      log("连接中止: " + (e.message || e));
+      $("btnConn").disabled = false;
+    }
+  }
+
+  function errStr(e) {
+    if (!e) return "未知错误";
+    const code = e.code != null ? `[code=${e.code}] ` : "";
+    const data = e.data ? ` data=${JSON.stringify(e.data).slice(0, 120)}` : "";
+    return code + (e.message || String(e)) + data;
+  }
+
+  async function testCap() {
+    log("--- 测 ① wallet_getCapabilities ---");
+    setTag("rCap", "warn", "检测中…");
+    try {
+      const res = await withTO(eth.request({ method: "wallet_getCapabilities", params: [me] }), 8000, "wallet_getCapabilities");
+      const txt = JSON.stringify(res);
+      report.results.capabilities = res;
+      setTag("rCap", "ok", "支持");
+      log("① 支持 wallet_getCapabilities: " + txt.slice(0, 400));
+    } catch (e) {
+      const es = errStr(e);
+      report.results.capabilities = "ERR: " + es;
+      setTag("rCap", "bad", "不支持");
+      log("① 不支持 wallet_getCapabilities: " + es);
+    }
+  }
+
+  async function testAuth(variant) {
+    const id = variant === "A" ? "rAuthA" : "rAuthB";
+    const key = variant === "A" ? "signAuth_address" : "signAuth_contractAddress";
+    const param = variant === "A"
+      ? { address: ZERO, chainId: chainHex, nonce: nonceHex }
+      : { contractAddress: ZERO, chainId: parseInt(chainHex, 16), nonce: parseInt(nonceHex, 16) };
+    log(`--- 测 wallet_signAuthorization (${variant}) params=${JSON.stringify(param)} ---`);
+    setTag(id, "warn", "等弹窗…");
+    try {
+      const res = await withTO(eth.request({ method: "wallet_signAuthorization", params: [param] }), 18000, `wallet_signAuthorization(${variant})`);
+      const txt = JSON.stringify(res);
+      report.results[key] = res;
+      const hasSig = res && (res.r || res.s || res.signature);
+      setTag(id, hasSig ? "ok" : "warn", hasSig ? "支持(已签出)" : "有返回");
+      log(`wallet_signAuthorization(${variant}) 返回: ` + txt.slice(0, 300));
+    } catch (e) {
+      const es = errStr(e);
+      report.results[key] = "ERR: " + es;
+      const rejected = e && (e.code === 4001 || /reject|cancel|denied/i.test(es));
+      setTag(id, rejected ? "ok" : "bad", rejected ? "支持(你点了取消)" : "不支持/报错");
+      log(`wallet_signAuthorization(${variant}) 结果: ` + es + (rejected ? " ← 说明钱包弹出了7702窗口！" : ""));
+    }
+  }
+
+  async function test712() {
+    log("--- 测 ④ eth_signTypedData_v4 (EIP-712 演示签名) ---");
+    setTag("r712", "warn", "等弹窗…");
+    const typed = {
+      types: {
+        EIP712Domain: [
+          { name: "name", type: "string" },
+          { name: "version", type: "string" },
+          { name: "chainId", type: "uint256" },
+        ],
+        ProbeTest: [
+          { name: "note", type: "string" },
+          { name: "timestamp", type: "uint256" },
+        ],
+      },
+      primaryType: "ProbeTest",
+      domain: { name: "Helix7702Probe", version: "1", chainId: parseInt(chainHex, 16) },
+      message: { note: "Only compatibility test, no on-chain effect", timestamp: Math.floor(Date.now() / 1000) },
+    };
+    try {
+      const res = await withTO(eth.request({ method: "eth_signTypedData_v4", params: [me, JSON.stringify(typed)] }), 18000, "eth_signTypedData_v4");
+      report.results.eip712 = typeof res === "string" ? res.slice(0, 26) + "…" : res;
+      setTag("r712", "ok", "支持(已签出)");
+      log("④ EIP-712 成功: " + String(res).slice(0, 42) + "…");
+    } catch (e) {
+      const es = errStr(e);
+      report.results.eip712 = "ERR: " + es;
+      const rejected = e && (e.code === 4001 || /reject|cancel|denied/i.test(es));
+      setTag("r712", rejected ? "ok" : "bad", rejected ? "支持(你点了取消)" : "不支持/报错");
+      log("④ EIP-712 结果: " + es);
+    }
+  }
+
+  async function runAll() {
+    $("btnRunAll").disabled = true;
+    await testCap();
+    await testAuth("A");
+    await testAuth("B");
+    await test712();
+    log("=== 全部检测完成，请点「复制完整诊断报告」发给我 ===");
+    $("btnRunAll").disabled = false;
+  }
+
+  $("btnConn").onclick = connect;
+  $("bCap").onclick = testCap;
+  $("bAuthA").onclick = () => testAuth("A");
+  $("bAuthB").onclick = () => testAuth("B");
+  $("b712").onclick = test712;
+  $("btnRunAll").onclick = runAll;
+  $("btnClear").onclick = () => { logs.length = 0; $("log").textContent = "已清空"; };
+  $("btnCopy").onclick = async () => {
+    const out = "【EIP-7702 钱包检测报告】\n" + JSON.stringify(report, null, 2) + "\n\n【日志】\n" + logs.join("\n");
+    try {
+      await navigator.clipboard.writeText(out);
+      alert("已复制到剪贴板，直接粘贴发给我即可");
+    } catch {
+      prompt("长按全选复制发给我：", out);
+    }
+  };
+
+  initDetect();
+})();
+</script>
+</body>
+</html>
